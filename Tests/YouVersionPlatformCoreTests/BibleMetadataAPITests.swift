@@ -1,0 +1,81 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+import Testing
+@testable import YouVersionPlatformCore
+
+@Suite(.serialized) struct BibleMetadataAPITests {
+
+    @MainActor
+    @Test func metadataSuccessReturnsData() async throws {
+        YouVersionPlatformConfiguration.configure(appKey: "app")
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        let expectedData = """
+        {"id": 206, "title": "Test Version", "abbreviation": "TV", "language_tag": "en"}
+        """.data(using: .utf8)!
+        var capturedRequest: URLRequest?
+
+        HTTPMocking.setHandler(token: token) { request in
+            capturedRequest = request
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (expectedData, response)
+        }
+
+        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 206, session: session)
+
+        #expect(version.id == 206)
+        let request = try #require(capturedRequest)
+        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
+    }
+
+    @MainActor
+    @Test func metadataForbiddenThrowsNotPermitted() async throws {
+        YouVersionPlatformConfiguration.configure(appKey: "app")
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 403, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        await #expect(throws: BibleVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.Bible.version(versionId: 206, session: session)
+        }
+    }
+
+    @MainActor
+    @Test func metadataUnexpectedStatusThrowsCannotDownload() async throws {
+        YouVersionPlatformConfiguration.configure(appKey: "app")
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        await #expect(throws: BibleVersionAPIError.cannotDownload) {
+            _ = try await YouVersionAPI.Bible.version(versionId: 206, session: session)
+        }
+    }
+
+    @MainActor
+    @Test func metadataInvalidResponseThrows() async throws {
+        YouVersionPlatformConfiguration.configure(appKey: "app")
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = URLResponse(url: request.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+            return (Data(), response)
+        }
+
+        await #expect(throws: BibleVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.Bible.version(versionId: 206, session: session)
+        }
+    }
+}

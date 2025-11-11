@@ -1,0 +1,32 @@
+name: Unit Tests
+
+on: [pull_request]
+
+env:
+  XCODE_VERSION: 16.4.0
+  IOS_SIMULATOR_NAME: iPhone 16
+  IOS_SIMULATOR_OS: 18.6
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Display Swift and Xcode versions
+        run: |
+          swift --version
+          xcodebuild -version
+
+      # Build and run unit tests
+      - name: Run tests
+        run: |
+          xcodebuild \
+          -scheme YouVersionPlatform \
+          -destination 'platform=iOS Simulator,name=${{ env.IOS_SIMULATOR_NAME }},OS=${{ env.IOS_SIMULATOR_OS }}' \
+          test
