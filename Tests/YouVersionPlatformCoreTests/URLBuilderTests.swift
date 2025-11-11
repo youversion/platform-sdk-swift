@@ -55,8 +55,8 @@ struct URLBuilderTests {
         // Configure using defaults (no host environment)
         YouVersionPlatformConfiguration.configure(appKey: "app")
 
-        let votd = try #require(URLBuilder.votdURL(versionId: 1))
-        #expect(votd.absoluteString == "https://api.youversion.com/votd/today?version=1")
+        let votd = try #require(URLBuilder.votdURL(dayOfYear: 5))
+        #expect(votd.absoluteString == "https://api.youversion.com/v1/verse_of_the_days/5")
     }
 
     @Test

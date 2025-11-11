@@ -14,7 +14,7 @@ import Testing
         defer { HTTPMocking.clear(token: token) }
 
         let json = """
-        {"human":"John 3:16","abbreviation":"KJV","text":"For God so loved...","copyright":"(c)"}
+        {"day":1,"passage_id":"JHN.3.16"}
         """.data(using: .utf8)!
 
         HTTPMocking.setHandler(token: token) { request in
@@ -22,10 +22,9 @@ import Testing
             return (json, response)
         }
 
-        let v = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 1, session: session)
-        #expect(v.reference == "John 3:16")
-        #expect(v.abbreviation == "KJV")
-        #expect(v.text.contains("For God so loved"))
+        let v = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        #expect(v.passageId == "JHN.3.16")
+        #expect(v.day == 1)
     }
 
     @MainActor
@@ -40,7 +39,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
         }
     }
 
@@ -56,7 +55,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
         }
     }
 
@@ -72,7 +71,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
         }
     }
 
@@ -89,7 +88,7 @@ import Testing
         }
 
         await #expect(throws: URLError.self) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
         }
     }
 
@@ -100,7 +99,7 @@ import Testing
         defer { HTTPMocking.clear(token: token) }
 
         let json = """
-        {"human":"John 3:16","abbreviation":"KJV","text":"For God so loved...","copyright":"(c)"}
+        {"day":99,"passage_id":"MAT.5.1"}
         """.data(using: .utf8)!
         var captured: URLRequest?
 
@@ -110,9 +109,9 @@ import Testing
             return (json, response)
         }
 
-        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(versionId: 99, session: session)
+        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, session: session)
         let req = try #require(captured)
         #expect(req.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
-        #expect(req.url?.absoluteString.contains("version=99") == true)
+        #expect(req.url?.absoluteString.contains("/99") == true)
     }
 }
