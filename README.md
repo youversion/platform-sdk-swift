@@ -158,9 +158,8 @@ Finally, inside your SwiftUI view, add the button and start the login process wh
     LoginWithYouVersionButton {
         Task {
             do {
-                let result = try await YouVersionAPI.Users.logIn(
-                    requiredPermissions: [.bibles],
-                    optionalPermissions: [.highlights],
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: [.bibles, .highlights],
                     contextProvider: contextProvider
                 )
                 accessToken = result.accessToken

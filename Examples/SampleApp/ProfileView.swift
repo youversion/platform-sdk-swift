@@ -33,8 +33,7 @@ struct ProfileView: View {
                     Task {
                         do {
                             let result = try await YouVersionAPI.Users.signIn(
-                                requiredPermissions: [.bibles],
-                                optionalPermissions: [.highlights],
+                                permissions: [.bibles, .highlights],
                                 contextProvider: contextProvider
                             )
                             dump(result)

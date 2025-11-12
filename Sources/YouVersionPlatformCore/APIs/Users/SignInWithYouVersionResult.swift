@@ -2,11 +2,20 @@ import Foundation
 
 public struct SignInWithYouVersionResult: Sendable {
     public let accessToken: String?
+    public let refreshToken: String?
     public let permissions: [SignInWithYouVersionPermission]
     public let errorMsg: String?
     public let yvpUserId: String?
-    
-    public init(url: URL) throws {
+
+    public init(accessToken: String?, refreshToken: String?, permissions: [SignInWithYouVersionPermission], errorMsg: String? = nil, yvpUserId: String?) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+        self.permissions = permissions
+        self.errorMsg = errorMsg
+        self.yvpUserId = yvpUserId
+    }
+
+/*    public init(url: URL) throws {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems else {
             throw URLError(.badServerResponse)
@@ -37,4 +46,5 @@ public struct SignInWithYouVersionResult: Sendable {
             yvpUserId = nil
         }
     }
+ */
 }
