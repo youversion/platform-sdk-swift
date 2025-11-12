@@ -12,7 +12,7 @@ struct BibleReaderSignInView: View, ReaderColors {
 
             Text(String.localized("signIn.introducing"))
                 .font(.caption)
-            Image("YouVersionPlatformLogo", bundle: .YouVersionBundle)
+            Image("YouVersionPlatformLogo", bundle: .YouVersionUIBundle)
                 .resizable()
                 .frame(width: 238 * 2 / scale, height: 20 * 2 / scale)
                 .padding(.bottom, 16)

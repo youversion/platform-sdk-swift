@@ -1,7 +1,7 @@
 import SwiftUI
 
 public extension Bundle {
-    static var YouVersionBundle: Bundle {
+    static var YouVersionUIBundle: Bundle {
         // First try to get the SPM module bundle
          #if SWIFT_PACKAGE
          return Bundle.module

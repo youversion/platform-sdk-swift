@@ -22,7 +22,7 @@ public enum ReaderFonts {
             "UntitledSerifApp-Bold",
             "UntitledSerifApp-BoldItalic"
         ]
-        let bundle = Bundle.module
+        let bundle = Bundle.YouVersionReaderBundle
         for name in fontNames {
             if let url = bundle.url(forResource: name, withExtension: "ttf"),
                let fontDataProvider = CGDataProvider(url: url as CFURL),

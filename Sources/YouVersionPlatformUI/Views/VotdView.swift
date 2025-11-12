@@ -69,7 +69,7 @@ public struct VotdView: View {
     private var textStack: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .top) {
-                Image("votd", bundle: .YouVersionBundle)
+                Image("votd", bundle: .YouVersionUIBundle)
                     .renderingMode(.template)  // to be right in dark mode
                     .resizable()
                     .frame(width: 44, height: 44)
