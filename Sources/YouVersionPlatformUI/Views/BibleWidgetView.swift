@@ -103,7 +103,7 @@ public struct BibleWidgetView: View {
     }
 
     private var bibleAppLogo: some View {
-        Image("BibleAppLogo@4x", bundle: .YouVersionBundle)
+        Image("BibleAppLogo@4x", bundle: .YouVersionUIBundle)
             .resizable()
     }
 
