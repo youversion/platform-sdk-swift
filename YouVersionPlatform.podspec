@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.version      = '0.1.0'
   s.summary      = 'YouVersion Platform features'
   s.homepage     = 'https://github.com/youversion/yvp-swift-sdk'
-  s.license      = { :type => 'Proprietary', :file => 'LICENSE.md' }
+  s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.author       = 'YouVersion'
   s.source       = { :git => 'https://github.com/youversion/yvp-swift-sdk.git', :tag => s.version.to_s }
 
