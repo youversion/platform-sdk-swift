@@ -43,7 +43,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testCreateHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -80,7 +79,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsParsesResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -113,7 +111,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsUnauthorizedReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -132,7 +129,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testDeleteHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -163,7 +159,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testUpdateHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -189,7 +184,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlights204ReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -208,7 +202,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsUnexpectedStatusReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func basicVersionDecodes() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -23,7 +22,7 @@ import Testing
             return (json, resp)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, session: session)
+        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, accessToken: "foo", session: session)
         #expect(version.id == 1)
         #expect(version.title == "Test Version")
         #expect(version.languageTag == "en")
@@ -31,7 +30,6 @@ import Testing
 
     @MainActor
     @Test func versionAggregatesIndexIntoBooks() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -74,7 +72,6 @@ import Testing
 
     @MainActor
     @Test func chapterSuccessParsesContent() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -94,7 +91,6 @@ import Testing
 
     @MainActor
     @Test func chapter403ThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -111,7 +107,6 @@ import Testing
 
     @MainActor
     @Test func chapter500ThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -128,7 +123,6 @@ import Testing
 
     @MainActor
     @Test func chapterInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

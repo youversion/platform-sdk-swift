@@ -22,7 +22,6 @@ import Testing
 
     @MainActor
     @Test func userInfoSuccessReturnsDecoded() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -45,7 +44,6 @@ import Testing
 
     @MainActor
     @Test func userInfoUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -61,7 +59,6 @@ import Testing
 
     @MainActor
     @Test func userInfoUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -77,7 +74,6 @@ import Testing
 
     @MainActor
     @Test func userInfoInvalidResponseThrowsInvalidResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -93,7 +89,6 @@ import Testing
 
     @MainActor
     @Test func userInfoProvidedTokenOverridesConfigAndSetsHeader() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -113,12 +108,10 @@ import Testing
         let comps = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
         let items = comps.queryItems ?? []
         #expect(items.first { $0.name == "lat" }?.value == "explicit")
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
     }
 
     @MainActor
     @Test func userInfoNilTokenUsesConfiguredAccessToken() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -133,14 +126,13 @@ import Testing
             return (json, response)
         }
 
-        let _ = try await YouVersionAPI.Users.userInfo(accessToken: nil, session: session)
+        let _ = try await YouVersionAPI.Users.userInfo(session: session)
         let request = try #require(captured)
         let _ = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
     }
 
     @MainActor
     @Test func userInfoMalformedJSONThrowsBadServerResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

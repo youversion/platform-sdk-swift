@@ -16,11 +16,15 @@ public extension YouVersionAPI {
 
 public extension YouVersionAPI.Bible {
 
-    static func version(versionId: Int, session: URLSession = .shared) async throws -> BibleVersion {
+    static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
+        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            preconditionFailure("accessToken must be set")
+        }
+
         let time1 = Date()
-        let basic = try await basicVersion(versionId: versionId, session: session)
+        let basic = try await basicVersion(versionId: versionId, accessToken: accessToken, session: session)
         let time2 = Date()
-        let index = try await versionIndex(versionId: versionId, session: session)
+        let index = try await versionIndex(versionId: versionId, accessToken: accessToken, session: session)
         let time3 = Date()
 
         let elapsed1 = time2.timeIntervalSince(time1)
@@ -75,48 +79,52 @@ public extension YouVersionAPI.Bible {
     ///   - `BibleVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
     ///   - `BibleVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `BibleVersionAPIError.invalidResponse` if the server response is not valid.
-    static func basicVersion(versionId: Int, session: URLSession = .shared) async throws -> BibleVersion {
+    static func basicVersion(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> BibleVersion {
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionURL(versionId: versionId),
+            accessToken: accessToken,
             session: session
         )
         let responseObject = try JSONDecoder().decode(BibleVersion.self, from: data)
         return responseObject
     }
 
-    private static func versionBooks(versionId: Int, session: URLSession = .shared) async throws -> [BibleVersionBook] {
+    private static func versionBooks(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> [BibleVersionBook] {
         struct BibleVersionBooksResponse: Codable {
             let data: [BibleVersionBook]
         }
 
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionBooksURL(versionId: versionId),
+            accessToken: accessToken,
             session: session
         )
         let response = try JSONDecoder().decode(BibleVersionBooksResponse.self, from: data)
         return response.data
     }
 
-    private static func versionChapters(versionId: Int, book: String, session: URLSession = .shared) async throws -> [BibleChapter] {
+    private static func versionChapters(versionId: Int, book: String, accessToken: String, session: URLSession = .shared) async throws -> [BibleChapter] {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
 
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionBookChaptersURL(versionId: versionId, book: book),
+            accessToken: accessToken,
             session: session
         )
         let response = try JSONDecoder().decode(BibleVersionChaptersResponse.self, from: data)
         return response.data
     }
 
-    private static func versionIndex(versionId: Int, session: URLSession = .shared) async throws -> BibleVersionIndex {
+    private static func versionIndex(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> BibleVersionIndex {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
 
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionIndexURL(versionId: versionId),
+            accessToken: accessToken,
             session: session
         )
         let response = try JSONDecoder().decode(BibleVersionIndex.self, from: data)
@@ -126,12 +134,15 @@ public extension YouVersionAPI.Bible {
     // MARK: - Chapter Content
 
     /// Fetches the content of a single Bible chapter from the server.
-    static func chapter(reference: BibleReference, session: URLSession = .shared) async throws -> String {
+    static func chapter(reference: BibleReference, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            preconditionFailure("accessToken must be set")
+        }
         guard let url = URLBuilder.passageURL(reference: reference, format: "html") else {
             throw URLError(.badURL)
         }
 
-        let request = YouVersionAPI.buildRequest(url: url, session: session)
+        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {

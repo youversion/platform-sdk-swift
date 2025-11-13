@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func metadataSuccessReturnsData() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -24,7 +23,7 @@ import Testing
             return (expectedData, response)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 206, session: session)
+        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 206, accessToken: "foo", session: session)
 
         #expect(version.id == 206)
         let _ = try #require(capturedRequest)
@@ -32,7 +31,6 @@ import Testing
 
     @MainActor
     @Test func metadataForbiddenThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -48,7 +46,6 @@ import Testing
 
     @MainActor
     @Test func metadataUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -64,7 +61,6 @@ import Testing
 
     @MainActor
     @Test func metadataInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

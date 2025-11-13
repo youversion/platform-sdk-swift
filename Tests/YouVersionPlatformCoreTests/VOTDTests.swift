@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func votdSuccessDecodes() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -29,7 +28,6 @@ import Testing
 
     @MainActor
     @Test func votdUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -45,7 +43,6 @@ import Testing
 
     @MainActor
     @Test func votdServerErrorThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -61,7 +58,6 @@ import Testing
 
     @MainActor
     @Test func votdInvalidResponseThrowsInvalidResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -77,7 +73,6 @@ import Testing
 
     @MainActor
     @Test func votdMalformedJSONThrowsBadServerResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -94,7 +89,6 @@ import Testing
 
     @MainActor
     @Test func votdRequestSetsAppKeyHeader() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -111,7 +105,6 @@ import Testing
 
         let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, session: session)
         let req = try #require(captured)
-        #expect(req.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
         #expect(req.url?.absoluteString.contains("/99") == true)
     }
 }

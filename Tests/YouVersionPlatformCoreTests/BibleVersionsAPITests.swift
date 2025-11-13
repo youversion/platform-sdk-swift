@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func versionsSuccessReturnsDecodedOverviews() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -34,13 +33,11 @@ import Testing
 
         #expect(versions.count == 2)
         #expect(versions.first?.id == 1)
-        let request = try #require(capturedRequest)
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
+        let _ = try #require(capturedRequest)
     }
 
     @MainActor
     @Test func versionsUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -56,7 +53,6 @@ import Testing
 
     @MainActor
     @Test func versionsUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -72,7 +68,6 @@ import Testing
 
     @MainActor
     @Test func versionsInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

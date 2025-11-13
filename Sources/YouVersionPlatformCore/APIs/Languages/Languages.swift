@@ -68,12 +68,15 @@ public extension YouVersionAPI {
         ///   - `LanguageAPIError.notPermitted` if the app key is invalid or lacks permission.
         ///   - `LanguageAPIError.cannotDownload` if the server returns an error response.
         ///   - `LanguageAPIError.invalidResponse` if the server response is not valid.
-        public static func languages(country: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
+        public static func languages(country: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
+            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+                preconditionFailure("accessToken must be set")
+            }
             guard let url = URLBuilder.languagesURL(country: country, pageSize: 999) else {
                 throw URLError(.badURL)
             }
 
-            let request = YouVersionAPI.buildRequest(url: url, session: session)
+            let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             let (data, response) = try await session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {

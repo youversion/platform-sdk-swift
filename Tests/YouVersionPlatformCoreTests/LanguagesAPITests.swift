@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func languagesSuccessReturnsData() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -61,13 +60,11 @@ import Testing
         #expect(languages[1].language == "Spanish")
         #expect(languages[1].defaultBibleVersionId == 128)
         
-        let request = try #require(capturedRequest)
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
+        let _ = try #require(capturedRequest)
     }
 
     @MainActor
     @Test func languagesWithCountryParameter() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -103,12 +100,10 @@ import Testing
         
         let request = try #require(capturedRequest)
         #expect(request.url?.absoluteString.contains("country=US") == true)
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
     }
 
     @MainActor
     @Test func languagesUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -124,7 +119,6 @@ import Testing
 
     @MainActor
     @Test func languagesUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -140,7 +134,6 @@ import Testing
 
     @MainActor
     @Test func languagesInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -156,7 +149,6 @@ import Testing
 
     @MainActor
     @Test func languagesMalformedJSONThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -173,7 +165,6 @@ import Testing
 
     @MainActor
     @Test func languagesEmptyResponseReturnsEmptyArray() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

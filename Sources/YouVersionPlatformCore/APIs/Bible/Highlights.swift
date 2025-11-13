@@ -24,6 +24,7 @@ public extension YouVersionAPI {
             bibleId: Int,
             passageId: String,
             color: String,
+            accessToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
             guard let url = URLBuilder.highlightsURL else {
@@ -36,7 +37,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -68,6 +69,7 @@ public extension YouVersionAPI {
         public static func getHighlights(
             bibleId: Int,
             passageId: String,
+            accessToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> [HighlightResponse] {
             guard YouVersionAPI.isSignedIn else {
@@ -80,6 +82,7 @@ public extension YouVersionAPI {
 
             let request = YouVersionAPI.buildRequest(
                 url: url,
+                accessToken: accessToken,
                 session: session,
                 cachePolicy: .reloadIgnoringLocalCacheData
             )
@@ -128,6 +131,7 @@ public extension YouVersionAPI {
             bibleId: Int,
             passageId: String,
             color: String,
+            accessToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
             guard let url = URLBuilder.highlightsURL else {
@@ -140,7 +144,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "PUT"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -170,12 +174,13 @@ public extension YouVersionAPI {
         public static func deleteHighlight(
             bibleId: Int,
             passageId: String,
+            accessToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
             guard let url = URLBuilder.highlightsDeleteURL(bibleId: bibleId, passageId: passageId) else {
                 throw URLError(.badURL)
             }
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "DELETE"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

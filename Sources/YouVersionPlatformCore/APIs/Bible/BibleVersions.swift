@@ -20,13 +20,16 @@ public extension YouVersionAPI.Bible {
     ///   - `BibleVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
     ///   - `BibleVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `BibleVersionAPIError.invalidResponse` if the server response is not valid.
-    static func versions(forLanguageTag languageTag: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
+    static func versions(forLanguageTag languageTag: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
+        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            preconditionFailure("accessToken must be set")
+        }
         let range = languageTag == nil ? [] : [languageTag!]
         guard let url = URLBuilder.versionsURL(language_ranges: range, pageSize: 999) else {
             throw URLError(.badURL)
         }
 
-        let request = YouVersionAPI.buildRequest(url: url, session: session)
+        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {

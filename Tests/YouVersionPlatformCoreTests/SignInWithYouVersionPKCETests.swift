@@ -6,7 +6,6 @@ import Testing
 
     @MainActor
     @Test func makeAuthorizationRequestIncludesVerifierAndQueryItems() throws {
-        YouVersionPlatformConfiguration.configure(appKey: "test-app")
         let redirectURL = URL(string: "youversionauth://callback")!
 
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(

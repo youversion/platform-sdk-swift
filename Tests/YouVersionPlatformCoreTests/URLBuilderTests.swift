@@ -8,7 +8,6 @@ struct URLBuilderTests {
     @Test
     func testAuthURLs() throws {
         // Configure without host environment
-        YouVersionPlatformConfiguration.configure(appKey: "app")
 
         // userURL uses access token query
         let user = try #require(URLBuilder.userURL(accessToken: "token"))
@@ -26,7 +25,6 @@ struct URLBuilderTests {
     @Test
     func testBibleURLs() throws {
         // Configure using defaults (no host environment)
-        YouVersionPlatformConfiguration.configure(appKey: "app")
 
         // Test /v1/bibles endpoints
         let version = try #require(URLBuilder.versionURL(versionId: 2))
@@ -53,7 +51,6 @@ struct URLBuilderTests {
     @Test
     func testVOTDURLs() throws {
         // Configure using defaults (no host environment)
-        YouVersionPlatformConfiguration.configure(appKey: "app")
 
         let votd = try #require(URLBuilder.votdURL(dayOfYear: 5))
         #expect(votd.absoluteString == "https://api.youversion.com/v1/verse_of_the_days/5")
@@ -62,7 +59,6 @@ struct URLBuilderTests {
     @Test
     func testHighlightsURLs() throws {
         // Configure using defaults (no host environment)
-        YouVersionPlatformConfiguration.configure(appKey: "app")
 
         let baseHighlights = try #require(URLBuilder.highlightsURL)
         #expect(baseHighlights.absoluteString == "https://api.youversion.com/v1/highlights")
@@ -77,7 +73,6 @@ struct URLBuilderTests {
     @Test
     func testLanguagesURLs() throws {
         // Configure using defaults (no host environment)
-        YouVersionPlatformConfiguration.configure(appKey: "app")
 
         let languages = try #require(URLBuilder.languagesURL(country: "US"))
         #expect(languages.absoluteString == "https://api.youversion.com/v1/languages?page_size=25&country=US")
