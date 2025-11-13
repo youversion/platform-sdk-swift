@@ -92,20 +92,10 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
     }
 
     public static func tokenURLRequest(
-        location: String,
+        code: String,
         codeVerifier: String,
         redirectUri: String
     ) throws -> URLRequest {
-        guard let locationUrl = URL(string: location),
-              let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
-              let locationQueryItems = locationComponents.queryItems,
-              //locationQueryItems.first(where: { $0.name == "state" })?.value == state,
-              let codeQueryItem = locationQueryItems.first(where: { $0.name == "code" }),
-              let code = codeQueryItem.value
-        else {
-            throw URLError(.badServerResponse)
-        }
-
         let url = URL(string: "https://api-staging.youversion.com/auth/token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

@@ -42,7 +42,15 @@ public extension YouVersionAPI.Users {
                     if let error {
                         continuation.resume(throwing: error)
                     } else if let callbackURL {
-                        performLoopTwo(callbackURL, authorizationRequest: authorizationRequest, continuation: continuation)
+                        do {
+                            let location = try await obtainCode(callbackURL, state: authorizationRequest.parameters.state)
+                            let code = try codeFromLocationURL(location)
+                            let result = try await obtainToken(code: code, codeVerifier: authorizationRequest.parameters.codeVerifier)
+                            //YouVersionPlatformConfiguration.setAccessToken(result.accessToken)
+                            continuation.resume(returning: result)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
                     } else {
                         continuation.resume(throwing: URLError(.badServerResponse))
                     }
@@ -53,95 +61,94 @@ public extension YouVersionAPI.Users {
         }
     }
 
-    @MainActor
-    static func performLoopTwo(
-        _ callbackURL: URL,
-        authorizationRequest: SignInWithYouVersionPKCEAuthorizationRequest,
-        continuation: CheckedContinuation<SignInWithYouVersionResult, Error>
-    ) {
-        do {
-            print("LoopTwo with URL: \(callbackURL)")
-            /*
-             The callbackURL will look like this:
-             youversionauth://callback?profile_picture=whatever.com/t.png&state=Onfdpf&user_email=daf%40xyz.com&user_name=David&yvp_id=c98a
-             */
-            guard var components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
-                  let queryItems = components.queryItems,
-                  queryItems.first(where: { $0.name == "state" })?.value == authorizationRequest.parameters.state
-            else {
-                continuation.resume(throwing: URLError(.badURL))
-                return
-            }
-
-            var newComponents = URLComponents(string: "https://api-staging.youversion.com/auth/callback")!
-            newComponents.queryItems = queryItems  //.filter { $0.name != "state" }
-
-            guard let newURL = newComponents.url else {
-                continuation.resume(throwing: URLError(.badURL))
-                return
-            }
-
-            Task {
-                do {
-                    var request = URLRequest(url: newURL)
-                    request.httpMethod = "GET"
-
-                    let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
-                    let (data, response) = try await session.data(for: request)
-
-                    guard let httpResponse = response as? HTTPURLResponse else {
-                        continuation.resume(throwing: URLError(.badServerResponse))
-                        return
-                    }
-
-                    guard httpResponse.statusCode == 302,
-                          let location = httpResponse.value(forHTTPHeaderField: "Location") else {
-                        continuation.resume(throwing: URLError(.redirectToNonExistentLocation))
-                        return
-                    }
-
-                    await performLoopThree(location: location, authorizationRequest: authorizationRequest, continuation: continuation)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
-        } catch {
-            continuation.resume(throwing: error)
+    static func obtainCode(_ callbackURL: URL, state: String) async throws -> String {
+        /*
+         The callbackURL will look like this:
+         youversionauth://callback?profile_picture=whatever.com/t.png&state=Onfdpf&user_email=daf%40xyz.com&user_name=David&yvp_id=c98a
+         */
+        guard var components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems,
+              queryItems.first(where: { $0.name == "state" })?.value == state
+        else {
+            throw URLError(.badURL)
         }
+
+        var newComponents = URLComponents(string: "https://api-staging.youversion.com/auth/callback")!
+        newComponents.queryItems = queryItems  //.filter { $0.name != "state" }
+        guard let newURL = newComponents.url else {
+            throw URLError(.badURL)
+        }
+
+        var request = URLRequest(url: newURL)
+        request.httpMethod = "GET"
+        let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 302 else {
+            throw URLError(.badServerResponse)
+        }
+        guard let location = httpResponse.value(forHTTPHeaderField: "Location") else {
+            throw URLError(.badServerResponse)
+        }
+        return location
     }
 
-    @MainActor
-    static func performLoopThree(
-        location: String,
-        authorizationRequest: SignInWithYouVersionPKCEAuthorizationRequest,
-        continuation: CheckedContinuation<SignInWithYouVersionResult, Error>
-    ) async {
-        do {
-            print("LoopThree with location: \(location)")
-            let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
-                location: location,
-                codeVerifier: authorizationRequest.parameters.codeVerifier,
-                redirectUri: redirectURL.absoluteString
-            )
+    static func codeFromLocationURL(_ location: String) throws -> String {
+        guard let locationUrl = URL(string: location),
+              let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
+              let locationQueryItems = locationComponents.queryItems,
+              //locationQueryItems.first(where: { $0.name == "state" })?.value == state,
+              let codeQueryItem = locationQueryItems.first(where: { $0.name == "code" }),
+              let code = codeQueryItem.value
+        else {
+            throw URLError(.badServerResponse)
+        }
+        return code
+    }
 
-            print("LoopThree is POSTing: \(request.url?.absoluteString ?? "")")
-            let session = URLSession(configuration: .default)
-            let (data, response) = try await session.data(for: request)
+    static func obtainToken(code: String, codeVerifier: String) async throws -> SignInWithYouVersionResult {
+        let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
+            code: code,
+            codeVerifier: codeVerifier,
+            redirectUri: redirectURL.absoluteString
+        )
 
-            guard let httpResponse = response as? HTTPURLResponse else {
-                continuation.resume(throwing: URLError(.badServerResponse))
-                return
-            }
+        let session = URLSession(configuration: .default)
+        let (data, response) = try await session.data(for: request)
 
-            print("POST response status: \(httpResponse.statusCode)")
-            print("POST response body: \(String(data: data, encoding: .utf8) ?? "")")
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        if httpResponse.statusCode != 200 {
+            print("obtainToken got status: \(httpResponse.statusCode)")
+            throw URLError(.badServerResponse)
+        }
 
-            //let result = try SignInWithYouVersionResult(url: callbackURL)
-            //YouVersionPlatformConfiguration.setAccessToken(result.accessToken)
-            let result = SignInWithYouVersionResult(accessToken: "", refreshToken: "", permissions: [], yvpUserId: "")
-            continuation.resume(returning: result)
-        } catch {
-            continuation.resume(throwing: error)
+        let responseObject = try JSONDecoder().decode(TokenResponse.self, from: data)
+        return SignInWithYouVersionResult(
+            accessToken: responseObject.accessToken,
+            expiresIn: responseObject.expiresIn,
+            refreshToken: responseObject.refreshToken,
+            permissions: [],
+            yvpUserId: ""
+        )
+    }
+
+    struct TokenResponse: Codable, Sendable, Equatable {
+        public let accessToken: String
+        public let expiresIn: String
+        public let idToken: String
+        public let refreshToken: String
+        public let scope: String
+        public let tokenType: String
+
+        enum CodingKeys: String, CodingKey {
+            case accessToken = "access_token"
+            case expiresIn = "expires_in"
+            case idToken = "id_token"
+            case refreshToken = "refresh_token"
+            case scope
+            case tokenType = "token_type"
         }
     }
 

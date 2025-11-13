@@ -2,13 +2,16 @@ import Foundation
 
 public struct SignInWithYouVersionResult: Sendable {
     public let accessToken: String?
+    public let expiryDate: Date?
     public let refreshToken: String?
     public let permissions: [SignInWithYouVersionPermission]
     public let errorMsg: String?
     public let yvpUserId: String?
 
-    public init(accessToken: String?, refreshToken: String?, permissions: [SignInWithYouVersionPermission], errorMsg: String? = nil, yvpUserId: String?) {
+    public init(accessToken: String?, expiresIn: String?, refreshToken: String?, permissions: [SignInWithYouVersionPermission], errorMsg: String? = nil, yvpUserId: String?) {
         self.accessToken = accessToken
+        let seconds = Int(expiresIn ?? "0") ?? 0
+        self.expiryDate = Date(timeIntervalSinceNow: TimeInterval(seconds))
         self.refreshToken = refreshToken
         self.permissions = permissions
         self.errorMsg = errorMsg
