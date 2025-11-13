@@ -71,7 +71,7 @@ public extension YouVersionAPI.Users {
          The callbackURL will look like this:
          youversionauth://callback?profile_picture=whatever.com/t.png&state=Onfdpf&user_email=daf%40xyz.com&user_name=David&yvp_id=c98a
          */
-        guard var components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+        guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
               let queryItems = components.queryItems,
               queryItems.first(where: { $0.name == "state" })?.value == state
         else {
@@ -88,7 +88,7 @@ public extension YouVersionAPI.Users {
         request.httpMethod = "GET"
         let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
 
-        let (data, response) = try await session.data(for: request)
+        let (_, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 302 else {
             throw URLError(.badServerResponse)
         }
@@ -134,11 +134,10 @@ public extension YouVersionAPI.Users {
 
     static func extractSignInWithYouVersionResult(from tokens: TokenResponse) throws -> SignInWithYouVersionResult {
         let idClaims = try decodeJWT(tokens.idToken)
-        let permissions: [SignInWithYouVersionPermission] = []
-        let perms = tokens.scope
+        let permissions = tokens.scope
             .split(separator: ",")
             .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
-        var result = SignInWithYouVersionResult(
+        return SignInWithYouVersionResult(
             accessToken: tokens.accessToken,
             expiresIn: tokens.expiresIn,
             refreshToken: tokens.refreshToken,
@@ -148,7 +147,6 @@ public extension YouVersionAPI.Users {
             profilePicture: idClaims["profile_picture"] as? String,
             email: idClaims["email"] as? String,
         )
-        return result
     }
 
     static func decodeJWT(_ token: String) throws -> [String: Any] {

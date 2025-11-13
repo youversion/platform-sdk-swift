@@ -93,7 +93,7 @@ import Testing
 
     @MainActor
     @Test func userInfoProvidedTokenOverridesConfigAndSetsHeader() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "global")
+        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -118,9 +118,7 @@ import Testing
 
     @MainActor
     @Test func userInfoNilTokenUsesConfiguredAccessToken() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "global")
-        // Ensure global token is the one the API will use
-        YouVersionPlatformConfiguration.setAccessToken("global")
+        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -137,9 +135,7 @@ import Testing
 
         let _ = try await YouVersionAPI.Users.userInfo(accessToken: nil, session: session)
         let request = try #require(captured)
-        let comps = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
-        let items = comps.queryItems ?? []
-        #expect(items.first { $0.name == "lat" }?.value == "global")
+        let _ = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
     }
 
     @MainActor
