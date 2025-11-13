@@ -14,15 +14,18 @@ echo "IMPORTANT: Pods will be published in dependency order"
 # Publish in dependency order: Core -> UI -> Reader -> Platform
 echo ""
 echo "Step 1/4: Publishing YouVersionPlatformCore..."
-pod trunk push YouVersionPlatformCore.podspec --allow-warnings
+# Uncomment the following line to publish the podspec
+# pod trunk push YouVersionPlatformCore.podspec --allow-warnings
 
 echo ""
 echo "Step 2/4: Publishing YouVersionPlatformUI..."
-pod trunk push YouVersionPlatformUI.podspec --allow-warnings
+# Uncomment the following line to publish the podspec
+# pod trunk push YouVersionPlatformUI.podspec --allow-warnings
 
 echo ""
 echo "Step 3/4: Publishing YouVersionPlatformReader..."
-pod trunk push YouVersionPlatformReader.podspec --allow-warnings
+# Uncomment the following line to publish the podspec
+# pod trunk push YouVersionPlatformReader.podspec --allow-warnings
 
 echo ""
 echo "Step 4/4: Publishing YouVersionPlatform (Dry-Run)..."
