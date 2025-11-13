@@ -73,7 +73,7 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             URLQueryItem(name: "nonce", value: parameters.nonce),
             URLQueryItem(name: "state", value: parameters.state),
             URLQueryItem(name: "code_challenge", value: parameters.codeChallenge),
-            URLQueryItem(name: "code_challenge_method", value: "S256"),
+            URLQueryItem(name: "code_challenge_method", value: "S256")
         ]
 
         if let installId = YouVersionPlatformConfiguration.installId {

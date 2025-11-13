@@ -190,7 +190,7 @@ public extension YouVersionAPI.Users {
 private final class RedirectDisabler: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
                     newRequest request: URLRequest) async -> URLRequest? {
-        return nil // disable following redirects
+        nil // disable following redirects
     }
 }
 
