@@ -4,6 +4,8 @@ import Foundation
 import YouVersionPlatformCore
 
 public extension YouVersionAPI.Users {
+    static let redirectURL = URL(string: "youversionauth://callback")!
+
     /// Presents the YouVersion login flow to the user and returns the login result upon completion.
     ///
     /// This function uses `ASWebAuthenticationSession` to authenticate the user with YouVersion, requesting the specified required and optional permissions.
@@ -24,8 +26,6 @@ public extension YouVersionAPI.Users {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             preconditionFailure("YouVersionPlatformConfiguration.appKey must be set")
         }
-
-        let redirectURL = URL(string: "youversionauth://callback")!
 
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
@@ -48,9 +48,6 @@ public extension YouVersionAPI.Users {
                     }
                 }
             }
-            // TODO: add the install id here once the server handles it.
-            //let request = URLRequest.youVersion(url)
-            //session.additionalHeaderFields = request.allHTTPHeaderFields
             session.presentationContextProvider = contextProvider
             session.start()
         }
@@ -121,7 +118,11 @@ public extension YouVersionAPI.Users {
     ) async {
         do {
             print("LoopThree with location: \(location)")
-            let request = try makeLoopThreeUrl(location: location, authorizationRequest: authorizationRequest)
+            let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
+                location: location,
+                codeVerifier: authorizationRequest.parameters.codeVerifier,
+                redirectUri: redirectURL.absoluteString
+            )
 
             print("LoopThree is POSTing: \(request.url?.absoluteString ?? "")")
             let session = URLSession(configuration: .default)
@@ -144,43 +145,6 @@ public extension YouVersionAPI.Users {
         }
     }
 
-    static func getCodeFromLoopThreeUrl(location: String) -> String? {
-        guard let locationUrl = URL(string: location),
-            let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
-              let locationQueryItems = locationComponents.queryItems,
-              //queryItems.first(where: { $0.name == "state" })?.value == state,
-              let codeQueryItem = locationQueryItems.first(where: { $0.name == "code" })
-        else {
-            return nil
-        }
-        
-        return codeQueryItem.value
-    }
-
-    static func makeLoopThreeUrl(
-        location: String,
-        authorizationRequest: SignInWithYouVersionPKCEAuthorizationRequest
-    ) throws -> URLRequest {
-        guard let code = getCodeFromLoopThreeUrl(location: location) else {
-            throw URLError(.badServerResponse)
-        }
-        let url = URL(string: "https://api-staging.youversion.com/auth/token")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        let redirectURL = "youversionauth://callback"
-        let parameters: [String: String] = [
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": redirectURL,
-            "client_id": YouVersionPlatformConfiguration.appKey ?? "",
-            "code_verifier": authorizationRequest.parameters.codeVerifier
-        ]
-        let bodyString = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }
-                                   .joined(separator: "&")
-        request.httpBody = bodyString.data(using: .utf8)
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        return request
-    }
 }
 
 private final class RedirectDisabler: NSObject, URLSessionDelegate, URLSessionTaskDelegate {

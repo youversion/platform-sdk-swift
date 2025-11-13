@@ -74,26 +74,53 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             URLQueryItem(name: "state", value: parameters.state),
             URLQueryItem(name: "code_challenge", value: parameters.codeChallenge),
             URLQueryItem(name: "code_challenge_method", value: "S256"),
-            //URLQueryItem(name: "app_id", value: appKey)
         ]
 
         if let installId = YouVersionPlatformConfiguration.installId {
             queryItems.append(URLQueryItem(name: "x-yvp-installation-id", value: installId))
         }
-
         if let scopeValue = scopeValue(permissions: permissions) {
             queryItems.append(URLQueryItem(name: "scope", value: scopeValue))
         }
 
-        //queryItems.append(URLQueryItem(name: "language", value: "en"))
-
         components.queryItems = queryItems
-
         guard let url = components.url else {
             throw SignInWithYouVersionPKCEAuthorizationError.unableToConstructAuthorizeURL
         }
 
         return url
+    }
+
+    public static func tokenURLRequest(
+        location: String,
+        codeVerifier: String,
+        redirectUri: String
+    ) throws -> URLRequest {
+        guard let locationUrl = URL(string: location),
+              let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
+              let locationQueryItems = locationComponents.queryItems,
+              //locationQueryItems.first(where: { $0.name == "state" })?.value == state,
+              let codeQueryItem = locationQueryItems.first(where: { $0.name == "code" }),
+              let code = codeQueryItem.value
+        else {
+            throw URLError(.badServerResponse)
+        }
+
+        let url = URL(string: "https://api-staging.youversion.com/auth/token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let parameters: [String: String] = [
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirectUri,
+            "client_id": YouVersionPlatformConfiguration.appKey ?? "",
+            "code_verifier": codeVerifier
+        ]
+        let bodyString = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }
+                                   .joined(separator: "&")
+        request.httpBody = bodyString.data(using: .utf8)
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        return request
     }
 
     private static func randomURLSafeString(byteCount: Int) throws -> String {
