@@ -43,10 +43,15 @@ public extension YouVersionAPI.Users {
                         continuation.resume(throwing: error)
                     } else if let callbackURL {
                         do {
-                            let location = try await obtainCode(callbackURL, state: authorizationRequest.parameters.state)
-                            let code = try codeFromLocationURL(location)
-                            let result = try await obtainToken(code: code, codeVerifier: authorizationRequest.parameters.codeVerifier)
-                            //YouVersionPlatformConfiguration.setAccessToken(result.accessToken)
+                            let location = try await obtainLocation(from: callbackURL, state: authorizationRequest.parameters.state)
+                            let code = try obtainCode(from: location)
+                            let tokens = try await obtainTokens(from: code, codeVerifier: authorizationRequest.parameters.codeVerifier)
+                            let result = try extractSignInWithYouVersionResult(from: tokens)
+                            YouVersionPlatformConfiguration.saveAuthData(
+                                accessToken: result.accessToken,
+                                refreshToken: result.refreshToken,
+                                expiryDate: result.expiryDate
+                            )
                             continuation.resume(returning: result)
                         } catch {
                             continuation.resume(throwing: error)
@@ -61,7 +66,7 @@ public extension YouVersionAPI.Users {
         }
     }
 
-    static func obtainCode(_ callbackURL: URL, state: String) async throws -> String {
+    static func obtainLocation(from callbackURL: URL, state: String) async throws -> String {
         /*
          The callbackURL will look like this:
          youversionauth://callback?profile_picture=whatever.com/t.png&state=Onfdpf&user_email=daf%40xyz.com&user_name=David&yvp_id=c98a
@@ -93,7 +98,7 @@ public extension YouVersionAPI.Users {
         return location
     }
 
-    static func codeFromLocationURL(_ location: String) throws -> String {
+    static func obtainCode(from location: String) throws -> String {
         guard let locationUrl = URL(string: location),
               let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
               let locationQueryItems = locationComponents.queryItems,
@@ -106,7 +111,7 @@ public extension YouVersionAPI.Users {
         return code
     }
 
-    static func obtainToken(code: String, codeVerifier: String) async throws -> SignInWithYouVersionResult {
+    static func obtainTokens(from code: String, codeVerifier: String) async throws -> TokenResponse {
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
             code: code,
             codeVerifier: codeVerifier,
@@ -124,14 +129,44 @@ public extension YouVersionAPI.Users {
             throw URLError(.badServerResponse)
         }
 
-        let responseObject = try JSONDecoder().decode(TokenResponse.self, from: data)
-        return SignInWithYouVersionResult(
-            accessToken: responseObject.accessToken,
-            expiresIn: responseObject.expiresIn,
-            refreshToken: responseObject.refreshToken,
-            permissions: [],
-            yvpUserId: ""
+        return try JSONDecoder().decode(TokenResponse.self, from: data)
+    }
+
+    static func extractSignInWithYouVersionResult(from tokens: TokenResponse) throws -> SignInWithYouVersionResult {
+        let idClaims = try decodeJWT(tokens.idToken)
+        let permissions: [SignInWithYouVersionPermission] = []
+        let perms = tokens.scope
+            .split(separator: ",")
+            .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+        var result = SignInWithYouVersionResult(
+            accessToken: tokens.accessToken,
+            expiresIn: tokens.expiresIn,
+            refreshToken: tokens.refreshToken,
+            permissions: permissions,
+            yvpUserId: idClaims["sub"] as? String,
+            name: idClaims["sub"] as? String,
+            profilePicture: idClaims["profile_picture"] as? String,
+            email: idClaims["email"] as? String,
         )
+        return result
+    }
+
+    static func decodeJWT(_ token: String) throws -> [String: Any] {
+        let segments = token.split(separator: ".")
+        guard segments.count == 3 else {
+            return [:]
+        }
+        var base64 = String(segments[1])
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        while base64.count % 4 != 0 {
+            base64.append("=")
+        }
+        guard let data = Data(base64Encoded: base64),
+              let ret = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return [:]
+        }
+        return ret
     }
 
     struct TokenResponse: Codable, Sendable, Equatable {

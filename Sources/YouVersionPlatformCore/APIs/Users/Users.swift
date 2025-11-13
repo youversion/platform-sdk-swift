@@ -8,7 +8,7 @@ public extension YouVersionAPI {
 
         @MainActor
         public static func signOut() {
-            YouVersionPlatformConfiguration.setAccessToken(nil)
+            YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
         /// Retrieves user information for the authenticated user using the provided access token.
