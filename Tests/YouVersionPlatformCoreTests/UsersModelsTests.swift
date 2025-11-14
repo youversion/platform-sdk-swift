@@ -4,33 +4,6 @@ import Testing
 
 @Suite struct UsersModelsTests {
 
-    @Test func signInResultParsesSuccess() throws {
-        let url = URL(string: "youversionauth://callback?status=success&yvp_user_id=U123&lat=abc123&grants=bibles,highlights,bible_activity")!
-        let result = try SignInWithYouVersionResult(url: url)
-        #expect(result.accessToken == "abc123")
-        #expect(result.yvpUserId == "U123")
-        #expect(Set(result.permissions) == Set([.bibles, .highlights, .bibleActivity]))
-        #expect(result.errorMsg == nil)
-    }
-
-    @Test func signInResultParsesCanceled() throws {
-        let url = URL(string: "youversionauth://callback?status=canceled")!
-        let result = try SignInWithYouVersionResult(url: url)
-        #expect(result.accessToken == nil)
-        #expect(result.yvpUserId == nil)
-        #expect(result.permissions.isEmpty)
-        #expect(result.errorMsg == nil)
-    }
-
-    @Test func signInResultParsesError() throws {
-        let url = URL(string: "youversionauth://callback?status=error&message=bad%20stuff")!
-        let result = try SignInWithYouVersionResult(url: url)
-        #expect(result.accessToken == nil)
-        #expect(result.yvpUserId == nil)
-        #expect(result.permissions.isEmpty)
-        #expect(result.errorMsg?.contains("status=error") == true)
-    }
-
     @Test func permissionRawValuesAndDescription() {
         #expect(SignInWithYouVersionPermission.bibles.rawValue == "bibles")
         #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")

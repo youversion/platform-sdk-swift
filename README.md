@@ -171,26 +171,22 @@ class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding
 Then add the login button to your SwiftUI view:
 
 ```swift
-import YouVersionPlatform
-
-struct LoginView: View {
-    @State private var contextProvider = ContextProvider()
-    @State private var accessToken: String?
-
-    var body: some View {
-        LoginWithYouVersionButton {
-            Task {
-                do {
-                    let result = try await YouVersionAPI.Users.logIn(
-                        requiredPermissions: [.bibles],
-                        optionalPermissions: [.highlights],
-                        contextProvider: contextProvider
-                    )
-                    accessToken = result.accessToken
-                    // Store the token securely (e.g., in Keychain)
-                } catch {
-                    print("Login failed: \(error)")
-                }
+    LoginWithYouVersionButton {
+        Task {
+            do {
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: [.bibles, .highlights],
+                    contextProvider: contextProvider
+                )
+                accessToken = result.accessToken
+                dump(result)
+                // The user is logged in and you have an access token!
+                // Now you can use the token in YouVersion Platform API calls.
+                // You should save the token locally so the user doesn't have to log in again next time.
+                // You may examine the "permissions" parameter to see what the user approved;
+                // e.g. perhaps they didn't grant access for your app to see their highlights.
+            } catch {
+                print(error)
             }
         }
     }

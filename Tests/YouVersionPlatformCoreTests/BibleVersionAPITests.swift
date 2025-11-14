@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func basicVersionDecodes() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -23,7 +22,7 @@ import Testing
             return (json, resp)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, session: session)
+        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, accessToken: "swift-test-suite", session: session)
         #expect(version.id == 1)
         #expect(version.title == "Test Version")
         #expect(version.languageTag == "en")
@@ -31,7 +30,6 @@ import Testing
 
     @MainActor
     @Test func versionAggregatesIndexIntoBooks() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -65,7 +63,7 @@ import Testing
             }
         }
 
-        let v = try await YouVersionAPI.Bible.version(versionId: 1, session: session)
+        let v = try await YouVersionAPI.Bible.version(versionId: 1, accessToken: "swift-test-suite", session: session)
         #expect(v.id == 1)
         #expect(v.textDirection == "ltr")
         let gen = v.books?.first
@@ -74,7 +72,6 @@ import Testing
 
     @MainActor
     @Test func chapterSuccessParsesContent() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -88,13 +85,12 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        let html = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+        let html = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         #expect(html == "<div>ok</div>")
     }
 
     @MainActor
     @Test func chapter403ThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -104,14 +100,13 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+        await #expect(throws: YouVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func chapter500ThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -121,14 +116,13 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func chapterInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -138,8 +132,8 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 }

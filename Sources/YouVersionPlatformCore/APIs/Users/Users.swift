@@ -8,7 +8,7 @@ public extension YouVersionAPI {
 
         @MainActor
         public static func signOut() {
-            YouVersionPlatformConfiguration.setAccessToken(nil)
+            YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
         /// Retrieves user information for the authenticated user using the provided access token.
@@ -21,9 +21,9 @@ public extension YouVersionAPI {
         /// - Returns: A ``YouVersionUserInfo`` object containing the user's profile information.
         ///
         /// - Throws: An error if the URL is invalid, the network request fails, or the response cannot be decoded.
-        public static func userInfo(accessToken providedToken: String?, session: URLSession = .shared) async throws -> YouVersionUserInfo {
+        public static func userInfo(accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionUserInfo {
             guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                preconditionFailure("accessToken must be set")
+                throw YouVersionAPIError.missingAuthentication
             }
             
             if accessToken == "preview" {
@@ -32,6 +32,7 @@ public extension YouVersionAPI {
             
             let data = try await YouVersionAPI.commonFetch(
                 url: URLBuilder.userURL(accessToken: accessToken),
+                accessToken: accessToken, 
                 session: session
             )
 

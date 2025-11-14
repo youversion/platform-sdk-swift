@@ -22,7 +22,6 @@ import Testing
 
     @MainActor
     @Test func userInfoSuccessReturnsDecoded() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -35,7 +34,7 @@ import Testing
             return (json, response)
         }
 
-        let info = try await YouVersionAPI.Users.userInfo(accessToken: "token", session: session)
+        let info = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         #expect(info.userId == "u1")
         #expect(info.firstName == "Alice")
         #expect(info.lastName == "Doe")
@@ -45,7 +44,6 @@ import Testing
 
     @MainActor
     @Test func userInfoUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -54,14 +52,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Users.userInfo(accessToken: "token", session: session)
+        await #expect(throws: YouVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func userInfoUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -70,14 +67,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Users.userInfo(accessToken: "token", session: session)
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
+            _ = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func userInfoInvalidResponseThrowsInvalidResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -86,65 +82,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Users.userInfo(accessToken: "token", session: session)
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         }
-    }
-
-    @MainActor
-    @Test func userInfoProvidedTokenOverridesConfigAndSetsHeader() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "global")
-        let (session, token) = HTTPMocking.makeSession()
-        defer { HTTPMocking.clear(token: token) }
-
-        let json = """
-        {"id":"u2","first_name":"Bob","last_name":"Ross"}
-        """.data(using: .utf8)!
-        var captured: URLRequest?
-
-        HTTPMocking.setHandler(token: token) { request in
-            captured = request
-            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (json, response)
-        }
-
-        let _ = try await YouVersionAPI.Users.userInfo(accessToken: "explicit", session: session)
-        let request = try #require(captured)
-        let comps = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
-        let items = comps.queryItems ?? []
-        #expect(items.first { $0.name == "lat" }?.value == "explicit")
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
-    }
-
-    @MainActor
-    @Test func userInfoNilTokenUsesConfiguredAccessToken() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "global")
-        // Ensure global token is the one the API will use
-        YouVersionPlatformConfiguration.setAccessToken("global")
-        let (session, token) = HTTPMocking.makeSession()
-        defer { HTTPMocking.clear(token: token) }
-
-        let json = """
-        {"id":"u3","first_name":"Carol","last_name":"Danvers"}
-        """.data(using: .utf8)!
-        var captured: URLRequest?
-
-        HTTPMocking.setHandler(token: token) { request in
-            captured = request
-            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (json, response)
-        }
-
-        let _ = try await YouVersionAPI.Users.userInfo(accessToken: nil, session: session)
-        let request = try #require(captured)
-        let comps = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
-        let items = comps.queryItems ?? []
-        #expect(items.first { $0.name == "lat" }?.value == "global")
     }
 
     @MainActor
     @Test func userInfoMalformedJSONThrowsBadServerResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -155,7 +99,7 @@ import Testing
         }
 
         await #expect(throws: URLError.self) {
-            _ = try await YouVersionAPI.Users.userInfo(accessToken: "token", session: session)
+            _ = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         }
     }
 }
