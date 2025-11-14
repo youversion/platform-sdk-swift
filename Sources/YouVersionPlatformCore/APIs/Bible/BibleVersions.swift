@@ -17,31 +17,34 @@ public extension YouVersionAPI.Bible {
     ///
     /// - Throws:
     ///   - `URLError` if the URL is invalid.
-    ///   - `BibleVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
-    ///   - `BibleVersionAPIError.cannotDownload` if the server returns an error response.
-    ///   - `BibleVersionAPIError.invalidResponse` if the server response is not valid.
-    static func versions(forLanguageTag languageTag: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
+    ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
+    static func versions(forLanguageTag languageTag: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
+        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            throw YouVersionAPIError.missingAuthentication
+        }
         let range = languageTag == nil ? [] : [languageTag!]
         guard let url = URLBuilder.versionsURL(language_ranges: range, pageSize: 999) else {
             throw URLError(.badURL)
         }
 
-        let request = YouVersionAPI.buildRequest(url: url, session: session)
+        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             print("unexpected response type")
-            throw BibleVersionAPIError.invalidResponse
+            throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 401 {
             print("error 401: unauthorized. Check your appKey")
-            throw BibleVersionAPIError.notPermitted
+            throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
             print("error in findVersions: \(httpResponse.statusCode)")
-            throw BibleVersionAPIError.cannotDownload
+            throw YouVersionAPIError.cannotDownload
         }
 
         let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)

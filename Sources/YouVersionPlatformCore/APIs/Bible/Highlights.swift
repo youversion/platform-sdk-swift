@@ -24,8 +24,12 @@ public extension YouVersionAPI {
             bibleId: Int,
             passageId: String,
             color: String,
+            accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
+            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+                throw YouVersionAPIError.missingAuthentication
+            }
             guard let url = URLBuilder.highlightsURL else {
                 throw URLError(.badURL)
             }
@@ -36,7 +40,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -68,10 +72,11 @@ public extension YouVersionAPI {
         public static func getHighlights(
             bibleId: Int,
             passageId: String,
+            accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> [HighlightResponse] {
-            guard YouVersionAPI.isSignedIn else {
-                return []
+            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+                throw YouVersionAPIError.missingAuthentication
             }
 
             guard let url = URLBuilder.highlightsURL(bibleId: bibleId, passageId: passageId) else {
@@ -80,6 +85,7 @@ public extension YouVersionAPI {
 
             let request = YouVersionAPI.buildRequest(
                 url: url,
+                accessToken: accessToken,
                 session: session,
                 cachePolicy: .reloadIgnoringLocalCacheData
             )
@@ -128,8 +134,12 @@ public extension YouVersionAPI {
             bibleId: Int,
             passageId: String,
             color: String,
+            accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
+            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+                throw YouVersionAPIError.missingAuthentication
+            }
             guard let url = URLBuilder.highlightsURL else {
                 throw URLError(.badURL)
             }
@@ -140,7 +150,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "PUT"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -170,12 +180,16 @@ public extension YouVersionAPI {
         public static func deleteHighlight(
             bibleId: Int,
             passageId: String,
+            accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
+            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+                throw YouVersionAPIError.missingAuthentication
+            }
             guard let url = URLBuilder.highlightsDeleteURL(bibleId: bibleId, passageId: passageId) else {
                 throw URLError(.badURL)
             }
-            var request = YouVersionAPI.buildRequest(url: url, session: session)
+            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "DELETE"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

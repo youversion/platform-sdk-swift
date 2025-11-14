@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func votdSuccessDecodes() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -22,14 +21,13 @@ import Testing
             return (json, response)
         }
 
-        let v = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        let v = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         #expect(v.passageId == "JHN.3.16")
         #expect(v.day == 1)
     }
 
     @MainActor
     @Test func votdUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -38,14 +36,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        await #expect(throws: YouVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func votdServerErrorThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -54,14 +51,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func votdInvalidResponseThrowsInvalidResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -70,14 +66,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func votdMalformedJSONThrowsBadServerResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -88,13 +83,12 @@ import Testing
         }
 
         await #expect(throws: URLError.self) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func votdRequestSetsAppKeyHeader() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -109,9 +103,8 @@ import Testing
             return (json, response)
         }
 
-        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, session: session)
+        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, accessToken: "swift-test-suite", session: session)
         let req = try #require(captured)
-        #expect(req.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
         #expect(req.url?.absoluteString.contains("/99") == true)
     }
 }

@@ -94,7 +94,7 @@ final class BibleReaderViewModel: ReaderColors {
                 if let version {
                     self.myVersions.insert(version)
                 }
-            } catch BibleVersionAPIError.notPermitted {
+            } catch YouVersionAPIError.notPermitted {
                 await selectFallbackVersion(savedIds: savedIds)
             } catch {
                 print("Error loading default version: \(error)")

@@ -15,7 +15,7 @@ public struct VotdView: View {
 
     public var body: some View {
         Group {
-            if let reference {
+            if reference != nil {
                 textStack
                     .padding()
                     .foregroundStyle(backgroundUrl == nil ? Color.primary : Color.white)  // background images are dark

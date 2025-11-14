@@ -43,7 +43,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testCreateHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -62,6 +61,7 @@ extension URLRequest {
             bibleId: 1,
             passageId: "GEN.1.1",
             color: "FF00FF",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -80,7 +80,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsParsesResponse() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -98,6 +97,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.9",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -113,7 +113,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsUnauthorizedReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -125,6 +124,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)
@@ -132,7 +132,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testDeleteHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -147,6 +146,7 @@ extension URLRequest {
         let success = try await YouVersionAPI.Highlights.deleteHighlight(
             bibleId: 1,
             passageId: "GEN.5.7",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -163,7 +163,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testUpdateHighlightSuccess() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -179,6 +178,7 @@ extension URLRequest {
             bibleId: 1,
             passageId: "GEN.1.1",
             color: "ABCDEF",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -189,7 +189,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlights204ReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -201,6 +200,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)
@@ -208,7 +208,6 @@ extension URLRequest {
 
     @MainActor
     @Test func testGetHighlightsUnexpectedStatusReturnsEmpty() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app", accessToken: "token")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -220,6 +219,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)
