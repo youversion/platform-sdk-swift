@@ -8,7 +8,7 @@ public enum YouVersionAPI {
         YouVersionPlatformConfiguration.accessToken != nil
     }
 
-    static func commonFetch(url: URL?, accessToken: String, session: URLSession) async throws -> Data {
+    static func commonFetch(url: URL?, accessToken: String?, session: URLSession) async throws -> Data {
         guard let url else {
             throw URLError(.badURL)
         }

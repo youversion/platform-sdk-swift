@@ -63,10 +63,8 @@ public extension YouVersionAPI {
         ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
         /// - Returns: An array of LanguageOverview objects.
         public static func languages(country: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                throw YouVersionAPIError.missingAuthentication
-            }
-            guard let url = URLBuilder.languagesURL(country: country, pageSize: 999) else {
+            let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+            guard let url = URLBuilder.languagesURL(country: country, pageSize: 99) else {
                 throw URLError(.badURL)
             }
 

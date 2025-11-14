@@ -24,7 +24,7 @@ import Testing
             capturedRequest = request
             let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
             let queryItems = components?.queryItems ?? []
-            #expect(queryItems.contains(where: { $0.name == "language_ranges" && $0.value == "en" }))
+            #expect(queryItems.contains(where: { $0.name == "language_ranges[]" && $0.value == "en" }))
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (json, response)
         }

@@ -36,8 +36,8 @@ struct URLBuilderTests {
         let bookChapters = try #require(URLBuilder.versionBookChaptersURL(versionId: 1, book: "GEN"))
         #expect(bookChapters.absoluteString == "https://api.youversion.com/v1/bibles/1/books/GEN/chapters")
 
-        let versions = try #require(URLBuilder.versionsURL(language_ranges: ["en"]))
-        #expect(versions.absoluteString == "https://api.youversion.com/v1/bibles?language_ranges=en&page_size=25")
+        let versions = try #require(URLBuilder.versionsURL(languageRanges: ["en"]))
+        #expect(versions.absoluteString == "https://api.youversion.com/v1/bibles?language_ranges%5B%5D=en&page_size=25")
 
         // Test /v1/bibles/{versionId}/passages endpoints
         let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
