@@ -23,7 +23,7 @@ public extension YouVersionAPI {
         /// - Throws: An error if the URL is invalid, the network request fails, or the response cannot be decoded.
         public static func userInfo(accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionUserInfo {
             guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                preconditionFailure("accessToken must be set")
+                throw YouVersionAPIError.missingAuthentication
             }
             
             if accessToken == "preview" {

@@ -24,7 +24,7 @@ public extension YouVersionAPI.Users {
         contextProvider: ASWebAuthenticationPresentationContextProviding
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
-            preconditionFailure("YouVersionPlatformConfiguration.appKey must be set")
+            throw YouVersionAPIError.missingAuthentication
         }
 
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(

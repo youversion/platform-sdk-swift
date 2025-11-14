@@ -112,7 +112,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Languages.languages(session: session)
         }
     }
@@ -127,7 +127,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.cannotDownload) {
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
             _ = try await YouVersionAPI.Languages.languages(session: session)
         }
     }
@@ -142,7 +142,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.invalidResponse) {
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
             _ = try await YouVersionAPI.Languages.languages(session: session)
         }
     }

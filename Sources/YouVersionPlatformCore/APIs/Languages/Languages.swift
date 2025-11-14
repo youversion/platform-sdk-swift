@@ -62,15 +62,9 @@ public extension YouVersionAPI {
         ///     used in that country will be returned.
         ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
         /// - Returns: An array of LanguageOverview objects.
-        ///
-        /// - Throws:
-        ///   - `URLError` if the URL is invalid.
-        ///   - `LanguageAPIError.notPermitted` if the app key is invalid or lacks permission.
-        ///   - `LanguageAPIError.cannotDownload` if the server returns an error response.
-        ///   - `LanguageAPIError.invalidResponse` if the server response is not valid.
         public static func languages(country: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
             guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                preconditionFailure("accessToken must be set")
+                throw YouVersionAPIError.missingAuthentication
             }
             guard let url = URLBuilder.languagesURL(country: country, pageSize: 999) else {
                 throw URLError(.badURL)
@@ -81,17 +75,17 @@ public extension YouVersionAPI {
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("unexpected response type")
-                throw LanguageAPIError.invalidResponse
+                throw YouVersionAPIError.invalidResponse
             }
 
             if httpResponse.statusCode == 401 {
                 print("error 401: unauthorized. Check your appKey")
-                throw LanguageAPIError.notPermitted
+                throw YouVersionAPIError.notPermitted
             }
 
             guard httpResponse.statusCode == 200 else {
                 print("error in languages: \(httpResponse.statusCode)")
-                throw LanguageAPIError.cannotDownload
+                throw YouVersionAPIError.cannotDownload
             }
 
             let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
@@ -102,10 +96,4 @@ public extension YouVersionAPI {
             let data: [LanguageOverview]
         }
     }
-}
-
-public enum LanguageAPIError: Error, Sendable {
-    case notPermitted
-    case cannotDownload
-    case invalidResponse
 }

@@ -19,7 +19,7 @@ public extension YouVersionAPI {
         ///   - `URLError.badServerResponse` if the server response could not be decoded.
         public static func verseOfTheDay(dayOfYear: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionVerseOfTheDay {
             guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                preconditionFailure("accessToken must be set")
+                throw YouVersionAPIError.missingAuthentication
             }
 
             let data = try await YouVersionAPI.commonFetch(

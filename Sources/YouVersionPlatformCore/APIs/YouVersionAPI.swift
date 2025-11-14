@@ -18,17 +18,17 @@ public enum YouVersionAPI {
 
         guard let httpResponse = response as? HTTPURLResponse else {
             print("YouVersionAPI: unexpected response type")
-            throw BibleVersionAPIError.invalidResponse
+            throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
             print("from server: \(httpResponse.statusCode)")
-            throw BibleVersionAPIError.notPermitted
+            throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
             print("from server: \(httpResponse.statusCode)")
-            throw BibleVersionAPIError.cannotDownload
+            throw YouVersionAPIError.cannotDownload
         }
         return data
     }
@@ -65,4 +65,12 @@ public enum YouVersionAPI {
 
         return request
     }
+}
+
+public enum YouVersionAPIError: Error, Sendable {
+    case missingAuthentication
+    case notPermitted
+    case cannotDownload
+    case invalidDownload
+    case invalidResponse
 }

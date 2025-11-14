@@ -36,7 +36,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
@@ -51,7 +51,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.cannotDownload) {
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
@@ -66,7 +66,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: BibleVersionAPIError.invalidResponse) {
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }

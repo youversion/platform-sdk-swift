@@ -3,13 +3,6 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public enum BibleVersionAPIError: Error {
-    case cannotDownload
-    case invalidDownload
-    case notPermitted
-    case invalidResponse
-}
-
 public extension YouVersionAPI {
     enum Bible {}
 }
@@ -18,7 +11,7 @@ public extension YouVersionAPI.Bible {
 
     static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
         guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-            preconditionFailure("accessToken must be set")
+            throw YouVersionAPIError.missingAuthentication
         }
 
         let time1 = Date()
@@ -76,9 +69,9 @@ public extension YouVersionAPI.Bible {
     ///
     /// - Throws:
     ///   - `URLError` if the URL is invalid.
-    ///   - `BibleVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
-    ///   - `BibleVersionAPIError.cannotDownload` if the server returns an error response.
-    ///   - `BibleVersionAPIError.invalidResponse` if the server response is not valid.
+    ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
     static func basicVersion(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> BibleVersion {
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionURL(versionId: versionId),
@@ -136,7 +129,7 @@ public extension YouVersionAPI.Bible {
     /// Fetches the content of a single Bible chapter from the server.
     static func chapter(reference: BibleReference, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
         guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-            preconditionFailure("accessToken must be set")
+            throw YouVersionAPIError.missingAuthentication
         }
         guard let url = URLBuilder.passageURL(reference: reference, format: "html") else {
             throw URLError(.badURL)
@@ -147,23 +140,23 @@ public extension YouVersionAPI.Bible {
 
         guard let httpResponse = response as? HTTPURLResponse else {
             print("unexpected response type")
-            throw BibleVersionAPIError.invalidResponse
+            throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 403 {
             print("Not permitted; check your appKey and its entitlements.")
-            throw BibleVersionAPIError.notPermitted
+            throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
             print("error \(httpResponse.statusCode) while fetching an html chapter")
-            throw BibleVersionAPIError.cannotDownload
+            throw YouVersionAPIError.cannotDownload
         }
 
         let object = try JSONSerialization.jsonObject(with: data, options: [])
         guard let json = object as? [String: Any],
               let content = json["content"] as? String else {
-            throw BibleVersionAPIError.invalidDownload
+            throw YouVersionAPIError.invalidDownload
         }
 
         return content

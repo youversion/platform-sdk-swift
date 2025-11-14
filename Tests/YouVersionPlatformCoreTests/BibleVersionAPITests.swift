@@ -100,7 +100,7 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
@@ -116,7 +116,7 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.cannotDownload) {
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
@@ -132,7 +132,7 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        await #expect(throws: BibleVersionAPIError.invalidResponse) {
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }

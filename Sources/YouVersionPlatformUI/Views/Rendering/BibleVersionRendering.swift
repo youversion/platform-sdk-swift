@@ -7,7 +7,7 @@ import YouVersionPlatformCore
 public enum BibleVersionRendering {
 
     /// Returns nil if the chapter data is unavailable (e.g. we're offline).
-    /// Throws BibleVersionAPIError.notPermitted if access to the Bible version is denied.
+    /// Throws YouVersionAPIError.notPermitted if access to the Bible version is denied.
     public static func plainTextOf(_ reference: BibleReference) async throws -> String? {
         // the fonts aren't used in this case, but are required.
         let familyName = "Times New Roman"
@@ -22,8 +22,8 @@ public enum BibleVersionRendering {
                 return nil
             }
             return blocks.map { String($0.text.characters) }.joined(separator: "\n")
-        } catch BibleVersionAPIError.notPermitted {
-            throw BibleVersionAPIError.notPermitted
+        } catch YouVersionAPIError.notPermitted {
+            throw YouVersionAPIError.notPermitted
         } catch {
             return nil
         }
@@ -56,8 +56,8 @@ public enum BibleVersionRendering {
                 node = try? BibleTextNode.parse(data)
             }
             rootNode = node
-        } catch BibleVersionAPIError.notPermitted {
-            throw BibleVersionAPIError.notPermitted
+        } catch YouVersionAPIError.notPermitted {
+            throw YouVersionAPIError.notPermitted
         } catch {
             return nil
         }
