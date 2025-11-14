@@ -10,7 +10,7 @@ public extension URLRequest {
     /// - Returns: A URLRequest with standard headers set.
     static func youVersion(
         _ url: URL,
-        accessToken: String? = nil,
+        accessToken providedToken: String? = nil,
         cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
     ) -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: cachePolicy)
@@ -20,9 +20,7 @@ public extension URLRequest {
         if let installId = YouVersionPlatformConfiguration.installId {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")
         }
-        if let accessToken {
-            request.setValue(accessToken, forHTTPHeaderField: "X-YV-LAT")
-        } else if let accessToken = YouVersionPlatformConfiguration.accessToken {
+        if let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
             request.setValue(accessToken, forHTTPHeaderField: "X-YV-LAT")
         }
         return request
