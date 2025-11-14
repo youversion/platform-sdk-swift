@@ -38,7 +38,7 @@ public enum URLBuilder {
 
     public static func organizationsURL(id: String) -> URL? {
         var components = baseURLComponents
-        components.path = "/organizations/{id}"
+        components.path = "/v1/organizations/\(id)"
         return components.url
     }
 

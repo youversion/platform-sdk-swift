@@ -46,7 +46,7 @@ public struct Organization: Codable, Sendable, Equatable {
 public extension YouVersionAPI {
     enum Organizations {
 
-        public static func organizations(id: String, session: URLSession = .shared) async throws -> Organization {
+        public static func organization(id: String, session: URLSession = .shared) async throws -> Organization {
             guard let url = URLBuilder.organizationsURL(id: id) else {
                 throw URLError(.badURL)
             }
