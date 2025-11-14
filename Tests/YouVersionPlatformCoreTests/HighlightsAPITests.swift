@@ -61,6 +61,7 @@ extension URLRequest {
             bibleId: 1,
             passageId: "GEN.1.1",
             color: "FF00FF",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -96,6 +97,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.9",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -122,6 +124,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)
@@ -143,6 +146,7 @@ extension URLRequest {
         let success = try await YouVersionAPI.Highlights.deleteHighlight(
             bibleId: 1,
             passageId: "GEN.5.7",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -174,6 +178,7 @@ extension URLRequest {
             bibleId: 1,
             passageId: "GEN.1.1",
             color: "ABCDEF",
+            accessToken: "swift-test-suite",
             session: session
         )
 
@@ -195,6 +200,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)
@@ -213,6 +219,7 @@ extension URLRequest {
         let highlights = try await YouVersionAPI.Highlights.getHighlights(
             bibleId: 1,
             passageId: "GEN.1",
+            accessToken: "swift-test-suite",
             session: session
         )
         #expect(highlights.isEmpty)

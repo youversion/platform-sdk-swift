@@ -50,7 +50,7 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(session: session)
+        let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
 
         #expect(languages.count == 2)
         #expect(languages[0].id == "en")
@@ -113,7 +113,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -128,7 +128,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -143,7 +143,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -159,7 +159,7 @@ import Testing
         }
 
         await #expect(throws: DecodingError.self) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -176,7 +176,7 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(session: session)
+        let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         #expect(languages.isEmpty)
     }
 
