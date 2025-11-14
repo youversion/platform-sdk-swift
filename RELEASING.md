@@ -91,7 +91,7 @@ pod trunk me
 
 Add the token to repository secrets as `COCOAPODS_TRUNK_TOKEN`.
 
-## Testing Locally
+## Testing Release Steps Locally
 
 ### Test commitlint
 
@@ -114,7 +114,7 @@ npx semantic-release --dry-run
 
 ```bash
 # Test updating to version 1.2.3 (won't actually publish)
-bash scripts/update-versions.sh 1.2.3
+bash scripts/update-pod-versions.sh 1.2.3
 ```
 
 ## Version Synchronization
@@ -126,7 +126,7 @@ All 4 podspecs are kept in sync:
 - `YouVersionPlatformReader.podspec` (depends on UI)
 - `YouVersionPlatform.podspec` (umbrella, depends on all)
 
-The `update-versions.sh` script ensures:
+The `update-pod-versions.sh` script ensures:
 - All podspecs get the same version number
 - Inter-pod dependencies reference the correct version
 
@@ -145,7 +145,7 @@ If you need to release manually:
 
 ```bash
 # 1. Update versions
-bash scripts/update-versions.sh 1.2.3
+bash scripts/update-pod-versions.sh 1.2.3
 
 # 2. Update CHANGELOG.md manually
 

@@ -15,12 +15,6 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -35,12 +29,18 @@ jobs:
       - name: Install CocoaPods
         run: gem install cocoapods
 
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Install npm dependencies
         run: npm ci
 
       - name: Verify scripts are executable
         run: |
-          chmod +x scripts/update-versions.sh
+          chmod +x scripts/update-pod-versions.sh
           chmod +x scripts/publish-pods.sh
 
       - name: Setup Git

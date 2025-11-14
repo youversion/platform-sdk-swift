@@ -14,7 +14,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "bash scripts/update-versions.sh ${nextRelease.version}",
+        "prepareCmd": "bash scripts/update-pod-versions.sh ${nextRelease.version}",
         "publishCmd": "bash scripts/publish-pods.sh ${nextRelease.version}"
       }
     ],

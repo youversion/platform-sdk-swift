@@ -96,12 +96,7 @@ struct YourApp: App {
     init() {
         YouVersionPlatform.configure(appKey: "YOUR_APP_KEY_HERE")
     }
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
+    var body: some Scene {...
 }
 ```
 
@@ -181,8 +176,8 @@ struct LoginView: View {
         LoginWithYouVersionButton {
             Task {
                 do {
-                    let result = try await YouVersionAPI.Users.logIn(
-                        requiredPermissions: [.bibles],
+                    let result = try await YouVersionAPI.Users.signIn(
+                        permissions: [.bibles, .highlights],
                         optionalPermissions: [.highlights],
                         contextProvider: contextProvider
                     )
@@ -197,21 +192,14 @@ struct LoginView: View {
 }
 ```
 
-> **Important**: Store the access token securely in the Keychain. The token persists user authentication across app launches.
+> **Note**: The SDK stores the access token securely in the Keychain, and the token persists user authentication across app launches.  Deleting or losing the access token is the equivalent of "logging out".
 
 ### Fetching User Data
 
 Retrieve information about the authenticated user:
 
 ```swift
-private func loadUserInfo(accessToken: String) async {
-    do {
-        let info = try await YouVersionAPI.Users.userInfo(accessToken: accessToken)
-        print("Welcome, \(info.firstName)!")
-    } catch {
-        print("Failed to load user info: \(error)")
-    }
-}
+// Implementation TBD - this information will be included in response tokens in the future.
 ```
 
 ### Displaying Verse of the Day
