@@ -93,7 +93,7 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(country: "US", session: session)
+        let languages = try await YouVersionAPI.Languages.languages(country: "US", accessToken: "swift-test-suite", session: session)
 
         #expect(languages.count == 1)
         #expect(languages[0].id == "en")

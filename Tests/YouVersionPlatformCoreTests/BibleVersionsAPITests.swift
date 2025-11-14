@@ -29,7 +29,7 @@ import Testing
             return (json, response)
         }
 
-        let versions = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", session: session)
+        let versions = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
 
         #expect(versions.count == 2)
         #expect(versions.first?.id == 1)
@@ -47,7 +47,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", session: session)
+            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -62,7 +62,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", session: session)
+            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -77,7 +77,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", session: session)
+            _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
 }

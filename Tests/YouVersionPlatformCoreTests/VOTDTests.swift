@@ -21,7 +21,7 @@ import Testing
             return (json, response)
         }
 
-        let v = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+        let v = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         #expect(v.passageId == "JHN.3.16")
         #expect(v.day == 1)
     }
@@ -37,7 +37,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -52,7 +52,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -67,7 +67,7 @@ import Testing
         }
 
         await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -83,7 +83,7 @@ import Testing
         }
 
         await #expect(throws: URLError.self) {
-            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, session: session)
+            _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -103,7 +103,7 @@ import Testing
             return (json, response)
         }
 
-        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, session: session)
+        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, accessToken: "swift-test-suite", session: session)
         let req = try #require(captured)
         #expect(req.url?.absoluteString.contains("/99") == true)
     }

@@ -22,7 +22,7 @@ import Testing
             return (json, resp)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, accessToken: "foo", session: session)
+        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, accessToken: "swift-test-suite", session: session)
         #expect(version.id == 1)
         #expect(version.title == "Test Version")
         #expect(version.languageTag == "en")
@@ -63,7 +63,7 @@ import Testing
             }
         }
 
-        let v = try await YouVersionAPI.Bible.version(versionId: 1, session: session)
+        let v = try await YouVersionAPI.Bible.version(versionId: 1, accessToken: "swift-test-suite", session: session)
         #expect(v.id == 1)
         #expect(v.textDirection == "ltr")
         let gen = v.books?.first
@@ -85,7 +85,7 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-        let html = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+        let html = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         #expect(html == "<div>ok</div>")
     }
 
@@ -101,7 +101,7 @@ import Testing
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
         await #expect(throws: BibleVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -117,7 +117,7 @@ import Testing
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
         await #expect(throws: BibleVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -133,7 +133,7 @@ import Testing
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
         await #expect(throws: BibleVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Bible.chapter(reference: ref, session: session)
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }
 }
