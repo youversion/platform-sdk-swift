@@ -121,17 +121,17 @@ public actor ChapterDownloadCache {
 
         guard let httpResponse = response as? HTTPURLResponse else {
             print("downloadVersionBundle: unexpected response type")
-            throw BibleVersionAPIError.invalidResponse
+            throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 401 {
             print("downloadVersionBundle: 401 Unauthorized (possibly a bad appKey, or the user has not granted permission)")
-            throw BibleVersionAPIError.notPermitted
+            throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
             print("error \(httpResponse.statusCode) while downloading a version")
-            throw BibleVersionAPIError.cannotDownload
+            throw YouVersionAPIError.cannotDownload
         }
 
         var cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
@@ -223,11 +223,11 @@ public actor BibleChapterRepository: ObservableObject {
     public func download(version: BibleVersion) async throws {
         guard let accessToken = YouVersionPlatformConfiguration.accessToken else {
             print("download: not logged in")
-            throw BibleVersionAPIError.notPermitted
+            throw YouVersionAPIError.notPermitted
         }
         guard let build = version.offline?.build?.max else {
             print("no build info")
-            throw BibleVersionAPIError.cannotDownload
+            throw YouVersionAPIError.cannotDownload
         }
         do {
             try await downloadCache.downloadVersionBundle(

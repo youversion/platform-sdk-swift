@@ -9,7 +9,6 @@ import Testing
 
     @MainActor
     @Test func languagesSuccessReturnsData() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -51,7 +50,7 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(session: session)
+        let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
 
         #expect(languages.count == 2)
         #expect(languages[0].id == "en")
@@ -61,13 +60,11 @@ import Testing
         #expect(languages[1].language == "Spanish")
         #expect(languages[1].defaultBibleVersionId == 128)
         
-        let request = try #require(capturedRequest)
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
+        let _ = try #require(capturedRequest)
     }
 
     @MainActor
     @Test func languagesWithCountryParameter() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -96,19 +93,17 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(country: "US", session: session)
+        let languages = try await YouVersionAPI.Languages.languages(country: "US", accessToken: "swift-test-suite", session: session)
 
         #expect(languages.count == 1)
         #expect(languages[0].id == "en")
         
         let request = try #require(capturedRequest)
         #expect(request.url?.absoluteString.contains("country=US") == true)
-        #expect(request.value(forHTTPHeaderField: "x-yvp-app-key") == "app")
     }
 
     @MainActor
     @Test func languagesUnauthorizedThrowsNotPermitted() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -117,14 +112,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+        await #expect(throws: YouVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func languagesUnexpectedStatusThrowsCannotDownload() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -133,14 +127,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func languagesInvalidResponseThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -149,14 +142,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: LanguageAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+        await #expect(throws: YouVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func languagesMalformedJSONThrows() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -167,13 +159,12 @@ import Testing
         }
 
         await #expect(throws: DecodingError.self) {
-            _ = try await YouVersionAPI.Languages.languages(session: session)
+            _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func languagesEmptyResponseReturnsEmptyArray() async throws {
-        YouVersionPlatformConfiguration.configure(appKey: "app")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -185,7 +176,7 @@ import Testing
             return (responseData, response)
         }
 
-        let languages = try await YouVersionAPI.Languages.languages(session: session)
+        let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         #expect(languages.isEmpty)
     }
 
