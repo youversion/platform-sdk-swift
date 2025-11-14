@@ -51,7 +51,8 @@ public extension YouVersionAPI.Bible {
             title: basic.title,
             bookCodes: fullBooks.compactMap { $0.usfm },
             books: fullBooks,
-            textDirection: index.text_direction
+            textDirection: index.text_direction,
+            organizationId: basic.organizationId
         )
     }
 

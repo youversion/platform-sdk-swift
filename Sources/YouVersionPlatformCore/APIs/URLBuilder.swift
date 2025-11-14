@@ -36,6 +36,12 @@ public enum URLBuilder {
         return components.url
     }
 
+    public static func organizationsURL(id: String) -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1/organizations/\(id)"
+        return components.url
+    }
+
     public static func votdURL(dayOfYear: Int) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/verse_of_the_days/\(dayOfYear)"
