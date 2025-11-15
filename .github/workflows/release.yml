@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: false
+
+      - name: Install CocoaPods
+        run: gem install cocoapods
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify scripts are executable
+        run: |
+          chmod +x scripts/update-pod-versions.sh
+          chmod +x scripts/publish-pods.sh
+
+      - name: Setup Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+          GIT_AUTHOR_NAME: "github-actions[bot][release]"
+          GIT_AUTHOR_EMAIL: "github-actions[bot][release]@users.noreply.github.com"
+          GIT_COMMITTER_NAME: "github-actions[bot][release]"
+          GIT_COMMITTER_EMAIL: "github-actions[bot][release]@users.noreply.github.com"
+        run: npx semantic-release
