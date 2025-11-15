@@ -15,6 +15,7 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     public let bookCodes: [String]?
     public let books: [BibleBook]?
     public let textDirection: String?
+    public let organizationId: String?
 
     // TEMPORARY:
     public let requiresEmailAgreement = false
@@ -33,6 +34,7 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
         case bookCodes = "books"
         case books = "BibleBooks"  // not expected to be received
         case textDirection = "text_direction"
+        case organizationId = "organization_id"
     }
 
     public static func == (lhs: BibleVersion, rhs: BibleVersion) -> Bool {
@@ -127,7 +129,8 @@ The King James Version (KJV) of the holy Bible was first printed in 1611, but th
             title: "King James Version",
             bookCodes: nil,
             books: nil,
-            textDirection: "ltr"
+            textDirection: "ltr",
+            organizationId: "1234-abcd-4321-fedc-0123456789ab"
         )
     }
 }

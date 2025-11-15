@@ -10,9 +10,7 @@ public extension YouVersionAPI {
 public extension YouVersionAPI.Bible {
 
     static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
-        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-            throw YouVersionAPIError.missingAuthentication
-        }
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
         let time1 = Date()
         let basic = try await basicVersion(versionId: versionId, accessToken: accessToken, session: session)
@@ -53,7 +51,8 @@ public extension YouVersionAPI.Bible {
             title: basic.title,
             bookCodes: fullBooks.compactMap { $0.usfm },
             books: fullBooks,
-            textDirection: index.text_direction
+            textDirection: index.text_direction,
+            organizationId: basic.organizationId
         )
     }
 
@@ -72,7 +71,7 @@ public extension YouVersionAPI.Bible {
     ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
-    static func basicVersion(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> BibleVersion {
+    static func basicVersion(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
         let data = try await YouVersionAPI.commonFetch(
             url: URLBuilder.versionURL(versionId: versionId),
             accessToken: accessToken,
@@ -82,7 +81,7 @@ public extension YouVersionAPI.Bible {
         return responseObject
     }
 
-    private static func versionBooks(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> [BibleVersionBook] {
+    private static func versionBooks(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> [BibleVersionBook] {
         struct BibleVersionBooksResponse: Codable {
             let data: [BibleVersionBook]
         }
@@ -96,7 +95,7 @@ public extension YouVersionAPI.Bible {
         return response.data
     }
 
-    private static func versionChapters(versionId: Int, book: String, accessToken: String, session: URLSession = .shared) async throws -> [BibleChapter] {
+    private static func versionChapters(versionId: Int, book: String, accessToken: String?, session: URLSession = .shared) async throws -> [BibleChapter] {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
@@ -110,7 +109,7 @@ public extension YouVersionAPI.Bible {
         return response.data
     }
 
-    private static func versionIndex(versionId: Int, accessToken: String, session: URLSession = .shared) async throws -> BibleVersionIndex {
+    private static func versionIndex(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersionIndex {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
@@ -128,9 +127,7 @@ public extension YouVersionAPI.Bible {
 
     /// Fetches the content of a single Bible chapter from the server.
     static func chapter(reference: BibleReference, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
-        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-            throw YouVersionAPIError.missingAuthentication
-        }
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         guard let url = URLBuilder.passageURL(reference: reference, format: "html") else {
             throw URLError(.badURL)
         }

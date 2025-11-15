@@ -41,10 +41,11 @@ struct BibleReaderMyVersionsListItem: View, ReaderColors, AbbreviationSplitting 
             }
 
             VStack(alignment: .leading) {
-                // TEMPORARY until the API returns it
-//                Text(item.publisher?.localName ?? item.publisher?.name ?? "")
-//                    .font(.caption2)
-//                    .foregroundStyle(viewModel.readerTextMutedColor)
+                if let id = item.organizationId {
+                    Text(viewModel.organizationName(id: id) ?? "")
+                        .font(.caption2)
+                        .foregroundStyle(viewModel.readerTextMutedColor)
+                }
                 Text(item.localizedTitle ?? item.localizedAbbreviation ?? String(item.id))
                     .font(.body)
                     .layoutPriority(1)

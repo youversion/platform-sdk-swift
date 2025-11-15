@@ -88,17 +88,21 @@ struct BibleReaderVersionInfoView: View, ReaderColors {
     }
 
     private func publisherLine(for version: BibleVersion) -> String {
-        // TEMPORARY
-        let publisherName = "PUBLISHER_HERE" // version.publisher?.localName ?? ""
+        let publisherName: String?
+        if let id = version.organizationId {
+            publisherName = viewModel.organizationName(id: id)
+        } else {
+            publisherName = nil
+        }
         let bundleSizeText = bundleSize
 
-        if let bundleSizeText, !publisherName.isEmpty {
+        if let bundleSizeText, let publisherName {
             return String(
                 format: .localized("versionInfo.publisherWithSizeFormat"),
                 publisherName,
                 bundleSizeText
             )
-        } else if !publisherName.isEmpty {
+        } else if let publisherName {
             return publisherName
         } else {
             return bundleSizeText ?? ""

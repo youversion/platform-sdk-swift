@@ -21,11 +21,9 @@ public extension YouVersionAPI.Bible {
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
     static func versions(forLanguageTag languageTag: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
-        guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-            throw YouVersionAPIError.missingAuthentication
-        }
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let range = languageTag == nil ? [] : [languageTag!]
-        guard let url = URLBuilder.versionsURL(language_ranges: range, pageSize: 999) else {
+        guard let url = URLBuilder.versionsURL(languageRanges: range, pageSize: 99) else {
             throw URLError(.badURL)
         }
 

@@ -332,4 +332,18 @@ final class BibleReaderViewModel: ReaderColors {
     var versionsPickerStack: [VersionsPickerScreen] = []
 
     var selectedVersion: BibleVersion?
+
+    var organizationInfo: [String: Organization] = [:]
+
+    func organizationName(id: String) -> String? {
+        guard let org = organizationInfo[id] else {
+            Task {
+                if let data = try? await YouVersionAPI.Organizations.organization(id: id) {
+                    organizationInfo[id] = data
+                }
+            }
+            return nil
+        }
+        return org.name
+    }
 }
