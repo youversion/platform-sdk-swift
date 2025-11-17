@@ -5,7 +5,7 @@
   "description": "YouVersion Platform SDK for Swift",
   "repository": {
     "type": "git",
-    "url": "https://github.com/youversion/platform-sdk-swift.git"
+    "url": "git@github.com:youversion/platform-sdk-swift.git"
   },
   "scripts": {
     "semantic-release": "semantic-release",
