@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
           # Persist credentials for future commit (write)
           # persist-credentials: false
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          ssh-key: ${{ secrets.RELEASE_SSH_KEY }}
 
       - name: Install npm dependencies
         run: npm ci
