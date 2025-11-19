@@ -18,21 +18,9 @@ public enum URLBuilder {
         return components.url
     }
 
-    public static func authURL(
-        appKey: String,
-        requiredPermissions: Set<SignInWithYouVersionPermission> = [],
-        optionalPermissions: Set<SignInWithYouVersionPermission> = []
-    ) -> URL? {
+    static func authRefreshURL() -> URL? {
         var components = baseURLComponents
-        components.path = "/auth/login"
-        // this data must be in query params since it's not a normal API call.
-        components.queryItems = [
-            URLQueryItem(name: "app_id", value: appKey),
-            URLQueryItem(name: "language", value: "en"),  // TODO load from the system
-            URLQueryItem(name: "required_perms", value: requiredPermissions.map { $0.rawValue }.joined(separator: ",")),
-            URLQueryItem(name: "opt_perms", value: optionalPermissions.map { $0.rawValue }.joined(separator: ",")),
-            URLQueryItem(name: "x-yvp-installation-id", value: YouVersionPlatformConfiguration.installId)
-        ]
+        components.path = "/auth/token"
         return components.url
     }
 
