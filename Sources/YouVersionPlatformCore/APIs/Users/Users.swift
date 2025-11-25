@@ -92,8 +92,9 @@ public extension YouVersionAPI {
                 .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
-                expiresIn: tokens.expiresIn,
+                expiresIn: "60",  // TEMPORARY FOR DEBUGGING //expiresIn: tokens.expiresIn,
                 refreshToken: tokens.refreshToken,
+                idToken: tokens.idToken,
                 permissions: permissions,
                 yvpUserId: idClaims["sub"] as? String,
                 name: idClaims["sub"] as? String,
@@ -143,10 +144,11 @@ public extension YouVersionAPI {
 
         public static func performRefresh(
             with refreshToken: String,
+            idToken: String?,
             session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
             /*
-             curl -i -v 'https://api-staging.youversion.com/auth/token' \
+             curl -i -v 'https://api.youversion.com/auth/token' \
              -X POST \
              -H "x-yvp-app-key: $YVP_APP_KEY" \
              -H "x-yvp-installation-id: $YVP_INSTALL_ID" \
@@ -190,8 +192,9 @@ public extension YouVersionAPI {
             }
             return SignInWithYouVersionResult(
                 accessToken: decodedResponse.accessToken,
-                expiresIn: decodedResponse.expiresIn,
+                expiresIn: "60",  // TEMPORARY FOR DEBUGGING //decodedResponse.expiresIn,
                 refreshToken: decodedResponse.refreshToken,
+                idToken: idToken,
                 permissions: [],
                 yvpUserId: nil
             )

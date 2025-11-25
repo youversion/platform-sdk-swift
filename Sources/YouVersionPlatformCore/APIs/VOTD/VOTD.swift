@@ -18,11 +18,12 @@ public extension YouVersionAPI {
         ///   - `URLError.badURL` if the URL could not be constructed.
         ///   - `URLError.badServerResponse` if the server response could not be decoded.
         public static func verseOfTheDay(dayOfYear: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionVerseOfTheDay {
-            let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+            
+            //let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
             let data = try await YouVersionAPI.commonFetch(
                 url: URLBuilder.votdURL(dayOfYear: dayOfYear),
-                accessToken: accessToken,
+                accessToken: nil, //accessToken,
                 session: session
             )
             guard let decodedResponse = try? JSONDecoder().decode(YouVersionVerseOfTheDay.self, from: data) else {

@@ -9,6 +9,7 @@ public struct YouVersionPlatformConfiguration {
 
     private static let accessTokenKey = "YouVersionPlatformAccessToken"
     private static let refreshTokenKey = "YouVersionPlatformRefreshToken"
+    private static let idTokenKey = "YouVersionPlatformIDToken"
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
 
     @MainActor
@@ -35,27 +36,39 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    public static func saveAuthData(accessToken: String?, refreshToken: String?, expiryDate: Date?) {
+    public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?) {
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
+        UserDefaults.standard.set(idToken, forKey: idTokenKey)
         UserDefaults.standard.set(expiryDate, forKey: expiryDateKey)
     }
 
     @MainActor
     public static func clearAuthTokens() {
-        saveAuthData(accessToken: nil, refreshToken: nil, expiryDate: nil)
+        saveAuthData(accessToken: nil, refreshToken: nil, idToken: nil, expiryDate: nil)
     }
 
     public static var accessToken: String? {
         UserDefaults.standard.string(forKey: accessTokenKey)
     }
 
-    public static var refreshToken: String? {
-        UserDefaults.standard.string(forKey: refreshTokenKey)
-    }
+    public static var authData: SignInWithYouVersionResult? {
+        guard
+            let accessToken = UserDefaults.standard.string(forKey: accessTokenKey),
+            let refreshToken = UserDefaults.standard.string(forKey: refreshTokenKey),
+            let expiryDate = UserDefaults.standard.object(forKey: expiryDateKey) as? Date
+        else {
+            return nil
+        }
 
-    public static var tokenExpiryDate: Date? {
-        UserDefaults.standard.object(forKey: expiryDateKey) as? Date
+        let idToken = UserDefaults.standard.string(forKey: idTokenKey)
+
+        return SignInWithYouVersionResult(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            idToken: idToken,
+            expiryDate: expiryDate
+        )
     }
 
 }

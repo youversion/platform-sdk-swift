@@ -133,7 +133,7 @@ final class BibleReaderViewModel: ReaderColors {
             if let version = versions.first(where: { $0.languageTag == "en" }) {
                 return version.id
             }
-            
+
             if let version = versions.first {
                 return version.id
             }
@@ -214,7 +214,7 @@ final class BibleReaderViewModel: ReaderColors {
     }
 
     // MARK: Colors
-    
+
     var readerCanvasPrimaryColor: Color {
         colorTheme?.background ?? (colorTheme?.colorScheme != .dark ? readerWhiteColor : readerBlackColor)
     }
@@ -236,7 +236,17 @@ final class BibleReaderViewModel: ReaderColors {
     var showSignOutConfirmation = false
 
     func updateSignInState() {
-        isSignedIn = YouVersionAPI.isSignedIn
+        Task {
+            let hasValidToken: Bool
+            do {
+                hasValidToken = try await YouVersionAPI.hasValidToken()
+            } catch {
+                hasValidToken = false
+            }
+            await MainActor.run {
+                isSignedIn = hasValidToken
+            }
+        }
     }
 
     func signIn() {
