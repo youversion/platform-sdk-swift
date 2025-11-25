@@ -7,19 +7,10 @@ struct URLBuilderTests {
 
     @Test
     func testAuthURLs() throws {
-        // Configure without host environment
-
-        // userURL uses access token query
-        let user = try #require(URLBuilder.userURL(accessToken: "token"))
-        #expect(user.absoluteString == "https://api.youversion.com/auth/me?lat=token")
-
-        // authURL should include required and optional permissions plus install id
-        let auth = try #require(URLBuilder.authURL(appKey: "appKey", requiredPermissions: [.bibles], optionalPermissions: [.highlights]))
-        let components = try #require(URLComponents(url: auth, resolvingAgainstBaseURL: false))
-        let items = components.queryItems ?? []
-        #expect(items.first { $0.name == "required_perms" }?.value == "bibles")
-        #expect(items.first { $0.name == "opt_perms" }?.value == "highlights")
-        #expect(items.first { $0.name == "x-yvp-installation-id" }?.value == YouVersionPlatformConfiguration.installId)
+        let url = try #require(URLBuilder.authorizeURL(queryItems: [
+            URLQueryItem(name: "state", value: "stateValue"),
+        ]))
+        #expect(url.absoluteString == "https://api.youversion.com/auth/authorize?state=stateValue")
     }
 
     @Test

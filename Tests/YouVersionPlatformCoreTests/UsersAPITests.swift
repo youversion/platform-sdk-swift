@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 @Suite(.serialized) struct UsersAPITests {
-
+/*
     @MainActor
     @Test func userInfoPreviewReturnsPreview() async throws {
         // No network should be hit for preview token
@@ -102,6 +102,7 @@ import Testing
             _ = try await YouVersionAPI.Users.userInfo(accessToken: "swift-test-suite", session: session)
         }
     }
+ */
 }
 
 

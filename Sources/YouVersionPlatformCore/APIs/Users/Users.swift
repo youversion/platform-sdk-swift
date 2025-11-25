@@ -26,14 +26,9 @@ public extension YouVersionAPI {
              */
             guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                   let queryItems = components.queryItems,
-                  queryItems.first(where: { $0.name == "state" })?.value == state
+                  queryItems.first(where: { $0.name == "state" })?.value == state,
+                  let newURL = URLBuilder.authCallbackURL(queryItems: queryItems)
             else {
-                throw URLError(.badURL)
-            }
-
-            var newComponents = URLComponents(string: "https://api-staging.youversion.com/auth/callback")!
-            newComponents.queryItems = queryItems  //.filter { $0.name != "state" }
-            guard let newURL = newComponents.url else {
                 throw URLError(.badURL)
             }
 
@@ -55,7 +50,6 @@ public extension YouVersionAPI {
             guard let locationUrl = URL(string: location),
                   let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
                   let locationQueryItems = locationComponents.queryItems,
-                  //locationQueryItems.first(where: { $0.name == "state" })?.value == state,
                   let codeQueryItem = locationQueryItems.first(where: { $0.name == "code" }),
                   let code = codeQueryItem.value
             else {
@@ -141,24 +135,12 @@ public extension YouVersionAPI {
 
         // MARK: - Refresh Token
 
-
         public static func performRefresh(
             with refreshToken: String,
             idToken: String?,
             session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
-            /*
-             curl -i -v 'https://api.youversion.com/auth/token' \
-             -X POST \
-             -H "x-yvp-app-key: $YVP_APP_KEY" \
-             -H "x-yvp-installation-id: $YVP_INSTALL_ID" \
-             -H 'Content-Type: application/x-www-form-urlencoded' \
-             -d 'grant_type=refresh_token' \
-             -d "client_id=$YVP_APP_KEY" \
-             -d 'refresh_token=asdfasdf'
-             */
-
-            guard let url = URLBuilder.authRefreshURL() else {
+            guard let url = URLBuilder.authTokenURL else {
                 throw URLError(.badURL)
             }
             guard let appKey = YouVersionPlatformConfiguration.appKey else {

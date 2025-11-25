@@ -18,7 +18,21 @@ public enum URLBuilder {
         return components.url
     }
 
-    static func authRefreshURL() -> URL? {
+    static func authorizeURL(queryItems: [URLQueryItem]) -> URL? {
+        var components = baseURLComponents
+        components.path = "/auth/authorize"
+        components.queryItems = queryItems
+        return components.url
+    }
+
+    static func authCallbackURL(queryItems: [URLQueryItem]) -> URL? {
+        var components = baseURLComponents
+        components.path = "/auth/callback"
+        components.queryItems = queryItems
+        return components.url
+    }
+
+    static var authTokenURL: URL? {
         var components = baseURLComponents
         components.path = "/auth/token"
         return components.url

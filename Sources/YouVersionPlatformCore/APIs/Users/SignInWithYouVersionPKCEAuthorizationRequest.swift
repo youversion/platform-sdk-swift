@@ -61,11 +61,6 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
         redirectURL: URL,
         parameters: SignInWithYouVersionPKCEParameters
     ) throws -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/auth/authorize"
-
         var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "client_id", value: appKey),
@@ -75,7 +70,6 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             URLQueryItem(name: "code_challenge", value: parameters.codeChallenge),
             URLQueryItem(name: "code_challenge_method", value: "S256")
         ]
-
         if let installId = YouVersionPlatformConfiguration.installId {
             queryItems.append(URLQueryItem(name: "x-yvp-installation-id", value: installId))
         }
@@ -83,11 +77,9 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             queryItems.append(URLQueryItem(name: "scope", value: scopeValue))
         }
 
-        components.queryItems = queryItems
-        guard let url = components.url else {
+        guard let url = URLBuilder.authorizeURL(queryItems: queryItems) else {
             throw SignInWithYouVersionPKCEAuthorizationError.unableToConstructAuthorizeURL
         }
-
         return url
     }
 
@@ -96,7 +88,9 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
         codeVerifier: String,
         redirectUri: String
     ) throws -> URLRequest {
-        let url = URL(string: "https://api-staging.youversion.com/auth/token")!
+        guard let url = URLBuilder.authTokenURL else {
+            throw SignInWithYouVersionPKCEAuthorizationError.unableToConstructAuthorizeURL
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         let parameters: [String: String] = [
