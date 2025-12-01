@@ -68,10 +68,12 @@ extension BibleReaderViewModel {
     }
 
     public func versionDownloadViewAccepted(for version: BibleVersion) {
-        if !isSignedIn {
-            startSignInFlow = true
-        } else {
-            finalDownloadButtonTapped(version: version)
+        Task {
+            if await YouVersionAPI.hasValidToken() {
+                finalDownloadButtonTapped(version: version)
+            } else {
+                startSignInFlow = true
+            }
         }
     }
 
