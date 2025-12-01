@@ -1,0 +1,88 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+import Testing
+@testable import YouVersionPlatformCore
+
+@Suite(.serialized) struct UsersObtainTokensTests {
+
+    @Test func obtainTokensSuccessDecodesResponse() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        let payload: [String: Any] = [
+            "access_token": "access-token",
+            "expires_in": "3600",
+            "id_token": "header.payload.signature",
+            "refresh_token": "refresh-token",
+            "scope": "bibles,highlights",
+            "token_type": "Bearer"
+        ]
+        let responseData = try JSONSerialization.data(withJSONObject: payload)
+
+        HTTPMocking.setHandler(token: token) { request in
+            #expect(request.httpMethod == "POST")
+            let body = requestBodyString(request)
+            #expect(body.contains("code=auth-code"))
+            #expect(body.contains("code_verifier=verifier"))
+            #expect(body.contains("redirect_uri=youversionauth://callback"))
+
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (responseData, response)
+        }
+
+        let tokens = try await YouVersionAPI.Users.obtainTokens(
+            from: "auth-code",
+            codeVerifier: "verifier",
+            redirectUri: "youversionauth://callback",
+            session: session
+        )
+
+        #expect(tokens.accessToken == "access-token")
+        #expect(tokens.refreshToken == "refresh-token")
+        #expect(tokens.scope == "bibles,highlights")
+    }
+
+    @Test func obtainTokensUnexpectedStatusThrows() async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        await #expect(throws: URLError.self) {
+            _ = try await YouVersionAPI.Users.obtainTokens(
+                from: "auth-code",
+                codeVerifier: "verifier",
+                redirectUri: "youversionauth://callback",
+                session: session
+            )
+        }
+    }
+}
+
+private func requestBodyString(_ request: URLRequest) -> String {
+    if let httpBody = request.httpBody {
+        return String(decoding: httpBody, as: UTF8.self)
+    }
+    guard let stream = request.httpBodyStream else { return "" }
+
+    stream.open()
+    defer { stream.close() }
+
+    var data = Data()
+    let bufferSize = 1024
+    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+    defer { buffer.deallocate() }
+
+    while stream.hasBytesAvailable {
+        let read = stream.read(buffer, maxLength: bufferSize)
+        if read <= 0 { break }
+        data.append(buffer, count: read)
+    }
+
+    return String(decoding: data, as: UTF8.self)
+}
