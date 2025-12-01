@@ -34,6 +34,17 @@ public extension YouVersionAPI {
 
             var request = URLRequest(url: newURL)
             request.httpMethod = "GET"
+
+            final class RedirectDisabler: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
+                func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                                newRequest request: URLRequest) async -> URLRequest? {
+                    if response.url?.path() == "/auth/callback" {
+                        return nil  // have it not follow the redirect
+                    }
+                    return request
+                }
+            }
+
             let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
 
             let (_, response) = try await session.data(for: request)
@@ -86,7 +97,7 @@ public extension YouVersionAPI {
                 .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
-                expiresIn: "60",  // TEMPORARY FOR DEBUGGING //expiresIn: tokens.expiresIn,
+                expiresIn: tokens.expiresIn,
                 refreshToken: tokens.refreshToken,
                 idToken: tokens.idToken,
                 permissions: permissions,
@@ -174,7 +185,7 @@ public extension YouVersionAPI {
             }
             return SignInWithYouVersionResult(
                 accessToken: decodedResponse.accessToken,
-                expiresIn: "60",  // TEMPORARY FOR DEBUGGING //decodedResponse.expiresIn,
+                expiresIn: decodedResponse.expiresIn,
                 refreshToken: decodedResponse.refreshToken,
                 idToken: idToken,
                 permissions: [],
@@ -206,9 +217,3 @@ public extension YouVersionAPI {
     }
 }
 
-private final class RedirectDisabler: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest) async -> URLRequest? {
-        nil // disable following redirects
-    }
-}

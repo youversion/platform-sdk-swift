@@ -10,7 +10,7 @@ public enum YouVersionAPI {
         YouVersionPlatformConfiguration.accessToken != nil
     }
 
-    /// This can cause a token refresh.
+    /// This can cause a token refresh if an access token is present but is old.
     public static func hasValidToken(session: URLSession = .shared) async -> Bool {
         guard let data = YouVersionPlatformConfiguration.authData,
               let expiry = data.expiryDate
@@ -18,8 +18,8 @@ public enum YouVersionAPI {
             print("hasValidToken: no token or expiryDate")
             return false
         }
-        guard expiry.timeIntervalSinceNow > 60 else {
-            print("hasValidToken: still valid.")
+        guard expiry.timeIntervalSinceNow < 30 else {
+            print("hasValidToken: still valid. (\(expiry))")
             return true
         }
         guard let refreshToken = data.refreshToken,
