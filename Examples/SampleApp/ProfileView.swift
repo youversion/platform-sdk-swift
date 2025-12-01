@@ -26,7 +26,7 @@ struct ProfileView: View {
             }
         }
         .onReceive(
-            Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+            Timer.publish(every: 2, on: .main, in: .common).autoconnect()
         ) { _ in
             /*
                A normal app would not have a timer like this! Usually you will:

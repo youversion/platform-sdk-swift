@@ -126,6 +126,12 @@ public extension YouVersionAPI {
             return ret
         }
 
+        private static func formURLEncoded(_ dict: [String: String]) -> Data? {
+            var components = URLComponents()
+            components.queryItems = dict.map { URLQueryItem(name: $0.key, value: $0.value) }
+            return components.percentEncodedQuery?.data(using: .utf8)
+        }
+
         private struct TokenResponse: Codable, Sendable, Equatable {
             public let accessToken: String
             public let expiresIn: String
@@ -158,20 +164,16 @@ public extension YouVersionAPI {
                 throw YouVersionAPIError.missingAuthentication
             }
 
-            let parameters: [String: String] = [
+            let bodyData = formURLEncoded([
                 "grant_type": "refresh_token",
                 "client_id": appKey,
                 "refresh_token": refreshToken
-            ]
-            let bodyString = parameters.map {
-                "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-            }
-                .joined(separator: "&")
+            ])
 
             var request = YouVersionAPI.buildRequest(url: url, accessToken: nil, session: session)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.httpBody = bodyString.data(using: .utf8)
+            request.httpBody = bodyData
 
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -216,4 +218,3 @@ public extension YouVersionAPI {
 
     }
 }
-

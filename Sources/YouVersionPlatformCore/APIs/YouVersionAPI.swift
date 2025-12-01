@@ -15,19 +15,16 @@ public enum YouVersionAPI {
         guard let data = YouVersionPlatformConfiguration.authData,
               let expiry = data.expiryDate
         else {
-            print("hasValidToken: no token or expiryDate")
             return false
         }
         guard expiry.timeIntervalSinceNow < 30 else {
-            print("hasValidToken: still valid. (\(expiry))")
             return true
         }
         guard let refreshToken = data.refreshToken,
               let result = try? await Users.performRefresh(with: refreshToken, idToken: data.idToken, session: session) else {
-            print("hasValidToken: refresh failed")
+            print("token refresh failed")
             return false
         }
-        print("hasValidToken: refreshed; now expires at \(result.expiryDate ?? Date())")
         await MainActor.run {
             YouVersionPlatformConfiguration.saveAuthData(
                 accessToken: result.accessToken,
