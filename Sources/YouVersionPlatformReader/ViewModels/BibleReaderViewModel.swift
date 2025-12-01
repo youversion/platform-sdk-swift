@@ -237,12 +237,7 @@ final class BibleReaderViewModel: ReaderColors {
 
     func updateSignInState() {
         Task {
-            let hasValidToken: Bool
-            do {
-                hasValidToken = try await YouVersionAPI.hasValidToken()
-            } catch {
-                hasValidToken = false
-            }
+            let hasValidToken = await YouVersionAPI.hasValidToken()
             await MainActor.run {
                 isSignedIn = hasValidToken
             }
