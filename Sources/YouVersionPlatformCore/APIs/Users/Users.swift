@@ -20,10 +20,6 @@ public extension YouVersionAPI {
 
         // this checks that the state parameter matches, and then fetches /auth/callback with the same parameters
         private static func obtainLocation(from callbackURL: URL, state: String) async throws -> String {
-            /*
-             The callbackURL will look like this:
-             youversionauth://callback?profile_picture=whatever.com/t.png&state=Onfdpf&user_email=daf%40xyz.com&user_name=David&yvp_id=c98a
-             */
             guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                   let queryItems = components.queryItems,
                   queryItems.first(where: { $0.name == "state" })?.value == state,
@@ -31,9 +27,6 @@ public extension YouVersionAPI {
             else {
                 throw URLError(.badURL)
             }
-
-            var request = URLRequest(url: newURL)
-            request.httpMethod = "GET"
 
             final class RedirectDisabler: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
                 func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
@@ -46,6 +39,8 @@ public extension YouVersionAPI {
             }
 
             let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
+            var request = URLRequest(url: newURL)
+            request.httpMethod = "GET"
 
             let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 302 else {
@@ -114,22 +109,6 @@ public extension YouVersionAPI {
                 return nil
             }
             return idClaims
-        }
-
-        public static var currentUserId: String? {
-            currentIdClaims?["sub"] as? String
-        }
-
-        public static var currentUserName: String? {
-            currentIdClaims?["name"] as? String
-        }
-
-        public static var currentUserEmail: String? {
-            currentIdClaims?["email"] as? String
-        }
-
-        public static var currentUserProfilePicture: String? {
-            currentIdClaims?["profile_picture"] as? String
         }
 
         private static func decodeJWT(_ token: String) throws -> [String: Any] {
@@ -231,6 +210,24 @@ public extension YouVersionAPI {
                 case refreshToken = "refresh_token"
                 case scope
             }
+        }
+
+        // MARK: - Public Accessors
+
+        public static var currentUserId: String? {
+            currentIdClaims?["sub"] as? String
+        }
+
+        public static var currentUserName: String? {
+            currentIdClaims?["name"] as? String
+        }
+
+        public static var currentUserEmail: String? {
+            currentIdClaims?["email"] as? String
+        }
+
+        public static var currentUserProfilePicture: String? {
+            currentIdClaims?["profile_picture"] as? String
         }
 
         // MARK: - Sign Out
