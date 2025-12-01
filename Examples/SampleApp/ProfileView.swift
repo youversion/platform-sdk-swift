@@ -4,7 +4,7 @@ import YouVersionPlatform
 struct ProfileView: View {
     @State private var contextProvider = ContextProvider()
     @State private var isSignedIn = false
-    
+
     var body: some View {
         VStack {
             if isSignedIn {
@@ -23,15 +23,15 @@ struct ProfileView: View {
                 }
             }
         }
-        .onAppear() {
+        .onAppear {
             isSignedIn = YouVersionAPI.isSignedIn
         }
     }
-    
+
     func doSignIn() {
         Task {
             do {
-                let _ = try await YouVersionAPI.Users.signIn(
+                _ = try await YouVersionAPI.Users.signIn(
                     permissions: [.bibles, .highlights],
                     contextProvider: contextProvider
                 )
