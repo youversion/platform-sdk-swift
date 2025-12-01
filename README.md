@@ -1,4 +1,3 @@
-
 ![Platform Swift SDK](./assets/github-swift-sdk-banner.png)
 
 ![Platform](https://img.shields.io/badge/Platform-IOS-red)
@@ -6,7 +5,7 @@
 
 # YouVersion Platform SDK for Swift
 
-A Swift SDK for integrating with the YouVersion Platform, enabling developers to display Scripture content and implement user authentication in iOS, iPadOS, and other platforms where Swift can run.
+A Swift SDK for integrating with the YouVersion Platform, to display Bible content and implement user authentication in iOS, iPadOS, and other platforms where Swift can run.
 
 
 ## Table of Contents
@@ -19,53 +18,45 @@ A Swift SDK for integrating with the YouVersion Platform, enabling developers to
 - [Getting Started](#getting-started)
 - [Usage](#usage)
   - [Displaying Scripture in SwiftUI](#displaying-scripture-in-swiftui)
-  - [Implementing Login](#implementing-login)
+  - [Bible Reader](#bible-reader)
+  - [Implementing Sign In](#implementing-sign-in)
   - [Fetching User Data](#fetching-user-data)
   - [Displaying Verse of the Day](#displaying-verse-of-the-day)
 - [Sample App](#sample-app)
 - [For Different Use Cases](#-for-different-use-cases)
-- [Contributing](#contributing)
 - [Documentation](#documentation)
 - [Support](#support)
 - [License](#license)
 
 ## Features
 
-- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses, chapters, and passages with `BibleTextView`
-- 🔐 **User Authentication** - Seamless "Log In with YouVersion" integration using `LoginWithYouVersionButton`
+- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleWidgetView`
+- 📖 **Bible Reader** - A complete Bible reading experience inside your app with `BibleReaderView`
+- 🔐 **User Authentication** - Seamless "Sign In with YouVersion" integration using `SignInWithYouVersionButton`
 - 🌅 **Verse of the Day** - Built-in `VotdView` component and API access to VOTD data
-- 🚀 **Modern Swift APIs** - Built with async/await, SwiftUI, and Swift concurrency
-- 📦 **Multiple Installation Options** - Available via Swift Package Manager and CocoaPods
-- 💾 **Smart Caching** - Automatic local caching for improved performance
 
 ## Requirements
 
-- iOS 15.0+ / iPadOS 15.0+
-- Xcode 15.0+
-- Swift 5.9+
+- iOS 17+ / iPadOS 17+
 - A YouVersion Platform API key ([Register here](https://platform.youversion.com/))
 
 ## Installation
 
 ### Swift Package Manager
 
-1. In Xcode, select **File → Add Package Dependencies**
+1. In Xcode, open your app project, then select the menu **File → Add Package Dependencies**
 2. Enter the package URL: `https://github.com/youversion/platform-sdk-swift.git`
-3. Select `youversion-platform-sdk-swift` from the search results
-4. Choose **Up to Next Major Version** as the dependency rule
-5. Select your project next to **Add to Project**
-6. Click **Add Package**
-7. Add `YouVersionPlatform` to your target and click **Add Package**
+3. Select `platform-sdk-swift` from the search results.
+4. Click **Add Package**
+5. Click **Add Package** on the next dialog.
 
 Or add it to your `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/youversion/platform-sdk-swift.git", from: "1.0.0")
+    .package(url: "https://github.com/youversion/platform-sdk-swift.git", from: "0.1.0")
 ]
 ```
-
-> **💡 Note: use a semantic version range within the current published versions in the `from` field above.**
 
 ### CocoaPods
 
@@ -75,20 +66,15 @@ Add the following to your `Podfile`:
 pod 'YouVersionPlatform', '~> 1.0'
 ```
 
-> **💡 Note: use a semantic version range within the current published versions in the field above.**
-
-Then run:
-
-```bash
-pod install
-```
+Then run `pod install`
 
 ## Getting Started
 
-1. **Get Your API Key**: Register your app with [YouVersion Platform](https://platform.youversion.com/) to acquire an app key
+1. **Get Your App Key**: Register your app with [YouVersion Platform](https://platform.youversion.com/) to acquire an app key
 2. **Configure the SDK**: Add the following to your app's initialization:
 
 ```swift
+import SwiftUI
 import YouVersionPlatform
 
 @main
@@ -143,9 +129,23 @@ struct DemoView: View {
 }
 ```
 
-> **Note**: For longer passages, wrap `BibleTextView` in a `ScrollView`. The SDK automatically fetches Scripture from YouVersion servers and maintains a local cache for improved performance.
+> **Note**: For longer passages, wrap `BibleTextView` in a `ScrollView`. 
 
-### Implementing Login
+The SDK automatically fetches Scripture from YouVersion servers and maintains a local cache for improved performance.
+
+### Bible Reader
+
+Displays a full Bible reading experience, very similar to the YouVersion Bible app, ready to be added as a tab in your app.
+
+```swift
+    BibleReaderView(
+        appName: "Sample App",
+        signInMessage: "Sign in to see your YouVersion highlights in this Sample App."
+    )
+```
+
+
+### Implementing Sign In
 
 First, create a helper class for presentation context:
 
@@ -163,23 +163,23 @@ class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding
 }
 ```
 
-Then add the login button to your SwiftUI view:
+In the header of your SwiftUI view, store a strong reference to the `ContextProvider`:
+```swift
+@State private var contextProvider = ContextProvider() // Store a strong reference
+```
+
+Add the "Sign In" button to your SwiftUI view:
 
 ```swift
-    LoginWithYouVersionButton {
+    SignInWithYouVersionButton {
         Task {
             do {
                 let result = try await YouVersionAPI.Users.signIn(
                     permissions: [.bibles, .highlights],
                     contextProvider: contextProvider
                 )
-                accessToken = result.accessToken
-                dump(result)
-                // The user is logged in and you have an access token!
-                // Now you can use the token in YouVersion Platform API calls.
-                // You should save the token locally so the user doesn't have to log in again next time.
-                // You may examine the "permissions" parameter to see what the user approved;
-                // e.g. perhaps they didn't grant access for your app to see their highlights.
+                // The user is logged in and you have an access token at result.accessToken!
+                // You may now call the YouVersion Platform APIs which require authentication.
             } catch {
                 print(error)
             }
@@ -188,7 +188,8 @@ Then add the login button to your SwiftUI view:
 }
 ```
 
-> **Note**: The SDK stores the access token securely in the Keychain, and the token persists user authentication across app launches.  Deleting or losing the access token is the equivalent of "logging out".
+> **Note**: The SDK stores the access token locally, and persists it across app launches. 
+Deleting or losing the access token is the equivalent of "logging out".
 
 ### Fetching User Data
 
@@ -237,7 +238,7 @@ To run the sample app:
 
 ### 📱 Swift SDK
 
-Building an iOS or iPadOS application? This Swift SDK provides native SwiftUI components including `BibleTextView`, `VotdView`, and `LoginWithYouVersionButton` with full Swift Package Manager support and modern async/await APIs.
+Building an iOS or iPadOS application? This Swift SDK provides native SwiftUI components including `BibleTextView`, `VotdView`, and `SignInWithYouVersionButton` with full Swift Package Manager support and modern async/await APIs.
 
 ### 🔧 API Integration
 
@@ -247,40 +248,10 @@ Need direct access to YouVersion Platform APIs? See [our comprehensive API docum
 
 Building AI applications with Bible content? Access YouVersion's LLM-optimized endpoints and structured data designed for language models. See [our LLM documentation](https://developers.youversion.com/for-llms) for details.
 
-## Contributing (Starting Early 2026)
-
-We welcome contributions! To contribute to this SDK:
-
-1. **Fork the repository** and create a feature branch
-2. **Follow our coding standards** (see [CONTRIBUTING.md](./CONTRIBUTING.md))
-3. **Write tests** for new functionality
-4. **Use Conventional Commits** for commit messages (enforced by `commitlint`)
-5. **Submit a pull request** targeting the `main` branch
-
-### Development Requirements
-
-- Xcode 15.0+
-- Swift 5.9+
-- [Node.js 24+ (LTS)](https://nodejs.org/) - Required for release automation and commit message validation
-- SwiftLint (for code style enforcement)
-
-### Commit Message Format
-
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat: add new Bible version selector
-fix: resolve crash in verse navigation
-docs: update authentication examples
-```
-
-See [RELEASING.md](./RELEASING.md) for complete details on our automated release process.
-
 ## Documentation
 
 - [API Documentation](https://developers.youversion.com/overview) - Complete API reference
 - [LLM Integration Guide](https://developers.youversion.com/for-llms) - AI/ML integration docs
-- [Release Process](./RELEASING.md) - Contribution and release guidelines
 - [Sample Code](./Examples) - Working examples and best practices
 
 ## Support

@@ -7,17 +7,21 @@ struct SampleApp: App {
     @State private var selectedTab = 0
 
     init() {
+        // Get your app key from https://platform.youversion.com/
         YouVersionPlatform.configure(appKey: <#Your App Key#>)
     }
 
     var body: some Scene {
         WindowGroup {
             TabView(selection: $selectedTab) {
-                BibleReaderView(appName: "Sample App", signInMessage: "Sign in to see your YouVersion highlights in this Sample App.")
-                    .tabItem {
-                        Label("Bible", systemImage: "book.closed.fill")
-                    }
-                    .tag(0)
+                BibleReaderView(
+                    appName: "Sample App",
+                    signInMessage: "Sign in to see your YouVersion highlights in this Sample App."
+                )
+                .tabItem {
+                    Label("Bible", systemImage: "book.closed.fill")
+                }
+                .tag(0)
 
                 VotdContainerView()
                     .tabItem {
