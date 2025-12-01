@@ -10,16 +10,17 @@ public extension YouVersionAPI {
             from callbackURL: URL,
             state: String,
             codeVerifier: String,
-            redirectUri: String
+            redirectUri: String,
+            session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
-            let location = try await obtainLocation(from: callbackURL, state: state)
+            let location = try await obtainLocation(from: callbackURL, state: state, session: session)
             let code = try obtainCode(from: location)
-            let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri)
+            let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri, session: session)
             return try extractSignInWithYouVersionResult(from: tokens)
         }
 
         // this checks that the state parameter matches, and then fetches /auth/callback with the same parameters
-        private static func obtainLocation(from callbackURL: URL, state: String) async throws -> String {
+        internal static func obtainLocation(from callbackURL: URL, state: String, session: URLSession) async throws -> String {
             guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                   let queryItems = components.queryItems,
                   queryItems.first(where: { $0.name == "state" })?.value == state,
@@ -38,11 +39,12 @@ public extension YouVersionAPI {
                 }
             }
 
-            let session = URLSession(configuration: .default, delegate: RedirectDisabler(), delegateQueue: nil)
+            let redirectConfiguration = session.configuration
+            let redirectSession = URLSession(configuration: redirectConfiguration, delegate: RedirectDisabler(), delegateQueue: nil)
             var request = URLRequest(url: newURL)
             request.httpMethod = "GET"
 
-            let (_, response) = try await session.data(for: request)
+            let (_, response) = try await redirectSession.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 302 else {
                 throw URLError(.badServerResponse)
             }
@@ -52,7 +54,7 @@ public extension YouVersionAPI {
             return location
         }
 
-        private static func obtainCode(from location: String) throws -> String {
+        internal static func obtainCode(from location: String) throws -> String {
             guard let locationUrl = URL(string: location),
                   let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
                   let locationQueryItems = locationComponents.queryItems,
@@ -64,16 +66,14 @@ public extension YouVersionAPI {
             return code
         }
 
-        private static func obtainTokens(from code: String, codeVerifier: String, redirectUri: String) async throws -> TokenResponse {
+        internal static func obtainTokens(from code: String, codeVerifier: String, redirectUri: String, session: URLSession) async throws -> TokenResponse {
             let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
                 code: code,
                 codeVerifier: codeVerifier,
                 redirectUri: redirectUri
             )
 
-            let session = URLSession(configuration: .default)
             let (data, response) = try await session.data(for: request)
-
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
@@ -85,7 +85,7 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(TokenResponse.self, from: data)
         }
 
-        private static func extractSignInWithYouVersionResult(from tokens: TokenResponse) throws -> SignInWithYouVersionResult {
+        internal static func extractSignInWithYouVersionResult(from tokens: TokenResponse) throws -> SignInWithYouVersionResult {
             let idClaims = try decodeJWT(tokens.idToken)
             let permissions = tokens.scope
                 .split(separator: ",")
@@ -135,7 +135,7 @@ public extension YouVersionAPI {
             return components.percentEncodedQuery?.data(using: .utf8)
         }
 
-        private struct TokenResponse: Codable, Sendable, Equatable {
+        internal struct TokenResponse: Codable, Sendable, Equatable {
             public let accessToken: String
             public let expiresIn: String
             public let idToken: String
