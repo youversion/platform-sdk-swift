@@ -32,7 +32,6 @@ public extension YouVersionAPI.Users {
             permissions: permissions,
             redirectURL: redirectURL
         )
-        print("going to sign in at \(authorizationRequest.url)")
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<SignInWithYouVersionResult, Error>) in
             let session = ASWebAuthenticationSession(

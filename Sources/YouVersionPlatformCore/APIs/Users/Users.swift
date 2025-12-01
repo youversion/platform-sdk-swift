@@ -102,10 +102,34 @@ public extension YouVersionAPI {
                 idToken: tokens.idToken,
                 permissions: permissions,
                 yvpUserId: idClaims["sub"] as? String,
-                name: idClaims["sub"] as? String,
+                name: idClaims["name"] as? String,
                 profilePicture: idClaims["profile_picture"] as? String,
                 email: idClaims["email"] as? String,
             )
+        }
+
+        private static var currentIdClaims: [String: Any]? {
+            guard let idToken = YouVersionPlatformConfiguration.authData?.idToken,
+                  let idClaims = try? Self.decodeJWT(idToken) else {
+                return nil
+            }
+            return idClaims
+        }
+
+        public static var currentUserId: String? {
+            currentIdClaims?["sub"] as? String
+        }
+
+        public static var currentUserName: String? {
+            currentIdClaims?["name"] as? String
+        }
+
+        public static var currentUserEmail: String? {
+            currentIdClaims?["email"] as? String
+        }
+
+        public static var currentUserProfilePicture: String? {
+            currentIdClaims?["profile_picture"] as? String
         }
 
         private static func decodeJWT(_ token: String) throws -> [String: Any] {
