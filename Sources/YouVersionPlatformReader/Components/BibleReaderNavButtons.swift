@@ -12,7 +12,7 @@ struct BibleReaderNavButtons: View, ReaderColors {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)
-                        .shadow(color: dropShadowColor, radius: 2, x: 0, y: 2)
+                        .shadow(color: viewModel.dropShadowColor, radius: 2, x: 0, y: 2)
                         .frame(width: 42, height: 42)
                     Image(systemName: "chevron.left")
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
@@ -26,7 +26,7 @@ struct BibleReaderNavButtons: View, ReaderColors {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)
-                        .shadow(color: dropShadowColor, radius: 2, x: 0, y: 2)
+                        .shadow(color: viewModel.dropShadowColor, radius: 2, x: 0, y: 2)
                         .frame(width: 42, height: 42)
                     Image(systemName: "chevron.right")
                         .foregroundStyle(viewModel.readerTextPrimaryColor)

@@ -39,9 +39,11 @@ struct BibleReaderVersionInfoView: View, ReaderColors {
                 }
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .padding(.horizontal)
+                HStack {
+                    Spacer()
+                }
             }
         }
-        .navigationTitle(viewModel.selectedVersion?.localizedAbbreviation ?? "")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -200,8 +202,8 @@ struct BibleReaderVersionInfoView: View, ReaderColors {
     private var BigButtonStylePrimary: some ButtonStyle {
         BigButtonStyle(
             strokeColor: .clear,
-            backgroundColor: buttonContrastColor,
-            foregroundColor: textInvertedColor
+            backgroundColor: viewModel.buttonContrastColor,
+            foregroundColor: viewModel.textInvertedColor
         )
     }
 

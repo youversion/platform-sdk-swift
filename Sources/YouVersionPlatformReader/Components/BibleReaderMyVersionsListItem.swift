@@ -30,10 +30,10 @@ struct BibleReaderMyVersionsListItem: View, ReaderColors, AbbreviationSplitting 
             .frame(width: 64, height: 64)
             .background(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(buttonPrimaryColor)
+                    .fill(viewModel.buttonPrimaryColor)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(borderPrimaryColor, lineWidth: 1)
+                            .stroke(viewModel.borderPrimaryColor, lineWidth: 1)
                     )
             )
             .onTapGesture {
@@ -57,11 +57,12 @@ struct BibleReaderMyVersionsListItem: View, ReaderColors, AbbreviationSplitting 
             }
 
             Spacer()
-            if viewModel.versionRepository.downloadStatus(for: item.id) != .downloaded {
-                Image(systemName: "cloud")
-                    .foregroundStyle(viewModel.readerTextMutedColor)
-                    .padding(.trailing, 8)
-            }
+            // TEMPORARY
+//            if viewModel.versionRepository.downloadStatus(for: item.id) != .downloaded {
+//                Image(systemName: "cloud")
+//                    .foregroundStyle(viewModel.readerTextMutedColor)
+//                    .padding(.trailing, 8)
+//            }
             ellipsisMenuButton
         }
         .contentShape(Rectangle())

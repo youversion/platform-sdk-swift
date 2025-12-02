@@ -101,7 +101,7 @@ public struct BibleReaderBookAndChapterPickerView: View, ReaderColors {
                         .frame(width: chapterButtonSize, height: chapterButtonSize)
                         .background(
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(buttonPrimaryColor)
+                                .fill(viewModel.buttonPrimaryColor)
                         )
                 }
                 .buttonStyle(PlainButtonStyle())

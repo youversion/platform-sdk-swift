@@ -41,8 +41,8 @@ struct BibleVersionDownloadView: View, ReaderColors {
                 .buttonStyle(
                     BigButtonStyle(
                         strokeColor: .clear,
-                        backgroundColor: buttonContrastColor,
-                        foregroundColor: textInvertedColor
+                        backgroundColor: viewModel.buttonContrastColor,
+                        foregroundColor: viewModel.textInvertedColor
                     )
                 )
                 .padding()
@@ -57,7 +57,7 @@ struct BibleVersionDownloadView: View, ReaderColors {
                 .buttonStyle(
                     BigButtonStyle(
                         strokeColor: .clear,
-                        backgroundColor: buttonSecondaryColor,
+                        backgroundColor: viewModel.buttonSecondaryColor,
                         foregroundColor: viewModel.readerTextPrimaryColor
                     )
                 )

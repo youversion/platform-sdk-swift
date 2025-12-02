@@ -86,7 +86,7 @@ public struct BibleReaderHeaderView: View, ReaderColors {
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
                 handleVersionTap: { viewModel.handlePickersVersionTap() },
                 foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: buttonPrimaryColor,
+                buttonColor: viewModel.buttonPrimaryColor,
                 backgroundColor: viewModel.readerCanvasPrimaryColor,
                 compactMode: false
             )
@@ -97,7 +97,7 @@ public struct BibleReaderHeaderView: View, ReaderColors {
                 handleChapterTap: {},
                 handleVersionTap: {},
                 foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: buttonPrimaryColor,
+                buttonColor: viewModel.buttonPrimaryColor,
                 backgroundColor: viewModel.readerCanvasPrimaryColor,
                 compactMode: false
             )

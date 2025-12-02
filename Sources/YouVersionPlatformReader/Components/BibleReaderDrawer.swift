@@ -64,7 +64,7 @@ struct BibleReaderDrawer: View, ReaderColors {
         .padding(.horizontal)
         .frame(height: buttonHeight)
         .background(RoundedRectangle(cornerRadius: 12)
-            .fill(surfaceTertiaryColor))
+            .fill(viewModel.surfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
     }
 
@@ -86,7 +86,7 @@ struct BibleReaderDrawer: View, ReaderColors {
         .padding(.horizontal, 12)
         .frame(height: buttonHeight)
         .background(RoundedRectangle(cornerRadius: 12)
-            .fill(surfaceTertiaryColor))
+            .fill(viewModel.surfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .font(ReaderFonts.fontLabelM)
     }

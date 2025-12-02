@@ -58,7 +58,7 @@ struct BibleReaderFontListView: View, ReaderColors {
                 }
                 .frame(height: 40)
                 .background(
-                    isSelected ? surfacePrimaryColor : viewModel.readerCanvasPrimaryColor
+                    isSelected ? viewModel.surfacePrimaryColor : viewModel.readerCanvasPrimaryColor
                 )
             }
         }

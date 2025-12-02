@@ -31,10 +31,10 @@ struct BibleVersionOverviewListItem: View, ReaderColors, AbbreviationSplitting {
             .frame(width: 52, height: 52)
             .background(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(buttonPrimaryColor)
+                    .fill(viewModel.buttonPrimaryColor)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(borderPrimaryColor, lineWidth: 1)
+                            .stroke(viewModel.borderPrimaryColor, lineWidth: 1)
                     )
             )
 

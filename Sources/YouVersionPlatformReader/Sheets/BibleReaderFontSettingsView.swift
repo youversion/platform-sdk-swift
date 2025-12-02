@@ -36,7 +36,7 @@ struct BibleReaderFontSettingsView: View, ReaderColors {
         .padding()
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderPrimaryColor, lineWidth: 1)
+                .stroke(viewModel.borderPrimaryColor, lineWidth: 1)
         )
     }
 
@@ -87,7 +87,7 @@ struct BibleReaderFontSettingsView: View, ReaderColors {
         .background(theme.background)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(borderSecondaryColor, lineWidth: 1)
+                .stroke(viewModel.borderSecondaryColor, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -110,7 +110,7 @@ struct BibleReaderFontSettingsView: View, ReaderColors {
                 .buttonStyle(PlainButtonStyle())
                 .background(
                     HalfRoundedRectangleShape(side: .left)
-                        .fill(buttonPrimaryColor)
+                        .fill(viewModel.buttonPrimaryColor)
                 )
 
                 Rectangle()
@@ -130,7 +130,7 @@ struct BibleReaderFontSettingsView: View, ReaderColors {
                 .buttonStyle(PlainButtonStyle())
                 .background(
                     HalfRoundedRectangleShape(side: .right)
-                        .fill(buttonPrimaryColor)
+                        .fill(viewModel.buttonPrimaryColor)
                 )
             }
 
@@ -153,7 +153,7 @@ struct BibleReaderFontSettingsView: View, ReaderColors {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(buttonPrimaryColor)
+                        .fill(viewModel.buttonPrimaryColor)
                 )
             }
             .buttonStyle(PlainButtonStyle())

@@ -45,7 +45,7 @@ struct BibleReaderVersionsStack: View {
         case .versionDownload:
             BibleVersionDownloadView()
         case .languages:
-            BibleReaderLanguagesView()
+            BibleReaderLanguagesView(viewModel: viewModel)
         }
     }
 }

@@ -25,18 +25,22 @@ public struct BibleReaderMyVersionsView: View, ReaderColors {
             .padding(.horizontal, 16)
             .background(
                 Capsule()
-                    .fill(buttonPrimaryColor)
+                    .fill(viewModel.buttonPrimaryColor)
             )
             .padding(.bottom, 8)
             Text(viewModel.bibleVersionStatisticsPromo)
                 .font(.caption)
             Spacer()
         }
-        .navigationTitle(String.localized("myVersions.title"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
+            ToolbarItem(placement: .title) {
+                Text(String.localized("myVersions.title"))
+                    .fontWeight(.medium)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
+            }
             ToolbarItem(placement: .automatic) {
                 Button {
                     handleMoreVersions()
