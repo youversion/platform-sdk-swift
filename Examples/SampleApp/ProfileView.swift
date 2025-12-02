@@ -32,14 +32,14 @@ struct ProfileView: View {
         Task {
             do {
                 _ = try await YouVersionAPI.Users.signIn(
-                    permissions: [.bibles, .highlights],
+                    permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
                 // The user is signed in! Their accessToken will automatically be saved
                 // to UserDefaults on this device, so they don't have to log in again next time.
-                // Now you may accessors like YouVersionAPI.Users.currentUserName.
+                // Now you may use accessors like YouVersionAPI.Users.currentUserName.
             } catch {
-                print(error)
+                print("Sign In failed: \(error.localizedDescription)")
             }
             isSignedIn = YouVersionAPI.isSignedIn
         }

@@ -5,12 +5,9 @@ import Testing
 @Suite struct UsersModelsTests {
 
     @Test func permissionRawValuesAndDescription() {
-        #expect(SignInWithYouVersionPermission.bibles.rawValue == "bibles")
-        #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
-        #expect(SignInWithYouVersionPermission.votd.rawValue == "votd")
-        #expect(SignInWithYouVersionPermission.demographics.rawValue == "demographics")
-        #expect(SignInWithYouVersionPermission.bibleActivity.rawValue == "bible_activity")
-        #expect(SignInWithYouVersionPermission.bibleActivity.description == "bible_activity")
+        #expect(SignInWithYouVersionPermission.openid.rawValue == "openid")
+        #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
+        #expect(SignInWithYouVersionPermission.email.rawValue == "email")
     }
 
     @Test func userInfoAvatarUrlFormatting() {

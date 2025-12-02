@@ -132,10 +132,7 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
     private static func scopeValue(
         permissions: Set<SignInWithYouVersionPermission>
     ) -> String? {
-        var scopeWithOpenID = permissions.map(\.rawValue).sorted().joined(separator: " ")
-        if !scopeWithOpenID.split(separator: " ").contains("openid") {
-            scopeWithOpenID += (scopeWithOpenID.isEmpty ? "" : " ") + "openid"
-        }
-        return scopeWithOpenID
+        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid]))
+        return fullScopes.map(\.rawValue).sorted().joined(separator: " ")
     }
 }

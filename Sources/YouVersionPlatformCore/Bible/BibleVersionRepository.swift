@@ -94,7 +94,6 @@ public actor VersionDiskCache: BibleVersionCaching {
         guard let data = try? Data(contentsOf: url) else {
             return nil
         }
-        print("loading version \(id) from \(url)")
         return try? JSONDecoder().decode(BibleVersion.self, from: data)
     }
 

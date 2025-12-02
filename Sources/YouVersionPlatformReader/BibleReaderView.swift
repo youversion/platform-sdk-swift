@@ -277,7 +277,7 @@ public struct BibleReaderView: View {
             do {
                 viewModel.startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.highlights],
+                    permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
                 dump(result)

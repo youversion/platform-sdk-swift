@@ -175,7 +175,7 @@ Add the "Sign In" button to your SwiftUI view:
         Task {
             do {
                 let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.bibles, .highlights],
+                    permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
                 // The user is logged in and you have an access token at result.accessToken!

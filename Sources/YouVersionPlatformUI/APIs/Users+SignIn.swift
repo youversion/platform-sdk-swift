@@ -47,7 +47,8 @@ public extension YouVersionAPI.Users {
                                 from: callbackURL,
                                 state: authorizationRequest.parameters.state,
                                 codeVerifier: authorizationRequest.parameters.codeVerifier,
-                                redirectUri: redirectURL.absoluteString
+                                redirectUri: redirectURL.absoluteString,
+                                nonce: authorizationRequest.parameters.nonce
                             )
                             YouVersionPlatformConfiguration.saveAuthData(
                                 accessToken: result.accessToken,

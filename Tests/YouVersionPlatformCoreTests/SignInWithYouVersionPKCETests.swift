@@ -10,7 +10,7 @@ import Testing
 
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: "test-app",
-            permissions: [.bibles, .highlights],
+            permissions: [.profile, .email],
             redirectURL: redirectURL
         )
 
@@ -34,8 +34,8 @@ import Testing
         #expect(queryItems["code_challenge"] == request.parameters.codeChallenge)
         #expect(queryItems["state"] == request.parameters.state)
         #expect(queryItems["nonce"] == request.parameters.nonce)
-        #expect(queryItems["scope"]?.contains("bibles") == true)
-        #expect(queryItems["scope"]?.contains("highlights") == true)
+        #expect(queryItems["scope"]?.contains("profile") == true)
+        #expect(queryItems["scope"]?.contains("email") == true)
         #expect(queryItems["redirect_uri"] == redirectURL.absoluteString)
     }
 }

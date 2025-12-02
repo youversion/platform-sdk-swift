@@ -11,16 +11,17 @@ public extension YouVersionAPI {
             state: String,
             codeVerifier: String,
             redirectUri: String,
+            nonce: String,
             session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
             let location = try await obtainLocation(from: callbackURL, state: state, session: session)
             let code = try obtainCode(from: location)
             let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri, session: session)
-            return try extractSignInWithYouVersionResult(from: tokens)
+            return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
         }
 
         // this checks that the state parameter matches, and then fetches /auth/callback with the same parameters
-        internal static func obtainLocation(from callbackURL: URL, state: String, session: URLSession) async throws -> String {
+        static func obtainLocation(from callbackURL: URL, state: String, session: URLSession) async throws -> String {
             guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
                   let queryItems = components.queryItems,
                   queryItems.first(where: { $0.name == "state" })?.value == state,
@@ -54,7 +55,7 @@ public extension YouVersionAPI {
             return location
         }
 
-        internal static func obtainCode(from location: String) throws -> String {
+        static func obtainCode(from location: String) throws -> String {
             guard let locationUrl = URL(string: location),
                   let locationComponents = URLComponents(url: locationUrl, resolvingAgainstBaseURL: false),
                   let locationQueryItems = locationComponents.queryItems,
@@ -66,7 +67,7 @@ public extension YouVersionAPI {
             return code
         }
 
-        internal static func obtainTokens(from code: String, codeVerifier: String, redirectUri: String, session: URLSession) async throws -> TokenResponse {
+        static func obtainTokens(from code: String, codeVerifier: String, redirectUri: String, session: URLSession) async throws -> TokenResponse {
             let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
                 code: code,
                 codeVerifier: codeVerifier,
@@ -85,8 +86,12 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(TokenResponse.self, from: data)
         }
 
-        internal static func extractSignInWithYouVersionResult(from tokens: TokenResponse) throws -> SignInWithYouVersionResult {
+        static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String) throws -> SignInWithYouVersionResult {
             let idClaims = try decodeJWT(tokens.idToken)
+            guard idClaims["nonce"] as? String == nonce else {
+                print("Nonce mismatch")
+                throw URLError(.badServerResponse)
+            }
             let permissions = tokens.scope
                 .split(separator: ",")
                 .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
@@ -135,7 +140,7 @@ public extension YouVersionAPI {
             return components.percentEncodedQuery?.data(using: .utf8)
         }
 
-        internal struct TokenResponse: Codable, Sendable, Equatable {
+        struct TokenResponse: Codable, Sendable, Equatable {
             public let accessToken: String
             public let expiresIn: String
             public let idToken: String

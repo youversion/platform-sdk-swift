@@ -55,7 +55,6 @@ public actor ChapterDiskCache {
         let cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
         do {
             try FileManager.default.removeItem(at: cacheURL)
-            print("removed \(cacheURL.path())")
         } catch {
             print("ChapterDiskCache got error while removing: \(error.localizedDescription)")
         }
@@ -190,18 +189,15 @@ public actor BibleChapterRepository: ObservableObject {
         let cacheKey = Self.cacheKey(reference: reference)
 
         if let cachedContent = memoryCache[cacheKey] {
-            print("found in memoryCache: \(cacheKey)")
             return cachedContent
         }
 
         if let cachedContent = await diskCache.chapterContent(withReference: reference) {
-            print("found in diskCache: \(cacheKey)")
             memoryCache[cacheKey] = cachedContent
             return cachedContent
         }
 
         if let cachedContent = await downloadCache.chapterContent(withReference: reference) {
-            print("found in downloadCache: \(cacheKey)")
             memoryCache[cacheKey] = cachedContent
             return cachedContent
         }
@@ -222,7 +218,6 @@ public actor BibleChapterRepository: ObservableObject {
     /* TEMPORARY
     public func download(version: BibleVersion) async throws {
         guard let accessToken = YouVersionPlatformConfiguration.accessToken else {
-            print("download: not logged in")
             throw YouVersionAPIError.notPermitted
         }
         guard let build = version.offline?.build?.max else {
