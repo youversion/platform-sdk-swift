@@ -53,7 +53,6 @@ public extension YouVersionAPI.Bible {
             let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
             allResults.append(contentsOf: responseObject.data)
             pageToken = responseObject.next_page_token
-            // temporary, to work around a server-side bug:
             if responseObject.data.isEmpty {
                 pageToken = nil
             }
