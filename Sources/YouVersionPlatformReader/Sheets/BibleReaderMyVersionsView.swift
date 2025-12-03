@@ -36,11 +36,13 @@ public struct BibleReaderMyVersionsView: View, ReaderColors {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
+#if os(iOS)
             ToolbarItem(placement: .title) {
                 Text(String.localized("myVersions.title"))
                     .fontWeight(.medium)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
+#endif
             ToolbarItem(placement: .automatic) {
                 Button {
                     handleMoreVersions()

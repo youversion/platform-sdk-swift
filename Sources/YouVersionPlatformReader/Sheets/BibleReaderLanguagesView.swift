@@ -4,12 +4,12 @@ struct BibleReaderLanguagesView: View, ReaderColors {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     init(viewModel: BibleReaderViewModel) {
+#if canImport(UIKit)
         UISegmentedControl.appearance().tintColor = UIColor(viewModel.buttonPrimaryColor)
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerWhiteColor)
-        UISegmentedControl.appearance().setTitleTextAttributes(
-            [.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
-        UISegmentedControl.appearance().setTitleTextAttributes(
-            [.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .selected)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .selected)
+#endif
     }
 
     enum Segment: String, CaseIterable, Identifiable {
@@ -97,11 +97,13 @@ struct BibleReaderLanguagesView: View, ReaderColors {
             viewModel.versionsStackPop()
         }
         .toolbar {
+#if canImport(UIKit)
             ToolbarItem(placement: .title) {
                 Text(String.localized("languageList.title"))
                     .fontWeight(.medium)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
+#endif
             ToolbarItem(placement: .automatic) {
                 Button {
                     searchFieldIsFocused = true

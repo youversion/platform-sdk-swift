@@ -39,6 +39,7 @@ public struct BibleReaderVersionListView: View, ReaderColors {
                 }
             }
         }
+#if os(iOS)
         .toolbar {
             ToolbarItem(placement: .title) {
                 Text(viewModel.bibleVersionStatisticsPromo)
@@ -46,7 +47,6 @@ public struct BibleReaderVersionListView: View, ReaderColors {
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
         }
-#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
         .customBackButton {
