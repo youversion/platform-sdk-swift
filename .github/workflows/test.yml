@@ -4,7 +4,7 @@ on: [pull_request]
 
 env:
   XCODE_VERSION: 26.0.1
-  IOS_SIMULATOR_NAME: iPhone 16
+  IOS_SIMULATOR_NAME: iPhone 17
   IOS_SIMULATOR_OS: 18.6
 
 jobs:
@@ -18,11 +18,12 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Display Swift and Xcode versions
+      - name: Display Swift and Xcode versions and available simulators
         run: |
           swift --version
           xcodebuild -version
-
+          xcrun simctl list devices
+          
       # Build and run unit tests
       - name: Run tests
         run: |
