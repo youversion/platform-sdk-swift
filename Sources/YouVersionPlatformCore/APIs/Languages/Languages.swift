@@ -102,7 +102,7 @@ public extension YouVersionAPI {
         private struct LanguagesResponse: Decodable {
             let data: [LanguageOverview]
             let next_page_token: String?
-            let total_size: Int
+            let total_size: Int?
         }
     }
 }

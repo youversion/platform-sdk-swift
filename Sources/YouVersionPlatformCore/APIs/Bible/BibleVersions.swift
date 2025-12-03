@@ -64,6 +64,6 @@ public extension YouVersionAPI.Bible {
     private struct BibleVersionsResponse: Decodable {
         let data: [BibleVersion]
         let next_page_token: String?
-        let total_size: Int
+        let total_size: Int?
     }
 }

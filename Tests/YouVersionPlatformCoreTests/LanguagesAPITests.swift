@@ -41,7 +41,7 @@ import Testing
             )
         ]
 
-        let responseData = try JSONEncoder().encode(LanguagesResponse(data: expectedLanguages))
+        let responseData = try JSONEncoder().encode(LanguagesResponse(data: expectedLanguages, next_page_token: nil, total_size: nil))
         var capturedRequest: URLRequest?
 
         HTTPMocking.setHandler(token: token) { request in
@@ -84,7 +84,7 @@ import Testing
             )
         ]
 
-        let responseData = try JSONEncoder().encode(LanguagesResponse(data: expectedLanguages))
+        let responseData = try JSONEncoder().encode(LanguagesResponse(data: expectedLanguages, next_page_token: nil, total_size: nil))
         var capturedRequest: URLRequest?
 
         HTTPMocking.setHandler(token: token) { request in
@@ -168,7 +168,7 @@ import Testing
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
-        let emptyResponse = LanguagesResponse(data: [])
+        let emptyResponse = LanguagesResponse(data: [], next_page_token: nil, total_size: nil)
         let responseData = try JSONEncoder().encode(emptyResponse)
 
         HTTPMocking.setHandler(token: token) { request in
@@ -183,5 +183,7 @@ import Testing
     // Helper struct for encoding test responses
     private struct LanguagesResponse: Encodable {
         let data: [LanguageOverview]
+        let next_page_token: String?
+        let total_size: Int?
     }
 }
