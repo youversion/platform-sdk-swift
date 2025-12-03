@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.2.0](https://github.com/youversion/platform-sdk-swift/compare/0.1.1...0.2.0) (2025-12-03)
+
+
+### Features
+
+* **core:** use next_page_tokens to fetch all bibles and languages ([bba1b7e](https://github.com/youversion/platform-sdk-swift/commit/bba1b7e09951d663e7ab1859094a550f59a2a0e8))
+
 ## [0.1.1](https://github.com/youversion/platform-sdk-swift/compare/0.1.0...0.1.1) (2025-11-17)
 
 

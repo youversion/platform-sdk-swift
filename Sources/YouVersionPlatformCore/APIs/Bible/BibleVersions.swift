@@ -23,33 +23,47 @@ public extension YouVersionAPI.Bible {
     static func versions(forLanguageTag languageTag: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let range = languageTag == nil ? [] : [languageTag!]
-        guard let url = URLBuilder.versionsURL(languageRanges: range, pageSize: 99) else {
-            throw URLError(.badURL)
-        }
 
-        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
-        let (data, response) = try await session.data(for: request)
+        var allResults: [BibleVersion] = []
+        var pageToken: String?
 
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("unexpected response type")
-            throw YouVersionAPIError.invalidResponse
-        }
+        repeat {
+            guard let url = URLBuilder.versionsURL(languageRanges: range, pageSize: 99, pageToken: pageToken) else {
+                throw URLError(.badURL)
+            }
 
-        if httpResponse.statusCode == 401 {
-            print("error 401: unauthorized. Check your appKey")
-            throw YouVersionAPIError.notPermitted
-        }
+            let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+            let (data, response) = try await session.data(for: request)
 
-        guard httpResponse.statusCode == 200 else {
-            print("error in findVersions: \(httpResponse.statusCode)")
-            throw YouVersionAPIError.cannotDownload
-        }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("unexpected response type")
+                throw YouVersionAPIError.invalidResponse
+            }
 
-        let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
-        return responseObject.data
+            if httpResponse.statusCode == 401 {
+                print("error 401: unauthorized. Check your appKey")
+                throw YouVersionAPIError.notPermitted
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                print("error in findVersions: \(httpResponse.statusCode)")
+                throw YouVersionAPIError.cannotDownload
+            }
+
+            let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
+            allResults.append(contentsOf: responseObject.data)
+            pageToken = responseObject.next_page_token
+            if responseObject.data.isEmpty {
+                pageToken = nil
+            }
+        } while pageToken != nil
+
+        return allResults
     }
 
     private struct BibleVersionsResponse: Decodable {
         let data: [BibleVersion]
+        let next_page_token: String?
+        let total_size: Int?
     }
 }

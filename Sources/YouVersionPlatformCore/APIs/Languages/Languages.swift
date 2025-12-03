@@ -64,34 +64,45 @@ public extension YouVersionAPI {
         /// - Returns: An array of LanguageOverview objects.
         public static func languages(country: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
             let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-            guard let url = URLBuilder.languagesURL(country: country, pageSize: 99) else {
-                throw URLError(.badURL)
-            }
 
-            let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
-            let (data, response) = try await session.data(for: request)
+            var allResults: [LanguageOverview] = []
+            var pageToken: String?
 
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("unexpected response type")
-                throw YouVersionAPIError.invalidResponse
-            }
+            repeat {
+                guard let url = URLBuilder.languagesURL(country: country, pageSize: 99, pageToken: pageToken) else {
+                    throw URLError(.badURL)
+                }
 
-            if httpResponse.statusCode == 401 {
-                print("error 401: unauthorized. Check your appKey")
-                throw YouVersionAPIError.notPermitted
-            }
+                let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+                let (data, response) = try await session.data(for: request)
 
-            guard httpResponse.statusCode == 200 else {
-                print("error in languages: \(httpResponse.statusCode)")
-                throw YouVersionAPIError.cannotDownload
-            }
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    print("unexpected response type")
+                    throw YouVersionAPIError.invalidResponse
+                }
 
-            let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
-            return responseObject.data
+                if httpResponse.statusCode == 401 {
+                    print("error 401: unauthorized. Check your appKey")
+                    throw YouVersionAPIError.notPermitted
+                }
+
+                guard httpResponse.statusCode == 200 else {
+                    print("error in languages: \(httpResponse.statusCode)")
+                    throw YouVersionAPIError.cannotDownload
+                }
+
+                let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
+                allResults.append(contentsOf: responseObject.data)
+                pageToken = responseObject.next_page_token
+            } while pageToken != nil
+
+            return allResults
         }
 
         private struct LanguagesResponse: Decodable {
             let data: [LanguageOverview]
+            let next_page_token: String?
+            let total_size: Int?
         }
     }
 }
