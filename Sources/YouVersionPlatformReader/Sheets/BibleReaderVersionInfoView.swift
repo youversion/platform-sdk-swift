@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-struct BibleReaderVersionInfoView: View, ReaderColors {
+struct BibleReaderVersionInfoView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.openURL) private var openURL
 
@@ -202,8 +202,8 @@ struct BibleReaderVersionInfoView: View, ReaderColors {
     private var BigButtonStylePrimary: some ButtonStyle {
         BigButtonStyle(
             strokeColor: .clear,
-            backgroundColor: viewModel.buttonContrastColor,
-            foregroundColor: viewModel.textInvertedColor
+            backgroundColor: viewModel.readerButtonContrastColor,
+            foregroundColor: viewModel.readerTextInvertedColor
         )
     }
 

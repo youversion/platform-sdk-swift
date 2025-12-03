@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-public struct BibleReaderVersionListView: View, ReaderColors {
+public struct BibleReaderVersionListView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @State private var searchText = ""
 
@@ -79,7 +79,7 @@ public struct BibleReaderVersionListView: View, ReaderColors {
         .padding(.vertical, 10)
         .background(
             Capsule()
-                .fill(viewModel.buttonPrimaryColor)
+                .fill(viewModel.readerButtonPrimaryColor)
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
@@ -105,7 +105,7 @@ public struct BibleReaderVersionListView: View, ReaderColors {
                 .padding(.vertical, 2)
                 .background(
                     Capsule()
-                        .fill(viewModel.buttonPrimaryColor)
+                        .fill(viewModel.readerButtonPrimaryColor)
                 )
             Image(systemName: "chevron.right")
             Spacer()

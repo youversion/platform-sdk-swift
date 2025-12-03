@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-struct BibleReaderMyVersionsListItem: View, ReaderColors, AbbreviationSplitting {
+struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
     @Environment(BibleReaderViewModel.self) private var viewModel
     let item: BibleVersion
 
@@ -30,10 +30,10 @@ struct BibleReaderMyVersionsListItem: View, ReaderColors, AbbreviationSplitting 
             .frame(width: 64, height: 64)
             .background(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(viewModel.buttonPrimaryColor)
+                    .fill(viewModel.readerButtonPrimaryColor)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(viewModel.borderPrimaryColor, lineWidth: 1)
+                            .stroke(viewModel.readerBorderPrimaryColor, lineWidth: 1)
                     )
             )
             .onTapGesture {

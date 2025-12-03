@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct BibleReaderDrawer: View, ReaderColors {
+struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     private let buttonHeight = CGFloat(55)
@@ -64,7 +64,7 @@ struct BibleReaderDrawer: View, ReaderColors {
         .padding(.horizontal)
         .frame(height: buttonHeight)
         .background(RoundedRectangle(cornerRadius: 12)
-            .fill(viewModel.surfaceTertiaryColor))
+            .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
     }
 
@@ -86,7 +86,7 @@ struct BibleReaderDrawer: View, ReaderColors {
         .padding(.horizontal, 12)
         .frame(height: buttonHeight)
         .background(RoundedRectangle(cornerRadius: 12)
-            .fill(viewModel.surfaceTertiaryColor))
+            .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .font(ReaderFonts.fontLabelM)
     }

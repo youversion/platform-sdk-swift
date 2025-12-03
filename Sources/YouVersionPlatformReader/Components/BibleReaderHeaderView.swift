@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-public struct BibleReaderHeaderView: View, ReaderColors {
+public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -86,7 +86,7 @@ public struct BibleReaderHeaderView: View, ReaderColors {
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
                 handleVersionTap: { viewModel.handlePickersVersionTap() },
                 foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: viewModel.buttonPrimaryColor,
+                buttonColor: viewModel.readerButtonPrimaryColor,
                 backgroundColor: viewModel.readerCanvasPrimaryColor,
                 compactMode: false
             )
@@ -97,7 +97,7 @@ public struct BibleReaderHeaderView: View, ReaderColors {
                 handleChapterTap: {},
                 handleVersionTap: {},
                 foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: viewModel.buttonPrimaryColor,
+                buttonColor: viewModel.readerButtonPrimaryColor,
                 backgroundColor: viewModel.readerCanvasPrimaryColor,
                 compactMode: false
             )

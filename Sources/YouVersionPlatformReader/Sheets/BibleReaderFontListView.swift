@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-struct BibleReaderFontListView: View, ReaderColors {
+struct BibleReaderFontListView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     var body: some View {
@@ -58,7 +58,7 @@ struct BibleReaderFontListView: View, ReaderColors {
                 }
                 .frame(height: 40)
                 .background(
-                    isSelected ? viewModel.surfacePrimaryColor : viewModel.readerCanvasPrimaryColor
+                    isSelected ? viewModel.readerSurfacePrimaryColor : viewModel.readerCanvasPrimaryColor
                 )
             }
         }

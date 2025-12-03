@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformUI
 
-struct BibleReaderSignInView: View, ReaderColors {
+struct BibleReaderSignInView: View {
     public var appName: String
     public var appMessage: String?
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -36,8 +36,8 @@ struct BibleReaderSignInView: View, ReaderColors {
             }
             .buttonStyle(
                 BigButtonStyle(
-                    strokeColor: viewModel.borderPrimaryColor,
-                    backgroundColor: viewModel.buttonPrimaryColor,
+                    strokeColor: viewModel.readerBorderPrimaryColor,
+                    backgroundColor: viewModel.readerButtonPrimaryColor,
                     foregroundColor: viewModel.readerTextPrimaryColor
                 )
             )
@@ -48,8 +48,8 @@ struct BibleReaderSignInView: View, ReaderColors {
             }
             .buttonStyle(
                 BigButtonStyle(
-                    strokeColor: viewModel.borderSecondaryColor,
-                    backgroundColor: viewModel.buttonSecondaryColor,
+                    strokeColor: viewModel.readerBorderSecondaryColor,
+                    backgroundColor: viewModel.readerButtonSecondaryColor,
                     foregroundColor: viewModel.readerTextPrimaryColor
                 )
             )

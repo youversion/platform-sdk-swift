@@ -27,56 +27,68 @@ extension BibleReaderViewModel {
         colorTheme?.colorScheme == .dark ? dark : light
     }
 
-    var surfacePrimaryColor: Color {
+    var readerCanvasPrimaryColor: Color {
+        colorTheme?.background ?? (colorTheme?.colorScheme != .dark ? readerWhiteColor : readerBlackColor)
+    }
+
+    var readerTextPrimaryColor: Color {
+        colorTheme?.foreground ?? (colorTheme?.colorScheme != .dark ? readerBlackColor : readerWhiteColor)
+    }
+
+    var readerTextMutedColor: Color {
+        readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
+    }
+
+    var readerSurfacePrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "f6f4f4"),
             dark: Color(hex: "232121")
         )
     }
 
-    var surfaceTertiaryColor: Color {
+    var readerSurfaceTertiaryColor: Color {
         colorForScheme(
             light: Color(hex: "EDEBEB"),
             dark: Color(hex: "353333")
         )
     }
 
-    var borderPrimaryColor: Color {
+    var readerBorderPrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "dddbdb"),
             dark: Color(hex: "474545")
         )
     }
 
-    var borderSecondaryColor: Color {
+    var readerBorderSecondaryColor: Color {
         colorForScheme(
             light: Color(hex: "bfbdbd"),
             dark: Color(hex: "636161")
         )
     }
 
-    var buttonPrimaryColor: Color {
+    var readerButtonPrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "#edebeb"),
             dark: Color(hex: "#353333")
         )
     }
 
-    var buttonSecondaryColor: Color {
+    var readerButtonSecondaryColor: Color {
         colorForScheme(
             light: Color(hex: "dddbdb"),
             dark: Color(hex: "474545")
         )
     }
 
-    var buttonContrastColor: Color {
+    var readerButtonContrastColor: Color {
         colorForScheme(
             light: Color(hex: "121212"),
             dark: Color(hex: "edebeb")
         )
     }
 
-    var textInvertedColor: Color {
+    var readerTextInvertedColor: Color {
         colorForScheme(
             light: readerWhiteColor,
             dark: readerBlackColor
@@ -91,11 +103,11 @@ extension BibleReaderViewModel {
         Color(hex: "#121212")
     }
 
-    var dropShadowColor: Color {
+    var readerDropShadowColor: Color {
         Color(hex: "#777777").opacity(0.5)
     }
 
-    var wordsOfChristColor: Color {
+    var readerWordsOfChristColor: Color {
         colorForScheme(
             light: Color(hex: "#ff3d4d"),
             dark: Color(hex: "#F04C59")

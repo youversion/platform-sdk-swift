@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-public struct BibleReaderBookAndChapterPickerView: View, ReaderColors {
+public struct BibleReaderBookAndChapterPickerView: View {
     @Binding var expandedBookCode: String?
     @Binding var isPresented: Bool
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -101,7 +101,7 @@ public struct BibleReaderBookAndChapterPickerView: View, ReaderColors {
                         .frame(width: chapterButtonSize, height: chapterButtonSize)
                         .background(
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(viewModel.buttonPrimaryColor)
+                                .fill(viewModel.readerButtonPrimaryColor)
                         )
                 }
                 .buttonStyle(PlainButtonStyle())

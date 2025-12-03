@@ -6,7 +6,7 @@ import YouVersionPlatformUI
 
 @MainActor
 @Observable
-final class BibleReaderViewModel: ReaderColors {
+final class BibleReaderViewModel {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     var reference: BibleReference {
@@ -180,7 +180,7 @@ final class BibleReaderViewModel: ReaderColors {
             lineSpacing: lineSpacing,
             paragraphSpacing: lineSpacing,
             textColor: readerTextPrimaryColor,
-            wocColor: wordsOfChristColor
+            wocColor: readerWordsOfChristColor
         )
     }
 
@@ -214,18 +214,6 @@ final class BibleReaderViewModel: ReaderColors {
     }
 
     // MARK: Colors
-
-    var readerCanvasPrimaryColor: Color {
-        colorTheme?.background ?? (colorTheme?.colorScheme != .dark ? readerWhiteColor : readerBlackColor)
-    }
-
-    var readerTextPrimaryColor: Color {
-        colorTheme?.foreground ?? (colorTheme?.colorScheme != .dark ? readerBlackColor : readerWhiteColor)
-    }
-
-    var readerTextMutedColor: Color {
-        readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
-    }
 
     var colorTheme: ReaderTheme?
 

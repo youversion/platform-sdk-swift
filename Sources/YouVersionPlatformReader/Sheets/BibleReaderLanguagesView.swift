@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct BibleReaderLanguagesView: View, ReaderColors {
+struct BibleReaderLanguagesView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     init(viewModel: BibleReaderViewModel) {
 #if canImport(UIKit)
-        UISegmentedControl.appearance().tintColor = UIColor(viewModel.buttonPrimaryColor)
+        UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerWhiteColor)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .selected)
@@ -42,7 +42,7 @@ struct BibleReaderLanguagesView: View, ReaderColors {
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .background(
                             Capsule()
-                                .fill(viewModel.buttonPrimaryColor)
+                                .fill(viewModel.readerButtonPrimaryColor)
                         )
                     Button(String.localized("generic.cancel")) {
                         selectedSegment = .suggested
