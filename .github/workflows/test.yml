@@ -3,7 +3,7 @@ name: Unit Tests
 on: [pull_request]
 
 env:
-  XCODE_VERSION: 16.4.0
+  XCODE_VERSION: 26.0.1
   IOS_SIMULATOR_NAME: iPhone 16
   IOS_SIMULATOR_OS: 18.6
 
