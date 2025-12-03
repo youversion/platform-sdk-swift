@@ -97,7 +97,7 @@ struct BibleReaderLanguagesView: View, ReaderColors {
             viewModel.versionsStackPop()
         }
         .toolbar {
-#if canImport(UIKit)
+#if os(iOS)
             ToolbarItem(placement: .title) {
                 Text(String.localized("languageList.title"))
                     .fontWeight(.medium)
