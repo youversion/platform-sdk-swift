@@ -93,10 +93,8 @@ public struct BibleTextView: View {
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
         var footnotes: [BibleFootnote] = []
         for block in blocks {
-            for footnote in block.footnotes {
-                if footnote.reference == reference {
-                    footnotes.append(footnote)
-                }
+            for footnote in block.footnotes where footnote.reference == reference {
+                footnotes.append(footnote)
             }
         }
         return footnotes

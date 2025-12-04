@@ -5,7 +5,7 @@ struct BibleReaderFootnotesView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     var body: some View {
-        var textOptions = BibleTextOptions(
+        let textOptions = BibleTextOptions(
             fontFamily: ReaderFonts.defaultFontFamily,
             fontSize: ReaderFonts.defaultFontSize * 0.80,
             lineSpacing: viewModel.textOptions.lineSpacing,
@@ -34,8 +34,8 @@ struct BibleReaderFootnotesView: View {
                         ForEach(viewModel.footnotesToDisplay.indices, id: \.self) { index in
                             let footnote = viewModel.footnotesToDisplay[index]
                             HStack(alignment: .firstTextBaseline) {
-                                let character = UnicodeScalar(UnicodeScalar("a").value + UInt32(index)) ?? " "
-                                Text("\(character).")
+                                let character = String(UnicodeScalar(UnicodeScalar("a").value + UInt32(index)) ?? " ")
+                                Text(character + ".")
                                 Text(footnote.text.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }
