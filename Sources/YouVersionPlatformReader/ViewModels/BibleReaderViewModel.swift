@@ -163,7 +163,6 @@ final class BibleReaderViewModel {
     var showingBookPicker = false
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
-    var referenceOfFootnote: BibleReference?
     var footnotesToDisplay: [BibleFootnote] = []
 
     let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others

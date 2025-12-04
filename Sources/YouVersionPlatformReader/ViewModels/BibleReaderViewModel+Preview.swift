@@ -15,10 +15,10 @@ extension BibleReaderViewModel {
         vm.myVersions = [previewVersion]
         vm.selectedVersion = previewVersion
 
-        vm.referenceOfFootnote = BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 21, verse: 1)
+        let footnoteReference = BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 21, verse: 1)
         vm.footnotesToDisplay = [
-            BibleFootnote(text: BibleAttributedString("Footnote text goes here."), reference: vm.referenceOfFootnote!),
-            BibleFootnote(text: BibleAttributedString("Second Footnote text goes here. This time the footnote is fairly long."), reference: vm.referenceOfFootnote!)
+            BibleFootnote(text: BibleAttributedString("Footnote text goes here."), reference: footnoteReference),
+            BibleFootnote(text: BibleAttributedString("Second Footnote text goes here. This time the footnote is fairly long."), reference: footnoteReference)
         ]
         return vm
     }

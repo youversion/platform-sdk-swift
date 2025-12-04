@@ -19,7 +19,8 @@ struct BibleReaderFootnotesView: View {
         )
 
         return VStack(alignment: .leading) {
-            if let version = viewModel.version, let reference = viewModel.referenceOfFootnote {
+            if let version = viewModel.version,
+                let reference = viewModel.footnotesToDisplay.first?.reference {
                 Text(version.displayTitle(for: reference))
                     .font(ReaderFonts.fontHeaderS)
                     .padding(.bottom)

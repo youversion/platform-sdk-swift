@@ -212,8 +212,8 @@ public struct BibleReaderView: View {
                             viewModel.reference,
                             textOptions: viewModel.textOptions,
                             selectedVerses: $viewModel.selectedVerses,
-                            onVerseTap: { reference, textType, footnotes in
-                                viewModel.handleVerseTap(reference: reference, textType: textType, footnotes: footnotes)
+                            onVerseTap: { reference, actionType, footnotes in
+                                viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
                             }
                         )
                         bibleCopyrightBlock

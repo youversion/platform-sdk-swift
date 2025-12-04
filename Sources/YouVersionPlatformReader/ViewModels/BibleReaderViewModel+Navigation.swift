@@ -72,11 +72,9 @@ extension BibleReaderViewModel {
         lastScrollOffset = offset
     }
 
-    // TODO the drawer needs to consider the color(s) of the highlighted verse(s), so it can add the X.
-    func handleVerseTap(reference: BibleReference, textType: String, footnotes: [BibleFootnote]) {
-        if textType == BibleVersionRendering.LinkSchemes.footnote.rawValue {
+    func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
+        if actionType == BibleVersionRendering.LinkSchemes.footnote.rawValue {
             showingFootnotes = true
-            referenceOfFootnote = reference
             footnotesToDisplay = footnotes
             return
         }
