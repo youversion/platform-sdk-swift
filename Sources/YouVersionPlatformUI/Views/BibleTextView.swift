@@ -70,7 +70,7 @@ public struct BibleTextView: View {
         }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
-                onVerseTap?(reference, url.scheme ?? "reference")
+                onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue)
             }
             return .handled
         }))
@@ -90,7 +90,7 @@ public struct BibleTextView: View {
     }
 
     private func parseReference(url: URL) -> BibleReference? {
-        guard url.scheme == "reference" || url.scheme == "footnote",
+        guard url.scheme == BibleVersionRendering.LinkSchemes.reference.rawValue || url.scheme == BibleVersionRendering.LinkSchemes.footnote.rawValue,
               let host = url.host,
               let versionId = Int(host) else {
             return nil

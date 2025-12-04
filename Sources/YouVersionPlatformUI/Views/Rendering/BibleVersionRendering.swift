@@ -628,7 +628,8 @@ public enum BibleVersionRendering {
                 newText.markWithTextCategory(category)
                 if verse > 0 && (category == .scripture || category == .verseLabel || category == .footnoteMarker) {
                     let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse)
-                    newText.markWithReference(reference, scheme: category == .footnoteMarker ? "footnote" : "reference")
+                    let scheme = category == .footnoteMarker ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
+                    newText.markWithReference(reference, scheme: scheme)
                 }
                 text += newText
             }
@@ -647,6 +648,10 @@ public enum BibleVersionRendering {
         }
     }
 
+    public enum LinkSchemes: String {
+        case footnote
+        case reference
+    }
 }
 
 public final class BibleAttributedString: Equatable, Hashable {
