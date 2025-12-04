@@ -71,6 +71,13 @@ public struct BibleReaderView: View {
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
+        .sheet(isPresented: $viewModel.showingFootnotes, content: {
+            BibleReaderFootnotesView()
+                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                .presentationBackground(viewModel.readerCanvasPrimaryColor)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.medium, .large])
+        })
         .sheet(isPresented: $viewModel.showingSignInSheet, content: {
             signInView
         })

@@ -14,6 +14,8 @@ extension BibleReaderViewModel {
         vm.version = previewVersion
         vm.myVersions = [previewVersion]
         vm.selectedVersion = previewVersion
+
+        vm.referenceOfFootnote = BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 21, verse: 1)
         return vm
     }
 

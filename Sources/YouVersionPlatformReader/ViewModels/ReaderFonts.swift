@@ -94,9 +94,10 @@ public enum ReaderFonts {
 
     static let fontSystemM = Font.system(size: 18, weight: .medium)
     static let fontHeaderM = Font.system(size: 20, weight: .bold)
-    static let fontHeaderS = Font.system(size: 16, weight: .medium)
+    static let fontHeaderS = Font.system(size: 16, weight: .bold)
     static let fontEyebrowS = Font.system(size: 11, weight: .bold)
     static let fontLabelM = Font.system(size: 13, weight: .medium)
+    static let fontLabelS = Font.system(size: 11, weight: .medium)
     static let fontCaptionsL = Font.system(size: 13)
     static let fontCaptionsS = Font.system(size: 11)
 
