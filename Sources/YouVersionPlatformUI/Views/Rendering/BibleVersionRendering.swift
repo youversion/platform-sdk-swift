@@ -14,8 +14,8 @@ public enum BibleVersionRendering {
         do {
             guard let blocks = try await textBlocks(
                 reference,
-                renderVerseNumbers: false,
                 renderHeadlines: false,
+                renderVerseNumbers: false,
                 renderFootnotes: false,
                 fonts: BibleTextFonts(familyName: familyName)
             ) else {
@@ -33,8 +33,8 @@ public enum BibleVersionRendering {
     /// If the chapter data is unavailable (e.g. we're offline), this returns nil.
     static func textBlocks(
         _ reference: BibleReference,
-        renderVerseNumbers: Bool = true,
         renderHeadlines: Bool = true,
+        renderVerseNumbers: Bool = true,
         renderFootnotes: Bool = false,
         footnoteMarker: BibleAttributedString? = nil,
         textColor: Color = Color.primary,
@@ -216,7 +216,7 @@ public enum BibleVersionRendering {
             for child in node.children {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }
-            stateUp.footnotes.append(footState.text)
+            stateUp.appendFootnote(text: footState.text)
         } else {
             for child in node.children {
                 stateDown.currentFont = .footnote
@@ -621,7 +621,7 @@ public enum BibleVersionRendering {
         var chapter: Int
         var verse: Int
         var text = BibleAttributedString()
-        var footnotes: [BibleAttributedString] = []
+        var footnotes: [BibleFootnote] = []
 
         mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory) {
             if !newText.isEmpty {
@@ -633,6 +633,16 @@ public enum BibleVersionRendering {
                 }
                 text += newText
             }
+        }
+
+        mutating func appendFootnote(text: BibleAttributedString) {
+            let reference = BibleReference(
+                versionId: versionId,
+                bookUSFM: bookUSFM,
+                chapter: chapter,
+                verse: verse
+            )
+            footnotes.append(BibleFootnote(text: text, reference: reference))
         }
 
         var endsWithASpace: Bool {
@@ -769,6 +779,16 @@ public extension AttributeDynamicLookup {
         get { self[T.self] }
     }
 }
+// Represents a footnote and its reference location.
+public struct BibleFootnote: Hashable {
+    public let text: BibleAttributedString
+    public let reference: BibleReference
+
+    public init(text: BibleAttributedString, reference: BibleReference) {
+        self.text = text
+        self.reference = reference
+    }
+}
 
 public struct BibleTextBlock: Identifiable {
     public let id = UUID()
@@ -781,7 +801,7 @@ public struct BibleTextBlock: Identifiable {
     //the left margin in left-to-right text). If 0 or negative, it’s the distance from the trailing margin.
     public let marginTop: CGFloat
     public let alignment: TextAlignment
-    public let footnotes: [BibleAttributedString]
+    public let footnotes: [BibleFootnote]
 
     public init(
         text: BibleAttributedString,
@@ -790,7 +810,7 @@ public struct BibleTextBlock: Identifiable {
         headIndent: Int,
         marginTop: CGFloat,
         alignment: TextAlignment,
-        footnotes: [BibleAttributedString],
+        footnotes: [BibleFootnote],
         rows: [[BibleAttributedString]] = []
     ) {
         self.text = text

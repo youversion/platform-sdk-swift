@@ -5,17 +5,16 @@ struct BibleReaderFootnotesView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     var body: some View {
-        // TODO add the renderHeadlines option and turn it off here
-        // TODO add a footnoteMode to do superscript letters ("a", "b"...)
         var textOptions = BibleTextOptions(
-            fontFamily: viewModel.textOptions.fontFamily,
-            fontSize: viewModel.textOptions.fontSize,
+            fontFamily: ReaderFonts.defaultFontFamily,
+            fontSize: ReaderFonts.defaultFontSize * 0.80,
             lineSpacing: viewModel.textOptions.lineSpacing,
             paragraphSpacing: viewModel.textOptions.paragraphSpacing,
             textColor: viewModel.textOptions.textColor,
             wocColor: viewModel.textOptions.wocColor,
+            renderHeadlines: false,
             renderVerseNumbers: false,
-            footnoteMode: viewModel.textOptions.footnoteMode,
+            footnoteMode: viewModel.textOptions.footnoteMode,  // TODO add a footnoteMode to do superscript letters ("a", "b"...)
             footnoteMarker: viewModel.textOptions.footnoteMarker
         )
 
@@ -23,20 +22,28 @@ struct BibleReaderFootnotesView: View {
             if let version = viewModel.version, let reference = viewModel.referenceOfFootnote {
                 Text(version.displayTitle(for: reference))
                     .font(ReaderFonts.fontHeaderS)
-                    .padding([.top, .bottom])
-                BibleTextView(reference, textOptions: textOptions)
                     .padding(.bottom)
-                Text("a. 1:3 Something here about this verse and it’s a footnote")
-                    .font(ReaderFonts.fontLabelS)
-                Divider()
-                Text("b. 1:3 Something here about this verse and it’s a footnote")
-                    .font(ReaderFonts.fontLabelS)
-                Divider()
+                ScrollView {
+                    HStack {
+                        BibleTextView(reference, textOptions: textOptions)
+                        Spacer()
+                    }
+                    .padding(.bottom)
+                    Divider()
+                    VStack(alignment: .leading) {
+                        ForEach(viewModel.footnotesToDisplay, id: \.self) { footnote in
+                            Text(footnote.text.asAttributedString)
+                                .font(ReaderFonts.fontLabelS)
+                                .multilineTextAlignment(.leading)
+                            Divider()
+                        }
+                    }
+                }
                 Spacer()
             }
         }
         .padding(.horizontal, 24)
-        .padding(.top, 16)
+        .padding(.top, 24)
     }
 }
 

@@ -16,6 +16,10 @@ extension BibleReaderViewModel {
         vm.selectedVersion = previewVersion
 
         vm.referenceOfFootnote = BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 21, verse: 1)
+        vm.footnotesToDisplay = [
+            .init(text: BibleAttributedString("Footnote text goes here."), reference: vm.referenceOfFootnote!),
+            .init(text: BibleAttributedString("Second Footnote text goes here. This time the footnote is fairly long."), reference: vm.referenceOfFootnote!)
+        ]
         return vm
     }
 
