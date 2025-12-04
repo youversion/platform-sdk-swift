@@ -14,8 +14,8 @@ struct BibleReaderFootnotesView: View {
             wocColor: viewModel.textOptions.wocColor,
             renderHeadlines: false,
             renderVerseNumbers: false,
-            footnoteMode: viewModel.textOptions.footnoteMode,  // TODO add a footnoteMode to do superscript letters ("a", "b"...)
-            footnoteMarker: viewModel.textOptions.footnoteMarker
+            footnoteMode: .letters,
+            footnoteMarker: nil,
         )
 
         return VStack(alignment: .leading) {
@@ -31,10 +31,15 @@ struct BibleReaderFootnotesView: View {
                     .padding(.bottom)
                     Divider()
                     VStack(alignment: .leading) {
-                        ForEach(viewModel.footnotesToDisplay, id: \.self) { footnote in
-                            Text(footnote.text.asAttributedString)
-                                .font(ReaderFonts.fontLabelS)
-                                .multilineTextAlignment(.leading)
+                        ForEach(viewModel.footnotesToDisplay.indices, id: \.self) { index in
+                            let footnote = viewModel.footnotesToDisplay[index]
+                            HStack(alignment: .firstTextBaseline) {
+                                let character = UnicodeScalar(UnicodeScalar("a").value + UInt32(index)) ?? " "
+                                Text("\(character).")
+                                Text(footnote.text.asAttributedString)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .font(ReaderFonts.fontLabelS)
                             Divider()
                         }
                     }

@@ -16,7 +16,7 @@ public enum BibleVersionRendering {
                 reference,
                 renderHeadlines: false,
                 renderVerseNumbers: false,
-                renderFootnotes: false,
+                footnotesMode: .none,
                 fonts: BibleTextFonts(familyName: familyName)
             ) else {
                 return nil
@@ -35,7 +35,7 @@ public enum BibleVersionRendering {
         _ reference: BibleReference,
         renderHeadlines: Bool = true,
         renderVerseNumbers: Bool = true,
-        renderFootnotes: Bool = false,
+        footnotesMode: BibleTextFootnoteMode = .letters,
         footnoteMarker: BibleAttributedString? = nil,
         textColor: Color = Color.primary,
         wocColor: Color = Color.red,
@@ -82,7 +82,7 @@ public enum BibleVersionRendering {
             toVerse: verseEnd,
             renderVerseNumbers: renderVerseNumbers,
             renderHeadlines: renderHeadlines,
-            renderFootnotes: renderFootnotes,
+            footnotesMode: footnotesMode,
             footnoteMarker: marker,
             textColor: textColor,
             wocColor: wocColor,
@@ -181,7 +181,7 @@ public enum BibleVersionRendering {
         } else if node.classes.contains("rq") {
             // a cross-reference, e.g. NIrV (#110) Revelation 19:15. Not really a footnote; something different.
         } else if node.classes.contains("yv-n") && node.classes.contains("f") {
-            if stateUp.rendering && stateIn.renderFootnotes {
+            if stateUp.rendering && stateIn.footnotesMode != .none {
                 handleFootnoteNode(node, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
             }
         } else if node.classes.contains("yv-n") && node.classes.contains("x") {
@@ -202,7 +202,15 @@ public enum BibleVersionRendering {
         var stateDown = parentStateDown
         stateDown.nodeDepth += 1
         stateDown.textCategory = .footnoteText
-        if let marker = stateIn.footnoteMarker {
+        var marker = stateIn.footnoteMarker
+        if stateIn.footnotesMode == .letters {
+            marker = stateUp.nextFootnoteMarker
+                .setFont(.footnote, from: stateIn.fonts)
+                .setColor(stateIn.textColor.opacity(stateIn.fonts.verseNumOpacity))
+                .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
+
+        }
+        if let marker {
             stateUp.append(marker, category: .footnoteMarker)
             // now, collect the text of the footnotes into footState
             var footState = StateUp(
@@ -592,7 +600,7 @@ public enum BibleVersionRendering {
         var toVerse: Int  // in the chapter, the highest number verse to render. Could be 999.
         var renderVerseNumbers: Bool
         var renderHeadlines: Bool
-        var renderFootnotes: Bool
+        var footnotesMode: BibleTextFootnoteMode
         var footnoteMarker: BibleAttributedString?  // shown when renderFootnotes is true. If nil, they render inline.
         var textColor: Color
         var wocColor: Color
@@ -622,6 +630,12 @@ public enum BibleVersionRendering {
         var verse: Int
         var text = BibleAttributedString()
         var footnotes: [BibleFootnote] = []
+
+        var nextFootnoteMarker: BibleAttributedString {
+            // First footnote -> "a", second -> "b", etc.
+            let value = UnicodeScalar("a").value + UInt32(min(25, footnotes.count))
+            return BibleAttributedString("\u{00a0}" + (String(UnicodeScalar(value) ?? "※") + " "))
+        }
 
         mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory) {
             if !newText.isEmpty {
@@ -780,7 +794,8 @@ public extension AttributeDynamicLookup {
     }
 }
 // Represents a footnote and its reference location.
-public struct BibleFootnote: Hashable {
+public struct BibleFootnote: Hashable, Identifiable {
+    public let id = UUID()
     public let text: BibleAttributedString
     public let reference: BibleReference
 
@@ -822,7 +837,13 @@ public struct BibleTextBlock: Identifiable {
         self.footnotes = footnotes
         self.rows = rows
     }
+}
 
+public enum BibleTextFootnoteMode {
+    case none
+    case inline
+    case marker
+    case letters  // "a", "b", etc. within the passage
 }
 
 #endif

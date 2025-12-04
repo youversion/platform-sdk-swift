@@ -146,7 +146,7 @@ public struct BibleTextView: View {
                 reference,
                 renderHeadlines: textOptions.renderHeadlines,
                 renderVerseNumbers: textOptions.renderVerseNumbers,
-                renderFootnotes: textOptions.footnoteMode != .none,
+                footnotesMode: textOptions.footnoteMode,
                 footnoteMarker: textOptions.footnoteMarker,
                 textColor: textOptions.textColor ?? Color.primary,
                 wocColor: textOptions.wocColor,
@@ -225,12 +225,6 @@ public struct BibleTextView: View {
         return AnyView(v.frame(height: height))
     }
 
-}
-
-public enum BibleTextFootnoteMode {
-    case none
-    case inline
-    case marker
 }
 
 public struct BibleTextOptions {
