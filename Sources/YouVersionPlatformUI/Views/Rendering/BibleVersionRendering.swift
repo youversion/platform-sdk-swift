@@ -626,9 +626,9 @@ public enum BibleVersionRendering {
         mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory) {
             if !newText.isEmpty {
                 newText.markWithTextCategory(category)
-                if verse > 0 && (category == .scripture || category == .verseLabel) {
+                if verse > 0 && (category == .scripture || category == .verseLabel || category == .footnoteMarker) {
                     let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse)
-                    newText.markWithReference(reference)
+                    newText.markWithReference(reference, scheme: category == .footnoteMarker ? "footnote" : "reference")
                 }
                 text += newText
             }
@@ -722,9 +722,9 @@ public final class BibleAttributedString: Equatable, Hashable {
         two.bibleTextCategory = category
     }
 
-    func markWithReference(_ reference: BibleReference) {
+    func markWithReference(_ reference: BibleReference, scheme: String) {
         two.bibleReference = reference
-        two.link = URL(string: "reference://\(reference.versionId)/\(reference.asUSFM)")
+        two.link = URL(string: "\(scheme)://\(reference.versionId)/\(reference.asUSFM)")
     }
 
 }

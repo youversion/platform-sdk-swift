@@ -3,7 +3,7 @@ import YouVersionPlatformCore
 
 public struct BibleTextView: View {
 
-    public typealias VerseTapAction = (BibleReference, CGPoint) -> Void
+    public typealias VerseTapAction = (BibleReference, String) -> Void
 
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
@@ -70,7 +70,7 @@ public struct BibleTextView: View {
         }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
-                onVerseTap?(reference, CGPoint(x: 0, y: 0))
+                onVerseTap?(reference, url.scheme ?? "reference")
             }
             return .handled
         }))
@@ -90,7 +90,7 @@ public struct BibleTextView: View {
     }
 
     private func parseReference(url: URL) -> BibleReference? {
-        guard url.scheme == "reference",
+        guard url.scheme == "reference" || url.scheme == "footnote",
               let host = url.host,
               let versionId = Int(host) else {
             return nil

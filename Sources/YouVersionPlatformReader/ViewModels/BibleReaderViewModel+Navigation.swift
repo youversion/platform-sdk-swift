@@ -73,7 +73,11 @@ extension BibleReaderViewModel {
     }
 
     // TODO the drawer needs to consider the color(s) of the highlighted verse(s), so it can add the X.
-    func handleVerseTap(reference: BibleReference) {
+    func handleVerseTap(reference: BibleReference, textType: String) {
+        if textType == "footnote" {
+            print("footnote for \(reference)")
+            return
+        }
         guard YouVersionAPI.isSignedIn else {
             showingSignInSheet = true
             return

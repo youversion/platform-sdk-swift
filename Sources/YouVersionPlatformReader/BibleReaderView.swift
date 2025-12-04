@@ -201,13 +201,12 @@ public struct BibleReaderView: View {
                 .frame(height: 0)
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
-                        //bibleChapterHeader  // we will want this on Android but not iOS (for now)
                         BibleTextView(
                             viewModel.reference,
                             textOptions: viewModel.textOptions,
                             selectedVerses: $viewModel.selectedVerses,
-                            onVerseTap: { reference, _ in
-                                viewModel.handleVerseTap(reference: reference)
+                            onVerseTap: { reference, textType in
+                                viewModel.handleVerseTap(reference: reference, textType: textType)
                             }
                         )
                         bibleCopyrightBlock

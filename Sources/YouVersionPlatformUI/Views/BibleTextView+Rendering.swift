@@ -67,8 +67,7 @@ extension BibleTextView {
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
-        let indent = indentString(firstLineHeadIndent)
-        var textCombo = Text(indent)
+        var textCombo = Text(indentString(firstLineHeadIndent))
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -94,7 +93,7 @@ extension BibleTextView {
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer())
         } else {
-            return retValue  // TODO: must we support earlier iOS versions? Use the generic underline, maybe?
+            return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
         }
     }
 
