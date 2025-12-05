@@ -24,11 +24,8 @@ public enum ReaderFonts {
         ]
         let bundle = Bundle.YouVersionReaderBundle
         for name in fontNames {
-            if let url = bundle.url(forResource: name, withExtension: "ttf"),
-               let fontDataProvider = CGDataProvider(url: url as CFURL),
-               let font = CGFont(fontDataProvider) {
-                var error: Unmanaged<CFError>?
-                CTFontManagerRegisterGraphicsFont(font, &error)
+            if let cfURL = bundle.url(forResource: name, withExtension: "ttf") as CFURL? {
+                CTFontManagerRegisterFontsForURL(cfURL, CTFontManagerScope.process, nil)
             } else {
                 print("missing font: \(name)")
             }
