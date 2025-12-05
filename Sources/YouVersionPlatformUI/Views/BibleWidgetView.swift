@@ -45,7 +45,7 @@ public struct BibleWidgetView: View {
         }
         .sheet(isPresented: $showingCopyrightSheet) {
             ScrollView {
-                Text(version?.localizedTitle ?? "")
+                Text(version?.localizedTitle ?? version?.title ?? "")
                     .font(Font.system(size: 20, weight: .bold))  // YouVersion HeaderM
                     .padding(.vertical)
                 Text(version?.copyrightLong ?? version?.copyrightShort ?? "")

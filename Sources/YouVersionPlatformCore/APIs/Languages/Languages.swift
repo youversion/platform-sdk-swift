@@ -14,7 +14,7 @@ public struct LanguageOverview: Codable, Sendable, Equatable {
     public let variants: [String]
     public let countries: [String]
     public let textDirection: String
-    public let defaultBibleVersionId: Int?
+    public let defaultBibleId: Int?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -27,10 +27,10 @@ public struct LanguageOverview: Codable, Sendable, Equatable {
         case variants
         case countries
         case textDirection = "text_direction"
-        case defaultBibleVersionId = "default_bible_version_id"
+        case defaultBibleId = "default_bible_id"
     }
 
-    public init(id: String, language: String, script: String? = nil, scriptName: String? = nil, aliases: [String] = [], displayNames: [String: String] = [:], scripts: [String] = [], variants: [String] = [], countries: [String] = [], textDirection: String = "ltr", defaultBibleVersionId: Int? = nil) {
+    public init(id: String, language: String, script: String? = nil, scriptName: String? = nil, aliases: [String] = [], displayNames: [String: String] = [:], scripts: [String] = [], variants: [String] = [], countries: [String] = [], textDirection: String = "ltr", defaultBibleId: Int? = nil) {
         self.id = id
         self.language = language
         self.script = script
@@ -41,7 +41,7 @@ public struct LanguageOverview: Codable, Sendable, Equatable {
         self.variants = variants
         self.countries = countries
         self.textDirection = textDirection
-        self.defaultBibleVersionId = defaultBibleVersionId
+        self.defaultBibleId = defaultBibleId
     }
 
     public static func == (lhs: LanguageOverview, rhs: LanguageOverview) -> Bool {

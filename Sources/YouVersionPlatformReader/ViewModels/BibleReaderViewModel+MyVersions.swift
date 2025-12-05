@@ -84,18 +84,17 @@ extension BibleReaderViewModel {
 
     func initiateDownload(of version: BibleVersion) {
         Task {
+            let versionName = version.localizedTitle ?? version.title ?? .localized("myVersions.defaultVersionName")
             do {
                 try await versionRepository.downloadVersion(withId: version.id)
                 // TEMPORARY removal
                 //try await BibleChapterRepository.shared.download(version: version)
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("myVersions.downloadCompleteTitle")
-                let versionName = version.localizedTitle ?? .localized("myVersions.defaultVersionName")
                 textForGenericAlertBody = String(format: .localized("myVersions.downloadCompleteBodyFormat"), versionName)
             } catch {
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("myVersions.downloadFailedTitle")
-                let versionName = version.localizedTitle ?? .localized("myVersions.defaultVersionName")
                 textForGenericAlertBody = String(
                     format: .localized("myVersions.downloadFailedBodyFormat"),
                     versionName,

@@ -49,10 +49,10 @@ public extension YouVersionAPI.Bible {
             readerFooter: basic.readerFooter,
             readerFooterUrl: basic.readerFooterUrl,
             title: basic.title,
+            organizationId: basic.organizationId,
             bookCodes: fullBooks.compactMap { $0.usfm },
             books: fullBooks,
             textDirection: index.text_direction,
-            organizationId: basic.organizationId
         )
     }
 

@@ -11,11 +11,11 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     public let readerFooter: String?
     public let readerFooterUrl: String?
     public let title: String?
+    public let organizationId: String?
 
     public let bookCodes: [String]?
     public let books: [BibleBook]?
     public let textDirection: String?
-    public let organizationId: String?
 
     // TEMPORARY:
     public let requiresEmailAgreement = false
@@ -26,8 +26,8 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
         case copyrightLong = "copyright_long"
         case copyrightShort = "copyright_short"
         case languageTag = "language_tag"
-        case localizedAbbreviation = "local_abbreviation"
-        case localizedTitle = "local_title"
+        case localizedAbbreviation = "localized_abbreviation"
+        case localizedTitle = "localized_title"
         case readerFooter = "info"
         case readerFooterUrl = "publisher_url"
         case title
@@ -127,10 +127,10 @@ The King James Version (KJV) of the holy Bible was first printed in 1611, but th
             readerFooter: "Text is from the King James Version",
             readerFooterUrl: "https://www.biblesociety.org.uk",
             title: "King James Version",
+            organizationId: "1234-abcd-4321-fedc-0123456789ab",
             bookCodes: nil,
             books: nil,
-            textDirection: "ltr",
-            organizationId: "1234-abcd-4321-fedc-0123456789ab"
+            textDirection: "ltr"
         )
     }
 }

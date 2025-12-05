@@ -73,10 +73,10 @@ struct BibleReaderVersionInfoView: View {
     private var versionHeader: some View {
         VStack {
             if let version = viewModel.selectedVersion {
-                Text(version.localizedAbbreviation ?? "")
+                Text(version.localizedAbbreviation ?? version.abbreviation ?? "")
                     .font(ReaderFonts.preferredBibleTextFont(size: 64))
                     .padding(.bottom, 8)
-                Text(version.localizedTitle ?? "")
+                Text(version.localizedTitle ?? version.title ?? "")
                     .font(ReaderFonts.fontHeaderM)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)

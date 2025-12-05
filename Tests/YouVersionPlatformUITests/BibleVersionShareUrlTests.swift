@@ -23,10 +23,10 @@ import Testing
             readerFooter: nil,
             readerFooterUrl: nil,
             title: nil,
+            organizationId: nil,
             bookCodes: nil,
             books: nil,
-            textDirection: "ltr",
-            organizationId: nil
+            textDirection: "ltr"
         )
     }
     

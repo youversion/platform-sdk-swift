@@ -24,7 +24,7 @@ import Testing
                 variants: ["US", "GB"],
                 countries: ["US", "GB", "CA"],
                 textDirection: "ltr",
-                defaultBibleVersionId: 111
+                defaultBibleId: 111
             ),
             LanguageOverview(
                 id: "es",
@@ -37,7 +37,7 @@ import Testing
                 variants: ["ES", "MX"],
                 countries: ["ES", "MX", "AR"],
                 textDirection: "ltr",
-                defaultBibleVersionId: 128
+                defaultBibleId: 128
             )
         ]
 
@@ -55,10 +55,10 @@ import Testing
         #expect(languages.count == 2)
         #expect(languages[0].id == "en")
         #expect(languages[0].language == "English")
-        #expect(languages[0].defaultBibleVersionId == 111)
+        #expect(languages[0].defaultBibleId == 111)
         #expect(languages[1].id == "es")
         #expect(languages[1].language == "Spanish")
-        #expect(languages[1].defaultBibleVersionId == 128)
+        #expect(languages[1].defaultBibleId == 128)
         
         let _ = try #require(capturedRequest)
     }
@@ -80,7 +80,7 @@ import Testing
                 variants: ["US"],
                 countries: ["US"],
                 textDirection: "ltr",
-                defaultBibleVersionId: 111
+                defaultBibleId: 111
             )
         ]
 

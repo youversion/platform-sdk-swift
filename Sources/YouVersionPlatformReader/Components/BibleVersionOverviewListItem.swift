@@ -39,7 +39,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
             )
 
             // Version title
-            Text(item.title ?? item.abbreviation ?? String(item.id))
+            Text(item.localizedTitle ?? item.title ?? item.localizedAbbreviation ?? item.abbreviation ?? String(item.id))
                 .font(.body)
 
             Spacer()

@@ -12,7 +12,7 @@ struct BibleVersionDownloadView: View {
             if let version = viewModel.selectedVersion {
                 Text(version.localizedAbbreviation ?? "")
                     .font(ReaderFonts.preferredBibleTextFont(size: 64))
-                Text(version.localizedTitle ?? "")
+                Text(version.localizedTitle ?? version.title ?? "")
                     .font(ReaderFonts.fontHeaderS)
 
                 HStack {

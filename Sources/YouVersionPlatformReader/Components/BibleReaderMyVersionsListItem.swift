@@ -46,7 +46,7 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
                         .font(.caption2)
                         .foregroundStyle(viewModel.readerTextMutedColor)
                 }
-                Text(item.localizedTitle ?? item.localizedAbbreviation ?? String(item.id))
+                Text(item.localizedTitle ?? item.title ?? item.localizedAbbreviation ?? item.abbreviation ?? String(item.id))
                     .font(.body)
                     .layoutPriority(1)
                     .lineLimit(3)
