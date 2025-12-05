@@ -9,6 +9,7 @@ import YouVersionPlatformUI
 final class BibleReaderViewModel {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
+    private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
         didSet {
             if let data = try? JSONEncoder().encode(reference) {
@@ -28,7 +29,7 @@ final class BibleReaderViewModel {
             self.reference = reference
         } else {
             if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
-            let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
+               let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
                 self.reference = savedValue
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
@@ -39,18 +40,55 @@ final class BibleReaderViewModel {
         }
 
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        self.colorTheme = ReaderTheme.allThemes.first
-
+        self.colorTheme = ReaderTheme.theme()
         self.myVersions = []
         self.languagesList = []
 
-        ReaderFonts.installFontsIfNeeded()
+        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
 
+        ReaderFonts.installFontsIfNeeded()
         Task {
             await loadVersionIfNeeded(savedIds: savedIds)
             await restoreMyVersions(savedIds: savedIds)
             await loadSuggestedLanguages()
             await removeUnpermittedVersions()
+        }
+    }
+
+    func loadUserSettingsFromStorage() {
+        guard let data = UserDefaults.standard.data(forKey: userDefaultsKeyForReaderSettings),
+              let savedValue = try? JSONDecoder().decode(ReaderSettings.self, from: data) else {
+            // missing or corrupted settings; use the defaults.
+            return
+        }
+        fontFamily = ReaderFonts.isPermittedFont(savedValue.fontFamily) ? savedValue.fontFamily : ReaderFonts.defaultFontFamily
+        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
+        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
+    }
+
+    func saveUserSettingsToStorage() {
+        let settings = ReaderSettings(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            colorTheme: colorTheme?.id ?? ReaderTheme.theme().id
+        )
+        if let data = try? JSONEncoder().encode(settings) {
+            UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
+        }
+    }
+
+    private class ReaderSettings: Codable {
+        let fontFamily: String?
+        let fontSize: CGFloat?
+        let lineSpacing: CGFloat?
+        let colorTheme: Int?
+        init(fontFamily: String?, fontSize: CGFloat?, lineSpacing: CGFloat?, colorTheme: Int?) {
+            self.fontFamily = fontFamily
+            self.fontSize = fontSize
+            self.lineSpacing = lineSpacing
+            self.colorTheme = colorTheme
         }
     }
 
@@ -214,15 +252,22 @@ final class BibleReaderViewModel {
         if let size {
             fontSize = size
         }
+        saveUserSettingsToStorage()
     }
 
     func selectNextLineSpacing() {
         lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: lineSpacing)
+        saveUserSettingsToStorage()
     }
 
     // MARK: Colors
 
     var colorTheme: ReaderTheme?
+
+    func setColorTheme(_ theme: ReaderTheme) {
+        colorTheme = theme
+        saveUserSettingsToStorage()
+    }
 
     // MARK: - Sign In & Out
 

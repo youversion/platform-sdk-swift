@@ -45,7 +45,7 @@ struct BibleReaderFontSettingsView: View {
             HStack {
                 ForEach(ReaderTheme.allThemes, id: \.id) { theme in
                     Button {
-                        viewModel.colorTheme = theme
+                        viewModel.setColorTheme(theme)
                     } label: {
                         colorPreview(
                             theme: theme,

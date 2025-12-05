@@ -154,23 +154,6 @@ public struct BibleReaderView: View {
         .presentationBackground(viewModel.readerCanvasPrimaryColor)
     }
 
-    private var bibleChapterHeader: some View {
-        HStack {
-            Spacer()
-            if let version = viewModel.version {
-                VStack(alignment: .center) {
-                    Text(version.bookName(viewModel.reference.bookUSFM) ?? viewModel.reference.bookUSFM)
-                        .font(Font.custom(viewModel.textOptions.fontFamily, size: viewModel.textOptions.fontSize))
-                    Text(String(viewModel.reference.chapter))
-                        .font(Font.custom(viewModel.textOptions.fontFamily, size: viewModel.textOptions.fontSize * 2.5))
-                        .fontWeight(.bold)
-                        .padding(.bottom)
-                }
-            }
-            Spacer()
-        }
-    }
-
     private var bibleCopyrightBlock: some View {
         VStack(alignment: .center) {
             if let version = viewModel.version {
