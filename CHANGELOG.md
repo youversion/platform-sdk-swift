@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.3.0](https://github.com/youversion/platform-sdk-swift/compare/0.2.0...0.3.0) (2025-12-05)
+
+
+### Features
+
+* **reader:** save and load remaining user settings e.g. fontFamily ([5078781](https://github.com/youversion/platform-sdk-swift/commit/50787818a89315db42a09c011c1251df03e492aa))
+
 # [0.2.0](https://github.com/youversion/platform-sdk-swift/compare/0.1.1...0.2.0) (2025-12-03)
 
 
