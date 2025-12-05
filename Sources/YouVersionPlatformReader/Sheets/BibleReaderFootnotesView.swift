@@ -25,11 +25,9 @@ struct BibleReaderFootnotesView: View {
                     .font(ReaderFonts.fontHeaderS)
                     .padding(.bottom)
                 ScrollView {
-                    HStack {
-                        BibleTextView(reference, textOptions: textOptions)
-                        Spacer()
-                    }
-                    .padding(.bottom)
+                    BibleTextView(reference, textOptions: textOptions)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom)
                     Divider()
                     VStack(alignment: .leading) {
                         ForEach(viewModel.footnotesToDisplay.indices, id: \.self) { index in
