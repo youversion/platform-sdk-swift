@@ -207,7 +207,7 @@ public enum BibleVersionRendering {
         switch stateIn.footnotesMode {
         case .image:
             marker = BibleAttributedString("💬")  // for spacing purposes; won't be rendered.
-                .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
+                .setFont(.footnote, from: stateIn.fonts)
         case .letters:
             marker = stateUp.nextFootnoteMarker
                 .setFont(.footnote, from: stateIn.fonts)
