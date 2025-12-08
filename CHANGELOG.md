@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.4.0](https://github.com/youversion/platform-sdk-swift/compare/0.3.0...0.4.0) (2025-12-08)
+
+
+### Features
+
+* **ui:** update Bible App logotype ([2bb116a](https://github.com/youversion/platform-sdk-swift/commit/2bb116abbed26c1f17af89df44983e781cb3dab0))
+
 # [0.3.0](https://github.com/youversion/platform-sdk-swift/compare/0.2.0...0.3.0) (2025-12-05)
 
 
