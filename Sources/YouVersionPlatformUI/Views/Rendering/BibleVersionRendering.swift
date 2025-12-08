@@ -202,16 +202,23 @@ public enum BibleVersionRendering {
         var stateDown = parentStateDown
         stateDown.nodeDepth += 1
         stateDown.textCategory = .footnoteText
-        var marker = stateIn.footnoteMarker
-        if stateIn.footnotesMode == .letters {
+
+        var marker: BibleAttributedString?
+        switch stateIn.footnotesMode {
+        case .image:
+            marker = BibleAttributedString("💬")  // for spacing purposes; won't be rendered.
+                .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
+        case .letters:
             marker = stateUp.nextFootnoteMarker
                 .setFont(.footnote, from: stateIn.fonts)
                 .setColor(stateIn.textColor.opacity(stateIn.fonts.verseNumOpacity))
                 .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
-
+        default:
+            marker = stateIn.footnoteMarker
         }
+
         if let marker {
-            stateUp.append(marker, category: .footnoteMarker)
+            stateUp.append(marker, category: stateIn.footnotesMode == .image ? .footnoteImage : .footnoteMarker)
             // now, collect the text of the footnotes into footState
             var footState = StateUp(
                 rendering: true,
@@ -640,9 +647,10 @@ public enum BibleVersionRendering {
         mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory) {
             if !newText.isEmpty {
                 newText.markWithTextCategory(category)
-                if category == .footnoteMarker || (verse > 0 && (category == .scripture || category == .verseLabel)) {
+                let isFootnote = category == .footnoteMarker || category == .footnoteImage
+                if isFootnote || (verse > 0 && (category == .scripture || category == .verseLabel)) {
                     let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse > 0 ? verse : 1)
-                    let scheme = category == .footnoteMarker ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
+                    let scheme = isFootnote ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
                     newText.markWithReference(reference, scheme: scheme)
                 }
                 text += newText
@@ -762,6 +770,7 @@ public enum BibleTextCategory: Hashable, Sendable {
     case scripture
     case verseLabel
     case footnoteMarker
+    case footnoteImage
     case footnoteText
     case header
 }
@@ -844,6 +853,7 @@ public enum BibleTextFootnoteMode {
     case inline
     case marker
     case letters  // "a", "b", etc. within the passage
+    case image
 }
 
 #endif

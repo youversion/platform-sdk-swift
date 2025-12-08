@@ -214,8 +214,6 @@ final class BibleReaderViewModel {
     var textOptions: BibleTextOptions {
         ReaderFonts.installFontsIfNeeded()
         let ourFontSize = fontSize ?? 18
-        let footnoteMarker = BibleAttributedString("\u{00a0}※ ")
-            .setBaselineOffset(ourFontSize * 0.3)
         return BibleTextOptions(
             fontFamily: fontFamily ?? "Georgia",
             fontSize: ourFontSize,
@@ -224,8 +222,8 @@ final class BibleReaderViewModel {
             paragraphSpacing: lineSpacing,
             textColor: readerTextPrimaryColor,
             wocColor: readerWordsOfChristColor,
-            footnoteMode: .marker,
-            footnoteMarker: footnoteMarker
+            footnoteMode: .image,
+            footnoteMarker: nil
         )
     }
 

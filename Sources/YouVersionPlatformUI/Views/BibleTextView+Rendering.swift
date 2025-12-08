@@ -37,7 +37,14 @@ extension BibleTextView {
     // this active, the area painted in the background color sometimes shifts
     // upwards according to the baseline offset. And/or partially shifts.
     struct BibleRenderer: TextRenderer {
+        let footnoteIcon: Image
+
+        init() {
+            footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
+        }
+
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
+            let footnoteImage = context.resolve(footnoteIcon)
             for line in layout {
                 let lineRect = line.typographicBounds.rect
                 for run in line {
@@ -52,14 +59,28 @@ extension BibleTextView {
                         path.addLine(to: end)
                         context.stroke(path, with: .color(.gray), lineWidth: 0.5)
                     }
+                    if attrs?.footnoteImage == true {
+                        let runRect = run.typographicBounds.rect
+                        let padding = 3.0
+                        let height = runRect.width - padding
+                        let rect = CGRect(
+                            x: runRect.origin.x + padding,
+                            y: runRect.origin.y,
+                            width: height,
+                            height: height
+                        )
+                        context.draw(footnoteImage, in: rect)
+                    } else {
+                        context.draw(run)
+                    }
                 }
-                context.draw(line)
             }
         }
     }
 
     struct RenderHowAttribute: TextAttribute {
-        var underlined: Bool
+        var underlined = false
+        var footnoteImage = false
     }
 
     private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
@@ -80,7 +101,7 @@ extension BibleTextView {
             }
             let isUnderlined = isSelected(reference) && category == .scripture
             // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined))
+            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage))
         }
 
         let retValue = textCombo
