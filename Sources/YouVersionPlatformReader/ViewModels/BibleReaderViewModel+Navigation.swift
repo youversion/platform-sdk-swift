@@ -13,10 +13,10 @@ extension BibleReaderViewModel {
             reference = BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter - 1)
         } else {
             if let books = version.books,
-               let index = books.firstIndex(where: { $0.usfm == reference.bookUSFM }), index > 0 {
+               let index = books.firstIndex(where: { $0.id == reference.bookUSFM }), index > 0 {
                 let previousBook = books[index - 1]
                 let maxChapter = previousBook.chapters?.count ?? 0
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: previousBook.usfm ?? "", chapter: maxChapter)
+                reference = BibleReference(versionId: reference.versionId, bookUSFM: previousBook.id ?? "", chapter: maxChapter)
             }
         }
 
@@ -32,14 +32,14 @@ extension BibleReaderViewModel {
         isChangingChapter = true
         removeVerseSelection()
         if let books = version.books,
-           let index = books.firstIndex(where: { $0.usfm == reference.bookUSFM }) {
+           let index = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
             let currentBook = books[index]
             let maxChapter = currentBook.chapters?.count ?? 0
             if reference.chapter < maxChapter {
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.usfm ?? "", chapter: reference.chapter + 1)
+                reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.id ?? "", chapter: reference.chapter + 1)
             } else if index < books.count - 1 {
                 let nextBook = books[index + 1]
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: nextBook.usfm ?? "", chapter: 1)
+                reference = BibleReference(versionId: reference.versionId, bookUSFM: nextBook.id ?? "", chapter: 1)
             }
         }
 

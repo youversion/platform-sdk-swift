@@ -6,7 +6,7 @@ public extension BibleVersion {
         guard let book = book(with: bookUSFM) else {
             return nil
         }
-        return book.title ?? book.titleLong
+        return book.title ?? book.fullTitle
     }
     // Example: "https://www.bible.com/bible/111/1SA.3.10.NIV"
     func shareUrl(reference: BibleReference) -> URL? {

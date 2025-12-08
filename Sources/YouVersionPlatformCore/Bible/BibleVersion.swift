@@ -53,7 +53,7 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
         guard let books else {
             return nil
         }
-        return books.first { $0.usfm == usfm }
+        return books.first { $0.id == usfm }
     }
 
     private func isBookUSFMValid(_ usfm: String) -> Bool {
@@ -61,14 +61,17 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
             return false
         }
         let usfmUpper = usfm.uppercased()
-        return books.contains(where: { $0.usfm == usfmUpper }) == true
+        return books.contains(where: { $0.id == usfmUpper }) == true
     }
 
     public var bookUSFMs: [String] {
+        if let bookCodes, !bookCodes.isEmpty {
+            return bookCodes
+        }
         guard let books else {
             return []
         }
-        return books.compactMap { $0.usfm }
+        return books.compactMap { $0.id }
     }
 
     public func reference(with usfm: String) -> BibleReference? {

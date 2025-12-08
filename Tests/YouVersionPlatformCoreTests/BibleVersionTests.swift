@@ -16,7 +16,7 @@ struct BibleVersionTests {
         }
     }()
 
-    private static let canonicalUSFMs = Set(version.bookUSFMs)
+    private static let canonicalUSFMs = Set(version.books?.filter { $0.isCanonical }.map(\.id) ?? [])
 
     @Test
     func decodesCoreMetadata() throws {
@@ -55,10 +55,10 @@ struct BibleVersionTests {
     func decodesBooks() throws {
         let books = try #require(Self.version.books)
         #expect(books.count == 80)
-        let genesis = try #require(books.first { $0.usfm == "GEN" })
+        let genesis = try #require(books.first { $0.id == "GEN" })
         #expect(genesis.abbreviation == "Gen")
         #expect(genesis.title == "Genesis")
-        let revelation = try #require(books.first { $0.usfm == "REV" })
+        let revelation = try #require(books.first { $0.id == "REV" })
         #expect(revelation.abbreviation == "Rev")
         #expect(revelation.chapters?.last?.title == "22")
     }

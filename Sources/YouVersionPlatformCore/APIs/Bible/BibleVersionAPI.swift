@@ -22,22 +22,6 @@ public extension YouVersionAPI.Bible {
         let elapsed2 = time3.timeIntervalSince(time2)
         print("Version fetched from the server. Times were \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
 
-        var fullBooks: [BibleBook] = []
-        for book in index.books ?? [] where book.chapters?.isEmpty == false {
-            var chapters: [BibleChapter] = []
-            // non-canonical chapters don't have verses.
-            for chapter in book.chapters ?? [] where chapter.verses?.isEmpty == false {
-                chapters.append(BibleChapter(bookUSFM: chapter.id, isCanonical: true, passageId: chapter.id, title: chapter.title))
-            }
-            let newBook = BibleBook(
-                usfm: book.id,
-                abbreviation: book.abbreviation,
-                title: book.title,
-                titleLong: nil,
-                chapters: chapters
-            )
-            fullBooks.append(newBook)
-        }
         return BibleVersion(
             id: basic.id,
             abbreviation: basic.abbreviation,
@@ -50,8 +34,8 @@ public extension YouVersionAPI.Bible {
             readerFooterUrl: basic.readerFooterUrl,
             title: basic.title,
             organizationId: basic.organizationId,
-            bookCodes: fullBooks.compactMap { $0.usfm },
-            books: fullBooks,
+            bookCodes: basic.bookCodes,
+            books: index.books,
             textDirection: index.text_direction,
         )
     }
@@ -81,9 +65,9 @@ public extension YouVersionAPI.Bible {
         return responseObject
     }
 
-    private static func versionBooks(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> [BibleVersionBook] {
+    private static func versionBooks(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> [BibleBook] {
         struct BibleVersionBooksResponse: Codable {
-            let data: [BibleVersionBook]
+            let data: [BibleBook]
         }
 
         let data = try await YouVersionAPI.commonFetch(
@@ -161,36 +145,8 @@ public extension YouVersionAPI.Bible {
 
     // MARK: - utility structs
 
-    private struct BibleVersionBook: Codable {
-        let id: String?
-        let title: String?
-        let abbreviation: String?
-        let canon: String?
-        let chapters: [String]?  // USFM codes
-    }
-
-    private struct BibleVersionIndexVerses: Codable {
-        let id: String?
-        let title: String?
-    }
-
-    private struct BibleVersionIndexChapter: Codable {
-        let id: String?
-        let title: String?
-        let verses: [BibleVersionIndexVerses]?
-    }
-
-    private struct BibleVersionIndexBook: Codable {
-        let id: String?
-        let title: String?
-        let full_title: String?
-        let abbreviation: String?
-        let canon: String?
-        let chapters: [BibleVersionIndexChapter]?
-    }
-
     private struct BibleVersionIndex: Codable {
         let text_direction: String?
-        let books: [BibleVersionIndexBook]?
+        let books: [BibleBook]?
     }
 }
