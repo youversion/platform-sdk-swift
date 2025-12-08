@@ -39,7 +39,7 @@ public struct SignInWithYouVersionButton: View {
     }
     
     private var bibleAppLogo: some View {
-        Image("BibleAppLogo@4x", bundle: .YouVersionUIBundle)
+        Image("BibleAppIcon@4x", bundle: .YouVersionUIBundle)
             .resizable()
             .frame(width: iconEdge, height: iconEdge)
     }

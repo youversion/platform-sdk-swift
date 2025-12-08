@@ -32,7 +32,7 @@ public struct BibleWidgetView: View {
                         showingCopyrightSheet.toggle()
                     }
                 Spacer()
-                poweredByYouVersionView
+                bibleAppLogo
             }
         }
         .padding()
@@ -88,23 +88,10 @@ public struct BibleWidgetView: View {
             .lineLimit(4)
     }
 
-    private var poweredByYouVersionView: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .trailing) {
-                Text(String.localized("widget.poweredBy"))
-                    .italic()
-                Text("YouVersion")
-                    .fontWeight(.bold)
-            }
-            .font(Font.system(size: 11))
-            bibleAppLogo
-                .frame(width: 28, height: 28)
-        }
-    }
-
     private var bibleAppLogo: some View {
-        Image("BibleAppLogo@4x", bundle: .YouVersionUIBundle)
+        Image("BibleAppLogotype@3x", bundle: .YouVersionUIBundle)
             .resizable()
+            .frame(width: 80, height: 17)
     }
 
 }
