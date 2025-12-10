@@ -32,6 +32,9 @@ importers:
       '@semantic-release/release-notes-generator':
         specifier: ^12.1.0
         version: 12.1.0(semantic-release@22.0.12(typescript@5.9.3))
+      conventional-changelog-conventionalcommits:
+        specifier: ^7.0.2
+        version: 7.0.2
       husky:
         specifier: ^8.0.3
         version: 8.0.3
