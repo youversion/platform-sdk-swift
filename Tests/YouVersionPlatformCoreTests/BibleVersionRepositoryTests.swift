@@ -152,7 +152,7 @@ struct BibleVersionRepositoryTests {
         #expect(memory.addCallCount == 1)
         #expect(disk.contains(Self.fixture.id))
         #expect(disk.addCallCount >= 1)
-        #expect(disk.storedVersion(withId: Self.fixture.id)?.copyrightShort == Self.fixture.copyrightShort)
+        #expect(disk.storedVersion(withId: Self.fixture.id)?.copyright == Self.fixture.copyright)
     }
 
     @Test
@@ -175,7 +175,7 @@ struct BibleVersionRepositoryTests {
         let (repository, api, memory, disk, _) = makeRepository()
 
         let initial = try await repository.version(withId: Self.fixture.id)
-        #expect(initial.copyrightShort == Self.fixture.copyrightShort)
+        #expect(initial.copyright == Self.fixture.copyright)
         #expect(api.callCount == 1)
 
         await repository.removeVersion(withId: Self.fixture.id)
@@ -222,7 +222,7 @@ struct BibleVersionRepositoryTests {
         #expect(disk.removeCallCount == 1)
 
         let stored = download.storedVersion(withId: Self.fixture.id)
-        #expect(stored?.copyrightLong == Self.fixture.copyrightLong)
+        #expect(stored?.promotionalContent == Self.fixture.promotionalContent)
     }
 
     // MARK: Other methods

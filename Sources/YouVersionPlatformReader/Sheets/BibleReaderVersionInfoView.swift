@@ -33,7 +33,7 @@ struct BibleReaderVersionInfoView: View {
                         }
                     }
                     ScrollView {
-                        Text(version.copyrightLong ?? version.copyrightShort ?? "")
+                        Text(version.promotionalContent ?? version.copyright ?? "")
                             .multilineTextAlignment(.leading)
                     }
                 }

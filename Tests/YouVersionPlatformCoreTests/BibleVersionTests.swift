@@ -32,8 +32,8 @@ struct BibleVersionTests {
         #expect(bookCodes == version.bookUSFMs)
         #expect(bookCodes.first == "GEN")
         #expect(bookCodes.last == "REV")
-        #expect(version.copyrightShort == "PUBLIC DOMAIN (not copyrighted)")
-        #expect(version.copyrightLong == "This Public Domain Bible text is courtesy of eBible.org.")
+        #expect(version.copyright == "PUBLIC DOMAIN (not copyrighted)")
+        #expect(version.promotionalContent == "This Public Domain Bible text is courtesy of eBible.org.")
     }
 
     @Test(arguments: [

@@ -40,7 +40,7 @@ struct VersionView: View {
                         Text(version.localizedAbbreviation ?? "unknown")
                             .font(.headline)
                         
-                        Text(version.copyrightLong ?? "unknown")
+                        Text(version.promotionalContent ?? "unknown")
                             .multilineTextAlignment(.leading)
                     }
                     .padding()
