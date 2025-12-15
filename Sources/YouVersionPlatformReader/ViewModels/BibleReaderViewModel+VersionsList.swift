@@ -68,12 +68,17 @@ extension BibleReaderViewModel {
         Task {
             do {
                 showFullProgressViewOverlay = true
+                defer {
+                    showFullProgressViewOverlay = false
+                }
                 let version = try await versionRepository.version(withId: versionId)
-                showFullProgressViewOverlay = false
                 selectedVersion = version
                 versionsStackPush(to: .versionInfo)
             } catch {
                 print("Error loading version: \(error)")
+                showGenericAlert = true
+                textForGenericAlertTitle = .localized("generic.error")
+                textForGenericAlertBody = "It was not possible to access this Bible version. Please try again later."
             }
         }
     }
