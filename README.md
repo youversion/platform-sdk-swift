@@ -2,6 +2,7 @@
 
 ![Platform](https://img.shields.io/badge/Platform-IOS-red)
 [![License](https://img.shields.io/badge/license-Apache-blue.svg)](LICENSE)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/youversion/platform-sdk-swift/main/.github/badges/coverage.json)](./CONTRIBUTING.md#code-coverage)
 
 # YouVersion Platform SDK for Swift
 
@@ -25,6 +26,7 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 - [Sample App](#sample-app)
 - [For Different Use Cases](#-for-different-use-cases)
 - [Documentation](#documentation)
+- [Contributing](#contributing)
 - [Support](#support)
 - [License](#license)
 
@@ -253,6 +255,10 @@ Building AI applications with Bible content? Access YouVersion's LLM-optimized e
 - [API Documentation](https://developers.youversion.com/overview) - Complete API reference
 - [LLM Integration Guide](https://developers.youversion.com/for-llms) - AI/ML integration docs
 - [Sample Code](./Examples) - Working examples and best practices
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on development setup, code style, and the pull request process.
 
 ## Support
 
