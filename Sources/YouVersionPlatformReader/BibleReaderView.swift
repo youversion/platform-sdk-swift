@@ -157,7 +157,7 @@ public struct BibleReaderView: View {
     private var bibleCopyrightBlock: some View {
         VStack(alignment: .center) {
             if let version = viewModel.version {
-                Text(version.copyrightShort ?? version.copyrightLong ?? "")
+                Text(version.copyright ?? version.promotionalContent ?? "")
                     .multilineTextAlignment(.center)
                     .font(.caption2)
                     .foregroundStyle(viewModel.readerTextMutedColor)

@@ -48,7 +48,7 @@ public struct BibleWidgetView: View {
                 Text(version?.localizedTitle ?? version?.title ?? "")
                     .font(Font.system(size: 20, weight: .bold))  // YouVersion HeaderM
                     .padding(.vertical)
-                Text(version?.copyrightLong ?? version?.copyrightShort ?? "")
+                Text(version?.promotionalContent ?? version?.copyright ?? "")
                     .padding()
             }
             .presentationDragIndicator(.visible)
@@ -79,7 +79,7 @@ public struct BibleWidgetView: View {
     }
 
     private var copyrightView: some View {
-        let copyright = version?.copyrightShort ?? version?.copyrightLong ?? ""
+        let copyright = version?.copyright ?? version?.promotionalContent ?? ""
         return Text(copyright)
             .font(Font.system(size: 11))
             .fontWeight(.bold)

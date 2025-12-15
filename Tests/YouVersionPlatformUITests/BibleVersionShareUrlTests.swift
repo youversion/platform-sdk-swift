@@ -15,8 +15,8 @@ import Testing
         return BibleVersion(
             id: id,
             abbreviation: abbreviation,
-            copyrightLong: nil,
-            copyrightShort: nil,
+            promotionalContent: nil,
+            copyright: nil,
             languageTag: "eng",
             localizedAbbreviation: localizedAbbreviation,
             localizedTitle: nil,

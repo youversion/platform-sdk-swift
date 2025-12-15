@@ -86,7 +86,7 @@ public actor VersionDiskCache: BibleVersionCaching {
 
     static func urlForCachedVersionMetadata(_ versionId: Int) -> URL {
         urlForBibleContentDirectory(versionId: versionId, kind: .cachesDirectory)
-            .appending(path: "metadata_v1", directoryHint: .notDirectory)
+            .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
     }
 
     public func version(withId id: Int) -> BibleVersion? {
@@ -144,7 +144,7 @@ public actor VersionDownloadCache: BibleVersionCaching {
 
     static func urlForDownloadedVersion(_ versionId: Int) -> URL {
         urlForBibleContentDirectory(versionId: versionId, kind: .applicationSupportDirectory)
-            .appending(path: "metadata_v1", directoryHint: .notDirectory)
+            .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
     }
 
     nonisolated public func versionIsPresent(for id: Int) -> Bool {

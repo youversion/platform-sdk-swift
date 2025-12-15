@@ -3,8 +3,8 @@ import Foundation
 public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     public let id: Int
     public let abbreviation: String?
-    public let copyrightLong: String?
-    public let copyrightShort: String?
+    public let promotionalContent: String?
+    public let copyright: String?
     public let languageTag: String?  // see BCP 47
     public let localizedAbbreviation: String?
     public let localizedTitle: String?
@@ -23,8 +23,8 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     enum CodingKeys: String, CodingKey {
         case id
         case abbreviation
-        case copyrightLong = "copyright_long"
-        case copyrightShort = "copyright_short"
+        case promotionalContent = "promotional_content"
+        case copyright = "copyright"
         case languageTag = "language_tag"
         case localizedAbbreviation = "localized_abbreviation"
         case localizedTitle = "localized_title"
@@ -114,7 +114,7 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
 
     public static var preview: BibleVersion {
         // Create a minimal BibleVersion for preview purposes
-        let copyrightLong = """
+        let promotionalContent = """
 King James Version (KJV)
 
 The King James Version (KJV) of the holy Bible was first printed in 1611, but the main edition used today is the 1769 version. The King James Version (KJV) is also known as the Authorized (or Authorised) Version (AV) because it was authorized to be read in churches. For over 300 years it was the main English translation used in the English speaking world, and is much admired and respected. About 400 words and phrases coined or popularised by the King James Version are part the English language today.
@@ -122,8 +122,8 @@ The King James Version (KJV) of the holy Bible was first printed in 1611, but th
         return BibleVersion(
             id: 1,
             abbreviation: "KJV",
-            copyrightLong: copyrightLong,
-            copyrightShort: nil,
+            promotionalContent: promotionalContent,
+            copyright: nil,
             languageTag: "en",
             localizedAbbreviation: "KJV",
             localizedTitle: "King James Version",

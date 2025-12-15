@@ -25,8 +25,8 @@ public extension YouVersionAPI.Bible {
         return BibleVersion(
             id: basic.id,
             abbreviation: basic.abbreviation,
-            copyrightLong: basic.copyrightLong,
-            copyrightShort: basic.copyrightShort,
+            promotionalContent: basic.promotionalContent,
+            copyright: basic.copyright,
             languageTag: basic.languageTag,
             localizedAbbreviation: basic.localizedAbbreviation,
             localizedTitle: basic.localizedTitle,

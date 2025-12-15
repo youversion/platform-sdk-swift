@@ -62,19 +62,37 @@ BREAKING CHANGE: BibleReader.open() now returns async Result<Void, Error>"
 git commit -m "fix(reader): correct verse highlighting behavior"
 ```
 
-## Required GitHub Secrets
+## Required GitHub Configuration
+
+### GitHub Secrets
 
 The following secrets must be configured in your GitHub repository:
 
-### 1. GH_TOKEN
+#### 1. DEPLOY_KEY
 
-A Personal Access Token with `repo` permissions:
+An SSH private key used to bypass branch protection rules and push release commits/tags to `main`:
 
-1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-2. Generate new token with `repo` scope
-3. Add to repository secrets as `GH_TOKEN`
+1. Generate an SSH key pair:
+   ```bash
+   ssh-keygen -t ed25519 -C "github-actions-semantic-release" -f deploy_key -N ""
+   ```
 
-### 2. COCOAPODS_TRUNK_TOKEN
+2. Add the **public key** (`deploy_key.pub`) as a Deploy Key:
+   - Go to `https://github.com/youversion/platform-sdk-swift/settings/keys`
+   - Click "Add deploy key"
+   - Title: `semantic-release` (or your preferred name)
+   - Paste contents of `deploy_key.pub`
+   - **Check "Allow write access"** ✓
+
+3. Add the **private key** (`deploy_key`) as a repository secret:
+   - Go to `https://github.com/youversion/platform-sdk-swift/settings/secrets/actions`
+   - Click "New repository secret"
+   - Name: `DEPLOY_KEY`
+   - Value: Paste entire contents of `deploy_key` file
+
+> **Important:** The secret name `DEPLOY_KEY` must match the reference in `.github/workflows/release.yml`. If you change the secret name, update the workflow file accordingly.
+
+#### 2. COCOAPODS_TRUNK_TOKEN
 
 Your CocoaPods trunk session token:
 
@@ -90,6 +108,16 @@ pod trunk me
 ```
 
 Add the token to repository secrets as `COCOAPODS_TRUNK_TOKEN`.
+
+### Branch Protection Configuration
+
+The Deploy Key bypasses the `main` branch protection ruleset that requires pull requests. To configure:
+
+1. Go to `https://github.com/youversion/platform-sdk-swift/settings/rules`
+2. Edit the ruleset for `main` branch
+3. Under "Bypass list", ensure "Deploy keys" is enabled for bypass
+
+This allows semantic-release to push release commits and tags directly to `main` during the automated release process.
 
 ## Testing Release Steps Locally
 
