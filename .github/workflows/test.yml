@@ -27,6 +27,9 @@ jobs:
           xcodebuild -version
           xcrun simctl list devices
 
+      - name: Install lcov
+        run: brew install lcov
+
       - name: Run tests with code coverage
         run: |
           xcodebuild \
