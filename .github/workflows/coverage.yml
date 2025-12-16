@@ -36,19 +36,26 @@ jobs:
             test
 
       - name: Generate LCOV coverage report
-        uses: maxep/xcodebuild-lcov-action@v1
+        id: coverage-files
+        uses: sersoft-gmbh/swift-coverage-action@v5
         with:
-          derived-data-path: DerivedData
-          target: YouVersionPlatformPackageTests.xctest
-          output-file: ./coverage/lcov.info
+          search-paths: ./DerivedData
+          output: ./coverage
+          format: lcov
 
       - name: Calculate coverage percentage
         id: coverage
         run: |
-          COVERAGE=$(lcov --summary ./coverage/lcov.info 2>&1 | grep -oP 'lines\.*: \K[0-9.]+' | head -1)
-          if [ -z "$COVERAGE" ]; then
-            COVERAGE=$(awk '/^SF:/{file=$0} /^LF:/{lf+=$2} /^LH:/{lh+=$2} END{if(lf>0) printf "%.1f", (lh/lf)*100; else print "0"}' ./coverage/lcov.info)
+          # Find the lcov file
+          LCOV_FILE=$(find ./coverage -name "*.lcov" | head -1)
+          if [ -z "$LCOV_FILE" ]; then
+            echo "No lcov file found"
+            echo "percentage=0" >> $GITHUB_OUTPUT
+            exit 0
           fi
+
+          # Calculate coverage from lcov file
+          COVERAGE=$(awk '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{if(lf>0) printf "%.1f", (lh/lf)*100; else print "0"}' "$LCOV_FILE" | sed 's/LF://g; s/LH://g')
           echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
           echo "Coverage: $COVERAGE%"
 

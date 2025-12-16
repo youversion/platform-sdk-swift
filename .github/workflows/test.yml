@@ -38,16 +38,17 @@ jobs:
             test
 
       - name: Generate LCOV coverage report
-        uses: maxep/xcodebuild-lcov-action@v1
+        id: coverage
+        uses: sersoft-gmbh/swift-coverage-action@v5
         with:
-          derived-data-path: DerivedData
-          target: YouVersionPlatformPackageTests.xctest
-          output-file: ./coverage/lcov.info
+          search-paths: ./DerivedData
+          output: ./coverage
+          format: lcov
 
       - name: Report coverage on PR
         uses: zgosalvez/github-actions-report-lcov@v4
         with:
-          coverage-files: ./coverage/lcov.info
+          coverage-files: ./coverage/*.lcov
           minimum-coverage: 0
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
