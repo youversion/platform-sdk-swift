@@ -6,9 +6,9 @@ struct BibleReaderLanguagesView: View {
     init(viewModel: BibleReaderViewModel) {
 #if canImport(UIKit)
         UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
-        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerWhiteColor)
+        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
         UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
-        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .selected)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
 #endif
     }
 
