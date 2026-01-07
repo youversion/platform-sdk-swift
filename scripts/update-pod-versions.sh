@@ -11,10 +11,10 @@ fi
 echo "Updating version to $VERSION in all podspec files..."
 
 # Update each podspec file
-sed -i '' "s/spec.version[[:space:]]*=.*/spec.version = \"$VERSION\"/" YouVersionPlatform.podspec
-sed -i '' "s/spec.version[[:space:]]*=.*/spec.version = \"$VERSION\"/" YouVersionPlatformCore.podspec
-sed -i '' "s/spec.version[[:space:]]*=.*/spec.version = \"$VERSION\"/" YouVersionPlatformReader.podspec
-sed -i '' "s/spec.version[[:space:]]*=.*/spec.version = \"$VERSION\"/" YouVersionPlatformUI.podspec
+sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatform.podspec
+sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformCore.podspec
+sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformReader.podspec
+sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformUI.podspec
 
 echo "Updating inter-pod dependency versions..."
 
