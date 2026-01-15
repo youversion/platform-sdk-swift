@@ -9,9 +9,9 @@ extension BibleReaderViewModel {
     }
 
     public var bibleVersionStatisticsPromo: String {
-        guard let versions = minimalPermittedVersionsInfo, !versions.isEmpty else {
+        guard let versions = permittedVersionsList, !versions.isEmpty else {
             Task {
-                await fetchBibleVersionMinimalInfo()
+                await permittedVersionsListing()
             }
             return ""
         }

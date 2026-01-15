@@ -93,16 +93,15 @@ final class BibleReaderViewModel {
     }
 
     private func removeUnpermittedVersions() async {
-        if let permittedVersions = try? await fetchBibleVersionMinimalInfo() {
-            let permittedIds = Set(permittedVersions.map(\.id))
-            await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
+        let permittedVersions = await permittedVersionsListing()
+        let permittedIds = Set(permittedVersions.map(\.id))
+        await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
 
-            for version in self.myVersions where !permittedIds.contains(version.id) {
-                self.myVersions.remove(version)
-            }
-            if !permittedIds.contains(reference.versionId) {
-                await selectFallbackVersion(savedIds: Array(self.myVersions.map(\.id)))
-            }
+        for version in self.myVersions where !permittedIds.contains(version.id) {
+            self.myVersions.remove(version)
+        }
+        if !permittedIds.contains(reference.versionId) {
+            await selectFallbackVersion(savedIds: Array(self.myVersions.map(\.id)))
         }
     }
 
@@ -302,13 +301,13 @@ final class BibleReaderViewModel {
     // MARK: - Versions list
 
     var permittedVersions1: [BibleVersion] = []
-    var versionsInLanguage: [String:[BibleVersion]] = [:]
+    var versionsInLanguage: [String: [BibleVersion]] = [:]
 
-    var minimalPermittedVersionsInfo: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
 
-    func fetchBibleVersionMinimalInfo() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
-        if let minimalPermittedVersionsInfo {
-            return minimalPermittedVersionsInfo
+    func permittedVersionsListing() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
+        if let permittedVersionsList {
+            return permittedVersionsList
         }
 
         let time1 = Date()
@@ -318,8 +317,8 @@ final class BibleReaderViewModel {
 
         if let versions {
             await MainActor.run {
-                if self.minimalPermittedVersionsInfo == nil {
-                    self.minimalPermittedVersionsInfo = versions
+                if self.permittedVersionsList == nil {
+                    self.permittedVersionsList = versions
                 }
             }
         }
@@ -335,7 +334,7 @@ final class BibleReaderViewModel {
             let time1 = Date()
             if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
                 let elapsed = Date().timeIntervalSince(time1)
-                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count ?? -999) from the server in \(String(format: "%.2f", elapsed)) seconds.")
+                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) from the server in \(String(format: "%.2f", elapsed)) seconds.")
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? ""
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? ""
@@ -384,7 +383,7 @@ final class BibleReaderViewModel {
             return ["eng", "spa"]
         }
         let codes = extractLanguageCodes(languages: self.languagesList)
-        guard let versionsInfo = minimalPermittedVersionsInfo else {
+        guard let versionsInfo = permittedVersionsList else {
             return codes
         }
         let ret = codes.filter { code in
@@ -438,4 +437,3 @@ final class BibleReaderViewModel {
         return org.name
     }
 }
-

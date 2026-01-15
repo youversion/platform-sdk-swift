@@ -61,7 +61,7 @@ public extension YouVersionAPI.Bible {
         return allResults
     }
 
-    public struct BibleVersionMinimalInfo: Equatable, Sendable {
+    struct BibleVersionMinimalInfo: Equatable, Sendable {
         public let id: Int
         public let languageTag: String?  // see BCP 47
     }
@@ -81,8 +81,7 @@ public extension YouVersionAPI.Bible {
             session: session
         )
         let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
-        return responseObject.data.map( { BibleVersionMinimalInfo(id: $0.id, languageTag: $0.languageTag) } )
-
+        return responseObject.data.map({ BibleVersionMinimalInfo(id: $0.id, languageTag: $0.languageTag) })
     }
 
     private struct BibleVersionsResponse: Decodable {

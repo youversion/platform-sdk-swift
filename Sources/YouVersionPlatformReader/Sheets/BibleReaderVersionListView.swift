@@ -17,7 +17,7 @@ public struct BibleReaderVersionListView: View {
                     viewModel.versionsStackPush(to: .languages)
                 }
             Group {
-                if viewModel.minimalPermittedVersionsInfo?.isEmpty != false {
+                if viewModel.permittedVersionsList?.isEmpty != false {
                     VStack {
                         Spacer()
                         ProgressView()
@@ -92,7 +92,7 @@ public struct BibleReaderVersionListView: View {
 
     private var languageDisplay: some View {
         let language = viewModel.activeLanguage
-        let versionsInLanguage = viewModel.minimalPermittedVersionsInfo?.filter { $0.languageTag == language } ?? []
+        let versionsInLanguage = viewModel.permittedVersionsList?.filter { $0.languageTag == language } ?? []
         return HStack {
             Image(systemName: "globe")
             Text(languageName(language))
