@@ -19,7 +19,10 @@ extension BibleReaderViewModel {
     }
 
     func handlePickersVersionTap() {
-        loadVersionsList()
+        Task {
+            await fetchBibleVersionMinimalInfo()
+        }
+        fetchVersionsInLanguage(code: activeLanguage)
         chosenLanguage = nil  // reset the search field
         versionsPickerStack.removeAll()
         showingVersionsStack = true

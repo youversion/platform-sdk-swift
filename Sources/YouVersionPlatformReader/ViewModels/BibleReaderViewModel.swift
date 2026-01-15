@@ -93,7 +93,7 @@ final class BibleReaderViewModel {
     }
 
     private func removeUnpermittedVersions() async {
-        if let permittedVersions = try? await YouVersionAPI.Bible.versions() {
+        if let permittedVersions = try? await fetchBibleVersionMinimalInfo() {
             let permittedIds = Set(permittedVersions.map(\.id))
             await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
 
@@ -301,7 +301,52 @@ final class BibleReaderViewModel {
 
     // MARK: - Versions list
 
-    var permittedVersions: [BibleVersion] = []
+    var permittedVersions1: [BibleVersion] = []
+    var versionsInLanguage: [String:[BibleVersion]] = [:]
+
+    var minimalPermittedVersionsInfo: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+
+    func fetchBibleVersionMinimalInfo() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
+        if let minimalPermittedVersionsInfo {
+            return minimalPermittedVersionsInfo
+        }
+
+        let time1 = Date()
+        let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
+        let elapsed = Date().timeIntervalSince(time1)
+        print("fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) from the server in \(String(format: "%.2f", elapsed)) seconds.")
+
+        if let versions {
+            await MainActor.run {
+                if self.minimalPermittedVersionsInfo == nil {
+                    self.minimalPermittedVersionsInfo = versions
+                }
+            }
+        }
+        return versions ?? []
+    }
+
+    /// Causes data to be fetched, if necessary, to fill out `versionsInLanguage` for the given language code.
+    func fetchVersionsInLanguage(code: String) {
+        guard versionsInLanguage[code] == nil else {
+            return  // no need to fetch: we already have the data
+        }
+        Task {
+            let time1 = Date()
+            if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
+                let elapsed = Date().timeIntervalSince(time1)
+                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count ?? -999) from the server in \(String(format: "%.2f", elapsed)) seconds.")
+                let sortedVersions = unsortedVersions.sorted {
+                    let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? ""
+                    let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? ""
+                    return a < b
+                }
+                await MainActor.run {
+                    self.versionsInLanguage[code] = sortedVersions
+                }
+            }
+        }
+    }
 
     var showFullProgressViewOverlay = false
 
@@ -339,8 +384,11 @@ final class BibleReaderViewModel {
             return ["eng", "spa"]
         }
         let codes = extractLanguageCodes(languages: self.languagesList)
+        guard let versionsInfo = minimalPermittedVersionsInfo else {
+            return codes
+        }
         let ret = codes.filter { code in
-            permittedVersions.isEmpty || permittedVersions.contains(where: { $0.languageTag == code })
+            versionsInfo.isEmpty || versionsInfo.contains(where: { $0.languageTag == code })
         }
         return ret
     }
@@ -390,3 +438,4 @@ final class BibleReaderViewModel {
         return org.name
     }
 }
+

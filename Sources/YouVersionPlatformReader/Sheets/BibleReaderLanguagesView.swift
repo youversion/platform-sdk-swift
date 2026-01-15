@@ -122,7 +122,10 @@ struct BibleReaderLanguagesView: View {
     // MARK: - Helpers
 
     private var allPermittedLanguages: [String] {
-        Array(Set(viewModel.permittedVersions.compactMap { $0.languageTag }))
+        guard let versionsInfo = viewModel.minimalPermittedVersionsInfo else {
+            return []
+        }
+        return Array(Set(versionsInfo.compactMap { $0.languageTag }))
     }
 
     private var languageCodes: [String] {

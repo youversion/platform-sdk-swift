@@ -17,7 +17,7 @@ public struct BibleReaderVersionListView: View {
                     viewModel.versionsStackPush(to: .languages)
                 }
             Group {
-                if viewModel.permittedVersions.isEmpty {
+                if viewModel.minimalPermittedVersionsInfo?.isEmpty != false {
                     VStack {
                         Spacer()
                         ProgressView()
@@ -90,12 +90,9 @@ public struct BibleReaderVersionListView: View {
         Locale.current.localizedString(forLanguageCode: lang) ?? lang
     }
 
-    private var activeLanguage: String {
-        viewModel.chosenLanguage ?? viewModel.version?.languageTag ?? "en"
-    }
     private var languageDisplay: some View {
-        let language = activeLanguage
-        let versionsInLanguage = viewModel.permittedVersions.filter { $0.languageTag == language }
+        let language = viewModel.activeLanguage
+        let versionsInLanguage = viewModel.minimalPermittedVersionsInfo?.filter { $0.languageTag == language } ?? []
         return HStack {
             Image(systemName: "globe")
             Text(languageName(language))
@@ -114,14 +111,16 @@ public struct BibleReaderVersionListView: View {
     }
 
     private var filteredVersions: [BibleVersion] {
-        let language = activeLanguage
+        let language = viewModel.activeLanguage
+
+        viewModel.fetchVersionsInLanguage(code: language)
+        let versionsList = viewModel.versionsInLanguage[language] ?? []
+
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return viewModel.permittedVersions.filter {
-                $0.languageTag == language
-            }
+            return versionsList
         }
         let query = searchText.lowercased()
-        return viewModel.permittedVersions.filter { v in
+        return versionsList.filter { v in
             guard v.languageTag == language else {
                 return false
             }

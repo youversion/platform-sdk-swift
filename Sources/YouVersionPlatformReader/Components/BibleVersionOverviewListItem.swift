@@ -54,10 +54,8 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
 #Preview {
     VStack {
         Divider()
-        BibleVersionOverviewListItem(
-            item: BibleReaderViewModel.preview.permittedVersions.first!
-        )
-        .environment(BibleReaderViewModel.preview)
+        BibleVersionOverviewListItem(item: BibleVersion.preview)
+            .environment(BibleReaderViewModel.preview)
         Divider()
     }
 }
