@@ -86,15 +86,18 @@ public enum URLBuilder {
         return components.url
     }
 
-    public static func versionsURL(languageRanges: [String] = [], pageSize: Int = 99, pageToken: String? = nil) -> URL? {
+    public static func versionsURL(languageRanges: [String] = [], fields: [String] = [], pageSize: Int? = 99, pageToken: String? = nil) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/bibles"
 
         let val = languageRanges.isEmpty ? "*" : languageRanges.joined(separator: ",")
         var queryItems = [
             URLQueryItem(name: "language_ranges[]", value: val),
-            URLQueryItem(name: "page_size", value: String(pageSize))
+            URLQueryItem(name: "page_size", value: pageSize == nil ? "*" : String(pageSize!))
         ]
+        for field in fields {
+            queryItems.append(URLQueryItem(name: "fields[]", value: field))
+        }
         if let pageToken {
             queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
         }

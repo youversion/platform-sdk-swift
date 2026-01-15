@@ -61,6 +61,30 @@ public extension YouVersionAPI.Bible {
         return allResults
     }
 
+    public struct BibleVersionMinimalInfo: Equatable, Sendable {
+        public let id: Int
+        public let languageTag: String?  // see BCP 47
+    }
+
+    static func permittedVersions(
+        forLanguageTag languageTag: String? = nil,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> [BibleVersionMinimalInfo] {
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        let range = languageTag == nil ? [] : [languageTag!]
+
+        let data = try await YouVersionAPI.commonFetch(
+            // pageSize: nil means fetch them all. Permitted since we're only getting two fields.
+            url: URLBuilder.versionsURL(languageRanges: range, fields: ["id", "language_tag"], pageSize: nil),
+            accessToken: accessToken,
+            session: session
+        )
+        let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
+        return responseObject.data.map( { BibleVersionMinimalInfo(id: $0.id, languageTag: $0.languageTag) } )
+
+    }
+
     private struct BibleVersionsResponse: Decodable {
         let data: [BibleVersion]
         let next_page_token: String?
