@@ -45,16 +45,20 @@ public extension YouVersionAPI.Bible {
                 throw YouVersionAPIError.notPermitted
             }
 
-            guard httpResponse.statusCode == 200 else {
+            guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
                 print("error in findVersions: \(httpResponse.statusCode)")
                 throw YouVersionAPIError.cannotDownload
             }
 
-            let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
-            allResults.append(contentsOf: responseObject.data)
-            pageToken = responseObject.next_page_token
-            if responseObject.data.isEmpty {
+            if httpResponse.statusCode == 204 {
                 pageToken = nil
+            } else {
+                let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
+                allResults.append(contentsOf: responseObject.data)
+                pageToken = responseObject.next_page_token
+                if responseObject.data.isEmpty {
+                    pageToken = nil
+                }
             }
         } while pageToken != nil
 

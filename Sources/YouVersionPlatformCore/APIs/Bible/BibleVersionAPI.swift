@@ -20,7 +20,7 @@ public extension YouVersionAPI.Bible {
 
         let elapsed1 = time2.timeIntervalSince(time1)
         let elapsed2 = time3.timeIntervalSince(time2)
-        print("Version fetched from the server. Times were \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
+        print("Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
 
         return BibleVersion(
             id: basic.id,

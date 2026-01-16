@@ -17,7 +17,7 @@ public struct BibleReaderVersionListView: View {
                     viewModel.versionsStackPush(to: .languages)
                 }
             Group {
-                if viewModel.permittedVersionsList?.isEmpty != false {
+                if filteredVersions.isEmpty {
                     VStack {
                         Spacer()
                         ProgressView()
