@@ -4,16 +4,16 @@ import FoundationNetworking
 #endif
 
 public struct LanguageOverview: Codable, Sendable, Equatable {
-    public let id: String
-    public let language: String
+    public let id: String?
+    public let language: String?
     public let script: String?
     public let scriptName: String?
-    public let aliases: [String]
-    public let displayNames: [String: String]
-    public let scripts: [String]
-    public let variants: [String]
-    public let countries: [String]
-    public let textDirection: String
+    public let aliases: [String]?
+    public let displayNames: [String: String?]?
+    public let scripts: [String]?
+    public let variants: [String]?
+    public let countries: [String]?
+    public let textDirection: String?
     public let defaultBibleId: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -30,7 +30,7 @@ public struct LanguageOverview: Codable, Sendable, Equatable {
         case defaultBibleId = "default_bible_id"
     }
 
-    public init(id: String, language: String, script: String? = nil, scriptName: String? = nil, aliases: [String] = [], displayNames: [String: String] = [:], scripts: [String] = [], variants: [String] = [], countries: [String] = [], textDirection: String = "ltr", defaultBibleId: Int? = nil) {
+    public init(id: String? = nil, language: String? = nil, script: String? = nil, scriptName: String? = nil, aliases: [String]? = nil, displayNames: [String: String]? = nil, scripts: [String]? = nil, variants: [String]? = nil, countries: [String]? = nil, textDirection: String = "ltr", defaultBibleId: Int? = nil) {
         self.id = id
         self.language = language
         self.script = script
@@ -62,14 +62,19 @@ public extension YouVersionAPI {
         ///     used in that country will be returned.
         ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
         /// - Returns: An array of LanguageOverview objects.
-        public static func languages(country: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
+        public static func languages(country: String? = nil, fields: [String] = [], accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
             let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
             var allResults: [LanguageOverview] = []
             var pageToken: String?
 
             repeat {
-                guard let url = URLBuilder.languagesURL(country: country, pageSize: 99, pageToken: pageToken) else {
+                guard let url = URLBuilder.languagesURL(
+                    country: country,
+                    fields: fields,
+                    pageSize: (1...5).contains(fields.count) ? nil : 99,
+                    pageToken: pageToken)
+                else {
                     throw URLError(.badURL)
                 }
 

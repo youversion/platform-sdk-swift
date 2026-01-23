@@ -131,15 +131,17 @@ public enum URLBuilder {
         return components.url
     }
 
-    public static func languagesURL(country: String?, pageSize: Int = 99, pageToken: String? = nil) -> URL? {
+    public static func languagesURL(country: String?, fields: [String] = [], pageSize: Int? = 99, pageToken: String? = nil) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/languages"
 
-        var queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "page_size", value: String(pageSize))
-        ]
+        var queryItems: [URLQueryItem] = []
+        queryItems.append(URLQueryItem(name: "page_size", value: pageSize == nil ? "*" : String(pageSize!)))
         if let country {
             queryItems.append(URLQueryItem(name: "country", value: country))
+        }
+        for field in fields {
+            queryItems.append(URLQueryItem(name: "fields[]", value: field))
         }
         if let pageToken {
             queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
