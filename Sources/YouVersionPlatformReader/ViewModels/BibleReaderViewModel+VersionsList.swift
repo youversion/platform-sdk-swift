@@ -92,7 +92,7 @@ extension BibleReaderViewModel {
     }
 
     /// Heuristically return the name from the map which is the "closest" for the user.
-    private func bestDisplayName(for names: [String : String?]) -> String? {
+    private func bestDisplayName(for names: [String: String?]) -> String? {
         if names.isEmpty {
             return nil
         }

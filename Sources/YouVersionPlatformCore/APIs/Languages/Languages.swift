@@ -73,7 +73,8 @@ public extension YouVersionAPI {
                     country: country,
                     fields: fields,
                     pageSize: (1...5).contains(fields.count) ? nil : 99,
-                    pageToken: pageToken)
+                    pageToken: pageToken
+                )
                 else {
                     throw URLError(.badURL)
                 }

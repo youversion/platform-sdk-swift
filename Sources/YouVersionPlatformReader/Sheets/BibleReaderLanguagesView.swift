@@ -152,7 +152,7 @@ struct BibleReaderLanguagesView: View {
     }
 
     private func languageName(_ lang: String) -> String {
-        return viewModel.languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
+        viewModel.languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
     }
 
     private struct LanguageAndCode: Comparable {
