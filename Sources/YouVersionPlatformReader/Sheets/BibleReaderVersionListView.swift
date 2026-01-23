@@ -14,7 +14,7 @@ public struct BibleReaderVersionListView: View {
             searchInput
             languageDisplay
                 .onTapGesture {
-                    viewModel.versionsStackPush(to: .languages)
+                    viewModel.languageTapped()
                 }
             Group {
                 if filteredVersions.isEmpty {

@@ -380,11 +380,15 @@ final class BibleReaderViewModel {
 
     var suggestedLanguagesList: [LanguageOverview]
     var chosenLanguage: String?
+    var languageNames: [String: String] = [:]
 
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
         do {
-            suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region)
+            let time1 = Date()
+            suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
+            let elapsed = Date().timeIntervalSince(time1)
+            print("loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.")
         } catch {
             print("Error fetching languages: \(error.localizedDescription)")
         }
@@ -393,7 +397,7 @@ final class BibleReaderViewModel {
     /// Returns languages likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
     var suggestedLanguages: [String] {
         guard !self.suggestedLanguagesList.isEmpty else {
-            return ["eng", "spa"]
+            return ["en", "es"]
         }
         let codes = extractLanguageCodes(languages: self.suggestedLanguagesList)
         guard let versionsInfo = permittedVersionsList else {
@@ -407,7 +411,7 @@ final class BibleReaderViewModel {
 
     /// Returns language codes from the list, preferring the 3-letter language codes
     private func extractLanguageCodes(languages: [LanguageOverview]) -> [String] {
-        let languageCodes = languages.map { $0.language }
+        let languageCodes = languages.compactMap { $0.language }
 
         // Remove duplicates while preserving order
         var seen = Set<String>()

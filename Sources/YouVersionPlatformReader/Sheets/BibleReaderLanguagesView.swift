@@ -75,7 +75,7 @@ struct BibleReaderLanguagesView: View {
                     }
                     ForEach(languageCodes, id: \.self) { language in
                         HStack {
-                            Text(Self.languageName(language))
+                            Text(languageName(language))
                             Spacer()
                         }
                         .frame(minHeight: 44)
@@ -133,27 +133,26 @@ struct BibleReaderLanguagesView: View {
         case .suggested:
             return viewModel.suggestedLanguages
         case .all:
-            return Self.sortedUnique(allPermittedLanguages)
+            return sortedUnique(allPermittedLanguages)
         case .searching:
-            return Self.sortedUnique(allPermittedLanguages.filter {
+            return sortedUnique(allPermittedLanguages.filter {
                 searchText.isEmpty ||
                 $0.localizedCaseInsensitiveContains(searchText) ||
-                Self.languageName($0).localizedCaseInsensitiveContains(searchText)
+                languageName($0).localizedCaseInsensitiveContains(searchText)
             })
         }
     }
 
     // De-dup + locale-aware, case-insensitive sort
-    private static func sortedUnique(_ items: [String]) -> [String] {
+    private func sortedUnique(_ items: [String]) -> [String] {
         let list = Array(Set(items)).map {
             LanguageAndCode(language: languageName($0), code: $0)
         }
         return list.sorted().map { $0.code }
     }
 
-    // We might need to look up the language name from the YouVersion API instead of this.
-    private static func languageName(_ lang: String) -> String {
-        Locale.current.localizedString(forLanguageCode: lang) ?? lang
+    private func languageName(_ lang: String) -> String {
+        return viewModel.languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
     }
 
     private struct LanguageAndCode: Comparable {

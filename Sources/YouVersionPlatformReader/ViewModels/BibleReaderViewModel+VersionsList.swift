@@ -60,4 +60,56 @@ extension BibleReaderViewModel {
         }
     }
 
+    private func loadLanguageNames() async {
+        guard languageNames.isEmpty else {
+            return
+        }
+        do {
+            let time1 = Date()
+            let languages = try await YouVersionAPI.Languages.languages(fields: ["language", "display_names"])
+            let elapsed = Date().timeIntervalSince(time1)
+            print("loadLanguageNames got \(languages.count) in \(String(format: "%.2f", elapsed)) seconds.")
+            var map: [String: String] = [:]
+            for language in languages where language.displayNames != nil {
+                if let displayNames = language.displayNames,
+                   let name = bestDisplayName(for: displayNames),
+                   let languageCode = language.language {
+                    map[languageCode] = name
+                }
+            }
+            print("loadLanguageNames filtered to \(map.count) with displayNames.")
+            languageNames = map
+        } catch {
+            print("Error fetching languageNames: \(error.localizedDescription)")
+        }
+    }
+
+    public func languageTapped() {
+        versionsStackPush(to: .languages)
+        Task {
+            await loadLanguageNames()
+        }
+    }
+
+    /// Heuristically return the name from the map which is the "closest" for the user.
+    private func bestDisplayName(for names: [String : String?]) -> String? {
+        if names.isEmpty {
+            return nil
+        }
+        if names.count < 2 {
+            return names.first?.value
+        }
+        let currentLanguage = Locale.current.language.languageCode?.identifier
+        if let currentLanguage, let name = names[currentLanguage] {
+            return name
+        }
+        if let bibleLanguage = version?.languageTag, let name = names[bibleLanguage] {
+            return name
+        }
+        if let name = names["en"] {
+            return name
+        }
+        return names.first?.value
+    }
+
 }
