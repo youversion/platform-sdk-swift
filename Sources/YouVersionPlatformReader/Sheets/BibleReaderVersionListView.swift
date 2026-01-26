@@ -17,16 +17,8 @@ public struct BibleReaderVersionListView: View {
                     viewModel.languageTapped()
                 }
             Group {
-                if filteredVersions.isEmpty {
-                    VStack {
-                        Spacer()
-                        ProgressView()
-                            .tint(viewModel.readerTextMutedColor)
-                        Spacer()
-                        Spacer()
-                    }
-                } else {
-                    List(filteredVersions, id: \.id) { v in
+                if let versions = filteredVersions {
+                    List(versions, id: \.id) { v in
                         BibleVersionOverviewListItem(item: v)
                             .listRowBackground(viewModel.readerCanvasPrimaryColor)
                             .listRowSeparator(.hidden)
@@ -36,6 +28,14 @@ public struct BibleReaderVersionListView: View {
                             }
                     }
                     .listStyle(PlainListStyle())
+                } else {
+                    VStack {
+                        Spacer()
+                        ProgressView()
+                            .tint(viewModel.readerTextMutedColor)
+                        Spacer()
+                        Spacer()
+                    }
                 }
             }
         }
@@ -108,9 +108,11 @@ public struct BibleReaderVersionListView: View {
         .padding()
     }
 
-    private var filteredVersions: [BibleVersion] {
+    private var filteredVersions: [BibleVersion]? {
         let language = viewModel.activeLanguage
-        let versionsList = viewModel.versionsInLanguage[language] ?? []
+        guard let versionsList = viewModel.versionsInLanguage[language] else {
+            return nil
+        }
 
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return versionsList
