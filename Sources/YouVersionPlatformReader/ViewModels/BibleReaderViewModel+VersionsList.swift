@@ -85,9 +85,15 @@ extension BibleReaderViewModel {
     }
 
     public func languageTapped() {
-        versionsStackPush(to: .languages)
-        Task {
-            await loadLanguageNames()
+        if permittedVersionsList == nil || permittedVersionsList!.isEmpty {
+            showGenericAlert = true
+            textForGenericAlertTitle = .localized("generic.error")
+            textForGenericAlertBody = "It was not possible to get the list of available languages. Please try again later."
+        } else {
+            versionsStackPush(to: .languages)
+            Task {
+                await loadLanguageNames()
+            }
         }
     }
 

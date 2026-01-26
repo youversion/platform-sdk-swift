@@ -349,7 +349,7 @@ final class BibleReaderViewModel {
                 print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.")
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
-                    let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($0.id)
+                    let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
                     return a < b
                 }
                 await MainActor.run {
