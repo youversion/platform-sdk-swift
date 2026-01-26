@@ -411,6 +411,10 @@ final class BibleReaderViewModel {
         return ret
     }
 
+    func languageName(_ lang: String) -> String {
+        languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
+    }
+
     /// Returns language codes from the list, preferring the 3-letter language codes
     private func extractLanguageCodes(languages: [LanguageOverview]) -> [String] {
         let languageCodes = languages.compactMap { $0.language }
