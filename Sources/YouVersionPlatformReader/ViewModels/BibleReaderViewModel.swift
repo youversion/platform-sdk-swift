@@ -93,7 +93,9 @@ final class BibleReaderViewModel {
     }
 
     private func removeUnpermittedVersions() async {
-        let permittedVersions = await permittedVersionsListing()
+        guard let permittedVersions = await permittedVersionsListing() else {
+            return  // when offline, we don't get a list, but don't delete anything!
+        }
         let permittedIds = Set(permittedVersions.map(\.id))
         await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
 
@@ -307,8 +309,8 @@ final class BibleReaderViewModel {
     var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
 
     /// Returns minimal information about all Bible versions available to this app, in all languages.
-    /// On error, returns []
-    func permittedVersionsListing() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
+    /// On error or when offline, returns nil
+    func permittedVersionsListing() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
         if let permittedVersionsList {
             return permittedVersionsList
         }
@@ -325,7 +327,7 @@ final class BibleReaderViewModel {
                 }
             }
         }
-        return versions ?? []
+        return versions
     }
 
     private var versionsBeingFetched: Set<String> = []
