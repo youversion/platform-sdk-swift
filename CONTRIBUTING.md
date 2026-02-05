@@ -2,6 +2,32 @@
 
 Thank you for your interest in contributing to the YouVersion Platform Swift SDK!
 
+## Quick Start (Run Sample App)
+
+1. **Clone** the repository:
+   ```bash
+   git clone https://github.com/youversion/platform-sdk-swift.git
+   ```
+
+2. **Get an API key** from [platform.youversion.com](https://platform.youversion.com/)
+
+3. **Add your API key** to `Examples/SampleApp/SampleApp.swift`:
+   ```swift
+   YouVersionPlatform.configure(appKey: "YOUR_API_KEY_HERE")
+   ```
+
+4. **Open in Xcode**:
+   ```bash
+   open Examples/SampleApp.xcodeproj
+   ```
+
+5. **Wait for SPM** to resolve dependencies (may take a minute)
+
+6. **Select a simulator** from the device dropdown (e.g., iPhone 16)
+
+7. **Run** with Cmd+R
+
+
 ## Development Guidelines
 
 ### Prerequisites
@@ -87,11 +113,7 @@ xcodebuild \
 
 ### Sample App
 
-The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK usage. To run it:
-
-1. Open the project in Xcode
-2. Select the `SampleApp` scheme
-3. Build and run on simulator or device
+The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK usage. See [Quick Start](#quick-start-run-sample-app) above for detailed setup instructions.
 
 ## License
 

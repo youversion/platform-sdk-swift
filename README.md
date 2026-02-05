@@ -232,9 +232,11 @@ Explore the [Examples directory](./Examples) for a complete sample app demonstra
 - Best practices for token storage
 
 To run the sample app:
-1. Open `platform-sdk-swift` directory in Xcode
-2. Select the `SampleApp` scheme
-3. Build and run on simulator or device
+1. Open `Examples/SampleApp.xcodeproj` in Xcode
+2. Wait for Swift Package Manager to resolve dependencies
+3. Add your API key to `Examples/SampleApp/SampleApp.swift`
+4. Select an iPhone simulator from the device dropdown
+5. Press Cmd+R
 
 ## 🎯 For Different Use Cases
 
