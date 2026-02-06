@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Change to repository root directory (parent of scripts/)
+cd "$(dirname "$0")/.."
+
 VERSION=$1
 
 if [ -z "$VERSION" ]; then
