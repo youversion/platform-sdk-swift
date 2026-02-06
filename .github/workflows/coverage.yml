@@ -1,7 +1,10 @@
 name: Code Coverage
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
     branches:
       - main
 
@@ -19,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           ssh-key: ${{ secrets.RELEASE_SSH_KEY }}
 
       - uses: maxim-lobanov/setup-xcode@v1
@@ -92,6 +96,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add .github/badges/coverage.json
           git diff --staged --quiet || git commit -m "chore: update coverage badge [skip ci]"
           git push

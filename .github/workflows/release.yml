@@ -5,13 +5,37 @@ on:
     branches:
       - main
 
+env:
+  XCODE_VERSION: 26.0.1
+  IOS_SIMULATOR_NAME: iPhone 17
+  IOS_SIMULATOR_OS: 26.1
+
 permissions:
   contents: write
   issues: write
   pull-requests: write
 
 jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Run tests
+        run: |
+          xcodebuild \
+            -scheme YouVersionPlatform \
+            -destination 'platform=iOS Simulator,name=${{ env.IOS_SIMULATOR_NAME }},OS=${{ env.IOS_SIMULATOR_OS }}' \
+            -derivedDataPath DerivedData \
+            -enableCodeCoverage NO \
+            test
+
   release:
+    needs: test
     runs-on: macos-latest
 
     steps:
