@@ -20,9 +20,10 @@ public extension YouVersionAPI {
             return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
         }
 
-
         private static func applySessionHeaders(from session: URLSession, to request: inout URLRequest) {
-            guard let additionalHeaders = session.configuration.httpAdditionalHeaders else { return }
+            guard let additionalHeaders = session.configuration.httpAdditionalHeaders else {
+                return
+            }
             for (key, value) in additionalHeaders {
                 guard let header = key as? String else { continue }
                 if request.value(forHTTPHeaderField: header) == nil {
