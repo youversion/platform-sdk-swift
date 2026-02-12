@@ -19,27 +19,25 @@ echo "IMPORTANT: Pods will be published in dependency order"
 
 echo ""
 echo "Step 1/4: Publishing YouVersionPlatformCore..."
-#pod trunk push YouVersionPlatformCore.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformCore.podspec --allow-warnings --synchronous
 #echo "Waiting for CDN propagation..."
 #sleep 60
 
 echo ""
 echo "Step 2/4: Publishing YouVersionPlatformUI..."
-#pod trunk push YouVersionPlatformUI.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformUI.podspec --allow-warnings --synchronous
 #echo "Waiting for CDN propagation..."
 #sleep 60
 
 echo ""
 echo "Step 3/4: Publishing YouVersionPlatformReader..."
-#pod trunk push YouVersionPlatformReader.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformReader.podspec --allow-warnings --synchronous
 #echo "Waiting for CDN propagation..."
 #sleep 60
 
 echo ""
 echo "Step 4/4: Publishing YouVersionPlatform..."
-#pod trunk push YouVersionPlatform.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatform.podspec --allow-warnings --synchronous
 
 echo ""
-echo "⚠️  CocoaPods publishing is currently disabled."
-echo "Pod version $VERSION was prepared but not pushed to trunk."
-echo "To enable, uncomment the pod trunk push commands in this script."
+echo "✅ Pod version $VERSION was pushed to trunk."
