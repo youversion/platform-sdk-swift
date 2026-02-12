@@ -5,6 +5,7 @@ import Observation
 public protocol Observable {}
 #endif
 
+
 public protocol BibleVersionAPIClient: Sendable {
     func version(withId id: Int) async throws -> BibleVersion
 }

@@ -1,6 +1,13 @@
-import CryptoKit
 import Foundation
-import Security
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
+#if canImport(CryptoKit)
+import CryptoKit
+#elseif canImport(Crypto)
+import Crypto
+#endif
 
 public struct SignInWithYouVersionPKCEParameters: Sendable {
     public let codeVerifier: String
@@ -17,7 +24,6 @@ public struct SignInWithYouVersionPKCEParameters: Sendable {
 }
 
 public enum SignInWithYouVersionPKCEAuthorizationError: Error {
-    case randomGenerationFailed
     case unableToConstructAuthorizeURL
 }
 
@@ -108,11 +114,8 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
     }
 
     private static func randomURLSafeString(byteCount: Int) throws -> String {
-        var bytes = [UInt8](repeating: 0, count: byteCount)
-        let status = SecRandomCopyBytes(kSecRandomDefault, byteCount, &bytes)
-        guard status == errSecSuccess else {
-            throw SignInWithYouVersionPKCEAuthorizationError.randomGenerationFailed
-        }
+        var generator = SystemRandomNumberGenerator()
+        let bytes = (0..<byteCount).map { _ in UInt8.random(in: UInt8.min...UInt8.max, using: &generator) }
         return base64URLEncodedString(Data(bytes))
     }
 

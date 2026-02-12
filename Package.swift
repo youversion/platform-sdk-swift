@@ -3,9 +3,22 @@
 import PackageDescription
 
 var products: [Product] = []
+
+var packageDependencies: [Package.Dependency] = []
+var coreDependencies: [Target.Dependency] = []
+
+#if os(Linux)
+packageDependencies.append(
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0")
+)
+coreDependencies.append(.product(name: "Crypto", package: "swift-crypto"))
+coreDependencies.append(.target(name: "SwiftThreadingShim"))
+#endif
+
 var targets: [Target] = [
     .target(
-        name: "YouVersionPlatformCore"
+        name: "YouVersionPlatformCore",
+        dependencies: coreDependencies
     ),
     .testTarget(
         name: "YouVersionPlatformCoreTests",
@@ -13,6 +26,14 @@ var targets: [Target] = [
         resources: [.process("Fixtures/bible_206.json")]
     ),
 ]
+
+#if os(Linux)
+targets.append(
+    .target(
+        name: "SwiftThreadingShim"
+    )
+)
+#endif
 
 #if !os(Linux)
 targets.append(
@@ -73,5 +94,6 @@ let package = Package(
     name: "YouVersionPlatform",
     platforms: [.macOS(.v15), .iOS(.v17)],
     products: products,
+    dependencies: packageDependencies,
     targets: targets
 )

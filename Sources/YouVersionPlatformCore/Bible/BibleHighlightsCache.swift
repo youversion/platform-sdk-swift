@@ -1,10 +1,15 @@
 import Foundation
+#if canImport(Observation)
 import Observation
+#endif
+
 
 // MARK: - New Observable Cache Model
 
 @MainActor
+#if canImport(Observation)
 @Observable
+#endif
 public final class BibleHighlightsCache {
 
     // MARK: Singleton

@@ -20,6 +20,17 @@ public extension YouVersionAPI {
             return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
         }
 
+
+        private static func applySessionHeaders(from session: URLSession, to request: inout URLRequest) {
+            guard let additionalHeaders = session.configuration.httpAdditionalHeaders else { return }
+            for (key, value) in additionalHeaders {
+                guard let header = key as? String else { continue }
+                if request.value(forHTTPHeaderField: header) == nil {
+                    request.setValue("\(value)", forHTTPHeaderField: header)
+                }
+            }
+        }
+
         // this checks that the state parameter matches, and then fetches /auth/callback with the same parameters
         static func obtainLocation(from callbackURL: URL, state: String, session: URLSession) async throws -> String {
             guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
@@ -44,6 +55,7 @@ public extension YouVersionAPI {
             let redirectSession = URLSession(configuration: redirectConfiguration, delegate: RedirectDisabler(), delegateQueue: nil)
             var request = URLRequest(url: newURL)
             request.httpMethod = "GET"
+            applySessionHeaders(from: session, to: &request)
 
             let (_, response) = try await redirectSession.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 302 else {
@@ -68,11 +80,12 @@ public extension YouVersionAPI {
         }
 
         static func obtainTokens(from code: String, codeVerifier: String, redirectUri: String, session: URLSession) async throws -> TokenResponse {
-            let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
+            var request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.tokenURLRequest(
                 code: code,
                 codeVerifier: codeVerifier,
                 redirectUri: redirectUri
             )
+            applySessionHeaders(from: session, to: &request)
 
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -182,6 +195,7 @@ public extension YouVersionAPI {
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpBody = bodyData
+            applySessionHeaders(from: session, to: &request)
 
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
