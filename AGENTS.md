@@ -33,22 +33,6 @@ LINUX_SOURCEKIT_LIB_PATH=/root/.local/share/swiftly/toolchains/6.1.3/usr/lib swi
 
 (If SwiftLint is not installed, get it from https://github.com/realm/SwiftLint/releases/latest/download/swiftlint_linux_amd64.zip or similar.)
 
-## Essential Commands
-
-### Code Quality
-```bash
-# Lint Swift code
-swiftlint
-
-# Check for unused code
-periphery scan
-```
-
-### Dependencies
-- **Swift Package Manager**: Primary dependency manager
-
-## Development Notes
-
 ### Testing Strategy
 - Unit tests for core functionality
 
@@ -93,10 +77,8 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 ## Important Tips
 - Use GitHub to create pull requests (PRs).
 - PR titles should always be the same as the first line of the commit message.
-- When creating PRs, try to use the git config user email as the assignee.
 - Prefer idiomatic, industry standard Swift style. Follow https://www.swift.org/documentation/api-design-guidelines/.
 - Don't make whitespace-only changes.
-- Read the swiftlint config file at @.swiftlint.yml for hints on preferred coding style.
 - Prefer async-await to completion block-based API design.
 - Async functions with return values should have names that are noun phrases describing the return value rather than verb phrases and should never begin with "get", "load", or "request".
 - Don't add inline comments inside functions, but don't delete existing inline comments.
@@ -112,7 +94,6 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 - Prefer structs over classes.
 - Don't leave unused code.
 - Do not leave commented out code in place.
-- Avoid abbreviations.
 - Class, struct, enum entity names should always be in PascalCase.
 - Property and function names should always be in camelCase.
 
