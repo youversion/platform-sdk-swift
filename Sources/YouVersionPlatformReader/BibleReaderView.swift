@@ -282,7 +282,7 @@ public struct BibleReaderView: View {
 
 #Preview {
     BibleReaderView(
-        reference: BibleReference(versionId: 206, bookUSFM: "PSA", chapter: 117),
+        reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 117),
         appName: "BibleReaderViewPreview",
         signInMessage: "This paragraph needs to explain why the user should sign in."
     )

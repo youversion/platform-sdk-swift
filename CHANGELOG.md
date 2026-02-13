@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2](https://github.com/youversion/platform-sdk-swift/compare/2.0.1...2.0.2) (2026-02-13)
+
+
+### Bug Fixes
+
+* use BSB (3034) consistently as the default/preview Bible version ([62ee22a](https://github.com/youversion/platform-sdk-swift/commit/62ee22acbf13f82cdc622fc8b4af36a6135b8254))
+
 ## [2.0.1](https://github.com/youversion/platform-sdk-swift/compare/2.0.0...2.0.1) (2026-02-13)
 
 

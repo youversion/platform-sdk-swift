@@ -32,10 +32,11 @@ struct BibleReaderFootnotesView: View {
                     VStack(alignment: .leading) {
                         ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
                             let character = String(UnicodeScalar(97 + (index % 26))!)
+                            let txt = footnote.text.setFont(.footnote, from: BibleTextFonts(familyName: "San Francisco", baseSize: 15))
                             HStack(alignment: .firstTextBaseline) {
                                 Text(character + ".")
                                     .font(ReaderFonts.fontLabelS)
-                                Text(footnote.text.asAttributedString)
+                                Text(txt.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }
                             Divider()
