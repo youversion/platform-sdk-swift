@@ -99,7 +99,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 3, verse: 16)
+            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
         )
     }
 }
@@ -112,7 +112,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
+            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
         )
     }
 }
@@ -125,7 +125,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 3)
+            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3)
         )
     }
 }

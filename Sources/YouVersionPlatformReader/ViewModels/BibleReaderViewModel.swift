@@ -34,7 +34,7 @@ final class BibleReaderViewModel {
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
                 let downloads = VersionDownloadCache.downloadedVersions
-                let versionId = reference?.versionId ?? downloads.first ?? savedIds.first ?? 206
+                let versionId = reference?.versionId ?? downloads.first ?? savedIds.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
             }
         }
