@@ -114,29 +114,32 @@ public class BibleTextNode {
         }
 
         func parser(_ parser: XMLParser, foundCharacters string: String) {
-            let collapsed = string.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-            let core = collapsed.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !core.isEmpty else {
-                return
-            }
-            let leadingSpace = string.first?.isWhitespace == true
-            let trailingSpace = string.last?.isWhitespace == true
-            var segment = core
-            if leadingSpace {
-                segment = " " + segment
-            }
-            if trailingSpace {
-                segment += " "
-            }
             guard let current = stack.last else {
                 return
             }
 
+            let segment = string.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            guard !segment.isEmpty else {
+                return
+            }
+
+            if segment == " " {
+                guard let previousChild = current.children.last else {
+                    return
+                }
+                guard previousChild.type == .span || previousChild.type == .text else {
+                    return
+                }
+            }
+
             if let lastChild = current.children.last, lastChild.type == .text {
-                lastChild.textSegments.append(segment)
-                let joined = lastChild.textSegments.joined()
+                let joined = (lastChild.text + segment)
+                    .replacingOccurrences(of: " {2,}", with: " ", options: .regularExpression)
+                guard !joined.isEmpty else {
+                    return
+                }
+                lastChild.textSegments = [joined]
                 lastChild.text = joined
-                lastChild.textSegments = joined.isEmpty ? [] : [joined]
             } else {
                 let textNode = BibleTextNode(name: "text")
                 textNode.textSegments = [segment]
@@ -148,7 +151,6 @@ public class BibleTextNode {
         func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
             _ = stack.popLast()
         }
-
     }
 }
 

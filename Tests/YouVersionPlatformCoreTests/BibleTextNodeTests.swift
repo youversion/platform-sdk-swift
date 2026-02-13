@@ -81,3 +81,52 @@ func testParse_GenesisIntroContainsText() throws {
     let texts = collectTexts(root)
     #expect(texts.contains("In the beginning, God created the heavens and the earth."))
 }
+
+@Test
+func testParse_SpacesBetweenInlineSpansArePreserved() throws {
+    let html = "<div><span>One</span> <span>Two</span>   <span>Three three   three</span>.</div>"
+
+    let root = try #require(try BibleTextNode.parse(html))
+    let block = try #require(root.children.first)
+
+    let renderedText = collectRenderedText(from: block)
+    #expect(renderedText == "One Two Three three three.")
+}
+
+@Test
+func testParse_MixedWhitespaceAndInlineNodesCollapseToSingleSpaces() throws {
+    let html = "<div>  Start <span>middle</span>\n\t <span>end</span>   done  </div>"
+
+    let root = try #require(try BibleTextNode.parse(html))
+    let block = try #require(root.children.first)
+
+    let renderedText = collectRenderedText(from: block)
+    #expect(renderedText == "Start middle end done")
+}
+
+@Test
+func testParse_LeadingWhitespaceBeforeFirstChildIsIgnored() throws {
+    let html = "<div>   <span>One</span>   <span>Two</span></div>"
+
+    let root = try #require(try BibleTextNode.parse(html))
+    let block = try #require(root.children.first)
+
+    let renderedText = collectRenderedText(from: block)
+    #expect(renderedText == "One Two")
+}
+
+private func collectRenderedText(from node: BibleTextNode) -> String {
+    var text = ""
+    appendRenderedText(from: node, into: &text)
+    return text.trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
+private func appendRenderedText(from node: BibleTextNode, into text: inout String) {
+    if node.type == .text {
+        text += node.text
+    }
+
+    for child in node.children {
+        appendRenderedText(from: child, into: &text)
+    }
+}
