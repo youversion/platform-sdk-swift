@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1](https://github.com/youversion/platform-sdk-swift/compare/2.0.0...2.0.1) (2026-02-13)
+
+
+### Bug Fixes
+
+* adjust font family and size in footnotes popup ([2077641](https://github.com/youversion/platform-sdk-swift/commit/20776418c45985e701f4fd62c3ad570feaa387da))
+
 ## [2.0.0](https://github.com/youversion/platform-sdk-swift/compare/1.0.1...2.0.0) (2026-01-26)
 
 
