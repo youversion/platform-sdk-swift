@@ -8,7 +8,7 @@ public extension BibleVersion {
         }
         return book.title ?? book.fullTitle
     }
-    // Example: "https://www.bible.com/bible/111/1SA.3.10.NIV"
+    // Example: "https://www.bible.com/bible/3034/1SA.3.10.BSB"
     func shareUrl(reference: BibleReference) -> URL? {
         let prefix = "https://www.bible.com/bible/\(id)/"
         let book = reference.bookUSFM

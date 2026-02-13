@@ -9,7 +9,7 @@ public struct VotdView: View {
 
     @State private var bibleVersionId: Int
 
-    public init(bibleVersionId: Int = 111) {
+    public init(bibleVersionId: Int = 3034) {
         self.bibleVersionId = bibleVersionId
     }
 
@@ -102,5 +102,5 @@ public struct VotdView: View {
 }
 
 #Preview {
-    VotdView(bibleVersionId: 206)
+    VotdView(bibleVersionId: 3034)
 }

@@ -114,22 +114,18 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
 
     public static var preview: BibleVersion {
         // Create a minimal BibleVersion for preview purposes
-        let promotionalContent = """
-King James Version (KJV)
-
-The King James Version (KJV) of the holy Bible was first printed in 1611, but the main edition used today is the 1769 version. The King James Version (KJV) is also known as the Authorized (or Authorised) Version (AV) because it was authorized to be read in churches. For over 300 years it was the main English translation used in the English speaking world, and is much admired and respected. About 400 words and phrases coined or popularised by the King James Version are part the English language today.
-"""
+        let promotionalContent = "This is minimal preview data for the Berean Standard Bible"
         return BibleVersion(
-            id: 1,
-            abbreviation: "KJV",
+            id: 3034,
+            abbreviation: "BSB",
             promotionalContent: promotionalContent,
             copyright: nil,
             languageTag: "en",
-            localizedAbbreviation: "KJV",
-            localizedTitle: "King James Version",
-            readerFooter: "Text is from the King James Version",
-            readerFooterUrl: "https://www.biblesociety.org.uk",
-            title: "King James Version",
+            localizedAbbreviation: "BSB",
+            localizedTitle: "Berean Standard Bible",
+            readerFooter: "Text is from the Berean Standard Bible",
+            readerFooterUrl: "https://berean.bible",
+            title: "Berean Standard Bible",
             organizationId: "1234-abcd-4321-fedc-0123456789ab",
             bookCodes: nil,
             books: nil,
