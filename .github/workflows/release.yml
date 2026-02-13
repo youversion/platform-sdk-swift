@@ -5,13 +5,46 @@ on:
     branches:
       - main
 
+env:
+  XCODE_VERSION: latest-stable
+  IOS_SIMULATOR_NAME: iPhone 17
+  IOS_SIMULATOR_OS: latest
+
 permissions:
   contents: write
   issues: write
   pull-requests: write
 
 jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Ensure iOS Simulator runtime is available
+        run: |
+          if ! xcrun simctl list runtimes | grep -q "iOS.*26"; then
+            echo "iOS 26 runtime not found. Downloading..."
+            xcodebuild -downloadPlatform iOS
+          else
+            echo "iOS 26 runtime is already installed."
+          fi
+
+      - name: Run tests
+        run: |
+          xcodebuild \
+            -scheme YouVersionPlatform \
+            -destination 'platform=iOS Simulator,name=${{ env.IOS_SIMULATOR_NAME }},OS=${{ env.IOS_SIMULATOR_OS }}' \
+            -derivedDataPath DerivedData \
+            -enableCodeCoverage NO \
+            test
+
   release:
+    needs: test
     runs-on: macos-latest
 
     steps:

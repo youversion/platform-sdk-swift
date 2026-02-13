@@ -12,28 +12,32 @@ echo "Publishing version $VERSION to CocoaPods trunk..."
 echo "IMPORTANT: Pods will be published in dependency order"
 
 # Publish in dependency order: Core -> UI -> Reader -> Platform
+#
+# To enable CocoaPods publishing, uncomment the `pod trunk push` lines below.
+# A delay between each push allows the CocoaPods CDN to index the previous pod
+# before a dependent pod is pushed.
+
 echo ""
 echo "Step 1/4: Publishing YouVersionPlatformCore..."
-# Uncomment the following line to publish the podspec
-#pod trunk push YouVersionPlatformCore.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformCore.podspec --allow-warnings --synchronous
+#echo "Waiting for CDN propagation..."
+#sleep 60
 
 echo ""
 echo "Step 2/4: Publishing YouVersionPlatformUI..."
-# Uncomment the following line to publish the podspec
-#pod trunk push YouVersionPlatformUI.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformUI.podspec --allow-warnings --synchronous
+#echo "Waiting for CDN propagation..."
+#sleep 60
 
 echo ""
 echo "Step 3/4: Publishing YouVersionPlatformReader..."
-# Uncomment the following line to publish the podspec
-#pod trunk push YouVersionPlatformReader.podspec --allow-warnings --synchronous
+pod trunk push YouVersionPlatformReader.podspec --allow-warnings --synchronous
+#echo "Waiting for CDN propagation..."
+#sleep 60
 
 echo ""
-echo "Step 4/4: Publishing YouVersionPlatform (Dry-Run)..."
-# Uncomment the following line to publish the podspec
-#pod trunk push YouVersionPlatform.podspec --allow-warnings --synchronous
+echo "Step 4/4: Publishing YouVersionPlatform..."
+pod trunk push YouVersionPlatform.podspec --allow-warnings --synchronous
 
 echo ""
-echo "✅ All pods published successfully for version $VERSION!"
-echo ""
-echo "Verifying publication..."
-pod search YouVersionPlatform --simple | head -n 5
+echo "✅ Pod version $VERSION was pushed to trunk."

@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Change to repository root directory (parent of scripts/)
+cd "$(dirname "$0")/.."
+
 VERSION=$1
 
 if [ -z "$VERSION" ]; then
@@ -10,21 +13,21 @@ fi
 
 echo "Updating version to $VERSION in all podspec files..."
 
-# Update each podspec file
+# Update s.version in each podspec file.
+# Inter-pod dependencies use s.version.to_s, so they automatically stay in sync.
 sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatform.podspec
 sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformCore.podspec
 sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformReader.podspec
 sed -i '' "s/s\.version[[:space:]]*=.*/s.version      = '$VERSION'/" YouVersionPlatformUI.podspec
 
-echo "Updating inter-pod dependency versions..."
-
-# Update dependency versions within podspecs
-sed -i '' "s/dependency 'YouVersionPlatformCore', '[^']*'/dependency 'YouVersionPlatformCore', '$VERSION'/" YouVersionPlatform.podspec
-sed -i '' "s/dependency 'YouVersionPlatformCore', '[^']*'/dependency 'YouVersionPlatformCore', '$VERSION'/" YouVersionPlatformUI.podspec
-sed -i '' "s/dependency 'YouVersionPlatformCore', '[^']*'/dependency 'YouVersionPlatformCore', '$VERSION'/" YouVersionPlatformReader.podspec
-sed -i '' "s/dependency 'YouVersionPlatformUI', '[^']*'/dependency 'YouVersionPlatformUI', '$VERSION'/" YouVersionPlatformReader.podspec
-sed -i '' "s/dependency 'YouVersionPlatformUI', '[^']*'/dependency 'YouVersionPlatformUI', '$VERSION'/" YouVersionPlatform.podspec
-sed -i '' "s/dependency 'YouVersionPlatformReader', '[^']*'/dependency 'YouVersionPlatformReader', '$VERSION'/" YouVersionPlatform.podspec
+echo "Verifying version was updated..."
+for PODSPEC in YouVersionPlatform.podspec YouVersionPlatformCore.podspec YouVersionPlatformReader.podspec YouVersionPlatformUI.podspec; do
+  if ! grep -q "s.version      = '$VERSION'" "$PODSPEC"; then
+    echo "Error: Failed to update version in $PODSPEC"
+    exit 1
+  fi
+  echo "  ✓ $PODSPEC"
+done
 
 echo "Validating podspecs..."
 
