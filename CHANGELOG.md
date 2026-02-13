@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3](https://github.com/youversion/platform-sdk-swift/compare/2.0.2...2.0.3) (2026-02-13)
+
+
+### Bug Fixes
+
+* override font in the footnote text in the footnotesView also ([7a0bcd7](https://github.com/youversion/platform-sdk-swift/commit/7a0bcd753449f88b21c6c4f394131ad96cc0e7ac))
+
 ## [2.0.2](https://github.com/youversion/platform-sdk-swift/compare/2.0.1...2.0.2) (2026-02-13)
 
 

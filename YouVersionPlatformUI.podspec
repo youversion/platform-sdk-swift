@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'YouVersionPlatformUI'
   s.module_name  = 'YouVersionPlatformUI'
-  s.version      = '2.0.2'
+  s.version      = '2.0.3'
   s.summary      = 'UI components for YouVersion Platform'
   s.homepage     = 'https://github.com/youversion/platform-sdk-swift'
   s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }
