@@ -6,8 +6,8 @@ struct BibleReaderFootnotesView: View {
 
     var body: some View {
         let textOptions = BibleTextOptions(
-            fontFamily: ReaderFonts.defaultFontFamily,
-            fontSize: ReaderFonts.defaultFontSize * 0.80,
+            fontFamily: viewModel.textOptions.fontFamily,
+            fontSize: 16,
             lineSpacing: viewModel.textOptions.lineSpacing,
             paragraphSpacing: viewModel.textOptions.paragraphSpacing,
             textColor: viewModel.textOptions.textColor,
@@ -30,15 +30,14 @@ struct BibleReaderFootnotesView: View {
                         .padding(.bottom)
                     Divider()
                     VStack(alignment: .leading) {
-                        ForEach(viewModel.footnotesToDisplay.indices, id: \.self) { index in
-                            let footnote = viewModel.footnotesToDisplay[index]
+                        ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
+                            let character = String(UnicodeScalar(97 + (index % 26))!)
                             HStack(alignment: .firstTextBaseline) {
-                                let character = String(UnicodeScalar(UnicodeScalar("a").value + UInt32(index)) ?? " ")
                                 Text(character + ".")
+                                    .font(ReaderFonts.fontLabelS)
                                 Text(footnote.text.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }
-                            .font(ReaderFonts.fontLabelS)
                             Divider()
                         }
                     }
@@ -49,6 +48,7 @@ struct BibleReaderFootnotesView: View {
         .padding(.horizontal, 24)
         .padding(.top, 24)
     }
+    
 }
 
 #Preview {
