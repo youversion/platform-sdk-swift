@@ -9,9 +9,9 @@ on:
       - main
 
 env:
-  XCODE_VERSION: 26.0.1
+  XCODE_VERSION: 26.2
   IOS_SIMULATOR_NAME: iPhone 17
-  IOS_SIMULATOR_OS: 26.1
+  IOS_SIMULATOR_OS: 26.2
 
 permissions:
   contents: write
