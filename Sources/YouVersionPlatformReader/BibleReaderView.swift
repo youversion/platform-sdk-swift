@@ -103,8 +103,8 @@ public struct BibleReaderView: View {
                     showChrome: true,
                     onSelectionChange: { v, b, c in
                         Task {
-                            let reference = BibleReference(versionId: v, bookUSFM: b, chapter: c)
-                            await viewModel.onHeaderSelectionChange(reference)
+                            let reference = BibleReference(versionId: v, bookUSFM: b, chapter: c ?? 1)
+                            await viewModel.onHeaderSelectionChange(reference, showIntro: c == nil)
                         }
                     },
                     onCompactTap: {
@@ -191,14 +191,18 @@ public struct BibleReaderView: View {
                 .frame(height: 0)
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
-                        BibleTextView(
-                            viewModel.reference,
-                            textOptions: viewModel.textOptions,
-                            selectedVerses: $viewModel.selectedVerses,
-                            onVerseTap: { reference, actionType, footnotes in
-                                viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                            }
-                        )
+                        if let bookIntro = viewModel.bookIntroBeingDisplayed {
+                            Text("Book introduction here, for \(bookIntro)")
+                        } else {
+                            BibleTextView(
+                                viewModel.reference,
+                                textOptions: viewModel.textOptions,
+                                selectedVerses: $viewModel.selectedVerses,
+                                onVerseTap: { reference, actionType, footnotes in
+                                    viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
+                                }
+                            )
+                        }
                         bibleCopyrightBlock
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)

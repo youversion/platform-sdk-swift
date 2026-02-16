@@ -192,7 +192,7 @@ extension BibleReaderViewModel {
         }
     }
 
-    func onHeaderSelectionChange(_ reference: BibleReference) async {
+    func onHeaderSelectionChange(_ reference: BibleReference, showIntro: Bool) async {
         isChangingChapter = true
         removeVerseSelection()
         do {
@@ -202,6 +202,7 @@ extension BibleReaderViewModel {
                 myVersions.insert(newVersion)
             }
             self.reference = reference
+            self.bookIntroBeingDisplayed = showIntro ? reference.bookUSFM : nil
 
             // Reset scroll tracking to prevent chrome from hiding due to content change
             lastScrollOffset = 0

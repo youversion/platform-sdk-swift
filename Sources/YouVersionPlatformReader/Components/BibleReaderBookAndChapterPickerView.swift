@@ -10,7 +10,8 @@ public struct BibleReaderBookAndChapterPickerView: View {
     let versionId: Int
     let bookNameProvider: (String) -> String?
     let chapterLabelsProvider: (String) -> [String]
-    let onSelectionChange: ((Int, String, Int) -> Void)?
+    let hasIntroPassage: (String) -> Bool
+    let onSelectionChange: ((Int, String, Int?) -> Void)?
 
     private let chapterGridColumns = 5
     private let chapterButtonSize: CGFloat = 56
@@ -22,7 +23,8 @@ public struct BibleReaderBookAndChapterPickerView: View {
         versionId: Int,
         bookNameProvider: @escaping (String) -> String?,
         chapterLabelsProvider: @escaping (String) -> [String],
-        onSelectionChange: ((Int, String, Int) -> Void)? = nil
+        hasIntroPassage: @escaping (String) -> Bool,
+        onSelectionChange: ((Int, String, Int?) -> Void)? = nil
     ) {
         self._expandedBookCode = expandedBookCode
         self._isPresented = isPresented
@@ -30,6 +32,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         self.versionId = versionId
         self.bookNameProvider = bookNameProvider
         self.chapterLabelsProvider = chapterLabelsProvider
+        self.hasIntroPassage = hasIntroPassage
         self.onSelectionChange = onSelectionChange
     }
     
@@ -91,28 +94,41 @@ public struct BibleReaderBookAndChapterPickerView: View {
         let chapters = chapterLabelsProvider(bookCode)
         let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: chapterGridColumns)
         return LazyVGrid(columns: columns, spacing: 10) {
+            if hasIntroPassage(bookCode) {
+                Button(action: {
+                    isPresented = false
+                    onSelectionChange?(versionId, bookCode, nil)
+                }) {
+                    chapterListButton("ⓘ")
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
             ForEach(chapters.indices, id: \.self) { idx in
                 Button(action: {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, idx + 1)
                 }) {
-                    Text(chapters[idx])
-                        .font(.system(size: 14))
-                        .frame(width: chapterButtonSize, height: chapterButtonSize)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(viewModel.readerButtonPrimaryColor)
-                        )
+                    chapterListButton(chapters[idx])
                 }
                 .buttonStyle(PlainButtonStyle())
             }
         }
         .padding(.vertical, 8)
     }
+    
+    private func chapterListButton(_ label: String) -> some View {
+        Text(label)
+            .font(.system(size: 14, weight: .bold))
+            .frame(width: chapterButtonSize, height: chapterButtonSize)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(viewModel.readerButtonPrimaryColor)
+            )
+    }
 }
 
 #Preview {
-    @State @Previewable var expandedBook: String?
+    @State @Previewable var expandedBook: String? = "EXO"
     @State @Previewable var isPresented = true
     
     let sampleBookCodes = ["GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "JHN"]
@@ -133,6 +149,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         chapterLabelsProvider: { _ in
             Array(1...21).map { String($0) }
         },
+        hasIntroPassage: { _ in true },
         onSelectionChange: { versionId, book, chapter in
             print("Selected: Version \(versionId), Book \(book), Chapter \(chapter)")
         }

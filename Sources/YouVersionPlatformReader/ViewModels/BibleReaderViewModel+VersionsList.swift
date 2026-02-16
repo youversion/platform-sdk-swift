@@ -37,7 +37,7 @@ extension BibleReaderViewModel {
     public func switchToVersion(_ versionId: Int) {
         Task {
             let ref = BibleReference(versionId: versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-            await onHeaderSelectionChange(ref)
+            await onHeaderSelectionChange(ref, showIntro: false)
         }
     }
 

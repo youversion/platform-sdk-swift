@@ -17,6 +17,7 @@ final class BibleReaderViewModel {
             }
         }
     }
+    var bookIntroBeingDisplayed: String? = nil  // set to bookCode to show intro for that book
     let highlightsViewModel: BibleHighlightsViewModel
     var version: BibleVersion?
     let versionRepository = BibleVersionRepository()

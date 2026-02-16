@@ -6,14 +6,14 @@ public struct BibleReaderHeaderView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     let showChrome: Bool
-    let onSelectionChange: ((Int, String, Int) -> Void)?
+    let onSelectionChange: ((Int, String, Int?) -> Void)?
     let onCompactTap: (() -> Void)?
 
     @State private var spaceNeeded = false
 
     init(
         showChrome: Bool = true,
-        onSelectionChange: ((Int, String, Int) -> Void)? = nil,
+        onSelectionChange: ((Int, String, Int?) -> Void)? = nil,
         onCompactTap: (() -> Void)? = nil
     ) {
         self.showChrome = showChrome
@@ -69,6 +69,7 @@ public struct BibleReaderHeaderView: View {
                     versionId: viewModel.reference.versionId,
                     bookNameProvider: { bookCode in version.bookName(bookCode) },
                     chapterLabelsProvider: { bookCode in version.chapterLabels(bookCode) },
+                    hasIntroPassage: { bookCode in version.book(with: bookCode)?.intro != nil },
                     onSelectionChange: onSelectionChange
                 )
             } else {
