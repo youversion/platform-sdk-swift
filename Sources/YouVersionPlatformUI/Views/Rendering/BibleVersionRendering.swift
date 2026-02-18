@@ -41,11 +41,28 @@ public enum BibleVersionRendering {
         wocColor: Color = Color.red,
         fonts: BibleTextFonts
     ) async throws -> [BibleTextBlock]? {
+        let rootNode = try await acquireRootNode(reference: reference)
+        guard let rootNode, !rootNode.children.isEmpty else {
+            return nil
+        }
+        return generateTextBlocks(
+            from: rootNode,
+            reference: reference,
+            renderHeadlines: renderHeadlines,
+            renderVerseNumbers: renderVerseNumbers,
+            footnotesMode: footnotesMode,
+            footnoteMarker: footnoteMarker,
+            textColor: textColor,
+            wocColor: wocColor,
+            fonts: fonts
+        )
+    }
+    
+    static func acquireRootNode(reference: BibleReference) async throws -> BibleTextNode? {
         let book = reference.bookUSFM
         let c = reference.chapter
         let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
 
-        let rootNode: BibleTextNode?
         do {
             let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
             var node = try? BibleTextNode.parse(data)
@@ -55,16 +72,25 @@ public enum BibleVersionRendering {
                 let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
                 node = try? BibleTextNode.parse(data)
             }
-            rootNode = node
+            return node
         } catch YouVersionAPIError.notPermitted {
             throw YouVersionAPIError.notPermitted
         } catch {
             return nil
         }
-        guard let rootNode, !rootNode.children.isEmpty else {
-            return nil
-        }
-
+    }
+    
+    static func generateTextBlocks(
+        from rootNode: BibleTextNode,
+        reference: BibleReference,
+        renderHeadlines: Bool,
+        renderVerseNumbers: Bool,
+        footnotesMode: BibleTextFootnoteMode,
+        footnoteMarker: BibleAttributedString?,
+        textColor: Color,
+        wocColor: Color,
+        fonts: BibleTextFonts
+    ) -> [BibleTextBlock] {
         var ret: [BibleTextBlock] = []
         let verseStart = reference.verseStart ?? 1
         let verseEnd = reference.verseEnd ?? 999
@@ -102,7 +128,7 @@ public enum BibleVersionRendering {
             headIndent: 0,
             versionId: reference.versionId,
             bookUSFM: reference.bookUSFM,
-            chapter: c,
+            chapter: reference.chapter,
             verse: 0
         )
 
