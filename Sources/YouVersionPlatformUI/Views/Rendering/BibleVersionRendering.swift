@@ -41,7 +41,7 @@ public enum BibleVersionRendering {
         wocColor: Color = Color.red,
         fonts: BibleTextFonts
     ) async throws -> [BibleTextBlock]? {
-        let rootNode = try await acquireRootNode(reference: reference)
+        let rootNode = try await rootNode(from: reference)
         guard let rootNode, !rootNode.children.isEmpty else {
             return nil
         }
@@ -58,7 +58,7 @@ public enum BibleVersionRendering {
         )
     }
     
-    static func acquireRootNode(reference: BibleReference) async throws -> BibleTextNode? {
+    static func rootNode(from reference: BibleReference) async throws -> BibleTextNode? {
         let book = reference.bookUSFM
         let c = reference.chapter
         let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
@@ -80,8 +80,8 @@ public enum BibleVersionRendering {
         }
     }
     
-    static func generateTextBlocks(
-        from rootNode: BibleTextNode,
+    public static func generateTextBlocks(
+        from node: BibleTextNode,
         reference: BibleReference,
         renderHeadlines: Bool,
         renderVerseNumbers: Bool,
@@ -132,7 +132,7 @@ public enum BibleVersionRendering {
             verse: 0
         )
 
-        if let firstChild = rootNode.children.first {
+        if let firstChild = node.children.first {
             handleNodeBlock(
                 node: firstChild,
                 stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp,
