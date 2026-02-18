@@ -192,7 +192,7 @@ public struct BibleReaderView: View {
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
                         if let bookIntro = viewModel.bookIntroBeingDisplayed {
-                            Text("Book introduction here, for \(bookIntro)")
+                            BibleReaderIntroView()
                         } else {
                             BibleTextView(
                                 viewModel.reference,

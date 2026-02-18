@@ -9,6 +9,7 @@ public struct BibleTextView: View {
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
     private let placeholder: (BibleTextLoadingPhase) -> AnyView
+    private let providedBlocks: [BibleTextBlock]?
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
@@ -28,6 +29,7 @@ public struct BibleTextView: View {
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = []
+        self.providedBlocks = nil
     }
 
     public init(
@@ -37,13 +39,13 @@ public struct BibleTextView: View {
         onVerseTap: VerseTapAction? = nil,
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
     ) {
-        self.loadingPhase = nil
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
         self.onVerseTap = onVerseTap
         self.placeholder = placeholder ?? Self.standardPlaceholder
         self.blocks = []
+        self.providedBlocks = nil
     }
 
     // private init for use by Self.viewWithPrefetchedData()
@@ -51,18 +53,19 @@ public struct BibleTextView: View {
         _ reference: BibleReference,
         blocks: [BibleTextBlock] = []
     ) {
-        self.loadingPhase = .provided
         self.reference = reference
         self.textOptions = BibleTextOptions()
         self.onVerseTap = nil
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
+        self.providedBlocks = blocks
+        self.loadingPhase = nil
     }
 
     public var body: some View {
         VStack(alignment: mainVStackAlignment) {
-            if let phase = loadingPhase, phase != .provided {
+            if let phase = loadingPhase {
                 placeholder(phase)
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
@@ -140,12 +143,13 @@ public struct BibleTextView: View {
     }
 
     private func loadBlocks() async {
-        guard loadingPhase != .provided else {
-            return
-        }
         loadingPhase = .loading
         do {
-            if let blocks = try await BibleVersionRendering.textBlocks(
+            if let providedBlocks {
+                self.blocks = providedBlocks
+                await updateVersionTextDirection()
+                loadingPhase = nil  // meaning, we've succeeded
+            } else if let blocks = try await BibleVersionRendering.textBlocks(
                 reference,
                 renderHeadlines: textOptions.renderHeadlines,
                 renderVerseNumbers: textOptions.renderVerseNumbers,
@@ -196,7 +200,7 @@ public struct BibleTextView: View {
         let node = try? BibleTextNode.parse(html)
         return VStack {
             if node?.children.count ?? 0 == 0 {
-                Text("Cannot parse")
+                Text("")
             } else {
                 let blocks = BibleVersionRendering.generateTextBlocks(
                     from: node!,
@@ -209,10 +213,10 @@ public struct BibleTextView: View {
                     wocColor: .primary,
                     fonts: .init(familyName: "Helvetica"))
                 if !blocks.isEmpty {
-                    //print("Got \(blocks.count) blocks")
                     BibleTextView(reference, blocks: blocks)
+                        .id(html)
                 } else {
-                    Text("Could not generateTextBlocks")
+                    Text("")
                 }
             }
         }
@@ -234,7 +238,7 @@ public struct BibleTextView: View {
         let height = 80.0
         let v = Group {
             switch phase {
-            case .inactive, .provided:
+            case .inactive:
                 EmptyView()
             case .loading:
                 HStack {
@@ -301,5 +305,4 @@ public enum BibleTextLoadingPhase {
     case loading
     case failed
     case notPermitted
-    case provided
 }

@@ -86,6 +86,18 @@ public enum URLBuilder {
         return components.url
     }
 
+    /// URL to fetch text and metadata for a given BibleReference. "format" must be "text" or "html".
+    public static func passageIntroURL(versionId: Int, passageId: String, format: String = "html") -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1/bibles/\(versionId)/passages/\(passageId)"
+        components.queryItems = [
+            URLQueryItem(name: "format", value: format),
+            URLQueryItem(name: "include_notes", value: "true"),
+            URLQueryItem(name: "include_headings", value: "true")
+        ]
+        return components.url
+    }
+
     public static func versionsURL(languageRanges: [String] = [], fields: [String] = [], pageSize: Int? = 99, pageToken: String? = nil) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/bibles"

@@ -142,6 +142,24 @@ public extension YouVersionAPI.Bible {
 
         return content
     }
+    
+    /// Fetches the html content of the "intro" (introductory material) for a book from the server.
+    /// The chapter and verse of the BibleReference are ignored.
+    static func introMaterial(reference: BibleReference, passageId: String, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        let data = try await YouVersionAPI.commonFetch(
+            url: URLBuilder.passageIntroURL(versionId: reference.versionId, passageId: passageId),
+            accessToken: accessToken,
+            session: session
+        )
+        let object = try JSONSerialization.jsonObject(with: data, options: [])
+        guard let json = object as? [String: Any],
+              let content = json["content"] as? String else {
+            throw YouVersionAPIError.invalidDownload
+        }
+
+        return content
+    }
 
     // MARK: - utility structs
 

@@ -1,0 +1,31 @@
+import SwiftUI
+import YouVersionPlatformCore
+import YouVersionPlatformUI
+
+public struct BibleReaderIntroView: View {
+    @Environment(BibleReaderViewModel.self) private var viewModel
+    @State var html: String?
+    
+    let textOptions = BibleTextOptions()
+    
+    public var body: some View {
+        VStack {
+            if let html {
+                BibleTextView.viewFromHtml(html: html, reference: viewModel.reference)
+            } else {
+                ProgressView()
+            }
+        }
+        .onChange(of: viewModel.reference, initial: true) { _, reference in
+            Task {
+                if let book = viewModel.version?.book(with: reference.bookUSFM),
+                   let passageId = book.intro?.passageId,
+                   let html = try? await YouVersionAPI.Bible.introMaterial(reference: reference, passageId: passageId) {
+                    self.html = html
+                } else {
+                    self.html = "<div>Error loading Intro</div>"
+                }
+            }
+        }
+    }
+}
