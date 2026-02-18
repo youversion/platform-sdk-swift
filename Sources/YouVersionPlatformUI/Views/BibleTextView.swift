@@ -194,8 +194,7 @@ public struct BibleTextView: View {
     public static func viewFromHtml(
         html: String,
         reference: BibleReference,
-        fontFamily: String = "Times New Roman",
-        fontSize: CGFloat = 16
+        textOptions: BibleTextOptions
     ) -> (some View)? {
         let node = try? BibleTextNode.parse(html)
         return VStack {
@@ -211,7 +210,8 @@ public struct BibleTextView: View {
                     footnoteMarker: nil,
                     textColor: .primary,
                     wocColor: .primary,
-                    fonts: .init(familyName: "Helvetica"))
+                    fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
+                )
                 if !blocks.isEmpty {
                     BibleTextView(reference, blocks: blocks)
                         .id(html)

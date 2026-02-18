@@ -202,7 +202,7 @@ extension BibleReaderViewModel {
                 myVersions.insert(newVersion)
             }
             self.reference = reference
-            self.bookIntroBeingDisplayed = showIntro ? reference.bookUSFM : nil
+            self.showBookIntro = showIntro
 
             // Reset scroll tracking to prevent chrome from hiding due to content change
             lastScrollOffset = 0

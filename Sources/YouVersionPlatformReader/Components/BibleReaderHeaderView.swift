@@ -81,8 +81,9 @@ public struct BibleReaderHeaderView: View {
     @ViewBuilder
     private var halfPillPickers: some View {
         if let version = viewModel.version {
+            let title = viewModel.showBookIntro ? introString : bookAndChapter
             BibleReaderHalfPillPickersView(
-                bookAndChapter: bookAndChapter,
+                bookAndChapter: title,
                 versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
                 handleVersionTap: { viewModel.handlePickersVersionTap() },
@@ -110,6 +111,15 @@ public struct BibleReaderHeaderView: View {
             return ""
         }
         return "\(version.bookName(viewModel.reference.bookUSFM) ?? viewModel.reference.bookUSFM) \(String(viewModel.reference.chapter))"
+    }
+
+    private var introString: String {
+        guard let book = viewModel.version?.book(with: viewModel.reference.bookUSFM),
+              let intro = book.intro
+        else {
+            return ""
+        }
+        return "\(book.title ?? "") \(intro.title ?? "")"
     }
 
     @ViewBuilder
@@ -153,14 +163,14 @@ public struct BibleReaderHeaderView: View {
         BibleReaderHeaderView(
             showChrome: true,
             onSelectionChange: { versionId, book, chapter in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter)")
+                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999)")
             }
         )
         Divider()
         BibleReaderHeaderView(
             showChrome: false,
             onSelectionChange: { versionId, book, chapter in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter)")
+                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999)")
             }, onCompactTap: {
                 print("Compact header tapped!")
             }

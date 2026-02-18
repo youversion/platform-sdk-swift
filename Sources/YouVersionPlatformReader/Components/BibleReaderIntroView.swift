@@ -4,14 +4,14 @@ import YouVersionPlatformUI
 
 public struct BibleReaderIntroView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
-    @State var html: String?
+    @State private var html: String?
     
     let textOptions = BibleTextOptions()
     
     public var body: some View {
         VStack {
             if let html {
-                BibleTextView.viewFromHtml(html: html, reference: viewModel.reference)
+                BibleTextView.viewFromHtml(html: html, reference: viewModel.reference, textOptions: viewModel.textOptions)
             } else {
                 ProgressView()
             }

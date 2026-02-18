@@ -151,7 +151,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         },
         hasIntroPassage: { _ in true },
         onSelectionChange: { versionId, book, chapter in
-            print("Selected: Version \(versionId), Book \(book), Chapter \(chapter)")
+            print("Selected: Version \(versionId), Book \(book), Chapter \(chapter ?? 999)")
         }
     )
     .environment(BibleReaderViewModel.preview)
