@@ -1,9 +1,9 @@
 import SwiftUI
 import YouVersionPlatform
 
-struct WidgetView: View {
+struct CardView: View {
     var body: some View {
-        BibleWidgetView(
+        BibleCardView(
             reference: BibleReference(
                 versionId: 3034, bookUSFM: "2CO", chapter: 1, verseStart: 3, verseEnd: 4
             ),
@@ -14,7 +14,7 @@ struct WidgetView: View {
 
 #Preview {
     VStack {
-        WidgetView()
+        CardView()
         Spacer()
     }
     .padding(.vertical, 8)

@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-public struct BibleWidgetView: View {
+public struct BibleCardView: View {
     public let reference: BibleReference
     @State private var version: BibleVersion?
     private let textOptions: BibleTextOptions
@@ -98,14 +98,14 @@ public struct BibleWidgetView: View {
 
 #Preview {
     VStack(spacing: 16) {
-        BibleWidgetView(
+        BibleCardView(
             reference: BibleReference(
                 versionId: BibleVersion.preview.id, bookUSFM: "JHN", chapter: 1, verseStart: 1, verseEnd: 1
             )
         )
         .environment(\.colorScheme, .dark)
 
-        BibleWidgetView(
+        BibleCardView(
             reference: BibleReference(
                 versionId: BibleVersion.preview.id, bookUSFM: "JHN", chapter: 1, verseStart: 2, verseEnd: 2
             )

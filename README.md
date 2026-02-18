@@ -32,7 +32,7 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 
 ## Features
 
-- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleWidgetView`
+- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleCardView`
 - 📖 **Bible Reader** - A complete Bible reading experience inside your app with `BibleReaderView`
 - 🔐 **User Authentication** - Seamless "Sign In with YouVersion" integration using `SignInWithYouVersionButton`
 - 🌅 **Verse of the Day** - Built-in `VotdView` component and API access to VOTD data

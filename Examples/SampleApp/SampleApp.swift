@@ -29,9 +29,9 @@ struct SampleApp: App {
                     }
                     .tag(1)
 
-                WidgetView()
+                CardView()
                     .tabItem {
-                        Label("Widget", systemImage: "doc.plaintext")
+                        Label("Card", systemImage: "doc.plaintext")
                     }
                     .tag(2)
 
