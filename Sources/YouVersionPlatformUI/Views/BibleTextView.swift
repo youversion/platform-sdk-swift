@@ -37,6 +37,7 @@ public struct BibleTextView: View {
         onVerseTap: VerseTapAction? = nil,
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
     ) {
+        self.loadingPhase = nil
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
@@ -50,6 +51,7 @@ public struct BibleTextView: View {
         _ reference: BibleReference,
         blocks: [BibleTextBlock] = []
     ) {
+        self.loadingPhase = .provided
         self.reference = reference
         self.textOptions = BibleTextOptions()
         self.onVerseTap = nil
@@ -60,7 +62,7 @@ public struct BibleTextView: View {
 
     public var body: some View {
         VStack(alignment: mainVStackAlignment) {
-            if let phase = loadingPhase {
+            if let phase = loadingPhase, phase != .provided {
                 placeholder(phase)
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
@@ -138,6 +140,9 @@ public struct BibleTextView: View {
     }
 
     private func loadBlocks() async {
+        guard loadingPhase != .provided else {
+            return
+        }
         loadingPhase = .loading
         do {
             if let blocks = try await BibleVersionRendering.textBlocks(
@@ -182,6 +187,37 @@ public struct BibleTextView: View {
         }
     }
 
+    public static func viewFromHtml(
+        html: String,
+        reference: BibleReference,
+        fontFamily: String = "Times New Roman",
+        fontSize: CGFloat = 16
+    ) -> (some View)? {
+        let node = try? BibleTextNode.parse(html)
+        return VStack {
+            if node?.children.count ?? 0 == 0 {
+                Text("Cannot parse")
+            } else {
+                let blocks = BibleVersionRendering.generateTextBlocks(
+                    from: node!,
+                    reference: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1),
+                    renderHeadlines: false,
+                    renderVerseNumbers: false,
+                    footnotesMode: .none,
+                    footnoteMarker: nil,
+                    textColor: .primary,
+                    wocColor: .primary,
+                    fonts: .init(familyName: "Helvetica"))
+                if !blocks.isEmpty {
+                    //print("Got \(blocks.count) blocks")
+                    BibleTextView(reference, blocks: blocks)
+                } else {
+                    Text("Could not generateTextBlocks")
+                }
+            }
+        }
+    }
+
     // TODO: debug why this is necessary. Text objects should get it right automatically.
     func flipAlignmentIfNecessary(_ alignment: TextAlignment) -> TextAlignment {
         if isVersionRightToLeft {
@@ -198,7 +234,7 @@ public struct BibleTextView: View {
         let height = 80.0
         let v = Group {
             switch phase {
-            case .inactive:
+            case .inactive, .provided:
                 EmptyView()
             case .loading:
                 HStack {
@@ -265,4 +301,5 @@ public enum BibleTextLoadingPhase {
     case loading
     case failed
     case notPermitted
+    case provided
 }
