@@ -5,6 +5,7 @@ import UIKit
 
 public enum BibleTextFontOption {
     case textFont
+    case textFontBold
     case textFontItalic
     case verseNumFont
     case smallCaps
@@ -55,10 +56,11 @@ public struct BibleTextFonts {
         let larger = Font.custom(familyName, fixedSize: baseSize * 1.1)
         fonts = [
             .textFont: Font.custom(familyName, fixedSize: baseSize),
-            .textFontItalic: Font.custom(italicFamilyName, fixedSize: baseSize),
+            .textFontItalic: Font.custom(italicFamilyName, fixedSize: baseSize).italic(),
+            .textFontBold: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
             .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.7).smallCaps(),
             .smallCaps: Font.custom(familyName, fixedSize: baseSize).lowercaseSmallCaps(),
-            .header: Font.custom(italicFamilyName, fixedSize: baseSize * 1.2).italic(),
+            .header: Font.custom(boldFamilyName, fixedSize: baseSize * 1.2).bold(),
             .headerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 1.1).italic(),
             .headerSmaller: Font.custom(boldItalicFamilyName, fixedSize: baseSize * 0.9).weight(.medium).italic(),
             .header2: Font.custom(boldFamilyName, fixedSize: baseSize * 1.1).weight(.bold),

@@ -214,7 +214,7 @@ public struct BibleTextView: View {
                 )
                 if !blocks.isEmpty {
                     BibleTextView(reference, blocks: blocks)
-                        .id(html)
+                        .id("\(html)(\(textOptions.fontFamily)_\(textOptions.fontSize))") // without this, it won't adjust e.g. size immediately
                 } else {
                     Text("")
                 }
