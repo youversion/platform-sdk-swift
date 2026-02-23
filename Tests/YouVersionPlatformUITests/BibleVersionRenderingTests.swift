@@ -7,6 +7,13 @@ import Testing
 @Suite struct BibleVersionRenderingTests {
     private let fonts = BibleTextFonts(familyName: "Times New Roman", baseSize: 16)
 
+    /// Temporary regression-eval harness:
+    /// Tests seed ChapterDiskCache and then call `BibleVersionRendering.textBlocks`.
+    ///
+    /// Cleanup after `textBlocks` can accept raw HTML directly:
+    /// 1. Replace cache seeding with direct HTML injection into renderer.
+    /// 2. Remove synthetic per-test version IDs used to avoid cache collisions.
+    /// 3. Remove explicit cache cleanup (`removeVersion`) calls in this suite.
     private func renderBlocks(
         html: String,
         reference: BibleReference,
@@ -109,6 +116,65 @@ import Testing
         #expect(hasScriptureContaining(blocks, text: "Part two of verse five."))
     }
 
+    @Test func testHeaderEmbeddedWithinVerseAfterInlineTextIsRendered() async throws {
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="2"></span>
+                <span class="yv-vlbl">2</span>
+                He said
+                <div class="yv-h s1"><span>The Beatitudes</span></div>
+                blessed are the poor in spirit.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(
+            versionId: 1112,
+            bookUSFM: "MAT",
+            chapter: 5,
+            verseStart: 2,
+            verseEnd: 2
+        )
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(hasHeaderContaining(blocks, text: "The Beatitudes"))
+    }
+
+    @Test func testHeaderFollowingVerseTwoIsRenderedForRangeOneToTwo() async throws {
+        let html = """
+        <div>
+            <div class="s1 yv-h">Introduction to the Sermon on the Mount</div>
+            <div class="p">
+                <span class="yv-v" v="1"></span><span class="yv-vlbl">1</span>
+                When Jesus saw the crowds, He went up on the mountain and sat down.
+                <span class="yv-v" v="2"></span><span class="yv-vlbl">2</span>
+                and he began to teach them.
+            </div>
+            <div class="s1 yv-h">The Beatitudes</div>
+            <div class="m">He said:</div>
+            <div class="q1">
+                <span class="yv-v" v="3"></span><span class="yv-vlbl">3</span>
+                Blessed are the poor in spirit.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(
+            versionId: 1113,
+            bookUSFM: "MAT",
+            chapter: 5,
+            verseStart: 1,
+            verseEnd: 2
+        )
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(hasHeaderContaining(blocks, text: "Introduction to the Sermon on the Mount"))
+        #expect(hasHeaderContaining(blocks, text: "The Beatitudes"))
+        #expect(hasScriptureContaining(blocks, text: "He said:"))
+        #expect(!hasScriptureContaining(blocks, text: "Blessed are the poor in spirit."))
+    }
+
     @Test func testHeaderAfterLastVerseInRangeIsNotRendered() async throws {
         let html = """
         <div>
@@ -138,6 +204,39 @@ import Testing
         #expect(hasScriptureContaining(blocks, text: "Fifth verse text."))
         #expect(!hasHeaderContaining(blocks, text: "Next Section"))
         #expect(!hasScriptureContaining(blocks, text: "Sixth verse text."))
+    }
+
+    @Test func testGenesisTwoOneToThreeDoesNotIncludeEndHeader() async throws {
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="1"></span><span class="yv-vlbl">1</span>
+                Thus the heavens and the earth were completed in all their vast array.
+                <span class="yv-v" v="2"></span><span class="yv-vlbl">2</span>
+                By the seventh day God had finished the work He had been doing.
+                <span class="yv-v" v="3"></span><span class="yv-vlbl">3</span>
+                Then God blessed the seventh day and sanctified it.
+            </div>
+            <div class="s1 yv-h">Man and Woman in the Garden</div>
+            <div class="p">
+                <span class="yv-v" v="4"></span><span class="yv-vlbl">4</span>
+                This is the account of the heavens and the earth when they were created.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(
+            versionId: 1114,
+            bookUSFM: "GEN",
+            chapter: 2,
+            verseStart: 1,
+            verseEnd: 3
+        )
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(hasScriptureContaining(blocks, text: "Thus the heavens and the earth were completed"))
+        #expect(!hasHeaderContaining(blocks, text: "Man and Woman in the Garden"))
+        #expect(!hasScriptureContaining(blocks, text: "This is the account of the heavens and the earth"))
     }
 
     @Test func testHeaderBeforeOutOfRangeVerseIsNotRendered() async throws {

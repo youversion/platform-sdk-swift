@@ -260,6 +260,12 @@ Building AI applications with Bible content? Access YouVersion's LLM-optimized e
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on development setup, code style, and the pull request process.
 
+## Bible Rendering Tests
+
+Run focused tests: `swift test --filter BibleVersionRenderingTests`
+
+Note: this suite currently seeds `ChapterDiskCache` as a test harness. Once `BibleVersionRendering.textBlocks` accepts raw HTML directly, migrate tests to inject HTML without disk cache writes.
+
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/youversion/platform-sdk-swift/issues)

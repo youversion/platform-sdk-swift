@@ -359,40 +359,41 @@ public enum BibleVersionRendering {
 
         for (index, child) in node.children.enumerated() {
             if child.type == .block || child.type == .table {
-                if !stateUp.isTextEmpty {
+                let hadPendingText = !stateUp.isTextEmpty
+                if hadPendingText {
                     if stateUp.rendering {
                         ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
                     }
                     stateUp.clearText()
-                } else {
-                    let isHeader = child.classes.contains("yv-h") || child.classes.contains("yvh")
-                    let savedRendering = stateUp.rendering
+                }
+                let isHeader = child.classes.contains("yv-h") || child.classes.contains("yvh")
+                let savedRendering = stateUp.rendering
 
-                    if isHeader && stateIn.renderHeadlines {
-                        let nextVerse = node.children
-                            .dropFirst(index + 1)
-                            .compactMap { firstVerseInNode($0) }
-                            .first
-                        let isNextVerseInRange = nextVerse != nil
-                            && nextVerse! >= stateIn.fromVerse
-                            && nextVerse! <= stateIn.toVerse
+                if isHeader && stateIn.renderHeadlines {
+                    let followingChildren = node.children.dropFirst(index + 1)
+                    let nextVerse = followingChildren
+                        .compactMap { firstVerseInNode($0) }
+                        .first
+                    let immediateNextVerse = followingChildren.first.flatMap { firstVerseInNode($0) }
+                    let isNextVerseInRange = nextVerse != nil
+                        && nextVerse! >= stateIn.fromVerse
+                        && nextVerse! <= stateIn.toVerse
 
-                        if !stateUp.rendering && isNextVerseInRange {
-                            stateUp.rendering = true
-                        } else if stateUp.rendering && nextVerse != nil && !isNextVerseInRange {
-                            stateUp.rendering = false
-                        }
+                    if !stateUp.rendering && isNextVerseInRange {
+                        stateUp.rendering = true
+                    } else if stateUp.rendering && nextVerse != nil && !isNextVerseInRange && !hadPendingText && immediateNextVerse != nil {
+                        stateUp.rendering = false
                     }
+                }
 
-                    if child.type == .block {
-                        handleNodeBlock(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
-                    } else if child.type == .table {
-                        handleNodeTable(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
-                    }
+                if child.type == .block {
+                    handleNodeBlock(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
+                } else if child.type == .table {
+                    handleNodeTable(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
+                }
 
-                    if isHeader {
-                        stateUp.rendering = savedRendering
-                    }
+                if isHeader {
+                    stateUp.rendering = savedRendering
                 }
             } else {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
