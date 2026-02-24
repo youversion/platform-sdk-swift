@@ -62,7 +62,7 @@ public enum BibleVersionRendering {
         )
     }
 
-    public static func generateTextBlocks(
+    static func generateTextBlocks(
         from node: BibleTextNode,
         reference: BibleReference,
         renderHeadlines: Bool,
