@@ -6,14 +6,14 @@ public struct BibleReaderHeaderView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     let showChrome: Bool
-    let onSelectionChange: ((Int, String, Int?) -> Void)?
+    let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
     let onCompactTap: (() -> Void)?
 
     @State private var spaceNeeded = false
 
     init(
         showChrome: Bool = true,
-        onSelectionChange: ((Int, String, Int?) -> Void)? = nil,
+        onSelectionChange: ((Int, String, Int?, String?) -> Void)? = nil,
         onCompactTap: (() -> Void)? = nil
     ) {
         self.showChrome = showChrome
@@ -69,7 +69,7 @@ public struct BibleReaderHeaderView: View {
                     versionId: viewModel.reference.versionId,
                     bookNameProvider: { bookCode in version.bookName(bookCode) },
                     chapterLabelsProvider: { bookCode in version.chapterLabels(bookCode) },
-                    hasIntroPassage: { bookCode in version.book(with: bookCode)?.intro != nil },
+                    introPassageId: { bookCode in version.book(with: bookCode)?.intro?.passageId },
                     onSelectionChange: onSelectionChange
                 )
             } else {
@@ -162,15 +162,15 @@ public struct BibleReaderHeaderView: View {
         Divider()
         BibleReaderHeaderView(
             showChrome: true,
-            onSelectionChange: { versionId, book, chapter in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999)")
+            onSelectionChange: { versionId, book, chapter, passageId in
+                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999), Passage: \(passageId ?? "nil")")
             }
         )
         Divider()
         BibleReaderHeaderView(
             showChrome: false,
-            onSelectionChange: { versionId, book, chapter in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999)")
+            onSelectionChange: { versionId, book, chapter, passageId in
+                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999), Passage: \(passageId ?? "nil")")
             }, onCompactTap: {
                 print("Compact header tapped!")
             }

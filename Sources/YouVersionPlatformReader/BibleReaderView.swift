@@ -101,10 +101,10 @@ public struct BibleReaderView: View {
             if viewModel.version != nil {
                 BibleReaderHeaderView(
                     showChrome: true,
-                    onSelectionChange: { v, b, c in
+                    onSelectionChange: { version, book, chapter, passageId in
                         Task {
-                            let reference = BibleReference(versionId: v, bookUSFM: b, chapter: c ?? 1)
-                            await viewModel.onHeaderSelectionChange(reference, showIntro: c == nil)
+                            let reference = BibleReference(versionId: version, bookUSFM: book, chapter: chapter ?? 1)
+                            await viewModel.onHeaderSelectionChange(reference, showIntro: chapter == nil)
                         }
                     },
                     onCompactTap: {

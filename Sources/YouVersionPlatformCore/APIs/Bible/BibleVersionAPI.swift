@@ -145,10 +145,10 @@ public extension YouVersionAPI.Bible {
     
     /// Fetches the html content of the "intro" (introductory material) for a book from the server.
     /// The chapter and verse of the BibleReference are ignored.
-    static func introMaterial(reference: BibleReference, passageId: String, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+    static func introMaterial(versionId: Int, passageId: String, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.passageIntroURL(versionId: reference.versionId, passageId: passageId),
+            url: URLBuilder.passageIntroURL(versionId: versionId, passageId: passageId),
             accessToken: accessToken,
             session: session
         )

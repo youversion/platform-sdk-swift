@@ -20,7 +20,7 @@ public struct BibleReaderIntroView: View {
             Task {
                 if let book = viewModel.version?.book(with: reference.bookUSFM),
                    let passageId = book.intro?.passageId,
-                   let html = try? await YouVersionAPI.Bible.introMaterial(reference: reference, passageId: passageId) {
+                   let html = try? await YouVersionAPI.Bible.introMaterial(versionId: reference.versionId, passageId: passageId) {
                     self.html = html
                 } else {
                     self.html = "<div>Error loading Intro</div>"
