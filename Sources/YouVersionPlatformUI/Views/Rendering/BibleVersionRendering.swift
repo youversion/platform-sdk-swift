@@ -13,7 +13,7 @@ public enum BibleVersionRendering {
         let familyName = "Times New Roman"
         do {
             guard let blocks = try await textBlocks(
-                reference,
+                reference: reference,
                 renderHeadlines: false,
                 renderVerseNumbers: false,
                 footnotesMode: .none,
@@ -31,8 +31,9 @@ public enum BibleVersionRendering {
 
     /// Formats the Bible data into AttributedString objects plus metadata.
     /// If the chapter data is unavailable (e.g. we're offline), this returns nil.
-    static func textBlocks(
-        _ reference: BibleReference,
+    public static func textBlocks(
+        from textNode: BibleTextNode? = nil,
+        reference: BibleReference,
         renderHeadlines: Bool = true,
         renderVerseNumbers: Bool = true,
         footnotesMode: BibleTextFootnoteMode = .letters,
@@ -41,27 +42,11 @@ public enum BibleVersionRendering {
         wocColor: Color = Color.red,
         fonts: BibleTextFonts
     ) async throws -> [BibleTextBlock]? {
-        let book = reference.bookUSFM
-        let c = reference.chapter
-        let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
-
-        let rootNode: BibleTextNode?
-        do {
-            let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-            var node = try? BibleTextNode.parse(data)
-            if node?.children.count ?? 0 == 0 {
-                print("cached chapter data seems bad. Removing it and retrying.")
-                await BibleChapterRepository.shared.removeVersion(withId: reference.versionId)
-                let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-                node = try? BibleTextNode.parse(data)
-            }
-            rootNode = node
-        } catch YouVersionAPIError.notPermitted {
-            throw YouVersionAPIError.notPermitted
-        } catch {
-            return nil
+        var node = textNode
+        if node == nil {
+            node = try await rootNode(from: reference)
         }
-        guard let rootNode, !rootNode.children.isEmpty else {
+        guard let node, !node.children.isEmpty else {
             return nil
         }
 
@@ -102,11 +87,11 @@ public enum BibleVersionRendering {
             headIndent: 0,
             versionId: reference.versionId,
             bookUSFM: reference.bookUSFM,
-            chapter: c,
+            chapter: reference.chapter,
             verse: 0
         )
 
-        if let firstChild = rootNode.children.first {
+        if let firstChild = node.children.first {
             handleNodeBlock(
                 node: firstChild,
                 stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp,
@@ -114,6 +99,29 @@ public enum BibleVersionRendering {
             )
         }
         return ret
+    }
+    
+    /// Fetches the data for the given reference, returns it converted to a BibleTextNode tree.
+    static func rootNode(from reference: BibleReference) async throws -> BibleTextNode? {
+        let book = reference.bookUSFM
+        let c = reference.chapter
+        let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
+
+        do {
+            let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
+            var node = try? BibleTextNode.parse(data)
+            if node?.children.count ?? 0 == 0 {
+                // cached chapter data seems bad. Remove the cached data and retry.
+                await BibleChapterRepository.shared.removeVersion(withId: reference.versionId)
+                let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
+                node = try? BibleTextNode.parse(data)
+            }
+            return node
+        } catch YouVersionAPIError.notPermitted {
+            throw YouVersionAPIError.notPermitted
+        } catch {
+            return nil
+        }
     }
 
     private static func traceLog(_ node: BibleTextNode, stateDown: StateDown) {
