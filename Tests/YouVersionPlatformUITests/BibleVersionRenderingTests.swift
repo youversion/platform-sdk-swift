@@ -5,30 +5,18 @@ import Testing
 
 @MainActor
 @Suite struct BibleVersionRenderingTests {
+    private let defaultVersionId = 1
     private let fonts = BibleTextFonts(familyName: "Times New Roman", baseSize: 16)
 
-    /// Temporary regression-eval harness:
-    /// Tests seed ChapterDiskCache and then call `BibleVersionRendering.textBlocks`.
-    ///
-    /// Cleanup after `textBlocks` can accept raw HTML directly:
-    /// 1. Replace cache seeding with direct HTML injection into renderer.
-    /// 2. Remove synthetic per-test version IDs used to avoid cache collisions.
-    /// 3. Remove explicit cache cleanup (`removeVersion`) calls in this suite.
     private func renderBlocks(
         html: String,
         reference: BibleReference,
         renderHeadlines: Bool = true
     ) async throws -> [BibleTextBlock] {
-        let cache = ChapterDiskCache()
-        let chapterReference = BibleReference(
-            versionId: reference.versionId,
-            bookUSFM: reference.bookUSFM,
-            chapter: reference.chapter
-        )
-        await cache.removeVersion(versionId: reference.versionId)
-        await cache.addChapterContent(html, reference: chapterReference)
+        let node = try #require(try BibleTextNode.parse(html))
 
         let blocks = try await BibleVersionRendering.textBlocks(
+            from: node,
             reference: reference,
             renderHeadlines: renderHeadlines,
             renderVerseNumbers: true,
@@ -38,9 +26,7 @@ import Testing
             fonts: fonts
         )
 
-        let result = try #require(blocks)
-        await cache.removeVersion(versionId: reference.versionId)
-        return result
+        return try #require(blocks)
     }
 
     private func hasHeaderContaining(_ blocks: [BibleTextBlock], text: String) -> Bool {
@@ -74,13 +60,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 111,
-            bookUSFM: "GEN",
-            chapter: 1,
-            verseStart: 5,
-            verseEnd: 10
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "The List"))
@@ -102,13 +82,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 112,
-            bookUSFM: "GEN",
-            chapter: 1,
-            verseStart: 1,
-            verseEnd: 5
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "Mid-Verse Header"))
@@ -129,13 +103,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 1112,
-            bookUSFM: "MAT",
-            chapter: 5,
-            verseStart: 2,
-            verseEnd: 2
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "MAT", chapter: 5, verseStart: 2, verseEnd: 2)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "The Beatitudes"))
@@ -160,13 +128,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 1113,
-            bookUSFM: "MAT",
-            chapter: 5,
-            verseStart: 1,
-            verseEnd: 2
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "MAT", chapter: 5, verseStart: 1, verseEnd: 2)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "Introduction to the Sermon on the Mount"))
@@ -192,13 +154,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 113,
-            bookUSFM: "GEN",
-            chapter: 1,
-            verseStart: 1,
-            verseEnd: 5
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasScriptureContaining(blocks, text: "Fifth verse text."))
@@ -225,13 +181,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 1114,
-            bookUSFM: "GEN",
-            chapter: 2,
-            verseStart: 1,
-            verseEnd: 3
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 2, verseStart: 1, verseEnd: 3)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasScriptureContaining(blocks, text: "Thus the heavens and the earth were completed"))
@@ -256,13 +206,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 114,
-            bookUSFM: "GEN",
-            chapter: 1,
-            verseStart: 5,
-            verseEnd: 10
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(!hasHeaderContaining(blocks, text: "Early Section"))
@@ -282,13 +226,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(
-            versionId: 115,
-            bookUSFM: "GEN",
-            chapter: 1,
-            verseStart: 1,
-            verseEnd: 5
-        )
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference, renderHeadlines: false)
         #expect(!hasHeaderContaining(blocks, text: "Visible Header"))
