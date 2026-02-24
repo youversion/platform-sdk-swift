@@ -29,7 +29,7 @@ import Testing
         await cache.addChapterContent(html, reference: chapterReference)
 
         let blocks = try await BibleVersionRendering.textBlocks(
-            reference,
+            reference: reference,
             renderHeadlines: renderHeadlines,
             renderVerseNumbers: true,
             footnotesMode: .none,
