@@ -60,7 +60,6 @@ public struct BibleTextView: View {
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
         self.providedBlocks = blocks
-        self.loadingPhase = nil
     }
 
     public var body: some View {
@@ -206,10 +205,10 @@ public struct BibleTextView: View {
                     reference: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1),
                     renderHeadlines: false,
                     renderVerseNumbers: false,
-                    footnotesMode: .none,
-                    footnoteMarker: nil,
-                    textColor: .primary,
-                    wocColor: .primary,
+                    footnotesMode: textOptions.footnoteMode,
+                    footnoteMarker: textOptions.footnoteMarker,
+                    textColor: textOptions.textColor ?? Color.primary,
+                    wocColor: textOptions.wocColor,
                     fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
                 )
                 if !blocks.isEmpty {

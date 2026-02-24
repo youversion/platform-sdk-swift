@@ -268,7 +268,6 @@ public enum BibleVersionRendering {
                 stateDown.currentFont = .footnote
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
             }
-            // TODO: add a space here? Maybe only if it doesn't already end with whitespace?
         }
     }
 
@@ -369,7 +368,7 @@ public enum BibleVersionRendering {
         var marginTop: CGFloat = 0
         stateDown.currentFont = .textFont
 
-        if node.type != .block {  // TODO maybe just bail if it's not a block. Or assert.
+        if node.type != .block {
             assertionFailed("unexpected: handleNodeBlock was given: ", type: node.type)
             return
         }
@@ -624,7 +623,6 @@ public enum BibleVersionRendering {
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontMap: [String: BibleTextFontOption] = [
                     "s1": .headerItalic,
-                    //"qa": .header,
                     "imt": .header,
                     "imt1": .header,
                     "ms": .header2,
@@ -706,7 +704,6 @@ public enum BibleVersionRendering {
         }
     }
 
-    // TODO optimise, if it's worthwhile. Calculate a range and make one new string, not several.
     private static func trimTrailingWhitespaceAndNewlines(_ attributedString: AttributedString) -> AttributedString {
         var localCopy = attributedString
         while let lastCharacter = localCopy.characters.last, lastCharacter.isWhitespace {
