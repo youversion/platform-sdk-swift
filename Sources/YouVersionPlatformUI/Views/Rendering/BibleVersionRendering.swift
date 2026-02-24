@@ -13,7 +13,7 @@ public enum BibleVersionRendering {
         let familyName = "Times New Roman"
         do {
             guard let blocks = try await textBlocks(
-                reference,
+                reference: reference,
                 renderHeadlines: false,
                 renderVerseNumbers: false,
                 footnotesMode: .none,
@@ -32,7 +32,8 @@ public enum BibleVersionRendering {
     /// Formats the Bible data into AttributedString objects plus metadata.
     /// If the chapter data is unavailable (e.g. we're offline), this returns nil.
     public static func textBlocks(
-        _ reference: BibleReference,
+        from textNode: BibleTextNode? = nil,
+        reference: BibleReference,
         renderHeadlines: Bool = true,
         renderVerseNumbers: Bool = true,
         footnotesMode: BibleTextFootnoteMode = .letters,
@@ -41,12 +42,15 @@ public enum BibleVersionRendering {
         wocColor: Color = Color.red,
         fonts: BibleTextFonts
     ) async throws -> [BibleTextBlock]? {
-        let rootNode = try await rootNode(from: reference)
-        guard let rootNode, !rootNode.children.isEmpty else {
+        var node = textNode
+        if node == nil {
+            node = try await rootNode(from: reference)
+        }
+        guard let node, !node.children.isEmpty else {
             return nil
         }
         return generateTextBlocks(
-            from: rootNode,
+            from: node,
             reference: reference,
             renderHeadlines: renderHeadlines,
             renderVerseNumbers: renderVerseNumbers,
@@ -57,29 +61,7 @@ public enum BibleVersionRendering {
             fonts: fonts
         )
     }
-    
-    static func rootNode(from reference: BibleReference) async throws -> BibleTextNode? {
-        let book = reference.bookUSFM
-        let c = reference.chapter
-        let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
 
-        do {
-            let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-            var node = try? BibleTextNode.parse(data)
-            if node?.children.count ?? 0 == 0 {
-                print("cached chapter data seems bad. Removing it and retrying.")
-                await BibleChapterRepository.shared.removeVersion(withId: reference.versionId)
-                let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-                node = try? BibleTextNode.parse(data)
-            }
-            return node
-        } catch YouVersionAPIError.notPermitted {
-            throw YouVersionAPIError.notPermitted
-        } catch {
-            return nil
-        }
-    }
-    
     public static func generateTextBlocks(
         from node: BibleTextNode,
         reference: BibleReference,
@@ -140,6 +122,29 @@ public enum BibleVersionRendering {
             )
         }
         return ret
+    }
+
+    /// Fetches the data for the given reference, returns it converted to a BibleTextNode tree.
+    static func rootNode(from reference: BibleReference) async throws -> BibleTextNode? {
+        let book = reference.bookUSFM
+        let c = reference.chapter
+        let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
+
+        do {
+            let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
+            var node = try? BibleTextNode.parse(data)
+            if node?.children.count ?? 0 == 0 {
+                // cached chapter data seems bad. Remove the cached data and retry.
+                await BibleChapterRepository.shared.removeVersion(withId: reference.versionId)
+                let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
+                node = try? BibleTextNode.parse(data)
+            }
+            return node
+        } catch YouVersionAPIError.notPermitted {
+            throw YouVersionAPIError.notPermitted
+        } catch {
+            return nil
+        }
     }
 
     private static func traceLog(_ node: BibleTextNode, stateDown: StateDown) {
@@ -383,18 +388,43 @@ public enum BibleVersionRendering {
             marginTop: &marginTop
         )
 
-        for child in node.children {
+        for (index, child) in node.children.enumerated() {
             if child.type == .block || child.type == .table {
-                if !stateUp.isTextEmpty {
+                let hadPendingText = !stateUp.isTextEmpty
+                if hadPendingText {
                     if stateUp.rendering {
                         ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
                     }
                     stateUp.clearText()
                 }
+                let isHeader = child.classes.contains("yv-h") || child.classes.contains("yvh")
+                let savedRendering = stateUp.rendering
+
+                if isHeader && stateIn.renderHeadlines {
+                    let followingChildren = node.children.dropFirst(index + 1)
+                    let nextVerse = followingChildren
+                        .compactMap { firstVerseInNode($0) }
+                        .first
+                    let immediateNextVerse = followingChildren.first.flatMap { firstVerseInNode($0) }
+                    let isNextVerseInRange = nextVerse != nil
+                        && nextVerse! >= stateIn.fromVerse
+                        && nextVerse! <= stateIn.toVerse
+
+                    if !stateUp.rendering && isNextVerseInRange {
+                        stateUp.rendering = true
+                    } else if stateUp.rendering && nextVerse != nil && !isNextVerseInRange && !hadPendingText && immediateNextVerse != nil {
+                        stateUp.rendering = false
+                    }
+                }
+
                 if child.type == .block {
                     handleNodeBlock(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
                 } else if child.type == .table {
                     handleNodeTable(node: child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp, ret: &ret)
+                }
+
+                if isHeader {
+                    stateUp.rendering = savedRendering
                 }
             } else {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
@@ -683,6 +713,21 @@ public enum BibleVersionRendering {
             localCopy = AttributedString(localCopy.characters.dropLast())
         }
         return localCopy
+    }
+
+    /// Finds the first verse number in a node's subtree by searching for verse-labeled spans.
+    private static func firstVerseInNode(_ node: BibleTextNode) -> Int? {
+        if node.classes.contains("yv-v") || node.classes.contains("verse") {
+            if let v = node.attributes["v"], let vi = Int(v) {
+                return vi
+            }
+        }
+        for child in node.children {
+            if let found = firstVerseInNode(child) {
+                return found
+            }
+        }
+        return nil
     }
 
     private static func assertionFailed(
