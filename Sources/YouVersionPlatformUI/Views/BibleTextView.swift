@@ -141,7 +141,7 @@ public struct BibleTextView: View {
         loadingPhase = .loading
         do {
             if let blocks = try await BibleVersionRendering.textBlocks(
-                reference,
+                reference: reference,
                 renderHeadlines: textOptions.renderHeadlines,
                 renderVerseNumbers: textOptions.renderVerseNumbers,
                 footnotesMode: textOptions.footnoteMode,
@@ -173,7 +173,7 @@ public struct BibleTextView: View {
     ) async -> (some View)? {
         do {
             guard let blocks = try? await BibleVersionRendering.textBlocks(
-                reference,
+                reference: reference,
                 fonts: BibleTextFonts(familyName: fontFamily, baseSize: fontSize)
             ) else {
                 return nil as BibleTextView?
