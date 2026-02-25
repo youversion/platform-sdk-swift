@@ -12,11 +12,15 @@ extension BibleReaderViewModel {
         if reference.chapter > 1 {
             reference = BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter - 1)
         } else {
-            if let books = version.books,
-               let index = books.firstIndex(where: { $0.id == reference.bookUSFM }), index > 0 {
-                let previousBook = books[index - 1]
-                let maxChapter = previousBook.chapters?.count ?? 0
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: previousBook.id ?? "", chapter: maxChapter)
+            if let books = version.books, let bookIndex = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
+                if showBookIntro == false && books[bookIndex].intro != nil {
+                    showBookIntro = true  // and leave the reference at chapter 1
+                } else if bookIndex > 0 {
+                    let previousBook = books[bookIndex - 1]
+                    let maxChapter = previousBook.chapters?.count ?? 0
+                    reference = BibleReference(versionId: reference.versionId, bookUSFM: previousBook.id ?? "", chapter: maxChapter)
+                    showBookIntro = false
+                }
             }
         }
 
@@ -31,15 +35,20 @@ extension BibleReaderViewModel {
         }
         isChangingChapter = true
         removeVerseSelection()
-        if let books = version.books,
-           let index = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
+        if let books = version.books, let index = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
             let currentBook = books[index]
             let maxChapter = currentBook.chapters?.count ?? 0
-            if reference.chapter < maxChapter {
+            if showBookIntro {
+                reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.id ?? "", chapter: 1)
+                showBookIntro = false
+            } else if reference.chapter < maxChapter {
                 reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.id ?? "", chapter: reference.chapter + 1)
             } else if index < books.count - 1 {
                 let nextBook = books[index + 1]
                 reference = BibleReference(versionId: reference.versionId, bookUSFM: nextBook.id ?? "", chapter: 1)
+                if nextBook.intro != nil {
+                    showBookIntro = true
+                }
             }
         }
 
@@ -192,7 +201,7 @@ extension BibleReaderViewModel {
         }
     }
 
-    func onHeaderSelectionChange(_ reference: BibleReference) async {
+    func onHeaderSelectionChange(_ reference: BibleReference, showIntro: Bool) async {
         isChangingChapter = true
         removeVerseSelection()
         do {
@@ -202,6 +211,7 @@ extension BibleReaderViewModel {
                 myVersions.insert(newVersion)
             }
             self.reference = reference
+            self.showBookIntro = showIntro
 
             // Reset scroll tracking to prevent chrome from hiding due to content change
             lastScrollOffset = 0

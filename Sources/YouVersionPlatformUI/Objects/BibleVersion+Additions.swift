@@ -50,7 +50,7 @@ public extension BibleVersion {
         let bookUSFM = reference.bookUSFM
         let bookName = bookName(bookUSFM) ?? ""
 
-        let hasOneChapter = canonicalChapters(bookUSFM).count == 1
+        let hasOneChapter = chapterLabels(bookUSFM).count == 1
         let chapterSeparator = hasOneChapter ? " " : ":"
         let bookAndChapterSeparator = hasOneChapter ? "" : " "
         let chapter = hasOneChapter ? "" : String(reference.chapter)

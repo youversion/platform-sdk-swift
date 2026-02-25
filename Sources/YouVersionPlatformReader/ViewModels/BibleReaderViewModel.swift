@@ -8,6 +8,7 @@ import YouVersionPlatformUI
 @Observable
 final class BibleReaderViewModel {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
+    private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
@@ -15,6 +16,11 @@ final class BibleReaderViewModel {
             if let data = try? JSONEncoder().encode(reference) {
                 UserDefaults.standard.set(data, forKey: userDefaultsKeyForBibleReference)
             }
+        }
+    }
+    var showBookIntro: Bool {
+        didSet {
+            UserDefaults.standard.set(showBookIntro, forKey: userDefaultsKeyForBibleDisplayIntro)
         }
     }
     let highlightsViewModel: BibleHighlightsViewModel
@@ -27,15 +33,18 @@ final class BibleReaderViewModel {
 
         if let reference {
             self.reference = reference
+            self.showBookIntro = false
         } else {
             if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
                let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
                 self.reference = savedValue
+                self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
                 let downloads = VersionDownloadCache.downloadedVersions
                 let versionId = reference?.versionId ?? downloads.first ?? savedIds.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
+                self.showBookIntro = false
             }
         }
 
@@ -196,6 +205,7 @@ final class BibleReaderViewModel {
     var showingFontSettings = false
     var showingFontList = false
     var showingFootnotes = false
+    var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
     var selectedVerses: Set<BibleReference> = []
 
@@ -356,7 +366,7 @@ final class BibleReaderViewModel {
                     self.versionsInLanguage[code] = sortedVersions
                 }
             }
-            await MainActor.run {
+            _ = await MainActor.run {
                 versionsBeingFetched.remove(code)
             }
         }

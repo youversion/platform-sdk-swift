@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0](https://github.com/youversion/platform-sdk-swift/compare/2.0.5...3.0.0) (2026-02-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* The onVerseTap callback of BibleTextView has an additional parameter: footnoteId. This allows the code to understand which footnote has been tapped, of possibly-multiple footnotes. That ID will match the id field of one of the items in the footnote list parameter.
+
+### Features
+
+* support Intro sections ([1577c74](https://github.com/youversion/platform-sdk-swift/commit/1577c744f25a18b10ac6163fbb084a23c334978d))
+
+## [2.0.5](https://github.com/youversion/platform-sdk-swift/compare/2.0.4...2.0.5) (2026-02-24)
+
+
+### Bug Fixes
+
+* don't render headlines when they're at the end of a passage ([53f3158](https://github.com/youversion/platform-sdk-swift/commit/53f3158b9bcd49c3d2150dcd82e69bd42fa5461a))
+
 ## [2.0.4](https://github.com/youversion/platform-sdk-swift/compare/2.0.3...2.0.4) (2026-02-13)
 
 
