@@ -14,7 +14,7 @@ public struct BibleReaderIntroView: View {
                     reference: viewModel.reference,
                     textOptions: viewModel.textOptions,
                     onVerseTap: { reference, actionType, footnotes, footnoteId in
-                        let thisNote = footnotes.filter { $0.id.uuidString == footnoteId }
+                        let thisNote = footnotes.filter { $0.id == footnoteId }
                         viewModel.footnotesToDisplay = thisNote.isEmpty ? footnotes : thisNote
                         viewModel.showingIntroFootnoteSheet = true
                     }

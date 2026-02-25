@@ -266,7 +266,7 @@ public enum BibleVersionRendering {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }
             let footnote = stateUp.appendFootnote(text: footState.text)
-            stateUp.append(marker, category: stateIn.footnotesMode == .image ? .footnoteImage : .footnoteMarker, id: footnote.id.uuidString)
+            stateUp.append(marker, category: stateIn.footnotesMode == .image ? .footnoteImage : .footnoteMarker, id: footnote.id)
         } else {
             for child in node.children {
                 stateDown.currentFont = .footnote
@@ -789,6 +789,7 @@ public enum BibleVersionRendering {
         var verse: Int
         var text = BibleAttributedString()
         var footnotes: [BibleFootnote] = []
+        var footnoteCounter = 100
 
         var nextFootnoteMarker: BibleAttributedString {
             // First footnote -> "a", second -> "b", etc.
@@ -816,7 +817,8 @@ public enum BibleVersionRendering {
                 chapter: chapter,
                 verse: verse > 0 ? verse : 1
             )
-            let footnote = BibleFootnote(text: text, reference: reference)
+            footnoteCounter += 1
+            let footnote = BibleFootnote(text: text, reference: reference, id: String(footnoteCounter))
             footnotes.append(footnote)
             return footnote
         }
@@ -959,13 +961,14 @@ public extension AttributeDynamicLookup {
 }
 // Represents a footnote and its reference location.
 public struct BibleFootnote: Hashable, Identifiable {
-    public let id = UUID()
+    public let id: String
     public let text: BibleAttributedString
     public let reference: BibleReference
 
-    public init(text: BibleAttributedString, reference: BibleReference) {
+    public init(text: BibleAttributedString, reference: BibleReference, id: String) {
         self.text = text
         self.reference = reference
+        self.id = id
     }
 }
 

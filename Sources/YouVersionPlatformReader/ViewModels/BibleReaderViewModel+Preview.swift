@@ -16,8 +16,8 @@ extension BibleReaderViewModel {
 
         let footnoteReference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 21, verse: 1)
         vm.footnotesToDisplay = [
-            BibleFootnote(text: BibleAttributedString("Footnote text goes here."), reference: footnoteReference),
-            BibleFootnote(text: BibleAttributedString("Second Footnote text goes here. This time the footnote is fairly long."), reference: footnoteReference)
+            BibleFootnote(text: BibleAttributedString("Footnote text goes here."), reference: footnoteReference, id: "one"),
+            BibleFootnote(text: BibleAttributedString("Second Footnote text goes here. This time the footnote is fairly long."), reference: footnoteReference, id: "two")
         ]
         return vm
     }
