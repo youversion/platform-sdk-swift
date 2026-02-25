@@ -65,6 +65,15 @@ targets.append(
     )
 )
 targets.append(
+    .testTarget(
+        name: "YouVersionPlatformReaderTests",
+        dependencies: [
+            "YouVersionPlatformCore",
+            "YouVersionPlatformReader",
+        ]
+    )
+)
+targets.append(
     .target(
         name: "YouVersionPlatform",
         dependencies: [
