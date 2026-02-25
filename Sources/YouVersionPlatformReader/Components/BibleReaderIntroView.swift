@@ -24,6 +24,7 @@ public struct BibleReaderIntroView: View {
             }
         }
         .onChange(of: viewModel.reference, initial: true) { _, reference in
+            self.html = nil
             Task {
                 if let book = viewModel.version?.book(with: reference.bookUSFM),
                    let passageId = book.intro?.passageId,
