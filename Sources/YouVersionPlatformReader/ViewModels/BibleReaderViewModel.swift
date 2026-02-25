@@ -205,6 +205,7 @@ final class BibleReaderViewModel {
     var showingFontSettings = false
     var showingFontList = false
     var showingFootnotes = false
+    var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
     var selectedVerses: Set<BibleReference> = []
 
@@ -365,7 +366,7 @@ final class BibleReaderViewModel {
                     self.versionsInLanguage[code] = sortedVersions
                 }
             }
-            await MainActor.run {
+            _ = await MainActor.run {
                 versionsBeingFetched.remove(code)
             }
         }

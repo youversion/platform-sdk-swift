@@ -101,6 +101,7 @@ public enum BibleVersionRendering {
             smallcaps: false,
             alignment: .leading,
             currentFont: .textFont,
+            baselineOffset: 0,
             textCategory: .scripture,
             nodeDepth: 0
         )
@@ -193,6 +194,9 @@ public enum BibleVersionRendering {
             if stateDown.woc {
                 txt.setColor(stateIn.wocColor)
             }
+            if stateDown.baselineOffset != 0 {
+                txt.setBaselineOffset(stateDown.baselineOffset)
+            }
             stateUp.append(txt, category: stateDown.textCategory)
         }
 
@@ -249,7 +253,6 @@ public enum BibleVersionRendering {
         }
 
         if let marker {
-            stateUp.append(marker, category: stateIn.footnotesMode == .image ? .footnoteImage : .footnoteMarker)
             // now, collect the text of the footnotes into footState
             var footState = StateUp(
                 rendering: true,
@@ -262,7 +265,8 @@ public enum BibleVersionRendering {
             for child in node.children {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }
-            stateUp.appendFootnote(text: footState.text)
+            let footnote = stateUp.appendFootnote(text: footState.text)
+            stateUp.append(marker, category: stateIn.footnotesMode == .image ? .footnoteImage : .footnoteMarker, id: footnote.id.uuidString)
         } else {
             for child in node.children {
                 stateDown.currentFont = .footnote
@@ -528,7 +532,7 @@ public enum BibleVersionRendering {
                 stateUp.firstLineHeadIndent = indentStep
                 stateUp.headIndent = indentStep * 3
 
-            case "li1", "ili1":
+            case "li1", "ili", "ili1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = indentStep
 
@@ -695,6 +699,9 @@ public enum BibleVersionRendering {
                 stateDown.currentFont = .textFontItalic
             } else if node.classes.contains("qs") || node.classes.contains("qt") {
                 stateDown.currentFont = .textFontItalic
+            } else if node.classes.contains("ord") || node.classes.contains("fv") || node.classes.contains("sup") {
+                stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
+                stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
             } else {
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fr", "ft",
                      "qs", "sc", "nd", "cl", "w", "litl", "rq", "x"].contains(c) {
@@ -765,6 +772,7 @@ public enum BibleVersionRendering {
         var smallcaps = false
         var alignment = TextAlignment.leading
         var currentFont: BibleTextFontOption
+        var baselineOffset: CGFloat = 0
         var textCategory: BibleTextCategory
         var nodeDepth: Int  // for debugging purposes mostly
     }
@@ -788,27 +796,29 @@ public enum BibleVersionRendering {
             return BibleAttributedString("\u{00a0}" + (String(UnicodeScalar(value) ?? "※") + " "))
         }
 
-        mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory) {
+        mutating func append(_ newText: BibleAttributedString, category: BibleTextCategory, id: String? = nil) {
             if !newText.isEmpty {
                 newText.markWithTextCategory(category)
                 let isFootnote = category == .footnoteMarker || category == .footnoteImage
                 if isFootnote || (verse > 0 && (category == .scripture || category == .verseLabel)) {
                     let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse > 0 ? verse : 1)
                     let scheme = isFootnote ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
-                    newText.markWithReference(reference, scheme: scheme)
+                    newText.markWithReference(reference, scheme: scheme, id: id)
                 }
                 text += newText
             }
         }
 
-        mutating func appendFootnote(text: BibleAttributedString) {
+        mutating func appendFootnote(text: BibleAttributedString) -> BibleFootnote {
             let reference = BibleReference(
                 versionId: versionId,
                 bookUSFM: bookUSFM,
                 chapter: chapter,
                 verse: verse > 0 ? verse : 1
             )
-            footnotes.append(BibleFootnote(text: text, reference: reference))
+            let footnote = BibleFootnote(text: text, reference: reference)
+            footnotes.append(footnote)
+            return footnote
         }
 
         var endsWithASpace: Bool {
@@ -903,9 +913,10 @@ public final class BibleAttributedString: Equatable, Hashable {
         two.bibleTextCategory = category
     }
 
-    func markWithReference(_ reference: BibleReference, scheme: String) {
+    func markWithReference(_ reference: BibleReference, scheme: String, id: String?) {
         two.bibleReference = reference
-        two.link = URL(string: "\(scheme)://\(reference.versionId)/\(reference.asUSFM)")
+        let idString = id == nil ? "" : "#\(id!)"
+        two.link = URL(string: "\(scheme)://\(reference.versionId)/\(reference.asUSFM)\(idString)")
     }
 
 }

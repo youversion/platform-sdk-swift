@@ -78,6 +78,13 @@ public struct BibleReaderView: View {
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.medium, .large])
         })
+        .sheet(isPresented: $viewModel.showingIntroFootnoteSheet, content: {
+            BibleReaderIntroFootnoteView()
+                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                .presentationBackground(viewModel.readerCanvasPrimaryColor)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.height(250), .medium, .large])
+        })
         .sheet(isPresented: $viewModel.showingSignInSheet, content: {
             signInView
         })
@@ -198,7 +205,7 @@ public struct BibleReaderView: View {
                                 viewModel.reference,
                                 textOptions: viewModel.textOptions,
                                 selectedVerses: $viewModel.selectedVerses,
-                                onVerseTap: { reference, actionType, footnotes in
+                                onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
                                 }
                             )

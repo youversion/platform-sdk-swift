@@ -3,7 +3,7 @@ import YouVersionPlatformCore
 
 public struct BibleTextView: View {
 
-    public typealias VerseTapAction = (BibleReference, String, [BibleFootnote]) -> Void
+    public typealias VerseTapAction = (BibleReference, String, [BibleFootnote], String?) -> Void
 
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
@@ -51,11 +51,13 @@ public struct BibleTextView: View {
     // private init for use by Self.viewWithPrefetchedData()
     private init(
         _ reference: BibleReference,
-        blocks: [BibleTextBlock] = []
+        blocks: [BibleTextBlock] = [],
+        textOptions: BibleTextOptions? = nil,
+        onVerseTap: VerseTapAction? = nil
     ) {
         self.reference = reference
-        self.textOptions = BibleTextOptions()
-        self.onVerseTap = nil
+        self.textOptions = textOptions ?? BibleTextOptions()
+        self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
@@ -74,8 +76,9 @@ public struct BibleTextView: View {
         }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
+                let footnodeId = url.fragment()
                 let footnotes = footnotesFor(reference: reference)
-                onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue, footnotes)
+                onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue, footnotes, footnodeId)
             }
             return .handled
         }))
@@ -193,7 +196,8 @@ public struct BibleTextView: View {
     public static func viewFromHtml(
         html: String,
         reference: BibleReference,
-        textOptions: BibleTextOptions
+        textOptions: BibleTextOptions,
+        onVerseTap: VerseTapAction? = nil
     ) -> (some View)? {
         let node = try? BibleTextNode.parse(html)
         return VStack {
@@ -202,7 +206,7 @@ public struct BibleTextView: View {
             } else {
                 let blocks = BibleVersionRendering.generateTextBlocks(
                     from: node!,
-                    reference: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1),
+                    reference: reference,
                     renderHeadlines: false,
                     renderVerseNumbers: false,
                     footnotesMode: textOptions.footnoteMode,
@@ -212,7 +216,7 @@ public struct BibleTextView: View {
                     fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
                 )
                 if !blocks.isEmpty {
-                    BibleTextView(reference, blocks: blocks)
+                    BibleTextView(reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap)
                         .id("\(html)(\(textOptions.fontFamily)_\(textOptions.fontSize))") // without this, it won't adjust e.g. size immediately
                 } else {
                     Text("")

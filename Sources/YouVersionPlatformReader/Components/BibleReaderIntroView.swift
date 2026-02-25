@@ -9,7 +9,16 @@ public struct BibleReaderIntroView: View {
     public var body: some View {
         VStack {
             if let html {
-                BibleTextView.viewFromHtml(html: html, reference: viewModel.reference, textOptions: viewModel.textOptions)
+                BibleTextView.viewFromHtml(
+                    html: html,
+                    reference: viewModel.reference,
+                    textOptions: viewModel.textOptions,
+                    onVerseTap: { reference, actionType, footnotes, footnoteId in
+                        let thisNote = footnotes.filter { $0.id.uuidString == footnoteId }
+                        viewModel.footnotesToDisplay = thisNote.isEmpty ? footnotes : thisNote
+                        viewModel.showingIntroFootnoteSheet = true
+                    }
+                )
             } else {
                 ProgressView()
             }
