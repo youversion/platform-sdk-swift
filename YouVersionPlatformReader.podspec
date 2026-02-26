@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'YouVersionPlatformReader'
   s.module_name  = 'YouVersionPlatformReader'
-  s.version      = '3.1.0'
+  s.version      = '4.0.0'
   s.summary      = 'YouVersion Platform Bible Reader'
   s.homepage     = 'https://github.com/youversion/platform-sdk-swift'
   s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0](https://github.com/youversion/platform-sdk-swift/compare/3.1.0...4.0.0) (2026-02-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* renames BibleWidgetView to BibleCardView.
+
+### Miscellaneous Chores
+
+* rename BibleWidgetView to BibleCardView ([2d201a7](https://github.com/youversion/platform-sdk-swift/commit/2d201a7d7e066c10b171b3e7ec3b4adb42e5a984))
+
 ## [3.1.0](https://github.com/youversion/platform-sdk-swift/compare/3.0.0...3.1.0) (2026-02-25)
 
 
