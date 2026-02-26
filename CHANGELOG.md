@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0](https://github.com/youversion/platform-sdk-swift/compare/3.0.0...3.1.0) (2026-02-25)
+
+
+### Features
+
+* also add highlight color underneath the verse labels ([ae69fea](https://github.com/youversion/platform-sdk-swift/commit/ae69fead51c2f88f619d5f6b50c3203b4110e0d7))
+
 ## [3.0.0](https://github.com/youversion/platform-sdk-swift/compare/2.0.5...3.0.0) (2026-02-25)
 
 

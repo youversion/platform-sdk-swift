@@ -95,7 +95,7 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            if category == .scripture {
+            if category == .scripture || category == .verseLabel {
                 t.backgroundColor = highlightFor(reference: reference)
                 // better, we could have our TextRenderer add the color to some portions
             }
