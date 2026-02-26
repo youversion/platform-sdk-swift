@@ -34,4 +34,3 @@ public struct BibleTextBlock: Identifiable {
         self.rows = rows
     }
 }
-

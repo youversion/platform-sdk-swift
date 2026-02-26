@@ -12,4 +12,3 @@ public struct BibleFootnote: Hashable, Identifiable {
         self.id = id
     }
 }
-
