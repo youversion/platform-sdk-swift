@@ -14,7 +14,7 @@ final class BibleVersionRenderingStyles {
     ) {
         let indentStep = 1
         let ignoredTags = [  // things we don't currently care about:
-            "s1",  // Change line-height to 1em. Co-occurrs with "yv-h".
+            "s1",
             "b",   // Poetry text stanza break (e.g. stanza break)
             "lh",  // A list header (introductory remark)
             "li",  // A list entry, level 1 (if single level)
@@ -116,7 +116,7 @@ final class BibleVersionRenderingStyles {
                 marginTop = stateIn.fonts.baseSize / 3
 
             case "is", "is1":
-                stateDown.currentFont = .header2  // want bold and a little larger than body
+                stateDown.currentFont = .header
                 stateDown.alignment = .center
                 marginTop = stateIn.fonts.baseSize / 2
 
@@ -159,7 +159,7 @@ final class BibleVersionRenderingStyles {
 
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontMap: [String: BibleTextFontOption] = [
-                    "s1": .headerItalic,
+                    "s1": .header,
                     "imt": .header,
                     "imt1": .header,
                     "ms": .header2,
@@ -174,7 +174,7 @@ final class BibleVersionRenderingStyles {
                     "ms4": .header4,
                     "imt4": .header4,
                     "sp": .headerItalic,
-                    "r": .headerItalic,
+                    "r": .headerSmallerItalic,
                     "sr": .headerItalic,
                     "mr": .headerSmaller
                 ]
@@ -186,9 +186,10 @@ final class BibleVersionRenderingStyles {
                         stateDown.currentFont = font
                     }
                 }
-                if classes.contains("mr") {
-                    marginTop = 0
+                if classes.contains("r") || classes.contains("mr") {
+                    marginTop = 0 - (stateIn.fonts.baseSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
                 }
+
                 stateUp.firstLineHeadIndent = 0
                 if !stateIn.renderHeadlines {
                     stateUp.rendering = false

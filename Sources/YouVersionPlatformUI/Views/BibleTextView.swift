@@ -158,6 +158,7 @@ public struct BibleTextView: View {
                 footnotesMode: textOptions.footnoteMode,
                 footnoteMarker: textOptions.footnoteMarker,
                 textColor: textOptions.textColor ?? Color.primary,
+                verseNumColor: textOptions.verseNumColor ?? Color.secondary,
                 wocColor: textOptions.wocColor,
                 fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
             ) {
@@ -212,6 +213,7 @@ public struct BibleTextView: View {
                     footnotesMode: textOptions.footnoteMode,
                     footnoteMarker: textOptions.footnoteMarker,
                     textColor: textOptions.textColor ?? Color.primary,
+                    verseNumColor: textOptions.verseNumColor ?? Color.secondary,
                     wocColor: textOptions.wocColor,
                     fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
                 )
@@ -274,6 +276,7 @@ public struct BibleTextOptions {
     public let lineSpacing: CGFloat?
     public let paragraphSpacing: CGFloat?
     public let textColor: Color?
+    public let verseNumColor: Color?
     public let wocColor: Color
     public let renderHeadlines: Bool
     public let renderVerseNumbers: Bool
@@ -285,6 +288,7 @@ public struct BibleTextOptions {
                 lineSpacing: CGFloat? = nil,
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
+                verseNumColor: Color? = nil,
                 wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
@@ -295,6 +299,7 @@ public struct BibleTextOptions {
         self.lineSpacing = lineSpacing ?? fontSize / 2
         self.paragraphSpacing = paragraphSpacing ?? fontSize / 2
         self.textColor = textColor
+        self.verseNumColor = verseNumColor
         self.wocColor = wocColor
         self.renderHeadlines = renderHeadlines
         self.renderVerseNumbers = renderVerseNumbers

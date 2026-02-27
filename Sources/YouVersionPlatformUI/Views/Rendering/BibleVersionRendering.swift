@@ -39,6 +39,7 @@ public enum BibleVersionRendering {
         footnotesMode: BibleTextFootnoteMode = .letters,
         footnoteMarker: BibleAttributedString? = nil,
         textColor: Color = Color.primary,
+        verseNumColor: Color = Color.secondary,
         wocColor: Color = Color.red,
         fonts: BibleTextFonts
     ) async throws -> [BibleTextBlock]? {
@@ -57,6 +58,7 @@ public enum BibleVersionRendering {
             footnotesMode: footnotesMode,
             footnoteMarker: footnoteMarker,
             textColor: textColor,
+            verseNumColor: verseNumColor,
             wocColor: wocColor,
             fonts: fonts
         )
@@ -70,6 +72,7 @@ public enum BibleVersionRendering {
         footnotesMode: BibleTextFootnoteMode,
         footnoteMarker: BibleAttributedString?,
         textColor: Color,
+        verseNumColor: Color,
         wocColor: Color,
         fonts: BibleTextFonts
     ) -> [BibleTextBlock] {
@@ -93,6 +96,7 @@ public enum BibleVersionRendering {
             footnotesMode: footnotesMode,
             footnoteMarker: marker,
             textColor: textColor,
+            verseNumColor: verseNumColor,
             wocColor: wocColor,
             fonts: fonts
         )
@@ -206,10 +210,10 @@ public enum BibleVersionRendering {
             if let t = node.children.first?.text {
                 if stateIn.renderVerseNumbers {
                     let maybeSpace = stateUp.isTextEmpty || stateUp.endsWithASpace ? "" : " "
-                    let vn = BibleAttributedString(maybeSpace + t + "\u{00a0}")  // nonbreaking space
+                    let vn = BibleAttributedString(maybeSpace + t + "\u{00a0}\u{00a0}")  // nonbreaking space
                     vn.setFont(.verseNumFont, from: stateIn.fonts)
                     vn.setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
-                    vn.setColor(stateIn.textColor.opacity(stateIn.fonts.verseNumOpacity))
+                    vn.setColor(stateIn.verseNumColor)
                     stateUp.append(vn, category: .verseLabel)
                 }
             }
@@ -246,7 +250,7 @@ public enum BibleVersionRendering {
         case .letters:
             marker = stateUp.nextFootnoteMarker
                 .setFont(.footnote, from: stateIn.fonts)
-                .setColor(stateIn.textColor.opacity(stateIn.fonts.verseNumOpacity))
+                .setColor(stateIn.verseNumColor)
                 .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
         default:
             marker = stateIn.footnoteMarker
@@ -514,6 +518,7 @@ public enum BibleVersionRendering {
         var footnotesMode: BibleTextFootnoteMode
         var footnoteMarker: BibleAttributedString?  // shown when renderFootnotes is true. If nil, they render inline.
         var textColor: Color
+        var verseNumColor: Color
         var wocColor: Color
         var fonts: BibleTextFonts
     }

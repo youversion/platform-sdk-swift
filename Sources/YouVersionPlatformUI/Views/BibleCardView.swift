@@ -14,7 +14,8 @@ public struct BibleCardView: View {
         self.textOptions = BibleTextOptions(
             fontFamily: "Georgia",
             fontSize: fontSize,
-            textColor: Color.primary
+            textColor: Color.primary,
+            verseNumColor: Color.secondary
         )
     }
 

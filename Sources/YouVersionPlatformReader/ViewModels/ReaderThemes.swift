@@ -39,6 +39,10 @@ extension BibleReaderViewModel {
         colorTheme?.foreground ?? (colorTheme?.colorScheme != .dark ? readerBlackColor : readerWhiteColor)
     }
 
+    var readerVerseNumColor: Color {
+        colorTheme?.colorScheme != .dark ? Color(hex: "#9d9d9d") : Color(hex: "#636161")
+    }
+
     var readerTextMutedColor: Color {
         readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
     }

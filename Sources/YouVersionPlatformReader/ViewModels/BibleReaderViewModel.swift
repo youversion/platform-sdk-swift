@@ -232,6 +232,7 @@ final class BibleReaderViewModel {
             lineSpacing: lineSpacing,
             paragraphSpacing: lineSpacing,
             textColor: readerTextPrimaryColor,
+            verseNumColor: readerVerseNumColor,
             wocColor: readerWordsOfChristColor,
             footnoteMode: .image,
             footnoteMarker: nil

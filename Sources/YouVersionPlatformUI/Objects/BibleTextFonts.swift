@@ -12,6 +12,7 @@ public enum BibleTextFontOption {
     case header
     case headerItalic
     case headerSmaller
+    case headerSmallerItalic
     case header2
     case header3
     case header4
@@ -23,7 +24,6 @@ public struct BibleTextFonts {
 
     public let baseSize: CGFloat
     public let verseNumBaselineOffset: CGFloat
-    public let verseNumOpacity: CGFloat
 
     public func font(for option: BibleTextFontOption) -> Font {
         fonts[option]!
@@ -32,41 +32,41 @@ public struct BibleTextFonts {
     public init(familyName: String, baseSize origBaseSize: CGFloat? = nil) {
 #if canImport(UIKit)
         let baseSize = origBaseSize ?? UIFont.preferredFont(forTextStyle: .body).pointSize
-        //print("baseSize = \(baseSize); family=\(familyName)")
 #else
-        let baseSize = 17.0
+        let baseSize = 21.0
 #endif
         self.baseSize = baseSize
         verseNumBaselineOffset = baseSize * 0.3
-        verseNumOpacity = 0.7
-        let boldFamilyName: String // = familyName == "UntitledSerif-Regular" ? "UntitledSerif-Bold" : familyName
+        let boldFamilyName: String
         let italicFamilyName: String
-        let boldItalicFamilyName: String
+        //let boldItalicFamilyName: String
         if familyName.hasSuffix("-Regular") {
             let base = familyName.split(separator: "-").dropLast().joined(separator: "-")
             boldFamilyName = base + "-Bold"
             italicFamilyName = base + "-Italic"
-            boldItalicFamilyName = base + "-BoldItalic"
+            //boldItalicFamilyName = base + "-BoldItalic"
         } else {
             boldFamilyName = familyName
             italicFamilyName = familyName
-            boldItalicFamilyName = familyName
+            //boldItalicFamilyName = familyName
         }
 
         let larger = Font.custom(familyName, fixedSize: baseSize * 1.1)
         fonts = [
-            .textFont: Font.custom(familyName, fixedSize: baseSize),
             .textFontItalic: Font.custom(italicFamilyName, fixedSize: baseSize).italic(),
             .textFontBold: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
-            .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.7).smallCaps(),
             .smallCaps: Font.custom(familyName, fixedSize: baseSize).lowercaseSmallCaps(),
-            .header: Font.custom(boldFamilyName, fixedSize: baseSize * 1.2).bold(),
             .headerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 1.1).italic(),
-            .headerSmaller: Font.custom(boldItalicFamilyName, fixedSize: baseSize * 0.9).weight(.medium).italic(),
+            .headerSmaller: Font.custom(boldFamilyName, fixedSize: baseSize * 0.9).weight(.medium),
             .header2: Font.custom(boldFamilyName, fixedSize: baseSize * 1.1).weight(.bold),
             .header3: larger,
             .header4: larger,
-            .footnote: Font.custom(familyName, fixedSize: baseSize * 0.8)
+            .footnote: Font.custom(familyName, fixedSize: baseSize * 0.8),
+            // below are validated standards:
+            .header: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
+            .headerSmallerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 0.76).italic(),
+            .textFont: Font.custom(familyName, fixedSize: baseSize),
+            .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.65).smallCaps()
         ]
     }
 }

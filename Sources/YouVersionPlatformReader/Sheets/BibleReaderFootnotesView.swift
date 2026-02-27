@@ -11,6 +11,7 @@ struct BibleReaderFootnotesView: View {
             lineSpacing: viewModel.textOptions.lineSpacing,
             paragraphSpacing: viewModel.textOptions.paragraphSpacing,
             textColor: viewModel.textOptions.textColor,
+            verseNumColor: viewModel.textOptions.verseNumColor,
             wocColor: viewModel.textOptions.wocColor,
             renderHeadlines: false,
             renderVerseNumbers: false,
