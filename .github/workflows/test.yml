@@ -9,7 +9,6 @@ env:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   test:
@@ -57,11 +56,11 @@ jobs:
           output: ./coverage
           format: lcov
 
-      - name: Report coverage on PR
-        uses: zgosalvez/github-actions-report-lcov@v4
+      - name: Save PR number
+        run: echo ${{ github.event.number }} > ./coverage/pr-number
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
         with:
-          coverage-files: ./coverage/*.lcov
-          minimum-coverage: 0
-          artifact-name: code-coverage-report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          update-comment: true
+          name: coverage-data
+          path: ./coverage/

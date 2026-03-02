@@ -1,0 +1,37 @@
+name: Coverage Comment
+
+on:
+  workflow_run:
+    workflows: ["Unit Tests"]
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  actions: read
+
+jobs:
+  comment:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-data
+          path: ./coverage
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Read PR number and find LCOV file
+        run: |
+          echo "PR_NUMBER=$(cat ./coverage/pr-number)" >> $GITHUB_ENV
+          echo "LCOV_FILE=$(find ./coverage -name '*.lcov' | head -1)" >> $GITHUB_ENV
+
+      - name: Post coverage comment
+        uses: Nef10/lcov-reporter-action@v0.6.1
+        with:
+          lcov-file: ${{ env.LCOV_FILE }}
+          pr-number: ${{ env.PR_NUMBER }}
+          delete-old-comments: true
+          title: Code Coverage Report
