@@ -39,11 +39,16 @@ public struct BibleReaderBookAndChapterPickerView: View {
     public var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    Text(String.localized("bookChapterPicker.title"))
-                        .font(.headline)
-                    Spacer()
+                ZStack(alignment: .leading) {
+                    Button(String.localized("generic.cancel")) {
+                        isPresented = false
+                    }.padding(.leading, 16)
+                    HStack {
+                        Spacer()
+                        Text(String.localized("bookChapterPicker.title"))
+                            .font(.headline)
+                        Spacer()
+                    }
                 }
                 .padding(.vertical, 16)
                 List {
