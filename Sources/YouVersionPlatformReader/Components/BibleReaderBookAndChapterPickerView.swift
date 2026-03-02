@@ -51,6 +51,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         Section {
                             if expandedBookCode == bookCode {
                                 chapterListView(bookCode)
+                                    .listSectionSeparator(.hidden)
                             }
                         } header: {
                             ZStack(alignment: .leading) {
