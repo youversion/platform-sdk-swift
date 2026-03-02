@@ -55,7 +55,7 @@ extension BibleReaderViewModel {
                 print("Error loading version: \(error)")
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("generic.error")
-                textForGenericAlertBody = "It was not possible to access this Bible version. Please try again later."
+                textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
             }
         }
     }
@@ -88,7 +88,7 @@ extension BibleReaderViewModel {
         if permittedVersionsList == nil || permittedVersionsList!.isEmpty {
             showGenericAlert = true
             textForGenericAlertTitle = .localized("generic.error")
-            textForGenericAlertBody = "It was not possible to get the list of available languages. Please try again later."
+            textForGenericAlertBody = .localized("reader.availableLanguagesErrorBody")
         } else {
             versionsStackPush(to: .languages)
             Task {

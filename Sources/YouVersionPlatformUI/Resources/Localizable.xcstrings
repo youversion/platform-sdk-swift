@@ -1107,6 +1107,28 @@
         }
       }
     },
+    "reader.footnoteTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Footnote"
+          }
+        }
+      }
+    },
+    "reader.availableLanguagesErrorBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It was not possible to get the list of available languages. Please try again later."
+          }
+        }
+      }
+    },
     "reader.noVersionsAvailable" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1132,6 +1154,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune version de la Bible n'est disponible. Reconnecte-toi et télécharge une version de la Bible pour continuer hors ligne."
+          }
+        }
+      }
+    },
+    "reader.versionAccessErrorBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It was not possible to access this Bible version. Please try again later."
           }
         }
       }

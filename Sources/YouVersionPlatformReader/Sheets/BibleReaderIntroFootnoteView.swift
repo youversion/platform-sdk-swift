@@ -7,7 +7,7 @@ struct BibleReaderIntroFootnoteView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                Text("Footnote")
+                Text(String.localized("reader.footnoteTitle"))
                     .font(ReaderFonts.fontHeaderS)
                     .padding(.bottom)
                 ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
