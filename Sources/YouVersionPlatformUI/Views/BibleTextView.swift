@@ -255,13 +255,13 @@ public struct BibleTextView: View {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
                         .padding()
-                    Text("Your previously selected Bible version is unavailable. Please switch to another one.")
+                    Text(String.localized("bibleText.unavailableVersion"))
                 }
             case .failed:
                 HStack {
                     Image(systemName: "wifi.slash")
                         .padding()
-                    Text("We’re having difficulties with your connection. Please download a Bible version when you’re online.")
+                    Text(String.localized("bibleText.connectionIssue"))
                 }
             }
         }

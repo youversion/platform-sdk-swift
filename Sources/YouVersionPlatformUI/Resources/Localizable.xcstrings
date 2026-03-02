@@ -99,6 +99,28 @@
         }
       }
     },
+    "bibleText.connectionIssue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We’re having difficulties with your connection. Please download a Bible version when you’re online."
+          }
+        }
+      }
+    },
+    "bibleText.unavailableVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your previously selected Bible version is unavailable. Please switch to another one."
+          }
+        }
+      }
+    },
     "download.agreeButton" : {
       "extractionState" : "manual",
       "localizations" : {
