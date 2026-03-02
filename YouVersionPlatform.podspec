@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'YouVersionPlatform'
   s.module_name  = 'YouVersionPlatform'
-  s.version      = '4.0.1'
+  s.version      = '4.0.2'
   s.summary      = 'YouVersion Platform features'
   s.homepage     = 'https://github.com/youversion/platform-sdk-swift'
   s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }

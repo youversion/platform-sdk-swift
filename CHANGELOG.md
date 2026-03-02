@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.2](https://github.com/youversion/platform-sdk-swift/compare/4.0.1...4.0.2) (2026-03-02)
+
+
+### Bug Fixes
+
+* add Cancel button, and remove divider line below Chapters buttons ([3fcb552](https://github.com/youversion/platform-sdk-swift/commit/3fcb55213b51db9da4f1755bc0799ab139445bad))
+
 ## [4.0.1](https://github.com/youversion/platform-sdk-swift/compare/4.0.0...4.0.1) (2026-02-27)
 
 
