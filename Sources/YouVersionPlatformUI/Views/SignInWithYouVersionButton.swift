@@ -33,7 +33,7 @@ public struct SignInWithYouVersionButton: View {
     }
     
     private var strokeColor: Color {
-        let colorGray15 = Color(red: 0xDD / 255.0, green: 0xDB / 255.0, blue: 0xDB / 255.0)
+        let colorGray15 = Color(red: 0xdd / 255.0, green: 0xdb / 255.0, blue: 0xdb / 255.0)
         let colorGray35 = Color(red: 0x47 / 255.0, green: 0x45 / 255.0, blue: 0x45 / 255.0)
         return colorScheme == .dark ? colorGray35 : colorGray15
     }
