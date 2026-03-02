@@ -78,6 +78,13 @@ public struct BibleReaderView: View {
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.medium, .large])
         })
+        .sheet(isPresented: $viewModel.showingIntroFootnoteSheet, content: {
+            BibleReaderIntroFootnoteView()
+                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                .presentationBackground(viewModel.readerCanvasPrimaryColor)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.height(250), .medium, .large])
+        })
         .sheet(isPresented: $viewModel.showingSignInSheet, content: {
             signInView
         })
@@ -101,10 +108,10 @@ public struct BibleReaderView: View {
             if viewModel.version != nil {
                 BibleReaderHeaderView(
                     showChrome: true,
-                    onSelectionChange: { v, b, c in
+                    onSelectionChange: { version, book, chapter, passageId in
                         Task {
-                            let reference = BibleReference(versionId: v, bookUSFM: b, chapter: c)
-                            await viewModel.onHeaderSelectionChange(reference)
+                            let reference = BibleReference(versionId: version, bookUSFM: book, chapter: chapter ?? 1)
+                            await viewModel.onHeaderSelectionChange(reference, showIntro: chapter == nil)
                         }
                     },
                     onCompactTap: {
@@ -191,14 +198,18 @@ public struct BibleReaderView: View {
                 .frame(height: 0)
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
-                        BibleTextView(
-                            viewModel.reference,
-                            textOptions: viewModel.textOptions,
-                            selectedVerses: $viewModel.selectedVerses,
-                            onVerseTap: { reference, actionType, footnotes in
-                                viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                            }
-                        )
+                        if viewModel.showBookIntro {
+                            BibleReaderIntroView()
+                        } else {
+                            BibleTextView(
+                                viewModel.reference,
+                                textOptions: viewModel.textOptions,
+                                selectedVerses: $viewModel.selectedVerses,
+                                onVerseTap: { reference, actionType, footnotes, footnoteId in
+                                    viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
+                                }
+                            )
+                        }
                         bibleCopyrightBlock
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)

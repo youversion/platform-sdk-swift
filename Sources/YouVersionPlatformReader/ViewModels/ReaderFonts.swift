@@ -85,7 +85,7 @@ public enum ReaderFonts {
 
     // MARK: - Font Sizes and Spacing
 
-    static let availableSizes = [9, 12, 15, 18, 21, 24]
+    static let availableSizes = [9, 12, 15, 18, 21, 24, 27]
     static let lineSpacingOptions = [6, 12, 18]
 
     // MARK: - Default Values

@@ -7,6 +7,7 @@ public struct BibleBook: Codable, Sendable {
     public let abbreviation: String?
     public let canon: String?
     public let chapters: [BibleChapter]?
+    public let intro: BibleBookIntro?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -15,6 +16,7 @@ public struct BibleBook: Codable, Sendable {
         case abbreviation
         case canon
         case chapters
+        case intro
     }
 
     public var isCanonical: Bool {

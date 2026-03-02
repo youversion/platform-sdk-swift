@@ -98,18 +98,10 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     /// In standard English books, this'll be like ["1", "2"...] but other cases exist.
     /// If metadata hasn't yet been loaded, or if the book code is bad, this will return []
     public func chapterLabels(_ bookUSFM: String) -> [String] {
-        guard let book = book(with: bookUSFM) else {
-            return []
-        }
-        return book.chapters?.filter({ $0.isCanonical != false }).compactMap { $0.title } ?? []
-    }
-
-    /// If metadata hasn't yet been loaded, or if the book code is bad, this will return 0.
-    public func canonicalChapters(_ bookUSFM: String) -> [BibleChapter] {
         guard let book = book(with: bookUSFM), let chapters = book.chapters else {
             return []
         }
-        return chapters.filter { $0.isCanonical == true }
+        return chapters.compactMap { $0.title }
     }
 
     public static var preview: BibleVersion {

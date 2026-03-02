@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.1](https://github.com/youversion/platform-sdk-swift/compare/4.0.0...4.0.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* adjust typography ([beebed6](https://github.com/youversion/platform-sdk-swift/commit/beebed675e58ffa9c8cc96027a9beb7361661e88))
+
+## [4.0.0](https://github.com/youversion/platform-sdk-swift/compare/3.1.0...4.0.0) (2026-02-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* renames BibleWidgetView to BibleCardView.
+
+### Miscellaneous Chores
+
+* rename BibleWidgetView to BibleCardView ([2d201a7](https://github.com/youversion/platform-sdk-swift/commit/2d201a7d7e066c10b171b3e7ec3b4adb42e5a984))
+
+## [3.1.0](https://github.com/youversion/platform-sdk-swift/compare/3.0.0...3.1.0) (2026-02-25)
+
+
+### Features
+
+* also add highlight color underneath the verse labels ([ae69fea](https://github.com/youversion/platform-sdk-swift/commit/ae69fead51c2f88f619d5f6b50c3203b4110e0d7))
+
+## [3.0.0](https://github.com/youversion/platform-sdk-swift/compare/2.0.5...3.0.0) (2026-02-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* The onVerseTap callback of BibleTextView has an additional parameter: footnoteId. This allows the code to understand which footnote has been tapped, of possibly-multiple footnotes. That ID will match the id field of one of the items in the footnote list parameter.
+
+### Features
+
+* support Intro sections ([1577c74](https://github.com/youversion/platform-sdk-swift/commit/1577c744f25a18b10ac6163fbb084a23c334978d))
+
+## [2.0.5](https://github.com/youversion/platform-sdk-swift/compare/2.0.4...2.0.5) (2026-02-24)
+
+
+### Bug Fixes
+
+* don't render headlines when they're at the end of a passage ([53f3158](https://github.com/youversion/platform-sdk-swift/commit/53f3158b9bcd49c3d2150dcd82e69bd42fa5461a))
+
 ## [2.0.4](https://github.com/youversion/platform-sdk-swift/compare/2.0.3...2.0.4) (2026-02-13)
 
 

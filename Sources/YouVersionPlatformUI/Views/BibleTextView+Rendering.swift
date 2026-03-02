@@ -95,7 +95,7 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            if category == .scripture {
+            if category == .scripture || category == .verseLabel {
                 t.backgroundColor = highlightFor(reference: reference)
                 // better, we could have our TextRenderer add the color to some portions
             }
@@ -107,7 +107,7 @@ extension BibleTextView {
         let retValue = textCombo
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(.bottom, textOptions.paragraphSpacing)
+            .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)
             .if(textOptions.lineSpacing != nil) { view in
                 view.lineSpacing(textOptions.lineSpacing!)
             }
@@ -127,7 +127,7 @@ extension BibleTextView {
         )
         .multilineTextAlignment(flipAlignmentIfNecessary(block.alignment))
         .padding(.leading, CGFloat(8 * block.headIndent))
-        .padding(.top, ignoreMarginTop ? 0 : block.marginTop)
+        .padding(.top, ignoreMarginTop ? 0 : block.marginTop + ((textOptions.paragraphSpacing ?? 0) / 2))
     }
 
     private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {
