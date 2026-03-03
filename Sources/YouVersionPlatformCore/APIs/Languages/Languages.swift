@@ -72,7 +72,7 @@ public extension YouVersionAPI {
                 guard let url = URLBuilder.languagesURL(
                     country: country,
                     fields: fields,
-                    pageSize: (1...5).contains(fields.count) ? nil : 99,
+                    pageSize: (1...3).contains(fields.count) ? nil : 99,
                     pageToken: pageToken
                 )
                 else {
