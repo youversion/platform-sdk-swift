@@ -8,11 +8,11 @@ public struct BibleCardView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingCopyrightSheet = false
 
-    public init(reference: BibleReference, fontSize: CGFloat = 23) {
+    public init(reference: BibleReference, fontFamily: String = "STIX Two Text", fontSize: CGFloat = 23) {
         self.reference = reference
         self.version = nil
         self.textOptions = BibleTextOptions(
-            fontFamily: "Georgia",
+            fontFamily: fontFamily,
             fontSize: fontSize,
             textColor: Color.primary,
             verseNumColor: Color.secondary
