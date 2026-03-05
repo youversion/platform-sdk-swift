@@ -13,7 +13,7 @@ import Testing
         reference: BibleReference,
         renderHeadlines: Bool = true
     ) async throws -> [BibleTextBlock] {
-        let node = try #require(try BibleTextNode.parse(html))
+        let node = try BibleTextNode(html: html)
 
         let blocks = try await BibleVersionRendering.textBlocks(
             from: node,
