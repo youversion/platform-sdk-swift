@@ -21,7 +21,9 @@ public struct BibleReaderVersionListView: View {
                     List(versions, id: \.id) { v in
                         BibleVersionOverviewListItem(item: v)
                             .listRowBackground(viewModel.readerCanvasPrimaryColor)
+#if !os(tvOS)
                             .listRowSeparator(.hidden)
+#endif
                             .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                             .onTapGesture {
                                 viewModel.handleVersionPickerTap(v.id)

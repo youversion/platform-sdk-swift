@@ -5,7 +5,9 @@ import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel
+#if !os(tvOS)
     @State private var contextProvider = ContextProvider()
+#endif
     @State private var appName: String
     @State private var appSignInMessage: String
 
@@ -246,6 +248,7 @@ public struct BibleReaderView: View {
         }
     }
 
+#if !os(tvOS)
     class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
 #if canImport(UIKit)
@@ -260,6 +263,7 @@ public struct BibleReaderView: View {
 #endif
         }
     }
+#endif
 
     /// Helper to detect scroll offset in ScrollView
     struct ScrollOffsetPreferenceKey: PreferenceKey {
@@ -276,11 +280,13 @@ public struct BibleReaderView: View {
         Task {
             do {
                 viewModel.startSignInFlow = false
+#if !os(tvOS)
                 let result = try await YouVersionAPI.Users.signIn(
                     permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
                 dump(result)
+#endif
                 
                 viewModel.updateSignInState()
             } catch {

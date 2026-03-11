@@ -195,7 +195,9 @@ extension BibleReaderViewModel {
             if let (url, title) = shareableURLAndTitleFor(references: references) {
                 let data = "\(t)\n\(title)\n\(url.absoluteString)"
                 #if canImport(UIKit)
+#if !os(tvOS)
                 UIPasteboard.general.string = data
+#endif
                 #endif
             }
         }

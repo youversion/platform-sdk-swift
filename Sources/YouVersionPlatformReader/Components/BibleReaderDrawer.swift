@@ -15,12 +15,14 @@ struct BibleReaderDrawer: View {
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
                     highlightColorButtons
+#if !os(tvOS)
                     copyButton
                     if let (url, title) = viewModel.shareableURLAndTitleForSelection {
                         ShareLink(item: url, message: Text(title)) {
                             drawerButtonView(imageName: "square.and.arrow.up", text: .localized("verseActions.share"))
                         }
                     }
+#endif
                 }
                 .padding(.horizontal, 24)
             }
