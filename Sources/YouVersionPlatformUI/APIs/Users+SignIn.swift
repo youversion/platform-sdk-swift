@@ -68,7 +68,7 @@ public extension YouVersionAPI.Users {
         redirectURL: URL,
         _ continuation: CheckedContinuation<SignInWithYouVersionResult, any Error>
     ) -> ASWebAuthenticationSession {
-        return ASWebAuthenticationSession(
+        ASWebAuthenticationSession(
             url: authorizationRequest.url,
             callbackURLScheme: redirectURL.scheme!
         ) { callbackURL, error in
