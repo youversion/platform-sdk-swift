@@ -245,7 +245,7 @@ public enum BibleVersionRendering {
         var marker: BibleAttributedString?
         switch stateIn.footnotesMode {
         case .image:
-            marker = BibleAttributedString("💬")  // for spacing purposes; won't be rendered.
+            marker = BibleAttributedString("xm")  // for spacing purposes; won't be rendered.
                 .setFont(.footnote, from: stateIn.fonts)
         case .letters:
             marker = stateUp.nextFootnoteMarker

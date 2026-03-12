@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.5](https://github.com/youversion/platform-sdk-swift/compare/4.0.4...4.0.5) (2026-03-12)
+
+
+### Features
+
+* change default BibleCard font to "STIX Two Text" ([1c514b0](https://github.com/youversion/platform-sdk-swift/commit/1c514b0f8c234ff4cfe6929347505c90f5533ee9))
+
+
+### Bug Fixes
+
+* size the footnote marker differently due to change in iOS 26.3.1 ([f1d1095](https://github.com/youversion/platform-sdk-swift/commit/f1d10956ef50b1734d2f71839b58c4980b498b9d))
+
 ## [4.0.4](https://github.com/youversion/platform-sdk-swift/compare/4.0.3...4.0.4) (2026-03-03)
 
 

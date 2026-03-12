@@ -61,11 +61,10 @@ extension BibleTextView {
                     }
                     if attrs?.footnoteImage == true {
                         let runRect = run.typographicBounds.rect
-                        let padding = 3.0
-                        let height = runRect.width - padding
+                        let height = runRect.height
                         let rect = CGRect(
-                            x: runRect.origin.x + padding,
-                            y: runRect.origin.y,
+                            x: runRect.origin.x,
+                            y: runRect.origin.y - (height / 4),
                             width: height,
                             height: height
                         )
