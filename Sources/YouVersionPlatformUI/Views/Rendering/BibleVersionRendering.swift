@@ -41,7 +41,8 @@ public enum BibleVersionRendering {
         textColor: Color = Color.primary,
         verseNumColor: Color = Color.secondary,
         wocColor: Color = Color.red,
-        fonts: BibleTextFonts
+        fonts: BibleTextFonts,
+        styles: any BibleVersionRenderingStyleInterpreting = BibleVersionRenderingStyles()
     ) async throws -> [BibleTextBlock]? {
         var node = textNode
         if node == nil {
@@ -60,7 +61,8 @@ public enum BibleVersionRendering {
             textColor: textColor,
             verseNumColor: verseNumColor,
             wocColor: wocColor,
-            fonts: fonts
+            fonts: fonts,
+            styles: styles
         )
     }
 
@@ -74,7 +76,8 @@ public enum BibleVersionRendering {
         textColor: Color,
         verseNumColor: Color,
         wocColor: Color,
-        fonts: BibleTextFonts
+        fonts: BibleTextFonts,
+        styles: any BibleVersionRenderingStyleInterpreting
     ) -> [BibleTextBlock] {
         var ret: [BibleTextBlock] = []
         let verseStart = reference.verseStart ?? 1
@@ -98,7 +101,8 @@ public enum BibleVersionRendering {
             textColor: textColor,
             verseNumColor: verseNumColor,
             wocColor: wocColor,
-            fonts: fonts
+            fonts: fonts,
+            styles: styles
         )
         let stateDown = StateDown(
             woc: false,
@@ -184,7 +188,7 @@ public enum BibleVersionRendering {
             assertionFailed("handleBlockChild: unexpected:", type: node.type)
         }
 
-        BibleVersionRenderingStyles.interpretTextAttr(node, stateIn: stateIn, stateDown: &stateDown, stateUp: &stateUp)
+        stateIn.styles.interpretTextAttr(node, stateIn: stateIn, stateDown: &stateDown, stateUp: &stateUp)
 
         if stateUp.rendering && !node.text.isEmpty {
             var txt = BibleAttributedString(node.text)
@@ -387,7 +391,7 @@ public enum BibleVersionRendering {
             return
         }
 
-        BibleVersionRenderingStyles.interpretBlockClasses(
+        stateIn.styles.interpretBlockClasses(
             node.classes,
             stateIn: stateIn,
             stateDown: &stateDown,
@@ -521,6 +525,7 @@ public enum BibleVersionRendering {
         var verseNumColor: Color
         var wocColor: Color
         var fonts: BibleTextFonts
+        var styles: any BibleVersionRenderingStyleInterpreting
     }
 
     // As we walk the node structure, these are attributes which

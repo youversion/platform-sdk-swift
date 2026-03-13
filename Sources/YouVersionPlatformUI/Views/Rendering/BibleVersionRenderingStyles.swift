@@ -3,9 +3,30 @@ import SwiftUI
 import YouVersionPlatformCore
 
 @MainActor
-final class BibleVersionRenderingStyles {
+public protocol BibleVersionRenderingStyleInterpreting {
 
-    static func interpretBlockClasses(
+    func interpretBlockClasses(
+        _ classes: [String],
+        stateIn: BibleVersionRendering.StateIn,
+        stateDown: inout BibleVersionRendering.StateDown,
+        stateUp: inout BibleVersionRendering.StateUp,
+        marginTop: inout CGFloat
+    )
+
+    public func interpretTextAttr(
+        _ node: BibleTextNode,
+        stateIn: BibleVersionRendering.StateIn,
+        stateDown: inout BibleVersionRendering.StateDown,
+        stateUp: inout BibleVersionRendering.StateUp
+    )
+}
+
+@MainActor
+public final class BibleVersionRenderingStyles: BibleVersionRenderingStyleInterpreting {
+
+    public init() {}
+
+    public func interpretBlockClasses(
         _ classes: [String],
         stateIn: BibleVersionRendering.StateIn,
         stateDown: inout BibleVersionRendering.StateDown,
@@ -203,7 +224,7 @@ final class BibleVersionRenderingStyles {
         }
     }
 
-    static func interpretTextAttr(
+    public func interpretTextAttr(
         _ node: BibleTextNode,
         stateIn: BibleVersionRendering.StateIn,
         stateDown: inout BibleVersionRendering.StateDown,
