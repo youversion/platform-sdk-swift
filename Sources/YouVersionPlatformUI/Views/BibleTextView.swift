@@ -200,7 +200,7 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions,
         onVerseTap: VerseTapAction? = nil
     ) -> (some View)? {
-        let node = try? BibleTextNode.parse(html)
+        let node = try? BibleTextNode(html: html)
         return VStack {
             if node?.children.count ?? 0 == 0 {
                 Text("")

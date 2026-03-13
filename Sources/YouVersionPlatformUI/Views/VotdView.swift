@@ -92,7 +92,9 @@ public struct VotdView: View {
                 let textOptions = BibleTextOptions(fontSize: 24, renderVerseNumbers: false)
                 BibleTextView(reference, textOptions: textOptions)
                     .minimumScaleFactor(0.5)
+#if !os(tvOS)
                     .textSelection(.enabled)
+#endif
                     .padding(.bottom, 16)
             } else {
                 ProgressView()

@@ -141,12 +141,12 @@ public enum BibleVersionRendering {
 
         do {
             let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-            var node = try? BibleTextNode.parse(data)
+            var node = try? BibleTextNode(html: data)
             if node?.children.count ?? 0 == 0 {
                 // cached chapter data seems bad. Remove the cached data and retry.
                 await BibleChapterRepository.shared.removeVersion(withId: reference.versionId)
                 let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
-                node = try? BibleTextNode.parse(data)
+                node = try? BibleTextNode(html: data)
             }
             return node
         } catch YouVersionAPIError.notPermitted {
@@ -249,7 +249,7 @@ public enum BibleVersionRendering {
         var marker: BibleAttributedString?
         switch stateIn.footnotesMode {
         case .image:
-            marker = BibleAttributedString("💬")  // for spacing purposes; won't be rendered.
+            marker = BibleAttributedString("xm")  // for spacing purposes; won't be rendered.
                 .setFont(.footnote, from: stateIn.fonts)
         case .letters:
             marker = stateUp.nextFootnoteMarker
