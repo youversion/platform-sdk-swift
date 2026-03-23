@@ -92,7 +92,7 @@ public struct BibleCardView: View {
     private var bibleAppLogo: some View {
         Image("BibleAppLogotype@3x", bundle: .YouVersionUIBundle)
             .resizable()
-            .frame(width: 80, height: 17)
+            .frame(width: 106, height: 24)
     }
 
 }
