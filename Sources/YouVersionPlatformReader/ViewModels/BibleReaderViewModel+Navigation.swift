@@ -88,6 +88,11 @@ extension BibleReaderViewModel {
             return
         }
         
+        if let onVerseTap {
+            onVerseTap(reference)
+            return
+        }
+
         guard YouVersionAPI.isSignedIn else {
             showingSignInSheet = true
             return

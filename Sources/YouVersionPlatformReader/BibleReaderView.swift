@@ -21,9 +21,10 @@ public struct BibleReaderView: View {
 
     public init(reference: BibleReference? = nil,
                 appName: String,
-                signInMessage: String
+                signInMessage: String,
+                onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
-        viewModel = BibleReaderViewModel(reference: reference)
+        viewModel = BibleReaderViewModel(reference: reference, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
         self.appName = appName
