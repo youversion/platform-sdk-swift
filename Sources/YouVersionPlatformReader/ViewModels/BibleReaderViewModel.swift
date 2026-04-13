@@ -26,7 +26,7 @@ final class BibleReaderViewModel {
     let highlightsViewModel: BibleHighlightsViewModel
     var version: BibleVersion?
     let versionRepository = BibleVersionRepository()
-    var onVerseTap: ((BibleReference) -> Void)?
+    let onVerseTap: ((BibleReference) -> Void)?
 
     init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, onVerseTap: ((BibleReference) -> Void)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
