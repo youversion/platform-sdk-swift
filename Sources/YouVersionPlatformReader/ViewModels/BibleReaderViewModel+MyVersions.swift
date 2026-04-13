@@ -71,8 +71,10 @@ extension BibleReaderViewModel {
         Task {
             if await YouVersionAPI.hasValidToken() {
                 finalDownloadButtonTapped(version: version)
-            } else {
+            } else if YouVersionPlatformConfiguration.isSignInEnabled {
                 startSignInFlow = true
+            } else {
+                assertionFailure("YouVersion sign-in must be enabled to download Bible versions.")
             }
         }
     }

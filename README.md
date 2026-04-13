@@ -34,7 +34,7 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 
 - 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleCardView`
 - 📖 **Bible Reader** - A complete Bible reading experience inside your app with `BibleReaderView`
-- 🔐 **User Authentication** - Seamless "Sign In with YouVersion" integration using `SignInWithYouVersionButton`
+- 🔐 **User Authentication** - Optional "Sign In with YouVersion" integration using `SignInWithYouVersionButton` or the built-in `SignInView`, with a top-level toggle to disable all sign-in UI
 - 🌅 **Verse of the Day** - Built-in `VotdView` component and API access to VOTD data
 
 ## Requirements
@@ -82,7 +82,12 @@ import YouVersionPlatform
 @main
 struct YourApp: App {
     init() {
-        YouVersionPlatform.configure(appKey: "YOUR_APP_KEY_HERE")
+        YouVersionPlatformConfiguration.configure(
+            appKey: "YOUR_APP_KEY_HERE",
+            appName: "Your App Name",
+            isSignInEnabled: true,                // set to false to suppress all sign-in UI
+            signInPromptMessage: "Sign in to see your YouVersion highlights."  // optional
+        )
     }
     var body: some Scene {...
 }
@@ -140,14 +145,60 @@ The SDK automatically fetches Scripture from YouVersion servers and maintains a 
 Displays a full Bible reading experience, very similar to the YouVersion Bible app, ready to be added as a tab in your app.
 
 ```swift
-    BibleReaderView(
-        appName: "Sample App",
-        signInMessage: "Sign in to see your YouVersion highlights in this Sample App."
-    )
+BibleReaderView()
 ```
+
+To open to a specific passage:
+
+```swift
+BibleReaderView(
+    reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 23)
+)
+```
+
+To intercept verse taps instead of using the built-in sign-in flow:
+
+```swift
+BibleReaderView(
+    onVerseTap: { reference in
+        // Handle the tapped verse reference
+    }
+)
+```
+
+#### Disabling Sign-In
+
+By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. To disable all sign-in UI — including the verse-tap prompt, the header menu sign-in option, and the version-download auth check — set `isSignInEnabled` to `false` during configuration:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    isSignInEnabled: false
+)
+```
+
+When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
 
 
 ### Implementing Sign In
+
+The SDK provides two levels of sign-in integration:
+
+#### Built-in Sign-In (via BibleReaderView)
+
+When `isSignInEnabled` is `true` (the default), the `BibleReaderView` handles sign-in automatically. Set `appName` and an optional `signInPromptMessage` during configuration to customize the sign-in sheet:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    appName: "Your App Name",
+    signInPromptMessage: "Sign in to see your YouVersion highlights."
+)
+```
+
+#### Custom Sign-In Flow
+
+For full control, use `SignInWithYouVersionButton` or call the API directly.
 
 First, create a helper class for presentation context:
 
@@ -173,24 +224,32 @@ In the header of your SwiftUI view, store a strong reference to the `ContextProv
 Add the "Sign In" button to your SwiftUI view:
 
 ```swift
-    SignInWithYouVersionButton {
-        Task {
-            do {
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                // The user is logged in and you have an access token at result.accessToken!
-                // You may now call the YouVersion Platform APIs which require authentication.
-            } catch {
-                print(error)
-            }
+SignInWithYouVersionButton {
+    Task {
+        do {
+            let result = try await YouVersionAPI.Users.signIn(
+                permissions: [.profile, .email],
+                contextProvider: contextProvider
+            )
+            // The user is logged in and you have an access token at result.accessToken!
+            // You may now call the YouVersion Platform APIs which require authentication.
+        } catch {
+            print(error)
         }
     }
 }
 ```
 
-> **Note**: The SDK stores the access token locally, and persists it across app launches. 
+You can also present the SDK's `SignInView` directly in your own sheet or navigation flow:
+
+```swift
+SignInView(
+    onSignIn: { /* trigger your sign-in logic */ },
+    onDismiss: { /* dismiss the sheet */ }
+)
+```
+
+> **Note**: The SDK stores the access token locally and persists it across app launches.
 Deleting or losing the access token is the equivalent of "logging out".
 
 ### Fetching User Data

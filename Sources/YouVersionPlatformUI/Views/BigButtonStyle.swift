@@ -1,12 +1,19 @@
 import SwiftUI
 
-struct BigButtonStyle: ButtonStyle {
-    let strokeColor: Color
-    let backgroundColor: Color
-    let foregroundColor: Color
-    let strokeWidth: CGFloat = 1.5
+public struct BigButtonStyle: ButtonStyle {
+    public let strokeColor: Color
+    public let backgroundColor: Color
+    public let foregroundColor: Color
+    public let strokeWidth: CGFloat
 
-    func makeBody(configuration: Configuration) -> some View {
+    public init(strokeColor: Color, backgroundColor: Color, foregroundColor: Color, strokeWidth: CGFloat = 1.5) {
+        self.strokeColor = strokeColor
+        self.backgroundColor = backgroundColor
+        self.foregroundColor = foregroundColor
+        self.strokeWidth = strokeWidth
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .fontWeight(.bold)
             .foregroundStyle(foregroundColor)

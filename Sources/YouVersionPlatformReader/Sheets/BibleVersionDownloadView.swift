@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleVersionDownloadView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel

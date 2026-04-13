@@ -1,8 +1,18 @@
 import Foundation
 
 public struct YouVersionPlatformConfiguration {
-    nonisolated(unsafe) public static var appKey: String?
-    nonisolated(unsafe) public static var apiHost = "api.youversion.com"
+    nonisolated(unsafe) public private(set) static var appKey: String?
+    nonisolated(unsafe) public private(set) static var apiHost = "api.youversion.com"
+
+    /// The name of the host app, shown in sign-in dialogs.
+    nonisolated(unsafe) public private(set) static var appName: String?
+
+    /// A message explaining why the user should sign in, displayed on the sign-in sheet.
+    nonisolated(unsafe) public private(set) static var signInPromptMessage: String?
+
+    /// When `false`, all sign-in prompts and sign-in/sign-out UI are suppressed.
+    /// Defaults to `true`.
+    nonisolated(unsafe) public private(set) static var isSignInEnabled = true
 
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
@@ -13,7 +23,13 @@ public struct YouVersionPlatformConfiguration {
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
 
     @MainActor
-    public static func configure(appKey: String?, apiHost: String? = nil) {
+    public static func configure(
+        appKey: String?,
+        apiHost: String? = nil,
+        appName: String? = nil,
+        isSignInEnabled: Bool = true,
+        signInPromptMessage: String? = nil
+    ) {
         let defaults = UserDefaults.standard
 
         if let appKey {
@@ -25,6 +41,10 @@ public struct YouVersionPlatformConfiguration {
             Self.apiHost = apiHost
         }
 
+        Self.appName = appName
+        Self.isSignInEnabled = isSignInEnabled
+        Self.signInPromptMessage = signInPromptMessage
+
         // Create and save an Install ID if it's not present
         if let existing = defaults.string(forKey: installIdKey) {
             Self.installId = existing
@@ -33,6 +53,11 @@ public struct YouVersionPlatformConfiguration {
             defaults.set(newId, forKey: installIdKey)
             Self.installId = newId
         }
+    }
+    
+    public static func configureSignIn(appName: String, signInPromptMessage: String? = nil) {
+        Self.appName = appName
+        Self.signInPromptMessage = signInPromptMessage
     }
 
     @MainActor

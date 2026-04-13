@@ -8,8 +8,6 @@ public struct BibleReaderView: View {
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
-    @State private var appName: String
-    @State private var appSignInMessage: String
 
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
@@ -24,26 +22,37 @@ public struct BibleReaderView: View {
     /// - Parameters:
     ///   - reference: The Bible reference to display initially. When `nil`, the reader
     ///     restores the last-viewed reference or defaults to John 1.
-    ///   - appName: The name of the host app, shown in sign-in dialogs.
-    ///   - signInMessage: A message explaining why the user should sign in,
-    ///     displayed on the sign-in sheet.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
     ///     When provided, the closure receives the tapped ``BibleReference`` and
     ///     the reader takes no further action — the host app is responsible for
     ///     handling the interaction. When `nil` (the default), tapping a verse
-    ///     triggers the built-in sign-in prompt for unauthenticated users or
-    ///     opens the verse actions drawer for authenticated users. Footnote taps
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
     ///     are always handled by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
-                appName: String,
-                signInMessage: String,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
         viewModel = BibleReaderViewModel(reference: reference, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
-        self.appName = appName
-        appSignInMessage = signInMessage
+    }
+
+    /// Creates a Bible reader view with sign-in configuration.
+    ///
+    /// - Parameters:
+    ///   - reference: The Bible reference to display initially.
+    ///   - appName: The name of the host app, shown in sign-in dialogs.
+    ///   - signInMessage: A message displayed on the sign-in sheet.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    @available(*, deprecated, message: "Set appName and signInPromptMessage on YouVersionPlatformConfiguration instead.")
+    public init(reference: BibleReference? = nil,
+                appName: String,
+                signInMessage: String,
+                onVerseTap: ((BibleReference) -> Void)? = nil
+    ) {
+        YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
+        self.init(reference: reference, onVerseTap: onVerseTap)
     }
 
     public var body: some View {
@@ -103,9 +112,9 @@ public struct BibleReaderView: View {
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.height(250), .medium, .large])
         })
-        .sheet(isPresented: $viewModel.showingSignInSheet, content: {
+        .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
-        })
+        }
         .sheet(isPresented: $viewModel.showingVersionsStack) {
             BibleReaderVersionsStack()
                 .presentationDragIndicator(.visible)
@@ -162,9 +171,19 @@ public struct BibleReaderView: View {
     }
 
     private var signInView: some View {
-        BibleReaderSignInView(
-            appName: appName,
-            appMessage: appSignInMessage
+        SignInView(
+            textPrimaryColor: viewModel.readerTextPrimaryColor,
+            borderPrimaryColor: viewModel.readerBorderPrimaryColor,
+            buttonPrimaryColor: viewModel.readerButtonPrimaryColor,
+            borderSecondaryColor: viewModel.readerBorderSecondaryColor,
+            buttonSecondaryColor: viewModel.readerButtonSecondaryColor,
+            onSignIn: {
+                viewModel.signIn()
+                viewModel.showingSignInSheet = false
+            },
+            onDismiss: {
+                viewModel.showingSignInSheet = false
+            }
         )
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .presentationDetents([.fraction(0.80)])
@@ -315,9 +334,7 @@ public struct BibleReaderView: View {
 
 #Preview {
     BibleReaderView(
-        reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 117),
-        appName: "BibleReaderViewPreview",
-        signInMessage: "This paragraph needs to explain why the user should sign in."
+        reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 117)
     )
     .environment(BibleReaderViewModel.preview)
 }

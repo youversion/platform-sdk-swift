@@ -7,10 +7,12 @@ struct BibleReaderHeaderMenuView: View {
     var body: some View {
         Menu {
             Button(String.localized("menu.fontSettings"), action: openFontSettings)
-            if viewModel.isSignedIn {
-                Button(String.localized("menu.signOut"), role: .destructive, action: signOut)
-            } else {
-                Button(String.localized("menu.signIn"), action: signIn)
+            if YouVersionPlatformConfiguration.isSignInEnabled {
+                if viewModel.isSignedIn {
+                    Button(String.localized("menu.signOut"), role: .destructive, action: signOut)
+                } else {
+                    Button(String.localized("menu.signIn"), action: signIn)
+                }
             }
         } label: {
             Image(systemName: "ellipsis.circle")
