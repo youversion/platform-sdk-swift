@@ -19,6 +19,21 @@ public struct BibleReaderView: View {
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
 
+    /// Creates a Bible reader view.
+    ///
+    /// - Parameters:
+    ///   - reference: The Bible reference to display initially. When `nil`, the reader
+    ///     restores the last-viewed reference or defaults to John 1.
+    ///   - appName: The name of the host app, shown in sign-in dialogs.
+    ///   - signInMessage: A message explaining why the user should sign in,
+    ///     displayed on the sign-in sheet.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users or
+    ///     opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
                 appName: String,
                 signInMessage: String,
