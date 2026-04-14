@@ -55,9 +55,11 @@ public struct YouVersionPlatformConfiguration {
         }
     }
     
+    @MainActor
     public static func configureSignIn(appName: String, signInPromptMessage: String? = nil) {
         Self.appName = appName
         Self.signInPromptMessage = signInPromptMessage
+        Self.isSignInEnabled = true
     }
 
     @MainActor
