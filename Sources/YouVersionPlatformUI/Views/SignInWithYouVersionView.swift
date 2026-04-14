@@ -6,7 +6,7 @@ import YouVersionPlatformCore
 ///
 /// The caller provides action closures and theming colors so the view has
 /// no dependency on any specific view model.
-public struct SignInView: View {
+public struct SignInWithYouVersionView: View {
     private let onSignIn: () -> Void
     private let onDismiss: () -> Void
 
@@ -77,7 +77,7 @@ public struct SignInView: View {
                     .frame(width: 300)
             }
             .buttonStyle(
-                BigButtonStyle(
+                YouVersionBigButtonStyle(
                     strokeColor: borderPrimaryColor,
                     backgroundColor: buttonPrimaryColor,
                     foregroundColor: textPrimaryColor
@@ -89,7 +89,7 @@ public struct SignInView: View {
                     .frame(width: 300)
             }
             .buttonStyle(
-                BigButtonStyle(
+                YouVersionBigButtonStyle(
                     strokeColor: borderSecondaryColor,
                     backgroundColor: buttonSecondaryColor,
                     foregroundColor: textPrimaryColor
@@ -101,7 +101,7 @@ public struct SignInView: View {
 }
 
 #Preview {
-    SignInView(
+    SignInWithYouVersionView(
         onSignIn: { print("sign in") },
         onDismiss: { print("dismiss") }
     )

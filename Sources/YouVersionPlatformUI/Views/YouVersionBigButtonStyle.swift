@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct BigButtonStyle: ButtonStyle {
+public struct YouVersionBigButtonStyle: ButtonStyle {
     public let strokeColor: Color
     public let backgroundColor: Color
     public let foregroundColor: Color
@@ -35,7 +35,7 @@ public struct BigButtonStyle: ButtonStyle {
     }
     .frame(width: 300)
     .buttonStyle(
-        BigButtonStyle(
+        YouVersionBigButtonStyle(
             strokeColor: .yellow,
             backgroundColor: .gray,
             foregroundColor: .black

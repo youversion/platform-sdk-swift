@@ -104,8 +104,6 @@ extension BibleReaderViewModel {
             }
         } else if YouVersionPlatformConfiguration.isSignInEnabled {
             showingSignInSheet = true
-        } else {
-            assertionFailure("onVerseTap must be provided OR YouVersion sign-in must be enabled")
         }
     }
 

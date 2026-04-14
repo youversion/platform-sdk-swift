@@ -94,6 +94,7 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 - Prefer structs over classes.
 - Don't leave unused code.
 - Do not leave commented out code in place.
+- Public-facing types should generally include "YouVersion" in their name (e.g. `YouVersionBigButtonStyle`, `SignInWithYouVersionView`) to disambiguate from client-local types.
 - Class, struct, enum entity names should always be in PascalCase.
 - Property and function names should always be in camelCase.
 

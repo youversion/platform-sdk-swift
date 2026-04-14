@@ -200,7 +200,7 @@ struct BibleReaderVersionInfoView: View {
     }
 
     private var BigButtonStylePrimary: some ButtonStyle {
-        BigButtonStyle(
+        YouVersionBigButtonStyle(
             strokeColor: .clear,
             backgroundColor: viewModel.readerButtonContrastColor,
             foregroundColor: viewModel.readerTextInvertedColor
@@ -208,7 +208,7 @@ struct BibleReaderVersionInfoView: View {
     }
 
     private var BigButtonStyleSecondary: some ButtonStyle {
-        BigButtonStyle(
+        YouVersionBigButtonStyle(
             strokeColor: viewModel.readerTextMutedColor,
             backgroundColor: viewModel.readerCanvasPrimaryColor,
             foregroundColor: viewModel.readerTextPrimaryColor

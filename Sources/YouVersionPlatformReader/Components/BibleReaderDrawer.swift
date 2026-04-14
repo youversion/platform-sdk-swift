@@ -1,4 +1,5 @@
 import SwiftUI
+import YouVersionPlatformCore
 
 struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -14,7 +15,9 @@ struct BibleReaderDrawer: View {
                 .padding(.bottom, 8)
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
-                    highlightColorButtons
+                    if YouVersionAPI.isSignedIn {
+                        highlightColorButtons
+                    }
 #if !os(tvOS)
                     copyButton
                     if let (url, title) = viewModel.shareableURLAndTitleForSelection {

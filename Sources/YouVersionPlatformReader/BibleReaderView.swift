@@ -33,6 +33,8 @@ public struct BibleReaderView: View {
     public init(reference: BibleReference? = nil,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
+        assert(onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
+               "onVerseTap must be provided OR YouVersion sign-in must be enabled")
         viewModel = BibleReaderViewModel(reference: reference, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
@@ -171,7 +173,7 @@ public struct BibleReaderView: View {
     }
 
     private var signInView: some View {
-        SignInView(
+        SignInWithYouVersionView(
             textPrimaryColor: viewModel.readerTextPrimaryColor,
             borderPrimaryColor: viewModel.readerBorderPrimaryColor,
             buttonPrimaryColor: viewModel.readerButtonPrimaryColor,
