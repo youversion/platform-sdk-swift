@@ -81,7 +81,6 @@ import Testing
     @Test func performRefreshSuccessReturnsNewTokens() async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         await YouVersionPlatformConfiguration.configure(appKey: "test-app")
-        defer { Task { @MainActor in YouVersionPlatformConfiguration.configure(appKey: originalAppKey) } }
 
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -118,12 +117,13 @@ import Testing
         #expect(result.idToken == "id-token")
         #expect(result.permissions.isEmpty)
         #expect(result.yvpUserId == nil)
+
+        await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
     }
 
     @Test func performRefreshNon200Throws() async {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         await YouVersionPlatformConfiguration.configure(appKey: "test-app")
-        defer { Task { @MainActor in YouVersionPlatformConfiguration.configure(appKey: originalAppKey) } }
 
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -140,6 +140,8 @@ import Testing
                 session: session
             )
         }
+
+        await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
     }
 }
 

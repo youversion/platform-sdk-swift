@@ -32,9 +32,7 @@ public struct YouVersionPlatformConfiguration {
     ) {
         let defaults = UserDefaults.standard
 
-        if let appKey {
-            Self.appKey = appKey
-        }
+        Self.appKey = appKey
 
         // Setting apiHost is really only for YVP development use:
         if let apiHost {
