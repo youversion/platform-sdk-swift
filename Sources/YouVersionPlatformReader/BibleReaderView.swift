@@ -33,8 +33,10 @@ public struct BibleReaderView: View {
     public init(reference: BibleReference? = nil,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
-        assert(onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
-               "onVerseTap must be provided OR YouVersion sign-in must be enabled")
+        assert(
+            onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
+            "onVerseTap must be provided OR YouVersion sign-in must be enabled"
+        )
         viewModel = BibleReaderViewModel(reference: reference, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
