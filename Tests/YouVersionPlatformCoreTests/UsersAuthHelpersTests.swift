@@ -80,8 +80,8 @@ import Testing
 
     @Test func performRefreshSuccessReturnsNewTokens() async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
-        YouVersionPlatformConfiguration.appKey = "test-app"
-        defer { YouVersionPlatformConfiguration.appKey = originalAppKey }
+        await YouVersionPlatformConfiguration.configure(appKey: "test-app")
+        defer { Task { @MainActor in YouVersionPlatformConfiguration.configure(appKey: originalAppKey) } }
 
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -122,8 +122,8 @@ import Testing
 
     @Test func performRefreshNon200Throws() async {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
-        YouVersionPlatformConfiguration.appKey = "test-app"
-        defer { YouVersionPlatformConfiguration.appKey = originalAppKey }
+        await YouVersionPlatformConfiguration.configure(appKey: "test-app")
+        defer { Task { @MainActor in YouVersionPlatformConfiguration.configure(appKey: originalAppKey) } }
 
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
