@@ -270,6 +270,28 @@ public struct BibleTextView: View {
 
 }
 
+/// Describes how the selected-verse underline is drawn.
+///
+/// The SDK default is ``solid`` (a continuous grey line). Clients can
+/// use ``dashed`` or create a fully custom style.
+public struct VerseSelectionStyle: Sendable {
+    public let color: Color
+    public let lineWidth: CGFloat
+    public let dash: [CGFloat]
+
+    public init(color: Color = .gray, lineWidth: CGFloat = 0.5, dash: [CGFloat] = []) {
+        self.color = color
+        self.lineWidth = lineWidth
+        self.dash = dash
+    }
+
+    /// Solid grey underline (SDK default).
+    public static let solid = VerseSelectionStyle()
+
+    /// Dashed grey underline.
+    public static let dashed = VerseSelectionStyle(dash: [4, 2])
+}
+
 public struct BibleTextOptions {
     public let fontFamily: String
     public let fontSize: CGFloat
@@ -282,6 +304,7 @@ public struct BibleTextOptions {
     public let renderVerseNumbers: Bool
     public let footnoteMode: BibleTextFootnoteMode
     public let footnoteMarker: BibleAttributedString?
+    public let verseSelectionStyle: VerseSelectionStyle
 
     public init(fontFamily: String = "Times New Roman",
                 fontSize: CGFloat = 16,
@@ -293,7 +316,8 @@ public struct BibleTextOptions {
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
-                footnoteMarker: BibleAttributedString? = nil) {
+                footnoteMarker: BibleAttributedString? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.lineSpacing = lineSpacing ?? fontSize / 2
@@ -305,6 +329,7 @@ public struct BibleTextOptions {
         self.renderVerseNumbers = renderVerseNumbers
         self.footnoteMode = footnoteMode
         self.footnoteMarker = footnoteMarker
+        self.verseSelectionStyle = verseSelectionStyle
     }
 }
 
