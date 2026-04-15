@@ -90,15 +90,11 @@ extension BibleReaderViewModel {
 
         if let onVerseTap {
             onVerseTap(reference)
-        }
-
-        if onVerseTap == nil {
-            if !YouVersionAPI.isSignedIn {
-                if YouVersionPlatformConfiguration.isSignInEnabled {
-                    showingSignInSheet = true
-                }
-                return
+        } else if !YouVersionAPI.isSignedIn {
+            if YouVersionPlatformConfiguration.isSignInEnabled {
+                showingSignInSheet = true
             }
+            return
         }
 
         if selectedVerses.contains(reference) {
@@ -109,7 +105,7 @@ extension BibleReaderViewModel {
 
         if onVerseTap == nil {
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
-                showingVerseActionsDrawer = !self.selectedVerses.isEmpty
+                showingVerseActionsDrawer = !selectedVerses.isEmpty
             }
         }
     }
