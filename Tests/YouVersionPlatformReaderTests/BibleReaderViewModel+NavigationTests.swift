@@ -409,4 +409,81 @@ let previousChapterCases: [PreviousChapterCase] = [
             BibleChapter(id: "\(bookId).\(chapter)", passageId: nil, title: "\(chapter)", verses: nil)
         }
     }
+
+    // MARK: - handleVerseTap
+
+    @Test
+    func verseTapWithOnVerseTapTogglesSelectedVerses() {
+        var tappedReference: BibleReference?
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1),
+            onVerseTap: { tappedReference = $0 }
+        )
+        vm.selectedVerses = []
+        vm.showingVerseActionsDrawer = false
+
+        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
+        vm.handleVerseTap(reference: ref, actionType: "reference", footnotes: [])
+
+        #expect(tappedReference == ref)
+        #expect(vm.selectedVerses.contains(ref))
+        #expect(vm.showingVerseActionsDrawer == false)
+    }
+
+    @Test
+    func secondVerseTapWithOnVerseTapRemovesFromSelectedVerses() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1),
+            onVerseTap: { _ in }
+        )
+        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
+        vm.selectedVerses = [ref]
+
+        vm.handleVerseTap(reference: ref, actionType: "reference", footnotes: [])
+
+        #expect(vm.selectedVerses.isEmpty)
+    }
+
+    @Test
+    func verseTapWithOnVerseTapDoesNotShowSignInSheet() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1),
+            onVerseTap: { _ in }
+        )
+        vm.showingSignInSheet = false
+
+        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
+        vm.handleVerseTap(reference: ref, actionType: "reference", footnotes: [])
+
+        #expect(vm.showingSignInSheet == false)
+    }
+
+    @Test
+    func footnoteTapReturnsEarlyWithoutModifyingSelectedVerses() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1),
+            onVerseTap: { _ in }
+        )
+        vm.selectedVerses = []
+
+        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
+        vm.handleVerseTap(reference: ref, actionType: "footnote", footnotes: [])
+
+        #expect(vm.selectedVerses.isEmpty)
+        #expect(vm.showingFootnotes == true)
+    }
+
+    @Test
+    func footnoteTapWithoutOnVerseTapReturnsEarly() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1)
+        )
+        vm.selectedVerses = []
+
+        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
+        vm.handleVerseTap(reference: ref, actionType: "footnote", footnotes: [])
+
+        #expect(vm.selectedVerses.isEmpty)
+        #expect(vm.showingFootnotes == true)
+    }
 }

@@ -57,7 +57,7 @@ extension BibleTextView {
                         var path = Path()
                         path.move(to: start)
                         path.addLine(to: end)
-                        context.stroke(path, with: .color(.gray), lineWidth: 0.5)
+                        context.stroke(path, with: .color(.gray), style: StrokeStyle(lineWidth: 0.5, dash: [4, 2]))
                     }
                     if attrs?.footnoteImage == true {
                         let runRect = run.typographicBounds.rect

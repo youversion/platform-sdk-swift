@@ -87,23 +87,30 @@ extension BibleReaderViewModel {
             footnotesToDisplay = footnotes
             return
         }
-        
+
         if let onVerseTap {
             onVerseTap(reference)
-            return
         }
-        
-        if YouVersionAPI.isSignedIn {
-            if selectedVerses.contains(reference) {
-                selectedVerses.remove(reference)
-            } else {
-                selectedVerses.insert(reference)
+
+        if onVerseTap == nil {
+            if !YouVersionAPI.isSignedIn {
+                if YouVersionPlatformConfiguration.isSignInEnabled {
+                    showingSignInSheet = true
+                }
+                return
             }
+        }
+
+        if selectedVerses.contains(reference) {
+            selectedVerses.remove(reference)
+        } else {
+            selectedVerses.insert(reference)
+        }
+
+        if onVerseTap == nil {
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
                 showingVerseActionsDrawer = !self.selectedVerses.isEmpty
             }
-        } else if YouVersionPlatformConfiguration.isSignInEnabled {
-            showingSignInSheet = true
         }
     }
 
