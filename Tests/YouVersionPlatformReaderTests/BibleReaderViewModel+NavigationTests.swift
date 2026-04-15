@@ -410,8 +410,6 @@ let previousChapterCases: [PreviousChapterCase] = [
         }
     }
 
-    // MARK: - handleVerseTap
-
     @Test
     func verseTapWithOnVerseTapTogglesSelectedVerses() {
         var tappedReference: BibleReference?
