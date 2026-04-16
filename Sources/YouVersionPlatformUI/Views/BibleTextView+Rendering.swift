@@ -62,7 +62,7 @@ extension BibleTextView {
                         context.stroke(
                             path,
                             with: .color(verseSelectionStyle.color),
-                            style: StrokeStyle(lineWidth: verseSelectionStyle.lineWidth, dash: verseSelectionStyle.dash)
+                            style: StrokeStyle(lineWidth: verseSelectionStyle.lineWidth, dash: verseSelectionStyle.linePattern.dashArray)
                         )
                     }
                     if attrs?.footnoteImage == true {

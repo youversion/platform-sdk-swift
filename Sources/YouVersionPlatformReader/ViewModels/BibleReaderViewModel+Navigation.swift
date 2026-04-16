@@ -90,23 +90,20 @@ extension BibleReaderViewModel {
 
         if let onVerseTap {
             onVerseTap(reference)
-        } else if !YouVersionAPI.isSignedIn {
-            if YouVersionPlatformConfiguration.isSignInEnabled {
-                showingSignInSheet = true
-            }
             return
         }
 
-        if selectedVerses.contains(reference) {
-            selectedVerses.remove(reference)
-        } else {
-            selectedVerses.insert(reference)
-        }
-
-        if onVerseTap == nil {
-            withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
-                showingVerseActionsDrawer = !selectedVerses.isEmpty
+        if YouVersionAPI.isSignedIn {
+            if selectedVerses.contains(reference) {
+                selectedVerses.remove(reference)
+            } else {
+                selectedVerses.insert(reference)
             }
+            withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
+                showingVerseActionsDrawer = !self.selectedVerses.isEmpty
+            }
+        } else if YouVersionPlatformConfiguration.isSignInEnabled {
+            showingSignInSheet = true
         }
     }
 

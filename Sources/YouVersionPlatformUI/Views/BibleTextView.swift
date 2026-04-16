@@ -270,28 +270,6 @@ public struct BibleTextView: View {
 
 }
 
-/// Describes how the selected-verse underline is drawn.
-///
-/// The SDK default is ``solid`` (a continuous grey line). Clients can
-/// use ``dashed`` or create a fully custom style.
-public struct VerseSelectionStyle: Sendable {
-    public let color: Color
-    public let lineWidth: CGFloat
-    public let dash: [CGFloat]
-
-    public init(color: Color = .gray, lineWidth: CGFloat = 0.5, dash: [CGFloat] = []) {
-        self.color = color
-        self.lineWidth = lineWidth
-        self.dash = dash
-    }
-
-    /// Solid grey underline (SDK default).
-    public static let solid = VerseSelectionStyle()
-
-    /// Dashed grey underline.
-    public static let dashed = VerseSelectionStyle(dash: [4, 2])
-}
-
 public struct BibleTextOptions {
     public let fontFamily: String
     public let fontSize: CGFloat
