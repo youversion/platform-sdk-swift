@@ -43,12 +43,10 @@ public struct BibleReaderVersionListView: View {
         }
 #if os(iOS)
         .toolbar {
-            if #available(iOS 15, *) {
-                ToolbarItem(placement: .title) {
-                    Text(viewModel.bibleVersionStatisticsPromo)
-                        .fontWeight(.medium)
-                        .foregroundStyle(viewModel.readerTextPrimaryColor)
-                }
+            ToolbarItem(placement: .title) {
+                Text(viewModel.bibleVersionStatisticsPromo)
+                    .fontWeight(.medium)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
