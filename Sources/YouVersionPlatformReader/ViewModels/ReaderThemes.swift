@@ -123,7 +123,6 @@ extension BibleReaderViewModel {
     }
 }
 
-
 // TODO: don't duplicate code.
 extension BibleVersionsViewModel {
     func colorForScheme(light: Color, dark: Color) -> Color {
@@ -221,4 +220,3 @@ extension BibleVersionsViewModel {
         )
     }
 }
-

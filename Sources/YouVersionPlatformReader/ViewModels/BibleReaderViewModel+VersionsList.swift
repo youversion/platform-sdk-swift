@@ -37,7 +37,7 @@ extension BibleVersionsViewModel {
     public func switchToVersion(_ versionId: Int) {
         Task {
             let version = try await versionRepository.version(withId: versionId)
-            await onVersionChange(version)
+            onVersionChange(version)
         }
     }
 

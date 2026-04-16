@@ -293,12 +293,12 @@ final class BibleVersionsViewModel {
         }
         return org.name
     }
-    
+
     // MARK: - Preview helper
 
     public static var preview: BibleVersionsViewModel {
         // Create a minimal BibleVersionsViewModel for preview purposes
-        let vm = BibleVersionsViewModel() { version in
+        let vm = BibleVersionsViewModel { version in
             print("Selected version: \(version.id)")
         }
 

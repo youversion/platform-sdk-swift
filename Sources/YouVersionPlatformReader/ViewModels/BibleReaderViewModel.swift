@@ -233,6 +233,4 @@ final class BibleReaderViewModel {
         highlightsViewModel.reset()
         isSignedIn = false
     }
-
-
 }
