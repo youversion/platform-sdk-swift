@@ -77,18 +77,24 @@ final class BibleVersionsViewModel {
     }
     
     private func loadVersion(versionId: Int?, savedIds: [Int]) async {
-        guard let versionId else {
-            await selectFallbackVersion(savedIds: savedIds)
-            return
+        // Resolve the desired version if possible; otherwise fall back once at the end
+        var loadedVersion: BibleVersion?
+
+        if let id = versionId {
+            do {
+                loadedVersion = try await versionRepository.version(withId: id)
+            } catch YouVersionAPIError.notPermitted {
+                // Leave loadedVersion as nil; we'll fall back below
+            } catch {
+                print("Error loading default version: \(error)")
+            }
         }
-        do {
-            let version = try await versionRepository.version(withId: versionId)
+
+        if let version = loadedVersion {
             self.myVersions.insert(version)
             onVersionChange(version)
-        } catch YouVersionAPIError.notPermitted {
+        } else {
             await selectFallbackVersion(savedIds: savedIds)
-        } catch {
-            print("Error loading default version: \(error)")
         }
     }
     
