@@ -1,16 +1,7 @@
 import SwiftUI
 
 struct BibleReaderLanguagesView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
-
-    init(viewModel: BibleReaderViewModel) {
-#if canImport(UIKit)
-        UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
-        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
-        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
-        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
-#endif
-    }
+    @Environment(BibleVersionsViewModel.self) private var viewModel
 
     enum Segment: String, CaseIterable, Identifiable {
         case suggested
@@ -90,6 +81,14 @@ struct BibleReaderLanguagesView: View {
             }
 
         }
+        .task {
+#if canImport(UIKit)
+            UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
+            UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
+            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
+            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
+#endif
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -166,6 +165,6 @@ struct BibleReaderLanguagesView: View {
 }
 
 #Preview {
-    BibleReaderLanguagesView(viewModel: BibleReaderViewModel.preview)
+    BibleReaderLanguagesView()
         .environment(BibleReaderViewModel.preview)
 }

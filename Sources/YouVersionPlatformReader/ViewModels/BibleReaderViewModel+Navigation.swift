@@ -211,10 +211,10 @@ extension BibleReaderViewModel {
         isChangingChapter = true
         removeVerseSelection()
         do {
-            if version?.id != reference.versionId {
+            if version?.id != reference.versionId, let versionRepository = versionsViewModel?.versionRepository {
                 let newVersion = try await versionRepository.version(withId: reference.versionId)
                 version = newVersion
-                myVersions.insert(newVersion)
+                versionsViewModel?.myVersions.insert(newVersion)
             }
             self.reference = reference
             self.showBookIntro = showIntro

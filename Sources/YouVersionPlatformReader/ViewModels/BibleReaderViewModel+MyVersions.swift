@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-extension BibleReaderViewModel {
+extension BibleVersionsViewModel {
 
     public func myVersionItemTapped(_ versionId: Int) {
         switchToVersion(versionId)
@@ -72,7 +72,8 @@ extension BibleReaderViewModel {
             if await YouVersionAPI.hasValidToken() {
                 finalDownloadButtonTapped(version: version)
             } else if YouVersionPlatformConfiguration.isSignInEnabled {
-                startSignInFlow = true
+                // TODO MOVE startSignInFlow = true
+                onSignInRequired?()
             } else {
                 assertionFailure("YouVersion sign-in must be enabled to download Bible versions.")
             }

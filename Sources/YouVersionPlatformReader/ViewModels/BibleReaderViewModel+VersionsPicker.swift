@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-extension BibleReaderViewModel {
+extension BibleVersionsViewModel {
 
     // MARK: - VersionsPicker functions, for Version selection and manipulation
 

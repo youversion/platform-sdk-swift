@@ -2,10 +2,10 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-extension BibleReaderViewModel {
+extension BibleVersionsViewModel {
 
     public var activeLanguage: String {
-        chosenLanguage ?? version?.languageTag ?? "en"
+        chosenLanguage ?? currentBibleVersion?.languageTag ?? "en"
     }
 
     public var bibleVersionStatisticsPromo: String {
@@ -36,8 +36,8 @@ extension BibleReaderViewModel {
 
     public func switchToVersion(_ versionId: Int) {
         Task {
-            let ref = BibleReference(versionId: versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-            await onHeaderSelectionChange(ref, showIntro: false)
+            let version = try await versionRepository.version(withId: versionId)
+            await onVersionChange(version)
         }
     }
 
@@ -109,7 +109,7 @@ extension BibleReaderViewModel {
         if let currentLanguage, let name = names[currentLanguage] {
             return name
         }
-        if let bibleLanguage = version?.languageTag, let name = names[bibleLanguage] {
+        if let bibleLanguage = currentBibleVersion?.languageTag, let name = names[bibleLanguage] {
             return name
         }
         if let name = names["en"] {

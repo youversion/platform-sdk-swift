@@ -119,11 +119,6 @@ public struct BibleReaderView: View {
         .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
         }
-        .sheet(isPresented: $viewModel.showingVersionsStack) {
-            BibleReaderVersionsStack()
-                .presentationDragIndicator(.visible)
-                .presentationDetents([.large])
-        }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             if newValue {
                 startSignIn()
@@ -316,6 +311,7 @@ public struct BibleReaderView: View {
     // MARK: - Action handlers
 
     private func startSignIn() {
+        // TODO: move this code into BibleReaderViewModel
         Task {
             do {
                 viewModel.startSignInFlow = false

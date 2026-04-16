@@ -3,7 +3,7 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 struct BibleReaderVersionInfoView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(BibleVersionsViewModel.self) private var viewModel
     @Environment(\.openURL) private var openURL
 
     @State private var isVersionDownloaded: Bool?
