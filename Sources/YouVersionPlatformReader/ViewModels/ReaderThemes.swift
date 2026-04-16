@@ -26,7 +26,13 @@ struct ReaderTheme: Identifiable {
     }
 }
 
-extension BibleReaderViewModel {
+@MainActor
+protocol ReaderThemeProviding {
+    var colorTheme: ReaderTheme? { get }
+}
+
+@MainActor
+extension ReaderThemeProviding {
     func colorForScheme(light: Color, dark: Color) -> Color {
         colorTheme?.colorScheme == .dark ? dark : light
     }
@@ -123,100 +129,6 @@ extension BibleReaderViewModel {
     }
 }
 
-// TODO: don't duplicate code.
-extension BibleVersionsViewModel {
-    func colorForScheme(light: Color, dark: Color) -> Color {
-        colorTheme?.colorScheme == .dark ? dark : light
-    }
+extension BibleReaderViewModel: ReaderThemeProviding {}
 
-    var readerCanvasPrimaryColor: Color {
-        colorTheme?.background ?? (colorTheme?.colorScheme != .dark ? readerWhiteColor : readerBlackColor)
-    }
-
-    var readerTextPrimaryColor: Color {
-        colorTheme?.foreground ?? (colorTheme?.colorScheme != .dark ? readerBlackColor : readerWhiteColor)
-    }
-
-    var readerVerseNumColor: Color {
-        colorTheme?.colorScheme != .dark ? Color(hex: "#9d9d9d") : Color(hex: "#636161")
-    }
-
-    var readerTextMutedColor: Color {
-        readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
-    }
-
-    var readerSurfacePrimaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "f6f4f4"),
-            dark: Color(hex: "232121")
-        )
-    }
-
-    var readerSurfaceTertiaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "EDEBEB"),
-            dark: Color(hex: "353333")
-        )
-    }
-
-    var readerBorderPrimaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "dddbdb"),
-            dark: Color(hex: "474545")
-        )
-    }
-
-    var readerBorderSecondaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "bfbdbd"),
-            dark: Color(hex: "636161")
-        )
-    }
-
-    var readerButtonPrimaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "#edebeb"),
-            dark: Color(hex: "#353333")
-        )
-    }
-
-    var readerButtonSecondaryColor: Color {
-        colorForScheme(
-            light: Color(hex: "dddbdb"),
-            dark: Color(hex: "474545")
-        )
-    }
-
-    var readerButtonContrastColor: Color {
-        colorForScheme(
-            light: Color(hex: "121212"),
-            dark: Color(hex: "edebeb")
-        )
-    }
-
-    var readerTextInvertedColor: Color {
-        colorForScheme(
-            light: readerWhiteColor,
-            dark: readerBlackColor
-        )
-    }
-
-    var readerWhiteColor: Color {
-        Color(hex: "#ffffff")
-    }
-
-    var readerBlackColor: Color {
-        Color(hex: "#121212")
-    }
-
-    var readerDropShadowColor: Color {
-        Color(hex: "#777777").opacity(0.5)
-    }
-
-    var readerWordsOfChristColor: Color {
-        colorForScheme(
-            light: Color(hex: "#ff3d4d"),
-            dark: Color(hex: "#F04C59")
-        )
-    }
-}
+extension BibleVersionsViewModel: ReaderThemeProviding {}
