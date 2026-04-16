@@ -100,7 +100,7 @@ public enum YouVersionPlatformLogger {
             break
         }
         #else
-        print("[YouVersionPlatform][\(category)] \(text)")
+        print("[YouVersionPlatform][\(level)][\(category)] \(text)")
         #endif
     }
 }
