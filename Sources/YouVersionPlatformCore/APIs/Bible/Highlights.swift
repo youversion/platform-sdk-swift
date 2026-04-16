@@ -96,7 +96,7 @@ public extension YouVersionAPI {
             }
 
             if httpResponse.statusCode == 401 {
-                print("getHighlights: error 401: unauthorized. Check your access token")
+                YouVersionPlatformLogger.error("getHighlights: error 401: unauthorized. Check your access token", category: "Highlights")
                 return []
             }
 
@@ -105,7 +105,7 @@ public extension YouVersionAPI {
             }
 
             guard httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
-                print("getHighlights: unexpected status code \(httpResponse.statusCode)")
+                YouVersionPlatformLogger.error("getHighlights: unexpected status code \(httpResponse.statusCode)", category: "Highlights")
                 return []
             }
 

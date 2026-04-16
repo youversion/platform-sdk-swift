@@ -173,7 +173,7 @@ public struct BibleTextView: View {
         } catch is CancellationError {
             loadingPhase = .inactive
         } catch let err {
-            print("loadBlocks unexpected error: \(err)")
+            YouVersionPlatformLogger.error("loadBlocks unexpected error: \(err)", category: "BibleText")
             loadingPhase = .failed
         }
     }

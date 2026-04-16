@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.4.0](https://github.com/youversion/platform-sdk-swift/compare/4.3.0...4.4.0) (2026-04-16)
+
+
+### Features
+
+* **logging:** introduce YouVersionPlatformLogger to silence SDK console spam ([#70](https://github.com/youversion/platform-sdk-swift/issues/70)) ([06a794a](https://github.com/youversion/platform-sdk-swift/commit/06a794a895e3390643f3c6721298142b4ef30a9c))
+
 ## [4.3.0](https://github.com/youversion/platform-sdk-swift/compare/4.2.0...4.3.0) (2026-04-13)
 
 

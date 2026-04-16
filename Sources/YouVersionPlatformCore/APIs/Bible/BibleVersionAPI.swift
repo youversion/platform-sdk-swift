@@ -12,29 +12,22 @@ public extension YouVersionAPI.Bible {
     static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
-        let time1 = Date()
-        let basic = try await basicVersion(versionId: versionId, accessToken: accessToken, session: session)
-        let time2 = Date()
-        let index = try await versionIndex(versionId: versionId, accessToken: accessToken, session: session)
-        let time3 = Date()
+        async let metadata = basicVersion(versionId: versionId, accessToken: accessToken, session: session)
+        async let index = versionIndex(versionId: versionId, accessToken: accessToken, session: session)
 
-        let elapsed1 = time2.timeIntervalSince(time1)
-        let elapsed2 = time3.timeIntervalSince(time2)
-        print("Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
-
-        return BibleVersion(
-            id: basic.id,
-            abbreviation: basic.abbreviation,
-            promotionalContent: basic.promotionalContent,
-            copyright: basic.copyright,
-            languageTag: basic.languageTag,
-            localizedAbbreviation: basic.localizedAbbreviation,
-            localizedTitle: basic.localizedTitle,
-            readerFooter: basic.readerFooter,
-            readerFooterUrl: basic.readerFooterUrl,
-            title: basic.title,
-            organizationId: basic.organizationId,
-            bookCodes: basic.bookCodes,
+        return try await BibleVersion(
+            id: metadata.id,
+            abbreviation: metadata.abbreviation,
+            promotionalContent: metadata.promotionalContent,
+            copyright: metadata.copyright,
+            languageTag: metadata.languageTag,
+            localizedAbbreviation: metadata.localizedAbbreviation,
+            localizedTitle: metadata.localizedTitle,
+            readerFooter: metadata.readerFooter,
+            readerFooterUrl: metadata.readerFooterUrl,
+            title: metadata.title,
+            organizationId: metadata.organizationId,
+            bookCodes: metadata.bookCodes,
             books: index.books,
             textDirection: index.text_direction,
         )
@@ -120,17 +113,17 @@ public extension YouVersionAPI.Bible {
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("unexpected response type")
+            YouVersionPlatformLogger.error("unexpected response type", category: "BibleVersion")
             throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 403 {
-            print("Not permitted; check your appKey and its entitlements.")
+            YouVersionPlatformLogger.error("Not permitted; check your appKey and its entitlements.", category: "BibleVersion")
             throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while fetching an html chapter")
+            YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while fetching an html chapter", category: "BibleVersion")
             throw YouVersionAPIError.cannotDownload
         }
 

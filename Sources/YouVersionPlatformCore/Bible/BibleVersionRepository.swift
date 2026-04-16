@@ -117,7 +117,10 @@ public actor VersionDiskCache: BibleVersionCaching {
         do {
             try FileManager.default.removeItem(at: url)
         } catch {
-            print("VersionDiskCache got error while removing: \(error.localizedDescription)")
+            YouVersionPlatformLogger.notice(
+                "VersionDiskCache got error while removing: \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 
@@ -131,7 +134,10 @@ public actor VersionDiskCache: BibleVersionCaching {
     public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
         let cached: [Int] = Array(await Self.cachedVersions().compactMap(\.self) )
         for id in cached where !permittedIds.contains(id) {
-            print("Removing cached Bible version \(id) because it is no longer permitted")
+            YouVersionPlatformLogger.notice(
+                "Removing cached Bible version \(id) because it is no longer permitted",
+                category: "VersionCache"
+            )
             await removeVersion(withId: id)
         }
     }
@@ -189,14 +195,20 @@ public actor VersionDownloadCache: BibleVersionCaching {
         do {
             try FileManager.default.removeItem(at: url)
         } catch {
-            print("VersionDownloadCache got error while removing: \(error.localizedDescription)")
+            YouVersionPlatformLogger.notice(
+                "VersionDownloadCache got error while removing: \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 
     public func removeUnpermittedVersions(permittedIds: Set<Int>) {
         let downloads = Self.downloadedVersions
         for downloadedId in downloads where !permittedIds.contains(downloadedId) {
-            print("Removing downloaded Bible version \(downloadedId) because it is no longer permitted")
+            YouVersionPlatformLogger.notice(
+                "Removing downloaded Bible version \(downloadedId) because it is no longer permitted",
+                category: "VersionCache"
+            )
             removeVersion(withId: downloadedId)
         }
     }
@@ -257,7 +269,7 @@ public actor BibleVersionRepository: Observable {
                 return version
             }
         } catch {
-            print("BibleVersionRepository.version: \(error)")
+            YouVersionPlatformLogger.error("BibleVersionRepository.version: \(error)", category: "VersionCache")
         }
 
         // If a fetch is already in-flight, await its result

@@ -45,10 +45,13 @@ public struct VotdView: View {
                     self.reference = reference
                     self.title = version.displayTitle(for: reference, includesVersionAbbreviation: true)
                 } else {
-                    print("VotdView: could not load version, or reference is invalid for this version")
+                    YouVersionPlatformLogger.error(
+                        "VotdView: could not load version, or reference is invalid for this version",
+                        category: "VOTD"
+                    )
                 }
             } catch {
-                print("VotdView: error loading votd: \(error)")
+                YouVersionPlatformLogger.error("VotdView: error loading votd: \(error)", category: "VOTD")
             }
         }
     }
