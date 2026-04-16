@@ -87,5 +87,5 @@ struct BibleVersionDownloadView: View {
 
 #Preview {
     BibleVersionDownloadView()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }

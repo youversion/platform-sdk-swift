@@ -166,5 +166,5 @@ struct BibleReaderLanguagesView: View {
 
 #Preview {
     BibleReaderLanguagesView()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }

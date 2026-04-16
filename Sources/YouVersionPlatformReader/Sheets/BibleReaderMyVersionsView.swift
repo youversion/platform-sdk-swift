@@ -71,5 +71,5 @@ public struct BibleReaderMyVersionsView: View {
 
 #Preview {
     BibleReaderMyVersionsView()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }

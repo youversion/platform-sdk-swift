@@ -135,5 +135,5 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
         )
         Divider()
     }
-    .environment(BibleReaderViewModel.preview)
+    .environment(BibleVersionsViewModel.preview)
 }

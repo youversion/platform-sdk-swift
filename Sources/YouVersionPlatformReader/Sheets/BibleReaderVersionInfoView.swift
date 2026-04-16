@@ -218,5 +218,5 @@ struct BibleReaderVersionInfoView: View {
 
 #Preview {
     BibleReaderVersionInfoView()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }

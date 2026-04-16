@@ -60,5 +60,5 @@ struct BibleReaderVersionsStack: View {
 
 #Preview {
     BibleReaderVersionsStack()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }
