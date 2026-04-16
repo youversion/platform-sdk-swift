@@ -13,6 +13,14 @@ struct BibleReaderVersionsStack: View {
                     destinationView(for: screen)
                 }
         }
+        .alert(
+            viewModel.textForGenericAlertTitle,
+            isPresented: $bindableViewModel.showGenericAlert
+        ) {
+            Button(viewModel.textForGenericAlertOKButton) { }
+        } message: {
+            Text(viewModel.textForGenericAlertBody)
+        }
     }
 
     @ViewBuilder

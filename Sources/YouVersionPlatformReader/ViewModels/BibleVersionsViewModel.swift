@@ -9,7 +9,6 @@ import YouVersionPlatformUI
 final class BibleVersionsViewModel {
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     let versionRepository = BibleVersionRepository()
-    /// called when the user has chosen a new version (or their first). The caller should ensure their current reference exists in this new version and choose a new one if not.
     var onVersionChange: ((BibleVersion) -> Void)
     /// called when the user chooses to download a version and they're not yet signed in.
     var onSignInRequired: (() -> Void)?
@@ -17,12 +16,12 @@ final class BibleVersionsViewModel {
     
     var currentBibleVersion: BibleVersion?
     
-    // TODO add the .alert() to our root button, along with all the sheets.
     var showGenericAlert = false
     var textForGenericAlertTitle = ""
     var textForGenericAlertBody = ""
     private(set) var textForGenericAlertOKButton = "OK"
     
+    /// onVersionChange: called when the user has chosen a new version (or their first). The caller should ensure their current reference exists in this new version and choose a new one if not.
     init (initialVersionId: Int? = nil, onVersionChange: @escaping (BibleVersion) -> Void) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []

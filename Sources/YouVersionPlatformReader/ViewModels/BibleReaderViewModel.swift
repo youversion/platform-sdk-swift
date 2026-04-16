@@ -113,11 +113,6 @@ final class BibleReaderViewModel {
         }
     }
 
-    var showGenericAlert = false
-    var textForGenericAlertTitle = ""
-    var textForGenericAlertBody = ""
-    private(set) var textForGenericAlertOKButton = "OK"
-
     // MARK: - UI state of the Reader itself
     var showChrome = true
     var lastScrollOffset: CGFloat = 0

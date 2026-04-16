@@ -83,14 +83,6 @@ public struct BibleReaderView: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
-            viewModel.textForGenericAlertTitle,
-            isPresented: $viewModel.showGenericAlert
-        ) {
-            Button(viewModel.textForGenericAlertOKButton) { }
-        } message: {
-            Text(viewModel.textForGenericAlertBody)
-        }
-        .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation
         ) {
