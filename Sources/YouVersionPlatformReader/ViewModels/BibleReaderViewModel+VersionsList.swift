@@ -36,8 +36,12 @@ extension BibleVersionsViewModel {
 
     public func switchToVersion(_ versionId: Int) {
         Task {
-            let version = try await versionRepository.version(withId: versionId)
-            onVersionChange(version)
+            do {
+                let version = try await versionRepository.version(withId: versionId)
+                onVersionChange(version)
+            } catch {
+                handleVersionLoadingError(error)
+            }
         }
     }
 
@@ -52,10 +56,7 @@ extension BibleVersionsViewModel {
                 selectedVersion = version
                 versionsStackPush(to: .versionInfo)
             } catch {
-                YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
-                showGenericAlert = true
-                textForGenericAlertTitle = .localized("generic.error")
-                textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
+                handleVersionLoadingError(error)
             }
         }
     }
@@ -119,6 +120,13 @@ extension BibleVersionsViewModel {
             return name
         }
         return names.first?.value
+    }
+
+    private func handleVersionLoadingError(_ error: Error) {
+        YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
+        showGenericAlert = true
+        textForGenericAlertTitle = .localized("generic.error")
+        textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
     }
 
 }
