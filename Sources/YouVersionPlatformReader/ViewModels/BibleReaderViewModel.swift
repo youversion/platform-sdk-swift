@@ -227,4 +227,3 @@ final class BibleReaderViewModel {
         isSignedIn = false
     }
 }
-
