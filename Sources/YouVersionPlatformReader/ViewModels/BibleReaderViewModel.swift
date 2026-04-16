@@ -27,8 +27,9 @@ final class BibleReaderViewModel {
     var version: BibleVersion?
     let versionRepository = BibleVersionRepository()
     let onVerseTap: ((BibleReference) -> Void)?
+    let verseSelectionStyle: VerseSelectionStyle
 
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, onVerseTap: ((BibleReference) -> Void)? = nil) {
+    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> Void)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
 
@@ -50,6 +51,7 @@ final class BibleReaderViewModel {
         }
 
         self.onVerseTap = onVerseTap
+        self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.colorTheme = ReaderTheme.theme()
         self.myVersions = []
@@ -237,7 +239,8 @@ final class BibleReaderViewModel {
             verseNumColor: readerVerseNumColor,
             wocColor: readerWordsOfChristColor,
             footnoteMode: .image,
-            footnoteMarker: nil
+            footnoteMarker: nil,
+            verseSelectionStyle: verseSelectionStyle
         )
     }
 
