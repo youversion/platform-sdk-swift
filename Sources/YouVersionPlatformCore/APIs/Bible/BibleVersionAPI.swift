@@ -12,32 +12,22 @@ public extension YouVersionAPI.Bible {
     static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
-        let time1 = Date()
-        let basic = try await basicVersion(versionId: versionId, accessToken: accessToken, session: session)
-        let time2 = Date()
-        let index = try await versionIndex(versionId: versionId, accessToken: accessToken, session: session)
-        let time3 = Date()
+        async let metadata = basicVersion(versionId: versionId, accessToken: accessToken, session: session)
+        async let index = versionIndex(versionId: versionId, accessToken: accessToken, session: session)
 
-        let elapsed1 = time2.timeIntervalSince(time1)
-        let elapsed2 = time3.timeIntervalSince(time2)
-        YouVersionPlatformLogger.debug(
-            "Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.",
-            category: "BibleVersion"
-        )
-
-        return BibleVersion(
-            id: basic.id,
-            abbreviation: basic.abbreviation,
-            promotionalContent: basic.promotionalContent,
-            copyright: basic.copyright,
-            languageTag: basic.languageTag,
-            localizedAbbreviation: basic.localizedAbbreviation,
-            localizedTitle: basic.localizedTitle,
-            readerFooter: basic.readerFooter,
-            readerFooterUrl: basic.readerFooterUrl,
-            title: basic.title,
-            organizationId: basic.organizationId,
-            bookCodes: basic.bookCodes,
+        return try await BibleVersion(
+            id: metadata.id,
+            abbreviation: metadata.abbreviation,
+            promotionalContent: metadata.promotionalContent,
+            copyright: metadata.copyright,
+            languageTag: metadata.languageTag,
+            localizedAbbreviation: metadata.localizedAbbreviation,
+            localizedTitle: metadata.localizedTitle,
+            readerFooter: metadata.readerFooter,
+            readerFooterUrl: metadata.readerFooterUrl,
+            title: metadata.title,
+            organizationId: metadata.organizationId,
+            bookCodes: metadata.bookCodes,
             books: index.books,
             textDirection: index.text_direction,
         )
