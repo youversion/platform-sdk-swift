@@ -86,7 +86,7 @@ final class BibleVersionsViewModel {
             } catch YouVersionAPIError.notPermitted {
                 // Leave loadedVersion as nil; we'll fall back below
             } catch {
-                print("Error loading default version: \(error)")
+                YouVersionPlatformLogger.error("Error loading default version: \(error)", category: "Reader")
             }
         }
 
@@ -134,7 +134,7 @@ final class BibleVersionsViewModel {
                 return version.id
             }
         } else {
-            print("Could not fetch the permitted versions")
+            YouVersionPlatformLogger.error("Could not fetch the permitted versions", category: "Reader")
         }
         return nil  // at this point we must be offline or the app has been shut down. Give up.
     }
@@ -157,7 +157,10 @@ final class BibleVersionsViewModel {
         let time1 = Date()
         let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
         let elapsed = Date().timeIntervalSince(time1)
-        print("fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.")
+        YouVersionPlatformLogger.debug(
+            "fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.",
+            category: "Reader"
+        )
         
         if let versions {
             await MainActor.run {
@@ -185,7 +188,10 @@ final class BibleVersionsViewModel {
             let time1 = Date()
             if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
                 let elapsed = Date().timeIntervalSince(time1)
-                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.")
+                YouVersionPlatformLogger.debug(
+                    "fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.",
+                    category: "Reader"
+                )
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
@@ -229,9 +235,12 @@ final class BibleVersionsViewModel {
             let time1 = Date()
             suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
             let elapsed = Date().timeIntervalSince(time1)
-            print("loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.")
+            YouVersionPlatformLogger.debug(
+                "loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.",
+                category: "Reader"
+            )
         } catch {
-            print("Error fetching languages: \(error.localizedDescription)")
+            YouVersionPlatformLogger.error("Error fetching languages: \(error.localizedDescription)", category: "Reader")
         }
     }
     
@@ -303,9 +312,7 @@ final class BibleVersionsViewModel {
 
     public static var preview: BibleVersionsViewModel {
         // Create a minimal BibleVersionsViewModel for preview purposes
-        let vm = BibleVersionsViewModel { version in
-            print("Selected version: \(version.id)")
-        }
+        let vm = BibleVersionsViewModel { _ in }
 
         let previewVersion = BibleVersion.preview
         vm.myVersions = [previewVersion]

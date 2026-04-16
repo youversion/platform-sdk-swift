@@ -22,7 +22,7 @@ public enum YouVersionAPI {
         }
         guard let refreshToken = data.refreshToken,
               let result = try? await Users.performRefresh(with: refreshToken, idToken: data.idToken, session: session) else {
-            print("token refresh failed")
+            YouVersionPlatformLogger.error("token refresh failed", category: "Auth")
             return false
         }
         await MainActor.run {
@@ -45,17 +45,17 @@ public enum YouVersionAPI {
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("YouVersionAPI: unexpected response type")
+            YouVersionPlatformLogger.error("unexpected response type", category: "API")
             throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
-            print("from server: \(httpResponse.statusCode)")
+            YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
             throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
-            print("from server: \(httpResponse.statusCode)")
+            YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
             throw YouVersionAPIError.cannotDownload
         }
         return data

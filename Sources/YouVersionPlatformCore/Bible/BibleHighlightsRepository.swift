@@ -86,7 +86,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                 }
                 result[chapterKey] = bibleHighlights
             } catch {
-                print("Failed to fetch highlights for chapter \(chapterKey): \(error)")
+                YouVersionPlatformLogger.error(
+                    "Failed to fetch highlights for chapter \(chapterKey): \(error)",
+                    category: "Highlights"
+                )
                 result[chapterKey] = []
             }
         }
@@ -102,7 +105,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                 let success = try await processOperation(operation)
                 results[operation.id] = success
             } catch {
-                print("Failed to process operation \(operation.id): \(error)")
+                YouVersionPlatformLogger.error(
+                    "Failed to process operation \(operation.id): \(error)",
+                    category: "Highlights"
+                )
                 results[operation.id] = false
             }
         }
@@ -119,7 +125,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
         guard components.count >= 3,
               let chapter = Int(components[1]),
               let verse = Int(components[2]) else {
-            print("Invalid passage ID format: \(apiHighlight.passageId)")
+            YouVersionPlatformLogger.error(
+                "Invalid passage ID format: \(apiHighlight.passageId)",
+                category: "Highlights"
+            )
             return nil
         }
 
@@ -170,7 +179,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                     success = false
                 }
             } catch {
-                print("Failed to create highlight for \(passageId): \(error)")
+                YouVersionPlatformLogger.error(
+                    "Failed to create highlight for \(passageId): \(error)",
+                    category: "Highlights"
+                )
                 success = false
             }
         }
@@ -192,7 +204,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                     success = false
                 }
             } catch {
-                print("Failed to delete highlight for \(passageId): \(error)")
+                YouVersionPlatformLogger.error(
+                    "Failed to delete highlight for \(passageId): \(error)",
+                    category: "Highlights"
+                )
                 success = false
             }
         }
@@ -222,7 +237,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                     success = false
                 }
             } catch {
-                print("Failed to update highlight for \(passageId): \(error)")
+                YouVersionPlatformLogger.error(
+                    "Failed to update highlight for \(passageId): \(error)",
+                    category: "Highlights"
+                )
                 success = false
             }
         }

@@ -1,6 +1,7 @@
 import CoreText
 import Foundation
 import SwiftUI
+import YouVersionPlatformCore
 
 public enum ReaderFonts {
 
@@ -27,7 +28,7 @@ public enum ReaderFonts {
             if let cfURL = bundle.url(forResource: name, withExtension: "ttf") as CFURL? {
                 CTFontManagerRegisterFontsForURL(cfURL, CTFontManagerScope.process, nil)
             } else {
-                print("missing font: \(name)")
+                YouVersionPlatformLogger.notice("missing font: \(name)", category: "Fonts")
             }
         }
     }

@@ -83,17 +83,17 @@ public extension YouVersionAPI {
                 let (data, response) = try await session.data(for: request)
 
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    print("unexpected response type")
+                    YouVersionPlatformLogger.error("unexpected response type", category: "Languages")
                     throw YouVersionAPIError.invalidResponse
                 }
 
                 if httpResponse.statusCode == 401 {
-                    print("error 401: unauthorized. Check your appKey")
+                    YouVersionPlatformLogger.error("error 401: unauthorized. Check your appKey", category: "Languages")
                     throw YouVersionAPIError.notPermitted
                 }
 
                 guard httpResponse.statusCode == 200 else {
-                    print("error in languages: \(httpResponse.statusCode)")
+                    YouVersionPlatformLogger.error("error in languages: \(httpResponse.statusCode)", category: "Languages")
                     throw YouVersionAPIError.cannotDownload
                 }
 
