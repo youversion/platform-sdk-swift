@@ -53,15 +53,15 @@ final class BibleReaderViewModel {
         self.onVerseTap = onVerseTap
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.versionsViewModel = versionsViewModel
+
+        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
+        ReaderFonts.installFontsIfNeeded()
+
         Task {
             self.versionsViewModel = self.versionsViewModel ?? BibleVersionsViewModel(onVersionChange: onVersionChange)
             self.versionsViewModel?.onSignInRequired = onSignInRequired
+            self.versionsViewModel?.colorTheme = colorTheme
         }
-        self.colorTheme = ReaderTheme.theme()
-
-        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-
-        ReaderFonts.installFontsIfNeeded()
     }
     
     func onVersionChange(version: BibleVersion) {
