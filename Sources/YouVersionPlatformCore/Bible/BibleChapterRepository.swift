@@ -44,10 +44,10 @@ public actor ChapterDiskCache {
             if let data = content.data(using: .utf8) {
                 try data.write(to: url, options: .atomic)
             } else {
-                print("WARNING: Failed to convert content to UTF-8 data for \(url)")
+                YouVersionPlatformLogger.notice("Failed to convert content to UTF-8 data for \(url)", category: "ChapterCache")
             }
         } catch {
-            print("WARNING: ChapterDiskCache failed to write data to \(url): \(error)")
+            YouVersionPlatformLogger.notice("ChapterDiskCache failed to write data to \(url): \(error)", category: "ChapterCache")
         }
     }
 
@@ -56,7 +56,10 @@ public actor ChapterDiskCache {
         do {
             try FileManager.default.removeItem(at: cacheURL)
         } catch {
-            print("ChapterDiskCache got error while removing: \(error.localizedDescription)")
+            YouVersionPlatformLogger.notice(
+                "ChapterDiskCache got error while removing: \(error.localizedDescription)",
+                category: "ChapterCache"
+            )
         }
     }
 }
@@ -158,7 +161,10 @@ public actor ChapterDownloadCache {
         do {
             try FileManager.default.removeItem(at: cacheURL)
         } catch {
-            print("ChapterDownloadCache got error while removing: \(error.localizedDescription)")
+            YouVersionPlatformLogger.notice(
+                "ChapterDownloadCache got error while removing: \(error.localizedDescription)",
+                category: "ChapterCache"
+            )
         }
     }
 

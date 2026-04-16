@@ -36,17 +36,17 @@ public extension YouVersionAPI.Bible {
             let (data, response) = try await session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
-                print("unexpected response type")
+                YouVersionPlatformLogger.error("unexpected response type", category: "BibleVersions")
                 throw YouVersionAPIError.invalidResponse
             }
 
             if httpResponse.statusCode == 401 {
-                print("error 401: unauthorized. Check your appKey")
+                YouVersionPlatformLogger.error("error 401: unauthorized. Check your appKey", category: "BibleVersions")
                 throw YouVersionAPIError.notPermitted
             }
 
             guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
-                print("error in findVersions: \(httpResponse.statusCode)")
+                YouVersionPlatformLogger.error("error in findVersions: \(httpResponse.statusCode)", category: "BibleVersions")
                 throw YouVersionAPIError.cannotDownload
             }
 

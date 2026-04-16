@@ -329,7 +329,7 @@ public struct BibleReaderView: View {
                 
                 viewModel.updateSignInState()
             } catch {
-                print(error)
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
         }
     }

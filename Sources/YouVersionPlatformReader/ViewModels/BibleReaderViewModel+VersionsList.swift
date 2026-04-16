@@ -52,7 +52,7 @@ extension BibleReaderViewModel {
                 selectedVersion = version
                 versionsStackPush(to: .versionInfo)
             } catch {
-                print("Error loading version: \(error)")
+                YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("generic.error")
                 textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
@@ -68,7 +68,10 @@ extension BibleReaderViewModel {
             let time1 = Date()
             let languages = try await YouVersionAPI.Languages.languages(fields: ["language", "display_names"])
             let elapsed = Date().timeIntervalSince(time1)
-            print("loadLanguageNames got \(languages.count) in \(String(format: "%.2f", elapsed)) seconds.")
+            YouVersionPlatformLogger.debug(
+                "loadLanguageNames got \(languages.count) in \(String(format: "%.2f", elapsed)) seconds.",
+                category: "Reader"
+            )
             var map: [String: String] = [:]
             for language in languages where language.displayNames != nil {
                 if let displayNames = language.displayNames,
@@ -77,10 +80,10 @@ extension BibleReaderViewModel {
                     map[languageCode] = name
                 }
             }
-            print("loadLanguageNames filtered to \(map.count) with displayNames.")
+            YouVersionPlatformLogger.debug("loadLanguageNames filtered to \(map.count) with displayNames.", category: "Reader")
             languageNames = map
         } catch {
-            print("Error fetching languageNames: \(error.localizedDescription)")
+            YouVersionPlatformLogger.error("Error fetching languageNames: \(error.localizedDescription)", category: "Reader")
         }
     }
 

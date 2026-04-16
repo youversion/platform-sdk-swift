@@ -20,7 +20,10 @@ public extension YouVersionAPI.Bible {
 
         let elapsed1 = time2.timeIntervalSince(time1)
         let elapsed2 = time3.timeIntervalSince(time2)
-        print("Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
+        YouVersionPlatformLogger.debug(
+            "Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.",
+            category: "BibleVersion"
+        )
 
         return BibleVersion(
             id: basic.id,
@@ -120,17 +123,17 @@ public extension YouVersionAPI.Bible {
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("unexpected response type")
+            YouVersionPlatformLogger.error("unexpected response type", category: "BibleVersion")
             throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 403 {
-            print("Not permitted; check your appKey and its entitlements.")
+            YouVersionPlatformLogger.error("Not permitted; check your appKey and its entitlements.", category: "BibleVersion")
             throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while fetching an html chapter")
+            YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while fetching an html chapter", category: "BibleVersion")
             throw YouVersionAPIError.cannotDownload
         }
 

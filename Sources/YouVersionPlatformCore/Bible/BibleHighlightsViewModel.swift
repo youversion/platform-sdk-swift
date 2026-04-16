@@ -112,7 +112,10 @@ public class BibleHighlightsViewModel: ObservableObject {
             cache.applyServerHighlights(for: chapter, highlights: highlights)
             cache.recordChapterFetch(chapter)
         } catch {
-            print("Failed to load highlights for chapter \(chapter): \(error)")
+            YouVersionPlatformLogger.error(
+                "Failed to load highlights for chapter \(chapter): \(error)",
+                category: "Highlights"
+            )
         }
 
         cache.unmarkChapterAsLoading(chapter)

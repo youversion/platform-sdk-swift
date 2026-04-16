@@ -93,7 +93,7 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
             if httpResponse.statusCode != 200 {
-                print("obtainToken got status: \(httpResponse.statusCode)")
+                YouVersionPlatformLogger.error("obtainToken got status: \(httpResponse.statusCode)", category: "Auth")
                 throw URLError(.badServerResponse)
             }
 
@@ -103,7 +103,7 @@ public extension YouVersionAPI {
         static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String) throws -> SignInWithYouVersionResult {
             let idClaims = try decodeJWT(tokens.idToken)
             guard idClaims["nonce"] as? String == nonce else {
-                print("Nonce mismatch")
+                YouVersionPlatformLogger.error("Nonce mismatch", category: "Auth")
                 throw URLError(.badServerResponse)
             }
             let permissions = tokens.scope
