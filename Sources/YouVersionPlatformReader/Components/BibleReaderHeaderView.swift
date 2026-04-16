@@ -82,28 +82,19 @@ public struct BibleReaderHeaderView: View {
     private var halfPillPickers: some View {
         if let version = viewModel.version {
             let title = viewModel.showBookIntro ? introString : bookAndChapter
-            if let versionsViewModel = viewModel.versionsViewModel {
-                @Bindable var bindableVersionsViewModel = versionsViewModel
+            @Bindable var bindableVersionsViewModel = viewModel.versionsViewModel
 
-                halfPillPickersView(
-                    bookAndChapter: title,
-                    versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
-                    handleChapterTap: { viewModel.showingBookPicker.toggle() },
-                    handleVersionTap: { versionsViewModel.handlePickersVersionTap() }
-                )
-                .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
-                    BibleReaderVersionsStack()
-                        .environment(versionsViewModel)
-                        .presentationDragIndicator(.visible)
-                        .presentationDetents([.large])
-                }
-            } else {
-                halfPillPickersView(
-                    bookAndChapter: title,
-                    versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
-                    handleChapterTap: { viewModel.showingBookPicker.toggle() },
-                    handleVersionTap: {}
-                )
+            halfPillPickersView(
+                bookAndChapter: title,
+                versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
+                handleChapterTap: { viewModel.showingBookPicker.toggle() },
+                handleVersionTap: { viewModel.versionsViewModel.handlePickersVersionTap() }
+            )
+            .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
+                BibleReaderVersionsStack()
+                    .environment(viewModel.versionsViewModel)
+                    .presentationDragIndicator(.visible)
+                    .presentationDetents([.large])
             }
         } else {
             halfPillPickersView(

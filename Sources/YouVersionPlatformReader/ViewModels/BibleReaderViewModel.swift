@@ -23,7 +23,7 @@ final class BibleReaderViewModel {
         }
     }
     let highlightsViewModel: BibleHighlightsViewModel
-    var versionsViewModel: BibleVersionsViewModel?
+    var versionsViewModel: BibleVersionsViewModel
     var version: BibleVersion?
     let onVerseTap: ((BibleReference) -> Void)?
 
@@ -52,16 +52,14 @@ final class BibleReaderViewModel {
 
         self.onVerseTap = onVerseTap
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        self.versionsViewModel = versionsViewModel
+        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
+        self.versionsViewModel.onVersionChange = onVersionChange
+        self.versionsViewModel.onSignInRequired = onSignInRequired
 
         loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-        ReaderFonts.installFontsIfNeeded()
+        self.versionsViewModel.colorTheme = colorTheme
 
-        Task {
-            self.versionsViewModel = self.versionsViewModel ?? BibleVersionsViewModel(onVersionChange: onVersionChange)
-            self.versionsViewModel?.onSignInRequired = onSignInRequired
-            self.versionsViewModel?.colorTheme = colorTheme
-        }
+        ReaderFonts.installFontsIfNeeded()
     }
     
     func onVersionChange(version: BibleVersion) {
@@ -189,11 +187,11 @@ final class BibleReaderViewModel {
 
     // MARK: Colors
 
-    var colorTheme: ReaderTheme?
+    var colorTheme: ReaderTheme? = ReaderTheme.theme()
 
     func setColorTheme(_ theme: ReaderTheme) {
         colorTheme = theme
-        versionsViewModel?.colorTheme = theme
+        versionsViewModel.colorTheme = theme
         saveUserSettingsToStorage()
     }
 
@@ -229,3 +227,4 @@ final class BibleReaderViewModel {
         isSignedIn = false
     }
 }
+
