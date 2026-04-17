@@ -87,23 +87,27 @@ extension BibleReaderViewModel {
             footnotesToDisplay = footnotes
             return
         }
-        
+
         if let onVerseTap {
-            onVerseTap(reference)
+            let response = onVerseTap(reference)
+            if response == .handled {
+                return
+            }
+        } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
+            showingSignInSheet = true
             return
         }
-        
-        if YouVersionAPI.isSignedIn {
-            if selectedVerses.contains(reference) {
-                selectedVerses.remove(reference)
-            } else {
-                selectedVerses.insert(reference)
-            }
+
+        if selectedVerses.contains(reference) {
+            selectedVerses.remove(reference)
+        } else {
+            selectedVerses.insert(reference)
+        }
+
+        if onVerseTap == nil {
             withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
-                showingVerseActionsDrawer = !self.selectedVerses.isEmpty
+                showingVerseActionsDrawer = !selectedVerses.isEmpty
             }
-        } else if YouVersionPlatformConfiguration.isSignInEnabled {
-            showingSignInSheet = true
         }
     }
 
@@ -134,7 +138,7 @@ extension BibleReaderViewModel {
 
     func addVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
+            print("Unable to convert color to hex: \(color)")
             return
         }
         highlightsViewModel.addHighlights(references: Array(selectedVerses), color: hex)
@@ -143,7 +147,7 @@ extension BibleReaderViewModel {
 
     func removeVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
+            print("Unable to convert color to hex: \(color)")
             return
         }
         for reference in selectedVerses {
@@ -223,7 +227,7 @@ extension BibleReaderViewModel {
             lastScrollOffset = 0
             scrollToTop = true
         } catch {
-            YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "Reader")
+            print("Error loading version/chapter: \(error)")
         }
     }
 

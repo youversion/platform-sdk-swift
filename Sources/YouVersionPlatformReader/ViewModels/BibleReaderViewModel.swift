@@ -26,10 +26,10 @@ final class BibleReaderViewModel {
     let highlightsViewModel: BibleHighlightsViewModel
     var version: BibleVersion?
     let versionRepository = BibleVersionRepository()
-    let onVerseTap: ((BibleReference) -> Void)?
+    let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let verseSelectionStyle: VerseSelectionStyle
 
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> Void)? = nil) {
+    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
 
@@ -149,7 +149,7 @@ final class BibleReaderViewModel {
             } catch YouVersionAPIError.notPermitted {
                 await selectFallbackVersion(savedIds: savedIds)
             } catch {
-                YouVersionPlatformLogger.error("Error loading default version: \(error)", category: "Reader")
+                print("Error loading default version: \(error)")
             }
         }
     }
@@ -190,7 +190,7 @@ final class BibleReaderViewModel {
                 return version.id
             }
         } else {
-            YouVersionPlatformLogger.error("Could not fetch the permitted versions", category: "Reader")
+            print("Could not fetch the permitted versions")
         }
         return nil  // at this point we must be offline or the app has been shut down. Give up.
     }
@@ -334,10 +334,7 @@ final class BibleReaderViewModel {
         let time1 = Date()
         let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
         let elapsed = Date().timeIntervalSince(time1)
-        YouVersionPlatformLogger.debug(
-            "fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.",
-            category: "Reader"
-        )
+        print("fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.")
 
         if let versions {
             await MainActor.run {
@@ -365,10 +362,7 @@ final class BibleReaderViewModel {
             let time1 = Date()
             if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
                 let elapsed = Date().timeIntervalSince(time1)
-                YouVersionPlatformLogger.debug(
-                    "fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                    category: "Reader"
-                )
+                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.")
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
@@ -412,12 +406,9 @@ final class BibleReaderViewModel {
             let time1 = Date()
             suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
             let elapsed = Date().timeIntervalSince(time1)
-            YouVersionPlatformLogger.debug(
-                "loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                category: "Reader"
-            )
+            print("loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.")
         } catch {
-            YouVersionPlatformLogger.error("Error fetching languages: \(error.localizedDescription)", category: "Reader")
+            print("Error fetching languages: \(error.localizedDescription)")
         }
     }
 

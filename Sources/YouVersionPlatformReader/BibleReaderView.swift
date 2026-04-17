@@ -16,30 +16,40 @@ public struct BibleReaderView: View {
     let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
+    private var externalSelectedVerses: Binding<Set<BibleReference>>?
 
     /// Creates a Bible reader view.
     ///
     /// - Parameters:
     ///   - reference: The Bible reference to display initially. When `nil`, the reader
     ///     restores the last-viewed reference or defaults to John 1.
+    ///   - selectedVerses: An optional binding to the set of selected verses. When
+    ///     provided, the client can read which verses are selected and clear the
+    ///     selection programmatically (e.g. on sheet dismiss). The SDK updates this
+    ///     binding whenever the internal selection changes.
     ///   - verseSelectionStyle: Controls the visual style of the underline drawn
     ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
-    ///     When provided, the closure receives the tapped ``BibleReference`` and
-    ///     the reader takes no further action — the host app is responsible for
-    ///     handling the interaction. When `nil` (the default), tapping a verse
-    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
-    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
-    ///     or opens the verse actions drawer for authenticated users. Footnote taps
-    ///     are always handled by the reader regardless of this closure.
+    ///     The closure receives the tapped ``BibleReference`` and returns a
+    ///     ``VerseTapResponse`` telling the SDK what to do next. Return
+    ///     ``VerseTapResponse/toggleSelection`` to have the SDK toggle the verse
+    ///     in `selectedVerses` (the underline appears), or ``VerseTapResponse/handled``
+    ///     if the host app handled everything and the SDK should take no action.
+    ///     When `nil` (the default), tapping a verse triggers the built-in sign-in
+    ///     prompt for unauthenticated users (unless sign-in is disabled via
+    ///     ``YouVersionPlatformConfiguration/isSignInEnabled``) or opens the verse
+    ///     actions drawer for authenticated users. Footnote taps are always handled
+    ///     by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
+                selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil
+                onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
+        self.externalSelectedVerses = selectedVerses
         viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
@@ -56,11 +66,12 @@ public struct BibleReaderView: View {
     public init(reference: BibleReference? = nil,
                 appName: String,
                 signInMessage: String,
+                selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil
+                onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil
     ) {
         YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        self.init(reference: reference, selectedVerses: selectedVerses, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
     }
 
     public var body: some View {
@@ -131,6 +142,14 @@ public struct BibleReaderView: View {
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             if newValue {
                 startSignIn()
+            }
+        }
+        .onChange(of: viewModel.selectedVerses) { _, newValue in
+            externalSelectedVerses?.wrappedValue = newValue
+        }
+        .onChange(of: externalSelectedVerses?.wrappedValue) { _, newValue in
+            if let newValue, newValue != viewModel.selectedVerses {
+                viewModel.selectedVerses = newValue
             }
         }
         .environment(viewModel)
@@ -333,7 +352,7 @@ public struct BibleReaderView: View {
                 
                 viewModel.updateSignInState()
             } catch {
-                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+                print(error)
             }
         }
     }
