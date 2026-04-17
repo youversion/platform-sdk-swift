@@ -41,7 +41,7 @@ extension BibleTextView {
         let verseSelectionStyle: VerseSelectionStyle
 
         init(verseSelectionStyle: VerseSelectionStyle = .solid) {
-            self.footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
+            footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
         }
 
@@ -62,7 +62,7 @@ extension BibleTextView {
                         context.stroke(
                             path,
                             with: .color(verseSelectionStyle.color),
-                            style: StrokeStyle(lineWidth: verseSelectionStyle.lineWidth, dash: verseSelectionStyle.linePattern.dashArray)
+                            style: verseSelectionStyle.strokeStyle
                         )
                     }
                     if attrs?.footnoteImage == true {

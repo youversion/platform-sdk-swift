@@ -87,12 +87,12 @@ extension BibleReaderViewModel {
             footnotesToDisplay = footnotes
             return
         }
-
+        
         if let onVerseTap {
             onVerseTap(reference)
             return
         }
-
+        
         if YouVersionAPI.isSignedIn {
             if selectedVerses.contains(reference) {
                 selectedVerses.remove(reference)

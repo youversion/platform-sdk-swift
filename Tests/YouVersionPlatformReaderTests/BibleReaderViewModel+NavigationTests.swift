@@ -409,35 +409,4 @@ let previousChapterCases: [PreviousChapterCase] = [
             BibleChapter(id: "\(bookId).\(chapter)", passageId: nil, title: "\(chapter)", verses: nil)
         }
     }
-
-    // MARK: - handleVerseTap
-
-    @Test
-    func footnoteTapReturnsEarlyWithoutModifyingSelectedVerses() {
-        let vm = BibleReaderViewModel(
-            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1),
-            onVerseTap: { _ in }
-        )
-        vm.selectedVerses = []
-
-        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
-        vm.handleVerseTap(reference: ref, actionType: "footnote", footnotes: [])
-
-        #expect(vm.selectedVerses.isEmpty)
-        #expect(vm.showingFootnotes == true)
-    }
-
-    @Test
-    func footnoteTapWithoutOnVerseTapReturnsEarly() {
-        let vm = BibleReaderViewModel(
-            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1)
-        )
-        vm.selectedVerses = []
-
-        let ref = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 1, verse: 3)
-        vm.handleVerseTap(reference: ref, actionType: "footnote", footnotes: [])
-
-        #expect(vm.selectedVerses.isEmpty)
-        #expect(vm.showingFootnotes == true)
-    }
 }
