@@ -98,12 +98,10 @@ struct BibleReaderLanguagesView: View {
         }
         .toolbar {
 #if os(iOS)
-            if #available(iOS 15, *) {
-                ToolbarItem(placement: .title) {
-                    Text(String.localized("languageList.title"))
-                        .fontWeight(.medium)
-                        .foregroundStyle(viewModel.readerTextPrimaryColor)
-                }
+            ToolbarItem(placement: .title) {
+                Text(String.localized("languageList.title"))
+                    .fontWeight(.medium)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
 #endif
             ToolbarItem(placement: .automatic) {

@@ -37,12 +37,10 @@ public struct BibleReaderMyVersionsView: View {
         #endif
         .toolbar {
 #if os(iOS)
-            if #available(iOS 15, *) {
-                ToolbarItem(placement: .title) {
-                    Text(String.localized("myVersions.title"))
-                        .fontWeight(.medium)
-                        .foregroundStyle(viewModel.readerTextPrimaryColor)
-                }
+            ToolbarItem(placement: .title) {
+                Text(String.localized("myVersions.title"))
+                    .fontWeight(.medium)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
 #endif
             ToolbarItem(placement: .automatic) {
