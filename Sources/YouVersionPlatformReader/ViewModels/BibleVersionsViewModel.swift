@@ -14,7 +14,7 @@ final class BibleVersionsViewModel {
     var onSignInRequired: (() -> Void)?
     var colorTheme: ReaderTheme?
     
-    var currentBibleVersion: BibleVersion?
+    var currentBibleVersionLanguage: String?
     
     var showGenericAlert = false
     var textForGenericAlertTitle = ""

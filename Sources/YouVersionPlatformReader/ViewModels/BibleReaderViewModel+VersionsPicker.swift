@@ -18,10 +18,11 @@ extension BibleVersionsViewModel {
         versionsPickerStack.removeLast()
     }
 
-    func handlePickersVersionTap() {
+    func openVersionsStack(currentBibleLanguage: String) {
         Task {
             await permittedVersionsListing()
         }
+        currentBibleVersionLanguage = currentBibleLanguage
         fetchVersionsInLanguage(code: activeLanguage)
         chosenLanguage = nil  // reset the search field
         versionsPickerStack.removeAll()

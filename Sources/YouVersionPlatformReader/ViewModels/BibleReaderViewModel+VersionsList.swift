@@ -5,7 +5,7 @@ import YouVersionPlatformUI
 extension BibleVersionsViewModel {
 
     public var activeLanguage: String {
-        chosenLanguage ?? currentBibleVersion?.languageTag ?? "en"
+        chosenLanguage ?? currentBibleVersionLanguage ?? "en"
     }
 
     public var bibleVersionStatisticsPromo: String {
@@ -113,7 +113,7 @@ extension BibleVersionsViewModel {
         if let currentLanguage, let name = names[currentLanguage] {
             return name
         }
-        if let bibleLanguage = currentBibleVersion?.languageTag, let name = names[bibleLanguage] {
+        if let bibleLanguage = currentBibleVersionLanguage, let name = names[bibleLanguage] {
             return name
         }
         if let name = names["en"] {
