@@ -38,10 +38,6 @@ final class BibleVersionsViewModel {
         }
     }
     
-    public func openVersionPicker(currentBibleVersion: BibleVersion?) {
-        self.currentBibleVersion = currentBibleVersion
-    }
-    
     private func removeUnpermittedVersions(initialVersionId: Int?) async {
         guard let permittedVersions = await permittedVersionsListing() else {
             return  // when offline, we don't get a list, but don't delete anything!
