@@ -23,6 +23,7 @@ public struct BibleReaderHeaderView: View {
 
     public var body: some View {
         @Bindable var viewModel = viewModel
+        @Bindable var bindableVersionsViewModel = viewModel.versionsViewModel
 
         HStack {
             if showChrome {
@@ -76,13 +77,18 @@ public struct BibleReaderHeaderView: View {
                 ProgressView()
             }
         }
+        .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
+            BibleReaderVersionsStack()
+                .environment(viewModel.versionsViewModel)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.large])
+        }
     }
 
     @ViewBuilder
     private var halfPillPickers: some View {
         if let version = viewModel.version {
             let title = viewModel.showBookIntro ? introString : bookAndChapter
-            @Bindable var bindableVersionsViewModel = viewModel.versionsViewModel
 
             halfPillPickersView(
                 bookAndChapter: title,
@@ -90,12 +96,6 @@ public struct BibleReaderHeaderView: View {
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
                 handleVersionTap: { viewModel.versionsViewModel.handlePickersVersionTap() }
             )
-            .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
-                BibleReaderVersionsStack()
-                    .environment(viewModel.versionsViewModel)
-                    .presentationDragIndicator(.visible)
-                    .presentationDetents([.large])
-            }
         } else {
             halfPillPickersView(
                 bookAndChapter: "",
