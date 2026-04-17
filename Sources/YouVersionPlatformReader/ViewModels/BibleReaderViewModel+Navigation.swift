@@ -92,18 +92,14 @@ extension BibleReaderViewModel {
             onVerseTap(reference)
             return
         }
-        
-        if YouVersionAPI.isSignedIn {
-            if selectedVerses.contains(reference) {
-                selectedVerses.remove(reference)
-            } else {
-                selectedVerses.insert(reference)
-            }
-            withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
-                showingVerseActionsDrawer = !self.selectedVerses.isEmpty
-            }
-        } else if YouVersionPlatformConfiguration.isSignInEnabled {
-            showingSignInSheet = true
+
+        if selectedVerses.contains(reference) {
+            selectedVerses.remove(reference)
+        } else {
+            selectedVerses.insert(reference)
+        }
+        withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
+            showingVerseActionsDrawer = !self.selectedVerses.isEmpty
         }
     }
 
@@ -133,6 +129,12 @@ extension BibleReaderViewModel {
     }
 
     func addVerseColor(_ color: Color) {
+        guard YouVersionAPI.isSignedIn else {
+            if YouVersionPlatformConfiguration.isSignInEnabled {
+                showingSignInSheet = true
+            }
+            return
+        }
         guard let hex = color.hexString else {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
             return
@@ -142,6 +144,12 @@ extension BibleReaderViewModel {
     }
 
     func removeVerseColor(_ color: Color) {
+        guard YouVersionAPI.isSignedIn else {
+            if YouVersionPlatformConfiguration.isSignInEnabled {
+                showingSignInSheet = true
+            }
+            return
+        }
         guard let hex = color.hexString else {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
             return

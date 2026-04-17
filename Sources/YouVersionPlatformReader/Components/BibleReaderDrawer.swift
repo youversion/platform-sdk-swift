@@ -15,7 +15,7 @@ struct BibleReaderDrawer: View {
                 .padding(.bottom, 8)
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
-                    if YouVersionAPI.isSignedIn {
+                    if YouVersionAPI.isSignedIn || YouVersionPlatformConfiguration.isSignInEnabled {
                         highlightColorButtons
                     }
 #if !os(tvOS)

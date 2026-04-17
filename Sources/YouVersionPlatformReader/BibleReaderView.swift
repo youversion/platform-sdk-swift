@@ -28,18 +28,17 @@ public struct BibleReaderView: View {
     ///     When provided, the closure receives the tapped ``BibleReference`` and
     ///     the reader takes no further action — the host app is responsible for
     ///     handling the interaction. When `nil` (the default), tapping a verse
-    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
-    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
-    ///     or opens the verse actions drawer for authenticated users. Footnote taps
-    ///     are always handled by the reader regardless of this closure.
+    ///     opens the verse actions drawer so the user can copy or share the
+    ///     selection. Highlighting requires authentication: if the user is not
+    ///     signed in, tapping a highlight color triggers the built-in sign-in
+    ///     prompt (unless sign-in is disabled via
+    ///     ``YouVersionPlatformConfiguration/isSignInEnabled``, in which case
+    ///     the highlight controls are hidden). Footnote taps are always handled
+    ///     by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
-        assert(
-            onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
-            "onVerseTap must be provided OR YouVersion sign-in must be enabled"
-        )
         viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent

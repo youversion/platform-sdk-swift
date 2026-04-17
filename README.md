@@ -168,7 +168,7 @@ BibleReaderView(
 
 #### Disabling Sign-In
 
-By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. To disable all sign-in UI — including the verse-tap prompt, the header menu sign-in option, and the version-download auth check — set `isSignInEnabled` to `false` during configuration:
+By default, tapping a highlight color on an unauthenticated verse selection prompts the user to sign in with YouVersion. To disable all sign-in UI — including the highlight sign-in prompt, the header menu sign-in option, and the version-download auth check — set `isSignInEnabled` to `false` during configuration:
 
 ```swift
 YouVersionPlatformConfiguration.configure(
@@ -177,7 +177,7 @@ YouVersionPlatformConfiguration.configure(
 )
 ```
 
-When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
+When sign-in is disabled, the highlight controls are hidden from the verse actions drawer; copy and share remain available.
 
 
 ### Implementing Sign In
