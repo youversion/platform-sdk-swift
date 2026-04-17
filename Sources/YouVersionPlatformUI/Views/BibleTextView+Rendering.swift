@@ -59,9 +59,10 @@ extension BibleTextView {
                         var path = Path()
                         path.move(to: start)
                         path.addLine(to: end)
+                        let underlineColor = attrs?.underlineColor ?? verseSelectionStyle.color
                         context.stroke(
                             path,
-                            with: .color(verseSelectionStyle.color),
+                            with: .color(underlineColor),
                             style: verseSelectionStyle.strokeStyle
                         )
                     }
@@ -85,6 +86,7 @@ extension BibleTextView {
 
     struct RenderHowAttribute: TextAttribute {
         var underlined = false
+        var underlineColor: Color?
         var footnoteImage = false
     }
 
@@ -105,8 +107,22 @@ extension BibleTextView {
                 // better, we could have our TextRenderer add the color to some portions
             }
             let isUnderlined = isSelected(reference) && category == .scripture
-            // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage))
+            if isUnderlined {
+                // Split by foreground color so WoC (red) text gets a red underline
+                // while normal text uses the default verseSelectionStyle.color.
+                for (fgColor, subRange) in t.runs[\.foregroundColor] {
+                    let subStr = AttributedString(t[subRange])
+                    // swiftlint:disable:next shorthand_operator
+                    textCombo = textCombo + Text(subStr).customAttribute(
+                        RenderHowAttribute(underlined: true, underlineColor: fgColor)
+                    )
+                }
+            } else {
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(t).customAttribute(
+                    RenderHowAttribute(footnoteImage: category == .footnoteImage)
+                )
+            }
         }
 
         let retValue = textCombo
