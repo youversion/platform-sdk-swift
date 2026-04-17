@@ -81,7 +81,7 @@ struct BibleReaderLanguagesView: View {
             }
 
         }
-        .task {
+        .onAppear {
 #if canImport(UIKit)
             UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
             UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
