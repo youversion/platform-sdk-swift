@@ -11,8 +11,12 @@ extension BibleVersionsViewModel {
 
     public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
         Task {
-            selectedVersion = try await versionRepository.version(withId: versionId)
-            versionsStackPush(to: .versionInfo)
+            do {
+                selectedVersion = try await versionRepository.version(withId: versionId)
+                versionsStackPush(to: .versionInfo)
+            } catch {
+                handleVersionLoadingError(error)
+            }
         }
     }
 

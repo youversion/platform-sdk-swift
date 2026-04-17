@@ -122,7 +122,7 @@ extension BibleVersionsViewModel {
         return names.first?.value
     }
 
-    private func handleVersionLoadingError(_ error: Error) {
+    func handleVersionLoadingError(_ error: Error) {
         YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
         showGenericAlert = true
         textForGenericAlertTitle = .localized("generic.error")
