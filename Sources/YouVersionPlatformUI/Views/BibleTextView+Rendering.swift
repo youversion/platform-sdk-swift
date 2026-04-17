@@ -38,9 +38,11 @@ extension BibleTextView {
     // upwards according to the baseline offset. And/or partially shifts.
     struct BibleRenderer: TextRenderer {
         let footnoteIcon: Image
+        let verseSelectionStyle: VerseSelectionStyle
 
-        init() {
+        init(verseSelectionStyle: VerseSelectionStyle = .solid) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
+            self.verseSelectionStyle = verseSelectionStyle
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
@@ -57,7 +59,11 @@ extension BibleTextView {
                         var path = Path()
                         path.move(to: start)
                         path.addLine(to: end)
-                        context.stroke(path, with: .color(.gray), lineWidth: 0.5)
+                        context.stroke(
+                            path,
+                            with: .color(verseSelectionStyle.color),
+                            style: verseSelectionStyle.strokeStyle
+                        )
                     }
                     if attrs?.footnoteImage == true {
                         let runRect = run.typographicBounds.rect
@@ -111,7 +117,7 @@ extension BibleTextView {
                 view.lineSpacing(textOptions.lineSpacing!)
             }
         if #available(iOS 18.0, *) {
-            return retValue.textRenderer(BibleRenderer())
+            return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
         } else {
             return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
         }

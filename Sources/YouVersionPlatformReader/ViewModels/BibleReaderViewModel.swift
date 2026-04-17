@@ -26,10 +26,12 @@ final class BibleReaderViewModel {
     var versionsViewModel: BibleVersionsViewModel
     var version: BibleVersion?
     let onVerseTap: ((BibleReference) -> Void)?
+    let verseSelectionStyle: VerseSelectionStyle
 
     init(
         reference: BibleReference? = nil,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
         versionsViewModel: BibleVersionsViewModel? = nil,
         onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
@@ -44,13 +46,14 @@ final class BibleReaderViewModel {
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
                 let downloads = VersionDownloadCache.downloadedVersions
-                let versionId = reference?.versionId ?? downloads.first /*?? savedIds.first  TODO */ ?? 3034
+                let versionId = reference?.versionId ?? downloads.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false
             }
         }
 
         self.onVerseTap = onVerseTap
+        self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
         self.versionsViewModel.onVersionChange = onVersionChange
@@ -150,7 +153,8 @@ final class BibleReaderViewModel {
             verseNumColor: readerVerseNumColor,
             wocColor: readerWordsOfChristColor,
             footnoteMode: .image,
-            footnoteMarker: nil
+            footnoteMarker: nil,
+            verseSelectionStyle: verseSelectionStyle
         )
     }
 

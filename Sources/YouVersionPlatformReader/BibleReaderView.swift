@@ -22,6 +22,8 @@ public struct BibleReaderView: View {
     /// - Parameters:
     ///   - reference: The Bible reference to display initially. When `nil`, the reader
     ///     restores the last-viewed reference or defaults to John 1.
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
     ///     When provided, the closure receives the tapped ``BibleReference`` and
     ///     the reader takes no further action — the host app is responsible for
@@ -31,13 +33,14 @@ public struct BibleReaderView: View {
     ///     or opens the verse actions drawer for authenticated users. Footnote taps
     ///     are always handled by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        viewModel = BibleReaderViewModel(reference: reference, onVerseTap: onVerseTap)
+        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
@@ -53,10 +56,11 @@ public struct BibleReaderView: View {
     public init(reference: BibleReference? = nil,
                 appName: String,
                 signInMessage: String,
+                verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
         YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, onVerseTap: onVerseTap)
+        self.init(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
     }
 
     public var body: some View {

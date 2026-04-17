@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.5.0](https://github.com/youversion/platform-sdk-swift/compare/4.4.0...4.5.0) (2026-04-17)
+
+
+### Features
+
+* **reader, ui:** make verse selection underline style configurable ([#69](https://github.com/youversion/platform-sdk-swift/issues/69)) ([7dd27bb](https://github.com/youversion/platform-sdk-swift/commit/7dd27bb33b25851fa1bb21031f489548d12452b4))
+
 ## [4.4.0](https://github.com/youversion/platform-sdk-swift/compare/4.3.0...4.4.0) (2026-04-16)
 
 
