@@ -56,7 +56,9 @@ final class BibleReaderViewModel {
         self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
-        self.versionsViewModel.onVersionChange = onVersionChange
+        self.versionsViewModel.onVersionChange = { [weak self] version in
+            self?.onVersionChange(version: version)
+        }
         self.versionsViewModel.onSignInRequired = onSignInRequired
 
         loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
