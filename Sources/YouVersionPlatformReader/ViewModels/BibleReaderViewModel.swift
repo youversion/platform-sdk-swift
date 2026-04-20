@@ -27,9 +27,10 @@ final class BibleReaderViewModel {
     var version: BibleVersion?
     let versionRepository = BibleVersionRepository()
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
+    let onNoteIndicatorTap: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
 
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil) {
+    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
 
@@ -51,6 +52,7 @@ final class BibleReaderViewModel {
         }
 
         self.onVerseTap = onVerseTap
+        self.onNoteIndicatorTap = onNoteIndicatorTap
         self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.colorTheme = ReaderTheme.theme()
@@ -211,10 +213,6 @@ final class BibleReaderViewModel {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
-    var isReduceMotionEnabled = false
-    var verseActionsDrawerAnimation: Animation {
-        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
-    }
     var selectedVerses: Set<BibleReference> = []
 
     var showingBookPicker = false

@@ -41,17 +41,21 @@ public struct BibleReaderView: View {
     ///     ``YouVersionPlatformConfiguration/isSignInEnabled``) or opens the verse
     ///     actions drawer for authenticated users. Footnote taps are always handled
     ///     by the reader regardless of this closure.
+    ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
+    ///     that has a note indicator (pencil icon) and is not already selected. When
+    ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
     public init(reference: BibleReference? = nil,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil
+                onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+                onNoteIndicatorTap: ((BibleReference) -> Void)? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
         self.externalSelectedVerses = selectedVerses
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
