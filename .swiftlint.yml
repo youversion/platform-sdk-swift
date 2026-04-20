@@ -538,7 +538,16 @@ custom_rules:
     regex: "^\\s*import\\s+RED\\s*$" # matching pattern - matches "import RED" but not "import class RED.iOSDate"
     message: "Don't import the entire RED module. Use specific imports like 'import class RED.iOSDate' instead." # violation message. optional.
     severity: error # violation severity. optional.
-    
+
+  reduce_motion_guard: # rule identifier
+    included: ".*\\.swift" # regex that defines paths to include during linting. optional.
+    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    name: "Reduce Motion Guard" # rule name. optional.
+    regex: "(withAnimation\\s*\\(\\s*\\.|\\.animation\\s*\\(\\s*\\.|\\.transition\\s*\\(\\s*\\.|Transaction\\s*\\(\\s*animation:\\s*\\.)" # matching pattern - a literal animation (dot-prefixed) passed directly to the call is a hint it's unguarded; guarded forms pass a ternary or derived property.
+    capture_group: 1
+    message: "Animations must respect accessibilityReduceMotion. Pass the animation through a reduceMotion-aware ternary (e.g., reduceMotion ? nil : .easeInOut) or a property derived from it."
+    severity: warning # violation severity. optional.
+
 overridden_super_call:
   included:
     - "*"

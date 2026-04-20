@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.8.0](https://github.com/youversion/platform-sdk-swift/compare/4.7.0...4.8.0) (2026-04-20)
+
+
+### Features
+
+* make all animations aware of reduce motion setting and add corresponding lint rule ([967874f](https://github.com/youversion/platform-sdk-swift/commit/967874f676ae2db021d5e73ba5e5f5c150a44fab))
+
+## [4.7.0](https://github.com/youversion/platform-sdk-swift/compare/4.6.0...4.7.0) (2026-04-20)
+
+
+### Features
+
+* update sample app to not use deprecated members ([bc5572b](https://github.com/youversion/platform-sdk-swift/commit/bc5572ba77ce0426386b5f5aa2792336b46b08a8))
+
+## [4.6.0](https://github.com/youversion/platform-sdk-swift/compare/4.5.0...4.6.0) (2026-04-20)
+
+
+### Features
+
+* **reader:** improve verse actions animation and respect accessibility Reduce Motion setting ([#76](https://github.com/youversion/platform-sdk-swift/issues/76)) ([1e63e1e](https://github.com/youversion/platform-sdk-swift/commit/1e63e1e949db40c4e004ad50e1deb295f19ef418))
+
 ## [4.5.0](https://github.com/youversion/platform-sdk-swift/compare/4.4.0...4.5.0) (2026-04-17)
 
 
