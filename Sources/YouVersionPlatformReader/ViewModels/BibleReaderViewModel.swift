@@ -213,6 +213,10 @@ final class BibleReaderViewModel {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
+    var isReduceMotionEnabled = false
+    var verseActionsDrawerAnimation: Animation {
+        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
+    }
     var selectedVerses: Set<BibleReference> = []
 
     var showingBookPicker = false

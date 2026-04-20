@@ -157,6 +157,9 @@ public struct BibleReaderView: View {
                 viewModel.selectedVerses = newValue
             }
         }
+        .onChange(of: reduceMotion, initial: true) { _, newValue in
+            viewModel.isReduceMotionEnabled = newValue
+        }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }
