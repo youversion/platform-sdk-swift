@@ -211,6 +211,7 @@ final class BibleReaderViewModel {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
+    var verseActionsDrawerAnimation: Animation = .smooth(duration: 0.3)
     var selectedVerses: Set<BibleReference> = []
 
     var showingBookPicker = false

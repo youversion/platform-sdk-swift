@@ -59,7 +59,9 @@ extension BibleReaderViewModel {
 
     func removeVerseSelection() {
         selectedVerses.removeAll()
-        showingVerseActionsDrawer = false
+        withAnimation(verseActionsDrawerAnimation) {
+            showingVerseActionsDrawer = false
+        }
     }
 
     func handleScroll(offset: CGFloat) {
@@ -99,8 +101,8 @@ extension BibleReaderViewModel {
             } else {
                 selectedVerses.insert(reference)
             }
-            withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
-                showingVerseActionsDrawer = !self.selectedVerses.isEmpty
+            withAnimation(verseActionsDrawerAnimation) {
+                showingVerseActionsDrawer = !selectedVerses.isEmpty
             }
         } else if YouVersionPlatformConfiguration.isSignInEnabled {
             showingSignInSheet = true
