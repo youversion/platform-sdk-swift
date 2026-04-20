@@ -16,7 +16,7 @@ public final class BibleNoteIndicatorsCache {
 
     public static let shared = BibleNoteIndicatorsCache()
 
-    private(set) var indicatedUSFMs: Set<String> = []
+    public private(set) var indicatedUSFMs: Set<String> = []
 
     private init() {}
 

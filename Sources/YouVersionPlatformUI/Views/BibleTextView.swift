@@ -15,6 +15,8 @@ public struct BibleTextView: View {
     @State private var loadingPhase: BibleTextLoadingPhase?
     // swiftlint:disable:next private_swiftui_state
     @State var ourHighlights: [BibleHighlight] = []
+    // swiftlint:disable:next private_swiftui_state
+    @State var noteIndicatedUSFMs: Set<String> = []
     @Binding var selectedVerses: Set<BibleReference>
     @Environment(\.layoutDirection) private var systemLayoutDirection
 
@@ -88,12 +90,16 @@ public struct BibleTextView: View {
         .coordinateSpace(name: "BibleTextView")
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
+            noteIndicatedUSFMs = BibleNoteIndicatorsCache.shared.indicatedUSFMs
         }
         .onChange(of: reference) {
             ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
         }
         .onChange(of: BibleHighlightsCache.shared.cachedHighlights) { _, _ in
             ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
+        }
+        .onChange(of: BibleNoteIndicatorsCache.shared.indicatedUSFMs) { _, newValue in
+            noteIndicatedUSFMs = newValue
         }
     }
 
@@ -173,7 +179,7 @@ public struct BibleTextView: View {
         } catch is CancellationError {
             loadingPhase = .inactive
         } catch let err {
-            YouVersionPlatformLogger.error("loadBlocks unexpected error: \(err)", category: "BibleText")
+            print("loadBlocks unexpected error: \(err)")
             loadingPhase = .failed
         }
     }

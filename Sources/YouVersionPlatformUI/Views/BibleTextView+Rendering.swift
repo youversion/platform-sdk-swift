@@ -107,12 +107,12 @@ extension BibleTextView {
                 // better, we could have our TextRenderer add the color to some portions
             }
             if category == .verseLabel, let reference,
-               BibleNoteIndicatorsCache.shared.hasNote(for: reference.asUSFM) {
+               noteIndicatedUSFMs.contains(reference.asUSFM) {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo
                     + Text(Image(systemName: "pencil.line"))
                         .font(.caption2)
-                        .foregroundColor(.primary.opacity(0.10))
+                        .foregroundColor(.primary.opacity(0.35))
                     + Text(" ")
             }
             let isUnderlined = isSelected(reference) && category == .scripture
