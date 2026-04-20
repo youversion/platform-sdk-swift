@@ -51,6 +51,8 @@ custom_rules:
     excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Internal Default" # rule name. optional.
     regex: "(internal )" # matching pattern 
+    match_kinds:
+    - attribute.builtin
     capture_group: 1
     message: "internal is the default access control level and we don't use modules, so it doesn't need to be specified" # violation message. optional.
 

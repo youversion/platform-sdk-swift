@@ -152,8 +152,6 @@ public struct BibleReaderView: View {
             if let newValue, newValue != viewModel.selectedVerses {
                 viewModel.selectedVerses = newValue
             }
-        .onChange(of: reduceMotion, initial: true) { _, newValue in
-            viewModel.isReduceMotionEnabled = newValue
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -224,8 +222,8 @@ public struct BibleReaderView: View {
     private var verseActionDrawer: some View {
         BibleReaderDrawer()
             .presentationDetents([PresentationDetent.height(160)])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(viewModel.readerCanvasPrimaryColor)
+            .presentationDragIndicator(.visible)
+            .presentationBackground(viewModel.readerCanvasPrimaryColor)
     }
 
     private var bibleCopyrightBlock: some View {

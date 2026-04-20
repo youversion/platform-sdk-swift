@@ -59,9 +59,7 @@ extension BibleReaderViewModel {
 
     func removeVerseSelection() {
         selectedVerses.removeAll()
-        withAnimation(verseActionsDrawerAnimation) {
-            showingVerseActionsDrawer = false
-        }
+        showingVerseActionsDrawer = false
     }
 
     func handleScroll(offset: CGFloat) {
@@ -70,14 +68,14 @@ extension BibleReaderViewModel {
         }
 
         let threshold: CGFloat = 10
-        let animation: Animation? = isReduceMotionEnabled ? nil : .easeInOut(duration: 0.1)
+        let animation: Animation = .easeInOut(duration: 0.1)
         if offset <= 0 {
-            withAnimation(animation) { showChrome = true }
+            withAnimation(animation) { self.showChrome = true }
         } else if abs(offset - lastScrollOffset) >= threshold {
             if offset < lastScrollOffset - threshold {
-                withAnimation(animation) { showChrome = false }
+                withAnimation(animation) { self.showChrome = false }
             } else if offset > lastScrollOffset + threshold {
-                withAnimation(animation) { showChrome = true }
+                withAnimation(animation) { self.showChrome = true }
             }
         }
         lastScrollOffset = offset
@@ -107,7 +105,8 @@ extension BibleReaderViewModel {
         }
 
         if onVerseTap == nil {
-            withAnimation(.interpolatingSpring(stiffness: 300, damping: 25)) {
+            let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
+            withAnimation(animation) {
                 showingVerseActionsDrawer = !selectedVerses.isEmpty
             }
         }
