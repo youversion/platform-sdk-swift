@@ -4,6 +4,7 @@ import YouVersionPlatformCore
 public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let showChrome: Bool
     let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
@@ -32,10 +33,10 @@ public struct BibleReaderHeaderView: View {
                     Spacer()
                     BibleReaderHeaderMenuView()
                 }
-                .transition(.opacity)
+                .transition(reduceMotion ? .identity : .opacity)
             } else {
                 compactLabels
-                    .transition(.opacity)
+                    .transition(reduceMotion ? .identity : .opacity)
             }
         }
         .padding(.leading, 16)
@@ -55,7 +56,7 @@ public struct BibleReaderHeaderView: View {
                     }
             }
         )
-        .animation(.easeInOut(duration: 0.15), value: showChrome)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: showChrome)
         .sheet(
             isPresented: $viewModel.showingBookPicker,
             onDismiss: { viewModel.headerExpandedBookCode = nil }
@@ -167,7 +168,7 @@ public struct BibleReaderHeaderView: View {
         .frame(height: 24)
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
                 onCompactTap?()
             }
         }

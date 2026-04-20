@@ -11,6 +11,7 @@ public struct BibleReaderView: View {
 
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let fontSettingsDetent = PresentationDetent.height(360)
     let fontListDetent = PresentationDetent.height(480)
@@ -80,7 +81,7 @@ public struct BibleReaderView: View {
                 if viewModel.showingVerseActionsDrawer {
                     verseActionDrawer
                         .frame(maxWidth: viewModel.readerMaxWidth, maxHeight: .infinity, alignment: .bottom)
-                        .transition(.move(edge: .bottom))
+                        .transition(reduceMotion ? .opacity : .move(edge: .bottom))
                 }
             }
         }
@@ -120,6 +121,9 @@ public struct BibleReaderView: View {
                 startSignIn()
             }
         }
+        .onChange(of: reduceMotion, initial: true) { _, newValue in
+            viewModel.isReduceMotionEnabled = newValue
+        }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }
@@ -155,7 +159,7 @@ public struct BibleReaderView: View {
             }
         }
         .onChange(of: viewModel.showingFontList) {
-            withAnimation(.easeInOut) {
+            withAnimation(reduceMotion ? nil : .easeInOut) {
                 selectedDetent = viewModel.showingFontList ? fontListDetent : fontSettingsDetent
             }
         }
