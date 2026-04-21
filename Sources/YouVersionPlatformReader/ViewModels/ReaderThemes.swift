@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-public struct ReaderTheme: Identifiable, Sendable {
+public struct ReaderTheme: Identifiable, Equatable, Sendable {
     public let id: Int
     public let foreground: Color
     public let background: Color
