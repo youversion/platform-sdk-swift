@@ -114,7 +114,9 @@ public struct BibleTextView: View {
     }
 
     private func parseReference(url: URL) -> BibleReference? {
-        guard url.scheme == BibleVersionRendering.LinkSchemes.reference.rawValue || url.scheme == BibleVersionRendering.LinkSchemes.footnote.rawValue,
+        guard url.scheme == BibleVersionRendering.LinkSchemes.reference.rawValue
+           || url.scheme == BibleVersionRendering.LinkSchemes.footnote.rawValue
+           || url.scheme == BibleVersionRendering.LinkSchemes.noteIndicator.rawValue,
               let host = url.host,
               let versionId = Int(host) else {
             return nil

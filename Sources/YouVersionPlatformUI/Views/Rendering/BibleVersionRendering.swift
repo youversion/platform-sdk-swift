@@ -597,6 +597,7 @@ public enum BibleVersionRendering {
     public enum LinkSchemes: String {
         case footnote
         case reference
+        case noteIndicator
     }
 }
 

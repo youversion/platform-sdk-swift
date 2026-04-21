@@ -38,15 +38,18 @@ extension BibleTextView {
     // upwards according to the baseline offset. And/or partially shifts.
     struct BibleRenderer: TextRenderer {
         let footnoteIcon: Image
+        let noteIndicatorIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
 
         init(verseSelectionStyle: VerseSelectionStyle = .solid) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
+            noteIndicatorIcon = Image("noteIndicatorIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
+            let noteIndicatorImage = context.resolve(noteIndicatorIcon)
             for line in layout {
                 let lineRect = line.typographicBounds.rect
                 for run in line {
@@ -66,7 +69,17 @@ extension BibleTextView {
                             style: verseSelectionStyle.strokeStyle
                         )
                     }
-                    if attrs?.footnoteImage == true {
+                    if attrs?.noteIndicatorImage == true {
+                        let runRect = run.typographicBounds.rect
+                        let size = runRect.height * 0.75
+                        let rect = CGRect(
+                            x: runRect.origin.x,
+                            y: runRect.origin.y + (runRect.height - size) / 2,
+                            width: size,
+                            height: size
+                        )
+                        context.draw(noteIndicatorImage, in: rect)
+                    } else if attrs?.footnoteImage == true {
                         let runRect = run.typographicBounds.rect
                         let height = runRect.height
                         let rect = CGRect(
@@ -88,6 +101,7 @@ extension BibleTextView {
         var underlined = false
         var underlineColor: Color?
         var footnoteImage = false
+        var noteIndicatorImage = false
     }
 
     private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
@@ -108,12 +122,13 @@ extension BibleTextView {
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains(reference.asUSFM) {
+                var pencilAttr = AttributedString("\u{FFFC} ")
+                pencilAttr.link = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
+                pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
                 // swiftlint:disable:next shorthand_operator
-                textCombo = textCombo
-                    + Text(Image(systemName: "pencil.line"))
-                        .font(.caption2)
-                        .foregroundColor(.primary.opacity(0.35))
-                    + Text(" ")
+                textCombo = textCombo + Text(pencilAttr).customAttribute(
+                    RenderHowAttribute(noteIndicatorImage: true)
+                )
             }
             let isUnderlined = isSelected(reference) && category == .scripture
             if isUnderlined {

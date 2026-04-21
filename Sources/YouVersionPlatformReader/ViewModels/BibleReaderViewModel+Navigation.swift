@@ -88,10 +88,8 @@ extension BibleReaderViewModel {
             return
         }
 
-        if let onNoteIndicatorTap,
-           !selectedVerses.contains(reference),
-           BibleNoteIndicatorsCache.shared.hasNote(for: reference.asUSFM) {
-            onNoteIndicatorTap(reference)
+        if actionType == BibleVersionRendering.LinkSchemes.noteIndicator.rawValue {
+            onNoteIndicatorTap?(reference)
             return
         }
 
