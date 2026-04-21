@@ -2,13 +2,21 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct BibleCardView: View {
-    public let reference: BibleReference
+    @State private var reference: BibleReference
     @State private var version: BibleVersion?
     private let textOptions: BibleTextOptions
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingCopyrightSheet = false
+    @State private var showVersionPicker: Bool
+    private let onVersionChange: ((BibleVersion) -> Void)?
 
-    public init(reference: BibleReference, fontFamily: String = "STIX Two Text", fontSize: CGFloat = 23) {
+    public init(
+        reference: BibleReference,
+        fontFamily: String = "STIX Two Text",
+        fontSize: CGFloat = 23,
+        showVersionPicker: Bool = false,
+        onVersionChange: ((BibleVersion) -> Void)? = nil
+    ) {
         self.reference = reference
         self.version = nil
         self.textOptions = BibleTextOptions(
@@ -17,13 +25,46 @@ public struct BibleCardView: View {
             textColor: Color.primary,
             verseNumColor: Color.secondary
         )
+        self.showVersionPicker = showVersionPicker
+        self.onVersionChange = onVersionChange
     }
-
+    
+    func update(version: BibleVersion) {
+        self.version = version
+        // TODO Check if the book, chapter, and/or range is present in this version. Show error if not.
+        reference = BibleReference(
+            versionId: version.id,
+            bookUSFM: reference.bookUSFM,
+            chapter: reference.chapter,
+            verseStart: reference.verseStart ?? 1,
+            verseEnd: reference.verseEnd ?? 999  // TODO better
+        )
+        onVersionChange?(version)
+    }
+    
     public var body: some View {
         VStack(spacing: 16) {
             HStack {
                 headerReference
                 Spacer()
+                if showVersionPicker {
+                    BibleVersionPickingButton(initialVersionId: reference.versionId) { version in
+                        update(version: version)
+                        // TODO
+                        //                    } label: { //versionId in
+                        //                        Text(version?.localizedAbbreviation ?? "")
+                        //                        .font(.system(size: 14))
+                        //                        .fontWeight(.bold)
+                        //                        .padding(.vertical, 8)
+                        //                        .padding(.horizontal, 16)
+                        //                        .frame(minWidth: 50)
+                        //                        .background(
+                        //                            Capsule()
+                        //                                .fill(colorScheme == .dark ? Color(hex: "#353333") : Color(hex: "#edebeb"))  // readerButtonPrimaryColor
+                        //                        )
+                        
+                    }
+                }
             }
             BibleTextView(reference, textOptions: textOptions)
             HStack(alignment: .top) {
@@ -47,7 +88,7 @@ public struct BibleCardView: View {
         .sheet(isPresented: $showingCopyrightSheet) {
             ScrollView {
                 Text(version?.localizedTitle ?? version?.title ?? "")
-                    .font(Font.system(size: 20, weight: .bold))  // YouVersion HeaderM
+                    .font(YouVersionFonts.fontHeaderM)
                     .padding(.vertical)
                 Text(version?.promotionalContent ?? version?.copyright ?? "")
                     .padding()
@@ -64,21 +105,17 @@ public struct BibleCardView: View {
     private var backgroundColor: Color {
         colorScheme == .dark ? Color(hex: "#121212") : Color(hex: "#ffffff")
     }
-
+    
     private var headerReference: some View {
         if let version {
             let refText = version.displayTitle(for: reference)
             return Text(refText)
-                .font(fontEyebrowS.smallCaps())
+                .font(YouVersionFonts.fontEyebrowS.smallCaps())
                 .tracking(1.5)
         }
         return Text("")
     }
-
-    private var fontEyebrowS: Font {
-        Font.system(size: 11, weight: .bold)
-    }
-
+    
     private var copyrightView: some View {
         let copyright = version?.copyright ?? version?.promotionalContent ?? ""
         return Text(copyright)
@@ -88,13 +125,13 @@ public struct BibleCardView: View {
             .minimumScaleFactor(0.7)
             .lineLimit(4)
     }
-
+    
     private var bibleAppLogo: some View {
         Image("BibleAppLogotype@3x", bundle: .YouVersionUIBundle)
             .resizable()
             .frame(width: 106, height: 24)
     }
-
+    
 }
 
 #Preview {
@@ -105,7 +142,7 @@ public struct BibleCardView: View {
             )
         )
         .environment(\.colorScheme, .dark)
-
+        
         BibleCardView(
             reference: BibleReference(
                 versionId: BibleVersion.preview.id, bookUSFM: "JHN", chapter: 1, verseStart: 2, verseEnd: 2
