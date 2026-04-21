@@ -6,7 +6,7 @@ import YouVersionPlatformUI
 
 @MainActor
 @Observable
-final class BibleReaderViewModel {
+final class BibleReaderViewModel: ReaderThemeProviding {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
@@ -55,6 +55,7 @@ final class BibleReaderViewModel {
         self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
+        let shouldLoadVersionsViewModel = versionsViewModel == nil
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
         self.versionsViewModel.onVersionChange = { [weak self] version in
             self?.onVersionChange(version: version)
@@ -67,6 +68,13 @@ final class BibleReaderViewModel {
         self.versionsViewModel.colorTheme = colorTheme
 
         ReaderFonts.installFontsIfNeeded()
+
+        if shouldLoadVersionsViewModel {
+            let initialVersionId = self.reference.versionId
+            Task { [weak self] in
+                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+            }
+        }
     }
     
     func onVersionChange(version: BibleVersion) {

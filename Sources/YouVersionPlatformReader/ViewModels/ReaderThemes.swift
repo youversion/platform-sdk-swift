@@ -1,17 +1,17 @@
 import Foundation
 import SwiftUI
 
-struct ReaderTheme: Identifiable {
-    let id: Int
-    let foreground: Color
-    let background: Color
-    let colorScheme: ColorScheme
+public struct ReaderTheme: Identifiable, Equatable, Sendable {
+    public let id: Int
+    public let foreground: Color
+    public let background: Color
+    public let colorScheme: ColorScheme
 
-    static func == (lhs: ReaderTheme, rhs: ReaderTheme) -> Bool {
+    public static func == (lhs: ReaderTheme, rhs: ReaderTheme) -> Bool {
         lhs.foreground == rhs.foreground && lhs.background == rhs.background
     }
 
-    static let allThemes: [ReaderTheme] = [
+    public static let allThemes: [ReaderTheme] = [
         ReaderTheme(id: 1, foreground: Color(hex: "#121212"), background: Color(hex: "#ffffff"), colorScheme: .light),
         ReaderTheme(id: 2, foreground: Color(hex: "#121212"), background: Color(hex: "#f6efee"), colorScheme: .light),
         ReaderTheme(id: 3, foreground: Color(hex: "#121212"), background: Color(hex: "#edefef"), colorScheme: .light),
@@ -21,114 +21,112 @@ struct ReaderTheme: Identifiable {
         ReaderTheme(id: 7, foreground: Color(hex: "#ffffff"), background: Color(hex: "#121212"), colorScheme: .dark)
     ]
 
-    static func theme(withId: Int? = nil) -> ReaderTheme {
+    public static func theme(withId: Int? = nil) -> ReaderTheme {
         allThemes.first(where: { $0.id == withId }) ?? allThemes.first!
     }
 }
 
 @MainActor
-protocol ReaderThemeProviding {
+public protocol ReaderThemeProviding {
     var colorTheme: ReaderTheme? { get }
 }
 
 @MainActor
 extension ReaderThemeProviding {
-    func colorForScheme(light: Color, dark: Color) -> Color {
+    public func colorForScheme(light: Color, dark: Color) -> Color {
         colorTheme?.colorScheme == .dark ? dark : light
     }
 
-    var readerCanvasPrimaryColor: Color {
+    public var readerCanvasPrimaryColor: Color {
         colorTheme?.background ?? (colorTheme?.colorScheme != .dark ? readerWhiteColor : readerBlackColor)
     }
 
-    var readerTextPrimaryColor: Color {
+    public var readerTextPrimaryColor: Color {
         colorTheme?.foreground ?? (colorTheme?.colorScheme != .dark ? readerBlackColor : readerWhiteColor)
     }
 
-    var readerVerseNumColor: Color {
+    public var readerVerseNumColor: Color {
         colorTheme?.colorScheme != .dark ? Color(hex: "#9d9d9d") : Color(hex: "#636161")
     }
 
-    var readerTextMutedColor: Color {
+    public var readerTextMutedColor: Color {
         readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
     }
 
-    var readerSurfacePrimaryColor: Color {
+    public var readerSurfacePrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "f6f4f4"),
             dark: Color(hex: "232121")
         )
     }
 
-    var readerSurfaceTertiaryColor: Color {
+    public var readerSurfaceTertiaryColor: Color {
         colorForScheme(
             light: Color(hex: "EDEBEB"),
             dark: Color(hex: "353333")
         )
     }
 
-    var readerBorderPrimaryColor: Color {
+    public var readerBorderPrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "dddbdb"),
             dark: Color(hex: "474545")
         )
     }
 
-    var readerBorderSecondaryColor: Color {
+    public var readerBorderSecondaryColor: Color {
         colorForScheme(
             light: Color(hex: "bfbdbd"),
             dark: Color(hex: "636161")
         )
     }
 
-    var readerButtonPrimaryColor: Color {
+    public var readerButtonPrimaryColor: Color {
         colorForScheme(
             light: Color(hex: "#edebeb"),
             dark: Color(hex: "#353333")
         )
     }
 
-    var readerButtonSecondaryColor: Color {
+    public var readerButtonSecondaryColor: Color {
         colorForScheme(
             light: Color(hex: "dddbdb"),
             dark: Color(hex: "474545")
         )
     }
 
-    var readerButtonContrastColor: Color {
+    public var readerButtonContrastColor: Color {
         colorForScheme(
             light: Color(hex: "121212"),
             dark: Color(hex: "edebeb")
         )
     }
 
-    var readerTextInvertedColor: Color {
+    public var readerTextInvertedColor: Color {
         colorForScheme(
             light: readerWhiteColor,
             dark: readerBlackColor
         )
     }
 
-    var readerWhiteColor: Color {
+    public var readerWhiteColor: Color {
         Color(hex: "#ffffff")
     }
 
-    var readerBlackColor: Color {
+    public var readerBlackColor: Color {
         Color(hex: "#121212")
     }
 
-    var readerDropShadowColor: Color {
+    public var readerDropShadowColor: Color {
         Color(hex: "#777777").opacity(0.5)
     }
 
-    var readerWordsOfChristColor: Color {
+    public var readerWordsOfChristColor: Color {
         colorForScheme(
             light: Color(hex: "#ff3d4d"),
             dark: Color(hex: "#F04C59")
         )
     }
 }
-
-extension BibleReaderViewModel: ReaderThemeProviding {}
 
 extension BibleVersionsViewModel: ReaderThemeProviding {}

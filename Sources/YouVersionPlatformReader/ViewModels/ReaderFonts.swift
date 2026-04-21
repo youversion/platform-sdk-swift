@@ -95,23 +95,7 @@ public enum ReaderFonts {
     static let defaultFontSize: CGFloat = 21
     static let defaultLineSpacing: CGFloat = 12
 
-    // MARK: - UI Fonts
-
-    static let fontSystemM = Font.system(size: 18, weight: .medium)
-    static let fontHeaderM = Font.system(size: 20, weight: .bold)
-    static let fontHeaderS = Font.system(size: 16, weight: .bold)
-    static let fontEyebrowS = Font.system(size: 11, weight: .bold)
-    static let fontLabelM = Font.system(size: 13, weight: .medium)
-    static let fontLabelS = Font.system(size: 11, weight: .medium)
-    static let fontCaptionsL = Font.system(size: 13)
-    static let fontCaptionsS = Font.system(size: 11)
-
     // MARK: - Utility Functions
-
-    /// For YouVersion uses of the Untitled font, we will use Baskerville as a fallback
-    static func preferredBibleTextFont(size: CGFloat) -> Font {
-        Font.custom("Baskerville", size: size)
-    }
 
     static func nextSmallerSize(currentSize: CGFloat) -> CGFloat? {
         let currentSizeInt = Int(currentSize)

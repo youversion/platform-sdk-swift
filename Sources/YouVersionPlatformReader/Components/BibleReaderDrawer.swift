@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -93,7 +94,7 @@ struct BibleReaderDrawer: View {
         .background(RoundedRectangle(cornerRadius: 12)
             .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .font(ReaderFonts.fontLabelM)
+        .font(YouVersionFonts.fontLabelM)
     }
 
     private func drawerButton(imageName: String, text: String, action: @escaping () -> Void) -> some View {
@@ -113,7 +114,7 @@ struct BibleReaderDrawer: View {
             Image(systemName: "chevron.up")
             Text(String.localized("verseActions.swipeUpLabel"))
         }
-        .font(ReaderFonts.fontCaptionsL)
+        .font(YouVersionFonts.fontCaptionsL)
     }
 }
 

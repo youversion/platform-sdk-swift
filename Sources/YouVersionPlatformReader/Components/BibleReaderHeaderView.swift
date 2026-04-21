@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -79,7 +80,7 @@ public struct BibleReaderHeaderView: View {
             }
         }
         .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
-            BibleReaderVersionsStack()
+            BibleVersionsStack()
                 .environment(viewModel.versionsViewModel)
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.large])

@@ -1,6 +1,5 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
 extension BibleVersionsViewModel {
 
