@@ -288,7 +288,7 @@ extension BibleTextView {
         }
         for highlight in ourHighlights {
             if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
-                return Color(hex: highlight.color)
+                return Color(hex: highlight.color).opacity(0.35)
             }
         }
         return .clear
