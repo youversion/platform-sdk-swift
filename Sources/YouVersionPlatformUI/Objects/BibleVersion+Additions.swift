@@ -48,7 +48,7 @@ public extension BibleVersion {
 
     private func titleChunks(for reference: BibleReference) -> [String] {
         let bookUSFM = reference.bookUSFM
-        let bookName = bookName(bookUSFM) ?? ""
+        let bookName = bookName(bookUSFM) ?? bookUSFM
 
         let hasOneChapter = chapterLabels(bookUSFM).count == 1
         let chapterSeparator = hasOneChapter ? " " : ":"

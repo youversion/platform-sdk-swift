@@ -4,10 +4,11 @@ import YouVersionPlatformCore
 public struct BibleCardView: View {
     @State private var reference: BibleReference
     @State private var version: BibleVersion?
+    @State private var isReferenceUnavailable = false
     private let textOptions: BibleTextOptions
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingCopyrightSheet = false
-    @State private var showVersionPicker: Bool
+    private let showVersionPicker: Bool
     private let onVersionChange: ((BibleVersion) -> Void)?
 
     public init(
@@ -29,16 +30,11 @@ public struct BibleCardView: View {
         self.onVersionChange = onVersionChange
     }
     
-    func update(version: BibleVersion) {
+    private func update(version: BibleVersion) {
+        let updatedReference = referenceForVersionId(version.id)
         self.version = version
-        // TODO Check if the book, chapter, and/or range is present in this version. Show error if not.
-        reference = BibleReference(
-            versionId: version.id,
-            bookUSFM: reference.bookUSFM,
-            chapter: reference.chapter,
-            verseStart: reference.verseStart ?? 1,
-            verseEnd: reference.verseEnd ?? 999  // TODO better
-        )
+        reference = updatedReference
+        isReferenceUnavailable = !updatedReference.existsIn(version: version)
         onVersionChange?(version)
     }
     
@@ -50,23 +46,14 @@ public struct BibleCardView: View {
                 if showVersionPicker {
                     BibleVersionPickingButton(initialVersionId: reference.versionId) { version in
                         update(version: version)
-                        // TODO
-                        //                    } label: { //versionId in
-                        //                        Text(version?.localizedAbbreviation ?? "")
-                        //                        .font(.system(size: 14))
-                        //                        .fontWeight(.bold)
-                        //                        .padding(.vertical, 8)
-                        //                        .padding(.horizontal, 16)
-                        //                        .frame(minWidth: 50)
-                        //                        .background(
-                        //                            Capsule()
-                        //                                .fill(colorScheme == .dark ? Color(hex: "#353333") : Color(hex: "#edebeb"))  // readerButtonPrimaryColor
-                        //                        )
-                        
                     }
                 }
             }
-            BibleTextView(reference, textOptions: textOptions)
+            if isReferenceUnavailable {
+                unavailableReferenceView
+            } else {
+                BibleTextView(reference, textOptions: textOptions)
+            }
             HStack(alignment: .top) {
                 copyrightView
                     .padding(.trailing, 16)
@@ -82,7 +69,10 @@ public struct BibleCardView: View {
         .foregroundStyle(foregroundColor)
         .task {
             if version == nil {
-                version = try? await BibleVersionRepository.shared.version(withId: reference.versionId)
+                if let loadedVersion = try? await BibleVersionRepository.shared.version(withId: reference.versionId) {
+                    version = loadedVersion
+                    isReferenceUnavailable = !reference.existsIn(version: loadedVersion)
+                }
             }
         }
         .sheet(isPresented: $showingCopyrightSheet) {
@@ -104,6 +94,15 @@ public struct BibleCardView: View {
     
     private var backgroundColor: Color {
         colorScheme == .dark ? Color(hex: "#121212") : Color(hex: "#ffffff")
+    }
+
+    private var unavailableReferenceView: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+            Text(String.localized("bibleCard.unavailableReference"))
+                .multilineTextAlignment(.leading)
+        }
+        .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
     }
     
     private var headerReference: some View {
@@ -130,6 +129,34 @@ public struct BibleCardView: View {
         Image("BibleAppLogotype@3x", bundle: .YouVersionUIBundle)
             .resizable()
             .frame(width: 106, height: 24)
+    }
+
+    private func referenceForVersionId(_ versionId: Int) -> BibleReference {
+        if let verseStart = reference.verseStart {
+            let verseEnd = reference.verseEnd ?? verseStart
+            if verseStart == verseEnd {
+                return BibleReference(
+                    versionId: versionId,
+                    bookUSFM: reference.bookUSFM,
+                    chapter: reference.chapter,
+                    verse: verseStart
+                )
+            }
+
+            return BibleReference(
+                versionId: versionId,
+                bookUSFM: reference.bookUSFM,
+                chapter: reference.chapter,
+                verseStart: verseStart,
+                verseEnd: verseEnd
+            )
+        }
+
+        return BibleReference(
+            versionId: versionId,
+            bookUSFM: reference.bookUSFM,
+            chapter: reference.chapter
+        )
     }
     
 }
