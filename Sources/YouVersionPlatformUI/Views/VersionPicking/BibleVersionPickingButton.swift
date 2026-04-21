@@ -42,8 +42,10 @@ public struct BibleVersionPickingButton: View {
         }
         .onChange(of: currentVersionId, initial: true) { _, newVersionId in
             Task {
-                if let version = try? await BibleVersionRepository.shared.version(withId: newVersionId) {
-                    self.currentVersionAbbreviation = version.localizedAbbreviation ?? "\(newVersionId)"
+                let captured = newVersionId
+                if let version = try? await BibleVersionRepository.shared.version(withId: captured) {
+                    guard currentVersionId == captured else { return }
+                    self.currentVersionAbbreviation = version.localizedAbbreviation ?? "\(captured)"
                 }
             }
         }
