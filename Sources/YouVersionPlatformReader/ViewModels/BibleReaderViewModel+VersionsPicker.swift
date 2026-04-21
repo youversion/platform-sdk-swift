@@ -18,7 +18,7 @@ extension BibleVersionsViewModel {
         versionsPickerStack.removeLast()
     }
 
-    func openVersionsStack(currentBibleLanguage: String) {
+    public func openVersionsStack(currentBibleLanguage: String) {
         Task {
             await permittedVersionsListing()
         }

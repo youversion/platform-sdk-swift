@@ -14,7 +14,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
                 let (letters, numbers) = splitAbbreviation(abbreviation)
 
                 Text(letters)
-                    .font(ReaderFonts.preferredBibleTextFont(size: 15))
+                    .font(YouVersionFonts.preferredBibleTextFont(size: 15))
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 4)
@@ -23,7 +23,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
 
                 if !numbers.isEmpty {
                     Text(numbers)
-                        .font(ReaderFonts.preferredBibleTextFont(size: 10).weight(.semibold))
+                        .font(YouVersionFonts.preferredBibleTextFont(size: 10).weight(.semibold))
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .lineLimit(1)
                 }

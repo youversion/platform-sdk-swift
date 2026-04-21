@@ -1,10 +1,13 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-struct BibleReaderVersionsStack: View {
+public struct BibleVersionsStack: View {
     @Environment(BibleVersionsViewModel.self) private var viewModel
 
-    var body: some View {
+    public init() {
+    }
+    
+    public var body: some View {
         @Bindable var bindableViewModel = viewModel
 
         NavigationStack(path: $bindableViewModel.versionsPickerStack) {
@@ -26,10 +29,10 @@ struct BibleReaderVersionsStack: View {
     @ViewBuilder
     private var rootView: some View {
         if viewModel.myVersions.count > 1 {
-            BibleReaderMyVersionsView()
+            BibleVersionsMyVersionsView()
         } else {
             ZStack {
-                BibleReaderVersionListView()
+                BibleVersionsVersionListView()
                 if viewModel.showFullProgressViewOverlay {
                     Color.gray.opacity(0.2)
                 }
@@ -45,20 +48,20 @@ struct BibleReaderVersionsStack: View {
     private func destinationView(for screen: BibleVersionsViewModel.VersionsPickerScreen) -> some View {
         switch screen {
         case .myVersions:
-            BibleReaderMyVersionsView()
+            BibleVersionsMyVersionsView()
         case .moreVersions:
-            BibleReaderVersionListView()
+            BibleVersionsVersionListView()
         case .versionInfo:
-            BibleReaderVersionInfoView()
+            BibleVersionsVersionInfoView()
         case .versionDownload:
             BibleVersionDownloadView()
         case .languages:
-            BibleReaderLanguagesView()
+            BibleVersionsLanguagesView()
         }
     }
 }
 
 #Preview {
-    BibleReaderVersionsStack()
+    BibleVersionsStack()
         .environment(BibleVersionsViewModel.preview)
 }

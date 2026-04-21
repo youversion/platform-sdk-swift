@@ -1,6 +1,7 @@
 import SwiftUI
+import YouVersionPlatformUI
 
-struct BibleReaderLanguagesView: View {
+struct BibleVersionsLanguagesView: View {
     @Environment(BibleVersionsViewModel.self) private var viewModel
 
     enum Segment: String, CaseIterable, Identifiable {
@@ -61,7 +62,7 @@ struct BibleReaderLanguagesView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     if selectedSegment == .suggested {
                         Text(String.localized("languageList.regional"))
-                            .font(ReaderFonts.fontHeaderM)
+                            .font(YouVersionFonts.fontHeaderM)
                             .padding(.leading)
                     }
                     ForEach(languageCodes, id: \.self) { language in
@@ -163,6 +164,6 @@ struct BibleReaderLanguagesView: View {
 }
 
 #Preview {
-    BibleReaderLanguagesView()
+    BibleVersionsLanguagesView()
         .environment(BibleVersionsViewModel.preview)
 }
