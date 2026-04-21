@@ -246,7 +246,9 @@ final class BibleReaderViewModel {
             wocColor: readerWordsOfChristColor,
             footnoteMode: .image,
             footnoteMarker: nil,
-            verseSelectionStyle: verseSelectionStyle
+            verseSelectionStyle: verseSelectionStyle,
+            noteIndicatorBoxColor: readerButtonPrimaryColor,
+            noteIndicatorBoxHighlightColor: readerButtonContrastColor.opacity(0.1)
         )
     }
 

@@ -291,6 +291,8 @@ public struct BibleTextOptions {
     public let footnoteMode: BibleTextFootnoteMode
     public let footnoteMarker: BibleAttributedString?
     public let verseSelectionStyle: VerseSelectionStyle
+    public let noteIndicatorBoxColor: Color?
+    public let noteIndicatorBoxHighlightColor: Color?
 
     public init(fontFamily: String = "Times New Roman",
                 fontSize: CGFloat = 16,
@@ -303,7 +305,9 @@ public struct BibleTextOptions {
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
                 footnoteMarker: BibleAttributedString? = nil,
-                verseSelectionStyle: VerseSelectionStyle = .solid) {
+                verseSelectionStyle: VerseSelectionStyle = .solid,
+                noteIndicatorBoxColor: Color? = nil,
+                noteIndicatorBoxHighlightColor: Color? = nil) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.lineSpacing = lineSpacing ?? fontSize / 2
@@ -316,6 +320,8 @@ public struct BibleTextOptions {
         self.footnoteMode = footnoteMode
         self.footnoteMarker = footnoteMarker
         self.verseSelectionStyle = verseSelectionStyle
+        self.noteIndicatorBoxColor = noteIndicatorBoxColor
+        self.noteIndicatorBoxHighlightColor = noteIndicatorBoxHighlightColor
     }
 }
 

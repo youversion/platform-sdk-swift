@@ -50,8 +50,50 @@ extension BibleTextView {
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
             let noteIndicatorImage = context.resolve(noteIndicatorIcon)
+
             for line in layout {
                 let lineRect = line.typographicBounds.rect
+
+                // Pass 1: draw note-indicator box backgrounds
+                var boxStart: CGFloat?
+                var boxEnd: CGFloat = 0
+                var boxY: CGFloat = 0
+                var boxHeight: CGFloat = 0
+                var boxColor: Color?
+
+                func flushBox(in context: inout GraphicsContext) {
+                    guard let start = boxStart else {
+                        return
+                    }
+                    let padding: CGFloat = 2
+                    let boxRect = CGRect(x: start - padding,
+                                         y: boxY,
+                                         width: (boxEnd - start) + padding * 2,
+                                         height: boxHeight)
+                    let path = RoundedRectangle(cornerRadius: 2).path(in: boxRect)
+                    context.fill(path, with: .color(boxColor ?? .gray))
+                    boxStart = nil
+                }
+
+                for run in line {
+                    let attrs = run[RenderHowAttribute.self]
+                    if attrs?.noteIndicatorBox == true {
+                        let rect = run.typographicBounds.rect
+                        if boxStart == nil {
+                            boxStart = rect.minX
+                            boxY = rect.minY
+                            boxHeight = rect.height
+                            boxColor = attrs?.noteIndicatorBoxColor
+                        }
+                        boxEnd = rect.maxX
+                        boxHeight = max(boxHeight, rect.height)
+                    } else if boxStart != nil {
+                        flushBox(in: &context)
+                    }
+                }
+                flushBox(in: &context)
+
+                // Pass 2: draw text runs and custom images
                 for run in line {
                     let attrs = run[RenderHowAttribute.self]
                     if attrs?.underlined == true {
@@ -102,6 +144,8 @@ extension BibleTextView {
         var underlineColor: Color?
         var footnoteImage = false
         var noteIndicatorImage = false
+        var noteIndicatorBox = false
+        var noteIndicatorBoxColor: Color?
     }
 
     private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
@@ -122,13 +166,34 @@ extension BibleTextView {
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains(reference.asUSFM) {
-                var pencilAttr = AttributedString("\u{FFFC} ")
-                pencilAttr.link = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
+                let hasHighlight = highlightFor(reference: reference) != .clear
+                let boxColor = hasHighlight
+                    ? textOptions.noteIndicatorBoxHighlightColor
+                    : textOptions.noteIndicatorBoxColor
+
+                let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
+
+                var pencilAttr = AttributedString("\u{FFFC}")
+                pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
-                    RenderHowAttribute(noteIndicatorImage: true)
+                    RenderHowAttribute(noteIndicatorImage: true,
+                                       noteIndicatorBox: true,
+                                       noteIndicatorBoxColor: boxColor)
                 )
+
+                var verseAttr = t
+                verseAttr.link = noteURL
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(verseAttr).customAttribute(
+                    RenderHowAttribute(noteIndicatorBox: true,
+                                       noteIndicatorBoxColor: boxColor)
+                )
+
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(" ")
+                continue
             }
             let isUnderlined = isSelected(reference) && category == .scripture
             if isUnderlined {
