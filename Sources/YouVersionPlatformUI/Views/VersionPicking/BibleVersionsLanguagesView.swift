@@ -1,5 +1,4 @@
 import SwiftUI
-import YouVersionPlatformUI
 
 struct BibleVersionsLanguagesView: View {
     @Environment(BibleVersionsViewModel.self) private var viewModel
