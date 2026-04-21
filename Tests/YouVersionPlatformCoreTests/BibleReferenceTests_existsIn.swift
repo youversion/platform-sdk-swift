@@ -24,6 +24,27 @@ struct BibleReferenceExistsInTests {
     }
 
     @Test
+    func existsInReturnsTrueForChapterOnlyReferenceWhenChapterIsPresent() {
+        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 1)
+
+        #expect(reference.existsIn(version: Self.fixtureVersion))
+    }
+
+    @Test
+    func existsInReturnsFalseForChapterOnlyReferenceWhenBookIsMissing() {
+        let reference = BibleReference(versionId: 206, bookUSFM: "ABC", chapter: 1)
+
+        #expect(!reference.existsIn(version: Self.fixtureVersion))
+    }
+
+    @Test
+    func existsInReturnsFalseForChapterOnlyReferenceWhenChapterIsMissing() {
+        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 51)
+
+        #expect(!reference.existsIn(version: Self.fixtureVersion))
+    }
+
+    @Test
     func existsInReturnsFalseWhenBookIsMissing() {
         let reference = BibleReference(versionId: 206, bookUSFM: "ABC", chapter: 1, verse: 1)
 
