@@ -121,6 +121,17 @@
         }
       }
     },
+    "bibleCard.unavailableReference" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This passage is unavailable in the selected Bible version."
+          }
+        }
+      }
+    },
     "download.agreeButton" : {
       "extractionState" : "manual",
       "localizations" : {
