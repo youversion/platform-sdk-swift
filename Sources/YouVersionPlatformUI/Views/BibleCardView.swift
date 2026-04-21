@@ -39,7 +39,7 @@ public struct BibleCardView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 headerReference
                 Spacer()
