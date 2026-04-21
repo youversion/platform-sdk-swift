@@ -70,6 +70,9 @@ public struct BibleCardView: View {
         .task {
             if version == nil {
                 if let loadedVersion = try? await BibleVersionRepository.shared.version(withId: reference.versionId) {
+                    guard version == nil else {
+                        return
+                    }
                     version = loadedVersion
                     isReferenceUnavailable = !reference.existsIn(version: loadedVersion)
                 }
