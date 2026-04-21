@@ -1,6 +1,5 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
 struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
     @Environment(BibleVersionsViewModel.self) private var viewModel

@@ -1,6 +1,5 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
 /// A reusable sign-in prompt view. Reads ``YouVersionPlatformConfiguration/appName``
 /// and ``YouVersionPlatformConfiguration/signInPromptMessage`` from the global configuration.
