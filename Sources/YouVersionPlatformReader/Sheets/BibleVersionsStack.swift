@@ -32,7 +32,7 @@ public struct BibleVersionsStack: View {
             BibleVersionsMyVersionsView()
         } else {
             ZStack {
-                BibleVersionsVersionListView()
+                BibleVersionsListView()
                 if viewModel.showFullProgressViewOverlay {
                     Color.gray.opacity(0.2)
                 }
@@ -50,9 +50,9 @@ public struct BibleVersionsStack: View {
         case .myVersions:
             BibleVersionsMyVersionsView()
         case .moreVersions:
-            BibleVersionsVersionListView()
+            BibleVersionsListView()
         case .versionInfo:
-            BibleVersionsVersionInfoView()
+            BibleVersionsInfoView()
         case .versionDownload:
             BibleVersionDownloadView()
         case .languages:

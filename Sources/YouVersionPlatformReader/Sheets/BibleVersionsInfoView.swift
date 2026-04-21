@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-struct BibleVersionsVersionInfoView: View {
+struct BibleVersionsInfoView: View {
     @Environment(BibleVersionsViewModel.self) private var viewModel
     @Environment(\.openURL) private var openURL
 
@@ -217,6 +217,6 @@ struct BibleVersionsVersionInfoView: View {
 }
 
 #Preview {
-    BibleVersionsVersionInfoView()
+    BibleVersionsInfoView()
         .environment(BibleVersionsViewModel.preview)
 }
