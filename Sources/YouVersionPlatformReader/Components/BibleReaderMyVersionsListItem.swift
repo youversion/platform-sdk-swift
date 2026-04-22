@@ -57,7 +57,7 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
             }
 
             Spacer()
-            
+
             ellipsisMenuButton
         }
         .contentShape(Rectangle())
