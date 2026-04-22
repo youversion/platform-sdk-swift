@@ -9,6 +9,27 @@ public protocol BibleVersionAPIClient: Sendable {
     func version(withId id: Int) async throws -> BibleVersion
 }
 
+/// Abstraction over Bible version lookup and download operations.
+public protocol BibleVersionRepositoryProtocol: Sendable {
+    /// Returns a cached version when one is already available locally.
+    func versionIfCached(_ id: Int) async throws -> BibleVersion?
+
+    /// Returns a Bible version, loading it when needed.
+    func version(withId id: Int) async throws -> BibleVersion
+
+    /// Downloads a version for offline access.
+    func downloadVersion(withId id: Int) async throws
+
+    /// Returns the current download status for a version.
+    func downloadStatus(for id: Int) -> BibleVersionRepository.BibleVersionDownloadStatus
+
+    /// Removes a version from every local cache.
+    func removeVersion(withId versionId: Int) async
+
+    /// Removes every locally stored version that is no longer permitted.
+    func removeUnpermittedVersions(permittedIds: Set<Int>) async
+}
+
 public protocol BibleVersionCaching: Sendable {
     func version(withId id: Int) async -> BibleVersion?
     func addVersion(_ version: BibleVersion) async
@@ -222,7 +243,7 @@ public actor VersionDownloadCache: BibleVersionCaching {
 
 }
 
-public actor BibleVersionRepository: Observable {
+public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol {
 
     public static let shared = BibleVersionRepository()
 

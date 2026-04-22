@@ -6,26 +6,31 @@ import YouVersionPlatformCore
 @MainActor
 @Observable
 public final class BibleVersionsViewModel {
-    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
-    private var hasLoadedInitialState = false
-    public let versionRepository = BibleVersionRepository()
     public var onVersionChange: ((BibleVersion) -> Void)
     /// called when the user chooses to download a version and they're not yet signed in.
     public var onSignInRequired: (() -> Void)?
     public var colorTheme: ReaderTheme?
-    
+
+    public let versionRepository: any BibleVersionRepositoryProtocol
+
     var currentBibleVersionLanguage: String?
-    
     var showGenericAlert = false
     var textForGenericAlertTitle = ""
     var textForGenericAlertBody = ""
     private(set) var textForGenericAlertOKButton = "OK"
     
+    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
+    private var hasLoadedInitialState = false
+
     /// onVersionChange: called when the user has chosen a new version (or their first). The caller should ensure their current reference exists in this new version and choose a new one if not.
-    public init(onVersionChange: @escaping (BibleVersion) -> Void) {
+    public init(
+        onVersionChange: @escaping (BibleVersion) -> Void,
+        versionRepository: any BibleVersionRepositoryProtocol = BibleVersionRepository.shared
+    ) {
         self.myVersions = []
         self.suggestedLanguagesList = []
         self.onVersionChange = onVersionChange
+        self.versionRepository = versionRepository
     }
 
     /// Loads the initial version data once for this model instance.
