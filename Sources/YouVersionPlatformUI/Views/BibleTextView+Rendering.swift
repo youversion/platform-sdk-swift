@@ -165,7 +165,7 @@ extension BibleTextView {
                 // better, we could have our TextRenderer add the color to some portions
             }
             if category == .verseLabel, let reference,
-               noteIndicatedUSFMs.contains(reference.asUSFM) {
+               noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
                 let hasHighlight = highlightFor(reference: reference) != .clear
                 let boxColor = hasHighlight
                     ? textOptions.noteIndicatorBoxHighlightColor
@@ -173,7 +173,7 @@ extension BibleTextView {
                 let highlightColor = highlightFor(reference: reference)
                 let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
 
-                var pencilAttr = AttributedString("\u{FFFC}")
+                var pencilAttr = AttributedString("\u{2003}")
                 pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
                 pencilAttr.backgroundColor = highlightColor
