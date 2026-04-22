@@ -170,16 +170,27 @@ extension BibleTextView {
                 let boxColor = hasHighlight
                     ? textOptions.noteIndicatorBoxHighlightColor
                     : textOptions.noteIndicatorBoxColor
-
+                let highlightColor = highlightFor(reference: reference)
                 let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
 
                 var pencilAttr = AttributedString("\u{FFFC}")
                 pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                pencilAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
                     RenderHowAttribute(noteIndicatorImage: true,
                                        noteIndicatorBox: true,
+                                       noteIndicatorBoxColor: boxColor)
+                )
+
+                var spacerAttr = AttributedString("\u{2009}")
+                spacerAttr.link = noteURL
+                spacerAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                spacerAttr.backgroundColor = highlightColor
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(spacerAttr).customAttribute(
+                    RenderHowAttribute(noteIndicatorBox: true,
                                        noteIndicatorBoxColor: boxColor)
                 )
 
