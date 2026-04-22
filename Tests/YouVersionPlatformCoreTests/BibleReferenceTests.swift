@@ -76,26 +76,26 @@ func testCompare_SameBookDifferentChapters() {
 
 @Test
 func testCompare_SameChapterDifferentVerses() {
-    let gen1_1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
-    let gen1_2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
-    
-    #expect(gen1_1 < gen1_2)
-    #expect(gen1_2 > gen1_1)
+    let gen1Verse1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+    let gen1Verse2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+
+    #expect(gen1Verse1 < gen1Verse2)
+    #expect(gen1Verse2 > gen1Verse1)
 }
 
 @Test
 func testCompare_Ranges() {
-    let gen1_1to3 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 3)
-    let gen1_2to4 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 2, verseEnd: 4)
-    
+    let gen1Verses1to3 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 3)
+    let gen1Verses2to4 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 2, verseEnd: 4)
+
     // Compare based on starting verse first
-    #expect(gen1_1to3 < gen1_2to4)
-    
+    #expect(gen1Verses1to3 < gen1Verses2to4)
+
     // Same starting verse, compare end verse
-    let gen1_1to3_2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 3)
-    let gen1_1to4 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 4)
-    
-    #expect(gen1_1to3_2 < gen1_1to4)    // 1-3 < 1-4
+    let gen1Verses1to3Again = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 3)
+    let gen1Verses1to4 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 4)
+
+    #expect(gen1Verses1to3Again < gen1Verses1to4)    // 1-3 < 1-4
 }
 
 @Test

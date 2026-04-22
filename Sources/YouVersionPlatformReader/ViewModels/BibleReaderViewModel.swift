@@ -28,6 +28,41 @@ final class BibleReaderViewModel {
     let onVerseTap: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
 
+    // MARK: - UI state of the Reader itself
+    var showChrome = true
+    var lastScrollOffset: CGFloat = 0
+    var scrollToTop = false
+    var isChangingChapter = false
+    var showingSignInSheet = false
+    var showingFontSettings = false
+    var showingFontList = false
+    var showingFootnotes = false
+    var showingIntroFootnoteSheet = false
+    var showingVerseActionsDrawer = false
+    var isReduceMotionEnabled = false
+    var selectedVerses: Set<BibleReference> = []
+    var showingBookPicker = false
+    private var showingChapterPicker = false
+    var headerExpandedBookCode: String?
+    var footnotesToDisplay: [BibleFootnote] = []
+    let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
+
+    // MARK: - Font settings
+
+    private var fontFamily: String? = ReaderFonts.defaultFontFamily
+    private var fontSize: CGFloat? = ReaderFonts.defaultFontSize
+    private var lineSpacing = ReaderFonts.defaultLineSpacing
+
+    // MARK: - Colors
+
+    private(set) var colorTheme: ReaderTheme? = ReaderTheme.theme()
+
+    // MARK: - Sign In & Out
+
+    var startSignInFlow = false
+    private(set) var isSignedIn = false
+    var showSignOutConfirmation = false
+
     init(
         reference: BibleReference? = nil,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
@@ -68,15 +103,37 @@ final class BibleReaderViewModel {
 
         ReaderFonts.installFontsIfNeeded()
     }
-    
+
+    var verseActionsDrawerAnimation: Animation {
+        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
+    }
+
+    var textOptions: BibleTextOptions {
+        ReaderFonts.installFontsIfNeeded()
+        let ourFontSize = fontSize ?? 18
+        return BibleTextOptions(
+            fontFamily: fontFamily ?? "Georgia",
+            fontSize: ourFontSize,
+            // TODO: maybe have one of these spacings be a delta added to the other:
+            lineSpacing: lineSpacing,
+            paragraphSpacing: lineSpacing,
+            textColor: readerTextPrimaryColor,
+            verseNumColor: readerVerseNumColor,
+            wocColor: readerWordsOfChristColor,
+            footnoteMode: .image,
+            footnoteMarker: nil,
+            verseSelectionStyle: verseSelectionStyle
+        )
+    }
+
     func onVersionChange(version: BibleVersion) {
         self.version = version
-        self.reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+        reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
         Task {
             await onHeaderSelectionChange(reference, showIntro: false)
         }
     }
-    
+
     func onSignInRequired() {
         startSignInFlow = true
     }
@@ -103,67 +160,6 @@ final class BibleReaderViewModel {
         if let data = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
         }
-    }
-
-    private class ReaderSettings: Codable {
-        let fontFamily: String?
-        let fontSize: CGFloat?
-        let lineSpacing: CGFloat?
-        let colorTheme: Int?
-        init(fontFamily: String?, fontSize: CGFloat?, lineSpacing: CGFloat?, colorTheme: Int?) {
-            self.fontFamily = fontFamily
-            self.fontSize = fontSize
-            self.lineSpacing = lineSpacing
-            self.colorTheme = colorTheme
-        }
-    }
-
-    // MARK: - UI state of the Reader itself
-    var showChrome = true
-    var lastScrollOffset: CGFloat = 0
-    var scrollToTop = false
-    var isChangingChapter = false
-    var showingSignInSheet = false
-    var showingFontSettings = false
-    var showingFontList = false
-    var showingFootnotes = false
-    var showingIntroFootnoteSheet = false
-    var showingVerseActionsDrawer = false
-    var isReduceMotionEnabled = false
-    var verseActionsDrawerAnimation: Animation {
-        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
-    }
-    var selectedVerses: Set<BibleReference> = []
-
-    var showingBookPicker = false
-    private var showingChapterPicker = false
-    var headerExpandedBookCode: String?
-    var footnotesToDisplay: [BibleFootnote] = []
-
-    let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
-
-    // MARK: - Font settings
-
-    private var fontFamily: String? = ReaderFonts.defaultFontFamily
-    private var fontSize: CGFloat? = ReaderFonts.defaultFontSize
-    private var lineSpacing = ReaderFonts.defaultLineSpacing
-
-    var textOptions: BibleTextOptions {
-        ReaderFonts.installFontsIfNeeded()
-        let ourFontSize = fontSize ?? 18
-        return BibleTextOptions(
-            fontFamily: fontFamily ?? "Georgia",
-            fontSize: ourFontSize,
-            // TODO: maybe have one of these spacings be a delta added to the other:
-            lineSpacing: lineSpacing,
-            paragraphSpacing: lineSpacing,
-            textColor: readerTextPrimaryColor,
-            verseNumColor: readerVerseNumColor,
-            wocColor: readerWordsOfChristColor,
-            footnoteMode: .image,
-            footnoteMarker: nil,
-            verseSelectionStyle: verseSelectionStyle
-        )
     }
 
     func openFontSettings() {
@@ -197,21 +193,11 @@ final class BibleReaderViewModel {
         saveUserSettingsToStorage()
     }
 
-    // MARK: Colors
-
-    var colorTheme: ReaderTheme? = ReaderTheme.theme()
-
     func setColorTheme(_ theme: ReaderTheme) {
         colorTheme = theme
         versionsViewModel.colorTheme = theme
         saveUserSettingsToStorage()
     }
-
-    // MARK: - Sign In & Out
-
-    var startSignInFlow = false
-    private(set) var isSignedIn = false
-    var showSignOutConfirmation = false
 
     func updateSignInState() {
         Task {
@@ -237,5 +223,12 @@ final class BibleReaderViewModel {
         YouVersionAPI.Users.signOut()
         highlightsViewModel.reset()
         isSignedIn = false
+    }
+
+    private struct ReaderSettings: Codable {
+        let fontFamily: String?
+        let fontSize: CGFloat?
+        let lineSpacing: CGFloat?
+        let colorTheme: Int?
     }
 }

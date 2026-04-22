@@ -3,7 +3,9 @@ import YouVersionPlatformCore
 
 public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+#if canImport(UIKit)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+#endif
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let showChrome: Bool

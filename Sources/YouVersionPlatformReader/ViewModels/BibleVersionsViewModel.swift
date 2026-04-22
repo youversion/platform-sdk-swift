@@ -22,7 +22,7 @@ final class BibleVersionsViewModel {
     private(set) var textForGenericAlertOKButton = "OK"
     
     /// onVersionChange: called when the user has chosen a new version (or their first). The caller should ensure their current reference exists in this new version and choose a new one if not.
-    init (initialVersionId: Int? = nil, onVersionChange: @escaping (BibleVersion) -> Void) {
+    init(initialVersionId: Int? = nil, onVersionChange: @escaping (BibleVersion) -> Void) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
         
@@ -45,29 +45,29 @@ final class BibleVersionsViewModel {
         let permittedIds = Set(permittedVersions.map(\.id))
         await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
         
-        for version in self.myVersions where !permittedIds.contains(version.id) {
-            self.myVersions.remove(version)
+        for version in myVersions where !permittedIds.contains(version.id) {
+            myVersions.remove(version)
         }
         if let initialVersionId, !permittedIds.contains(initialVersionId) {
-            await selectFallbackVersion(savedIds: Array(self.myVersions.map(\.id)))
+            await selectFallbackVersion(savedIds: Array(myVersions.map(\.id)))
         }
     }
     
     private func restoreMyVersions(savedIds: [Int]) async {
         for id in savedIds {
             if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
+                myVersions.insert(version)
             }
         }
-        
+
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
         let downloads = VersionDownloadCache.downloadedVersions
         for id in downloads {
-            if self.myVersions.contains(where: { $0.id == id }) {
+            if myVersions.contains(where: { $0.id == id }) {
                 continue
             }
             if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
+                myVersions.insert(version)
             }
         }
     }
@@ -87,7 +87,7 @@ final class BibleVersionsViewModel {
         }
 
         if let version = loadedVersion {
-            self.myVersions.insert(version)
+            myVersions.insert(version)
             onVersionChange(version)
         } else {
             await selectFallbackVersion(savedIds: savedIds)
@@ -103,8 +103,8 @@ final class BibleVersionsViewModel {
             return
         }
         onVersionChange(version)
-        
-        self.myVersions.insert(version)
+
+        myVersions.insert(version)
     }
     
     private func findAnyAcceptableVersion(savedIds: Set<Int>) async -> Int? {
@@ -141,7 +141,7 @@ final class BibleVersionsViewModel {
     var versionsInLanguage: [String: [BibleVersion]] = [:]
     
     /// Holds minimal information about all Bible versions available to this app, in all languages.
-    var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    private(set) var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
     
     /// Returns minimal information about all Bible versions available to this app, in all languages.
     /// On error or when offline, returns nil
@@ -221,7 +221,7 @@ final class BibleVersionsViewModel {
     
     // MARK: - Languages picking
     
-    var suggestedLanguagesList: [LanguageOverview]
+    private(set) var suggestedLanguagesList: [LanguageOverview]
     var chosenLanguage: String?
     var languageNames: [String: String] = [:]
     
@@ -242,10 +242,10 @@ final class BibleVersionsViewModel {
     
     /// Returns languages likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
     var suggestedLanguages: [String] {
-        guard !self.suggestedLanguagesList.isEmpty else {
+        guard !suggestedLanguagesList.isEmpty else {
             return ["en", "es"]
         }
-        let codes = extractLanguageCodes(languages: self.suggestedLanguagesList)
+        let codes = extractLanguageCodes(languages: suggestedLanguagesList)
         guard let versionsInfo = permittedVersionsList else {
             return codes
         }
