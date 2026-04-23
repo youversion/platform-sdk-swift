@@ -29,7 +29,7 @@ public extension YouVersionAPI.Bible {
             organizationId: metadata.organizationId,
             bookCodes: metadata.bookCodes,
             books: index.books,
-            textDirection: index.text_direction,
+            textDirection: index.textDirection,
         )
     }
 
@@ -156,7 +156,12 @@ public extension YouVersionAPI.Bible {
     // MARK: - utility structs
 
     private struct BibleVersionIndex: Codable {
-        let text_direction: String?
+        let textDirection: String?
         let books: [BibleBook]?
+
+        enum CodingKeys: String, CodingKey {
+            case textDirection = "text_direction"
+            case books
+        }
     }
 }

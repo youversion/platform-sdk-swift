@@ -39,16 +39,14 @@ public struct BibleTextFonts {
         verseNumBaselineOffset = baseSize * 0.3
         let boldFamilyName: String
         let italicFamilyName: String
-        //let boldItalicFamilyName: String
+        
         if familyName.hasSuffix("-Regular") {
             let base = familyName.split(separator: "-").dropLast().joined(separator: "-")
             boldFamilyName = base + "-Bold"
             italicFamilyName = base + "-Italic"
-            //boldItalicFamilyName = base + "-BoldItalic"
         } else {
             boldFamilyName = familyName
             italicFamilyName = familyName
-            //boldItalicFamilyName = familyName
         }
 
         let larger = Font.custom(familyName, fixedSize: baseSize * 1.1)
