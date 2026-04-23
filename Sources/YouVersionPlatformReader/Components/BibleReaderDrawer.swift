@@ -47,22 +47,20 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        HStack {
-            ForEach(highlightColors, id: \.self) { color in
-                if viewModel.isColorPresentOnAnySelectedVerses(color) {
-                    Button(action: { viewModel.removeVerseColor(color) }) {
-                        coloredCircle(with: color)
-                            .overlay(
-                                Image(systemName: "xmark")
-                            )
-                    }
+        let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
+        let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
+        return HStack {
+            ForEach(colorsToRemove, id: \.self) { color in
+                Button(action: { viewModel.removeVerseColor(color) }) {
+                    coloredCircle(with: color)
+                        .overlay(
+                            Image(systemName: "xmark")
+                        )
                 }
             }
-            ForEach(highlightColors, id: \.self) { color in
-                if !viewModel.isColorPresentOnAllSelectedVerses(color) {
-                    Button(action: { viewModel.addVerseColor(color) }) {
-                        coloredCircle(with: color)
-                    }
+            ForEach(colorsToAdd, id: \.self) { color in
+                Button(action: { viewModel.addVerseColor(color) }) {
+                    coloredCircle(with: color)
                 }
             }
         }

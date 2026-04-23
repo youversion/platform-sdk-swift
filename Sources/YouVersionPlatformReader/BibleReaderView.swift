@@ -262,7 +262,7 @@ public struct BibleReaderView: View {
                 }
                 .frame(height: 0)
             }
-            .coordinateSpace(name: "scrollView")
+            .coordinateSpace(.named("scrollView"))
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 Task { @MainActor in
                     viewModel.handleScroll(offset: value)

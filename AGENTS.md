@@ -99,6 +99,7 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 5. Run `swiftlint` to ensure code style compliance
 
 ## Important Tips
+- Never commit a real `appKey` to the remote. In `Examples/SampleApp/SampleApp.swift`, keep the tracked placeholder `<#Your App Key#>` and leave your real key as an unstaged local change.
 - Use GitHub to create pull requests (PRs).
 - PR titles should always be the same as the first line of the commit message.
 - Prefer idiomatic, industry standard Swift style. Follow https://www.swift.org/documentation/api-design-guidelines/.

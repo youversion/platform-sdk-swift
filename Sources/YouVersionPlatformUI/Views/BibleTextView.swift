@@ -13,8 +13,7 @@ public struct BibleTextView: View {
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
-    // swiftlint:disable:next private_swiftui_state
-    @State var ourHighlights: [BibleHighlight] = []
+    @State private var ourHighlights: [BibleHighlight] = []
     @Binding var selectedVerses: Set<BibleReference>
     @Environment(\.layoutDirection) private var systemLayoutDirection
 
@@ -85,7 +84,7 @@ public struct BibleTextView: View {
         .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)") {
             await loadBlocks()
         }
-        .coordinateSpace(name: "BibleTextView")
+        .coordinateSpace(.named("BibleTextView"))
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
         }
@@ -95,6 +94,18 @@ public struct BibleTextView: View {
         .onChange(of: BibleHighlightsCache.shared.cachedHighlights) { _, _ in
             ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
         }
+    }
+
+    func highlightFor(reference: BibleReference?) -> Color {
+        guard let reference else {
+            return .clear
+        }
+        for highlight in ourHighlights {
+            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
+                return Color(hex: highlight.color)
+            }
+        }
+        return .clear
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {

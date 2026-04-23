@@ -177,18 +177,6 @@ extension BibleTextView {
         return false
     }
 
-    private func highlightFor(reference: BibleReference?) -> Color {
-        guard let reference else {
-            return .clear
-        }
-        for highlight in ourHighlights {
-            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
-                return Color(hex: highlight.color)
-            }
-        }
-        return .clear
-    }
-
     // so that the Grid has a Hashable, Identifiable list to work with
     private struct TableCellDoubleString: Hashable, Identifiable {
         let id = UUID()  // for Identifiable
