@@ -23,6 +23,30 @@ Tests are in the top-level Tests dir. The tests of YouVersionPlatformCore must r
 
 - Always run `swift test` and SwiftLint on code changes before finalizing work.
 
+## Public API Stability
+
+Source-breaking changes to the SDK's public interface are blocked by a CI job
+(`.github/workflows/api-stability.yml`) that diffs the PR's API surface against
+committed baselines under `.api-baseline/`. Additive changes pass; renames,
+removals, and signature changes fail until the baseline is intentionally
+updated as part of a major version bump.
+
+To verify locally:
+
+```bash
+scripts/check-api-stability.sh check
+```
+
+When a breaking change is intentional (typically as part of a major version
+bump), update the baselines and commit them in the same PR:
+
+```bash
+scripts/check-api-stability.sh update
+```
+
+The baseline files are JSON dumps from `swift-api-digester` covering
+`YouVersionPlatformCore`, `YouVersionPlatformUI`, and `YouVersionPlatformReader`.
+
 ## SwiftLint
 
 In a Linux container, run SwiftLint with SourceKit configured:
