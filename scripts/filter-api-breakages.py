@@ -1,21 +1,31 @@
 #!/usr/bin/env python3
 """Post-filter swift-api-digester diagnostics.
 
-`swift-api-digester` reports "has been renamed" for any change to a function's
-selector, including the source-compatible case of adding a new parameter that
-has a default value. This script removes those false positives by cross-
-referencing the current API dump: a "rename" is silenced only when all of the
-following hold:
+Silences digester "breakages" that are not real source-incompatible changes:
 
-  1. The base function name is unchanged (real renames are kept).
-  2. The old selector's labels are a prefix of the new selector's labels
-     (no reordering or relabeling of existing parameters).
-  3. Every parameter added to the new signature is marked `hasDefaultArg: true`
-     in the current dump (i.e. existing callers still compile).
+  1. Renames caused by adding a parameter with a default value to an existing
+     function (the digester reports "has been renamed to"). Suppressed only
+     when all of these hold:
+       - The base name is unchanged (real renames are kept).
+       - The old selector's labels are a prefix of the new selector's labels.
+       - Every added parameter has `hasDefaultArg: true` in the current dump.
 
-All other diagnostics, including renames with changed base names, removed
-parameters, parameter relabels, and renames where an added parameter has no
-default, pass through unchanged.
+  2. Removals of a callable when a surviving overload covers the same call
+     sites (the digester reports "has been removed" for constructors and
+     subscripts in cases where functions would have been reported as renamed).
+     Suppressed only when the current dump contains a callable with the same
+     base name whose selector extends the removed one with only defaulted
+     parameters.
+
+  3. Conformance diffs against language-synthesized protocols like `Sendable`,
+     `Copyable`, and `Escapable`. These protocols are inferred by the compiler
+     based on a type's structure, so the set a given toolchain emits for a
+     given type can drift between Swift releases even when the library's
+     declarations are unchanged. Library authors don't declare these
+     conformances explicitly, so diffs against them are toolchain noise rather
+     than API changes.
+
+All other diagnostics pass through unchanged.
 
 Usage:
   filter-api-breakages.py <diagnostic-file> <current-dump.json>
@@ -29,9 +39,27 @@ import sys
 
 
 RENAME_PATTERN = re.compile(
-    r"^API breakage:\s+(?:func|var|let|init|subscript)\s+(.+?)\s+"
-    r"has been renamed to\s+(?:func|var|let|init|subscript)\s+(.+)$"
+    r"^API breakage:\s+\w+\s+(.+?)\s+has been renamed to\s+\w+\s+(.+)$"
 )
+
+REMOVAL_PATTERN = re.compile(
+    r"^API breakage:\s+\w+\s+(.+?)\s+has been removed$"
+)
+
+CONFORMANCE_PATTERN = re.compile(
+    r"^API breakage:\s+.+\s+has (?:added|removed) conformance to\s+(\S+)$"
+)
+
+# Protocols the Swift compiler synthesizes conformance to based on a type's
+# structure rather than explicit declaration. The set a toolchain emits shifts
+# between Swift releases, so diffs against these are not real API changes.
+SYNTHESIZED_PROTOCOLS = frozenset({
+    "Sendable",
+    "SendableMetatype",
+    "Copyable",
+    "Escapable",
+    "BitwiseCopyable",
+})
 
 
 def selector_labels(signature: str) -> list[str]:
@@ -52,24 +80,42 @@ def base_name(signature: str) -> str:
     return head.rsplit(".", 1)[-1]
 
 
-def find_function(node, printed_name: str):
-    """Depth-first search for a Function node with the given printedName."""
+CALLABLE_KINDS = frozenset({"Function", "Constructor", "Subscript"})
+
+
+def find_callable(node, printed_name: str):
+    """Depth-first search for a callable declaration (func, init, subscript)
+    with the given printedName."""
     if isinstance(node, dict):
-        if node.get("kind") == "Function" and node.get("printedName") == printed_name:
+        if node.get("kind") in CALLABLE_KINDS and node.get("printedName") == printed_name:
             return node
         for value in node.values():
-            hit = find_function(value, printed_name)
+            hit = find_callable(value, printed_name)
             if hit is not None:
                 return hit
     elif isinstance(node, list):
         for item in node:
-            hit = find_function(item, printed_name)
+            hit = find_callable(item, printed_name)
             if hit is not None:
                 return hit
     return None
 
 
+def iter_callables(node):
+    """Yield every callable declaration in the dump."""
+    if isinstance(node, dict):
+        if node.get("kind") in CALLABLE_KINDS:
+            yield node
+        for value in node.values():
+            yield from iter_callables(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from iter_callables(item)
+
+
 def is_benign_param_addition(old_sig: str, new_sig: str, current_dump) -> bool:
+    """True when `old_sig` → `new_sig` is a direct rename diagnostic caused
+    only by appending parameters that all have default values."""
     if base_name(old_sig) != base_name(new_sig):
         return False
 
@@ -81,17 +127,41 @@ def is_benign_param_addition(old_sig: str, new_sig: str, current_dump) -> bool:
         return False
 
     new_printed_name = new_sig.split(".", 1)[-1] if "." in new_sig.split("(", 1)[0] else new_sig
-    function = find_function(current_dump, new_printed_name)
-    if function is None:
+    declaration = find_callable(current_dump, new_printed_name)
+    if declaration is None:
         return False
 
-    children = function.get("children", [])
+    children = declaration.get("children", [])
     params = children[1:]
     if len(params) != len(new_labels):
         return False
 
     added_params = params[len(old_labels):]
     return all(p.get("hasDefaultArg") is True for p in added_params)
+
+
+def is_benign_removal(old_sig: str, current_dump) -> bool:
+    """True when a 'has been removed' diagnostic is covered by a surviving
+    overload whose signature extends the removed one with only defaulted
+    parameters (so existing call sites still compile)."""
+    old_base = base_name(old_sig)
+    old_labels = selector_labels(old_sig)
+
+    for candidate in iter_callables(current_dump):
+        if candidate.get("name") != old_base:
+            continue
+        candidate_labels = selector_labels(candidate.get("printedName", ""))
+        if len(candidate_labels) <= len(old_labels):
+            continue
+        if candidate_labels[: len(old_labels)] != old_labels:
+            continue
+        params = candidate.get("children", [])[1:]
+        if len(params) != len(candidate_labels):
+            continue
+        added = params[len(old_labels):]
+        if all(p.get("hasDefaultArg") is True for p in added):
+            return True
+    return False
 
 
 def main() -> int:
@@ -111,8 +181,16 @@ def main() -> int:
     for line in lines:
         if not line.startswith("API breakage:"):
             continue
-        match = RENAME_PATTERN.match(line)
-        if match and is_benign_param_addition(match.group(1), match.group(2), current_dump):
+        rename_match = RENAME_PATTERN.match(line)
+        if rename_match and is_benign_param_addition(
+            rename_match.group(1), rename_match.group(2), current_dump
+        ):
+            continue
+        removal_match = REMOVAL_PATTERN.match(line)
+        if removal_match and is_benign_removal(removal_match.group(1), current_dump):
+            continue
+        conformance_match = CONFORMANCE_PATTERN.match(line)
+        if conformance_match and conformance_match.group(1) in SYNTHESIZED_PROTOCOLS:
             continue
         print(line)
 
