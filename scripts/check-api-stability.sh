@@ -65,6 +65,7 @@ WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 FAILED_MODULES=()
+TOTAL_BREAKAGES=0
 
 for module in "${MODULES[@]}"; do
   baseline="$BASELINE_DIR/$module.json"
@@ -87,22 +88,38 @@ for module in "${MODULES[@]}"; do
     -input-paths "$current" \
     >"$diag" 2>&1 || true
 
-  if grep -q "^API breakage:" "$diag"; then
+  filtered="$WORK_DIR/$module.filtered"
+  python3 "$REPO_ROOT/scripts/filter-api-breakages.py" "$diag" "$current" >"$filtered"
+
+  if [[ -s "$filtered" ]]; then
     FAILED_MODULES+=("$module")
+    count="$(wc -l < "$filtered" | tr -d ' ')"
+    TOTAL_BREAKAGES=$((TOTAL_BREAKAGES + count))
     echo
-    echo "=== Breaking changes detected in $module ==="
-    grep "^API breakage:" "$diag"
+    echo "  $module: $count breaking change(s) detected"
+    sed 's/^API breakage: /    - /' "$filtered"
     echo
   fi
 done
 
 if (( ${#FAILED_MODULES[@]} > 0 )); then
-  echo "API stability check failed for: ${FAILED_MODULES[*]}" >&2
-  echo
-  echo "If these changes are intentional and tied to a major version bump, run:" >&2
-  echo "  scripts/check-api-stability.sh update" >&2
-  echo "then commit the updated baseline files." >&2
+  {
+    echo
+    echo "=============================================================="
+    echo " FAILED: public API stability check"
+    echo "=============================================================="
+    echo "$TOTAL_BREAKAGES breaking change(s) across ${#FAILED_MODULES[@]} module(s): ${FAILED_MODULES[*]}"
+    echo
+    echo "If these changes are intentional and tied to a major version bump,"
+    echo "regenerate the baselines and commit them in the same PR:"
+    echo
+    echo "  scripts/check-api-stability.sh update"
+  } >&2
   exit 1
 fi
 
-echo "API stability check passed."
+echo
+echo "=============================================================="
+echo " PASSED: public API stability check"
+echo "=============================================================="
+echo "No breaking changes detected in: ${MODULES[*]}"
