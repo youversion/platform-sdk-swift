@@ -20,7 +20,7 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BASELINE_DIR="$REPO_ROOT/.api-baseline"
-TARGET_TRIPLE="arm64-apple-macosx15.0"
+TARGET_TRIPLE="$(uname -m)-apple-macosx15.0"
 MODULES=(YouVersionPlatformCore YouVersionPlatformUI YouVersionPlatformReader)
 
 cd "$REPO_ROOT"
