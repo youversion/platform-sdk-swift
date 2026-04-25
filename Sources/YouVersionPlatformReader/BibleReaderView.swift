@@ -18,6 +18,8 @@ public struct BibleReaderView: View {
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
+    private var audioActiveReference: Binding<BibleReference?>?
+    @State private var lastScrolledVerse: Int?
 
     /// Creates a Bible reader view.
     ///
@@ -44,18 +46,27 @@ public struct BibleReaderView: View {
     ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
     ///     that has a note indicator (pencil icon) and is not already selected. When
     ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
+    ///   - onReferenceChange: An optional closure called whenever the displayed
+    ///     chapter reference changes — for example when the user taps the
+    ///     next/previous chapter buttons or picks a new book/chapter from the header.
+    ///   - audioActiveReference: An optional binding to the verse currently being
+    ///     narrated by audio playback. When this value changes, the reader
+    ///     auto-scrolls to keep the active verse visible.
     public init(reference: BibleReference? = nil,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
-                onNoteIndicatorTap: ((BibleReference) -> Void)? = nil
+                onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+                onReferenceChange: ((BibleReference) -> Void)? = nil,
+                audioActiveReference: Binding<BibleReference?>? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
         self.externalSelectedVerses = selectedVerses
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap)
+        self.audioActiveReference = audioActiveReference
+        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
@@ -159,6 +170,9 @@ public struct BibleReaderView: View {
         }
         .onChange(of: reduceMotion, initial: true) { _, newValue in
             viewModel.isReduceMotionEnabled = newValue
+        }
+        .onChange(of: viewModel.reference, initial: true) { _, newReference in
+            viewModel.onReferenceChange?(newReference)
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -309,10 +323,22 @@ public struct BibleReaderView: View {
                 if shouldScroll {
                     scrollProxy.scrollTo("topOfContent", anchor: .top)
                     viewModel.scrollToTop = false
-                    // Reset the changing chapter flag after a delay to allow scroll animation to complete
+                    lastScrolledVerse = nil
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         viewModel.isChangingChapter = false
                     }
+                }
+            }
+            .onChange(of: audioActiveReference?.wrappedValue) { _, newReference in
+                guard let verse = newReference?.verseStart,
+                      verse != lastScrolledVerse,
+                      !viewModel.isChangingChapter else {
+                    return
+                }
+                lastScrolledVerse = verse
+                let anchorId = "ch\(viewModel.reference.chapter)v\(verse)"
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    scrollProxy.scrollTo(anchorId, anchor: .center)
                 }
             }
         }

@@ -466,6 +466,7 @@ public enum BibleVersionRendering {
         let block = BibleTextBlock(
             text: stateUp.text,
             chapter: stateUp.chapter,
+            startVerse: stateUp.blockStartVerse,
             firstLineHeadIndent: stateUp.firstLineHeadIndent,
             headIndent: stateUp.headIndent,
             marginTop: marginTop,
@@ -545,6 +546,7 @@ public enum BibleVersionRendering {
         var bookUSFM: String
         var chapter: Int
         var verse: Int
+        var blockStartVerse: Int?
         var text = BibleAttributedString()
         var footnotes: [BibleFootnote] = []
         var footnoteCounter = 100
@@ -563,6 +565,9 @@ public enum BibleVersionRendering {
                     let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse > 0 ? verse : 1)
                     let scheme = isFootnote ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
                     newText.markWithReference(reference, scheme: scheme, id: id)
+                }
+                if blockStartVerse == nil && verse > 0 {
+                    blockStartVerse = verse
                 }
                 text += newText
             }
@@ -587,6 +592,7 @@ public enum BibleVersionRendering {
 
         mutating func clearText() {
             text = BibleAttributedString()
+            blockStartVerse = nil
         }
 
         var isTextEmpty: Bool {

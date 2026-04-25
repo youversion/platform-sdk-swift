@@ -73,6 +73,7 @@ public struct BibleTextView: View {
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
+                        .id(block.verseAnchorId ?? "block-\(block.id)")
                 }
             }
         }
