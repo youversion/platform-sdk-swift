@@ -18,7 +18,7 @@ public struct BibleReaderView: View {
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
-    private var audioActiveReference: Binding<BibleReference?>?
+    private var audioActiveReference: BibleReference?
     @State private var lastScrolledVerse: Int?
 
     /// Creates a Bible reader view.
@@ -49,16 +49,16 @@ public struct BibleReaderView: View {
     ///   - onReferenceChange: An optional closure called whenever the displayed
     ///     chapter reference changes — for example when the user taps the
     ///     next/previous chapter buttons or picks a new book/chapter from the header.
-    ///   - audioActiveReference: An optional binding to the verse currently being
-    ///     narrated by audio playback. When this value changes, the reader
-    ///     auto-scrolls to keep the active verse visible.
+    ///   - audioActiveReference: The verse currently being narrated by audio
+    ///     playback. When this value changes, the reader auto-scrolls to keep
+    ///     the active verse visible. Pass `nil` when audio is not playing.
     public init(reference: BibleReference? = nil,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
-                audioActiveReference: Binding<BibleReference?>? = nil
+                audioActiveReference: BibleReference? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
@@ -329,7 +329,7 @@ public struct BibleReaderView: View {
                     }
                 }
             }
-            .onChange(of: audioActiveReference?.wrappedValue) { _, newReference in
+            .onChange(of: audioActiveReference) { _, newReference in
                 guard let verse = newReference?.verseStart,
                       verse != lastScrolledVerse,
                       !viewModel.isChangingChapter else {
