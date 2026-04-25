@@ -74,48 +74,66 @@ def selector_labels(signature: str) -> list[str]:
     return [part for part in inside.rstrip(":").split(":") if part]
 
 
+def split_owner(signature: str) -> tuple[str | None, str]:
+    """`Foo.bar(x:)` → ('Foo', 'bar(x:)'); `bar(x:)` → (None, 'bar(x:)').
+
+    Owner is everything before the rightmost `.` in the part preceding `(`.
+    Used to ensure a free function and a method on a type with the same base
+    name are not treated as overloads of each other.
+    """
+    head, _, tail = signature.partition("(")
+    if "." in head:
+        owner, name = head.rsplit(".", 1)
+        return owner, f"{name}({tail}"
+    return None, signature
+
+
 def base_name(signature: str) -> str:
     """`Foo.bar(x:)` → `bar`; `bar(x:)` → `bar`."""
-    head = signature.split("(", 1)[0]
-    return head.rsplit(".", 1)[-1]
+    return split_owner(signature)[1].split("(", 1)[0]
 
 
 CALLABLE_KINDS = frozenset({"Function", "Constructor", "Subscript"})
 
 
-def find_callable(node, printed_name: str):
-    """Depth-first search for a callable declaration (func, init, subscript)
-    with the given printedName."""
+def iter_callables_with_owner(node, owner_stack=None):
+    """Yield (callable_node, owner_string_or_None) for every callable in the
+    dump, where owner is the dot-joined chain of enclosing type names.
+
+    The digester uses `kind: "TypeDecl"` for every declared type (struct,
+    class, enum, etc.); the specific declKind matters for human readability
+    but not for owner-chain construction. Any TypeDecl introduces a scope.
+    """
+    if owner_stack is None:
+        owner_stack = []
     if isinstance(node, dict):
-        if node.get("kind") in CALLABLE_KINDS and node.get("printedName") == printed_name:
-            return node
+        kind = node.get("kind")
+        if kind in CALLABLE_KINDS:
+            owner = ".".join(owner_stack) if owner_stack else None
+            yield node, owner
+        if kind == "TypeDecl":
+            type_name = node.get("printedName") or node.get("name") or ""
+            child_stack = owner_stack + [type_name]
+        else:
+            child_stack = owner_stack
         for value in node.values():
-            hit = find_callable(value, printed_name)
-            if hit is not None:
-                return hit
+            yield from iter_callables_with_owner(value, child_stack)
     elif isinstance(node, list):
         for item in node:
-            hit = find_callable(item, printed_name)
-            if hit is not None:
-                return hit
+            yield from iter_callables_with_owner(item, owner_stack)
+
+
+def find_callable_in_owner(current_dump, owner: str | None, printed_name: str):
+    for callable_node, found_owner in iter_callables_with_owner(current_dump):
+        if found_owner == owner and callable_node.get("printedName") == printed_name:
+            return callable_node
     return None
-
-
-def iter_callables(node):
-    """Yield every callable declaration in the dump."""
-    if isinstance(node, dict):
-        if node.get("kind") in CALLABLE_KINDS:
-            yield node
-        for value in node.values():
-            yield from iter_callables(value)
-    elif isinstance(node, list):
-        for item in node:
-            yield from iter_callables(item)
 
 
 def is_benign_param_addition(old_sig: str, new_sig: str, current_dump) -> bool:
     """True when `old_sig` → `new_sig` is a direct rename diagnostic caused
-    only by appending parameters that all have default values."""
+    only by appending parameters that all have default values to the same
+    declaration (same owner, same base name)."""
     if base_name(old_sig) != base_name(new_sig):
         return False
 
@@ -126,8 +144,12 @@ def is_benign_param_addition(old_sig: str, new_sig: str, current_dump) -> bool:
     if new_labels[: len(old_labels)] != old_labels:
         return False
 
-    new_printed_name = new_sig.split(".", 1)[-1] if "." in new_sig.split("(", 1)[0] else new_sig
-    declaration = find_callable(current_dump, new_printed_name)
+    # The digester is inconsistent about whether the right-hand signature
+    # carries the owner prefix. Use the left-hand owner as truth, and look
+    # the new declaration up in that scope only.
+    old_owner, _ = split_owner(old_sig)
+    _, new_local = split_owner(new_sig)
+    declaration = find_callable_in_owner(current_dump, old_owner, new_local)
     if declaration is None:
         return False
 
@@ -142,12 +164,15 @@ def is_benign_param_addition(old_sig: str, new_sig: str, current_dump) -> bool:
 
 def is_benign_removal(old_sig: str, current_dump) -> bool:
     """True when a 'has been removed' diagnostic is covered by a surviving
-    overload whose signature extends the removed one with only defaulted
-    parameters (so existing call sites still compile)."""
+    overload in the same owner whose signature extends the removed one with
+    only defaulted parameters (so existing call sites still compile)."""
+    old_owner, _ = split_owner(old_sig)
     old_base = base_name(old_sig)
     old_labels = selector_labels(old_sig)
 
-    for candidate in iter_callables(current_dump):
+    for candidate, owner in iter_callables_with_owner(current_dump):
+        if owner != old_owner:
+            continue
         if candidate.get("name") != old_base:
             continue
         candidate_labels = selector_labels(candidate.get("printedName", ""))
