@@ -77,11 +77,8 @@ public enum ReaderFonts {
         "Trebuchet MS"
     ]
 
-    static func isPermittedFont(_ family: String?) -> Bool {
-        guard let family else {
-            return false
-        }
-        return suggestedFamilies.contains(family) || otherFamilies.contains(family)
+    static func isPermittedFont(_ family: String) -> Bool {
+        suggestedFamilies.contains(family) || otherFamilies.contains(family)
     }
 
     // MARK: - Font Sizes and Spacing

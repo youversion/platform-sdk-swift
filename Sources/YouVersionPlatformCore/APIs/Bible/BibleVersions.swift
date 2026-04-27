@@ -32,7 +32,7 @@ public extension YouVersionAPI.Bible {
                 throw URLError(.badURL)
             }
 
-            let request = YouVersionAPI.makeRequest(url: url, accessToken: accessToken, session: session)
+            let request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             let (data, response) = try await session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -78,12 +78,11 @@ public extension YouVersionAPI.Bible {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let range = languageTag == nil ? [] : [languageTag!]
 
-        let data = try await YouVersionAPI.commonFetch(
-            // pageSize: nil means fetch them all. Permitted since we're only getting two fields.
-            url: URLBuilder.versionsURL(languageRanges: range, fields: ["id", "language_tag"], pageSize: nil),
-            accessToken: accessToken,
-            session: session
-        )
+        // pageSize: nil means fetch them all. Permitted since we're only getting two fields.
+        guard let url = URLBuilder.versionsURL(languageRanges: range, fields: ["id", "language_tag"], pageSize: nil) else {
+            throw URLError(.badURL)
+        }
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let responseObject = try JSONDecoder().decode(BibleVersionsResponse.self, from: data)
         return responseObject.data.map({ BibleVersionMinimalInfo(id: $0.id, languageTag: $0.languageTag) })
     }

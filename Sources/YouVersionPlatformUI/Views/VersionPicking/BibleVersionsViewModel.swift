@@ -41,11 +41,12 @@ public final class BibleVersionsViewModel {
         hasLoadedInitialState = true
 
         // Grab the saved data first, because initializing myVersions clears the saved data.
-        let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
+        let savedIds = Set(UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? [])
 
-        await loadVersion(versionId: initialVersionId, savedIds: savedIds)
-        await restoreMyVersions(savedIds: savedIds)
-        await loadSuggestedLanguages()
+        async let version: Void = loadVersion(versionId: initialVersionId, savedIds: savedIds)
+        async let restored: Void = restoreMyVersions(savedIds: savedIds)
+        async let suggested: Void = loadSuggestedLanguages()
+        _ = await (version, restored, suggested)
         await removeUnpermittedVersions(initialVersionId: initialVersionId)
     }
     
@@ -60,11 +61,11 @@ public final class BibleVersionsViewModel {
             myVersions.remove(version)
         }
         if let initialVersionId, !permittedIds.contains(initialVersionId) {
-            await selectFallbackVersion(savedIds: Array(myVersions.map(\.id)))
+            await selectFallbackVersion(savedIds: Set(myVersions.map(\.id)))
         }
     }
     
-    private func restoreMyVersions(savedIds: [Int]) async {
+    private func restoreMyVersions(savedIds: Set<Int>) async {
         for id in savedIds {
             if let version = try? await versionRepository.versionIfCached(id) {
                 myVersions.insert(version)
@@ -72,18 +73,14 @@ public final class BibleVersionsViewModel {
         }
 
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        let downloads = VersionDownloadCache.downloadedVersions
-        for id in downloads {
-            if myVersions.contains(where: { $0.id == id }) {
-                continue
-            }
+        for id in VersionDownloadCache.downloadedVersions where !myVersions.contains(where: { $0.id == id }) {
             if let version = try? await versionRepository.versionIfCached(id) {
                 myVersions.insert(version)
             }
         }
     }
     
-    private func loadVersion(versionId: Int?, savedIds: [Int]) async {
+    private func loadVersion(versionId: Int?, savedIds: Set<Int>) async {
         // Resolve the desired version if possible; otherwise fall back once at the end
         var loadedVersion: BibleVersion?
 
@@ -105,8 +102,8 @@ public final class BibleVersionsViewModel {
         }
     }
     
-    private func selectFallbackVersion(savedIds: [Int]) async {
-        guard let nextBestVersion = await fallbackVersion(from: Set(savedIds)),
+    private func selectFallbackVersion(savedIds: Set<Int>) async {
+        guard let nextBestVersion = await fallbackVersion(savedIds: savedIds),
               let version = try? await versionRepository.version(withId: nextBestVersion)
         else {
             // bring up the UI, let the user choose.
@@ -118,10 +115,21 @@ public final class BibleVersionsViewModel {
         myVersions.insert(version)
     }
     
-    private func fallbackVersion(from savedIds: Set<Int>) async -> Int? {
-        let downloads = VersionDownloadCache.downloadedVersions
-        if !downloads.isEmpty {
-            return downloads.first!
+    /// Picks a Bible version to fall back to when no specific version is selected,
+    /// trying these sources in priority order:
+    /// 1. The first version the user has already downloaded.
+    /// 2. The first of the user's saved versions that is currently permitted.
+    /// 3. The first available English version.
+    /// 4. Any available version.
+    ///
+    /// - Parameter savedIds: IDs of versions the user has previously saved
+    ///   (used as a preference at priority step 2).
+    /// - Returns: A fallback version ID, or `nil` if no version is available
+    ///   (typically because the device is offline).
+    private func fallbackVersion(savedIds: Set<Int>) async -> Int? {
+        let downloadedVersionIds = VersionDownloadCache.downloadedVersions
+        if let downloadedVersionId = downloadedVersionIds.first {
+            return downloadedVersionId
         }
         
         if let versions = try? await YouVersionAPI.Bible.versions() {

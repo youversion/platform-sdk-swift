@@ -152,6 +152,9 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 - Use local functions instead of inline closure blocks (`let x: () -> T = { ... }`).
 - Don't unwrap optional closures with `if let` — use `closure?()`.
 - Don't leave commented-out code in place.
+- If a function immediately `guard`s an Optional argument, make the argument non-Optional. The unwrap belongs at the call site, where the precondition stays explicit.
+- Don't build a new array with a `for` loop and `append`. Use `map`, `filter`, `compactMap`, `flatMap`, or `reduce` instead.
+- When awaiting multiple independent async calls, run them concurrently with `async let` (or a task group) rather than serially with back-to-back `await`s.
 
 ### SwiftUI-Specific Rules
 

@@ -224,8 +224,7 @@ public actor VersionDownloadCache: BibleVersionCaching {
     }
 
     public func removeUnpermittedVersions(permittedIds: Set<Int>) {
-        let downloads = Self.downloadedVersions
-        for downloadedId in downloads where !permittedIds.contains(downloadedId) {
+        for downloadedId in Self.downloadedVersions where !permittedIds.contains(downloadedId) {
             YouVersionPlatformLogger.notice(
                 "Removing downloaded Bible version \(downloadedId) because it is no longer permitted",
                 category: "VersionCache"
@@ -299,9 +298,11 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
         }
 
         // Otherwise, create a new fetch task
-        let task = Task { [apiClient, diskCache] in
+        let task = Task { [apiClient, diskCache, memoryCache] in
             let version = try await apiClient.version(withId: id)
-            await diskCache.addVersion(version)
+            async let memory: Void = memoryCache.addVersion(version)
+            async let disk: Void = diskCache.addVersion(version)
+            _ = await (memory, disk)
             return version
         }
 
@@ -311,10 +312,7 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
             inFlightTasks[id] = nil
         }
 
-        let version = try await task.value
-        await memoryCache.addVersion(version)
-        await diskCache.addVersion(version)
-        return version
+        return try await task.value
     }
 
     public func versionIsPresent(for id: Int) -> Bool {
@@ -346,14 +344,16 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
     }
 
     public func removeVersion(withId versionId: Int) async {
-        await memoryCache.removeVersion(withId: versionId)
-        await diskCache.removeVersion(withId: versionId)
-        await downloadCache.removeVersion(withId: versionId)
+        async let memory: Void = memoryCache.removeVersion(withId: versionId)
+        async let disk: Void = diskCache.removeVersion(withId: versionId)
+        async let download: Void = downloadCache.removeVersion(withId: versionId)
+        _ = await (memory, disk, download)
     }
 
     public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        await memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await diskCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let memory: Void = memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let disk: Void = diskCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let download: Void = downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        _ = await (memory, disk, download)
     }
 }

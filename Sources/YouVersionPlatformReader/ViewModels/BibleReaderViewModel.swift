@@ -80,8 +80,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let downloads = VersionDownloadCache.downloadedVersions
-                let versionId = reference?.versionId ?? downloads.first ?? 3034
+                let versionId = reference?.versionId ?? VersionDownloadCache.downloadedVersions.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false
             }
@@ -152,7 +151,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             // missing or corrupted settings; use the defaults.
             return
         }
-        fontFamily = ReaderFonts.isPermittedFont(savedValue.fontFamily) ? savedValue.fontFamily : ReaderFonts.defaultFontFamily
+        fontFamily = if let savedFamily = savedValue.fontFamily, ReaderFonts.isPermittedFont(savedFamily) {
+            savedFamily
+        } else {
+            ReaderFonts.defaultFontFamily
+        }
         fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
         lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
         colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
