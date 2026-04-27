@@ -343,7 +343,10 @@ public struct BibleReaderView: View {
     }
 
     private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
-        guard let verse = audioActiveReference?.verseStart,
+        guard let audioRef = audioActiveReference,
+              let verse = audioRef.verseStart,
+              audioRef.chapter == viewModel.reference.chapter,
+              audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased(),
               !viewModel.isChangingChapter else {
             return
         }
