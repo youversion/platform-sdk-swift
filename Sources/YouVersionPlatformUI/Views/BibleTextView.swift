@@ -338,9 +338,6 @@ package struct VerseAnchorsPreferenceKey: PreferenceKey {
     package static var defaultValue: [Int] { [] }
 
     package static func reduce(value: inout [Int], nextValue: () -> [Int]) {
-        let next = nextValue()
-        if !next.isEmpty {
-            value = next
-        }
+        value = nextValue()
     }
 }

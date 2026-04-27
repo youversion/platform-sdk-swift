@@ -173,6 +173,8 @@ public struct BibleReaderView: View {
             viewModel.isReduceMotionEnabled = newValue
         }
         .onChange(of: viewModel.reference, initial: true) { _, newReference in
+            verseAnchors = []
+            lastScrolledVerse = nil
             viewModel.onReferenceChange?(newReference)
         }
         .environment(viewModel)
@@ -351,8 +353,10 @@ public struct BibleReaderView: View {
         }
         lastScrolledVerse = anchorVerse
         let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
-        withAnimation(.easeInOut(duration: 0.3)) {
-            scrollProxy.scrollTo(anchorId, anchor: .center)
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                scrollProxy.scrollTo(anchorId, anchor: .center)
+            }
         }
     }
 
