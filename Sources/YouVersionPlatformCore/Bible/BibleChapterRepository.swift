@@ -1,10 +1,4 @@
 import Foundation
-//import ZipArchive // TEMPORARY
-// #if canImport(ZipArchive)
-// import ZipArchive
-// #elseif canImport(SSZipArchive)
-// import SSZipArchive
-// #endif
 
 public actor ChapterDiskCache {
     private let storage: BibleContentStorage
@@ -65,66 +59,6 @@ public actor ChapterDownloadCache {
         }
         return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
-
-    /* TEMPORARY
-    func addChapterContent(_ content: String, reference: BibleReference) {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return
-        }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        do {
-            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if let data = content.data(using: .utf8) {
-                try data.write(to: url, options: .atomic)
-            } else {
-                print("WARNING: Failed to convert content to UTF-8 data for \(url)")
-            }
-        } catch {
-            print("WARNING: ChapterDownloadCache failed to write data to \(url): \(error)")
-        }
-    }
-
-    /// Downloads and installs a complete version bundle
-    func downloadVersionBundle(versionId: Int, build: Int, accessToken: String) async throws {
-        guard let appKey = YouVersionPlatformConfiguration.appKey else {
-            fatalError("YouVersionPlatformConfiguration.appKey must be set.")
-        }
-
-        let host = YouVersionPlatformConfiguration.apiHost
-        let url = URL(string: "https://\(host)/bible/bundle?version=\(versionId)&build=\(build)")!
-        var request = URLRequest(url: url)
-        request.setValue(appKey, forHTTPHeaderField: "x-yvp-app-key")
-        request.setValue(YouVersionPlatformConfiguration.installId, forHTTPHeaderField: "x-yvp-installation-id")
-        request.setValue(accessToken, forHTTPHeaderField: "x-yv-lat")
-
-        let (localURL, response) = try await URLSession.shared.download(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("downloadVersionBundle: unexpected response type")
-            throw YouVersionAPIError.invalidResponse
-        }
-
-        if httpResponse.statusCode == 401 {
-            print("downloadVersionBundle: 401 Unauthorized (possibly a bad appKey, or the user has not granted permission)")
-            throw YouVersionAPIError.notPermitted
-        }
-
-        guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while downloading a version")
-            throw YouVersionAPIError.cannotDownload
-        }
-
-        var cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
-        try FileManager.default.createDirectory(at: cacheURL, withIntermediateDirectories: true)
-
-        SSZipArchive.unzipFile(atPath: localURL.path(), toDestination: cacheURL.path(percentEncoded: false))
-
-        // exclude it from iCloud backup
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try? cacheURL.setResourceValues(values)
-    }
-     */
 
     nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
@@ -194,28 +128,6 @@ public actor BibleChapterRepository: ObservableObject {
         let cacheKey = Self.cacheKey(reference: reference)
         return memoryCache[cacheKey]
     }
-
-    /* TEMPORARY
-    public func download(version: BibleVersion) async throws {
-        guard let accessToken = YouVersionPlatformConfiguration.accessToken else {
-            throw YouVersionAPIError.notPermitted
-        }
-        guard let build = version.offline?.build?.max else {
-            print("no build info")
-            throw YouVersionAPIError.cannotDownload
-        }
-        do {
-            try await downloadCache.downloadVersionBundle(
-                versionId: version.id,
-                build: build,
-                accessToken: accessToken
-            )
-        } catch {
-            print("download failed: \(error)")
-            throw error
-        }
-        await diskCache.removeVersion(versionId: version.id)  // no need to keep 2 copies
-    }*/
 
     func chaptersArePresent(versionId: Int) -> Bool {
         downloadCache.chaptersArePresent(versionId: versionId)
