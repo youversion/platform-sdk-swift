@@ -106,7 +106,7 @@ public final class BibleVersionsViewModel {
     }
     
     private func selectFallbackVersion(savedIds: [Int]) async {
-        guard let nextBestVersion = await anyAcceptableVersion(savedIds: Set(savedIds)),
+        guard let nextBestVersion = await fallbackVersion(from: Set(savedIds)),
               let version = try? await versionRepository.version(withId: nextBestVersion)
         else {
             // bring up the UI, let the user choose.
@@ -118,7 +118,7 @@ public final class BibleVersionsViewModel {
         myVersions.insert(version)
     }
     
-    private func anyAcceptableVersion(savedIds: Set<Int>) async -> Int? {
+    private func fallbackVersion(from savedIds: Set<Int>) async -> Int? {
         let downloads = VersionDownloadCache.downloadedVersions
         if !downloads.isEmpty {
             return downloads.first!
