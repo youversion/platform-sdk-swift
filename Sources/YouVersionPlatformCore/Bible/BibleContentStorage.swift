@@ -1,0 +1,122 @@
+import Foundation
+
+public enum BibleContentStorageKind: Sendable {
+    case cache
+    case download
+}
+
+public protocol BibleContentDirectoryProviding: Sendable {
+    func rootURL(for storageKind: BibleContentStorageKind) -> URL
+}
+
+public struct DefaultBibleContentDirectoryProvider: BibleContentDirectoryProviding {
+    public init() {}
+
+    public func rootURL(for storageKind: BibleContentStorageKind) -> URL {
+        let searchPathDirectory: FileManager.SearchPathDirectory = switch storageKind {
+        case .cache:
+            .cachesDirectory
+        case .download:
+            .applicationSupportDirectory
+        }
+
+        return FileManager.default.urls(for: searchPathDirectory, in: .userDomainMask).first!
+    }
+}
+
+enum BibleContentStorageResource: Sendable {
+    case versionDirectory(versionId: Int)
+    case versionMetadata(versionId: Int)
+    case chaptersDirectory(versionId: Int)
+    case chapter(versionId: Int, usfm: String)
+}
+
+struct BibleContentStorage: Sendable {
+    private let storageKind: BibleContentStorageKind
+    private let directoryProvider: BibleContentDirectoryProviding
+
+    init(
+        storageKind: BibleContentStorageKind,
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
+    ) {
+        self.storageKind = storageKind
+        self.directoryProvider = directoryProvider
+    }
+
+    var versionDirectoryIds: [Int] {
+        scanForVersionsIn(dir: directoryProvider.rootURL(for: storageKind))
+    }
+
+    func url(for resource: BibleContentStorageResource) -> URL {
+        switch resource {
+        case let .versionDirectory(versionId):
+            directoryProvider.rootURL(for: storageKind)
+                .appending(path: "bible_\(versionId)", directoryHint: .isDirectory)
+        case let .versionMetadata(versionId):
+            url(for: .versionDirectory(versionId: versionId))
+                .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
+        case let .chaptersDirectory(versionId):
+            url(for: .versionDirectory(versionId: versionId))
+                .appending(path: "Chapters", directoryHint: .isDirectory)
+        case let .chapter(versionId, usfm):
+            url(for: .chaptersDirectory(versionId: versionId))
+                .appending(path: usfm, directoryHint: .notDirectory)
+        }
+    }
+
+    func data(for resource: BibleContentStorageResource) -> Data? {
+        try? Data(contentsOf: url(for: resource))
+    }
+
+    func string(for resource: BibleContentStorageResource) -> String? {
+        guard let data = data(for: resource) else {
+            return nil
+        }
+        return String(data: data, encoding: .utf8)
+    }
+
+    func decoded<T: Decodable>(_ type: T.Type, for resource: BibleContentStorageResource) -> T? {
+        guard let data = data(for: resource) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    func contains(_ resource: BibleContentStorageResource) -> Bool {
+        FileManager.default.fileExists(atPath: url(for: resource).path)
+    }
+
+    func containsNonEmptyDirectory(_ resource: BibleContentStorageResource) -> Bool {
+        let path = url(for: resource).path()
+        guard let contents = FileManager.default.subpaths(atPath: path) else {
+            return false
+        }
+        return !contents.isEmpty
+    }
+}
+
+func scanForVersionsIn(dir: URL) -> [Int] {
+    let urls = (try? FileManager.default.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey],
+        options: [.skipsHiddenFiles]
+    )) ?? []
+
+    var ids: [Int] = []
+    let prefix = "bible_"
+
+    for url in urls {
+        if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
+           values.isDirectory == true {
+            let name = url.lastPathComponent
+            if name.hasPrefix(prefix) {
+                let suffix = String(name.dropFirst(prefix.count))
+                let isAllDigits = suffix.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
+                if isAllDigits, suffix.count < 7, let id = Int(suffix) {
+                    ids.append(id)
+                }
+            }
+        }
+    }
+    return ids
+}

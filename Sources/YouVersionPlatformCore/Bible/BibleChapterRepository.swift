@@ -6,39 +6,25 @@ import Foundation
 // import SSZipArchive
 // #endif
 
-func urlForBibleContentDirectory(versionId: Int, kind: FileManager.SearchPathDirectory) -> URL {
-    let cachesDirectory = FileManager.default.urls(for: kind, in: .userDomainMask).first!
-    return cachesDirectory
-        .appending(path: "bible_\(versionId)", directoryHint: .isDirectory)
-}
-
 public actor ChapterDiskCache {
-    static func urlForChaptersDirectory(versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .cachesDirectory)
-            .appending(path: "Chapters", directoryHint: .isDirectory)
-    }
+    private let storage: BibleContentStorage
 
-    static func urlForCachedChapter(withUSFM usfm: String, versionId: Int) -> URL {
-        urlForChaptersDirectory(versionId: versionId)
-            .appending(path: usfm, directoryHint: .notDirectory)
+    public init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+        self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
         guard let chapterUSFM = reference.chapterUSFM else {
             return nil
         }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        return String(data: data, encoding: .utf8)
+        return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
 
     func addChapterContent(_ content: String, reference: BibleReference) {
         guard let chapterUSFM = reference.chapterUSFM else {
             return
         }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
+        let url = storage.url(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
         do {
             try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             if let data = content.data(using: .utf8) {
@@ -52,7 +38,7 @@ public actor ChapterDiskCache {
     }
 
     public func removeVersion(versionId: Int) async {
-        let cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
+        let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
             try FileManager.default.removeItem(at: cacheURL)
         } catch {
@@ -67,25 +53,17 @@ public actor ChapterDiskCache {
 // TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
 // (Plus, both of these are nearly identical to the code of VersionDiskCache and VersionDownloadCache!)
 public actor ChapterDownloadCache {
-    static func urlForChaptersDirectory(versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .applicationSupportDirectory)
-            .appending(path: "Chapters", directoryHint: .isDirectory)
-    }
+    private let storage: BibleContentStorage
 
-    static func urlForCachedChapter(withUSFM usfm: String, versionId: Int) -> URL {
-        urlForChaptersDirectory(versionId: versionId)
-            .appending(path: usfm, directoryHint: .notDirectory)
+    public init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+        self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
         guard let chapterUSFM = reference.chapterUSFM else {
             return nil
         }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        return String(data: data, encoding: .utf8)
+        return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
 
     /* TEMPORARY
@@ -149,15 +127,11 @@ public actor ChapterDownloadCache {
      */
 
     nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
-        let path = Self.urlForChaptersDirectory(versionId: versionId).path()
-        if let contents = FileManager.default.subpaths(atPath: path) {
-            return !contents.isEmpty
-        }
-        return false
+        storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
     public func removeVersion(versionId: Int) async {
-        let cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
+        let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
             try FileManager.default.removeItem(at: cacheURL)
         } catch {
