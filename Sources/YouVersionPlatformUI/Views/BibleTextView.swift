@@ -77,6 +77,7 @@ public struct BibleTextView: View {
                 }
             }
         }
+        .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
@@ -331,4 +332,15 @@ public enum BibleTextLoadingPhase {
     case loading
     case failed
     case notPermitted
+}
+
+package struct VerseAnchorsPreferenceKey: PreferenceKey {
+    package static var defaultValue: [Int] { [] }
+
+    package static func reduce(value: inout [Int], nextValue: () -> [Int]) {
+        let next = nextValue()
+        if !next.isEmpty {
+            value = next
+        }
+    }
 }

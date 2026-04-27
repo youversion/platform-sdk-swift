@@ -20,6 +20,7 @@ public struct BibleReaderView: View {
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
     private var audioActiveReference: BibleReference?
     @State private var lastScrolledVerse: Int?
+    @State private var verseAnchors: [Int] = []
 
     /// Creates a Bible reader view.
     ///
@@ -314,6 +315,7 @@ public struct BibleReaderView: View {
                 .frame(height: 0)
             }
             .coordinateSpace(name: "scrollView")
+            .onPreferenceChange(VerseAnchorsPreferenceKey.self) { verseAnchors = $0 }
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 Task { @MainActor in
                     viewModel.handleScroll(offset: value)
@@ -329,18 +331,28 @@ public struct BibleReaderView: View {
                     }
                 }
             }
-            .onChange(of: audioActiveReference) { _, newReference in
-                guard let verse = newReference?.verseStart,
-                      verse != lastScrolledVerse,
-                      !viewModel.isChangingChapter else {
-                    return
-                }
-                lastScrolledVerse = verse
-                let anchorId = "ch\(viewModel.reference.chapter)v\(verse)"
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    scrollProxy.scrollTo(anchorId, anchor: .center)
-                }
+            .onChange(of: audioActiveReference) { _, _ in
+                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
+            .onChange(of: verseAnchors) { _, _ in
+                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
+            }
+        }
+    }
+
+    private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
+        guard let verse = audioActiveReference?.verseStart,
+              !viewModel.isChangingChapter else {
+            return
+        }
+        guard let anchorVerse = verseAnchors.last(where: { $0 <= verse }),
+              anchorVerse != lastScrolledVerse else {
+            return
+        }
+        lastScrolledVerse = anchorVerse
+        let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
+        withAnimation(.easeInOut(duration: 0.3)) {
+            scrollProxy.scrollTo(anchorId, anchor: .center)
         }
     }
 
