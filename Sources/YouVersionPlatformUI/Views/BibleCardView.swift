@@ -31,7 +31,7 @@ public struct BibleCardView: View {
     }
     
     private func update(version: BibleVersion) {
-        let updatedReference = referenceForVersionId(version.id)
+        let updatedReference = reference(forVersionId: version.id)
         self.version = version
         reference = updatedReference
         isReferenceUnavailable = !updatedReference.existsIn(version: version)
@@ -134,7 +134,7 @@ public struct BibleCardView: View {
             .frame(width: 106, height: 24)
     }
 
-    private func referenceForVersionId(_ versionId: Int) -> BibleReference {
+    private func reference(forVersionId versionId: Int) -> BibleReference {
         if let verseStart = reference.verseStart {
             let verseEnd = reference.verseEnd ?? verseStart
             if verseStart == verseEnd {

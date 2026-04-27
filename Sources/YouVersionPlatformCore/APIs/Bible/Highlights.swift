@@ -40,7 +40,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+            var request = YouVersionAPI.makeRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -83,7 +83,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let request = YouVersionAPI.buildRequest(
+            let request = YouVersionAPI.makeRequest(
                 url: url,
                 accessToken: accessToken,
                 session: session,
@@ -150,7 +150,7 @@ public extension YouVersionAPI {
                 color: color.lowercased()
             )
 
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+            var request = YouVersionAPI.makeRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "PUT"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -189,7 +189,7 @@ public extension YouVersionAPI {
             guard let url = URLBuilder.highlightsDeleteURL(bibleId: bibleId, passageId: passageId) else {
                 throw URLError(.badURL)
             }
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+            var request = YouVersionAPI.makeRequest(url: url, accessToken: accessToken, session: session)
             request.httpMethod = "DELETE"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

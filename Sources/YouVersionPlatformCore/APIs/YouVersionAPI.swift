@@ -41,7 +41,7 @@ public enum YouVersionAPI {
             throw URLError(.badURL)
         }
 
-        let request = buildRequest(url: url, accessToken: accessToken, session: session)
+        let request = makeRequest(url: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -61,7 +61,7 @@ public enum YouVersionAPI {
         return data
     }
 
-    static func buildRequest(
+    static func makeRequest(
         url: URL,
         accessToken: String?,
         session: URLSession,

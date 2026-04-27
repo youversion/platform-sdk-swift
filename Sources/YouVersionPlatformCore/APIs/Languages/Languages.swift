@@ -79,7 +79,7 @@ public extension YouVersionAPI {
                     throw URLError(.badURL)
                 }
 
-                let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+                let request = YouVersionAPI.makeRequest(url: url, accessToken: accessToken, session: session)
                 let (data, response) = try await session.data(for: request)
 
                 guard let httpResponse = response as? HTTPURLResponse else {

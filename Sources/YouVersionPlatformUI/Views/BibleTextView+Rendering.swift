@@ -88,7 +88,7 @@ extension BibleTextView {
         var footnoteImage = false
     }
 
-    private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -124,8 +124,8 @@ extension BibleTextView {
     }
 
     private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
-        textViewFor(
-            double: block.text,
+        textView(
+            for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
             textOptions: textOptions
@@ -150,8 +150,8 @@ extension BibleTextView {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
                     ForEach(row.doubles, id: \.self) { cell in
-                        textViewFor(
-                            double: cell.double,
+                        textView(
+                            for: cell.double,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
                             textOptions: textOptions
@@ -175,6 +175,18 @@ extension BibleTextView {
             }
         }
         return false
+    }
+
+    private func highlightFor(reference: BibleReference?) -> Color {
+        guard let reference else {
+            return .clear
+        }
+        for highlight in ourHighlights {
+            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
+                return Color(hex: highlight.color)
+            }
+        }
+        return .clear
     }
 
     // so that the Grid has a Hashable, Identifiable list to work with
