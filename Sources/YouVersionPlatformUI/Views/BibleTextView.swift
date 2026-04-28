@@ -1,5 +1,8 @@
+import os
 import SwiftUI
 import YouVersionPlatformCore
+
+private let scrollLog = Logger(subsystem: "com.youversion.platform", category: "ScrollDebug")
 
 public struct BibleTextView: View {
 
@@ -78,6 +81,14 @@ public struct BibleTextView: View {
             }
         }
         .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
+        .onAppear {
+            let anchors = blocks.compactMap(\.startVerse).sorted()
+            scrollLog.debug("[textview] onAppear blocks=\(blocks.count) anchors=\(anchors)")
+        }
+        .onChange(of: blocks.count) {
+            let anchors = blocks.compactMap(\.startVerse).sorted()
+            scrollLog.debug("[textview] blocks changed count=\(blocks.count) anchors=\(anchors)")
+        }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
