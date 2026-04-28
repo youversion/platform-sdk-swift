@@ -182,7 +182,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     }
 
     private func waitFor(
-        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        timeoutNanoseconds: UInt64 = 5_000_000_000,
         condition: @escaping @MainActor () -> Bool
     ) async {
         let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
@@ -193,6 +193,9 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             await Task.yield()
             try? await Task.sleep(nanoseconds: 10_000_000)
         }
+        // One final check: Task.sleep can oversleep on a loaded machine, so the condition
+        // may have been satisfied during the last sleep even though the deadline has passed.
+        if condition() { return }
         Issue.record("Timed out waiting for condition")
     }
 }
