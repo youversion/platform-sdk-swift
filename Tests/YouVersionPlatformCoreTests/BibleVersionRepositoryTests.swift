@@ -202,11 +202,12 @@ struct BibleVersionRepositoryTests {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        #expect(await repository.versionIsPresent(for: Self.fixture.id) == false)
+
         await downloadCache.addVersion(Self.fixture)
 
-        let isPresent = await repository.versionIsPresent(for: Self.fixture.id)
-
-        #expect(isPresent)
+        #expect(await repository.versionIsPresent(for: Self.fixture.id))
         #expect(api.callCount == 0)
     }
 
@@ -215,6 +216,9 @@ struct BibleVersionRepositoryTests {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        #expect(repository.downloadStatus(for: Self.fixture.id) == .notDownloadable)
+
         await downloadCache.addVersion(Self.fixture)
 
         let status = repository.downloadStatus(for: Self.fixture.id)
@@ -230,6 +234,9 @@ struct BibleVersionRepositoryTests {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        #expect(repository.downloadedVersionIds == [])
+
         await downloadCache.addVersion(Self.fixture)
 
         #expect(repository.downloadedVersionIds == [Self.fixture.id])

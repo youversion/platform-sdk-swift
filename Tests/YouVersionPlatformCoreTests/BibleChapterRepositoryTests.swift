@@ -131,11 +131,12 @@ struct BibleChapterRepositoryTests {
     func chaptersArePresentReflectsDownloadedChapters() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
+
+        #expect(await repository.chaptersArePresent(versionId: reference.versionId) == false)
+
         try writeDownloadedChapterContent("<div>download</div>", reference: reference, storage: storage)
 
-        let arePresent = await repository.chaptersArePresent(versionId: reference.versionId)
-
-        #expect(arePresent)
+        #expect(await repository.chaptersArePresent(versionId: reference.versionId))
         #expect(api.callCount == 0)
     }
 
