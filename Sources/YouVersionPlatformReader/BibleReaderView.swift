@@ -10,11 +10,10 @@ public struct BibleReaderView: View {
 #endif
 
     @Environment(\.openURL) private var openURL
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    let fontSettingsDetent = PresentationDetent.height(360)
-    let fontListDetent = PresentationDetent.height(480)
+    private let fontSettingsDetent = PresentationDetent.height(360)
+    private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
@@ -103,14 +102,6 @@ public struct BibleReaderView: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
-            viewModel.textForGenericAlertTitle,
-            isPresented: $viewModel.showGenericAlert
-        ) {
-            Button(viewModel.textForGenericAlertOKButton) { }
-        } message: {
-            Text(viewModel.textForGenericAlertBody)
-        }
-        .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation
         ) {
@@ -138,11 +129,6 @@ public struct BibleReaderView: View {
         })
         .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
-        }
-        .sheet(isPresented: $viewModel.showingVersionsStack) {
-            BibleReaderVersionsStack()
-                .presentationDragIndicator(.visible)
-                .presentationDetents([.large])
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             if newValue {
@@ -299,7 +285,7 @@ public struct BibleReaderView: View {
                 }
                 .frame(height: 0)
             }
-            .coordinateSpace(name: "scrollView")
+            .coordinateSpace(.named("scrollView"))
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 Task { @MainActor in
                     viewModel.handleScroll(offset: value)
@@ -319,7 +305,7 @@ public struct BibleReaderView: View {
     }
 
 #if !os(tvOS)
-    class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    final class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
 #if canImport(UIKit)
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -336,7 +322,7 @@ public struct BibleReaderView: View {
 #endif
 
     /// Helper to detect scroll offset in ScrollView
-    struct ScrollOffsetPreferenceKey: PreferenceKey {
+    private struct ScrollOffsetPreferenceKey: PreferenceKey {
         typealias Value = CGFloat
         static var defaultValue: Value { .zero }
         static func reduce(value: inout Value, nextValue: () -> Value) {
@@ -347,6 +333,7 @@ public struct BibleReaderView: View {
     // MARK: - Action handlers
 
     private func startSignIn() {
+        // TODO: move this code into BibleReaderViewModel
         Task {
             do {
                 viewModel.startSignInFlow = false

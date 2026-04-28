@@ -1,16 +1,15 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-public struct BibleReaderMyVersionsView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+public struct BibleVersionsMyVersionsView: View {
+    @Environment(BibleVersionsViewModel.self) private var viewModel
 
     public var body: some View {
         VStack {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(sortedMyVersions, id: \.id) { v in
-                        BibleReaderMyVersionsListItem(item: v)
+                        BibleVersionsMyVersionsListItem(item: v)
                             .padding(.vertical, 6)
                     }
                 }
@@ -68,6 +67,6 @@ public struct BibleReaderMyVersionsView: View {
 }
 
 #Preview {
-    BibleReaderMyVersionsView()
-        .environment(BibleReaderViewModel.preview)
+    BibleVersionsMyVersionsView()
+        .environment(BibleVersionsViewModel.preview)
 }

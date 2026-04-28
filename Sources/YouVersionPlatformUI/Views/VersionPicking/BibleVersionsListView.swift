@@ -1,9 +1,8 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-public struct BibleReaderVersionListView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+public struct BibleVersionsListView: View {
+    @Environment(BibleVersionsViewModel.self) private var viewModel
     @State private var searchText = ""
 
     public var body: some View {
@@ -132,6 +131,6 @@ public struct BibleReaderVersionListView: View {
 }
 
 #Preview {
-    BibleReaderVersionListView()
-        .environment(BibleReaderViewModel.preview)
+    BibleVersionsListView()
+        .environment(BibleVersionsViewModel.preview)
 }

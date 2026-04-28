@@ -79,7 +79,7 @@ public extension YouVersionAPI {
                     throw URLError(.badURL)
                 }
 
-                let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+                let request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
                 let (data, response) = try await session.data(for: request)
 
                 guard let httpResponse = response as? HTTPURLResponse else {
@@ -99,7 +99,7 @@ public extension YouVersionAPI {
 
                 let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
                 allResults.append(contentsOf: responseObject.data)
-                pageToken = responseObject.next_page_token
+                pageToken = responseObject.nextPageToken
             } while pageToken != nil
 
             return allResults
@@ -107,8 +107,14 @@ public extension YouVersionAPI {
 
         private struct LanguagesResponse: Decodable {
             let data: [LanguageOverview]
-            let next_page_token: String?
-            let total_size: Int?
+            let nextPageToken: String?
+            let totalSize: Int?
+
+            enum CodingKeys: String, CodingKey {
+                case data
+                case nextPageToken = "next_page_token"
+                case totalSize = "total_size"
+            }
         }
     }
 }

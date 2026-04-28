@@ -1,9 +1,8 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-struct BibleReaderVersionInfoView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+struct BibleVersionsInfoView: View {
+    @Environment(BibleVersionsViewModel.self) private var viewModel
     @Environment(\.openURL) private var openURL
 
     @State private var isVersionDownloaded: Bool?
@@ -22,7 +21,7 @@ struct BibleReaderVersionInfoView: View {
                     if let urlstring = version.readerFooterUrl,
                        let url = URL(string: urlstring) {
                         Text(String.localized("versionInfo.detailsLabel"))
-                            .font(ReaderFonts.fontHeaderS)
+                            .font(YouVersionFonts.fontHeaderS)
                             .foregroundStyle(viewModel.readerTextMutedColor)
                         HStack {
                             Image(systemName: "globe")
@@ -74,15 +73,15 @@ struct BibleReaderVersionInfoView: View {
         VStack {
             if let version = viewModel.selectedVersion {
                 Text(version.localizedAbbreviation ?? version.abbreviation ?? "")
-                    .font(ReaderFonts.preferredBibleTextFont(size: 64))
+                    .font(YouVersionFonts.preferredBibleTextFont(size: 64))
                     .padding(.bottom, 8)
                 Text(version.localizedTitle ?? version.title ?? "")
-                    .font(ReaderFonts.fontHeaderM)
+                    .font(YouVersionFonts.fontHeaderM)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
                     .padding(.bottom, 4)
                 Text(publisherLine(for: version))
-                    .font(ReaderFonts.fontLabelM)
+                    .font(YouVersionFonts.fontLabelM)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextMutedColor)
             }
@@ -217,6 +216,6 @@ struct BibleReaderVersionInfoView: View {
 }
 
 #Preview {
-    BibleReaderVersionInfoView()
-        .environment(BibleReaderViewModel.preview)
+    BibleVersionsInfoView()
+        .environment(BibleVersionsViewModel.preview)
 }

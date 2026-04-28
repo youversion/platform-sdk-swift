@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderFontListView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -25,12 +26,12 @@ struct BibleReaderFontListView: View {
             ScrollView {
                 VStack(alignment: .leading) {
                     Text(String.localized("fontList.suggested"))
-                        .font(ReaderFonts.fontHeaderM)
+                        .font(YouVersionFonts.fontHeaderM)
                     fontList(for: ReaderFonts.suggestedFamilies)
                     Divider()
                         .padding(.bottom, 8)
                     Text(String.localized("fontList.others"))
-                        .font(ReaderFonts.fontHeaderM)
+                        .font(YouVersionFonts.fontHeaderM)
                     fontList(for: ReaderFonts.otherFamilies)
                 }
                 .padding(.horizontal)

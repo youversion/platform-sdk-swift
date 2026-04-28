@@ -23,6 +23,30 @@ Tests are in the top-level Tests dir. The tests of YouVersionPlatformCore must r
 
 - Always run `swift test` and SwiftLint on code changes before finalizing work.
 
+## Public API Stability
+
+Source-breaking changes to the SDK's public interface are blocked by a CI job
+(`.github/workflows/api-stability.yml`) that diffs the PR's API surface against
+committed baselines under `.api-baseline/`. Additive changes pass; renames,
+removals, and signature changes fail until the baseline is intentionally
+updated as part of a major version bump.
+
+To verify locally:
+
+```bash
+scripts/check-api-stability.sh check
+```
+
+When a breaking change is intentional (typically as part of a major version
+bump), update the baselines and commit them in the same PR:
+
+```bash
+scripts/check-api-stability.sh update
+```
+
+The baseline files are JSON dumps from `swift-api-digester` covering
+`YouVersionPlatformCore`, `YouVersionPlatformUI`, and `YouVersionPlatformReader`.
+
 ## SwiftLint
 
 In a Linux container, run SwiftLint with SourceKit configured:
@@ -75,28 +99,17 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 5. Run `swiftlint` to ensure code style compliance
 
 ## Important Tips
+- Never commit a real `appKey` to the remote. In `Examples/SampleApp/SampleApp.swift`, keep the tracked placeholder `<#Your App Key#>` and leave your real key as an unstaged local change.
 - Use GitHub to create pull requests (PRs).
 - PR titles should always be the same as the first line of the commit message.
-- Prefer idiomatic, industry standard Swift style. Follow https://www.swift.org/documentation/api-design-guidelines/.
-- Don't make whitespace-only changes.
-- Prefer async-await to completion block-based API design.
-- Async functions with return values should have names that are noun phrases describing the return value rather than verb phrases and should never begin with "get", "load", or "request".
-- Don't add inline comments inside functions, but don't delete existing inline comments.
-- Do add DocC comments to new, non-private functions, but not on SwiftUI initializers and body.
-- Make access controls on properties and functions as strict as they can be (private, fileprivate, private(set), etc).
-- Prefer to make entity properties immutable (let over var).
-- Avoid abbreviations; prefer clarity over brevity.
-- For Booleans, ensure that they start with a helping verb like "is", "should". "shows" and "showing" are also acceptable prefixes.
-- Non-boolean entities should end with a word that indicates their data type (ex. "shadowColor" rather than "colorShadow" for a Color).
-- Do not prepend "self." when it is unnecessary.
-- Properties should be listed before all functions.
-- Classes should be marked final if they have no subclasses.
-- Prefer structs over classes.
-- Don't leave unused code.
-- Do not leave commented out code in place.
-- Public-facing types should generally include "YouVersion" in their name (e.g. `YouVersionBigButtonStyle`, `SignInWithYouVersionView`) to disambiguate from client-local types.
-- Class, struct, enum entity names should always be in PascalCase.
-- Property and function names should always be in camelCase.
+
+## Code style references
+
+When writing or reviewing code in this repo, load the relevant skill:
+
+- **`audit-swift`** (`.claude/skills/audit-swift/SKILL.md`) — project Swift conventions: access control, async/await, code organization, idioms, formatting.
+- **`audit-swift-ui`** (`.claude/skills/audit-swift-ui/SKILL.md`) — SwiftUI-specific rules: Dynamic Type, `@State` privacy, view naming.
+- **`naming`** (`.claude/skills/naming/SKILL.md`) — naming Swift entities (types, protocols, functions, parameters, properties, cases).
 
 ## Localization
 

@@ -148,7 +148,7 @@ extension BibleTextView {
         var noteIndicatorBoxColor: Color?
     }
 
-    private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -160,9 +160,13 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            if category == .scripture || category == .verseLabel {
-                t.backgroundColor = highlightFor(reference: reference)
-                // better, we could have our TextRenderer add the color to some portions
+            var isUnderlined = false
+            if let reference {
+                if category == .scripture || category == .verseLabel {
+                    t.backgroundColor = highlightFor(reference: reference)
+                    // better, we could have our TextRenderer add the color to some portions
+                }
+                isUnderlined = isSelected(reference) && category == .scripture
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
@@ -240,8 +244,8 @@ extension BibleTextView {
     }
 
     private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
-        textViewFor(
-            double: block.text,
+        textView(
+            for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
             textOptions: textOptions
@@ -266,8 +270,8 @@ extension BibleTextView {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
                     ForEach(row.doubles, id: \.self) { cell in
-                        textViewFor(
-                            double: cell.double,
+                        textView(
+                            for: cell.double,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
                             textOptions: textOptions
@@ -281,10 +285,7 @@ extension BibleTextView {
         .padding()
     }
 
-    private func isSelected(_ reference: BibleReference?) -> Bool {
-        guard let reference else {
-            return false
-        }
+    private func isSelected(_ reference: BibleReference) -> Bool {
         for verse in selectedVerses {
             if verse.chapter == reference.chapter && verse.verseStart == reference.verseStart {
                 return true
@@ -293,10 +294,7 @@ extension BibleTextView {
         return false
     }
 
-    private func highlightFor(reference: BibleReference?) -> Color {
-        guard let reference else {
-            return .clear
-        }
+    private func highlightFor(reference: BibleReference) -> Color {
         for highlight in ourHighlights {
             if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
                 return Color(hex: highlight.color).opacity(0.35)

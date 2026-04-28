@@ -1,9 +1,8 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
 struct BibleVersionDownloadView: View {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(BibleVersionsViewModel.self) private var viewModel
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -11,15 +10,15 @@ struct BibleVersionDownloadView: View {
 
         VStack {
             if let version = viewModel.selectedVersion {
-                Text(version.localizedAbbreviation ?? "")
-                    .font(ReaderFonts.preferredBibleTextFont(size: 64))
+                Text(version.localizedAbbreviation ?? version.abbreviation ?? "")
+                    .font(YouVersionFonts.preferredBibleTextFont(size: 64))
                 Text(version.localizedTitle ?? version.title ?? "")
-                    .font(ReaderFonts.fontHeaderS)
+                    .font(YouVersionFonts.fontHeaderS)
 
                 HStack {
                     Text(String.localized("download.agreementParagraph"))
                         .padding()
-                        .font(ReaderFonts.fontCaptionsL)
+                        .font(YouVersionFonts.fontCaptionsL)
                     Button(action: {
                         viewModel.versionDownloadInfoButtonTapped(for: version)
                     }) {
@@ -30,7 +29,7 @@ struct BibleVersionDownloadView: View {
                 .padding(.horizontal, 32)
 
                 Text(String.localized("download.callToAction"))
-                    .font(ReaderFonts.fontHeaderS)
+                    .font(YouVersionFonts.fontHeaderS)
 
                 Button(action: {
                     viewModel.versionDownloadViewAccepted(for: version)
@@ -87,5 +86,5 @@ struct BibleVersionDownloadView: View {
 
 #Preview {
     BibleVersionDownloadView()
-        .environment(BibleReaderViewModel.preview)
+        .environment(BibleVersionsViewModel.preview)
 }

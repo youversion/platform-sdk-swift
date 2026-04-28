@@ -249,8 +249,9 @@ public actor BibleChapterRepository: ObservableObject {
 
     @MainActor
     public func removeVersion(withId versionId: Int) async {
-        await removeChaptersFromMemoryCache(withId: versionId)
-        await diskCache.removeVersion(versionId: versionId)
-        await downloadCache.removeVersion(versionId: versionId)
+        async let memory: Void = removeChaptersFromMemoryCache(withId: versionId)
+        async let disk: Void = diskCache.removeVersion(versionId: versionId)
+        async let download: Void = downloadCache.removeVersion(versionId: versionId)
+        _ = await (memory, disk, download)
     }
 }

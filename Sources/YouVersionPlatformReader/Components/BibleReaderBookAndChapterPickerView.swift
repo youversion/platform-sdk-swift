@@ -112,12 +112,12 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            ForEach(chapters.indices, id: \.self) { idx in
+            ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
                 Button(action: {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, idx + 1, nil)
                 }) {
-                    chapterListButton(label: chapters[idx])
+                    chapterListButton(label: label)
                 }
                 .buttonStyle(PlainButtonStyle())
             }

@@ -1,0 +1,25 @@
+{
+  "customContext": {
+    "files": [
+      {
+        "scope": ["**/*.swift"],
+        "path": ".claude/skills/audit-swift/SKILL.md",
+        "description": "Project Swift conventions: access control, async/await, code organization, idioms, formatting."
+      },
+      {
+        "scope": [
+          "Sources/YouVersionPlatformUI/**/*.swift",
+          "Sources/YouVersionPlatformReader/**/*.swift",
+          "Examples/**/*.swift"
+        ],
+        "path": ".claude/skills/audit-swift-ui/SKILL.md",
+        "description": "SwiftUI-specific rules: Dynamic Type, @State privacy, view naming."
+      },
+      {
+        "scope": ["**/*.swift"],
+        "path": ".claude/skills/naming/SKILL.md",
+        "description": "Naming Swift entities (types, protocols, functions, parameters, properties, cases) per Apple guidelines and project conventions."
+      }
+    ]
+  }
+}

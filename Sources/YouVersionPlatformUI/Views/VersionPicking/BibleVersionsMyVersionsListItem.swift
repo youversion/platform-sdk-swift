@@ -1,9 +1,8 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
-    @Environment(BibleReaderViewModel.self) private var viewModel
+struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
+    @Environment(BibleVersionsViewModel.self) private var viewModel
     let item: BibleVersion
 
     var body: some View {
@@ -14,7 +13,7 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
                 let (letters, numbers) = splitAbbreviation(abbreviation)
 
                 Text(letters)
-                    .font(ReaderFonts.preferredBibleTextFont(size: 20))
+                    .font(YouVersionFonts.preferredBibleTextFont(size: 20))
                     .fontWeight(.semibold)
                     .padding(.horizontal, 4)
                     .lineLimit(1)
@@ -22,7 +21,7 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
 
                 if !numbers.isEmpty {
                     Text(numbers)
-                        .font(ReaderFonts.preferredBibleTextFont(size: 10).weight(.semibold))
+                        .font(YouVersionFonts.preferredBibleTextFont(size: 10).weight(.semibold))
                         .lineLimit(1)
                 }
             }
@@ -57,12 +56,7 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
             }
 
             Spacer()
-            // TEMPORARY
-//            if viewModel.versionRepository.downloadStatus(for: item.id) != .downloaded {
-//                Image(systemName: "cloud")
-//                    .foregroundStyle(viewModel.readerTextMutedColor)
-//                    .padding(.trailing, 8)
-//            }
+
             ellipsisMenuButton
         }
         .contentShape(Rectangle())
@@ -130,10 +124,10 @@ struct BibleReaderMyVersionsListItem: View, AbbreviationSplitting {
 #Preview {
     VStack {
         Divider()
-        BibleReaderMyVersionsListItem(
-            item: BibleReaderViewModel.preview.myVersions.first!
+        BibleVersionsMyVersionsListItem(
+            item: BibleVersionsViewModel.preview.myVersions.first!
         )
         Divider()
     }
-    .environment(BibleReaderViewModel.preview)
+    .environment(BibleVersionsViewModel.preview)
 }
