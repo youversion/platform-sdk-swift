@@ -85,7 +85,7 @@ public struct BibleTextView: View {
         .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)") {
             await loadBlocks()
         }
-        .coordinateSpace(name: "BibleTextView")
+        .coordinateSpace(.named("BibleTextView"))
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
         }
@@ -98,13 +98,7 @@ public struct BibleTextView: View {
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
-        var footnotes: [BibleFootnote] = []
-        for block in blocks {
-            for footnote in block.footnotes where footnote.reference == reference {
-                footnotes.append(footnote)
-            }
-        }
-        return footnotes
+        blocks.flatMap(\.footnotes).filter { $0.reference == reference }
     }
 
     private func parseReference(url: URL) -> BibleReference? {

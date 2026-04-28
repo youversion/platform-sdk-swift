@@ -12,7 +12,7 @@ public struct BibleVersionPickingButton: View {
         onVersionChange: ((BibleVersion) -> Void)? = nil
     ) {
         self.initialVersionId = initialVersionId
-        self.versionsViewModel = BibleVersionsViewModel { _ in }
+        self._versionsViewModel = State(wrappedValue: BibleVersionsViewModel { _ in })
         self.onVersionChange = onVersionChange
     }
 

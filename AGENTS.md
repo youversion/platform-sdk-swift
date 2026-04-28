@@ -99,12 +99,13 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 5. Run `swiftlint` to ensure code style compliance
 
 ## Important Tips
+- Never commit a real `appKey` to the remote. In `Examples/SampleApp/SampleApp.swift`, keep the tracked placeholder `<#Your App Key#>` and leave your real key as an unstaged local change.
 - Use GitHub to create pull requests (PRs).
 - PR titles should always be the same as the first line of the commit message.
 - Prefer idiomatic, industry standard Swift style. Follow https://www.swift.org/documentation/api-design-guidelines/.
 - Don't make whitespace-only changes.
 - Prefer async-await to completion block-based API design.
-- Async functions with return values should have names that are noun phrases describing the return value rather than verb phrases and should never begin with "get", "load", or "request".
+- Async functions with return values should have names that are noun phrases describing the return value rather than verb phrases and should never begin with "get", "load", "fetch", or "request".
 - Don't add inline comments inside functions, but don't delete existing inline comments.
 - Do add DocC comments to new, non-private functions, but not on SwiftUI initializers and body.
 - Make access controls on properties and functions as strict as they can be (private, fileprivate, private(set), etc).
@@ -121,6 +122,46 @@ Use for large tasks or risky changes (SDK updates, major API adoption):
 - Public-facing types should generally include "YouVersion" in their name (e.g. `YouVersionBigButtonStyle`, `SignInWithYouVersionView`) to disambiguate from client-local types.
 - Class, struct, enum entity names should always be in PascalCase.
 - Property and function names should always be in camelCase.
+- Prefer Swift Concurrency over Combine.
+- Prefer `@Observable` to `ObservableObject`.
+- ALWAYS mark ViewModel types as `@MainActor`.
+- NEVER use locks (NSLock, etc.); prefer actors for isolation.
+- For computed values with no arguments, prefer `var` over `func`.
+- Don't specify `internal` — it's the default.
+- No author attribution comment blocks (`// Created by`).
+- Sort imports alphabetically.
+- `else`/`catch` on the same line as the closing brace (`} else {`, `} catch {`).
+- No blank lines at the top of `var`/`func`/`init` blocks.
+- Always have one blank line between functions.
+- Let the compiler infer types when possible.
+- Use `""` over `String()` for empty strings.
+- Use `private(set)` not `private (set)`.
+- Use `private static` not `static private`.
+- Don't use a comma between logical expressions when `&&` will suffice.
+- Don't override methods or initializers only to call `super`.
+- Do not add a `deinit` solely to remove `NotificationCenter` observers — it's unnecessary.
+- When using `guard`, the `return`/`continue` belongs on a new line.
+- Don't use `guard` in an overridden method to return early.
+- Use existing localized strings if possible; prompt the user before adding new strings.
+- Use Swift Testing for unit tests, not XCTest.
+- NEVER create objects starting with `.init(...)`.
+- Code MUST support iOS 17 but can branch using `if #available(iOS ##.#, *)` checks.
+- Stored properties should be declared before all initializers.
+- Derived properties and functions should be declared after all initializers.
+- Use `Notification.Name("name")` not `Notification.Name(rawValue:)`, and `Notification.Name` not `NSNotification.Name`.
+- Use local functions instead of inline closure blocks (`let x: () -> T = { ... }`).
+- Don't unwrap optional closures with `if let` — use `closure?()`.
+- Don't leave commented-out code in place.
+- If a function immediately `guard`s an Optional argument, make the argument non-Optional. The unwrap belongs at the call site, where the precondition stays explicit.
+- Don't build a new array with a `for` loop and `append`. Use `map`, `filter`, `compactMap`, `flatMap`, or `reduce` instead.
+- When awaiting multiple independent async calls, run them concurrently with `async let` (or a task group) rather than serially with back-to-back `await`s.
+
+### SwiftUI-Specific Rules
+
+- Mark `@State` properties `private`.
+- Do not use the suffix "Widget" for SwiftUI view names, as it conflicts with iOS home screen widgets (WidgetKit); use a more descriptive name instead.
+- Use Dynamic Type text styles (`.body`, `.callout`, `.footnote`, etc.) instead of `.font(.system(size:))` so fonts adapt to the user's preferred text size.
+- When using `Font.custom`, always include the `relativeTo:` parameter (e.g., `Font.custom("MyFont", size: 16, relativeTo: .callout)`) so custom fonts scale with Dynamic Type.
 
 ## Localization
 

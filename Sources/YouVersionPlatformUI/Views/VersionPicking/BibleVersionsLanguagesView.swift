@@ -25,7 +25,7 @@ struct BibleVersionsLanguagesView: View {
                     TextField(String.localized("generic.search"), text: $searchText)
                         .textFieldStyle(.plain)
                         .focused($searchFieldIsFocused)
-                        .disableAutocorrection(true)
+                        .autocorrectionDisabled(true)
                         #if os(iOS)
                         .textInputAutocapitalization(.never)
                         #endif

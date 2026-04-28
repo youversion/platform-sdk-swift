@@ -49,8 +49,6 @@ extension BibleVersionsViewModel {
     public func myVersionRemoveDownloadMenuTapped(_ versionId: Int) {
         Task {
             await versionRepository.removeVersion(withId: versionId)
-            // no need to do the following, as versionRepository handles it:
-            //try await BibleChapterRepository.shared.removeVersion(version: version)
         }
     }
 
@@ -92,8 +90,6 @@ extension BibleVersionsViewModel {
             let versionName = version.localizedTitle ?? version.title ?? .localized("myVersions.defaultVersionName")
             do {
                 try await versionRepository.downloadVersion(withId: version.id)
-                // TEMPORARY removal
-                //try await BibleChapterRepository.shared.download(version: version)
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("myVersions.downloadCompleteTitle")
                 textForGenericAlertBody = String(format: .localized("myVersions.downloadCompleteBodyFormat"), versionName)

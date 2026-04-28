@@ -624,10 +624,6 @@ public struct BibleTextAttributes: AttributeScope {
     let bibleTextCategory: BibleTextCategoryAttribute
 }
 
-//extension AttributeScopes {
-//    var bibleTextAttributes: BibleTextAttributes.Type { BibleTextAttributes.self }
-//}
-
 // This extension allows our code to say "myString.bibleReference = ..."
 public extension AttributeDynamicLookup {
     subscript<T: AttributedStringKey>(

@@ -77,17 +77,14 @@ public enum ReaderFonts {
         "Trebuchet MS"
     ]
 
-    static func isPermittedFont(_ family: String?) -> Bool {
-        guard let family else {
-            return false
-        }
-        return suggestedFamilies.contains(family) || otherFamilies.contains(family)
+    static func isPermittedFont(_ family: String) -> Bool {
+        suggestedFamilies.contains(family) || otherFamilies.contains(family)
     }
 
     // MARK: - Font Sizes and Spacing
 
-    static let availableSizes = [9, 12, 15, 18, 21, 24, 27]
-    static let lineSpacingOptions = [6, 12, 18]
+    static let availableSizes: [CGFloat] = [9, 12, 15, 18, 21, 24, 27]
+    static let lineSpacingOptions: [CGFloat] = [6, 12, 18]
 
     // MARK: - Default Values
 
@@ -98,20 +95,16 @@ public enum ReaderFonts {
     // MARK: - Utility Functions
 
     static func nextSmallerSize(currentSize: CGFloat) -> CGFloat? {
-        let currentSizeInt = Int(currentSize)
-        return availableSizes.filter({ $0 < currentSizeInt }).max().map(CGFloat.init)
+        availableSizes.filter { $0 < currentSize }.max()
     }
 
     static func nextLargerSize(currentSize: CGFloat) -> CGFloat? {
-        let currentSizeInt = Int(currentSize)
-        return availableSizes.filter({ $0 > currentSizeInt }).min().map(CGFloat.init)
+        availableSizes.filter { $0 > currentSize }.min()
     }
 
     static func nextLineSpacing(currentSpacing: CGFloat) -> CGFloat {
-        if let nextBigger = lineSpacingOptions.filter({ CGFloat($0) > currentSpacing }).min() {
-            CGFloat(nextBigger)
-        } else {
-            CGFloat(lineSpacingOptions.min()!)
-        }
+        lineSpacingOptions.filter { $0 > currentSpacing }.min()
+            ?? lineSpacingOptions.min()
+            ?? 6
     }
 }

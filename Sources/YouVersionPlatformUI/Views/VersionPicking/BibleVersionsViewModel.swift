@@ -41,11 +41,12 @@ public final class BibleVersionsViewModel {
         hasLoadedInitialState = true
 
         // Grab the saved data first, because initializing myVersions clears the saved data.
-        let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
+        let savedIds = Set(UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? [])
 
-        await loadVersion(versionId: initialVersionId, savedIds: savedIds)
-        await restoreMyVersions(savedIds: savedIds)
-        await loadSuggestedLanguages()
+        async let version: Void = loadVersion(versionId: initialVersionId, savedIds: savedIds)
+        async let restored: Void = restoreMyVersions(savedIds: savedIds)
+        async let suggested: Void = loadSuggestedLanguages()
+        _ = await (version, restored, suggested)
         await removeUnpermittedVersions(initialVersionId: initialVersionId)
     }
     
@@ -56,34 +57,30 @@ public final class BibleVersionsViewModel {
         let permittedIds = Set(permittedVersions.map(\.id))
         await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
         
-        for version in self.myVersions where !permittedIds.contains(version.id) {
-            self.myVersions.remove(version)
+        for version in myVersions where !permittedIds.contains(version.id) {
+            myVersions.remove(version)
         }
         if let initialVersionId, !permittedIds.contains(initialVersionId) {
-            await selectFallbackVersion(savedIds: Array(self.myVersions.map(\.id)))
+            await selectFallbackVersion(savedIds: Set(myVersions.map(\.id)))
         }
     }
     
-    private func restoreMyVersions(savedIds: [Int]) async {
+    private func restoreMyVersions(savedIds: Set<Int>) async {
         for id in savedIds {
             if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
+                myVersions.insert(version)
             }
         }
-        
+
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        let downloads = versionRepository.downloadedVersionIds
-        for id in downloads {
-            if self.myVersions.contains(where: { $0.id == id }) {
-                continue
-            }
+        for id in versionRepository.downloadedVersionIds where !myVersions.contains(where: { $0.id == id }) {
             if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
+                myVersions.insert(version)
             }
         }
     }
     
-    private func loadVersion(versionId: Int?, savedIds: [Int]) async {
+    private func loadVersion(versionId: Int?, savedIds: Set<Int>) async {
         // Resolve the desired version if possible; otherwise fall back once at the end
         var loadedVersion: BibleVersion?
 
@@ -98,15 +95,15 @@ public final class BibleVersionsViewModel {
         }
 
         if let version = loadedVersion {
-            self.myVersions.insert(version)
+            myVersions.insert(version)
             onVersionChange(version)
         } else {
             await selectFallbackVersion(savedIds: savedIds)
         }
     }
     
-    private func selectFallbackVersion(savedIds: [Int]) async {
-        guard let nextBestVersion = await findAnyAcceptableVersion(savedIds: Set(savedIds)),
+    private func selectFallbackVersion(savedIds: Set<Int>) async {
+        guard let nextBestVersion = await fallbackVersion(savedIds: savedIds),
               let version = try? await versionRepository.version(withId: nextBestVersion)
         else {
             // bring up the UI, let the user choose.
@@ -114,14 +111,25 @@ public final class BibleVersionsViewModel {
             return
         }
         onVersionChange(version)
-        
-        self.myVersions.insert(version)
+
+        myVersions.insert(version)
     }
     
-    private func findAnyAcceptableVersion(savedIds: Set<Int>) async -> Int? {
-        let downloads = versionRepository.downloadedVersionIds
-        if !downloads.isEmpty {
-            return downloads.first!
+    /// Picks a Bible version to fall back to when no specific version is selected,
+    /// trying these sources in priority order:
+    /// 1. The first version the user has already downloaded.
+    /// 2. The first of the user's saved versions that is currently permitted.
+    /// 3. The first available English version.
+    /// 4. Any available version.
+    ///
+    /// - Parameter savedIds: IDs of versions the user has previously saved
+    ///   (used as a preference at priority step 2).
+    /// - Returns: A fallback version ID, or `nil` if no version is available
+    ///   (typically because the device is offline).
+    private func fallbackVersion(savedIds: Set<Int>) async -> Int? {
+        let downloadedVersionIds = versionRepository.downloadedVersionIds
+        if let downloadedVersionId = downloadedVersionIds.first {
+            return downloadedVersionId
         }
         
         if let versions = try? await YouVersionAPI.Bible.versions() {
@@ -152,7 +160,7 @@ public final class BibleVersionsViewModel {
     var versionsInLanguage: [String: [BibleVersion]] = [:]
     
     /// Holds minimal information about all Bible versions available to this app, in all languages.
-    var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    private(set) var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
     
     /// Returns minimal information about all Bible versions available to this app, in all languages.
     /// On error or when offline, returns nil
@@ -232,7 +240,7 @@ public final class BibleVersionsViewModel {
     
     // MARK: - Languages picking
     
-    var suggestedLanguagesList: [LanguageOverview]
+    private(set) var suggestedLanguagesList: [LanguageOverview]
     var chosenLanguage: String?
     var languageNames: [String: String] = [:]
     
@@ -253,10 +261,10 @@ public final class BibleVersionsViewModel {
     
     /// Returns languages likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
     var suggestedLanguages: [String] {
-        guard !self.suggestedLanguagesList.isEmpty else {
+        guard !suggestedLanguagesList.isEmpty else {
             return ["en", "es"]
         }
-        let codes = extractLanguageCodes(languages: self.suggestedLanguagesList)
+        let codes = extractLanguageCodes(languages: suggestedLanguagesList)
         guard let versionsInfo = permittedVersionsList else {
             return codes
         }

@@ -280,14 +280,16 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
     }
 
     public func removeVersion(withId versionId: Int) async {
-        await memoryCache.removeVersion(withId: versionId)
-        await diskCache.removeVersion(withId: versionId)
-        await downloadCache.removeVersion(withId: versionId)
+        async let memory: Void = memoryCache.removeVersion(withId: versionId)
+        async let disk: Void = diskCache.removeVersion(withId: versionId)
+        async let download: Void = downloadCache.removeVersion(withId: versionId)
+        _ = await (memory, disk, download)
     }
 
     public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        await memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await diskCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let memory: Void = memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let disk: Void = diskCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let download: Void = downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        _ = await (memory, disk, download)
     }
 }

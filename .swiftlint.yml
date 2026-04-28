@@ -2,14 +2,14 @@ custom_rules:
 
   font_style_syntax: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "" # rule name. optional.
     regex: "(L|l)abel\\.font = StyleGuide\\.FontStyle\\.[^\n]*\\.font" # matching pattern 
     message: "Use label.apply(fontStyle:)" # violation message. optional.
 
   func_set_up: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "" # rule name. optional.
     regex: "func (setup)" # matching pattern 
     capture_group: 1
@@ -17,14 +17,14 @@ custom_rules:
 
   func_name_space: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Function Name Space" # rule name. optional.
     regex: "func [^\\(\\s=<>]+\\s+\\(.*\\)" # matching pattern
     message: "Remove space after function name before parentheses" # violation message. optional.
 
   uicontrol_state_usage: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "UIControl.State() Usage" # rule name. optional.
     regex: "(UIControl.State\\(\\))" # matching pattern 
     capture_group: 1
@@ -32,7 +32,7 @@ custom_rules:
 
   indexpath_casting: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "IndexPath Casting" # rule name. optional.
     regex: "(indexPath as NSIndexPath)" # matching pattern 
     capture_group: 1
@@ -40,7 +40,7 @@ custom_rules:
 
   nullable_singleton: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Nullable Singleton" # rule name. optional.
     regex: "\\.shared\\(\\)(\\?)" # matching pattern 
     capture_group: 1
@@ -48,7 +48,7 @@ custom_rules:
 
   internal_default: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Internal Default" # rule name. optional.
     regex: "(internal )" # matching pattern 
     capture_group: 1
@@ -56,7 +56,7 @@ custom_rules:
 
   commonly_misspelled_words: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Commonly Misspelled Words" # rule name. optional.
     regex: "([aA]naltyics|[pP]redicitive|[sS]eperator|[bB]oarder)" # matching pattern 
     capture_group: 1
@@ -64,7 +64,7 @@ custom_rules:
 
   view_lifecycle_order_1: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 1" # rule name. optional.
     regex: "(viewWillAppear)\\([\\s\\S]*viewDidLoad\\(" # matching pattern 
     capture_group: 1
@@ -72,7 +72,7 @@ custom_rules:
 
   view_lifecycle_order_2: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 2" # rule name. optional.
     regex: "(viewDidAppear)\\([\\s\\S]*viewWillAppear\\(" # matching pattern 
     capture_group: 1
@@ -80,7 +80,7 @@ custom_rules:
 
   view_lifecycle_order_3: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 3" # rule name. optional.
     regex: "(viewWillDisappear)\\([\\s\\S]*viewWillAppear\\(" # matching pattern 
     capture_group: 1
@@ -88,7 +88,7 @@ custom_rules:
 
   view_lifecycle_order_4: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 4" # rule name. optional.
     regex: "(viewDidDisappear)\\([\\s\\S]*viewWillDisappear\\(" # matching pattern 
     capture_group: 1
@@ -96,7 +96,7 @@ custom_rules:
 
   view_lifecycle_order_5: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 5" # rule name. optional.
     regex: "(viewDidDisappear)\\([\\s\\S]*viewDidAppear\\(" # matching pattern 
     capture_group: 1
@@ -104,7 +104,7 @@ custom_rules:
 
   view_lifecycle_order_6: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 6" # rule name. optional.
     regex: "(viewDidAppear)\\([\\s\\S]*viewDidLoad\\(" # matching pattern 
     capture_group: 1
@@ -112,7 +112,7 @@ custom_rules:
 
   view_lifecycle_order_7: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 7" # rule name. optional.
     regex: "(viewDidLoad)\\([\\s\\S]* loadView\\(" # matching pattern 
     capture_group: 1
@@ -120,7 +120,7 @@ custom_rules:
 
   view_lifecycle_order_8: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 8" # rule name. optional.
     regex: "(viewDidLoad)\\([\\s\\S]* init\\(" # matching pattern 
     capture_group: 1
@@ -128,7 +128,7 @@ custom_rules:
 
   view_lifecycle_order_9: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 9" # rule name. optional.
     regex: "(viewWillDisappear)\\([\\s\\S]* viewDidAppear\\(" # matching pattern 
     capture_group: 1
@@ -136,7 +136,7 @@ custom_rules:
 
   view_lifecycle_order_10: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 10" # rule name. optional.
     regex: "(viewDidLayoutSubviews)\\([\\s\\S]* viewWillLayoutSubviews\\(" # matching pattern 
     capture_group: 1
@@ -144,7 +144,7 @@ custom_rules:
 
   view_lifecycle_order_11: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 11" # rule name. optional.
     regex: "(func loadView)\\([\\s\\S]* init\\(" # matching pattern 
     capture_group: 1
@@ -152,7 +152,7 @@ custom_rules:
 
   view_lifecycle_order_12: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 12" # rule name. optional.
     regex: "(viewIsAppearing)\\([\\s\\S]* viewDidLoad\\(" # matching pattern 
     capture_group: 1
@@ -160,7 +160,7 @@ custom_rules:
 
   view_lifecycle_order_13: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 13" # rule name. optional.
     regex: "(viewIsAppearing)\\([\\s\\S]* viewWillAppear\\(" # matching pattern 
     capture_group: 1
@@ -168,7 +168,7 @@ custom_rules:
 
   view_lifecycle_order_14: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 14" # rule name. optional.
     regex: "(viewDidAppear)\\([\\s\\S]* viewIsAppearing\\(" # matching pattern 
     capture_group: 1
@@ -176,7 +176,7 @@ custom_rules:
 
   view_lifecycle_order_15: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 15" # rule name. optional.
     regex: "(viewWillDisappear)\\([\\s\\S]* viewIsAppearing\\(" # matching pattern 
     capture_group: 1
@@ -184,7 +184,7 @@ custom_rules:
 
   view_lifecycle_order_16: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "View Lifecycle Override Order 16" # rule name. optional.
     regex: "(viewDidDisappear)\\([\\s\\S]* viewIsAppearing\\(" # matching pattern 
     capture_group: 1
@@ -192,7 +192,7 @@ custom_rules:
 
   old_constraints_api: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Adding Constraints the Old Way" # rule name. optional.
     regex: "addConstraint[s]{0,1}" # matching pattern 
     match_kinds:
@@ -201,7 +201,7 @@ custom_rules:
 
   init_abuse: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Init Abuse" # rule name. optional.
     regex: "(\\b[A-Z_]\\w*\\b|\\s)(\\.init)\\(" # matching pattern 
     match_kinds:
@@ -211,21 +211,21 @@ custom_rules:
 
   confusing_logic: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Confusing Logic" # rule name. optional.
     regex: "\\?\\? 0 > 0" # matching pattern
     message: "There has to be a better way" # violation message. optional.
 
   extraneous_logic: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Extraneous Logic" # rule name. optional.
     regex: "(\\? true : false|\\? false : true)" # matching pattern
     message: "Use the condition itself" # violation message. optional.
 
   visual_format: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Visual Format Constraints" # rule name. optional.
     regex: "withVisualFormat" # matching pattern
     match_kinds:
@@ -234,7 +234,7 @@ custom_rules:
 
   touch_up_inside: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "TouchUpInside -> PrimaryActionTriggered" # rule name. optional.
     regex: "for: .touchUpInside" # matching pattern
     match_kinds:
@@ -244,7 +244,7 @@ custom_rules:
 
   no_system_font: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "No Direct System Font Use" # rule name. optional.
     regex: "UIFont.(systemFont|boldSystemFont)" # matching pattern
     match_kinds:
@@ -254,7 +254,7 @@ custom_rules:
 
   back_bar_button_item: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Back Bar Button Item" # rule name. optional.
     regex: "backBarButtonItem =" # matching pattern
     match_kinds:
@@ -264,7 +264,7 @@ custom_rules:
 
   system_bar_button_items: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "System Bar Button Item" # rule name. optional.
     regex: "barButtonSystemItem:" # matching pattern
     match_kinds:
@@ -274,7 +274,7 @@ custom_rules:
 
   var_over_func: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Var Over Func" # rule name. optional.
     regex: "[A-Za-z0-9]+\\(\\) ->" # matching pattern
     match_kinds:
@@ -284,7 +284,7 @@ custom_rules:
 
   private_set_syntax: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Private Set Syntax" # rule name. optional.
     regex: "private \\(set\\)" # matching pattern
     match_kinds:
@@ -294,7 +294,7 @@ custom_rules:
 
   author_attribution: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Author Attribution" # rule name. optional.
     regex: "\\/\\/  Created by" # matching pattern
     match_kinds:
@@ -304,7 +304,7 @@ custom_rules:
 
   private_static_syntax: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Private Static Syntax" # rule name. optional.
     regex: "static private" # matching pattern
     match_kinds:
@@ -315,7 +315,7 @@ custom_rules:
 
   notification_name_raw_value: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Notification.Name Raw Value" # rule name. optional.
     regex: "Notification.Name\\((rawValue:)" # matching pattern
     capture_group: 1
@@ -324,7 +324,7 @@ custom_rules:
 
   notification_name_over_nsnotification_name: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Notification > NSNotification" # rule name. optional.
     regex: "(NS)Notification.Name" # matching pattern
     capture_group: 1
@@ -333,7 +333,7 @@ custom_rules:
 
   var_func_blank_line: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Blank Line In Top Of Var/Func" # rule name. optional.
     regex: "(var |func |init\\()[^\\n]*\\{\\n\\s*(\\n)" # matching pattern
     capture_group: 2
@@ -342,7 +342,7 @@ custom_rules:
 
   remove_synchronize: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Synchronize Function is Unnecessary" # rule name. optional.
     regex: "(UserDefaults.standard.synchronize)" # matching pattern
     capture_group: 1
@@ -350,7 +350,7 @@ custom_rules:
 
   image_tinting: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Tinting Image Directly" # rule name. optional.
     regex: "(View\\??\\.image|\\.setImage\\()[^\\n]+?(\\.withTintColor)\\(([^\\n]+|\\))"
     capture_group: 2
@@ -359,7 +359,7 @@ custom_rules:
 
   unnecessary_type_specification: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Unnecessary Type Specification" # rule name. optional.
     regex: "(var|let) \\S+: (Bool|Int|String) = (?!\\{)"
     capture_group: 2
@@ -368,7 +368,7 @@ custom_rules:
 
   else_on_newline: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Else On Newline" # rule name. optional.
     regex: "\\}\\n\\s*(else)" # matching pattern
     capture_group: 1
@@ -377,7 +377,7 @@ custom_rules:
 
   catch_on_newline: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Catch On Newline" # rule name. optional.
     regex: "\\}\\n\\s*(catch) " # matching pattern
     capture_group: 1
@@ -386,7 +386,7 @@ custom_rules:
 
   aspect_ratio_constraint_1: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Aspect Ratio Constraint" # rule name. optional.
     regex: "(\\S+)\\.widthAnchor\\.constraint\\(equalTo: \\1\\.heightAnchor" # matching pattern
     message: "Use UIView.aspectRatioConstraint(withMultiplier:)" # violation message. optional.
@@ -394,7 +394,7 @@ custom_rules:
 
   aspect_ratio_constraint_2: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Aspect Ratio Constraint" # rule name. optional.
     regex: "(\\S+)\\.heightAnchor\\.constraint\\(equalTo: \\1\\.widthAnchor" # matching pattern
     message: "Use UIView.aspectRatioConstraint(withMultiplier:)" # violation message. optional.
@@ -402,7 +402,7 @@ custom_rules:
 
   string_initializer: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Empty String Initializer" # rule name. optional.
     regex: " String\\(\\)" # matching pattern
     message: "Use an empty String literal" # violation message. optional.
@@ -410,7 +410,7 @@ custom_rules:
 
   is_kind_check: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Is Kind Check" # rule name. optional.
     regex: "\\.isKind\\(of:" # matching pattern
     message: "Use 'object is Type'" # violation message. optional.
@@ -418,7 +418,7 @@ custom_rules:
 
   legacy_transformation: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Legacy Transformation" # rule name. optional.
     regex: "(transformedSet|transformedArray)" # matching pattern
     capture_group: 1
@@ -427,7 +427,7 @@ custom_rules:
 
   inline_block: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Inline Block" # rule name. optional.
     regex: "(var|let) \\S+:[^\\n]*->[^\\n]* = \\{" # matching pattern
     message: "Use a local function" # violation message. optional.
@@ -435,7 +435,7 @@ custom_rules:
 
   value_for_key_path: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Value For Key Path" # rule name. optional.
     regex: "(value\\(forKeyPath:)" # matching pattern
     capture_group: 1
@@ -444,7 +444,7 @@ custom_rules:
 
   async_api_design: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Async API Design" # rule name. optional.
     regex: "func (get|request|fetch|load)[^\\n]+? async (throws )?-> [^\\n]+?\\{" # matching pattern
     capture_group: 1
@@ -453,7 +453,7 @@ custom_rules:
 
   attributed_string_keys: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Attributed String Keys" # rule name. optional.
     regex: "(addAttribute\\(NSAttributedString.Key|addAttributes\\(\\[NSAttributedString.Key)" # matching pattern
     capture_group: 1
@@ -462,7 +462,7 @@ custom_rules:
 
   legacy_nsindexpath: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Legacy NSIndexPath" # rule name. optional.
     regex: "(NSIndexPath)" # matching pattern
     capture_group: 1
@@ -471,7 +471,7 @@ custom_rules:
 
   redundant_argument_name: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Redundant Argument Name" # rule name. optional.
     regex: "func [a-zA-Z]+?([a-z]+)\\(([A-Za-z]\\1):" # matching pattern
     capture_group: 2
@@ -480,7 +480,7 @@ custom_rules:
 
   optional_closure_check: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Optional Closure Check" # rule name. optional.
     regex: "if let ([a-zA-Z]+)[\\s]*? \\{\\s+(\\1)\\(\\)" # matching pattern
     capture_group: 2
@@ -489,7 +489,7 @@ custom_rules:
 
   legacy_model_class: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Legacy Model Class" # rule name. optional.
     regex: "(SRBAutomappingModelObject)" # matching pattern
     capture_group: 1
@@ -498,7 +498,7 @@ custom_rules:
 
   common_debug_statements: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Common Debug Statements" # rule name. optional.
     regex: "(Task.sleep|!!!)" # matching pattern
     capture_group: 1
@@ -507,7 +507,7 @@ custom_rules:
 
   swiftui_localization: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "SwiftUI Localization" # rule name. optional.
     regex: "\\W(Text|TextField|SecureField|Button|Label|Toggle|Picker|Menu|confirmationDialog|navigationTitle|navigationBarTitle|alert)\\((NSLocalizedString)" # matching pattern
     capture_group: 2
@@ -516,7 +516,7 @@ custom_rules:
 
   ambiguous_dateformatter: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Ambiguous DateFormatter" # rule name. optional.
     regex: " (DateFormatter\\(\\))" # matching pattern
     capture_group: 1
@@ -525,23 +525,23 @@ custom_rules:
   
   swiftui_fullscreencover: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "SwiftUI sheet view modifier" # rule name. optional.
     regex: "\\.fullScreenCover\\(" # matching pattern
     message: "Please use the yvFullScreenCover view modifier" # violation message. optional.
     severity: error # violation severity. optional.
 
-  no_import_red: # rule identifier
+  snake_case_property: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
-    name: "No Direct RED Import" # rule name. optional.
-    regex: "^\\s*import\\s+RED\\s*$" # matching pattern - matches "import RED" but not "import class RED.iOSDate"
-    message: "Don't import the entire RED module. Use specific imports like 'import class RED.iOSDate' instead." # violation message. optional.
+    name: "Snake Case Property" # rule name. optional.
+    regex: "\\b(let|var)\\s+([a-z][a-z0-9]*_[a-zA-Z0-9_]+)" # matching pattern
+    capture_group: 2
+    message: "Use camelCase for property names. Map to snake_case JSON keys via CodingKeys." # violation message. optional.
     severity: error # violation severity. optional.
 
   reduce_motion_guard: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Test\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Reduce Motion Guard" # rule name. optional.
     regex: "(withAnimation\\s*\\(\\s*\\.|\\.animation\\s*\\(\\s*\\.|\\.transition\\s*\\(\\s*\\.|Transaction\\s*\\(\\s*animation:\\s*\\.)" # matching pattern - a literal animation (dot-prefixed) passed directly to the call is a hint it's unguarded; guarded forms pass a ternary or derived property.
     capture_group: 1
@@ -603,7 +603,6 @@ opt_in_rules: # some rules are only opt-in
 # included: # paths to include during linting. `--path` is ignored if present.
 #   - Source
 excluded: # paths to ignore during linting. Takes precedence over `included`.
-  - Tests
   - Package.swift
   - Sources/Utilities/ThreadSafeDictionary.swift
   - '**/derived_data'
