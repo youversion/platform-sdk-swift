@@ -5,7 +5,7 @@ struct RepositoryTemporaryStorage {
     let rootURL: URL
     let cacheRootURL: URL
     let downloadRootURL: URL
-    let provider: RepositoryBibleContentDirectoryProvider
+    let provider: TestBibleContentDirectoryProvider
 
     init() throws {
         let rootURL = FileManager.default.temporaryDirectory
@@ -19,7 +19,7 @@ struct RepositoryTemporaryStorage {
         self.rootURL = rootURL
         self.cacheRootURL = cacheRootURL
         self.downloadRootURL = downloadRootURL
-        self.provider = RepositoryBibleContentDirectoryProvider(
+        self.provider = TestBibleContentDirectoryProvider(
             cacheRootURL: cacheRootURL,
             downloadRootURL: downloadRootURL
         )
@@ -42,7 +42,7 @@ struct RepositoryTemporaryStorage {
     }
 }
 
-struct RepositoryBibleContentDirectoryProvider: BibleContentDirectoryProviding {
+struct TestBibleContentDirectoryProvider: BibleContentDirectoryProviding {
     let cacheRootURL: URL
     let downloadRootURL: URL
 

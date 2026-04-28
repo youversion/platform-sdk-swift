@@ -221,7 +221,7 @@ private struct TemporaryStorage {
     let rootURL: URL
     let cacheRootURL: URL
     let downloadRootURL: URL
-    let provider: TemporaryBibleContentDirectoryProvider
+    let provider: TestBibleContentDirectoryProvider
 
     init() throws {
         let rootURL = FileManager.default.temporaryDirectory
@@ -235,7 +235,7 @@ private struct TemporaryStorage {
         self.rootURL = rootURL
         self.cacheRootURL = cacheRootURL
         self.downloadRootURL = downloadRootURL
-        self.provider = TemporaryBibleContentDirectoryProvider(
+        self.provider = TestBibleContentDirectoryProvider(
             cacheRootURL: cacheRootURL,
             downloadRootURL: downloadRootURL
         )
@@ -269,19 +269,5 @@ private struct TemporaryStorage {
             withIntermediateDirectories: true
         )
         try data.write(to: url)
-    }
-}
-
-private struct TemporaryBibleContentDirectoryProvider: BibleContentDirectoryProviding {
-    let cacheRootURL: URL
-    let downloadRootURL: URL
-
-    func rootURL(for storageKind: BibleContentStorageKind) -> URL {
-        switch storageKind {
-        case .cache:
-            cacheRootURL
-        case .download:
-            downloadRootURL
-        }
     }
 }
