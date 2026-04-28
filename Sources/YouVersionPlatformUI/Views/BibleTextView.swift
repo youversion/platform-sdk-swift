@@ -80,15 +80,13 @@ public struct BibleTextView: View {
                 }
             }
         }
-        .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
-        .onAppear {
+        .preference(key: VerseAnchorsPreferenceKey.self, value: {
             let anchors = blocks.compactMap(\.startVerse).sorted()
-            scrollLog.notice("[textview] onAppear blocks=\(blocks.count) anchors=\(anchors)")
-        }
-        .onChange(of: blocks.count) {
-            let anchors = blocks.compactMap(\.startVerse).sorted()
-            scrollLog.notice("[textview] blocks changed count=\(blocks.count) anchors=\(anchors)")
-        }
+            if !blocks.isEmpty {
+                print("[SCROLL-PREF] emitting anchors=\(anchors) from \(blocks.count) blocks startVerses=\(blocks.map { $0.startVerse as Any })")
+            }
+            return anchors
+        }())
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
