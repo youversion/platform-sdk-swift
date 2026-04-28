@@ -40,16 +40,39 @@ extension BibleTextView {
         let footnoteIcon: Image
         let noteIndicatorIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
+        let audioActiveIndicatorColor: Color?
 
-        init(verseSelectionStyle: VerseSelectionStyle = .solid) {
+        init(verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             noteIndicatorIcon = Image("noteIndicatorIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
+            self.audioActiveIndicatorColor = audioActiveIndicatorColor
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
             let noteIndicatorImage = context.resolve(noteIndicatorIcon)
+
+            if let indicatorColor = audioActiveIndicatorColor {
+                var barMinY: CGFloat?
+                var barMaxY: CGFloat?
+                var barX: CGFloat = .infinity
+                for line in layout {
+                    let lineRect = line.typographicBounds.rect
+                    let lineContainsActive = line.contains(where: { $0[RenderHowAttribute.self]?.audioActive == true })
+                    if lineContainsActive {
+                        barMinY = min(barMinY ?? .infinity, lineRect.minY)
+                        barMaxY = max(barMaxY ?? -.infinity, lineRect.maxY)
+                        barX = min(barX, lineRect.minX)
+                    }
+                }
+                if let minY = barMinY, let maxY = barMaxY {
+                    let barWidth: CGFloat = 3
+                    let barRect = CGRect(x: barX - 12, y: minY, width: barWidth, height: maxY - minY)
+                    let path = RoundedRectangle(cornerRadius: 1.5).path(in: barRect)
+                    context.fill(path, with: .color(indicatorColor))
+                }
+            }
 
             for line in layout {
                 let lineRect = line.typographicBounds.rect
@@ -142,6 +165,7 @@ extension BibleTextView {
     struct RenderHowAttribute: TextAttribute {
         var underlined = false
         var underlineColor: Color?
+        var audioActive = false
         var footnoteImage = false
         var noteIndicatorImage = false
         var noteIndicatorBox = false
@@ -207,16 +231,20 @@ extension BibleTextView {
                 continue
             }
             let isUnderlined = isSelected(reference) && category == .scripture
+            let isActive = isAudioActive(reference) && (category == .scripture || category == .verseLabel)
             if isUnderlined {
-                // Split by foreground color so WoC (red) text gets a red underline
-                // while normal text uses the default verseSelectionStyle.color.
                 for (fgColor, subRange) in t.runs[\.foregroundColor] {
                     let subStr = AttributedString(t[subRange])
                     // swiftlint:disable:next shorthand_operator
                     textCombo = textCombo + Text(subStr).customAttribute(
-                        RenderHowAttribute(underlined: true, underlineColor: fgColor)
+                        RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive)
                     )
                 }
+            } else if isActive {
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(t).customAttribute(
+                    RenderHowAttribute(audioActive: true, footnoteImage: category == .footnoteImage)
+                )
             } else {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
@@ -233,7 +261,10 @@ extension BibleTextView {
                 view.lineSpacing(textOptions.lineSpacing!)
             }
         if #available(iOS 18.0, *) {
-            return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
+            return retValue.textRenderer(BibleRenderer(
+                verseSelectionStyle: textOptions.verseSelectionStyle,
+                audioActiveIndicatorColor: textOptions.audioActiveIndicatorColor
+            ))
         } else {
             return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
         }
@@ -291,6 +322,13 @@ extension BibleTextView {
             }
         }
         return false
+    }
+
+    private func isAudioActive(_ reference: BibleReference?) -> Bool {
+        guard let audioActiveVerse, let reference else {
+            return false
+        }
+        return reference.verseStart == audioActiveVerse
     }
 
     private func highlightFor(reference: BibleReference?) -> Color {

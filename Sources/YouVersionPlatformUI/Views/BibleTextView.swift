@@ -9,6 +9,8 @@ public struct BibleTextView: View {
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
     private let onAnchorsChanged: (([Int]) -> Void)?
+    // swiftlint:disable:next private_swiftui_state
+    let audioActiveVerse: Int?
     private let placeholder: (BibleTextLoadingPhase) -> AnyView
     private let providedBlocks: [BibleTextBlock]?
     @State private var isVersionRightToLeft = false
@@ -30,6 +32,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self.onAnchorsChanged = nil
+        self.audioActiveVerse = nil
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = []
@@ -42,6 +45,7 @@ public struct BibleTextView: View {
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
         onAnchorsChanged: (([Int]) -> Void)? = nil,
+        audioActiveVerse: Int? = nil,
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
     ) {
         self.reference = reference
@@ -49,6 +53,7 @@ public struct BibleTextView: View {
         self._selectedVerses = selectedVerses
         self.onVerseTap = onVerseTap
         self.onAnchorsChanged = onAnchorsChanged
+        self.audioActiveVerse = audioActiveVerse
         self.placeholder = placeholder ?? Self.standardPlaceholder
         self.blocks = []
         self.providedBlocks = nil
@@ -65,6 +70,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self.onAnchorsChanged = nil
+        self.audioActiveVerse = nil
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
@@ -78,6 +84,15 @@ public struct BibleTextView: View {
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
+                        .overlay(alignment: .leading) {
+                            if blockContainsAudioActiveVerse(blockIndex: index),
+                               let color = textOptions.audioActiveIndicatorColor {
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .fill(color)
+                                    .frame(width: 3)
+                                    .padding(.leading, -12)
+                            }
+                        }
                         .id(block.verseAnchorId ?? "block-\(block.id)")
                 }
             }
@@ -154,6 +169,20 @@ public struct BibleTextView: View {
     // Our main VStack's alignment needs to be flipped when the system's text direction
     // isn't the same as our Bible version's text direction, otherwise multiline text
     // views will be placed on the wrong side of the VStack.
+    private func blockContainsAudioActiveVerse(blockIndex: Int) -> Bool {
+        guard let audioActiveVerse,
+              let blockStart = blocks[blockIndex].startVerse else {
+            return false
+        }
+        let nextBlockStart = blocks.dropFirst(blockIndex + 1)
+            .compactMap(\.startVerse)
+            .first
+        if let nextStart = nextBlockStart {
+            return audioActiveVerse >= blockStart && audioActiveVerse < nextStart
+        }
+        return audioActiveVerse >= blockStart
+    }
+
     private var mainVStackAlignment: HorizontalAlignment {
         if systemLayoutDirection == .leftToRight {
             return isVersionRightToLeft ? .trailing : .leading
@@ -310,6 +339,7 @@ public struct BibleTextOptions {
     public let verseSelectionStyle: VerseSelectionStyle
     public let noteIndicatorBoxColor: Color?
     public let noteIndicatorBoxHighlightColor: Color?
+    public let audioActiveIndicatorColor: Color?
 
     public init(fontFamily: String = "Times New Roman",
                 fontSize: CGFloat = 16,
@@ -324,7 +354,8 @@ public struct BibleTextOptions {
                 footnoteMarker: BibleAttributedString? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 noteIndicatorBoxColor: Color? = nil,
-                noteIndicatorBoxHighlightColor: Color? = nil) {
+                noteIndicatorBoxHighlightColor: Color? = nil,
+                audioActiveIndicatorColor: Color? = nil) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.lineSpacing = lineSpacing ?? fontSize / 2
@@ -339,6 +370,7 @@ public struct BibleTextOptions {
         self.verseSelectionStyle = verseSelectionStyle
         self.noteIndicatorBoxColor = noteIndicatorBoxColor
         self.noteIndicatorBoxHighlightColor = noteIndicatorBoxHighlightColor
+        self.audioActiveIndicatorColor = audioActiveIndicatorColor
     }
 }
 

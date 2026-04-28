@@ -30,8 +30,9 @@ final class BibleReaderViewModel {
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
     let onReferenceChange: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
+    let audioActiveIndicatorColor: Color?
 
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil) {
+    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
 
@@ -56,6 +57,7 @@ final class BibleReaderViewModel {
         self.onNoteIndicatorTap = onNoteIndicatorTap
         self.onReferenceChange = onReferenceChange
         self.verseSelectionStyle = verseSelectionStyle
+        self.audioActiveIndicatorColor = audioActiveIndicatorColor
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         self.colorTheme = ReaderTheme.theme()
         self.myVersions = []
@@ -250,7 +252,8 @@ final class BibleReaderViewModel {
             footnoteMarker: nil,
             verseSelectionStyle: verseSelectionStyle,
             noteIndicatorBoxColor: readerButtonPrimaryColor,
-            noteIndicatorBoxHighlightColor: readerButtonContrastColor.opacity(0.1)
+            noteIndicatorBoxHighlightColor: readerButtonContrastColor.opacity(0.1),
+            audioActiveIndicatorColor: audioActiveIndicatorColor
         )
     }
 

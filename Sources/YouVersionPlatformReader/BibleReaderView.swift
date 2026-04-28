@@ -53,13 +53,16 @@ public struct BibleReaderView: View {
     ///   - audioActiveReference: The verse currently being narrated by audio
     ///     playback. When this value changes, the reader auto-scrolls to keep
     ///     the active verse visible. Pass `nil` when audio is not playing.
+    ///   - audioActiveIndicatorColor: The color of the vertical bar drawn next
+    ///     to the verse being narrated. Pass `nil` to hide the indicator.
     public init(reference: BibleReference? = nil,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
-                audioActiveReference: BibleReference? = nil
+                audioActiveReference: BibleReference? = nil,
+                audioActiveIndicatorColor: Color? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
@@ -67,7 +70,7 @@ public struct BibleReaderView: View {
         )
         self.externalSelectedVerses = selectedVerses
         self.audioActiveReference = audioActiveReference
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange)
+        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, audioActiveIndicatorColor: audioActiveIndicatorColor, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
@@ -299,7 +302,8 @@ public struct BibleReaderView: View {
                                 },
                                 onAnchorsChanged: { anchors in
                                     verseAnchors = anchors
-                                }
+                                },
+                                audioActiveVerse: audioActiveReference?.verseStart
                             )
                         }
                         bibleCopyrightBlock
