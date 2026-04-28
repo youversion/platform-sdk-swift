@@ -105,7 +105,7 @@ actor ChapterDownloadCache {
 
 }
 
-public actor BibleChapterRepository: ObservableObject {
+public actor BibleChapterRepository {
 
     public static let shared = BibleChapterRepository()
 

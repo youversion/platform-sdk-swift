@@ -1,9 +1,4 @@
 import Foundation
-#if canImport(Observation)
-import Observation
-#else
-public protocol Observable {}
-#endif
 
 /// Abstraction over Bible version lookup and download operations.
 public protocol BibleVersionRepositoryProtocol: Sendable {
@@ -166,7 +161,7 @@ actor VersionDownloadCache {
 
 }
 
-public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol {
+public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
 
     public static let shared = BibleVersionRepository()
 

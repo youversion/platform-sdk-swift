@@ -9306,28 +9306,7 @@
             "usr": "s:22YouVersionPlatformCore22BibleChapterRepositoryC06removeB06withIdySi_tYaF",
             "mangledName": "$s22YouVersionPlatformCore22BibleChapterRepositoryC06removeB06withIdySi_tYaF",
             "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Custom"
-            ],
             "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "ObjectWillChangePublisher",
-            "printedName": "ObjectWillChangePublisher",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "ObservableObjectPublisher",
-                "printedName": "Combine.ObservableObjectPublisher",
-                "usr": "s:7Combine25ObservableObjectPublisherC"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:22YouVersionPlatformCore22BibleChapterRepositoryC25ObjectWillChangePublishera",
-            "mangledName": "$s22YouVersionPlatformCore22BibleChapterRepositoryC25ObjectWillChangePublishera",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true
           },
           {
             "kind": "Var",
@@ -9391,28 +9370,6 @@
         "moduleName": "YouVersionPlatformCore",
         "hasMissingDesignatedInitializers": true,
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "ObservableObject",
-            "printedName": "ObservableObject",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "ObjectWillChangePublisher",
-                "printedName": "ObjectWillChangePublisher",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ObservableObjectPublisher",
-                    "printedName": "Combine.ObservableObjectPublisher",
-                    "usr": "s:7Combine25ObservableObjectPublisherC"
-                  }
-                ]
-              }
-            ],
-            "usr": "s:7Combine16ObservableObjectP",
-            "mangledName": "$s7Combine16ObservableObjectP"
-          },
           {
             "kind": "Conformance",
             "name": "Copyable",
@@ -17603,13 +17560,6 @@
         "moduleName": "YouVersionPlatformCore",
         "hasMissingDesignatedInitializers": true,
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Observable",
-            "printedName": "Observable",
-            "usr": "s:11Observation10ObservableP",
-            "mangledName": "$s11Observation10ObservableP"
-          },
           {
             "kind": "Conformance",
             "name": "Copyable",
