@@ -103,6 +103,34 @@ struct BibleContentStorage: Sendable {
         return try? JSONDecoder().decode(type, from: data)
     }
 
+    func write(_ data: Data, to resource: BibleContentStorageResource, isExcludedFromBackup: Bool = false) throws {
+        var directoryURL = url(for: resource).deletingLastPathComponent()
+        try FileManager.default.createDirectory(
+            at: directoryURL,
+            withIntermediateDirectories: true
+        )
+
+        if isExcludedFromBackup {
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try? directoryURL.setResourceValues(values)
+        }
+
+        try data.write(to: url(for: resource), options: .atomic)
+    }
+
+    func writeString(_ string: String, to resource: BibleContentStorageResource) throws {
+        try write(Data(string.utf8), to: resource)
+    }
+
+    func writeEncoded<T: Encodable>(
+        _ value: T,
+        to resource: BibleContentStorageResource,
+        isExcludedFromBackup: Bool = false
+    ) throws {
+        try write(JSONEncoder().encode(value), to: resource, isExcludedFromBackup: isExcludedFromBackup)
+    }
+
     func contains(_ resource: BibleContentStorageResource) -> Bool {
         FileManager.default.fileExists(atPath: url(for: resource).path)
     }
@@ -113,5 +141,9 @@ struct BibleContentStorage: Sendable {
             return false
         }
         return !contents.isEmpty
+    }
+
+    func remove(_ resource: BibleContentStorageResource) throws {
+        try FileManager.default.removeItem(at: url(for: resource))
     }
 }

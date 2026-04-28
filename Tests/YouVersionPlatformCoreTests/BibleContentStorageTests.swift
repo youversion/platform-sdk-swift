@@ -65,6 +65,17 @@ struct BibleContentStorageTests {
     }
 
     @Test
+    func versionDirectoryIdsReturnsEmptyWhenRootIsMissing() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+
+        try FileManager.default.removeItem(at: temporaryStorage.cacheRootURL)
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+
+        #expect(storage.versionDirectoryIds.isEmpty)
+    }
+
+    @Test
     func dataAndDecodedReadStoredVersionMetadata() throws {
         let temporaryStorage = try TemporaryStorage()
         defer { temporaryStorage.remove() }
@@ -159,6 +170,45 @@ struct BibleContentStorageTests {
         )
 
         #expect(storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: 206)))
+    }
+
+    @Test
+    func writeEncodedCreatesVersionMetadata() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let fixture = try JSONDecoder().decode(BibleVersion.self, from: Self.fixtureData())
+
+        try storage.writeEncoded(fixture, to: .versionMetadata(versionId: fixture.id))
+
+        #expect(storage.decoded(BibleVersion.self, for: .versionMetadata(versionId: fixture.id))?.id == fixture.id)
+    }
+
+    @Test
+    func writeStringCreatesChapterContent() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+
+        try storage.writeString("chapter content", to: .chapter(versionId: 206, usfm: "GEN.1"))
+
+        #expect(storage.string(for: .chapter(versionId: 206, usfm: "GEN.1")) == "chapter content")
+    }
+
+    @Test
+    func removeDeletesResourceDirectory() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+
+        let storage = BibleContentStorage(storageKind: .download, directoryProvider: temporaryStorage.provider)
+        try storage.writeString("chapter content", to: .chapter(versionId: 206, usfm: "GEN.1"))
+
+        try storage.remove(.versionDirectory(versionId: 206))
+
+        #expect(storage.contains(.chapter(versionId: 206, usfm: "GEN.1")) == false)
+        #expect(storage.contains(.versionDirectory(versionId: 206)) == false)
     }
 
     private static func fixtureData() throws -> Data {

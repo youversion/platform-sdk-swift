@@ -81,6 +81,23 @@ struct BibleVersionRepositoryTests {
         #expect(api.callCount == 0)
     }
 
+    @Test
+    func versionIfCachedReturnsDownloadVersionAndWarmsMemory() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        await downloadCache.addVersion(Self.fixture)
+
+        let cached = try await repository.versionIfCached(Self.fixture.id)
+        await downloadCache.removeVersion(withId: Self.fixture.id)
+        let memoryCached = try await repository.versionIfCached(Self.fixture.id)
+
+        #expect(cached?.id == Self.fixture.id)
+        #expect(memoryCached?.id == Self.fixture.id)
+        #expect(memoryCached?.abbreviation == Self.fixture.abbreviation)
+        #expect(api.callCount == 0)
+    }
+
     // MARK: version(withId:)
 
     @Test

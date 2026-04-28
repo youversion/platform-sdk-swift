@@ -71,20 +71,19 @@ actor VersionDiskCache {
     }
 
     func addVersion(_ version: BibleVersion) async {
-        let url = storage.url(for: .versionMetadata(versionId: version.id))
-        try? FileManager.default.createDirectory(
-            at: url.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        if let data = try? JSONEncoder().encode(version) {
-            try? data.write(to: url, options: .atomic)
+        do {
+            try storage.writeEncoded(version, to: .versionMetadata(versionId: version.id))
+        } catch {
+            YouVersionPlatformLogger.notice(
+                "VersionDiskCache failed to write metadata for \(version.id): \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 
     func removeVersion(withId versionId: Int) async {
-        let url = storage.url(for: .versionDirectory(versionId: versionId))
         do {
-            try FileManager.default.removeItem(at: url)
+            try storage.remove(.versionDirectory(versionId: versionId))
         } catch {
             YouVersionPlatformLogger.notice(
                 "VersionDiskCache got error while removing: \(error.localizedDescription)",
@@ -105,8 +104,6 @@ actor VersionDiskCache {
     }
 }
 
-// TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
-// (Plus, both of these are nearly identical to the code of ChapterDownloadCache and ChapterDiskCache!)
 actor VersionDownloadCache {
     private let storage: BibleContentStorage
 
@@ -127,28 +124,23 @@ actor VersionDownloadCache {
     }
 
     func addVersion(_ version: BibleVersion) async {
-        var directoryURL = storage.url(for: .versionDirectory(versionId: version.id))
-        let metadataUrl = storage.url(for: .versionMetadata(versionId: version.id))
-
-        try? FileManager.default.createDirectory(
-            at: directoryURL,
-            withIntermediateDirectories: true
-        )
-        // exclude it from iCloud backup
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try? directoryURL.setResourceValues(values)
-
-        // save the metadata file inside there
-        if let data = try? JSONEncoder().encode(version) {
-            try? data.write(to: metadataUrl, options: .atomic)
+        do {
+            try storage.writeEncoded(
+                version,
+                to: .versionMetadata(versionId: version.id),
+                isExcludedFromBackup: true
+            )
+        } catch {
+            YouVersionPlatformLogger.notice(
+                "VersionDownloadCache failed to write metadata for \(version.id): \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 
     func removeVersion(withId id: Int) {
-        let url = storage.url(for: .versionDirectory(versionId: id))
         do {
-            try FileManager.default.removeItem(at: url)
+            try storage.remove(.versionDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
                 "VersionDownloadCache got error while removing: \(error.localizedDescription)",

@@ -48,19 +48,19 @@ actor ChapterDiskCache {
         guard let chapterUSFM = reference.chapterUSFM else {
             return
         }
-        let url = storage.url(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
         do {
-            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try Data(content.utf8).write(to: url, options: .atomic)
+            try storage.writeString(content, to: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
         } catch {
-            YouVersionPlatformLogger.notice("ChapterDiskCache failed to write data to \(url): \(error)", category: "ChapterCache")
+            YouVersionPlatformLogger.notice(
+                "ChapterDiskCache failed to write data: \(error.localizedDescription)",
+                category: "ChapterCache"
+            )
         }
     }
 
     func removeVersion(versionId: Int) async {
-        let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
-            try FileManager.default.removeItem(at: cacheURL)
+            try storage.remove(.chaptersDirectory(versionId: versionId))
         } catch {
             YouVersionPlatformLogger.notice(
                 "ChapterDiskCache got error while removing: \(error.localizedDescription)",
@@ -70,8 +70,6 @@ actor ChapterDiskCache {
     }
 }
 
-// TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
-// (Plus, both of these are nearly identical to the code of VersionDiskCache and VersionDownloadCache!)
 actor ChapterDownloadCache {
     private let storage: BibleContentStorage
 
@@ -95,9 +93,8 @@ actor ChapterDownloadCache {
     }
 
     func removeVersion(versionId: Int) async {
-        let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
-            try FileManager.default.removeItem(at: cacheURL)
+            try storage.remove(.chaptersDirectory(versionId: versionId))
         } catch {
             YouVersionPlatformLogger.notice(
                 "ChapterDownloadCache got error while removing: \(error.localizedDescription)",
