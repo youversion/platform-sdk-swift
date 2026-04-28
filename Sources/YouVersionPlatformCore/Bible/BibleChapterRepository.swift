@@ -5,15 +5,15 @@ actor ChapterMemoryCache {
 
     init() {}
 
-    func chapterContent(withReference reference: BibleReference) async -> String? {
+    func chapterContent(withReference reference: BibleReference) -> String? {
         cache[Self.cacheKey(reference: reference)]
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference) async {
+    func addChapterContent(_ content: String, reference: BibleReference) {
         cache[Self.cacheKey(reference: reference)] = content
     }
 
-    func removeVersion(versionId: Int) async {
+    func removeVersion(versionId: Int) {
         let prefix = "\(versionId)_"
         let keysToRemove = cache.keys.filter { $0.hasPrefix(prefix) }
         for key in keysToRemove {
@@ -58,7 +58,7 @@ actor ChapterDiskCache {
         }
     }
 
-    func removeVersion(versionId: Int) async {
+    func removeVersion(versionId: Int) {
         do {
             try storage.remove(.chaptersDirectory(versionId: versionId))
         } catch {
@@ -92,7 +92,7 @@ actor ChapterDownloadCache {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
-    func removeVersion(versionId: Int) async {
+    func removeVersion(versionId: Int) {
         do {
             try storage.remove(.chaptersDirectory(versionId: versionId))
         } catch {
