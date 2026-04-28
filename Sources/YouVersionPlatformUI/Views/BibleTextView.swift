@@ -83,11 +83,11 @@ public struct BibleTextView: View {
         .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
         .onAppear {
             let anchors = blocks.compactMap(\.startVerse).sorted()
-            scrollLog.debug("[textview] onAppear blocks=\(blocks.count) anchors=\(anchors)")
+            scrollLog.notice("[textview] onAppear blocks=\(blocks.count) anchors=\(anchors)")
         }
         .onChange(of: blocks.count) {
             let anchors = blocks.compactMap(\.startVerse).sorted()
-            scrollLog.debug("[textview] blocks changed count=\(blocks.count) anchors=\(anchors)")
+            scrollLog.notice("[textview] blocks changed count=\(blocks.count) anchors=\(anchors)")
         }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {

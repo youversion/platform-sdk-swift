@@ -337,11 +337,11 @@ public struct BibleReaderView: View {
                 }
             }
             .onChange(of: audioActiveReference) { oldVal, newVal in
-                scrollLog.debug("[sdk-onChange] audioActiveRef changed: old=\(oldVal?.verseStart ?? -1) new=\(newVal?.verseStart ?? -1)")
+                scrollLog.notice("[sdk-onChange] audioActiveRef changed: old=\(oldVal?.verseStart ?? -1) new=\(newVal?.verseStart ?? -1)")
                 applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
             .onChange(of: verseAnchors) { _, newVal in
-                scrollLog.debug("[sdk-onChange] verseAnchors changed: \(newVal)")
+                scrollLog.notice("[sdk-onChange] verseAnchors changed: \(newVal)")
                 applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
         }
@@ -350,23 +350,23 @@ public struct BibleReaderView: View {
     private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
         guard let audioRef = audioActiveReference,
               let verse = audioRef.verseStart else {
-            scrollLog.debug("[sdk-scroll] bail: audioRef=\(audioActiveReference == nil ? "nil" : "set") verseStart=\(audioActiveReference?.verseStart ?? -1)")
+            scrollLog.notice("[sdk-scroll] bail: audioRef=\(audioActiveReference == nil ? "nil" : "set") verseStart=\(audioActiveReference?.verseStart ?? -1)")
             return
         }
         guard audioRef.chapter == viewModel.reference.chapter else {
-            scrollLog.debug("[sdk-scroll] bail: chapter mismatch audio=\(audioRef.chapter) reader=\(viewModel.reference.chapter)")
+            scrollLog.notice("[sdk-scroll] bail: chapter mismatch audio=\(audioRef.chapter) reader=\(viewModel.reference.chapter)")
             return
         }
         guard audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased() else {
-            scrollLog.debug("[sdk-scroll] bail: book mismatch audio=\(audioRef.bookUSFM) reader=\(viewModel.reference.bookUSFM)")
+            scrollLog.notice("[sdk-scroll] bail: book mismatch audio=\(audioRef.bookUSFM) reader=\(viewModel.reference.bookUSFM)")
             return
         }
         guard !viewModel.isChangingChapter else {
-            scrollLog.debug("[sdk-scroll] bail: isChangingChapter=true")
+            scrollLog.notice("[sdk-scroll] bail: isChangingChapter=true")
             return
         }
         guard let anchorVerse = verseAnchors.last(where: { $0 <= verse }) else {
-            scrollLog.debug("[sdk-scroll] bail: no anchor for verse=\(verse) anchors=\(verseAnchors)")
+            scrollLog.notice("[sdk-scroll] bail: no anchor for verse=\(verse) anchors=\(verseAnchors)")
             return
         }
         guard anchorVerse != lastScrolledVerse else {
@@ -374,7 +374,7 @@ public struct BibleReaderView: View {
         }
         lastScrolledVerse = anchorVerse
         let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
-        scrollLog.debug("[sdk-scroll] scrolling to \(anchorId) for audioVerse=\(verse)")
+        scrollLog.notice("[sdk-scroll] scrolling to \(anchorId) for audioVerse=\(verse)")
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: 0.3)) {
                 scrollProxy.scrollTo(anchorId, anchor: .center)
