@@ -1,14 +1,9 @@
 import Foundation
-#if canImport(SwiftUI)
-import SwiftUI
-#else
-public protocol ObservableObject {}
-#endif
 
 // MARK: - Bible Highlights View Model
 
 @MainActor
-public class BibleHighlightsViewModel: ObservableObject {
+public class BibleHighlightsViewModel {
 
     public static let shared = BibleHighlightsViewModel()
 
