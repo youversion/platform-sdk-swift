@@ -45,7 +45,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let downloads = VersionDownloadCache.downloadedVersions
+                let downloads = BibleVersionRepository.shared.downloadedVersionIds
                 let versionId = reference?.versionId ?? downloads.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false

@@ -72,7 +72,7 @@ public final class BibleVersionsViewModel {
         }
         
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        let downloads = VersionDownloadCache.downloadedVersions
+        let downloads = versionRepository.downloadedVersionIds
         for id in downloads {
             if self.myVersions.contains(where: { $0.id == id }) {
                 continue
@@ -119,7 +119,7 @@ public final class BibleVersionsViewModel {
     }
     
     private func findAnyAcceptableVersion(savedIds: Set<Int>) async -> Int? {
-        let downloads = VersionDownloadCache.downloadedVersions
+        let downloads = versionRepository.downloadedVersionIds
         if !downloads.isEmpty {
             return downloads.first!
         }

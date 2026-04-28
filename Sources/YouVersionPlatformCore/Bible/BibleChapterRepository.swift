@@ -1,9 +1,39 @@
 import Foundation
 
-public actor ChapterDiskCache {
+actor ChapterMemoryCache {
+    private var cache: [String: String] = [:]
+
+    init() {}
+
+    func chapterContent(withReference reference: BibleReference) async -> String? {
+        cache[Self.cacheKey(reference: reference)]
+    }
+
+    func addChapterContent(_ content: String, reference: BibleReference) async {
+        cache[Self.cacheKey(reference: reference)] = content
+    }
+
+    func removeVersion(versionId: Int) async {
+        let prefix = "\(versionId)_"
+        let keysToRemove = cache.keys.filter { $0.hasPrefix(prefix) }
+        for key in keysToRemove {
+            cache.removeValue(forKey: key)
+        }
+    }
+
+    private static func cacheKey(reference: BibleReference) -> String {
+        "\(reference.versionId)_\(reference.chapterUSFM ?? "unknown")"
+    }
+}
+
+actor ChapterDiskCache {
     private let storage: BibleContentStorage
 
-    public init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+    init() {
+        self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
+    }
+
+    init(directoryProvider: BibleContentDirectoryProviding) {
         self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
@@ -21,17 +51,13 @@ public actor ChapterDiskCache {
         let url = storage.url(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
         do {
             try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if let data = content.data(using: .utf8) {
-                try data.write(to: url, options: .atomic)
-            } else {
-                YouVersionPlatformLogger.notice("Failed to convert content to UTF-8 data for \(url)", category: "ChapterCache")
-            }
+            try Data(content.utf8).write(to: url, options: .atomic)
         } catch {
             YouVersionPlatformLogger.notice("ChapterDiskCache failed to write data to \(url): \(error)", category: "ChapterCache")
         }
     }
 
-    public func removeVersion(versionId: Int) async {
+    func removeVersion(versionId: Int) async {
         let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
             try FileManager.default.removeItem(at: cacheURL)
@@ -46,10 +72,14 @@ public actor ChapterDiskCache {
 
 // TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
 // (Plus, both of these are nearly identical to the code of VersionDiskCache and VersionDownloadCache!)
-public actor ChapterDownloadCache {
+actor ChapterDownloadCache {
     private let storage: BibleContentStorage
 
-    public init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+    init() {
+        self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
+    }
+
+    init(directoryProvider: BibleContentDirectoryProviding) {
         self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
@@ -60,11 +90,11 @@ public actor ChapterDownloadCache {
         return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
 
-    nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
+    nonisolated func chaptersArePresent(versionId: Int) -> Bool {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
-    public func removeVersion(versionId: Int) async {
+    func removeVersion(versionId: Int) async {
         let cacheURL = storage.url(for: .chaptersDirectory(versionId: versionId))
         do {
             try FileManager.default.removeItem(at: cacheURL)
@@ -82,51 +112,49 @@ public actor BibleChapterRepository: ObservableObject {
 
     public static let shared = BibleChapterRepository()
 
-    // TODO: add MRU functionality and a maximum number of entries to this memoryCache.
-    private var memoryCache: [String: String] = [:]
-    private var diskCache = ChapterDiskCache()
-    private var downloadCache = ChapterDownloadCache()
+    private let chapterContentFromAPI: @Sendable (BibleReference) async throws -> String
+    private let memoryCache: ChapterMemoryCache
+    private let diskCache: ChapterDiskCache
+    private let downloadCache: ChapterDownloadCache
 
-    static func cacheKey(reference: BibleReference) -> String {
-        "\(reference.versionId)_\(reference.chapterUSFM ?? "unknown")"
+    public init() {
+        self.init(
+            chapterContentFromAPI: { try await YouVersionAPI.Bible.chapter(reference: $0) },
+            directoryProvider: DefaultBibleContentDirectoryProvider()
+        )
     }
 
-    func removeChaptersFromMemoryCache(withId versionId: Int) {
-        let prefix = "\(versionId)_"
-        let keysToRemove = memoryCache.keys.filter { $0.hasPrefix(prefix) }
-        for key in keysToRemove {
-            memoryCache.removeValue(forKey: key)
-        }
+    init(
+        chapterContentFromAPI: @escaping @Sendable (BibleReference) async throws -> String,
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
+    ) {
+        self.chapterContentFromAPI = chapterContentFromAPI
+        self.memoryCache = ChapterMemoryCache()
+        self.diskCache = ChapterDiskCache(directoryProvider: directoryProvider)
+        self.downloadCache = ChapterDownloadCache(directoryProvider: directoryProvider)
     }
 
     public func chapter(withReference reference: BibleReference) async throws -> String {
-        let cacheKey = Self.cacheKey(reference: reference)
-
-        if let cachedContent = memoryCache[cacheKey] {
+        if let cachedContent = await memoryCache.chapterContent(withReference: reference) {
             return cachedContent
         }
 
         if let cachedContent = await diskCache.chapterContent(withReference: reference) {
-            memoryCache[cacheKey] = cachedContent
+            await memoryCache.addChapterContent(cachedContent, reference: reference)
             return cachedContent
         }
 
         if let cachedContent = await downloadCache.chapterContent(withReference: reference) {
-            memoryCache[cacheKey] = cachedContent
+            await memoryCache.addChapterContent(cachedContent, reference: reference)
             return cachedContent
         }
 
-        let content = try await YouVersionAPI.Bible.chapter(reference: reference)
+        let content = try await chapterContentFromAPI(reference)
 
-        memoryCache[cacheKey] = content
+        await memoryCache.addChapterContent(content, reference: reference)
         await diskCache.addChapterContent(content, reference: reference)
 
         return content
-    }
-
-    func cachedChapter(withReference reference: BibleReference) throws -> String? {
-        let cacheKey = Self.cacheKey(reference: reference)
-        return memoryCache[cacheKey]
     }
 
     func chaptersArePresent(versionId: Int) -> Bool {
@@ -135,7 +163,7 @@ public actor BibleChapterRepository: ObservableObject {
 
     @MainActor
     public func removeVersion(withId versionId: Int) async {
-        await removeChaptersFromMemoryCache(withId: versionId)
+        await memoryCache.removeVersion(versionId: versionId)
         await diskCache.removeVersion(versionId: versionId)
         await downloadCache.removeVersion(versionId: versionId)
     }

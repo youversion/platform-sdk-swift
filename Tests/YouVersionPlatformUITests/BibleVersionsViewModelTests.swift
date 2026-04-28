@@ -8,6 +8,11 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     var cachedVersionById: [Int: BibleVersion] = [:]
     var thrownError: Error?
     var downloadedIds: [Int] = []
+    private let downloadedVersionIdsForListing: [Int]
+
+    init(downloadedVersionIds: [Int] = []) {
+        self.downloadedVersionIdsForListing = downloadedVersionIds
+    }
 
     func setVersion(_ version: BibleVersion) {
         versionById[version.id] = version
@@ -47,6 +52,10 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 
     nonisolated func downloadStatus(for id: Int) -> BibleVersionRepository.BibleVersionDownloadStatus {
         .notDownloadable
+    }
+
+    nonisolated var downloadedVersionIds: [Int] {
+        downloadedVersionIdsForListing
     }
 
     func removeVersion(withId versionId: Int) async {

@@ -1,18 +1,16 @@
 import Foundation
 
-public enum BibleContentStorageKind: Sendable {
+enum BibleContentStorageKind: Sendable {
     case cache
     case download
 }
 
-public protocol BibleContentDirectoryProviding: Sendable {
+protocol BibleContentDirectoryProviding: Sendable {
     func rootURL(for storageKind: BibleContentStorageKind) -> URL
 }
 
-public struct DefaultBibleContentDirectoryProvider: BibleContentDirectoryProviding {
-    public init() {}
-
-    public func rootURL(for storageKind: BibleContentStorageKind) -> URL {
+struct DefaultBibleContentDirectoryProvider: BibleContentDirectoryProviding {
+    func rootURL(for storageKind: BibleContentStorageKind) -> URL {
         let searchPathDirectory: FileManager.SearchPathDirectory = switch storageKind {
         case .cache:
             .cachesDirectory
@@ -44,7 +42,30 @@ struct BibleContentStorage: Sendable {
     }
 
     var versionDirectoryIds: [Int] {
-        scanForVersionsIn(dir: directoryProvider.rootURL(for: storageKind))
+        let dir = directoryProvider.rootURL(for: storageKind)
+        let urls = (try? FileManager.default.contentsOfDirectory(
+            at: dir,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        )) ?? []
+
+        var ids: [Int] = []
+        let prefix = "bible_"
+
+        for url in urls {
+            if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
+               values.isDirectory == true {
+                let name = url.lastPathComponent
+                if name.hasPrefix(prefix) {
+                    let suffix = String(name.dropFirst(prefix.count))
+                    let isAllDigits = suffix.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
+                    if isAllDigits, suffix.count < 7, let id = Int(suffix) {
+                        ids.append(id)
+                    }
+                }
+            }
+        }
+        return ids
     }
 
     func url(for resource: BibleContentStorageResource) -> URL {
@@ -93,30 +114,4 @@ struct BibleContentStorage: Sendable {
         }
         return !contents.isEmpty
     }
-}
-
-func scanForVersionsIn(dir: URL) -> [Int] {
-    let urls = (try? FileManager.default.contentsOfDirectory(
-        at: dir,
-        includingPropertiesForKeys: [.isDirectoryKey],
-        options: [.skipsHiddenFiles]
-    )) ?? []
-
-    var ids: [Int] = []
-    let prefix = "bible_"
-
-    for url in urls {
-        if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
-           values.isDirectory == true {
-            let name = url.lastPathComponent
-            if name.hasPrefix(prefix) {
-                let suffix = String(name.dropFirst(prefix.count))
-                let isAllDigits = suffix.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
-                if isAllDigits, suffix.count < 7, let id = Int(suffix) {
-                    ids.append(id)
-                }
-            }
-        }
-    }
-    return ids
 }
