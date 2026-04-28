@@ -1,8 +1,5 @@
-import os
 import SwiftUI
 import YouVersionPlatformCore
-
-private let scrollLog = Logger(subsystem: "com.youversion.platform", category: "ScrollDebug")
 
 public struct BibleTextView: View {
 
@@ -11,6 +8,7 @@ public struct BibleTextView: View {
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
+    private let onAnchorsChanged: (([Int]) -> Void)?
     private let placeholder: (BibleTextLoadingPhase) -> AnyView
     private let providedBlocks: [BibleTextBlock]?
     @State private var isVersionRightToLeft = false
@@ -31,6 +29,7 @@ public struct BibleTextView: View {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.onAnchorsChanged = nil
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = []
@@ -42,12 +41,14 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
+        onAnchorsChanged: (([Int]) -> Void)? = nil,
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
         self.onVerseTap = onVerseTap
+        self.onAnchorsChanged = onAnchorsChanged
         self.placeholder = placeholder ?? Self.standardPlaceholder
         self.blocks = []
         self.providedBlocks = nil
@@ -63,6 +64,7 @@ public struct BibleTextView: View {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.onAnchorsChanged = nil
         self._selectedVerses = .constant([])
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
@@ -80,13 +82,17 @@ public struct BibleTextView: View {
                 }
             }
         }
-        .preference(key: VerseAnchorsPreferenceKey.self, value: {
+        .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
+        .onChange(of: blocks.count) {
             let anchors = blocks.compactMap(\.startVerse).sorted()
-            if !blocks.isEmpty {
-                print("[SCROLL-PREF] emitting anchors=\(anchors) from \(blocks.count) blocks startVerses=\(blocks.map { $0.startVerse as Any })")
+            onAnchorsChanged?(anchors)
+        }
+        .onAppear {
+            let anchors = blocks.compactMap(\.startVerse).sorted()
+            if !anchors.isEmpty {
+                onAnchorsChanged?(anchors)
             }
-            return anchors
-        }())
+        }
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()

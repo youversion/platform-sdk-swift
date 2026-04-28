@@ -1,10 +1,7 @@
 import AuthenticationServices
-import os
 import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
-
-private let scrollLog = Logger(subsystem: "com.youversion.platform", category: "ScrollDebug")
 
 public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel
@@ -299,6 +296,9 @@ public struct BibleReaderView: View {
                                 selectedVerses: $viewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
+                                },
+                                onAnchorsChanged: { anchors in
+                                    verseAnchors = anchors
                                 }
                             )
                         }
@@ -336,12 +336,10 @@ public struct BibleReaderView: View {
                     }
                 }
             }
-            .onChange(of: audioActiveReference) { oldVal, newVal in
-                scrollLog.notice("[sdk-onChange] audioActiveRef changed: old=\(oldVal?.verseStart ?? -1) new=\(newVal?.verseStart ?? -1)")
+            .onChange(of: audioActiveReference) { _, _ in
                 applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
-            .onChange(of: verseAnchors) { _, newVal in
-                scrollLog.notice("[sdk-onChange] verseAnchors changed: \(newVal)")
+            .onChange(of: verseAnchors) { _, _ in
                 applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
         }
@@ -349,24 +347,13 @@ public struct BibleReaderView: View {
 
     private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
         guard let audioRef = audioActiveReference,
-              let verse = audioRef.verseStart else {
-            scrollLog.notice("[sdk-scroll] bail: audioRef=\(audioActiveReference == nil ? "nil" : "set") verseStart=\(audioActiveReference?.verseStart ?? -1)")
-            return
-        }
-        guard audioRef.chapter == viewModel.reference.chapter else {
-            scrollLog.notice("[sdk-scroll] bail: chapter mismatch audio=\(audioRef.chapter) reader=\(viewModel.reference.chapter)")
-            return
-        }
-        guard audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased() else {
-            scrollLog.notice("[sdk-scroll] bail: book mismatch audio=\(audioRef.bookUSFM) reader=\(viewModel.reference.bookUSFM)")
-            return
-        }
-        guard !viewModel.isChangingChapter else {
-            scrollLog.notice("[sdk-scroll] bail: isChangingChapter=true")
+              let verse = audioRef.verseStart,
+              audioRef.chapter == viewModel.reference.chapter,
+              audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased(),
+              !viewModel.isChangingChapter else {
             return
         }
         guard let anchorVerse = verseAnchors.last(where: { $0 <= verse }) else {
-            scrollLog.notice("[sdk-scroll] bail: no anchor for verse=\(verse) anchors=\(verseAnchors)")
             return
         }
         guard anchorVerse != lastScrolledVerse else {
@@ -374,7 +361,6 @@ public struct BibleReaderView: View {
         }
         lastScrolledVerse = anchorVerse
         let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
-        scrollLog.notice("[sdk-scroll] scrolling to \(anchorId) for audioVerse=\(verse)")
         DispatchQueue.main.async {
             withAnimation(.easeInOut(duration: 0.3)) {
                 scrollProxy.scrollTo(anchorId, anchor: .center)
