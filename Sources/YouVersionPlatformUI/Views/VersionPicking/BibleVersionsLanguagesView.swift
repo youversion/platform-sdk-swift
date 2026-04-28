@@ -61,7 +61,7 @@ struct BibleVersionsLanguagesView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     if selectedSegment == .suggested {
                         Text(String.localized("languageList.regional"))
-                            .font(YouVersionFonts.fontHeaderM)
+                            .font(YouVersionFonts.headerMedium)
                             .padding(.leading)
                     }
                     ForEach(languageCodes, id: \.self) { language in

@@ -21,7 +21,7 @@ struct BibleVersionsInfoView: View {
                     if let urlstring = version.readerFooterUrl,
                        let url = URL(string: urlstring) {
                         Text(String.localized("versionInfo.detailsLabel"))
-                            .font(YouVersionFonts.fontHeaderS)
+                            .font(YouVersionFonts.headerSmall)
                             .foregroundStyle(viewModel.readerTextMutedColor)
                         HStack {
                             Image(systemName: "globe")
@@ -76,12 +76,12 @@ struct BibleVersionsInfoView: View {
                     .font(YouVersionFonts.preferredBibleTextFont(size: 64))
                     .padding(.bottom, 8)
                 Text(version.localizedTitle ?? version.title ?? "")
-                    .font(YouVersionFonts.fontHeaderM)
+                    .font(YouVersionFonts.headerMedium)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
                     .padding(.bottom, 4)
                 Text(publisherLine(for: version))
-                    .font(YouVersionFonts.fontLabelM)
+                    .font(YouVersionFonts.labelMedium)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextMutedColor)
             }

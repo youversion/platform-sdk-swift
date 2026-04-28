@@ -13,12 +13,12 @@ struct BibleVersionDownloadView: View {
                 Text(version.localizedAbbreviation ?? version.abbreviation ?? "")
                     .font(YouVersionFonts.preferredBibleTextFont(size: 64))
                 Text(version.localizedTitle ?? version.title ?? "")
-                    .font(YouVersionFonts.fontHeaderS)
+                    .font(YouVersionFonts.headerSmall)
 
                 HStack {
                     Text(String.localized("download.agreementParagraph"))
                         .padding()
-                        .font(YouVersionFonts.fontCaptionsL)
+                        .font(YouVersionFonts.captionsLarge)
                     Button(action: {
                         viewModel.versionDownloadInfoButtonTapped(for: version)
                     }) {
@@ -29,7 +29,7 @@ struct BibleVersionDownloadView: View {
                 .padding(.horizontal, 32)
 
                 Text(String.localized("download.callToAction"))
-                    .font(YouVersionFonts.fontHeaderS)
+                    .font(YouVersionFonts.headerSmall)
 
                 Button(action: {
                     viewModel.versionDownloadViewAccepted(for: version)

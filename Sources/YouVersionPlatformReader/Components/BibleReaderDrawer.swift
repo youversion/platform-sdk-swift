@@ -91,7 +91,7 @@ struct BibleReaderDrawer: View {
         .background(RoundedRectangle(cornerRadius: 12)
             .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .font(YouVersionFonts.fontLabelM)
+        .font(YouVersionFonts.labelMedium)
     }
 
     private func drawerButton(imageName: String, text: String, action: @escaping () -> Void) -> some View {

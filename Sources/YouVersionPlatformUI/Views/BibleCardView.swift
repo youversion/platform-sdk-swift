@@ -81,7 +81,7 @@ public struct BibleCardView: View {
         .sheet(isPresented: $showingCopyrightSheet) {
             ScrollView {
                 Text(version?.localizedTitle ?? version?.title ?? "")
-                    .font(YouVersionFonts.fontHeaderM)
+                    .font(YouVersionFonts.headerMedium)
                     .padding(.vertical)
                 Text(version?.promotionalContent ?? version?.copyright ?? "")
                     .padding()
@@ -112,7 +112,7 @@ public struct BibleCardView: View {
         if let version {
             let refText = version.displayTitle(for: reference)
             return Text(refText)
-                .font(YouVersionFonts.fontEyebrowS.smallCaps())
+                .font(YouVersionFonts.eyebrowSmall.smallCaps())
                 .tracking(1.5)
         }
         return Text("")
