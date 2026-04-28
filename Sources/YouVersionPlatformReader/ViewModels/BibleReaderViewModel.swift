@@ -10,6 +10,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
+    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     var reference: BibleReference {
         didSet {
             if let data = try? JSONEncoder().encode(reference) {
@@ -30,10 +31,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
     let onReferenceChange: ((BibleReference) -> Void)?
+    let onChapterComplete: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
     let audioActiveIndicatorColor: Color?
+    var scrollViewHeight: CGFloat = 0
+    var hasNotifiedChapterComplete = false
 
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil) {
+    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil, onChapterComplete: ((BibleReference) -> Void)? = nil) {
         // grab the saved data first, because initializing myVersions will clear the saved data.
         let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
 
@@ -57,14 +61,24 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
         self.onReferenceChange = onReferenceChange
+        self.onChapterComplete = onChapterComplete
         self.verseSelectionStyle = verseSelectionStyle
         self.audioActiveIndicatorColor = audioActiveIndicatorColor
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
+        self.versionsViewModel = BibleVersionsViewModel { _ in }
         self.colorTheme = ReaderTheme.theme()
         self.myVersions = []
         self.suggestedLanguagesList = []
 
+        self.versionsViewModel.onVersionChange = { [weak self] version in
+            self?.onVersionChange(version: version)
+        }
+        self.versionsViewModel.onSignInRequired = { [weak self] in
+            self?.onSignInRequired()
+        }
+
         loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
+        self.versionsViewModel.colorTheme = colorTheme
 
         ReaderFonts.installFontsIfNeeded()
         Task {
@@ -75,29 +89,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
-    func loadUserSettingsFromStorage() {
-        guard let data = UserDefaults.standard.data(forKey: userDefaultsKeyForReaderSettings),
-              let savedValue = try? JSONDecoder().decode(ReaderSettings.self, from: data) else {
-            // missing or corrupted settings; use the defaults.
-            return
-        }
-        fontFamily = ReaderFonts.isPermittedFont(savedValue.fontFamily) ? savedValue.fontFamily : ReaderFonts.defaultFontFamily
-        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
-        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
-        colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
-    }
-
-    func saveUserSettingsToStorage() {
-        let settings = ReaderSettings(
-            fontFamily: fontFamily,
-            fontSize: fontSize,
-            lineSpacing: lineSpacing,
-            colorTheme: colorTheme?.id ?? ReaderTheme.theme().id
-        )
-        if let data = try? JSONEncoder().encode(settings) {
-            UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
-        }
-    }
 
     private class ReaderSettings: Codable {
         let fontFamily: String?
@@ -166,7 +157,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         let version = try? await versionRepository.version(withId: nextBestVersion)
         else {
             // bring up the UI, let the user choose.
-            versionsStackPush(to: .moreVersions)
+            versionsPickerStack.append(.moreVersions)
+            showingVersionsStack = true
           return
         }
         self.version = version
@@ -241,54 +233,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var startSignInFlow = false
     private(set) var isSignedIn = false
     var showSignOutConfirmation = false
-
-    init(
-        reference: BibleReference? = nil,
-        highlightsViewModel: BibleHighlightsViewModel? = nil,
-        verseSelectionStyle: VerseSelectionStyle = .solid,
-        versionsViewModel: BibleVersionsViewModel? = nil,
-        onVerseTap: ((BibleReference) -> Void)? = nil
-    ) {
-        if let reference {
-            self.reference = reference
-            self.showBookIntro = false
-        } else {
-            if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
-               let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
-                self.reference = savedValue
-                self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
-            } else {
-                // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let versionId = reference?.versionId ?? VersionDownloadCache.downloadedVersions.first ?? 3034
-                self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
-                self.showBookIntro = false
-            }
-        }
-
-        self.onVerseTap = onVerseTap
-        self.verseSelectionStyle = verseSelectionStyle
-        self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        let shouldLoadVersionsViewModel = versionsViewModel == nil
-        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
-        self.versionsViewModel.onVersionChange = { [weak self] version in
-            self?.onVersionChange(version: version)
-        }
-        self.versionsViewModel.onSignInRequired = { [weak self] in
-            self?.onSignInRequired()
-        }
-
-        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-        self.versionsViewModel.colorTheme = colorTheme
-
-        ReaderFonts.installFontsIfNeeded()
-
-        if shouldLoadVersionsViewModel {
-            let initialVersionId = self.reference.versionId
-            Task { [weak self] in
-                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
-            }
-        }
-    }
 
     var verseActionsDrawerAnimation: Animation {
         isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)

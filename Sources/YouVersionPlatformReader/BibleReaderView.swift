@@ -60,6 +60,7 @@ public struct BibleReaderView: View {
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
+                onChapterComplete: ((BibleReference) -> Void)? = nil,
                 audioActiveReference: BibleReference? = nil,
                 audioActiveIndicatorColor: Color? = nil
     ) {
@@ -69,7 +70,7 @@ public struct BibleReaderView: View {
         )
         self.externalSelectedVerses = selectedVerses
         self.audioActiveReference = audioActiveReference
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, audioActiveIndicatorColor: audioActiveIndicatorColor, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange)
+        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, audioActiveIndicatorColor: audioActiveIndicatorColor, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange, onChapterComplete: onChapterComplete)
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
@@ -165,6 +166,7 @@ public struct BibleReaderView: View {
             verseAnchors = []
             lastScrolledVerse = nil
             viewModel.onReferenceChange?(newReference)
+            viewModel.resetChapterCompleteTracking()
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -310,6 +312,15 @@ public struct BibleReaderView: View {
                 .frame(height: 0)
             }
             .coordinateSpace(name: "scrollView")
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { viewModel.scrollViewHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, newHeight in
+                            viewModel.scrollViewHeight = newHeight
+                        }
+                }
+            )
             .onPreferenceChange(VerseAnchorsPreferenceKey.self) { verseAnchors = $0 }
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 Task { @MainActor in

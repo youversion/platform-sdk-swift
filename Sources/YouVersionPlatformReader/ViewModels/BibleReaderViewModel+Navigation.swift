@@ -8,6 +8,7 @@ extension BibleReaderViewModel {
             return
         }
         isChangingChapter = true
+        resetChapterCompleteTracking()
         removeVerseSelection()
         if reference.chapter > 1 {
             reference = BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter - 1)
@@ -34,6 +35,7 @@ extension BibleReaderViewModel {
             return
         }
         isChangingChapter = true
+        resetChapterCompleteTracking()
         removeVerseSelection()
         if let books = version.books, let index = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
             let currentBook = books[index]
@@ -79,6 +81,21 @@ extension BibleReaderViewModel {
             }
         }
         lastScrollOffset = offset
+
+        let bottomThreshold: CGFloat = 100
+        if scrollViewHeight > 0
+            && offset > 0
+            && offset <= scrollViewHeight + bottomThreshold
+            && version != nil
+            && !hasNotifiedChapterComplete {
+            hasNotifiedChapterComplete = true
+            onChapterComplete?(reference)
+        }
+    }
+
+
+    func resetChapterCompleteTracking() {
+        hasNotifiedChapterComplete = false
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
@@ -219,6 +236,7 @@ extension BibleReaderViewModel {
 
     func onHeaderSelectionChange(_ reference: BibleReference, showIntro: Bool) async {
         isChangingChapter = true
+        resetChapterCompleteTracking()
         removeVerseSelection()
         do {
             if version?.id != reference.versionId {

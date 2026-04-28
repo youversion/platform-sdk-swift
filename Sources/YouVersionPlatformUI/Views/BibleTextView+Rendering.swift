@@ -234,7 +234,7 @@ extension BibleTextView {
                 textCombo = textCombo + Text(" ")
                 continue
             }
-            let isUnderlined = isSelected(reference) && category == .scripture
+            isUnderlined = (reference.map(isSelected) ?? false) && category == .scripture
             let isActive = isAudioActive(reference) && (category == .scripture || category == .verseLabel)
             if isUnderlined {
                 for (fgColor, subRange) in t.runs[\.foregroundColor] {
@@ -324,7 +324,6 @@ extension BibleTextView {
         }
         return false
     }
-s
     private func isAudioActive(_ reference: BibleReference?) -> Bool {
         guard let audioActiveVerse, let reference else {
             return false
