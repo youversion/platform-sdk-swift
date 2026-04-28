@@ -222,9 +222,9 @@ extension BibleReaderViewModel {
         removeVerseSelection()
         do {
             if version?.id != reference.versionId {
-                let newVersion = try await versionRepository.version(withId: reference.versionId)
+                let newVersion = try await versionsViewModel.versionRepository.version(withId: reference.versionId)
                 version = newVersion
-                myVersions.insert(newVersion)
+                versionsViewModel.myVersions.insert(newVersion)
             }
             self.reference = reference
             self.showBookIntro = showIntro

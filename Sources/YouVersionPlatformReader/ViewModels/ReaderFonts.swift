@@ -77,17 +77,14 @@ public enum ReaderFonts {
         "Trebuchet MS"
     ]
 
-    static func isPermittedFont(_ family: String?) -> Bool {
-        guard let family else {
-            return false
-        }
-        return suggestedFamilies.contains(family) || otherFamilies.contains(family)
+    static func isPermittedFont(_ family: String) -> Bool {
+        suggestedFamilies.contains(family) || otherFamilies.contains(family)
     }
 
     // MARK: - Font Sizes and Spacing
 
-    static let availableSizes = [9, 12, 15, 18, 21, 24, 27]
-    static let lineSpacingOptions = [6, 12, 18]
+    static let availableSizes: [CGFloat] = [9, 12, 15, 18, 21, 24, 27]
+    static let lineSpacingOptions: [CGFloat] = [6, 12, 18]
 
     // MARK: - Default Values
 
@@ -95,39 +92,19 @@ public enum ReaderFonts {
     static let defaultFontSize: CGFloat = 21
     static let defaultLineSpacing: CGFloat = 12
 
-    // MARK: - UI Fonts
-
-    static let fontSystemM = Font.system(size: 18, weight: .medium)
-    static let fontHeaderM = Font.system(size: 20, weight: .bold)
-    static let fontHeaderS = Font.system(size: 16, weight: .bold)
-    static let fontEyebrowS = Font.system(size: 11, weight: .bold)
-    static let fontLabelM = Font.system(size: 13, weight: .medium)
-    static let fontLabelS = Font.system(size: 11, weight: .medium)
-    static let fontCaptionsL = Font.system(size: 13)
-    static let fontCaptionsS = Font.system(size: 11)
-
     // MARK: - Utility Functions
 
-    /// For YouVersion uses of the Untitled font, we will use Baskerville as a fallback
-    static func preferredBibleTextFont(size: CGFloat) -> Font {
-        Font.custom("Baskerville", size: size)
-    }
-
     static func nextSmallerSize(currentSize: CGFloat) -> CGFloat? {
-        let currentSizeInt = Int(currentSize)
-        return availableSizes.filter({ $0 < currentSizeInt }).max().map(CGFloat.init)
+        availableSizes.filter { $0 < currentSize }.max()
     }
 
     static func nextLargerSize(currentSize: CGFloat) -> CGFloat? {
-        let currentSizeInt = Int(currentSize)
-        return availableSizes.filter({ $0 > currentSizeInt }).min().map(CGFloat.init)
+        availableSizes.filter { $0 > currentSize }.min()
     }
 
     static func nextLineSpacing(currentSpacing: CGFloat) -> CGFloat {
-        if let nextBigger = lineSpacingOptions.filter({ CGFloat($0) > currentSpacing }).min() {
-            CGFloat(nextBigger)
-        } else {
-            CGFloat(lineSpacingOptions.min()!)
-        }
+        lineSpacingOptions.filter { $0 > currentSpacing }.min()
+            ?? lineSpacingOptions.min()
+            ?? 6
     }
 }

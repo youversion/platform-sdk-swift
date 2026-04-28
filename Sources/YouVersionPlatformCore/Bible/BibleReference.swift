@@ -104,6 +104,29 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         }
     }
 
+    /// Returns whether this reference is available in the provided Bible version metadata.
+    public func existsIn(version: BibleVersion) -> Bool {
+        let normalizedBookUSFM = bookUSFM.uppercased()
+        guard version.bookUSFMs.contains(where: { $0.uppercased() == normalizedBookUSFM }) else {
+            return false
+        }
+
+        guard let book = version.book(with: normalizedBookUSFM) else {
+            return true
+        }
+
+        guard let chapters = book.chapters else {
+            return true
+        }
+
+        let chapterText = String(chapter)
+        return chapters.contains { chapterMetadata in
+            chapterMetadata.id == chapterText ||
+            chapterMetadata.title == chapterText ||
+            chapterMetadata.passageId == chapterUSFM
+        }
+    }
+
     public func overlaps(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
                 bookUSFM == otherReference.bookUSFM else {

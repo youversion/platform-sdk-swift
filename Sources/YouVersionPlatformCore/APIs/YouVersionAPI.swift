@@ -36,12 +36,8 @@ public enum YouVersionAPI {
         return true
     }
 
-    static func commonFetch(url: URL?, accessToken: String?, session: URLSession) async throws -> Data {
-        guard let url else {
-            throw URLError(.badURL)
-        }
-
-        let request = buildRequest(url: url, accessToken: accessToken, session: session)
+    static func data(at url: URL, accessToken: String?, session: URLSession) async throws -> Data {
+        let request = urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -61,8 +57,8 @@ public enum YouVersionAPI {
         return data
     }
 
-    static func buildRequest(
-        url: URL,
+    static func urlRequest(
+        with url: URL,
         accessToken: String?,
         session: URLSession,
         cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy

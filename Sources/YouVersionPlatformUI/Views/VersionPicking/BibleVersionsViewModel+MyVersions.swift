@@ -1,8 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-extension BibleReaderViewModel {
+extension BibleVersionsViewModel {
 
     public func myVersionItemTapped(_ versionId: Int) {
         switchToVersion(versionId)
@@ -11,8 +10,12 @@ extension BibleReaderViewModel {
 
     public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
         Task {
-            selectedVersion = try await versionRepository.version(withId: versionId)
-            versionsStackPush(to: .versionInfo)
+            do {
+                selectedVersion = try await versionRepository.version(withId: versionId)
+                versionsStackPush(to: .versionInfo)
+            } catch {
+                handleVersionLoadingError(error)
+            }
         }
     }
 
@@ -46,8 +49,6 @@ extension BibleReaderViewModel {
     public func myVersionRemoveDownloadMenuTapped(_ versionId: Int) {
         Task {
             await versionRepository.removeVersion(withId: versionId)
-            // no need to do the following, as versionRepository handles it:
-            //try await BibleChapterRepository.shared.removeVersion(version: version)
         }
     }
 
@@ -72,7 +73,7 @@ extension BibleReaderViewModel {
             if await YouVersionAPI.hasValidToken() {
                 finalDownloadButtonTapped(version: version)
             } else if YouVersionPlatformConfiguration.isSignInEnabled {
-                startSignInFlow = true
+                onSignInRequired?()
             } else {
                 assertionFailure("YouVersion sign-in must be enabled to download Bible versions.")
             }
@@ -89,8 +90,6 @@ extension BibleReaderViewModel {
             let versionName = version.localizedTitle ?? version.title ?? .localized("myVersions.defaultVersionName")
             do {
                 try await versionRepository.downloadVersion(withId: version.id)
-                // TEMPORARY removal
-                //try await BibleChapterRepository.shared.download(version: version)
                 showGenericAlert = true
                 textForGenericAlertTitle = .localized("myVersions.downloadCompleteTitle")
                 textForGenericAlertBody = String(format: .localized("myVersions.downloadCompleteBodyFormat"), versionName)

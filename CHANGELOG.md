@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.9.0](https://github.com/youversion/platform-sdk-swift/compare/4.8.0...4.9.0) (2026-04-22)
+
+
+### Features
+
+* add (optional) version picking feature to BibleCard ([#84](https://github.com/youversion/platform-sdk-swift/issues/84)) ([656036d](https://github.com/youversion/platform-sdk-swift/commit/656036de69282a0d9981909cf61581103d6a45cc)), closes [#77](https://github.com/youversion/platform-sdk-swift/issues/77)
+
 ## [4.8.0](https://github.com/youversion/platform-sdk-swift/compare/4.7.0...4.8.0) (2026-04-20)
 
 

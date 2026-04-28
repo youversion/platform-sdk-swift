@@ -6,10 +6,9 @@ import YouVersionPlatformUI
 
 @MainActor
 @Observable
-final class BibleReaderViewModel {
+final class BibleReaderViewModel: ReaderThemeProviding {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
-    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
         didSet {
@@ -24,7 +23,9 @@ final class BibleReaderViewModel {
         }
     }
     let highlightsViewModel: BibleHighlightsViewModel
+    var versionsViewModel: BibleVersionsViewModel
     var version: BibleVersion?
+
     let versionRepository = BibleVersionRepository()
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
@@ -218,16 +219,11 @@ final class BibleReaderViewModel {
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
     var isReduceMotionEnabled = false
-    var verseActionsDrawerAnimation: Animation {
-        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
-    }
     var selectedVerses: Set<BibleReference> = []
-
     var showingBookPicker = false
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
-
     let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
 
     // MARK: - Font settings
@@ -235,6 +231,68 @@ final class BibleReaderViewModel {
     private var fontFamily: String? = ReaderFonts.defaultFontFamily
     private var fontSize: CGFloat? = ReaderFonts.defaultFontSize
     private var lineSpacing = ReaderFonts.defaultLineSpacing
+
+    // MARK: - Colors
+
+    private(set) var colorTheme: ReaderTheme? = ReaderTheme.theme()
+
+    // MARK: - Sign In & Out
+
+    var startSignInFlow = false
+    private(set) var isSignedIn = false
+    var showSignOutConfirmation = false
+
+    init(
+        reference: BibleReference? = nil,
+        highlightsViewModel: BibleHighlightsViewModel? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        versionsViewModel: BibleVersionsViewModel? = nil,
+        onVerseTap: ((BibleReference) -> Void)? = nil
+    ) {
+        if let reference {
+            self.reference = reference
+            self.showBookIntro = false
+        } else {
+            if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
+               let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
+                self.reference = savedValue
+                self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
+            } else {
+                // no specified or saved version, so, pick a downloaded one, else a safe default.
+                let versionId = reference?.versionId ?? VersionDownloadCache.downloadedVersions.first ?? 3034
+                self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
+                self.showBookIntro = false
+            }
+        }
+
+        self.onVerseTap = onVerseTap
+        self.verseSelectionStyle = verseSelectionStyle
+        self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
+        let shouldLoadVersionsViewModel = versionsViewModel == nil
+        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
+        self.versionsViewModel.onVersionChange = { [weak self] version in
+            self?.onVersionChange(version: version)
+        }
+        self.versionsViewModel.onSignInRequired = { [weak self] in
+            self?.onSignInRequired()
+        }
+
+        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
+        self.versionsViewModel.colorTheme = colorTheme
+
+        ReaderFonts.installFontsIfNeeded()
+
+        if shouldLoadVersionsViewModel {
+            let initialVersionId = self.reference.versionId
+            Task { [weak self] in
+                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+            }
+        }
+    }
+
+    var verseActionsDrawerAnimation: Animation {
+        isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
+    }
 
     var textOptions: BibleTextOptions {
         ReaderFonts.installFontsIfNeeded()
@@ -255,6 +313,46 @@ final class BibleReaderViewModel {
             noteIndicatorBoxHighlightColor: readerButtonContrastColor.opacity(0.1),
             audioActiveIndicatorColor: audioActiveIndicatorColor
         )
+    }
+
+    func onVersionChange(version: BibleVersion) {
+        self.version = version
+        reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+        Task {
+            await onHeaderSelectionChange(reference, showIntro: false)
+        }
+    }
+
+    func onSignInRequired() {
+        startSignInFlow = true
+    }
+
+    func loadUserSettingsFromStorage() {
+        guard let data = UserDefaults.standard.data(forKey: userDefaultsKeyForReaderSettings),
+              let savedValue = try? JSONDecoder().decode(ReaderSettings.self, from: data) else {
+            // missing or corrupted settings; use the defaults.
+            return
+        }
+        fontFamily = if let savedFamily = savedValue.fontFamily, ReaderFonts.isPermittedFont(savedFamily) {
+            savedFamily
+        } else {
+            ReaderFonts.defaultFontFamily
+        }
+        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
+        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
+    }
+
+    func saveUserSettingsToStorage() {
+        let settings = ReaderSettings(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            colorTheme: colorTheme?.id ?? ReaderTheme.theme().id
+        )
+        if let data = try? JSONEncoder().encode(settings) {
+            UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
+        }
     }
 
     func openFontSettings() {
@@ -288,20 +386,11 @@ final class BibleReaderViewModel {
         saveUserSettingsToStorage()
     }
 
-    // MARK: Colors
-
-    var colorTheme: ReaderTheme?
-
     func setColorTheme(_ theme: ReaderTheme) {
         colorTheme = theme
+        versionsViewModel.colorTheme = theme
         saveUserSettingsToStorage()
     }
-
-    // MARK: - Sign In & Out
-
-    var startSignInFlow = false
-    private(set) var isSignedIn = false
-    var showSignOutConfirmation = false
 
     func updateSignInState() {
         Task {

@@ -42,7 +42,6 @@
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] All commit messages follow [conventional commits](https://www.conventionalcommits.org/) format
-- [ ] I have updated the appropriate section in documentation (if needed)
 
 ## Conventional Commits
 

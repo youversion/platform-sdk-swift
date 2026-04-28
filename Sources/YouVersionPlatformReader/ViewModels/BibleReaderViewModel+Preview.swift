@@ -11,8 +11,6 @@ extension BibleReaderViewModel {
 
         let previewVersion = BibleVersion.preview
         vm.version = previewVersion
-        vm.myVersions = [previewVersion]
-        vm.selectedVersion = previewVersion
 
         let footnoteReference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 21, verse: 1)
         vm.footnotesToDisplay = [

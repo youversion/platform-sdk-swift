@@ -1,5 +1,4 @@
 import SwiftUI
-import YouVersionPlatformUI
 
 extension View {
     func customBackButton(action: @escaping () -> Void) -> some View {
