@@ -46,6 +46,7 @@ actor VersionMemoryCache {
     }
 }
 
+/// VersionDiskCache manages a medium-duration cache of Bible version metadata; it's not in-memory therefore will survive the app being terminated.
 actor VersionDiskCache {
     private let storage: BibleContentStorage
 
@@ -99,6 +100,7 @@ actor VersionDiskCache {
     }
 }
 
+/// VersionDownloadCache manages the Bible versions which the user chose to download, e.g. for offline usage.
 actor VersionDownloadCache {
     private let storage: BibleContentStorage
 
@@ -226,7 +228,9 @@ public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
         // Otherwise, create a new fetch task
         let task = Task { [versionFromAPI, diskCache] in
             let version = try await versionFromAPI(id)
-            await diskCache.addVersion(version)
+            async let memory: Void = memoryCache.addVersion(version)
+            async let disk: Void = diskCache.addVersion(version)
+            _ = await (memory, disk)
             return version
         }
 

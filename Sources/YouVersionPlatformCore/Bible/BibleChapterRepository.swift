@@ -26,6 +26,7 @@ actor ChapterMemoryCache {
     }
 }
 
+/// ChapterDiskCache manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
 actor ChapterDiskCache {
     private let storage: BibleContentStorage
 
@@ -70,6 +71,7 @@ actor ChapterDiskCache {
     }
 }
 
+/// ChapterDownloadCache manages the chapter files of Bible versions which the user chose to download, e.g. for offline usage.
 actor ChapterDownloadCache {
     private let storage: BibleContentStorage
 
@@ -105,27 +107,39 @@ actor ChapterDownloadCache {
 
 }
 
+protocol BibleChapterContentProviding: Sendable {
+    func chapterContent(for reference: BibleReference) async throws -> String
+}
+
+final class BibleChapterContentAPI: BibleChapterContentProviding {
+    init() {}
+
+    func chapterContent(for reference: BibleReference) async throws -> String {
+        try await YouVersionAPI.Bible.chapter(reference: reference)
+    }
+}
+
 public actor BibleChapterRepository {
 
     public static let shared = BibleChapterRepository()
 
-    private let chapterContentFromAPI: @Sendable (BibleReference) async throws -> String
+    private let provider: BibleChapterContentProviding
     private let memoryCache: ChapterMemoryCache
     private let diskCache: ChapterDiskCache
     private let downloadCache: ChapterDownloadCache
 
     public init() {
         self.init(
-            chapterContentFromAPI: { try await YouVersionAPI.Bible.chapter(reference: $0) },
+            provider: BibleChapterContentAPI(),
             directoryProvider: DefaultBibleContentDirectoryProvider()
         )
     }
 
     init(
-        chapterContentFromAPI: @escaping @Sendable (BibleReference) async throws -> String,
+        provider: BibleChapterContentProviding,
         directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
     ) {
-        self.chapterContentFromAPI = chapterContentFromAPI
+        self.provider = provider
         self.memoryCache = ChapterMemoryCache()
         self.diskCache = ChapterDiskCache(directoryProvider: directoryProvider)
         self.downloadCache = ChapterDownloadCache(directoryProvider: directoryProvider)
@@ -146,7 +160,7 @@ public actor BibleChapterRepository {
             return cachedContent
         }
 
-        let content = try await chapterContentFromAPI(reference)
+        let content = try await provider.chapterContent(for: reference)
 
         await memoryCache.addChapterContent(content, reference: reference)
         await diskCache.addChapterContent(content, reference: reference)

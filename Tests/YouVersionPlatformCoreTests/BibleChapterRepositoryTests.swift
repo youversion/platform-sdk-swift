@@ -4,7 +4,7 @@ import Testing
 
 // MARK: - API Request Counter
 
-final class BibleChapterAPIRequestCounter: @unchecked Sendable {
+final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchecked Sendable {
     private(set) var requestedReferences: [BibleReference] = []
     var result: String
     var error: Error?
@@ -14,7 +14,7 @@ final class BibleChapterAPIRequestCounter: @unchecked Sendable {
         self.error = error
     }
 
-    func chapterContent(withReference reference: BibleReference) async throws -> String {
+    func chapterContent(for reference: BibleReference) async throws -> String {
         requestedReferences.append(reference)
         if let error {
             throw error
@@ -43,7 +43,7 @@ struct BibleChapterRepositoryTests {
 
         return (
             BibleChapterRepository(
-                chapterContentFromAPI: apiCounter.chapterContent(withReference:),
+                provider: apiCounter,
                 directoryProvider: storage.provider
             ),
             apiCounter,
