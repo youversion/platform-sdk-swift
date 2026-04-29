@@ -99,10 +99,10 @@ public actor ChapterDownloadCache {
             if let data = content.data(using: .utf8) {
                 try data.write(to: url, options: .atomic)
             } else {
-                print("WARNING: Failed to convert content to UTF-8 data for \(url)")
+                YouVersionPlatformLogger.notice("Failed to convert content to UTF-8 data for \(url)", category: "ChapterCache")
             }
         } catch {
-            print("WARNING: ChapterDownloadCache failed to write data to \(url): \(error)")
+            YouVersionPlatformLogger.notice("ChapterDownloadCache failed to write data to \(url): \(error)", category: "ChapterCache")
         }
     }
 
@@ -122,17 +122,17 @@ public actor ChapterDownloadCache {
         let (localURL, response) = try await URLSession.shared.download(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("downloadVersionBundle: unexpected response type")
+            YouVersionPlatformLogger.error("downloadVersionBundle: unexpected response type", category: "ChapterCache")
             throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 401 {
-            print("downloadVersionBundle: 401 Unauthorized (possibly a bad appKey, or the user has not granted permission)")
+            YouVersionPlatformLogger.error("downloadVersionBundle: 401 Unauthorized (possibly a bad appKey, or the user has not granted permission)", category: "ChapterCache")
             throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while downloading a version")
+            YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while downloading a version", category: "ChapterCache")
             throw YouVersionAPIError.cannotDownload
         }
 
