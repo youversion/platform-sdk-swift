@@ -58,7 +58,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         downloadedVersionIdsForListing
     }
 
-    func removeVersion(withId versionId: Int) async {
+    func removeVersion(withId id: Int) async {
     }
 
     func removeUnpermittedVersions(permittedIds: Set<Int>) async {

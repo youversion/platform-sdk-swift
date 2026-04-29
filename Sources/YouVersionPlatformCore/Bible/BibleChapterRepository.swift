@@ -13,8 +13,8 @@ actor ChapterMemoryCache {
         cache[Self.cacheKey(reference: reference)] = content
     }
 
-    func removeVersion(versionId: Int) {
-        let prefix = "\(versionId)_"
+    func removeVersion(withId id: Int) {
+        let prefix = "\(id)_"
         let keysToRemove = cache.keys.filter { $0.hasPrefix(prefix) }
         for key in keysToRemove {
             cache.removeValue(forKey: key)
@@ -34,7 +34,7 @@ actor ChapterDiskCache {
     }
 
     init(directoryProvider: BibleContentDirectoryProviding) {
-        self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
+        storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
@@ -58,9 +58,9 @@ actor ChapterDiskCache {
         }
     }
 
-    func removeVersion(versionId: Int) {
+    func removeVersion(withId id: Int) {
         do {
-            try storage.remove(.chaptersDirectory(versionId: versionId))
+            try storage.remove(.chaptersDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
                 "ChapterDiskCache got error while removing: \(error.localizedDescription)",
@@ -78,7 +78,7 @@ actor ChapterDownloadCache {
     }
 
     init(directoryProvider: BibleContentDirectoryProviding) {
-        self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
+        storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
@@ -92,9 +92,9 @@ actor ChapterDownloadCache {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
-    func removeVersion(versionId: Int) {
+    func removeVersion(withId id: Int) {
         do {
-            try storage.remove(.chaptersDirectory(versionId: versionId))
+            try storage.remove(.chaptersDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
                 "ChapterDownloadCache got error while removing: \(error.localizedDescription)",
@@ -158,10 +158,10 @@ public actor BibleChapterRepository {
         downloadCache.chaptersArePresent(versionId: versionId)
     }
 
-    public func removeVersion(withId versionId: Int) async {
-        async let memory: Void = memoryCache.removeVersion(versionId: versionId)
-        async let disk: Void = diskCache.removeVersion(versionId: versionId)
-        async let download: Void = downloadCache.removeVersion(versionId: versionId)
+    public func removeVersion(withId id: Int) async {
+        async let memory: Void = memoryCache.removeVersion(withId: id)
+        async let disk: Void = diskCache.removeVersion(withId: id)
+        async let download: Void = downloadCache.removeVersion(withId: id)
         _ = await (memory, disk, download)
     }
 }

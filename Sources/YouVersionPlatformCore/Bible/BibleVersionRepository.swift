@@ -18,7 +18,7 @@ public protocol BibleVersionRepositoryProtocol: Sendable {
     var downloadedVersionIds: [Int] { get }
 
     /// Removes a version from every local cache.
-    func removeVersion(withId versionId: Int) async
+    func removeVersion(withId id: Int) async
 
     /// Removes every locally stored version that is no longer permitted.
     func removeUnpermittedVersions(permittedIds: Set<Int>) async
@@ -37,8 +37,8 @@ actor VersionMemoryCache {
         cache[version.id] = version
     }
 
-    func removeVersion(withId versionId: Int) async {
-        cache.removeValue(forKey: versionId)
+    func removeVersion(withId id: Int) async {
+        cache.removeValue(forKey: id)
     }
 
     func removeUnpermittedVersions(permittedIds: Set<Int>) async {
@@ -76,9 +76,9 @@ actor VersionDiskCache {
         }
     }
 
-    func removeVersion(withId versionId: Int) async {
+    func removeVersion(withId id: Int) async {
         do {
-            try storage.remove(.versionDirectory(versionId: versionId))
+            try storage.remove(.versionDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
                 "VersionDiskCache got error while removing: \(error.localizedDescription)",
@@ -274,10 +274,10 @@ public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
         VersionDownloadCache.downloadedVersionIds(directoryProvider: directoryProvider)
     }
 
-    public func removeVersion(withId versionId: Int) async {
-        async let memory: Void = memoryCache.removeVersion(withId: versionId)
-        async let disk: Void = diskCache.removeVersion(withId: versionId)
-        async let download: Void = downloadCache.removeVersion(withId: versionId)
+    public func removeVersion(withId id: Int) async {
+        async let memory: Void = memoryCache.removeVersion(withId: id)
+        async let disk: Void = diskCache.removeVersion(withId: id)
+        async let download: Void = downloadCache.removeVersion(withId: id)
         _ = await (memory, disk, download)
     }
 

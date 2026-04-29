@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import YouVersionPlatformCore
 
-// MARK: - API Recorder
+// MARK: - API Request Counter
 
-final class BibleChapterAPIRecorder: @unchecked Sendable {
+final class BibleChapterAPIRequestCounter: @unchecked Sendable {
     private(set) var requestedReferences: [BibleReference] = []
     var result: String
     var error: Error?
@@ -32,21 +32,21 @@ struct BibleChapterRepositoryTests {
 
     @discardableResult
     private func makeRepository(
-        apiRecorder: BibleChapterAPIRecorder? = nil
+        apiCounter: BibleChapterAPIRequestCounter? = nil
     ) throws -> (
         repository: BibleChapterRepository,
-        apiRecorder: BibleChapterAPIRecorder,
+        apiCounter: BibleChapterAPIRequestCounter,
         storage: RepositoryTemporaryStorage
     ) {
-        let apiRecorder = apiRecorder ?? BibleChapterAPIRecorder(result: "<div>server</div>")
+        let apiCounter = apiCounter ?? BibleChapterAPIRequestCounter(result: "<div>server</div>")
         let storage = try RepositoryTemporaryStorage()
 
         return (
             BibleChapterRepository(
-                chapterContentFromAPI: apiRecorder.chapterContent(withReference:),
+                chapterContentFromAPI: apiCounter.chapterContent(withReference:),
                 directoryProvider: storage.provider
             ),
-            apiRecorder,
+            apiCounter,
             storage
         )
     }
@@ -59,7 +59,7 @@ struct BibleChapterRepositoryTests {
         await diskCache.addChapterContent("<div>disk</div>", reference: reference)
 
         let content = try await repository.chapter(withReference: reference)
-        await diskCache.removeVersion(versionId: reference.versionId)
+        await diskCache.removeVersion(withId: reference.versionId)
         let memoryContent = try await repository.chapter(withReference: reference)
 
         #expect(content == "<div>disk</div>")
@@ -104,7 +104,7 @@ struct BibleChapterRepositoryTests {
         let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
 
         let first = try await repository.chapter(withReference: reference)
-        await diskCache.removeVersion(versionId: reference.versionId)
+        await diskCache.removeVersion(withId: reference.versionId)
         let second = try await repository.chapter(withReference: reference)
 
         #expect(first == "<div>server</div>")
@@ -114,8 +114,8 @@ struct BibleChapterRepositoryTests {
 
     @Test
     func chapterPropagatesAPIErrorAndDoesNotCache() async throws {
-        let api = BibleChapterAPIRecorder(result: "<div>server</div>", error: TestChapterError.network)
-        let (repository, _, storage) = try makeRepository(apiRecorder: api)
+        let api = BibleChapterAPIRequestCounter(result: "<div>server</div>", error: TestChapterError.network)
+        let (repository, _, storage) = try makeRepository(apiCounter: api)
         defer { storage.remove() }
         let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
 
