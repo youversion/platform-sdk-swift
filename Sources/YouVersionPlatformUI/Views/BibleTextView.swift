@@ -85,12 +85,14 @@ public struct BibleTextView: View {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
                         .overlay(alignment: .leading) {
-                            if blockContainsAudioActiveVerse(blockIndex: index),
-                               let color = textOptions.audioActiveIndicatorColor {
-                                RoundedRectangle(cornerRadius: 1.5)
-                                    .fill(color)
-                                    .frame(width: 3)
-                                    .padding(.leading, -12)
+                            if #unavailable(iOS 18) {
+                                if blockContainsAudioActiveVerse(blockIndex: index),
+                                   let color = textOptions.audioActiveIndicatorColor {
+                                    RoundedRectangle(cornerRadius: 1.5)
+                                        .fill(color)
+                                        .frame(width: 3)
+                                        .padding(.leading, -12)
+                                }
                             }
                         }
                         .id(block.verseAnchorId ?? "block-\(block.id)")
@@ -119,7 +121,7 @@ public struct BibleTextView: View {
         .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)") {
             await loadBlocks()
         }
-        .coordinateSpace(.named("BibleTextView"))
+        .coordinateSpace(name: "BibleTextView")
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
             noteIndicatedUSFMs = BibleNoteIndicatorsCache.shared.indicatedUSFMs
@@ -136,7 +138,13 @@ public struct BibleTextView: View {
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
-        blocks.flatMap(\.footnotes).filter { $0.reference == reference }
+        var footnotes: [BibleFootnote] = []
+        for block in blocks {
+            for footnote in block.footnotes where footnote.reference == reference {
+                footnotes.append(footnote)
+            }
+        }
+        return footnotes
     }
 
     private func parseReference(url: URL) -> BibleReference? {
