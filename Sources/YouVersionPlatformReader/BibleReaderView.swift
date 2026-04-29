@@ -272,8 +272,9 @@ public struct BibleReaderView: View {
                 if shouldScroll {
                     scrollProxy.scrollTo("topOfContent", anchor: .top)
                     viewModel.scrollToTop = false
-                    // Reset the changing chapter flag after a delay to allow scroll animation to complete
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // Wait for scroll animation before clearing the flag.
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(0.5))
                         viewModel.isChangingChapter = false
                     }
                 }
