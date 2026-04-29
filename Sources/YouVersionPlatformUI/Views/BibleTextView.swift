@@ -17,7 +17,6 @@ public struct BibleTextView: View {
     // swiftlint:disable:next private_swiftui_state
     @State var ourHighlights: [BibleHighlight] = []
     @Binding var selectedVerses: Set<BibleReference>
-    @Environment(\.layoutDirection) private var systemLayoutDirection
 
     public init(
         _ reference: BibleReference,
@@ -105,7 +104,7 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        VStack(alignment: mainVStackAlignment) {
+        VStack(alignment: .leading) {
             if let phase = loadingPhase {
                 placeholder(phase)
             } else {
@@ -114,6 +113,7 @@ public struct BibleTextView: View {
                 }
             }
         }
+        .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
@@ -158,16 +158,6 @@ public struct BibleTextView: View {
             return BibleReference(versionId: versionId, bookUSFM: book, chapter: chapter, verse: verse)
         }
         return nil
-    }
-
-    // Our main VStack's alignment needs to be flipped when the system's text direction
-    // isn't the same as our Bible version's text direction, otherwise multiline text
-    // views will be placed on the wrong side of the VStack.
-    private var mainVStackAlignment: HorizontalAlignment {
-        if systemLayoutDirection == .leftToRight {
-            return isVersionRightToLeft ? .trailing : .leading
-        }
-        return isVersionRightToLeft ? .leading : .trailing
     }
 
     private func updateVersionTextDirection() async {
@@ -236,18 +226,6 @@ public struct BibleTextView: View {
         onVerseTap: VerseTapAction? = nil
     ) -> (some View)? {
         BibleTextView(html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap)
-    }
-
-    // TODO: debug why this is necessary. Text objects should get it right automatically.
-    func flipAlignmentIfNecessary(_ alignment: TextAlignment) -> TextAlignment {
-        if isVersionRightToLeft {
-            if alignment == .center {
-                return alignment
-            }
-            return alignment == .trailing ? .leading : .trailing
-        } else {
-            return alignment
-        }
     }
 
     private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {

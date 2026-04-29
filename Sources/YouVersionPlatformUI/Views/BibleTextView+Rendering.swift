@@ -133,7 +133,7 @@ extension BibleTextView {
             blockId: block.id,
             textOptions: textOptions
         )
-        .multilineTextAlignment(flipAlignmentIfNecessary(block.alignment))
+        .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
         .padding(.top, ignoreMarginTop ? 0 : block.marginTop + ((textOptions.paragraphSpacing ?? 0) / 2))
     }
