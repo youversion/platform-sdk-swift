@@ -10,6 +10,7 @@ public struct BibleTextView: View {
     private let onVerseTap: VerseTapAction?
     private let placeholder: (BibleTextLoadingPhase) -> AnyView
     private let providedBlocks: [BibleTextBlock]?
+    private let sourceHTML: String?
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
@@ -30,6 +31,7 @@ public struct BibleTextView: View {
         self.placeholder = Self.standardPlaceholder
         self.blocks = []
         self.providedBlocks = nil
+        self.sourceHTML = nil
     }
 
     public init(
@@ -46,14 +48,29 @@ public struct BibleTextView: View {
         self.placeholder = placeholder ?? Self.standardPlaceholder
         self.blocks = []
         self.providedBlocks = nil
+        self.sourceHTML = nil
     }
 
-    // private init for use by Self.viewWithPrefetchedData()
+    /// Renders Bible text from a pre-parsed HTML string.
+    ///
+    /// The HTML is parsed synchronously at init time. The view re-parses and
+    /// re-renders when `html`, `reference`, or any text-style input changes.
+    public init(
+        html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions = BibleTextOptions(),
+        onVerseTap: VerseTapAction? = nil
+    ) {
+        let blocks = Self.blocks(parsedFrom: html, reference: reference, textOptions: textOptions)
+        self.init(reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap, sourceHTML: html)
+    }
+
     private init(
         _ reference: BibleReference,
         blocks: [BibleTextBlock] = [],
         textOptions: BibleTextOptions? = nil,
-        onVerseTap: VerseTapAction? = nil
+        onVerseTap: VerseTapAction? = nil,
+        sourceHTML: String? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
@@ -62,6 +79,29 @@ public struct BibleTextView: View {
         self.placeholder = Self.standardPlaceholder
         self.blocks = blocks
         self.providedBlocks = blocks
+        self.sourceHTML = sourceHTML
+    }
+
+    private static func blocks(
+        parsedFrom html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions
+    ) -> [BibleTextBlock] {
+        guard let node = try? BibleTextNode(html: html), !node.children.isEmpty else {
+            return []
+        }
+        return BibleVersionRendering.textBlocks(
+            parsedFrom: node,
+            reference: reference,
+            renderHeadlines: false,
+            renderVerseNumbers: false,
+            footnotesMode: textOptions.footnoteMode,
+            footnoteMarker: textOptions.footnoteMarker,
+            textColor: textOptions.textColor ?? Color.primary,
+            verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
+            wocColor: textOptions.wordsOfChristColor,
+            fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
+        )
     }
 
     public var body: some View {
@@ -82,7 +122,7 @@ public struct BibleTextView: View {
             }
             return .handled
         }))
-        .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)") {
+        .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)\(sourceHTML ?? "")") {
             await loadBlocks()
         }
         .coordinateSpace(.named("BibleTextView"))
@@ -188,37 +228,14 @@ public struct BibleTextView: View {
         }
     }
 
+    @available(*, deprecated, renamed: "init(html:reference:textOptions:onVerseTap:)")
     public static func viewFromHtml(
         html: String,
         reference: BibleReference,
         textOptions: BibleTextOptions,
         onVerseTap: VerseTapAction? = nil
     ) -> (some View)? {
-        let node = try? BibleTextNode(html: html)
-        return VStack {
-            if node?.children.count ?? 0 == 0 {
-                Text("")
-            } else {
-                let blocks = BibleVersionRendering.generateTextBlocks(
-                    from: node!,
-                    reference: reference,
-                    renderHeadlines: false,
-                    renderVerseNumbers: false,
-                    footnotesMode: textOptions.footnoteMode,
-                    footnoteMarker: textOptions.footnoteMarker,
-                    textColor: textOptions.textColor ?? Color.primary,
-                    verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
-                    wocColor: textOptions.wordsOfChristColor,
-                    fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
-                )
-                if !blocks.isEmpty {
-                    BibleTextView(reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap)
-                        .id("\(html)(\(textOptions.fontFamily)_\(textOptions.fontSize))") // without this, it won't adjust e.g. size immediately
-                } else {
-                    Text("")
-                }
-            }
-        }
+        BibleTextView(html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap)
     }
 
     // TODO: debug why this is necessary. Text objects should get it right automatically.

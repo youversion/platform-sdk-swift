@@ -50,8 +50,8 @@ public enum BibleVersionRendering {
         guard let node, !node.children.isEmpty else {
             return nil
         }
-        return generateTextBlocks(
-            from: node,
+        return textBlocks(
+            parsedFrom: node,
             reference: reference,
             renderHeadlines: renderHeadlines,
             renderVerseNumbers: renderVerseNumbers,
@@ -64,8 +64,8 @@ public enum BibleVersionRendering {
         )
     }
 
-    static func generateTextBlocks(
-        from node: BibleTextNode,
+    static func textBlocks(
+        parsedFrom node: BibleTextNode,
         reference: BibleReference,
         renderHeadlines: Bool,
         renderVerseNumbers: Bool,
