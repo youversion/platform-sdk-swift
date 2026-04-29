@@ -24,7 +24,7 @@ public struct BibleCardView: View {
             fontFamily: fontFamily,
             fontSize: fontSize,
             textColor: Color.primary,
-            verseNumColor: Color.secondary
+            verseNumberColor: Color.secondary
         )
         self.showVersionPicker = showVersionPicker
         self.onVersionChange = onVersionChange

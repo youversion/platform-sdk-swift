@@ -152,8 +152,8 @@ public struct BibleTextView: View {
                 footnotesMode: textOptions.footnoteMode,
                 footnoteMarker: textOptions.footnoteMarker,
                 textColor: textOptions.textColor ?? Color.primary,
-                verseNumColor: textOptions.verseNumColor ?? Color.secondary,
-                wocColor: textOptions.wocColor,
+                verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
+                wocColor: textOptions.wordsOfChristColor,
                 fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
             ) {
                 self.blocks = blocks
@@ -207,8 +207,8 @@ public struct BibleTextView: View {
                     footnotesMode: textOptions.footnoteMode,
                     footnoteMarker: textOptions.footnoteMarker,
                     textColor: textOptions.textColor ?? Color.primary,
-                    verseNumColor: textOptions.verseNumColor ?? Color.secondary,
-                    wocColor: textOptions.wocColor,
+                    verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
+                    wocColor: textOptions.wordsOfChristColor,
                     fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
                 )
                 if !blocks.isEmpty {
@@ -270,8 +270,8 @@ public struct BibleTextOptions {
     public let lineSpacing: CGFloat?
     public let paragraphSpacing: CGFloat?
     public let textColor: Color?
-    public let verseNumColor: Color?
-    public let wocColor: Color
+    public let verseNumberColor: Color?
+    public let wordsOfChristColor: Color
     public let renderHeadlines: Bool
     public let renderVerseNumbers: Bool
     public let footnoteMode: BibleTextFootnoteMode
@@ -283,8 +283,8 @@ public struct BibleTextOptions {
                 lineSpacing: CGFloat? = nil,
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
-                verseNumColor: Color? = nil,
-                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
+                verseNumberColor: Color? = nil,
+                wordsOfChristColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
@@ -295,13 +295,49 @@ public struct BibleTextOptions {
         self.lineSpacing = lineSpacing ?? fontSize / 2
         self.paragraphSpacing = paragraphSpacing ?? fontSize / 2
         self.textColor = textColor
-        self.verseNumColor = verseNumColor
-        self.wocColor = wocColor
+        self.verseNumberColor = verseNumberColor
+        self.wordsOfChristColor = wordsOfChristColor
         self.renderHeadlines = renderHeadlines
         self.renderVerseNumbers = renderVerseNumbers
         self.footnoteMode = footnoteMode
         self.footnoteMarker = footnoteMarker
         self.verseSelectionStyle = verseSelectionStyle
+    }
+
+    @available(*, deprecated, renamed: "verseNumberColor")
+    public var verseNumColor: Color? { verseNumberColor }
+
+    @available(*, deprecated, renamed: "wordsOfChristColor")
+    public var wocColor: Color { wordsOfChristColor }
+
+    @available(*, deprecated, message: "Use init(... verseNumberColor: ..., wordsOfChristColor: ...) instead.")
+    @_disfavoredOverload
+    public init(fontFamily: String = "Times New Roman",
+                fontSize: CGFloat = 16,
+                lineSpacing: CGFloat? = nil,
+                paragraphSpacing: CGFloat? = nil,
+                textColor: Color? = nil,
+                verseNumColor: Color? = nil,
+                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),
+                renderHeadlines: Bool = true,
+                renderVerseNumbers: Bool = true,
+                footnoteMode: BibleTextFootnoteMode = .none,
+                footnoteMarker: BibleAttributedString? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid) {
+        self.init(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            paragraphSpacing: paragraphSpacing,
+            textColor: textColor,
+            verseNumberColor: verseNumColor,
+            wordsOfChristColor: wocColor,
+            renderHeadlines: renderHeadlines,
+            renderVerseNumbers: renderVerseNumbers,
+            footnoteMode: footnoteMode,
+            footnoteMarker: footnoteMarker,
+            verseSelectionStyle: verseSelectionStyle
+        )
     }
 }
 
