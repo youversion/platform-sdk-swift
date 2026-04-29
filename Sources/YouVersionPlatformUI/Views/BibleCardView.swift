@@ -108,24 +108,25 @@ public struct BibleCardView: View {
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
     }
     
+    @ViewBuilder
     private var headerReference: some View {
         if let version {
-            let refText = version.displayTitle(for: reference)
-            return Text(refText)
+            Text(version.displayTitle(for: reference))
                 .font(YouVersionFonts.eyebrowSmall.smallCaps())
                 .tracking(1.5)
         }
-        return Text("")
     }
     
+    @ViewBuilder
     private var copyrightView: some View {
-        let copyright = version?.copyright ?? version?.promotionalContent ?? ""
-        return Text(copyright)
-            .font(Font.system(size: 11))
-            .fontWeight(.bold)
-            .multilineTextAlignment(.leading)
-            .minimumScaleFactor(0.7)
-            .lineLimit(4)
+        if let copyright = version?.copyright ?? version?.promotionalContent {
+            Text(copyright)
+                .font(Font.system(size: 11))
+                .fontWeight(.bold)
+                .multilineTextAlignment(.leading)
+                .minimumScaleFactor(0.7)
+                .lineLimit(4)
+        }
     }
     
     private var bibleAppLogo: some View {

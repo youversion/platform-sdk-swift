@@ -548,6 +548,14 @@ custom_rules:
     message: "Animations must respect accessibilityReduceMotion. Pass the animation through a reduceMotion-aware ternary (e.g., reduceMotion ? nil : .easeInOut) or a property derived from it."
     severity: warning # violation severity. optional.
 
+  empty_text_view: # rule identifier
+    included: ".*\\.swift" # regex that defines paths to include during linting. optional.
+    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
+    name: "Empty Text View" # rule name. optional.
+    regex: "\\bText\\(\\s*\"\"\\s*\\)" # matches Text("") with optional whitespace
+    message: "Avoid Text(\"\") — it claims baseline height even when empty. Use EmptyView() (or a @ViewBuilder body that omits the else branch). Suppress with // swiftlint:disable:next empty_text_view if a Text type is required by the API."
+    severity: warning # violation severity. optional.
+
   libdispatch_usage: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
     excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional

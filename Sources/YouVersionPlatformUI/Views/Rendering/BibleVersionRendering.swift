@@ -80,11 +80,8 @@ public enum BibleVersionRendering {
         let verseStart = reference.verseStart ?? 1
         let verseEnd = reference.verseEnd ?? 999
 
-        let marker = footnoteMarker
-        if marker != nil {
-            marker!.setFont(.footnote, from: fonts)
-            marker!.markWithTextCategory(.footnoteMarker)
-        }
+        footnoteMarker?.setFont(.footnote, from: fonts)
+        footnoteMarker?.markWithTextCategory(.footnoteMarker)
         let stateIn = StateIn(
             versionId: reference.versionId,
             bookUSFM: reference.bookUSFM,
@@ -94,7 +91,7 @@ public enum BibleVersionRendering {
             renderVerseNumbers: renderVerseNumbers,
             renderHeadlines: renderHeadlines,
             footnotesMode: footnotesMode,
-            footnoteMarker: marker,
+            footnoteMarker: footnoteMarker,
             textColor: textColor,
             verseNumColor: verseNumColor,
             wocColor: wocColor,

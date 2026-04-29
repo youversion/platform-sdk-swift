@@ -108,7 +108,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, nil, introId)
                 }) {
-                    chapterListButton(image: Image("i-icon", bundle: .YouVersionUIBundle))
+                    chapterListButton(Text(Image("i-icon", bundle: .YouVersionUIBundle)))
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -117,7 +117,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, idx + 1, nil)
                 }) {
-                    chapterListButton(label: label)
+                    chapterListButton(Text(label))
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -125,22 +125,14 @@ public struct BibleReaderBookAndChapterPickerView: View {
         .padding(.vertical, 8)
     }
     
-    private func chapterListButton(label: String? = nil, image: Image? = nil) -> some View {
-        Group {
-            if let label {
-                Text(label)
-            } else if let image {
-                Text(image)
-            } else {
-                Text("")
-            }
-        }
-        .font(.system(size: 14, weight: .bold))
-        .frame(width: chapterButtonSize, height: chapterButtonSize)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(viewModel.readerButtonPrimaryColor)
-        )
+    private func chapterListButton(_ text: Text) -> some View {
+        text
+            .font(.system(size: 14, weight: .bold))
+            .frame(width: chapterButtonSize, height: chapterButtonSize)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(viewModel.readerButtonPrimaryColor)
+            )
     }
 }
 
