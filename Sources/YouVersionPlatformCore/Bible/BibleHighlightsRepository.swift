@@ -17,7 +17,7 @@ public struct BibleHighlightsAPI: BibleHighlightsAPIProtocol {
     public init() {}
     
     public func highlights(bibleId: Int, passageId: String) async throws -> [HighlightResponse] {
-        try await YouVersionAPI.Highlights.getHighlights(bibleId: bibleId, passageId: passageId)
+        try await YouVersionAPI.Highlights.highlights(bibleId: bibleId, passageId: passageId)
     }
     
     public func createHighlight(bibleId: Int, passageId: String, color: String) async throws -> Bool {

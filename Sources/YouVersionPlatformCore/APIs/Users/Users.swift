@@ -6,7 +6,7 @@ import FoundationNetworking
 public extension YouVersionAPI {
     enum Users {
 
-        public static func getSignInResult(
+        public static func signInResult(
             from callbackURL: URL,
             state: String,
             codeVerifier: String,
@@ -18,6 +18,25 @@ public extension YouVersionAPI {
             let code = try obtainCode(from: location)
             let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri, session: session)
             return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
+        }
+
+        @available(*, deprecated, renamed: "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)")
+        public static func getSignInResult(
+            from callbackURL: URL,
+            state: String,
+            codeVerifier: String,
+            redirectUri: String,
+            nonce: String,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await signInResult(
+                from: callbackURL,
+                state: state,
+                codeVerifier: codeVerifier,
+                redirectUri: redirectUri,
+                nonce: nonce,
+                session: session
+            )
         }
 
         private static func applySessionHeaders(from session: URLSession, to request: inout URLRequest) {
@@ -174,8 +193,8 @@ public extension YouVersionAPI {
 
         // MARK: - Refresh Token
 
-        public static func performRefresh(
-            with refreshToken: String,
+        public static func refreshSignIn(
+            withToken refreshToken: String,
             idToken: String?,
             session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
@@ -216,6 +235,15 @@ public extension YouVersionAPI {
                 permissions: [],
                 yvpUserId: nil
             )
+        }
+
+        @available(*, deprecated, renamed: "refreshSignIn(withToken:idToken:session:)")
+        public static func performRefresh(
+            with refreshToken: String,
+            idToken: String?,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await refreshSignIn(withToken: refreshToken, idToken: idToken, session: session)
         }
 
         private struct RefreshResponse: Codable {
