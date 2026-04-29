@@ -35,6 +35,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     let verseSelectionStyle: VerseSelectionStyle
     let audioActiveIndicatorColor: Color?
     var scrollViewHeight: CGFloat = 0
+    var maxObservedOffset: CGFloat = 0
     var hasNotifiedChapterComplete = false
 
     init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil, onChapterComplete: ((BibleReference) -> Void)? = nil) {

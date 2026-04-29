@@ -81,9 +81,11 @@ extension BibleReaderViewModel {
             }
         }
         lastScrollOffset = offset
+        maxObservedOffset = max(maxObservedOffset, offset)
 
         let bottomThreshold: CGFloat = 100
         if scrollViewHeight > 0
+            && maxObservedOffset > scrollViewHeight * 1.5
             && offset > 0
             && offset <= scrollViewHeight + bottomThreshold
             && version != nil
@@ -93,9 +95,9 @@ extension BibleReaderViewModel {
         }
     }
 
-
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
+        maxObservedOffset = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
@@ -240,9 +242,9 @@ extension BibleReaderViewModel {
         removeVerseSelection()
         do {
             if version?.id != reference.versionId {
-                let newVersion = try await versionsViewModel.versionRepository.version(withId: reference.versionId)
+                let newVersion = try await versionRepository.version(withId: reference.versionId)
                 version = newVersion
-                versionsViewModel.myVersions.insert(newVersion)
+                myVersions.insert(newVersion)
             }
             self.reference = reference
             self.showBookIntro = showIntro
