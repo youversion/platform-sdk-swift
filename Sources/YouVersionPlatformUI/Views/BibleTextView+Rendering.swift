@@ -116,9 +116,7 @@ extension BibleTextView {
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)
-            .if(textOptions.lineSpacing != nil) { view in
-                view.lineSpacing(textOptions.lineSpacing!)
-            }
+            .lineSpacing(textOptions.lineSpacing ?? 0)
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
         } else {
