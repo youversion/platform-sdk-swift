@@ -163,11 +163,23 @@ actor VersionDownloadCache {
 
 }
 
+protocol BibleVersionProviding: Sendable {
+    func version(withId id: Int) async throws -> BibleVersion
+}
+
+final class BibleVersionAPI: BibleVersionProviding {
+    init() {}
+
+    func version(withId id: Int) async throws -> BibleVersion {
+        try await YouVersionAPI.Bible.version(versionId: id)
+    }
+}
+
 public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
 
     public static let shared = BibleVersionRepository()
 
-    private let versionFromAPI: @Sendable (Int) async throws -> BibleVersion
+    private let provider: BibleVersionProviding
     private let directoryProvider: BibleContentDirectoryProviding
     private let memoryCache: VersionMemoryCache
     private let diskCache: VersionDiskCache
@@ -177,16 +189,16 @@ public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
 
     public init() {
         self.init(
-            versionFromAPI: { try await YouVersionAPI.Bible.version(versionId: $0) },
+            provider: BibleVersionAPI(),
             directoryProvider: DefaultBibleContentDirectoryProvider()
         )
     }
 
     init(
-        versionFromAPI: @escaping @Sendable (Int) async throws -> BibleVersion,
+        provider: BibleVersionProviding,
         directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
     ) {
-        self.versionFromAPI = versionFromAPI
+        self.provider = provider
         self.directoryProvider = directoryProvider
         self.memoryCache = VersionMemoryCache()
         self.diskCache = VersionDiskCache(directoryProvider: directoryProvider)
@@ -226,8 +238,8 @@ public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
         }
 
         // Otherwise, create a new fetch task
-        let task = Task { [versionFromAPI, diskCache] in
-            let version = try await versionFromAPI(id)
+        let task = Task { [provider, memoryCache, diskCache] in
+            let version = try await provider.version(withId: id)
             async let memory: Void = memoryCache.addVersion(version)
             async let disk: Void = diskCache.addVersion(version)
             _ = await (memory, disk)

@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import YouVersionPlatformCore
 
-// MARK: - API Recorder
+// MARK: - API Request Counter
 
-final class BibleVersionAPIRecorder: @unchecked Sendable {
+final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sendable {
     private(set) var requestedIds: [Int] = []
     var result: BibleVersion
     var error: Error?
@@ -43,21 +43,21 @@ struct BibleVersionRepositoryTests {
 
     @discardableResult
     private func makeRepository(
-        apiRecorder: BibleVersionAPIRecorder? = nil
+        apiRequestCounter: BibleVersionAPIRequestCounter? = nil
     ) throws -> (
         repository: BibleVersionRepository,
-        apiRecorder: BibleVersionAPIRecorder,
+        apiRequestCounter: BibleVersionAPIRequestCounter,
         storage: RepositoryTemporaryStorage
     ) {
-        let apiRecorder = apiRecorder ?? BibleVersionAPIRecorder(result: Self.fixture)
+        let apiRequestCounter = apiRequestCounter ?? BibleVersionAPIRequestCounter(result: Self.fixture)
         let storage = try RepositoryTemporaryStorage()
 
         return (
             BibleVersionRepository(
-                versionFromAPI: apiRecorder.version(withId:),
+                provider: apiRequestCounter,
                 directoryProvider: storage.provider
             ),
-            apiRecorder,
+            apiRequestCounter,
             storage
         )
     }
