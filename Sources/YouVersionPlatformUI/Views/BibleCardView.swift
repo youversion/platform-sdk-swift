@@ -79,13 +79,23 @@ public struct BibleCardView: View {
             }
         }
         .sheet(isPresented: $showingCopyrightSheet) {
-            ScrollView {
-                Text(version?.localizedTitle ?? version?.title ?? "")
-                    .font(YouVersionFonts.fontHeaderM)
-                    .padding(.vertical)
-                Text(version?.promotionalContent ?? version?.copyright ?? "")
-                    .padding()
+            ZStack {
+                backgroundColor
+                    .ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(version?.localizedTitle ?? version?.title ?? "")
+                            .font(YouVersionFonts.fontHeaderM)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                        Text(version?.promotionalContent ?? version?.copyright ?? "")
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
+            .background(backgroundColor)
+            .foregroundStyle(foregroundColor)
             .presentationDragIndicator(.visible)
             .presentationDetents([.large])
         }

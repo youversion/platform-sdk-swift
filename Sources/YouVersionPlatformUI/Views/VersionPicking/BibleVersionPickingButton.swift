@@ -6,6 +6,7 @@ public struct BibleVersionPickingButton: View {
     @State private var version: BibleVersion?
     private let initialVersionId: Int
     private let onVersionChange: ((BibleVersion) -> Void)?
+    @Environment(\.colorScheme) private var colorScheme
 
     public init(
         initialVersionId: Int,
@@ -37,6 +38,14 @@ public struct BibleVersionPickingButton: View {
         .task {
             versionsViewModel.onVersionChange = handleVersionChange
             await versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+        }
+        .onChange(of: colorScheme, initial: true) { _, newScheme in
+            versionsViewModel.colorTheme = ReaderTheme(
+                id: 0,
+                foreground: newScheme == .dark ? Color(hex: "#ffffff") : Color(hex: "#121212"),
+                background: newScheme == .dark ? Color(hex: "#121212") : Color(hex: "#ffffff"),
+                colorScheme: newScheme
+            )
         }
     }
 
