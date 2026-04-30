@@ -214,6 +214,21 @@ public struct BibleTextView: View {
         BibleTextView(html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap)
     }
 
+    @available(*, deprecated, message: "Prefetch blocks with BibleVersionRendering.textBlocks(reference:fonts:) and construct BibleTextView directly. This API will be removed in a future major version.")
+    public static func viewWithPrefetchedData(
+        reference: BibleReference,
+        fontFamily: String = "Times New Roman",
+        fontSize: CGFloat = 16
+    ) async -> (some View)? {
+        guard let blocks = try? await BibleVersionRendering.textBlocks(
+            reference: reference,
+            fonts: BibleTextFonts(familyName: fontFamily, baseSize: fontSize)
+        ) else {
+            return nil as BibleTextView?
+        }
+        return BibleTextView(reference, blocks: blocks)
+    }
+
     private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {
         let height = 80.0
         let v = Group {
