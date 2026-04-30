@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.9.1](https://github.com/youversion/platform-sdk-swift/compare/4.9.0...4.9.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* follow device's dark/light color scheme inside BibleCardView's sheets ([9a101a7](https://github.com/youversion/platform-sdk-swift/commit/9a101a75f9a7d8d0eface0de4db52a3404cf1552))
+
 ## [4.9.0](https://github.com/youversion/platform-sdk-swift/compare/4.8.0...4.9.0) (2026-04-22)
 
 
