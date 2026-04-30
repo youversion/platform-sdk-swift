@@ -274,6 +274,7 @@ public struct BibleReaderView: View {
                     viewModel.scrollToTop = false
                     // Wait for scroll animation before clearing the flag.
                     Task { @MainActor in
+                        // swiftlint:disable:next common_debug_statements
                         try? await Task.sleep(for: .seconds(0.5))
                         viewModel.isChangingChapter = false
                     }
