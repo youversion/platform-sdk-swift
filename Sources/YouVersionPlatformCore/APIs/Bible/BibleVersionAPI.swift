@@ -13,7 +13,7 @@ public extension YouVersionAPI.Bible {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
         async let metadata = basicVersion(versionId: versionId, accessToken: accessToken, session: session)
-        async let index = versionIndex(versionId: versionId, accessToken: accessToken, session: session)
+        async let index = indexForVersion(withId: versionId, accessToken: accessToken, session: session)
 
         return try await BibleVersion(
             id: metadata.id,
@@ -57,33 +57,7 @@ public extension YouVersionAPI.Bible {
         return responseObject
     }
 
-    private static func versionBooks(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> [BibleBook] {
-        struct BibleVersionBooksResponse: Codable {
-            let data: [BibleBook]
-        }
-
-        guard let url = URLBuilder.versionBooksURL(versionId: versionId) else {
-            throw URLError(.badURL)
-        }
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
-        let response = try JSONDecoder().decode(BibleVersionBooksResponse.self, from: data)
-        return response.data
-    }
-
-    private static func versionChapters(versionId: Int, book: String, accessToken: String?, session: URLSession = .shared) async throws -> [BibleChapter] {
-        struct BibleVersionChaptersResponse: Codable {
-            let data: [BibleChapter]
-        }
-
-        guard let url = URLBuilder.versionBookChaptersURL(versionId: versionId, book: book) else {
-            throw URLError(.badURL)
-        }
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
-        let response = try JSONDecoder().decode(BibleVersionChaptersResponse.self, from: data)
-        return response.data
-    }
-
-    private static func versionIndex(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersionIndex {
+    private static func indexForVersion(withId versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersionIndex {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
