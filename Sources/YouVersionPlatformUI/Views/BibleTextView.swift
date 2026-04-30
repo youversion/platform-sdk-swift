@@ -8,7 +8,7 @@ public struct BibleTextView: View {
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
-    private let placeholder: (BibleTextLoadingPhase) -> AnyView
+    private let placeholder: ((BibleTextLoadingPhase) -> AnyView)?
     private let providedBlocks: [BibleTextBlock]?
     private let sourceHTML: String?
     @State private var isVersionRightToLeft = false
@@ -29,7 +29,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
-        self.placeholder = Self.standardPlaceholder
+        self.placeholder = nil
         self.blocks = []
         self.providedBlocks = nil
         self.sourceHTML = nil
@@ -46,7 +46,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
         self.onVerseTap = onVerseTap
-        self.placeholder = placeholder ?? Self.standardPlaceholder
+        self.placeholder = placeholder
         self.blocks = []
         self.providedBlocks = nil
         self.sourceHTML = nil
@@ -77,7 +77,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
-        self.placeholder = Self.standardPlaceholder
+        self.placeholder = nil
         self.blocks = blocks
         self.providedBlocks = blocks
         self.sourceHTML = sourceHTML
@@ -108,7 +108,11 @@ public struct BibleTextView: View {
     public var body: some View {
         VStack(alignment: .leading) {
             if let phase = loadingPhase {
-                placeholder(phase)
+                if let placeholder {
+                    placeholder(phase)
+                } else {
+                    standardPlaceholder(phase: phase)
+                }
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
@@ -229,9 +233,9 @@ public struct BibleTextView: View {
         return BibleTextView(reference, blocks: blocks)
     }
 
-    private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {
-        let height = 80.0
-        let v = Group {
+    @ViewBuilder
+    private func standardPlaceholder(phase: BibleTextLoadingPhase) -> some View {
+        Group {
             switch phase {
             case .inactive:
                 EmptyView()
@@ -255,7 +259,7 @@ public struct BibleTextView: View {
                 }
             }
         }
-        return AnyView(v.frame(height: height))
+        .frame(height: 80)
     }
 
     private struct LoadKey: Hashable {

@@ -39,7 +39,6 @@ public struct BibleVersionsListView: View {
                         ProgressView()
                             .tint(viewModel.readerTextMutedColor)
                         Spacer()
-                        Spacer()
                     }
                 }
             }

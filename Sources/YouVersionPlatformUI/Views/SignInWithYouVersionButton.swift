@@ -13,7 +13,7 @@ public struct SignInWithYouVersionButton: View {
         case rectangle
     }
     
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     private let shape: ButtonShape
     private let mode: Mode
     private let isStroked: Bool
