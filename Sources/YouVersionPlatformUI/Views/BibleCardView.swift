@@ -55,11 +55,13 @@ public struct BibleCardView: View {
                 BibleTextView(reference, textOptions: textOptions)
             }
             HStack(alignment: .top) {
-                copyrightView
-                    .padding(.trailing, 16)
-                    .onTapGesture {
-                        showingCopyrightSheet.toggle()
-                    }
+                Button {
+                    showingCopyrightSheet.toggle()
+                } label: {
+                    copyrightView
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 16)
                 Spacer()
                 bibleAppLogo
             }

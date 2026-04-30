@@ -2108,64 +2108,6 @@
             ]
           },
           {
-            "kind": "Function",
-            "name": "viewWithPrefetchedData",
-            "printedName": "viewWithPrefetchedData(reference:fontFamily:fontSize:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(some SwiftUI.View)?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OpaqueTypeArchetype",
-                    "printedName": "some SwiftUI.View",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "View",
-                        "printedName": "SwiftUI.View",
-                        "usr": "s:7SwiftUI4ViewP"
-                      }
-                    ]
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "BibleReference",
-                "printedName": "YouVersionPlatformCore.BibleReference",
-                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "hasDefaultArg": true,
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "CGFloat",
-                "printedName": "CoreGraphics.CGFloat",
-                "hasDefaultArg": true,
-                "usr": "s:14CoreFoundation7CGFloatV"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:20YouVersionPlatformUI13BibleTextViewV22viewWithPrefetchedData9reference10fontFamily0M4SizeQrSg0abC4Core0E9ReferenceV_SS0P10Foundation7CGFloatVtYaFZ",
-            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV22viewWithPrefetchedData9reference10fontFamily0M4SizeQrSg0abC4Core0E9ReferenceV_SS0P8Graphics7CGFloatVtYaFZ",
-            "moduleName": "YouVersionPlatformUI",
-            "static": true,
-            "declAttributes": [
-              "Preconcurrency",
-              "Custom"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
             "kind": "TypeAlias",
             "name": "Body",
             "printedName": "Body",

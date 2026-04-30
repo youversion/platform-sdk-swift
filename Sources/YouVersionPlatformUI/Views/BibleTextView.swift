@@ -14,9 +14,11 @@ public struct BibleTextView: View {
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
-    // swiftlint:disable:next private_swiftui_state
-    @State var ourHighlights: [BibleHighlight] = []
     @Binding var selectedVerses: Set<BibleReference>
+
+    var ourHighlights: [BibleHighlight] {
+        BibleHighlightsCache.shared.highlights(overlapping: reference)
+    }
 
     public init(
         _ reference: BibleReference,
@@ -122,18 +124,18 @@ public struct BibleTextView: View {
             }
             return .handled
         }))
-        .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)\(sourceHTML ?? "")") {
+        .task(id: LoadKey(
+            reference: reference,
+            fontSize: textOptions.fontSize,
+            fontFamily: textOptions.fontFamily,
+            textColor: textOptions.textColor,
+            sourceHTML: sourceHTML
+        )) {
             await loadBlocks()
         }
         .coordinateSpace(.named("BibleTextView"))
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
-        }
-        .onChange(of: reference) {
-            ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
-        }
-        .onChange(of: BibleHighlightsCache.shared.cachedHighlights) { _, _ in
-            ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
         }
     }
 
@@ -202,22 +204,6 @@ public struct BibleTextView: View {
         }
     }
 
-    public static func viewWithPrefetchedData(
-        reference: BibleReference,
-        fontFamily: String = "Times New Roman",
-        fontSize: CGFloat = 16
-    ) async -> (some View)? {
-        do {
-            guard let blocks = try? await BibleVersionRendering.textBlocks(
-                reference: reference,
-                fonts: BibleTextFonts(familyName: fontFamily, baseSize: fontSize)
-            ) else {
-                return nil as BibleTextView?
-            }
-            return BibleTextView(reference, blocks: blocks)
-        }
-    }
-
     private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {
         let height = 80.0
         let v = Group {
@@ -245,6 +231,14 @@ public struct BibleTextView: View {
             }
         }
         return AnyView(v.frame(height: height))
+    }
+
+    private struct LoadKey: Hashable {
+        let reference: BibleReference
+        let fontSize: CGFloat
+        let fontFamily: String
+        let textColor: Color?
+        let sourceHTML: String?
     }
 
 }
