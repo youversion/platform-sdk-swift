@@ -6733,8 +6733,8 @@
               },
               {
                 "kind": "Function",
-                "name": "getHighlights",
-                "printedName": "getHighlights(bibleId:passageId:accessToken:session:)",
+                "name": "highlights",
+                "printedName": "highlights(bibleId:passageId:accessToken:session:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -6786,8 +6786,8 @@
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:22YouVersionPlatformCore0aB3APIO10HighlightsO03getF07bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
-                "mangledName": "$s22YouVersionPlatformCore0aB3APIO10HighlightsO03getF07bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO10HighlightsO10highlights7bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO10HighlightsO10highlights7bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
                 "throwing": true,
@@ -7109,8 +7109,8 @@
             "children": [
               {
                 "kind": "Function",
-                "name": "getSignInResult",
-                "printedName": "getSignInResult(from:state:codeVerifier:redirectUri:nonce:session:)",
+                "name": "signInResult",
+                "printedName": "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -7157,8 +7157,8 @@
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO15getSignInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA0hi4WithabJ0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
-                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO15getSignInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA0hi4WithabJ0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO12signInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA04Signh4WithabI0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO12signInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA04Signh4WithabI0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
                 "throwing": true,
@@ -7166,8 +7166,8 @@
               },
               {
                 "kind": "Function",
-                "name": "performRefresh",
-                "printedName": "performRefresh(with:idToken:session:)",
+                "name": "refreshSignIn",
+                "printedName": "refreshSignIn(withToken:idToken:session:)",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -7204,8 +7204,8 @@
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO14performRefresh4with7idToken7sessionAA010SignInWithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
-                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO14performRefresh4with7idToken7sessionAA010SignInWithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO13refreshSignIn9withToken02idK07sessionAA0hi4WithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO13refreshSignIn9withToken02idK07sessionAA0hi4WithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
                 "throwing": true,

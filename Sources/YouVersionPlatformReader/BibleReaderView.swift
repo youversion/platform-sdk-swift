@@ -45,24 +45,6 @@ public struct BibleReaderView: View {
         selectedDetent = fontSettingsDetent
     }
 
-    /// Creates a Bible reader view with sign-in configuration.
-    ///
-    /// - Parameters:
-    ///   - reference: The Bible reference to display initially.
-    ///   - appName: The name of the host app, shown in sign-in dialogs.
-    ///   - signInMessage: A message displayed on the sign-in sheet.
-    ///   - onVerseTap: An optional closure called when the user taps a verse.
-    @available(*, deprecated, message: "Set appName and signInPromptMessage on YouVersionPlatformConfiguration instead.")
-    public init(reference: BibleReference? = nil,
-                appName: String,
-                signInMessage: String,
-                verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil
-    ) {
-        YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
-    }
-
     public var body: some View {
         VStack(spacing: 0) {
             header
