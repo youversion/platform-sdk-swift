@@ -29,7 +29,7 @@ public extension YouVersionAPI.Bible {
             organizationId: metadata.organizationId,
             bookCodes: metadata.bookCodes,
             books: index.books,
-            textDirection: index.text_direction,
+            textDirection: index.textDirection,
         )
     }
 
@@ -49,11 +49,10 @@ public extension YouVersionAPI.Bible {
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
     static func basicVersion(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
-        )
+        guard let url = URLBuilder.versionURL(versionId: versionId) else {
+            throw URLError(.badURL)
+        }
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let responseObject = try JSONDecoder().decode(BibleVersion.self, from: data)
         return responseObject
     }
@@ -63,11 +62,10 @@ public extension YouVersionAPI.Bible {
             let data: [BibleBook]
         }
 
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionBooksURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
-        )
+        guard let url = URLBuilder.versionBooksURL(versionId: versionId) else {
+            throw URLError(.badURL)
+        }
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let response = try JSONDecoder().decode(BibleVersionBooksResponse.self, from: data)
         return response.data
     }
@@ -77,11 +75,10 @@ public extension YouVersionAPI.Bible {
             let data: [BibleChapter]
         }
 
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionBookChaptersURL(versionId: versionId, book: book),
-            accessToken: accessToken,
-            session: session
-        )
+        guard let url = URLBuilder.versionBookChaptersURL(versionId: versionId, book: book) else {
+            throw URLError(.badURL)
+        }
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let response = try JSONDecoder().decode(BibleVersionChaptersResponse.self, from: data)
         return response.data
     }
@@ -91,11 +88,10 @@ public extension YouVersionAPI.Bible {
             let data: [BibleChapter]
         }
 
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionIndexURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
-        )
+        guard let url = URLBuilder.versionIndexURL(versionId: versionId) else {
+            throw URLError(.badURL)
+        }
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let response = try JSONDecoder().decode(BibleVersionIndex.self, from: data)
         return response
     }
@@ -109,7 +105,7 @@ public extension YouVersionAPI.Bible {
             throw URLError(.badURL)
         }
 
-        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+        let request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -138,12 +134,12 @@ public extension YouVersionAPI.Bible {
     
     /// Fetches the html content of the "intro" (introductory material) for a book from the server.
     static func introMaterial(versionId: Int, passageId: String, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+        guard let url = URLBuilder.passageIntroURL(versionId: versionId, passageId: passageId) else {
+            throw URLError(.badURL)
+        }
+        
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.passageIntroURL(versionId: versionId, passageId: passageId),
-            accessToken: accessToken,
-            session: session
-        )
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let object = try JSONSerialization.jsonObject(with: data, options: [])
         guard let json = object as? [String: Any],
               let content = json["content"] as? String else {
@@ -156,7 +152,12 @@ public extension YouVersionAPI.Bible {
     // MARK: - utility structs
 
     private struct BibleVersionIndex: Codable {
-        let text_direction: String?
+        let textDirection: String?
         let books: [BibleBook]?
+
+        enum CodingKeys: String, CodingKey {
+            case textDirection = "text_direction"
+            case books
+        }
     }
 }

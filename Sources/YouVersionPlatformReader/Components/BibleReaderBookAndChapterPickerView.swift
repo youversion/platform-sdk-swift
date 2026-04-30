@@ -5,6 +5,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
     @Binding var expandedBookCode: String?
     @Binding var isPresented: Bool
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let bookCodes: [String]
     let versionId: Int
@@ -91,7 +92,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         .contentShape(Rectangle())
         .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
         .onTapGesture {
-            withAnimation {
+            withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
             }
         }
@@ -111,12 +112,12 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            ForEach(chapters.indices, id: \.self) { idx in
+            ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
                 Button(action: {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, idx + 1, nil)
                 }) {
-                    chapterListButton(label: chapters[idx])
+                    chapterListButton(label: label)
                 }
                 .buttonStyle(PlainButtonStyle())
             }

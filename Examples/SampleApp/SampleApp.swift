@@ -8,16 +8,17 @@ struct SampleApp: App {
 
     init() {
         // Get your app key from https://platform.youversion.com/
-        YouVersionPlatform.configure(appKey: <#Your App Key#>)
+        YouVersionPlatformConfiguration.configure(
+            appKey: <#Your App Key#>,
+            appName: "Sample App",
+            signInPromptMessage: "Sign in to see your YouVersion highlights in this Sample App."
+        )
     }
 
     var body: some Scene {
         WindowGroup {
             TabView(selection: $selectedTab) {
-                BibleReaderView(
-                    appName: "Sample App",
-                    signInMessage: "Sign in to see your YouVersion highlights in this Sample App."
-                )
+                BibleReaderView()
                 .tabItem {
                     Label("Bible", systemImage: "book.closed.fill")
                 }

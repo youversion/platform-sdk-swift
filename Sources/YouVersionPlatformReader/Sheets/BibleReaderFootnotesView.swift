@@ -23,7 +23,7 @@ struct BibleReaderFootnotesView: View {
             if let version = viewModel.version,
                 let reference = viewModel.footnotesToDisplay.first?.reference {
                 Text(version.displayTitle(for: reference))
-                    .font(ReaderFonts.fontHeaderS)
+                    .font(YouVersionFonts.fontHeaderS)
                     .padding(.bottom)
                 ScrollView {
                     BibleTextView(reference, textOptions: textOptions)
@@ -36,7 +36,7 @@ struct BibleReaderFootnotesView: View {
                             let txt = footnote.text.setFont(.footnote, from: BibleTextFonts(familyName: "San Francisco", baseSize: 15))
                             HStack(alignment: .firstTextBaseline) {
                                 Text(character + ".")
-                                    .font(ReaderFonts.fontLabelS)
+                                    .font(YouVersionFonts.fontLabelS)
                                 Text(txt.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }

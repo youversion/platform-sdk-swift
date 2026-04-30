@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderFontSettingsView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -139,7 +140,7 @@ struct BibleReaderFontSettingsView: View {
             Button {
                 viewModel.selectNextLineSpacing()
             } label: {
-                let currentSpacing = viewModel.textOptions.lineSpacing ?? CGFloat(ReaderFonts.lineSpacingOptions.first!)
+                let currentSpacing = viewModel.textOptions.lineSpacing ?? ReaderFonts.lineSpacingOptions.first ?? 6
                 VStack(
                     alignment: .leading,
                     spacing: currentSpacing / 3

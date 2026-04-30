@@ -1,9 +1,13 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+#if canImport(UIKit)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+#endif
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let showChrome: Bool
     let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
@@ -23,6 +27,7 @@ public struct BibleReaderHeaderView: View {
 
     public var body: some View {
         @Bindable var viewModel = viewModel
+        @Bindable var bindableVersionsViewModel = viewModel.versionsViewModel
 
         HStack {
             if showChrome {
@@ -31,10 +36,10 @@ public struct BibleReaderHeaderView: View {
                     Spacer()
                     BibleReaderHeaderMenuView()
                 }
-                .transition(.opacity)
+                .transition(reduceMotion ? .identity : .opacity)
             } else {
                 compactLabels
-                    .transition(.opacity)
+                    .transition(reduceMotion ? .identity : .opacity)
             }
         }
         .padding(.leading, 16)
@@ -54,7 +59,7 @@ public struct BibleReaderHeaderView: View {
                     }
             }
         )
-        .animation(.easeInOut(duration: 0.15), value: showChrome)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: showChrome)
         .sheet(
             isPresented: $viewModel.showingBookPicker,
             onDismiss: { viewModel.headerExpandedBookCode = nil }
@@ -76,34 +81,51 @@ public struct BibleReaderHeaderView: View {
                 ProgressView()
             }
         }
+        .sheet(isPresented: $bindableVersionsViewModel.showingVersionsStack) {
+            BibleVersionsStack()
+                .environment(viewModel.versionsViewModel)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.large])
+        }
     }
 
     @ViewBuilder
     private var halfPillPickers: some View {
         if let version = viewModel.version {
             let title = viewModel.showBookIntro ? introString : bookAndChapter
-            BibleReaderHalfPillPickersView(
+
+            halfPillPickersView(
                 bookAndChapter: title,
                 versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
-                handleVersionTap: { viewModel.handlePickersVersionTap() },
-                foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: viewModel.readerButtonPrimaryColor,
-                backgroundColor: viewModel.readerCanvasPrimaryColor,
-                compactMode: false
+                handleVersionTap: { viewModel.versionsViewModel.openVersionsStack(currentBibleLanguage: version.languageTag ?? "en") }
             )
         } else {
-            BibleReaderHalfPillPickersView(
+            halfPillPickersView(
                 bookAndChapter: "",
                 versionAbbreviation: "",
                 handleChapterTap: {},
-                handleVersionTap: {},
-                foregroundColor: viewModel.readerTextPrimaryColor,
-                buttonColor: viewModel.readerButtonPrimaryColor,
-                backgroundColor: viewModel.readerCanvasPrimaryColor,
-                compactMode: false
+                handleVersionTap: {}
             )
         }
+    }
+
+    private func halfPillPickersView(
+        bookAndChapter: String,
+        versionAbbreviation: String,
+        handleChapterTap: @escaping () -> Void,
+        handleVersionTap: @escaping () -> Void
+    ) -> some View {
+        BibleReaderHalfPillPickersView(
+            bookAndChapter: bookAndChapter,
+            versionAbbreviation: versionAbbreviation,
+            handleChapterTap: handleChapterTap,
+            handleVersionTap: handleVersionTap,
+            foregroundColor: viewModel.readerTextPrimaryColor,
+            buttonColor: viewModel.readerButtonPrimaryColor,
+            backgroundColor: viewModel.readerCanvasPrimaryColor,
+            compactMode: false
+        )
     }
 
     private var bookAndChapter: String {
@@ -149,7 +171,7 @@ public struct BibleReaderHeaderView: View {
         .frame(height: 24)
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
                 onCompactTap?()
             }
         }

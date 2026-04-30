@@ -1,7 +1,7 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-extension BibleReaderViewModel {
+extension BibleVersionsViewModel {
 
     // MARK: - VersionsPicker functions, for Version selection and manipulation
 
@@ -18,10 +18,11 @@ extension BibleReaderViewModel {
         versionsPickerStack.removeLast()
     }
 
-    func handlePickersVersionTap() {
+    public func openVersionsStack(currentBibleLanguage: String) {
         Task {
             await permittedVersionsListing()
         }
+        currentBibleVersionLanguage = currentBibleLanguage
         fetchVersionsInLanguage(code: activeLanguage)
         chosenLanguage = nil  // reset the search field
         versionsPickerStack.removeAll()

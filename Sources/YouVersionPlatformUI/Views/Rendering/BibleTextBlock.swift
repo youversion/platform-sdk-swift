@@ -8,8 +8,6 @@ public struct BibleTextBlock: Identifiable {
     public let rows: [[BibleAttributedString]]  // If it's a table, these are present instead of "text".
     public let firstLineHeadIndent: Int  // The indentation of the first line of the paragraph. Always >= 0.
     public let headIndent: Int  // The indentation of the paragraph’s lines other than the first. Always >= 0.
-    //let tailIndent: Int  // If positive, this value is the distance from the leading margin (for example,
-    //the left margin in left-to-right text). If 0 or negative, it’s the distance from the trailing margin.
     public let marginTop: CGFloat
     public let alignment: TextAlignment
     public let footnotes: [BibleFootnote]

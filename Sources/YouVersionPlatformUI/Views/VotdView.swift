@@ -6,6 +6,7 @@ public struct VotdView: View {
     @State private var reference: BibleReference?
     @State private var title: String?
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var bibleVersionId: Int
 
@@ -57,7 +58,7 @@ public struct VotdView: View {
     }
     
     private func votdBackground(url: URL) -> some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeInOut)) { phase in
+        AsyncImage(url: url, transaction: Transaction(animation: reduceMotion ? nil : .easeInOut)) { phase in
             switch phase {
             case .success(let image):
                 image

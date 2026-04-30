@@ -1,11 +1,9 @@
 import SwiftUI
 import YouVersionPlatformCore
-import YouVersionPlatformUI
 
-extension BibleReaderViewModel {
-
+extension BibleVersionsViewModel {
     public var activeLanguage: String {
-        chosenLanguage ?? version?.languageTag ?? "en"
+        chosenLanguage ?? currentBibleVersionLanguage ?? "en"
     }
 
     public var bibleVersionStatisticsPromo: String {
@@ -25,19 +23,17 @@ extension BibleReaderViewModel {
         if versionRepository.downloadStatus(for: id) == .downloaded {
             return .downloaded
         }
-        // TEMPORARY
-//        if let overview = permittedVersions.first(where: { $0.id == id }) {
-//            if overview.downloadable == true {
-//                return .downloadable
-//            }
-//        }
         return .notDownloadable
     }
 
     public func switchToVersion(_ versionId: Int) {
         Task {
-            let ref = BibleReference(versionId: versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-            await onHeaderSelectionChange(ref, showIntro: false)
+            do {
+                let version = try await versionRepository.version(withId: versionId)
+                onVersionChange(version)
+            } catch {
+                handleVersionLoadingError(error)
+            }
         }
     }
 
@@ -52,10 +48,7 @@ extension BibleReaderViewModel {
                 selectedVersion = version
                 versionsStackPush(to: .versionInfo)
             } catch {
-                YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
-                showGenericAlert = true
-                textForGenericAlertTitle = .localized("generic.error")
-                textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
+                handleVersionLoadingError(error)
             }
         }
     }
@@ -88,7 +81,7 @@ extension BibleReaderViewModel {
     }
 
     public func languageTapped() {
-        if permittedVersionsList == nil || permittedVersionsList!.isEmpty {
+        if permittedVersionsList?.isEmpty ?? true {
             showGenericAlert = true
             textForGenericAlertTitle = .localized("generic.error")
             textForGenericAlertBody = .localized("reader.availableLanguagesErrorBody")
@@ -112,7 +105,7 @@ extension BibleReaderViewModel {
         if let currentLanguage, let name = names[currentLanguage] {
             return name
         }
-        if let bibleLanguage = version?.languageTag, let name = names[bibleLanguage] {
+        if let bibleLanguage = currentBibleVersionLanguage, let name = names[bibleLanguage] {
             return name
         }
         if let name = names["en"] {
@@ -121,4 +114,10 @@ extension BibleReaderViewModel {
         return names.first?.value
     }
 
+    func handleVersionLoadingError(_ error: Error) {
+        YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
+        showGenericAlert = true
+        textForGenericAlertTitle = .localized("generic.error")
+        textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
+    }
 }

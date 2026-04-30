@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -30,7 +31,6 @@ struct BibleReaderDrawer: View {
                 .padding(.horizontal, 24)
             }
             .padding(.bottom, 32)
-            //swipeUpLabel  // uncomment this once we support swipe, and have something to show!
         }
         .foregroundStyle(viewModel.readerTextMutedColor)
         .background(viewModel.readerCanvasPrimaryColor)
@@ -47,22 +47,20 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        HStack {
-            ForEach(highlightColors, id: \.self) { color in
-                if viewModel.isColorPresentOnAnySelectedVerses(color) {
-                    Button(action: { viewModel.removeVerseColor(color) }) {
-                        coloredCircle(with: color)
-                            .overlay(
-                                Image(systemName: "xmark")
-                            )
-                    }
+        let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
+        let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
+        return HStack {
+            ForEach(colorsToRemove, id: \.self) { color in
+                Button(action: { viewModel.removeVerseColor(color) }) {
+                    coloredCircle(with: color)
+                        .overlay(
+                            Image(systemName: "xmark")
+                        )
                 }
             }
-            ForEach(highlightColors, id: \.self) { color in
-                if !viewModel.isColorPresentOnAllSelectedVerses(color) {
-                    Button(action: { viewModel.addVerseColor(color) }) {
-                        coloredCircle(with: color)
-                    }
+            ForEach(colorsToAdd, id: \.self) { color in
+                Button(action: { viewModel.addVerseColor(color) }) {
+                    coloredCircle(with: color)
                 }
             }
         }
@@ -93,7 +91,7 @@ struct BibleReaderDrawer: View {
         .background(RoundedRectangle(cornerRadius: 12)
             .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .font(ReaderFonts.fontLabelM)
+        .font(YouVersionFonts.fontLabelM)
     }
 
     private func drawerButton(imageName: String, text: String, action: @escaping () -> Void) -> some View {
@@ -106,14 +104,6 @@ struct BibleReaderDrawer: View {
         drawerButton(imageName: "square.on.square", text: .localized("verseActions.copy")) {
             viewModel.handleVerseActionCopy()
         }
-    }
-
-    var swipeUpLabel: some View {
-        HStack {
-            Image(systemName: "chevron.up")
-            Text(String.localized("verseActions.swipeUpLabel"))
-        }
-        .font(ReaderFonts.fontCaptionsL)
     }
 }
 

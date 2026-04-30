@@ -50,7 +50,7 @@ public extension YouVersionAPI {
             guard let url = URLBuilder.organizationsURL(id: id) else {
                 throw URLError(.badURL)
             }
-            let data = try await YouVersionAPI.commonFetch(url: url, accessToken: nil, session: session)
+            let data = try await YouVersionAPI.data(at: url, accessToken: nil, session: session)
             guard let decodedResponse = try? JSONDecoder().decode(Organization.self, from: data) else {
                 throw URLError(.badServerResponse)
             }

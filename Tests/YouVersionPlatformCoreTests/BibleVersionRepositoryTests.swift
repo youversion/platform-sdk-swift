@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import YouVersionPlatformCore
 
-// MARK: - Mocks
+// MARK: - API Request Counter
 
-final class MockBibleVersionAPIClient: BibleVersionAPIClient, @unchecked Sendable {
+final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sendable {
     private(set) var requestedIds: [Int] = []
     var result: BibleVersion
     var error: Error?
@@ -25,52 +25,6 @@ final class MockBibleVersionAPIClient: BibleVersionAPIClient, @unchecked Sendabl
     var callCount: Int { requestedIds.count }
 }
 
-final class MockBibleVersionCache: BibleVersionCaching, @unchecked Sendable {
-    private var storage: [Int: BibleVersion] = [:]
-    private(set) var versionCallCount = 0
-    private(set) var addCallCount = 0
-    private(set) var removeCallCount = 0
-    private(set) var removeUnpermittedCallCount = 0
-    private(set) var versionIsPresentCallCount = 0
-
-    func version(withId id: Int) async -> BibleVersion? {
-        versionCallCount += 1
-        return storage[id]
-    }
-
-    func addVersion(_ version: BibleVersion) async {
-        addCallCount += 1
-        storage[version.id] = version
-    }
-
-    func removeVersion(withId versionId: Int) async {
-        removeCallCount += 1
-        storage.removeValue(forKey: versionId)
-    }
-
-    func versionIsPresent(for id: Int) -> Bool {
-        versionIsPresentCallCount += 1
-        return storage[id] != nil
-    }
-
-    func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        removeUnpermittedCallCount += 1
-        storage = storage.filter { permittedIds.contains($0.key) }
-    }
-
-    func prime(with version: BibleVersion) {
-        storage[version.id] = version
-    }
-
-    func contains(_ id: Int) -> Bool {
-        storage[id] != nil
-    }
-
-    func storedVersion(withId id: Int) -> BibleVersion? {
-        storage[id]
-    }
-}
-
 // MARK: - Tests
 
 struct BibleVersionRepositoryTests {
@@ -89,33 +43,22 @@ struct BibleVersionRepositoryTests {
 
     @discardableResult
     private func makeRepository(
-        apiClient: MockBibleVersionAPIClient? = nil,
-        memoryCache: MockBibleVersionCache? = nil,
-        diskCache: MockBibleVersionCache? = nil,
-        downloadCache: MockBibleVersionCache? = nil
-    ) -> (
+        apiRequestCounter: BibleVersionAPIRequestCounter? = nil
+    ) throws -> (
         repository: BibleVersionRepository,
-        apiClient: MockBibleVersionAPIClient,
-        memoryCache: MockBibleVersionCache,
-        diskCache: MockBibleVersionCache,
-        downloadCache: MockBibleVersionCache
+        apiRequestCounter: BibleVersionAPIRequestCounter,
+        storage: RepositoryTemporaryStorage
     ) {
-        let apiClient = apiClient ?? MockBibleVersionAPIClient(result: Self.fixture)
-        let memoryCache = memoryCache ?? MockBibleVersionCache()
-        let diskCache = diskCache ?? MockBibleVersionCache()
-        let downloadCache = downloadCache ?? MockBibleVersionCache()
+        let apiRequestCounter = apiRequestCounter ?? BibleVersionAPIRequestCounter(result: Self.fixture)
+        let storage = try RepositoryTemporaryStorage()
 
         return (
             BibleVersionRepository(
-                apiClient: apiClient,
-                memoryCache: memoryCache,
-                diskCache: diskCache,
-                downloadCache: downloadCache
+                provider: apiRequestCounter,
+                directoryProvider: storage.provider
             ),
-            apiClient,
-            memoryCache,
-            diskCache,
-            downloadCache
+            apiRequestCounter,
+            storage
         )
     }
 
@@ -123,126 +66,160 @@ struct BibleVersionRepositoryTests {
 
     @Test
     func versionIfCachedReturnsDiskVersionAndWarmsMemory() async throws {
-        let (repository, api, memory, disk, _) = makeRepository()
-        disk.prime(with: Self.fixture)
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        await diskCache.addVersion(Self.fixture)
 
         let cached = try await repository.versionIfCached(Self.fixture.id)
+        await diskCache.removeVersion(withId: Self.fixture.id)
+        let memoryCached = try await repository.versionIfCached(Self.fixture.id)
 
         #expect(cached?.id == Self.fixture.id)
-        #expect(cached?.localizedTitle == Self.fixture.localizedTitle)
+        #expect(memoryCached?.id == Self.fixture.id)
+        #expect(memoryCached?.localizedTitle == Self.fixture.localizedTitle)
         #expect(api.callCount == 0)
-        #expect(memory.contains(Self.fixture.id))
-        #expect(memory.addCallCount == 1)
-        #expect(disk.versionCallCount == 1)
+    }
+
+    @Test
+    func versionIfCachedReturnsDownloadVersionAndWarmsMemory() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        await downloadCache.addVersion(Self.fixture)
+
+        let cached = try await repository.versionIfCached(Self.fixture.id)
+        await downloadCache.removeVersion(withId: Self.fixture.id)
+        let memoryCached = try await repository.versionIfCached(Self.fixture.id)
+
+        #expect(cached?.id == Self.fixture.id)
+        #expect(memoryCached?.id == Self.fixture.id)
+        #expect(memoryCached?.abbreviation == Self.fixture.abbreviation)
+        #expect(api.callCount == 0)
     }
 
     // MARK: version(withId:)
 
     @Test
-    func versionLoadsFromAPIWhenNotCachedAndStoresInCaches() async throws {
-        let (repository, api, memory, disk, _) = makeRepository()
+    func versionLoadsFromAPIWhenNotCachedAndStoresOnDisk() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
 
         let version = try await repository.version(withId: Self.fixture.id)
+        let diskVersion = await diskCache.version(withId: Self.fixture.id)
 
         #expect(version.id == Self.fixture.id)
         #expect(version.languageTag == Self.fixture.languageTag)
-        #expect(version.title == Self.fixture.title)
         #expect(api.callCount == 1)
-        #expect(memory.contains(Self.fixture.id))
-        #expect(memory.addCallCount == 1)
-        #expect(disk.contains(Self.fixture.id))
-        #expect(disk.addCallCount >= 1)
-        #expect(disk.storedVersion(withId: Self.fixture.id)?.copyright == Self.fixture.copyright)
+        #expect(api.requestedIds == [Self.fixture.id])
+        #expect(diskVersion?.id == Self.fixture.id)
+        #expect(diskVersion?.copyright == Self.fixture.copyright)
     }
 
     @Test
     func versionUsesMemoryCacheOnSubsequentCalls() async throws {
-        let (repository, api, memory, _, _) = makeRepository()
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
 
         let first = try await repository.version(withId: Self.fixture.id)
+        await diskCache.removeVersion(withId: Self.fixture.id)
         let second = try await repository.version(withId: Self.fixture.id)
 
         #expect(first.id == Self.fixture.id)
-        #expect(first.localizedAbbreviation == Self.fixture.localizedAbbreviation)
         #expect(second.id == Self.fixture.id)
         #expect(second.readerFooter == Self.fixture.readerFooter)
         #expect(api.callCount == 1)
-        #expect(memory.versionCallCount >= 2)
     }
 
     @Test
     func versionRefetchesAfterCachesAreCleared() async throws {
-        let (repository, api, memory, disk, _) = makeRepository()
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
 
         let initial = try await repository.version(withId: Self.fixture.id)
         #expect(initial.copyright == Self.fixture.copyright)
         #expect(api.callCount == 1)
 
         await repository.removeVersion(withId: Self.fixture.id)
-
-        #expect(memory.contains(Self.fixture.id) == false)
-        #expect(disk.contains(Self.fixture.id) == false)
-        #expect(disk.storedVersion(withId: Self.fixture.id) == nil)
+        #expect(await diskCache.version(withId: Self.fixture.id) == nil)
 
         let refetched = try await repository.version(withId: Self.fixture.id)
 
         #expect(refetched.readerFooterUrl == Self.fixture.readerFooterUrl)
         #expect(api.callCount == 2)
-        #expect(memory.contains(Self.fixture.id))
-        #expect(disk.contains(Self.fixture.id))
-        #expect(disk.storedVersion(withId: Self.fixture.id)?.title == Self.fixture.title)
+        #expect(await diskCache.version(withId: Self.fixture.id)?.title == Self.fixture.title)
     }
 
     // MARK: downloadVersion
 
     @Test
     func downloadVersionDoesNotFetchWhenAlreadyDownloaded() async throws {
-        let (repository, api, _, disk, download) = makeRepository()
-        download.prime(with: Self.fixture)
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        await downloadCache.addVersion(Self.fixture)
 
         try await repository.downloadVersion(withId: Self.fixture.id)
 
         #expect(api.callCount == 0)
-        #expect(download.addCallCount == 0)
-        #expect(disk.removeCallCount == 0)
-
-        let stored = download.storedVersion(withId: Self.fixture.id)
-        #expect(stored?.abbreviation == Self.fixture.abbreviation)
+        #expect(await downloadCache.version(withId: Self.fixture.id)?.abbreviation == Self.fixture.abbreviation)
     }
 
     @Test
     func downloadVersionFetchesWhenNotDownloaded() async throws {
-        let (repository, api, _, disk, download) = makeRepository()
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
 
         try await repository.downloadVersion(withId: Self.fixture.id)
 
         #expect(api.callCount == 1)
-        #expect(download.contains(Self.fixture.id))
-        #expect(download.addCallCount == 1)
-        #expect(disk.removeCallCount == 1)
-
-        let stored = download.storedVersion(withId: Self.fixture.id)
-        #expect(stored?.promotionalContent == Self.fixture.promotionalContent)
+        #expect(await downloadCache.version(withId: Self.fixture.id)?.promotionalContent == Self.fixture.promotionalContent)
+        #expect(await diskCache.version(withId: Self.fixture.id) == nil)
     }
 
     // MARK: Other methods
 
     @Test
-    func versionIsPresentDelegatesToDownloadCache() async throws {
-        let (repository, api, _, _, download) = makeRepository()
-        download.prime(with: Self.fixture)
+    func diskCacheVersionIsPresentReflectsStoredMetadata() async throws {
+        let storage = try RepositoryTemporaryStorage()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
 
-        let isPresent = await repository.versionIsPresent(for: Self.fixture.id)
+        #expect(diskCache.versionIsPresent(for: Self.fixture.id) == false)
 
-        #expect(isPresent)
-        #expect(download.versionIsPresentCallCount == 1)
+        await diskCache.addVersion(Self.fixture)
+
+        #expect(diskCache.versionIsPresent(for: Self.fixture.id))
+    }
+
+    @Test
+    func versionIsPresentReflectsDownloadCache() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        #expect(await repository.versionIsPresent(for: Self.fixture.id) == false)
+
+        await downloadCache.addVersion(Self.fixture)
+
+        #expect(await repository.versionIsPresent(for: Self.fixture.id))
         #expect(api.callCount == 0)
     }
 
     @Test
     func downloadStatusReflectsDownloadCache() async throws {
-        let (repository, api, _, _, download) = makeRepository()
-        download.prime(with: Self.fixture)
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        #expect(repository.downloadStatus(for: Self.fixture.id) == .notDownloadable)
+
+        await downloadCache.addVersion(Self.fixture)
 
         let status = repository.downloadStatus(for: Self.fixture.id)
         let otherStatus = repository.downloadStatus(for: 999)
@@ -253,27 +230,54 @@ struct BibleVersionRepositoryTests {
     }
 
     @Test
-    func removeVersionClearsAllCaches() async throws {
-        let (repository, _, memory, disk, download) = makeRepository()
-        memory.prime(with: Self.fixture)
-        disk.prime(with: Self.fixture)
-        download.prime(with: Self.fixture)
+    func downloadedVersionIdsReflectDownloadCache() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
 
-        await repository.removeVersion(withId: Self.fixture.id)
+        #expect(repository.downloadedVersionIds == [])
 
-        #expect(memory.removeCallCount == 1)
-        #expect(disk.removeCallCount == 1)
-        #expect(download.removeCallCount == 1)
+        await downloadCache.addVersion(Self.fixture)
+
+        #expect(repository.downloadedVersionIds == [Self.fixture.id])
+        #expect(api.callCount == 0)
     }
 
     @Test
-    func removeUnpermittedVersionsForwardsToCaches() async throws {
-        let (repository, _, memory, disk, download) = makeRepository()
+    func removeVersionClearsAllCaches() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        _ = try await repository.version(withId: Self.fixture.id)
+        await downloadCache.addVersion(Self.fixture)
+
+        await repository.removeVersion(withId: Self.fixture.id)
+
+        #expect(await diskCache.version(withId: Self.fixture.id) == nil)
+        #expect(await downloadCache.version(withId: Self.fixture.id) == nil)
+
+        _ = try await repository.version(withId: Self.fixture.id)
+        #expect(api.callCount == 2)
+    }
+
+    @Test
+    func removeUnpermittedVersionsRemovesStoredVersionsAndMemoryCache() async throws {
+        let (repository, api, storage) = try makeRepository()
+        defer { storage.remove() }
+        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+
+        _ = try await repository.version(withId: Self.fixture.id)
+        await downloadCache.addVersion(Self.fixture)
 
         await repository.removeUnpermittedVersions(permittedIds: [])
 
-        #expect(memory.removeUnpermittedCallCount == 1)
-        #expect(disk.removeUnpermittedCallCount == 1)
-        #expect(download.removeUnpermittedCallCount == 1)
+        #expect(await diskCache.version(withId: Self.fixture.id) == nil)
+        #expect(await downloadCache.version(withId: Self.fixture.id) == nil)
+
+        _ = try await repository.version(withId: Self.fixture.id)
+        #expect(api.callCount == 2)
     }
 }
