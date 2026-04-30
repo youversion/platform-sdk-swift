@@ -2,11 +2,9 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct VotdView: View {
-    @State private var backgroundUrl: String?
     @State private var reference: BibleReference?
     @State private var title: String?
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var bibleVersionId: Int
 
@@ -19,16 +17,7 @@ public struct VotdView: View {
             if reference != nil {
                 textStack
                     .padding()
-                    .foregroundStyle(backgroundUrl == nil ? Color.primary : Color.white)  // background images are dark
-                    .background(
-                        GeometryReader { geo in
-                            if let backgroundUrl, let url = URL(string: backgroundUrl) {
-                                votdBackground(url: url)
-                                    .frame(width: geo.size.width, height: geo.size.height)
-                                    .clipped()
-                            }
-                        }
-                    )
+                    .foregroundStyle(Color.primary)
             } else {
                 ProgressView()
             }
@@ -56,20 +45,7 @@ public struct VotdView: View {
             }
         }
     }
-    
-    private func votdBackground(url: URL) -> some View {
-        AsyncImage(url: url, transaction: Transaction(animation: reduceMotion ? nil : .easeInOut)) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFill()
-            default:
-                EmptyView()
-            }
-        }
-    }
-    
+
     private var textStack: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .top) {
