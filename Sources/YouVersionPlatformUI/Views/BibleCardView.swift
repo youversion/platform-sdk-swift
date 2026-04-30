@@ -80,12 +80,18 @@ public struct BibleCardView: View {
         }
         .sheet(isPresented: $showingCopyrightSheet) {
             ScrollView {
-                Text(version?.localizedTitle ?? version?.title ?? "")
-                    .font(YouVersionFonts.fontHeaderM)
-                    .padding(.vertical)
-                Text(version?.promotionalContent ?? version?.copyright ?? "")
-                    .padding()
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(version?.localizedTitle ?? version?.title ?? "")
+                        .font(YouVersionFonts.fontHeaderM)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                    Text(version?.promotionalContent ?? version?.copyright ?? "")
+                        .padding()
+                }
+                .frame(maxWidth: .infinity)
             }
+            .background(backgroundColor.ignoresSafeArea())
+            .foregroundStyle(foregroundColor)
             .presentationDragIndicator(.visible)
             .presentationDetents([.large])
         }
