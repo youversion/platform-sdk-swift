@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 actor ChapterMemoryCache {
     private var cache: [String: String] = [:]
@@ -27,10 +30,11 @@ actor ChapterMemoryCache {
 }
 
 /// ChapterDiskCache manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
-actor ChapterDiskCache {
+@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
+public actor ChapterDiskCache {
     private let storage: BibleContentStorage
 
-    init() {
+    public init() {
         self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
     }
 
@@ -69,13 +73,19 @@ actor ChapterDiskCache {
             )
         }
     }
+
+    @available(*, deprecated, message: "Use BibleChapterRepository.removeVersion(withId:) instead.")
+    public func removeVersion(versionId: Int) async {
+        removeVersion(withId: versionId)
+    }
 }
 
 /// ChapterDownloadCache manages the chapter files of Bible versions which the user chose to download, e.g. for offline usage.
-actor ChapterDownloadCache {
+@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
+public actor ChapterDownloadCache {
     private let storage: BibleContentStorage
 
-    init() {
+    public init() {
         self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
     }
 
@@ -90,7 +100,7 @@ actor ChapterDownloadCache {
         return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
 
-    nonisolated func chaptersArePresent(versionId: Int) -> Bool {
+    nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
@@ -105,6 +115,10 @@ actor ChapterDownloadCache {
         }
     }
 
+    @available(*, deprecated, message: "Use BibleChapterRepository.removeVersion(withId:) instead.")
+    public func removeVersion(versionId: Int) async {
+        removeVersion(withId: versionId)
+    }
 }
 
 protocol BibleChapterContentProviding: Sendable {
@@ -119,7 +133,7 @@ final class BibleChapterContentAPI: BibleChapterContentProviding {
     }
 }
 
-public actor BibleChapterRepository {
+public actor BibleChapterRepository: ObservableObject {
 
     public static let shared = BibleChapterRepository()
 

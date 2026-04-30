@@ -1,4 +1,9 @@
 import Foundation
+#if canImport(Observation)
+import Observation
+#else
+public protocol Observable {}
+#endif
 
 /// Abstraction over Bible version lookup and download operations.
 public protocol BibleVersionRepositoryProtocol: Sendable {
@@ -14,9 +19,6 @@ public protocol BibleVersionRepositoryProtocol: Sendable {
     /// Returns the current download status for a version.
     func downloadStatus(for id: Int) -> BibleVersionRepository.BibleVersionDownloadStatus
 
-    /// Returns the IDs for versions currently downloaded for offline use.
-    var downloadedVersionIds: [Int] { get }
-
     /// Removes a version from every local cache.
     func removeVersion(withId id: Int) async
 
@@ -24,33 +26,39 @@ public protocol BibleVersionRepositoryProtocol: Sendable {
     func removeUnpermittedVersions(permittedIds: Set<Int>) async
 }
 
-actor VersionMemoryCache {
-    init() {}
+@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
+public actor VersionMemoryCache: BibleVersionCaching {
+    public init() {}
 
     private var cache: [Int: BibleVersion] = [:]
 
-    func version(withId id: Int) async -> BibleVersion? {
+    public func version(withId id: Int) async -> BibleVersion? {
         cache[id]
     }
 
-    func addVersion(_ version: BibleVersion) async {
+    nonisolated public func versionIsPresent(for id: Int) -> Bool {
+        false
+    }
+
+    public func addVersion(_ version: BibleVersion) async {
         cache[version.id] = version
     }
 
-    func removeVersion(withId id: Int) async {
+    public func removeVersion(withId id: Int) async {
         cache.removeValue(forKey: id)
     }
 
-    func removeUnpermittedVersions(permittedIds: Set<Int>) async {
+    public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
         cache = cache.filter { permittedIds.contains($0.key) }
     }
 }
 
 /// VersionDiskCache manages a medium-duration cache of Bible version metadata; it's not in-memory therefore will survive the app being terminated.
-actor VersionDiskCache {
+@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
+public actor VersionDiskCache: BibleVersionCaching {
     private let storage: BibleContentStorage
 
-    init() {
+    public init() {
         self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
     }
 
@@ -58,15 +66,15 @@ actor VersionDiskCache {
         self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
-    func version(withId id: Int) -> BibleVersion? {
+    public func version(withId id: Int) async -> BibleVersion? {
         storage.decoded(BibleVersion.self, for: .versionMetadata(versionId: id))
     }
 
-    nonisolated func versionIsPresent(for id: Int) -> Bool {
+    nonisolated public func versionIsPresent(for id: Int) -> Bool {
         storage.contains(.versionMetadata(versionId: id))
     }
 
-    func addVersion(_ version: BibleVersion) async {
+    public func addVersion(_ version: BibleVersion) async {
         do {
             try storage.writeEncoded(version, to: .versionMetadata(versionId: version.id))
         } catch {
@@ -77,7 +85,7 @@ actor VersionDiskCache {
         }
     }
 
-    func removeVersion(withId id: Int) async {
+    public func removeVersion(withId id: Int) async {
         do {
             try storage.remove(.versionDirectory(versionId: id))
         } catch {
@@ -88,7 +96,7 @@ actor VersionDiskCache {
         }
     }
 
-    func removeUnpermittedVersions(permittedIds: Set<Int>) async {
+    public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
         let cached = storage.versionDirectoryIds
         for id in cached where !permittedIds.contains(id) {
             YouVersionPlatformLogger.notice(
@@ -101,10 +109,11 @@ actor VersionDiskCache {
 }
 
 /// VersionDownloadCache manages the Bible versions which the user chose to download, e.g. for offline usage.
-actor VersionDownloadCache {
+@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
+public actor VersionDownloadCache: BibleVersionCaching {
     private let storage: BibleContentStorage
 
-    init() {
+    public init() {
         self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
     }
 
@@ -112,15 +121,15 @@ actor VersionDownloadCache {
         self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
-    nonisolated func versionIsPresent(for id: Int) -> Bool {
+    nonisolated public func versionIsPresent(for id: Int) -> Bool {
         storage.contains(.versionMetadata(versionId: id))
     }
 
-    func version(withId id: Int) -> BibleVersion? {
+    public func version(withId id: Int) async -> BibleVersion? {
         storage.decoded(BibleVersion.self, for: .versionMetadata(versionId: id))
     }
 
-    func addVersion(_ version: BibleVersion) async {
+    public func addVersion(_ version: BibleVersion) async {
         do {
             try storage.writeEncoded(
                 version,
@@ -135,7 +144,7 @@ actor VersionDownloadCache {
         }
     }
 
-    func removeVersion(withId id: Int) {
+    public func removeVersion(withId id: Int) {
         do {
             try storage.remove(.versionDirectory(versionId: id))
         } catch {
@@ -146,7 +155,7 @@ actor VersionDownloadCache {
         }
     }
 
-    func removeUnpermittedVersions(permittedIds: Set<Int>) {
+    public func removeUnpermittedVersions(permittedIds: Set<Int>) {
         let downloads = storage.versionDirectoryIds
         for downloadedId in downloads where !permittedIds.contains(downloadedId) {
             YouVersionPlatformLogger.notice(
@@ -161,6 +170,10 @@ actor VersionDownloadCache {
         BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider).versionDirectoryIds
     }
 
+    /// Returns the IDs of Bible versions that have been downloaded for offline use, scanning the default app-support directory.
+    public static var downloadedVersions: [Int] {
+        downloadedVersionIds(directoryProvider: DefaultBibleContentDirectoryProvider())
+    }
 }
 
 protocol BibleVersionProviding: Sendable {
@@ -175,7 +188,7 @@ final class BibleVersionAPI: BibleVersionProviding {
     }
 }
 
-public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
+public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol {
 
     public static let shared = BibleVersionRepository()
 
@@ -203,6 +216,19 @@ public actor BibleVersionRepository: BibleVersionRepositoryProtocol {
         self.memoryCache = VersionMemoryCache()
         self.diskCache = VersionDiskCache(directoryProvider: directoryProvider)
         self.downloadCache = VersionDownloadCache(directoryProvider: directoryProvider)
+    }
+
+    @available(*, deprecated, message: "The apiClient/memoryCache/diskCache/downloadCache parameters are no longer honored. Use init() instead; this initializer will be removed in a future major version.")
+    public init(
+        apiClient: BibleVersionAPIClient = VersionClient(),
+        memoryCache: BibleVersionCaching = VersionMemoryCache(),
+        diskCache: BibleVersionCaching = VersionDiskCache(),
+        downloadCache: BibleVersionCaching = VersionDownloadCache()
+    ) {
+        self.init(
+            provider: BibleVersionAPI(),
+            directoryProvider: DefaultBibleContentDirectoryProvider()
+        )
     }
 
     public func versionIfCached(_ id: Int) async throws -> BibleVersion? {
