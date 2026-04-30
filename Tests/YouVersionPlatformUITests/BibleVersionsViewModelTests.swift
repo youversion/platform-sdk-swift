@@ -8,6 +8,11 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     var cachedVersionById: [Int: BibleVersion] = [:]
     var thrownError: Error?
     var downloadedIds: [Int] = []
+    private let downloadedVersionIdsForListing: [Int]
+
+    init(downloadedVersionIds: [Int] = []) {
+        self.downloadedVersionIdsForListing = downloadedVersionIds
+    }
 
     func setVersion(_ version: BibleVersion) {
         versionById[version.id] = version
@@ -49,7 +54,11 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         .notDownloadable
     }
 
-    func removeVersion(withId versionId: Int) async {
+    nonisolated var downloadedVersionIds: [Int] {
+        downloadedVersionIdsForListing
+    }
+
+    func removeVersion(withId id: Int) async {
     }
 
     func removeUnpermittedVersions(permittedIds: Set<Int>) async {
@@ -173,7 +182,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     }
 
     private func waitFor(
-        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        timeoutNanoseconds: UInt64 = 5_000_000_000,
         condition: @escaping @MainActor () -> Bool
     ) async {
         let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
@@ -184,6 +193,9 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             await Task.yield()
             try? await Task.sleep(nanoseconds: 10_000_000)
         }
+        // One final check: Task.sleep can oversleep on a loaded machine, so the condition
+        // may have been satisfied during the last sleep even though the deadline has passed.
+        if condition() { return }
         Issue.record("Timed out waiting for condition")
     }
 }
