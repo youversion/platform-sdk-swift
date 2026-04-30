@@ -94,7 +94,6 @@ public struct BibleCardView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .background(backgroundColor)
             .foregroundStyle(foregroundColor)
             .presentationDragIndicator(.visible)
             .presentationDetents([.large])
