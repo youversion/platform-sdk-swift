@@ -157,24 +157,26 @@ public struct BibleReaderHeaderView: View {
     }
 
     private func compactLabelsView(bookAndChapter: String, versionAbbreviation: String) -> some View {
-        HStack(spacing: 8) {
-            Text(bookAndChapter)
-                .font(.system(size: 14, weight: .semibold))
-
-            Divider()
-                .frame(width: 1, height: 14)
-
-            Text(versionAbbreviation)
-                .font(.system(size: 14, weight: .semibold))
-        }
-        .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .frame(height: 24)
-        .contentShape(Rectangle())
-        .onTapGesture {
+        Button {
             withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
                 onCompactTap?()
             }
+        } label: {
+            HStack(spacing: 8) {
+                Text(bookAndChapter)
+                    .font(.system(size: 14, weight: .semibold))
+
+                Divider()
+                    .frame(width: 1, height: 14)
+
+                Text(versionAbbreviation)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .foregroundStyle(viewModel.readerTextPrimaryColor)
+            .frame(height: 24)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
 
 }

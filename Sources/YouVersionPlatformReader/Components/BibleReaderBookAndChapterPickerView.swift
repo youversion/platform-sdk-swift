@@ -82,20 +82,22 @@ public struct BibleReaderBookAndChapterPickerView: View {
     }
 
     private func sectionHeaderView(_ bookCode: String) -> some View {
-        HStack(spacing: 8) {
-            Text(bookNameProvider(bookCode) ?? bookCode)
-                .font(.body)
-            Spacer(minLength: 4)
-            Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
-                .font(.system(size: 14))
-        }
-        .contentShape(Rectangle())
-        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
-        .onTapGesture {
+        Button {
             withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
             }
+        } label: {
+            HStack(spacing: 8) {
+                Text(bookNameProvider(bookCode) ?? bookCode)
+                    .font(.body)
+                Spacer(minLength: 4)
+                Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 14))
+            }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
         .textCase(nil)
     }
 

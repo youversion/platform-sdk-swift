@@ -65,17 +65,19 @@ struct BibleVersionsLanguagesView: View {
                             .padding(.leading)
                     }
                     ForEach(languageCodes, id: \.self) { language in
-                        HStack {
-                            Text(viewModel.languageName(language))
-                            Spacer()
-                        }
-                        .frame(minHeight: 44)
-                        .padding(.horizontal)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
+                        Button {
                             viewModel.chosenLanguage = language
                             viewModel.versionsStackPop()
+                        } label: {
+                            HStack {
+                                Text(viewModel.languageName(language))
+                                Spacer()
+                            }
+                            .frame(minHeight: 44)
+                            .padding(.horizontal)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
