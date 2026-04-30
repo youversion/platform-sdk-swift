@@ -148,7 +148,7 @@ struct BibleVersionsInfoView: View {
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStylePrimary)
+        .buttonStyle(bigButtonStylePrimary)
     }
 
     private var addedButtonSmall: some View {
@@ -168,7 +168,7 @@ struct BibleVersionsInfoView: View {
             .padding()
             .frame(width: width)
         }
-        .buttonStyle(BigButtonStylePrimary)
+        .buttonStyle(bigButtonStylePrimary)
     }
 
     private var downloadButton: some View {
@@ -177,7 +177,7 @@ struct BibleVersionsInfoView: View {
                 .padding()
                 .frame(width: downloadButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
     private var readButton: some View {
@@ -186,7 +186,7 @@ struct BibleVersionsInfoView: View {
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
     private var sampleButton: some View {
@@ -195,10 +195,10 @@ struct BibleVersionsInfoView: View {
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
-    private var BigButtonStylePrimary: some ButtonStyle {
+    private var bigButtonStylePrimary: some ButtonStyle {
         YouVersionBigButtonStyle(
             strokeColor: .clear,
             backgroundColor: viewModel.readerButtonContrastColor,
@@ -206,7 +206,7 @@ struct BibleVersionsInfoView: View {
         )
     }
 
-    private var BigButtonStyleSecondary: some ButtonStyle {
+    private var bigButtonStyleSecondary: some ButtonStyle {
         YouVersionBigButtonStyle(
             strokeColor: viewModel.readerTextMutedColor,
             backgroundColor: viewModel.readerCanvasPrimaryColor,

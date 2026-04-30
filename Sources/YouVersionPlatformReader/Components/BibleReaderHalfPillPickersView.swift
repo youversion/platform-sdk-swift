@@ -23,7 +23,7 @@ struct BibleReaderHalfPillPickersView: View {
                     .padding(.leading, compactMode ? 14 : 16)
                     .padding(.trailing, compactMode ? 12 : 14)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .left))
 
             Rectangle()
@@ -40,7 +40,7 @@ struct BibleReaderHalfPillPickersView: View {
                     .padding(.leading, compactMode ? 12 : 14)
                     .padding(.trailing, compactMode ? 14 : 16)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .right))
         }
         .background(buttonColor)

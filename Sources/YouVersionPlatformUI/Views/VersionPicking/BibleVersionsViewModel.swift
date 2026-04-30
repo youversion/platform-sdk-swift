@@ -177,12 +177,8 @@ public final class BibleVersionsViewModel {
             category: "Reader"
         )
         
-        if let versions {
-            await MainActor.run {
-                if self.permittedVersionsList == nil {
-                    self.permittedVersionsList = versions
-                }
-            }
+        if let versions, permittedVersionsList == nil {
+            permittedVersionsList = versions
         }
         return versions
     }
@@ -212,13 +208,9 @@ public final class BibleVersionsViewModel {
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
                     return a < b
                 }
-                await MainActor.run {
-                    self.versionsInLanguage[code] = sortedVersions
-                }
+                versionsInLanguage[code] = sortedVersions
             }
-            _ = await MainActor.run {
-                versionsBeingFetched.remove(code)
-            }
+            versionsBeingFetched.remove(code)
         }
     }
     

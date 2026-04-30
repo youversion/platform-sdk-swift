@@ -74,7 +74,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     }
                 }
                 .background(viewModel.readerCanvasPrimaryColor)
-                .listStyle(PlainListStyle())
+                .listStyle(.plain)
             }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
@@ -112,7 +112,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }) {
                     chapterListButton(Text(Image("i-icon", bundle: .YouVersionUIBundle)))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
             }
             ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
                 Button(action: {
@@ -121,7 +121,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }) {
                     chapterListButton(Text(label))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, 8)

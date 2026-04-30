@@ -108,7 +108,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .left))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .left)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -128,7 +128,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .right))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .right)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -157,7 +157,7 @@ struct BibleReaderFontSettingsView: View {
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
 
         }
     }

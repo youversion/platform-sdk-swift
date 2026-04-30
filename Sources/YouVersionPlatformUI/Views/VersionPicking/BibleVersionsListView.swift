@@ -32,7 +32,7 @@ public struct BibleVersionsListView: View {
 #endif
                         .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     }
-                    .listStyle(PlainListStyle())
+                    .listStyle(.plain)
                 } else {
                     VStack {
                         Spacer()
