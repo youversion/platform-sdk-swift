@@ -2,51 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [5.0.0](https://github.com/youversion/platform-sdk-swift/compare/4.9.0...5.0.0) (2026-04-30)
+## [4.9.1](https://github.com/youversion/platform-sdk-swift/compare/4.9.0...4.9.1) (2026-04-30)
 
 
-### ⚠ BREAKING CHANGES
+### Bug Fixes
 
-* BibleVersionAPIClient, BibleVersionCaching, and VersionClient have
-  been removed from the public API. BibleVersionRepositoryProtocol now requires
-  downloadedVersionIds. Callers that implemented this protocol or depended on those
-  types must update accordingly.
-
-These classes were never intended to be public, and were not documented, and are unlikely to have been used by anyone, but regardless this is strictly speaking a breaking change.
-- class ChapterDiskCache has been removed
-- class ChapterDownloadCache has been removed
-- class VersionClient has been removed
-- class VersionDiskCache has been removed
-- class VersionDownloadCache has been removed
-- class VersionMemoryCache has been removed
-- constructor BibleVersionRepository.init(apiClient:memoryCache:diskCache:downloadCache:) has been removed
-- protocol BibleVersionAPIClient has been removed
-- protocol BibleVersionCaching has been removed
-- var BibleVersionRepositoryProtocol.downloadedVersionIds has been added as a protocol requirement
-
-* chore: remove unnecessary MainActor decoration, and improve an indent
-
-* test: check before and after various changes are performed
-
-* fix!: remove Observable from BibleVersionRepository and ObservableObject from BibleChapterRepository; they were not truly functional conformances anyway
-
-* fix!: remove ObservableObject from BibleHighlightsViewModel; it wasn't ever functional anyway
-
-* chore: continue previous change to BibleHighlightsViewModel
-
-  YouVersionPlatformCore: 2 breaking changes
-    - typealias BibleHighlightsViewModel.ObjectWillChangePublisher has been removed
-    - class BibleHighlightsViewModel has removed conformance to ObservableObject
-
-* chore: tidy, including changing parameter naming for internal functions
-
-* chore: tidy, add internal protocol for more standard dependency injection
-
-* test: use more standard injection mechanism, and rename to BibleVersionAPIRequestCounter
-
-### Code Refactoring
-
-* make BibleChapterRepository and BibleVersionRepository easily mockable, and add tests ([#92](https://github.com/youversion/platform-sdk-swift/issues/92)) ([d8c29b9](https://github.com/youversion/platform-sdk-swift/commit/d8c29b956cbab5af7c6780565f9cb1e66b4d149b)), closes [#87](https://github.com/youversion/platform-sdk-swift/issues/87)
+* follow device's dark/light color scheme inside BibleCardView's sheets ([9a101a7](https://github.com/youversion/platform-sdk-swift/commit/9a101a75f9a7d8d0eface0de4db52a3404cf1552))
 
 ## [4.9.0](https://github.com/youversion/platform-sdk-swift/compare/4.8.0...4.9.0) (2026-04-22)
 
