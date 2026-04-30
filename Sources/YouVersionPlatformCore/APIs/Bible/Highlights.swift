@@ -116,6 +116,21 @@ public extension YouVersionAPI {
             return decodedResponse.data
         }
 
+        @available(*, deprecated, renamed: "highlights(bibleId:passageId:accessToken:session:)")
+        public static func getHighlights(
+            bibleId: Int,
+            passageId: String,
+            accessToken providedToken: String? = nil,
+            session: URLSession = .shared
+        ) async throws -> [HighlightResponse] {
+            try await highlights(
+                bibleId: bibleId,
+                passageId: passageId,
+                accessToken: providedToken,
+                session: session
+            )
+        }
+
         // MARK: - Update (PUT)
 
         /// Updates an existing Bible highlight on YouVersion.

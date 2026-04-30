@@ -20,6 +20,25 @@ public extension YouVersionAPI {
             return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
         }
 
+        @available(*, deprecated, renamed: "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)")
+        public static func getSignInResult(
+            from callbackURL: URL,
+            state: String,
+            codeVerifier: String,
+            redirectUri: String,
+            nonce: String,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await signInResult(
+                from: callbackURL,
+                state: state,
+                codeVerifier: codeVerifier,
+                redirectUri: redirectUri,
+                nonce: nonce,
+                session: session
+            )
+        }
+
         private static func applySessionHeaders(from session: URLSession, to request: inout URLRequest) {
             guard let additionalHeaders = session.configuration.httpAdditionalHeaders else {
                 return
@@ -216,6 +235,15 @@ public extension YouVersionAPI {
                 permissions: [],
                 yvpUserId: nil
             )
+        }
+
+        @available(*, deprecated, renamed: "refreshSignIn(withToken:idToken:session:)")
+        public static func performRefresh(
+            with refreshToken: String,
+            idToken: String?,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await refreshSignIn(withToken: refreshToken, idToken: idToken, session: session)
         }
 
         private struct RefreshResponse: Codable {

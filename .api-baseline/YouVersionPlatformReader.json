@@ -151,6 +151,98 @@
             "init_kind": "Designated"
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(reference:appName:signInMessage:verseSelectionStyle:onVerseTap:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "deprecated": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Available",
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Var",
             "name": "body",
             "printedName": "body",

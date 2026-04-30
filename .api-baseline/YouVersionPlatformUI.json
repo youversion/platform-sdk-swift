@@ -1263,6 +1263,350 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "fontSystemM",
+            "printedName": "fontSystemM",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontSystemM05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontSystemM05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontSystemM05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontSystemM05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontHeaderM",
+            "printedName": "fontHeaderM",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontHeaderM05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontHeaderM05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontHeaderM05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontHeaderM05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontHeaderS",
+            "printedName": "fontHeaderS",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontHeaderS05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontHeaderS05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO11fontHeaderS05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO11fontHeaderS05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontEyebrowS",
+            "printedName": "fontEyebrowS",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO12fontEyebrowS05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO12fontEyebrowS05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO12fontEyebrowS05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO12fontEyebrowS05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontLabelM",
+            "printedName": "fontLabelM",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO10fontLabelM05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO10fontLabelM05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO10fontLabelM05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO10fontLabelM05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontLabelS",
+            "printedName": "fontLabelS",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO10fontLabelS05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO10fontLabelS05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO10fontLabelS05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO10fontLabelS05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontCaptionsL",
+            "printedName": "fontCaptionsL",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO13fontCaptionsL05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO13fontCaptionsL05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO13fontCaptionsL05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO13fontCaptionsL05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "fontCaptionsS",
+            "printedName": "fontCaptionsS",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Font",
+                "printedName": "SwiftUI.Font",
+                "usr": "s:7SwiftUI4FontV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI0aB5FontsO13fontCaptionsS05SwiftD04FontVvpZ",
+            "mangledName": "$s20YouVersionPlatformUI0aB5FontsO13fontCaptionsS05SwiftD04FontVvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Font",
+                    "printedName": "SwiftUI.Font",
+                    "usr": "s:7SwiftUI4FontV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI0aB5FontsO13fontCaptionsS05SwiftD04FontVvgZ",
+                "mangledName": "$s20YouVersionPlatformUI0aB5FontsO13fontCaptionsS05SwiftD04FontVvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "preferredBibleTextFont",
             "printedName": "preferredBibleTextFont(size:)",
@@ -2106,6 +2450,146 @@
                 "accessorKind": "get"
               }
             ]
+          },
+          {
+            "kind": "Function",
+            "name": "viewFromHtml",
+            "printedName": "viewFromHtml(html:reference:textOptions:onVerseTap:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(some SwiftUI.View)?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleTextOptions",
+                "printedName": "YouVersionPlatformUI.BibleTextOptions",
+                "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.BibleTextView.VerseTapAction?",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "VerseTapAction",
+                    "printedName": "YouVersionPlatformUI.BibleTextView.VerseTapAction",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(YouVersionPlatformCore.BibleReference, Swift.String, [YouVersionPlatformUI.BibleFootnote], Swift.String?) -> Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(YouVersionPlatformCore.BibleReference, Swift.String, [YouVersionPlatformUI.BibleFootnote], Swift.String?)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "BibleReference",
+                                "printedName": "YouVersionPlatformCore.BibleReference",
+                                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "String",
+                                "printedName": "Swift.String",
+                                "usr": "s:SS"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Array",
+                                "printedName": "[YouVersionPlatformUI.BibleFootnote]",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "BibleFootnote",
+                                    "printedName": "YouVersionPlatformUI.BibleFootnote",
+                                    "usr": "s:20YouVersionPlatformUI13BibleFootnoteV"
+                                  }
+                                ],
+                                "usr": "s:Sa"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Optional",
+                                "printedName": "Swift.String?",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "String",
+                                    "printedName": "Swift.String",
+                                    "usr": "s:SS"
+                                  }
+                                ],
+                                "usr": "s:Sq"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI13BibleTextViewV12viewFromHtml4html9reference11textOptions10onVerseTapQrSgSS_0abC4Core0E9ReferenceVAA0efN0VyAL_SSSayAA0E8FootnoteVGSSSgtcSgtFZ",
+            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV12viewFromHtml4html9reference11textOptions10onVerseTapQrSgSS_0abC4Core0E9ReferenceVAA0efN0VyAL_SSSayAA0E8FootnoteVGSSSgtcSgtFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Available",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "TypeAlias",
@@ -2978,6 +3462,251 @@
             "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV10fontFamily0H4Size11lineSpacing09paragraphL09textColor011verseNumberO0013wordsOfChristO015renderHeadlines0U12VerseNumbers12footnoteMode0Y6Marker0P14SelectionStyleACSS_14CoreFoundation7CGFloatVARSgAS05SwiftD00O0VSgAwVS2bAA0ef8FootnoteZ0OAA0E16AttributedStringCSgAA0W14SelectionStyleVtcfc",
             "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV10fontFamily0H4Size11lineSpacing09paragraphL09textColor011verseNumberO0013wordsOfChristO015renderHeadlines0U12VerseNumbers12footnoteMode0Y6Marker0P14SelectionStyleACSS_12CoreGraphics7CGFloatVARSgAS05SwiftD00O0VSgAwVS2bAA0ef8FootnoteZ0OAA0E16AttributedStringCSgAA0W14SelectionStyleVtcfc",
             "moduleName": "YouVersionPlatformUI",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "verseNumColor",
+            "printedName": "verseNumColor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Color?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV13verseNumColor05SwiftD00J0VSgvp",
+            "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV13verseNumColor05SwiftD00J0VSgvp",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "SwiftUI.Color?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Color",
+                        "printedName": "SwiftUI.Color",
+                        "usr": "s:7SwiftUI5ColorV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV13verseNumColor05SwiftD00J0VSgvg",
+                "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV13verseNumColor05SwiftD00J0VSgvg",
+                "moduleName": "YouVersionPlatformUI",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "wocColor",
+            "printedName": "wocColor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV8wocColor05SwiftD00I0Vvp",
+            "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV8wocColor05SwiftD00I0Vvp",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV8wocColor05SwiftD00I0Vvg",
+                "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV8wocColor05SwiftD00I0Vvg",
+                "moduleName": "YouVersionPlatformUI",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(fontFamily:fontSize:lineSpacing:paragraphSpacing:textColor:verseNumColor:wocColor:renderHeadlines:renderVerseNumbers:footnoteMode:footnoteMarker:verseSelectionStyle:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleTextOptions",
+                "printedName": "YouVersionPlatformUI.BibleTextOptions",
+                "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "hasDefaultArg": true,
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "CGFloat",
+                "printedName": "CoreGraphics.CGFloat",
+                "hasDefaultArg": true,
+                "usr": "s:14CoreFoundation7CGFloatV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "CoreGraphics.CGFloat?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CGFloat",
+                    "printedName": "CoreGraphics.CGFloat",
+                    "usr": "s:14CoreFoundation7CGFloatV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "CoreGraphics.CGFloat?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CGFloat",
+                    "printedName": "CoreGraphics.CGFloat",
+                    "usr": "s:14CoreFoundation7CGFloatV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Color?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Color?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "hasDefaultArg": true,
+                "usr": "s:7SwiftUI5ColorV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleTextFootnoteMode",
+                "printedName": "YouVersionPlatformUI.BibleTextFootnoteMode",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI21BibleTextFootnoteModeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.BibleAttributedString?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleAttributedString",
+                    "printedName": "YouVersionPlatformUI.BibleAttributedString",
+                    "usr": "s:20YouVersionPlatformUI21BibleAttributedStringC"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20YouVersionPlatformUI16BibleTextOptionsV10fontFamily0H4Size11lineSpacing09paragraphL09textColor08verseNumO003wocO015renderHeadlines0S12VerseNumbers12footnoteMode0W6Marker0P14SelectionStyleACSS_14CoreFoundation7CGFloatVARSgAS05SwiftD00O0VSgAwVS2bAA0ef8FootnoteX0OAA0E16AttributedStringCSgAA0uZ5StyleVtcfc",
+            "mangledName": "$s20YouVersionPlatformUI16BibleTextOptionsV10fontFamily0H4Size11lineSpacing09paragraphL09textColor08verseNumO003wocO015renderHeadlines0S12VerseNumbers12footnoteMode0W6Marker0P14SelectionStyleACSS_12CoreGraphics7CGFloatVARSgAS05SwiftD00O0VSgAwVS2bAA0ef8FootnoteX0OAA0E16AttributedStringCSgAA0uZ5StyleVtcfc",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "DisfavoredOverload",
+              "Available"
+            ],
             "init_kind": "Designated"
           }
         ],
@@ -12547,6 +13276,113 @@
             "printedName": "TextOutputStreamable",
             "usr": "s:s20TextOutputStreamableP",
             "mangledName": "$ss20TextOutputStreamableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "View",
+        "printedName": "View",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "if",
+            "printedName": "if(_:transform:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Self) -> Content",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Content"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Self"
+                  }
+                ],
+                "typeAttributes": [
+                  "noescape"
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:7SwiftUI4ViewP018YouVersionPlatformB0E2if_9transformQrSb_qd__xXEtAaBRd__lF",
+            "mangledName": "$s7SwiftUI4ViewP018YouVersionPlatformB0E2if_9transformQrSb_qd__xXEtAaBRd__lF",
+            "moduleName": "YouVersionPlatformUI",
+            "genericSig": "<Self, Content where Self : SwiftUI.View, Content : SwiftUI.View>",
+            "deprecated": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Available",
+              "Custom",
+              "Custom"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:7SwiftUI4ViewP",
+        "mangledName": "$s7SwiftUI4ViewP",
+        "moduleName": "SwiftUICore",
+        "genericSig": "<Self.Body : SwiftUI.View>",
+        "intro_Macosx": "10.15",
+        "intro_iOS": "13.0",
+        "intro_tvOS": "13.0",
+        "intro_watchOS": "6.0",
+        "declAttributes": [
+          "Preconcurrency",
+          "TypeEraser",
+          "TypeEraser",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "Available",
+          "Available",
+          "Available",
+          "Available",
+          "Custom"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
           }
         ]
       },

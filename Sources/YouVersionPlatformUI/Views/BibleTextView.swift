@@ -204,6 +204,16 @@ public struct BibleTextView: View {
         }
     }
 
+    @available(*, deprecated, renamed: "init(html:reference:textOptions:onVerseTap:)")
+    public static func viewFromHtml(
+        html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions,
+        onVerseTap: VerseTapAction? = nil
+    ) -> (some View)? {
+        BibleTextView(html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap)
+    }
+
     private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {
         let height = 80.0
         let v = Group {
@@ -281,6 +291,42 @@ public struct BibleTextOptions {
         self.footnoteMode = footnoteMode
         self.footnoteMarker = footnoteMarker
         self.verseSelectionStyle = verseSelectionStyle
+    }
+
+    @available(*, deprecated, renamed: "verseNumberColor")
+    public var verseNumColor: Color? { verseNumberColor }
+
+    @available(*, deprecated, renamed: "wordsOfChristColor")
+    public var wocColor: Color { wordsOfChristColor }
+
+    @available(*, deprecated, message: "Use init(... verseNumberColor: ..., wordsOfChristColor: ...) instead.")
+    @_disfavoredOverload
+    public init(fontFamily: String = "Times New Roman",
+                fontSize: CGFloat = 16,
+                lineSpacing: CGFloat? = nil,
+                paragraphSpacing: CGFloat? = nil,
+                textColor: Color? = nil,
+                verseNumColor: Color? = nil,
+                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),
+                renderHeadlines: Bool = true,
+                renderVerseNumbers: Bool = true,
+                footnoteMode: BibleTextFootnoteMode = .none,
+                footnoteMarker: BibleAttributedString? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid) {
+        self.init(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            paragraphSpacing: paragraphSpacing,
+            textColor: textColor,
+            verseNumberColor: verseNumColor,
+            wordsOfChristColor: wocColor,
+            renderHeadlines: renderHeadlines,
+            renderVerseNumbers: renderVerseNumbers,
+            footnoteMode: footnoteMode,
+            footnoteMarker: footnoteMarker,
+            verseSelectionStyle: verseSelectionStyle
+        )
     }
 }
 
