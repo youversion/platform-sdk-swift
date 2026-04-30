@@ -29,16 +29,11 @@ actor ChapterMemoryCache {
     }
 }
 
-/// ChapterDiskCache manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
-@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
-public actor ChapterDiskCache {
+/// Manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
+actor BibleChapterDiskCache {
     private let storage: BibleContentStorage
 
-    public init() {
-        self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
-    }
-
-    init(directoryProvider: BibleContentDirectoryProviding) {
+    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
         storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
@@ -57,7 +52,7 @@ public actor ChapterDiskCache {
             try storage.writeString(content, to: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
         } catch {
             YouVersionPlatformLogger.notice(
-                "ChapterDiskCache failed to write data: \(error.localizedDescription)",
+                "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
                 category: "ChapterCache"
             )
         }
@@ -68,28 +63,18 @@ public actor ChapterDiskCache {
             try storage.remove(.chaptersDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
-                "ChapterDiskCache got error while removing: \(error.localizedDescription)",
+                "BibleChapterDiskCache got error while removing: \(error.localizedDescription)",
                 category: "ChapterCache"
             )
         }
     }
-
-    @available(*, deprecated, message: "Use BibleChapterRepository.removeVersion(withId:) instead.")
-    public func removeVersion(versionId: Int) async {
-        removeVersion(withId: versionId)
-    }
 }
 
-/// ChapterDownloadCache manages the chapter files of Bible versions which the user chose to download, e.g. for offline usage.
-@available(*, deprecated, message: "Internal SDK type. This class will be removed in a future major version.")
-public actor ChapterDownloadCache {
+/// Manages the chapter files of Bible versions which the user chose to download, e.g. for offline usage.
+actor BibleChapterDownloadCache {
     private let storage: BibleContentStorage
 
-    public init() {
-        self.init(directoryProvider: DefaultBibleContentDirectoryProvider())
-    }
-
-    init(directoryProvider: BibleContentDirectoryProviding) {
+    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
         storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
@@ -100,7 +85,7 @@ public actor ChapterDownloadCache {
         return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
     }
 
-    nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
+    nonisolated func chaptersArePresent(versionId: Int) -> Bool {
         storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
     }
 
@@ -109,15 +94,10 @@ public actor ChapterDownloadCache {
             try storage.remove(.chaptersDirectory(versionId: id))
         } catch {
             YouVersionPlatformLogger.notice(
-                "ChapterDownloadCache got error while removing: \(error.localizedDescription)",
+                "BibleChapterDownloadCache got error while removing: \(error.localizedDescription)",
                 category: "ChapterCache"
             )
         }
-    }
-
-    @available(*, deprecated, message: "Use BibleChapterRepository.removeVersion(withId:) instead.")
-    public func removeVersion(versionId: Int) async {
-        removeVersion(withId: versionId)
     }
 }
 
@@ -139,8 +119,8 @@ public actor BibleChapterRepository: ObservableObject {
 
     private let provider: BibleChapterContentProviding
     private let memoryCache: ChapterMemoryCache
-    private let diskCache: ChapterDiskCache
-    private let downloadCache: ChapterDownloadCache
+    private let diskCache: BibleChapterDiskCache
+    private let downloadCache: BibleChapterDownloadCache
 
     public init() {
         self.init(
@@ -155,8 +135,8 @@ public actor BibleChapterRepository: ObservableObject {
     ) {
         self.provider = provider
         self.memoryCache = ChapterMemoryCache()
-        self.diskCache = ChapterDiskCache(directoryProvider: directoryProvider)
-        self.downloadCache = ChapterDownloadCache(directoryProvider: directoryProvider)
+        self.diskCache = BibleChapterDiskCache(directoryProvider: directoryProvider)
+        self.downloadCache = BibleChapterDownloadCache(directoryProvider: directoryProvider)
     }
 
     public func chapter(withReference reference: BibleReference) async throws -> String {

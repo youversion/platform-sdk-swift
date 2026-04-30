@@ -55,7 +55,7 @@ struct BibleChapterRepositoryTests {
     func chapterReturnsDiskContentAndWarmsMemory() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
         await diskCache.addChapterContent("<div>disk</div>", reference: reference)
 
         let content = try await repository.chapter(withReference: reference)
@@ -86,7 +86,7 @@ struct BibleChapterRepositoryTests {
     func chapterLoadsFromAPIWhenNotCachedAndStoresOnDisk() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
 
         let content = try await repository.chapter(withReference: reference)
         let diskContent = await diskCache.chapterContent(withReference: reference)
@@ -101,7 +101,7 @@ struct BibleChapterRepositoryTests {
     func chapterUsesMemoryCacheOnSubsequentCalls() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
 
         let first = try await repository.chapter(withReference: reference)
         await diskCache.removeVersion(withId: reference.versionId)
@@ -117,7 +117,7 @@ struct BibleChapterRepositoryTests {
         let api = BibleChapterAPIRequestCounter(result: "<div>server</div>", error: TestChapterError.network)
         let (repository, _, storage) = try makeRepository(apiCounter: api)
         defer { storage.remove() }
-        let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
 
         await #expect(throws: TestChapterError.network) {
             _ = try await repository.chapter(withReference: reference)
@@ -144,7 +144,7 @@ struct BibleChapterRepositoryTests {
     func removeVersionClearsAllCaches() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = ChapterDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
 
         await diskCache.addChapterContent("<div>disk</div>", reference: reference)
         try writeDownloadedChapterContent("<div>download</div>", reference: reference, storage: storage)

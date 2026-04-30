@@ -73,7 +73,7 @@ public final class BibleVersionsViewModel {
         }
 
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        for id in VersionDownloadCache.downloadedVersions where !myVersions.contains(where: { $0.id == id }) {
+        for id in BibleVersionRepository.defaultDownloadedVersionIds where !myVersions.contains(where: { $0.id == id }) {
             if let version = try? await versionRepository.versionIfCached(id) {
                 myVersions.insert(version)
             }
@@ -127,7 +127,7 @@ public final class BibleVersionsViewModel {
     /// - Returns: A fallback version ID, or `nil` if no version is available
     ///   (typically because the device is offline).
     private func fallbackVersion(savedIds: Set<Int>) async -> Int? {
-        let downloadedVersionIds = VersionDownloadCache.downloadedVersions
+        let downloadedVersionIds = BibleVersionRepository.defaultDownloadedVersionIds
         if let downloadedVersionId = downloadedVersionIds.first {
             return downloadedVersionId
         }
