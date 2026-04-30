@@ -27,6 +27,6 @@ public final class VersionClient: BibleVersionAPIClient {
     public init() {}
 
     public func version(withId id: Int) async throws -> BibleVersion {
-        try await YouVersionAPI.Bible.version(versionId: id)
+        try await YouVersionAPI.Bible.version(withId: id)
     }
 }

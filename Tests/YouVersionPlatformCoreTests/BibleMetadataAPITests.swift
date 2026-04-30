@@ -23,7 +23,7 @@ import Testing
             return (expectedData, response)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 206, accessToken: "swift-test-suite", session: session)
+        let version = try await YouVersionAPI.Bible.metadataForVersion(withId: 206, accessToken: "swift-test-suite", session: session)
 
         #expect(version.id == 206)
         let _ = try #require(capturedRequest)
@@ -40,7 +40,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.notPermitted) {
-            _ = try await YouVersionAPI.Bible.version(versionId: 206, accessToken: "swift-test-suite", session: session)
+            _ = try await YouVersionAPI.Bible.version(withId: 206, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -55,7 +55,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.cannotDownload) {
-            _ = try await YouVersionAPI.Bible.version(versionId: 206, accessToken: "swift-test-suite", session: session)
+            _ = try await YouVersionAPI.Bible.version(withId: 206, accessToken: "swift-test-suite", session: session)
         }
     }
 
@@ -70,7 +70,7 @@ import Testing
         }
 
         await #expect(throws: YouVersionAPIError.invalidResponse) {
-            _ = try await YouVersionAPI.Bible.version(versionId: 206, accessToken: "swift-test-suite", session: session)
+            _ = try await YouVersionAPI.Bible.version(withId: 206, accessToken: "swift-test-suite", session: session)
         }
     }
 }

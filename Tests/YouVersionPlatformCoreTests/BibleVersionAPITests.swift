@@ -8,7 +8,7 @@ import Testing
 @Suite(.serialized) struct BibleVersionAPITests {
 
     @MainActor
-    @Test func basicVersionDecodes() async throws {
+    @Test func metadataForVersionDecodes() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -22,7 +22,7 @@ import Testing
             return (json, resp)
         }
 
-        let version = try await YouVersionAPI.Bible.basicVersion(versionId: 1, accessToken: "swift-test-suite", session: session)
+        let version = try await YouVersionAPI.Bible.metadataForVersion(withId: 1, accessToken: "swift-test-suite", session: session)
         #expect(version.id == 1)
         #expect(version.title == "Test Version")
         #expect(version.languageTag == "en")
@@ -63,7 +63,7 @@ import Testing
             }
         }
 
-        let v = try await YouVersionAPI.Bible.version(versionId: 1, accessToken: "swift-test-suite", session: session)
+        let v = try await YouVersionAPI.Bible.version(withId: 1, accessToken: "swift-test-suite", session: session)
         #expect(v.id == 1)
         #expect(v.textDirection == "ltr")
         let gen = v.books?.first
