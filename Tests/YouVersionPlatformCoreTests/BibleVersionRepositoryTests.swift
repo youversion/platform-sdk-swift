@@ -68,7 +68,7 @@ struct BibleVersionRepositoryTests {
     func versionIfCachedReturnsDiskVersionAndWarmsMemory() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
         await diskCache.addVersion(Self.fixture)
 
         let cached = try await repository.versionIfCached(Self.fixture.id)
@@ -85,7 +85,7 @@ struct BibleVersionRepositoryTests {
     func versionIfCachedReturnsDownloadVersionAndWarmsMemory() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
         await downloadCache.addVersion(Self.fixture)
 
         let cached = try await repository.versionIfCached(Self.fixture.id)
@@ -104,7 +104,7 @@ struct BibleVersionRepositoryTests {
     func versionLoadsFromAPIWhenNotCachedAndStoresOnDisk() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
 
         let version = try await repository.version(withId: Self.fixture.id)
         let diskVersion = await diskCache.version(withId: Self.fixture.id)
@@ -121,7 +121,7 @@ struct BibleVersionRepositoryTests {
     func versionUsesMemoryCacheOnSubsequentCalls() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
 
         let first = try await repository.version(withId: Self.fixture.id)
         await diskCache.removeVersion(withId: Self.fixture.id)
@@ -137,7 +137,7 @@ struct BibleVersionRepositoryTests {
     func versionRefetchesAfterCachesAreCleared() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
 
         let initial = try await repository.version(withId: Self.fixture.id)
         #expect(initial.copyright == Self.fixture.copyright)
@@ -159,7 +159,7 @@ struct BibleVersionRepositoryTests {
     func downloadVersionDoesNotFetchWhenAlreadyDownloaded() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
         await downloadCache.addVersion(Self.fixture)
 
         try await repository.downloadVersion(withId: Self.fixture.id)
@@ -172,8 +172,8 @@ struct BibleVersionRepositoryTests {
     func downloadVersionFetchesWhenNotDownloaded() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         try await repository.downloadVersion(withId: Self.fixture.id)
 
@@ -188,7 +188,7 @@ struct BibleVersionRepositoryTests {
     func diskCacheVersionIsPresentReflectsStoredMetadata() async throws {
         let storage = try RepositoryTemporaryStorage()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
 
         #expect(diskCache.versionIsPresent(for: Self.fixture.id) == false)
 
@@ -201,7 +201,7 @@ struct BibleVersionRepositoryTests {
     func versionIsPresentReflectsDownloadCache() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         #expect(await repository.versionIsPresent(for: Self.fixture.id) == false)
 
@@ -215,7 +215,7 @@ struct BibleVersionRepositoryTests {
     func downloadStatusReflectsDownloadCache() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         #expect(repository.downloadStatus(for: Self.fixture.id) == .notDownloadable)
 
@@ -233,7 +233,7 @@ struct BibleVersionRepositoryTests {
     func downloadedVersionIdsReflectDownloadCache() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         #expect(repository.downloadedVersionIds == [])
 
@@ -247,8 +247,8 @@ struct BibleVersionRepositoryTests {
     func removeVersionClearsAllCaches() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         _ = try await repository.version(withId: Self.fixture.id)
         await downloadCache.addVersion(Self.fixture)
@@ -266,8 +266,8 @@ struct BibleVersionRepositoryTests {
     func removeUnpermittedVersionsRemovesStoredVersionsAndMemoryCache() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
-        let diskCache = VersionDiskCache(directoryProvider: storage.provider)
-        let downloadCache = VersionDownloadCache(directoryProvider: storage.provider)
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+        let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
         _ = try await repository.version(withId: Self.fixture.id)
         await downloadCache.addVersion(Self.fixture)

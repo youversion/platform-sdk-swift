@@ -2,7 +2,7 @@
 
 ![Platform](https://img.shields.io/badge/Platform-IOS-red)
 [![License](https://img.shields.io/badge/license-Apache-blue.svg)](LICENSE)
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/youversion/platform-sdk-swift/main/.github/badges/coverage.json)](./CONTRIBUTING.md#code-coverage)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/youversion/platform-sdk-swift/badges/coverage.json)](./CONTRIBUTING.md#code-coverage)
 
 # YouVersion Platform SDK for Swift
 
