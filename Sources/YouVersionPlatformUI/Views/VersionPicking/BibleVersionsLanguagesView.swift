@@ -83,12 +83,13 @@ struct BibleVersionsLanguagesView: View {
             }
 
         }
-        .onAppear {
+        .task(id: viewModel.colorTheme) {
 #if canImport(UIKit)
-            UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
-            UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
-            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
-            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
+            let appearance = UISegmentedControl.appearance()
+            appearance.tintColor = UIColor(viewModel.readerButtonPrimaryColor)
+            appearance.selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
+            appearance.setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
+            appearance.setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
 #endif
         }
         #if os(iOS)
