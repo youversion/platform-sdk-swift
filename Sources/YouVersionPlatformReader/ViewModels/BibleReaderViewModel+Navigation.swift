@@ -24,8 +24,12 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking to prevent chrome from hiding due to content change
+        // Reset scroll tracking and restore chrome so the new chapter lands
+        // in the same initial state as a fresh open. Without this, chrome
+        // stays hidden after a navigation tap that scrolls cached content
+        // back to minY = 0, since onGeometryChange won't fire again.
         lastScrollOffset = 0
+        showChrome = true
         scrollToTop = true
     }
 
@@ -52,8 +56,12 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking to prevent chrome from hiding due to content change
+        // Reset scroll tracking and restore chrome so the new chapter lands
+        // in the same initial state as a fresh open. Without this, chrome
+        // stays hidden after a navigation tap that scrolls cached content
+        // back to minY = 0, since onGeometryChange won't fire again.
         lastScrollOffset = 0
+        showChrome = true
         scrollToTop = true
     }
 
@@ -223,8 +231,12 @@ extension BibleReaderViewModel {
             self.reference = reference
             self.showBookIntro = showIntro
 
-            // Reset scroll tracking to prevent chrome from hiding due to content change
+            // Reset scroll tracking and restore chrome so the new chapter lands
+            // in the same initial state as a fresh open. Without this, chrome
+            // stays hidden after a navigation tap that scrolls cached content
+            // back to minY = 0, since onGeometryChange won't fire again.
             lastScrollOffset = 0
+            showChrome = true
             scrollToTop = true
         } catch {
             YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "Reader")
