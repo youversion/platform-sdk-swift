@@ -26,7 +26,8 @@ extension BibleVersionsViewModel {
         return .notDownloadable
     }
 
-    public func switchToVersion(_ versionId: Int) {
+    @discardableResult
+    public func switchToVersion(_ versionId: Int) -> Task<Void, Never> {
         Task {
             do {
                 let version = try await versionRepository.version(withId: versionId)
@@ -37,7 +38,8 @@ extension BibleVersionsViewModel {
         }
     }
 
-    public func handleVersionPickerTap(_ versionId: Int) {
+    @discardableResult
+    public func handleVersionPickerTap(_ versionId: Int) -> Task<Void, Never> {
         Task {
             do {
                 showFullProgressViewOverlay = true

@@ -78,8 +78,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.switchToVersion(version.id)
-        await waitFor { changedVersion == version }
+        await viewModel.switchToVersion(version.id).value
 
         #expect(changedVersion == version)
         #expect(viewModel.showGenericAlert == false)
@@ -94,8 +93,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.switchToVersion(111)
-        await waitFor { viewModel.showGenericAlert }
+        await viewModel.switchToVersion(111).value
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
@@ -112,8 +110,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.handleVersionPickerTap(version.id)
-        await waitFor { viewModel.selectedVersion == version }
+        await viewModel.handleVersionPickerTap(version.id).value
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -131,8 +128,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.myVersionMoreInfoMenuTapped(version.id)
-        await waitFor { viewModel.selectedVersion == version }
+        await viewModel.myVersionMoreInfoMenuTapped(version.id).value
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -147,8 +143,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.myVersionDownloadMenuTapped(444)
-        await waitFor { viewModel.showGenericAlert }
+        await viewModel.myVersionDownloadMenuTapped(444).value
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
@@ -172,23 +167,5 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             books: nil,
             textDirection: "ltr"
         )
-    }
-
-    private func waitFor(
-        timeoutNanoseconds: UInt64 = 5_000_000_000,
-        condition: @escaping @MainActor () -> Bool
-    ) async {
-        let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
-        while DispatchTime.now().uptimeNanoseconds < deadline {
-            if condition() {
-                return
-            }
-            await Task.yield()
-            try? await Task.sleep(nanoseconds: 10_000_000)
-        }
-        // One final check: Task.sleep can oversleep on a loaded machine, so the condition
-        // may have been satisfied during the last sleep even though the deadline has passed.
-        if condition() { return }
-        Issue.record("Timed out waiting for condition")
     }
 }

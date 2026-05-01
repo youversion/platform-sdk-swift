@@ -8,7 +8,8 @@ extension BibleVersionsViewModel {
         showingVersionsStack = false
     }
 
-    public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
+    @discardableResult
+    public func myVersionMoreInfoMenuTapped(_ versionId: Int) -> Task<Void, Never> {
         Task {
             do {
                 selectedVersion = try await versionRepository.version(withId: versionId)
@@ -34,7 +35,8 @@ extension BibleVersionsViewModel {
         }
     }
 
-    public func myVersionDownloadMenuTapped(_ versionId: Int) {
+    @discardableResult
+    public func myVersionDownloadMenuTapped(_ versionId: Int) -> Task<Void, Never> {
         Task {
             if let version = try? await versionRepository.version(withId: versionId) {
                 conditionalDownloadButtonTapped(version: version)
