@@ -7,9 +7,7 @@ struct BibleReaderNavButtons: View {
 
     var body: some View {
         HStack {
-            Button(action: {
-                viewModel.goToPreviousChapter()
-            }) {
+            Button(action: viewModel.goToPreviousChapter) {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)
@@ -21,9 +19,7 @@ struct BibleReaderNavButtons: View {
                 }
             }
             Spacer()
-            Button(action: {
-                viewModel.goToNextChapter()
-            }) {
+            Button(action: viewModel.goToNextChapter) {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)

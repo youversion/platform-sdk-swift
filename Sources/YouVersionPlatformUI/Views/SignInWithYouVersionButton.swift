@@ -133,7 +133,7 @@ private struct SignInWithYouVersionButtonStyle: ButtonStyle {
                 )
         } else {
             content
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(.rect(cornerRadius: 4))
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
                         .stroke(strokeColor, lineWidth: strokeWidth)

@@ -13,7 +13,7 @@ struct BibleReaderHalfPillPickersView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Button(action: { handleChapterTap() }) {
+            Button(action: handleChapterTap) {
                 Text(bookAndChapter)
                     .font(.system(size: compactMode ? 10 : 14, weight: .semibold))
                     .foregroundStyle(foregroundColor)
@@ -31,7 +31,7 @@ struct BibleReaderHalfPillPickersView: View {
                 .background(backgroundColor)
                 .overlay(backgroundColor)
 
-            Button(action: { handleVersionTap() }) {
+            Button(action: handleVersionTap) {
                 Text(versionAbbreviation)
                     .font(.system(size: compactMode ? 10 : 14, weight: .semibold))
                     .foregroundStyle(foregroundColor)

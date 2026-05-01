@@ -113,6 +113,8 @@ extension BibleTextView {
         }
 
         let retValue = textCombo
+            // Verse runs carry link attributes (for OpenURLAction tap routing), so the
+            // effective text color comes from .tint, not .foregroundStyle.
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)

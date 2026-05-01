@@ -143,7 +143,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private var addButton: some View {
-        Button(action: { viewModel.versionInfoSheetAdd() }) {
+        Button(action: viewModel.versionInfoSheetAdd) {
             Text(String.localized("versionInfo.addButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
@@ -160,7 +160,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private func addedButtonCore(width: CGFloat) -> some View {
-        Button(action: { viewModel.versionInfoSheetAdded() }) {
+        Button(action: viewModel.versionInfoSheetAdded) {
             HStack {
                 Image(systemName: "checkmark")
                 Text(String.localized("versionInfo.addedButton"))
@@ -172,7 +172,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private var downloadButton: some View {
-        Button(action: { viewModel.versionInfoSheetDownload() }) {
+        Button(action: viewModel.versionInfoSheetDownload) {
             Image(systemName: "arrow.down.to.line.compact")
                 .padding()
                 .frame(width: downloadButtonWidth)
@@ -181,7 +181,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private var readButton: some View {
-        Button(action: { viewModel.versionInfoSheetRead() }) {
+        Button(action: viewModel.versionInfoSheetRead) {
             Text(String.localized("versionInfo.readButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
@@ -190,7 +190,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private var sampleButton: some View {
-        Button(action: { viewModel.versionInfoSheetSample() }) {
+        Button(action: viewModel.versionInfoSheetSample) {
             Text(String.localized("versionInfo.sampleButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
