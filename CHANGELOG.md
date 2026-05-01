@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.0](https://github.com/youversion/platform-sdk-swift/compare/4.9.1...5.0.0) (2026-05-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* BibleVersionAPIClient, BibleVersionCaching, and VersionClient have
+  been removed from the public API. BibleVersionRepositoryProtocol now requires
+  downloadedVersionIds. Callers that implemented this protocol or depended on those
+  types must update accordingly.
+
+These classes were never intended to be public, and were not documented, and are unlikely to have been used by anyone, but regardless this is strictly speaking a breaking change.
+- class ChapterDiskCache has been removed
+- class ChapterDownloadCache has been removed
+- class VersionClient has been removed
+- class VersionDiskCache has been removed
+- class VersionDownloadCache has been removed
+- class VersionMemoryCache has been removed
+- constructor BibleVersionRepository.init(apiClient:memoryCache:diskCache:downloadCache:) has been removed
+- protocol BibleVersionAPIClient has been removed
+- protocol BibleVersionCaching has been removed
+- var BibleVersionRepositoryProtocol.downloadedVersionIds has been added as a protocol requirement
+
+* chore: remove unnecessary MainActor decoration, and improve an indent
+
+* test: check before and after various changes are performed
+
+* fix!: remove Observable from BibleVersionRepository and ObservableObject from BibleChapterRepository; they were not truly functional conformances anyway
+
+* fix!: remove ObservableObject from BibleHighlightsViewModel; it wasn't ever functional anyway
+
+* chore: continue previous change to BibleHighlightsViewModel
+
+  YouVersionPlatformCore: 2 breaking changes
+    - typealias BibleHighlightsViewModel.ObjectWillChangePublisher has been removed
+    - class BibleHighlightsViewModel has removed conformance to ObservableObject
+
+* chore: tidy, including changing parameter naming for internal functions
+
+* chore: tidy, add internal protocol for more standard dependency injection
+
+* test: use more standard injection mechanism, and rename to BibleVersionAPIRequestCounter
+
+### Bug Fixes
+
+* reader chrome hides/shows on scroll ([#96](https://github.com/youversion/platform-sdk-swift/issues/96)) ([f467a9b](https://github.com/youversion/platform-sdk-swift/commit/f467a9b692d950848c7feae80cadb51f1f5c42df))
+
+
+### Code Refactoring
+
+* SwiftUI idioms, naming guidelines ([#90](https://github.com/youversion/platform-sdk-swift/issues/90)) ([2935348](https://github.com/youversion/platform-sdk-swift/commit/293534854c0402e6e4fd6fea2298a934e8aa5a45)), closes [#87](https://github.com/youversion/platform-sdk-swift/issues/87)
+
 ## [4.9.1](https://github.com/youversion/platform-sdk-swift/compare/4.9.0...4.9.1) (2026-04-30)
 
 

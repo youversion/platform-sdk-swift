@@ -11,30 +11,33 @@ public struct BibleVersionsListView: View {
                 Color.clear.frame(height: 72)
             }
             searchInput
-            languageDisplay
-                .onTapGesture {
-                    viewModel.languageTapped()
-                }
+            Button {
+                viewModel.languageTapped()
+            } label: {
+                languageDisplay
+            }
+            .buttonStyle(.plain)
             Group {
                 if let versions = filteredVersions {
                     List(versions, id: \.id) { v in
-                        BibleVersionOverviewListItem(item: v)
-                            .listRowBackground(viewModel.readerCanvasPrimaryColor)
+                        Button {
+                            viewModel.handleVersionPickerTap(v.id)
+                        } label: {
+                            BibleVersionOverviewListItem(item: v)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowBackground(viewModel.readerCanvasPrimaryColor)
 #if !os(tvOS)
-                            .listRowSeparator(.hidden)
+                        .listRowSeparator(.hidden)
 #endif
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .onTapGesture {
-                                viewModel.handleVersionPickerTap(v.id)
-                            }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     }
-                    .listStyle(PlainListStyle())
+                    .listStyle(.plain)
                 } else {
                     VStack {
                         Spacer()
                         ProgressView()
                             .tint(viewModel.readerTextMutedColor)
-                        Spacer()
                         Spacer()
                     }
                 }

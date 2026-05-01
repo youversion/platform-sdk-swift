@@ -9,7 +9,7 @@ public struct BibleReaderIntroView: View {
     public var body: some View {
         VStack {
             if let html {
-                BibleTextView.viewFromHtml(
+                BibleTextView(
                     html: html,
                     reference: viewModel.reference,
                     textOptions: viewModel.textOptions,

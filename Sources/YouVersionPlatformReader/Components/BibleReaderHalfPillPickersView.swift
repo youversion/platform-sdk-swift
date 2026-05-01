@@ -13,7 +13,7 @@ struct BibleReaderHalfPillPickersView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Button(action: { handleChapterTap() }) {
+            Button(action: handleChapterTap) {
                 Text(bookAndChapter)
                     .font(.system(size: compactMode ? 10 : 14, weight: .semibold))
                     .foregroundStyle(foregroundColor)
@@ -23,7 +23,7 @@ struct BibleReaderHalfPillPickersView: View {
                     .padding(.leading, compactMode ? 14 : 16)
                     .padding(.trailing, compactMode ? 12 : 14)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .left))
 
             Rectangle()
@@ -31,7 +31,7 @@ struct BibleReaderHalfPillPickersView: View {
                 .background(backgroundColor)
                 .overlay(backgroundColor)
 
-            Button(action: { handleVersionTap() }) {
+            Button(action: handleVersionTap) {
                 Text(versionAbbreviation)
                     .font(.system(size: compactMode ? 10 : 14, weight: .semibold))
                     .foregroundStyle(foregroundColor)
@@ -40,7 +40,7 @@ struct BibleReaderHalfPillPickersView: View {
                     .padding(.leading, compactMode ? 12 : 14)
                     .padding(.trailing, compactMode ? 14 : 16)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .right))
         }
         .background(buttonColor)

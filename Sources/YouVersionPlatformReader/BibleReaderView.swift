@@ -132,7 +132,7 @@ public struct BibleReaderView: View {
         HStack {
             if viewModel.version != nil {
                 BibleReaderHeaderView(
-                    showChrome: true,
+                    showChrome: viewModel.showChrome,
                     onSelectionChange: { version, book, chapter, passageId in
                         Task {
                             let reference = BibleReference(versionId: version, bookUSFM: book, chapter: chapter ?? 1)
@@ -226,11 +226,6 @@ public struct BibleReaderView: View {
     private var mainScroller: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geo.frame(in: .named("scrollView")).minY)
-                }
-                .frame(height: 0)
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
                         if viewModel.showBookIntro {
@@ -251,29 +246,26 @@ public struct BibleReaderView: View {
                     .padding(.vertical)
                     .padding(.horizontal, 30)
                     .id("topOfContent")
+                    .onGeometryChange(for: CGFloat.self) { proxy in
+                        proxy.frame(in: .named("scrollView")).minY
+                    } action: { newOffset in
+                        viewModel.handleScroll(offset: newOffset)
+                    }
                 } else {
                     ProgressView()
                         .tint(viewModel.readerTextMutedColor)
                         .padding(.vertical, 48)
                 }
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geo.frame(in: .named("scrollView")).maxY)
-                }
-                .frame(height: 0)
             }
             .coordinateSpace(.named("scrollView"))
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                Task { @MainActor in
-                    viewModel.handleScroll(offset: value)
-                }
-            }
             .onChange(of: viewModel.scrollToTop) { _, shouldScroll in
                 if shouldScroll {
                     scrollProxy.scrollTo("topOfContent", anchor: .top)
                     viewModel.scrollToTop = false
-                    // Reset the changing chapter flag after a delay to allow scroll animation to complete
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // Wait for scroll animation before clearing the flag.
+                    Task { @MainActor in
+                        // swiftlint:disable:next common_debug_statements
+                        try? await Task.sleep(for: .seconds(0.5))
                         viewModel.isChangingChapter = false
                     }
                 }
@@ -297,15 +289,6 @@ public struct BibleReaderView: View {
         }
     }
 #endif
-
-    /// Helper to detect scroll offset in ScrollView
-    private struct ScrollOffsetPreferenceKey: PreferenceKey {
-        typealias Value = CGFloat
-        static var defaultValue: Value { .zero }
-        static func reduce(value: inout Value, nextValue: () -> Value) {
-            value = nextValue()
-        }
-    }
 
     // MARK: - Action handlers
 

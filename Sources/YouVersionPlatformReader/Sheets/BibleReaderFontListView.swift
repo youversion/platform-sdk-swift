@@ -26,12 +26,12 @@ struct BibleReaderFontListView: View {
             ScrollView {
                 VStack(alignment: .leading) {
                     Text(String.localized("fontList.suggested"))
-                        .font(YouVersionFonts.fontHeaderM)
+                        .font(YouVersionFonts.headerMedium)
                     fontList(for: ReaderFonts.suggestedFamilies)
                     Divider()
                         .padding(.bottom, 8)
                     Text(String.localized("fontList.others"))
-                        .font(YouVersionFonts.fontHeaderM)
+                        .font(YouVersionFonts.headerMedium)
                     fontList(for: ReaderFonts.otherFamilies)
                 }
                 .padding(.horizontal)

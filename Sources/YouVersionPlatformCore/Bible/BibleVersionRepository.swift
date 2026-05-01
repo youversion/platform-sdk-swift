@@ -169,7 +169,7 @@ final class BibleVersionAPI: BibleVersionProviding {
     init() {}
 
     func version(withId id: Int) async throws -> BibleVersion {
-        try await YouVersionAPI.Bible.version(versionId: id)
+        try await YouVersionAPI.Bible.version(withId: id)
     }
 }
 

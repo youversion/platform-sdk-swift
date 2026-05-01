@@ -113,12 +113,12 @@ extension BibleTextView {
         }
 
         let retValue = textCombo
+            // Verse runs carry link attributes (for OpenURLAction tap routing), so the
+            // effective text color comes from .tint, not .foregroundStyle.
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)
-            .if(textOptions.lineSpacing != nil) { view in
-                view.lineSpacing(textOptions.lineSpacing!)
-            }
+            .lineSpacing(textOptions.lineSpacing ?? 0)
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
         } else {
@@ -133,7 +133,7 @@ extension BibleTextView {
             blockId: block.id,
             textOptions: textOptions
         )
-        .multilineTextAlignment(flipAlignmentIfNecessary(block.alignment))
+        .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
         .padding(.top, ignoreMarginTop ? 0 : block.marginTop + ((textOptions.paragraphSpacing ?? 0) / 2))
     }

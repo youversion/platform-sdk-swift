@@ -21,7 +21,7 @@ struct BibleVersionsInfoView: View {
                     if let urlstring = version.readerFooterUrl,
                        let url = URL(string: urlstring) {
                         Text(String.localized("versionInfo.detailsLabel"))
-                            .font(YouVersionFonts.fontHeaderS)
+                            .font(YouVersionFonts.headerSmall)
                             .foregroundStyle(viewModel.readerTextMutedColor)
                         HStack {
                             Image(systemName: "globe")
@@ -76,12 +76,12 @@ struct BibleVersionsInfoView: View {
                     .font(YouVersionFonts.preferredBibleTextFont(size: 64))
                     .padding(.bottom, 8)
                 Text(version.localizedTitle ?? version.title ?? "")
-                    .font(YouVersionFonts.fontHeaderM)
+                    .font(YouVersionFonts.headerMedium)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
                     .padding(.bottom, 4)
                 Text(publisherLine(for: version))
-                    .font(YouVersionFonts.fontLabelM)
+                    .font(YouVersionFonts.labelMedium)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(viewModel.readerTextMutedColor)
             }
@@ -143,12 +143,12 @@ struct BibleVersionsInfoView: View {
     }
 
     private var addButton: some View {
-        Button(action: { viewModel.versionInfoSheetAdd() }) {
+        Button(action: viewModel.versionInfoSheetAdd) {
             Text(String.localized("versionInfo.addButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStylePrimary)
+        .buttonStyle(bigButtonStylePrimary)
     }
 
     private var addedButtonSmall: some View {
@@ -160,7 +160,7 @@ struct BibleVersionsInfoView: View {
     }
 
     private func addedButtonCore(width: CGFloat) -> some View {
-        Button(action: { viewModel.versionInfoSheetAdded() }) {
+        Button(action: viewModel.versionInfoSheetAdded) {
             HStack {
                 Image(systemName: "checkmark")
                 Text(String.localized("versionInfo.addedButton"))
@@ -168,37 +168,37 @@ struct BibleVersionsInfoView: View {
             .padding()
             .frame(width: width)
         }
-        .buttonStyle(BigButtonStylePrimary)
+        .buttonStyle(bigButtonStylePrimary)
     }
 
     private var downloadButton: some View {
-        Button(action: { viewModel.versionInfoSheetDownload() }) {
+        Button(action: viewModel.versionInfoSheetDownload) {
             Image(systemName: "arrow.down.to.line.compact")
                 .padding()
                 .frame(width: downloadButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
     private var readButton: some View {
-        Button(action: { viewModel.versionInfoSheetRead() }) {
+        Button(action: viewModel.versionInfoSheetRead) {
             Text(String.localized("versionInfo.readButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
     private var sampleButton: some View {
-        Button(action: { viewModel.versionInfoSheetSample() }) {
+        Button(action: viewModel.versionInfoSheetSample) {
             Text(String.localized("versionInfo.sampleButton"))
                 .padding()
                 .frame(width: standardButtonWidth)
         }
-        .buttonStyle(BigButtonStyleSecondary)
+        .buttonStyle(bigButtonStyleSecondary)
     }
 
-    private var BigButtonStylePrimary: some ButtonStyle {
+    private var bigButtonStylePrimary: some ButtonStyle {
         YouVersionBigButtonStyle(
             strokeColor: .clear,
             backgroundColor: viewModel.readerButtonContrastColor,
@@ -206,7 +206,7 @@ struct BibleVersionsInfoView: View {
         )
     }
 
-    private var BigButtonStyleSecondary: some ButtonStyle {
+    private var bigButtonStyleSecondary: some ButtonStyle {
         YouVersionBigButtonStyle(
             strokeColor: viewModel.readerTextMutedColor,
             backgroundColor: viewModel.readerCanvasPrimaryColor,

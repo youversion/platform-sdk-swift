@@ -8,7 +8,7 @@ struct BibleReaderIntroFootnoteView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 Text(String.localized("reader.footnoteTitle"))
-                    .font(YouVersionFonts.fontHeaderS)
+                    .font(YouVersionFonts.headerSmall)
                     .padding(.bottom)
                 ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
                     let txt = footnote.text.setFont(.footnote, from: BibleTextFonts(familyName: "San Francisco", baseSize: 15))

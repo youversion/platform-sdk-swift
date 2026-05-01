@@ -24,7 +24,7 @@ public struct BibleCardView: View {
             fontFamily: fontFamily,
             fontSize: fontSize,
             textColor: Color.primary,
-            verseNumColor: Color.secondary
+            verseNumberColor: Color.secondary
         )
         self.showVersionPicker = showVersionPicker
         self.onVersionChange = onVersionChange
@@ -55,11 +55,13 @@ public struct BibleCardView: View {
                 BibleTextView(reference, textOptions: textOptions)
             }
             HStack(alignment: .top) {
-                copyrightView
-                    .padding(.trailing, 16)
-                    .onTapGesture {
-                        showingCopyrightSheet.toggle()
-                    }
+                Button {
+                    showingCopyrightSheet.toggle()
+                } label: {
+                    copyrightView
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 16)
                 Spacer()
                 bibleAppLogo
             }
@@ -82,7 +84,7 @@ public struct BibleCardView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(version?.localizedTitle ?? version?.title ?? "")
-                        .font(YouVersionFonts.fontHeaderM)
+                        .font(YouVersionFonts.headerMedium)
                         .padding()
                         .frame(maxWidth: .infinity)
                     Text(version?.promotionalContent ?? version?.copyright ?? "")
@@ -114,24 +116,25 @@ public struct BibleCardView: View {
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
     }
     
+    @ViewBuilder
     private var headerReference: some View {
         if let version {
-            let refText = version.displayTitle(for: reference)
-            return Text(refText)
-                .font(YouVersionFonts.fontEyebrowS.smallCaps())
+            Text(version.displayTitle(for: reference))
+                .font(YouVersionFonts.eyebrowSmall.smallCaps())
                 .tracking(1.5)
         }
-        return Text("")
     }
     
+    @ViewBuilder
     private var copyrightView: some View {
-        let copyright = version?.copyright ?? version?.promotionalContent ?? ""
-        return Text(copyright)
-            .font(Font.system(size: 11))
-            .fontWeight(.bold)
-            .multilineTextAlignment(.leading)
-            .minimumScaleFactor(0.7)
-            .lineLimit(4)
+        if let copyright = version?.copyright ?? version?.promotionalContent {
+            Text(copyright)
+                .font(Font.system(size: 11))
+                .fontWeight(.bold)
+                .multilineTextAlignment(.leading)
+                .minimumScaleFactor(0.7)
+                .lineLimit(4)
+        }
     }
     
     private var bibleAppLogo: some View {

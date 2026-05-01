@@ -90,7 +90,7 @@ struct BibleReaderFontSettingsView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(viewModel.readerBorderSecondaryColor, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(.rect(cornerRadius: 8))
     }
 
     var fontSizeButtons: some View {
@@ -108,7 +108,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .left))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .left)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -128,7 +128,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .right))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .right)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -151,13 +151,13 @@ struct BibleReaderFontSettingsView: View {
                 }
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .frame(minWidth: 57, minHeight: minHeight)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: 8))
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
 
         }
     }
