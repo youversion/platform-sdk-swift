@@ -78,7 +78,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        await viewModel.switchToVersionAsync(version.id)
+        await viewModel.switchToVersion(version.id)
 
         #expect(changedVersion == version)
         #expect(viewModel.showGenericAlert == false)
@@ -93,7 +93,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        await viewModel.switchToVersionAsync(111)
+        await viewModel.switchToVersion(111)
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
@@ -110,7 +110,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        await viewModel.handleVersionPickerTapAsync(version.id)
+        await viewModel.handleVersionPickerTap(version.id)
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -128,7 +128,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        await viewModel.myVersionMoreInfoMenuTappedAsync(version.id)
+        await viewModel.myVersionMoreInfoMenuTapped(version.id)
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -143,7 +143,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        await viewModel.myVersionDownloadMenuTappedAsync(444)
+        await viewModel.myVersionDownloadMenuTapped(444)
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))

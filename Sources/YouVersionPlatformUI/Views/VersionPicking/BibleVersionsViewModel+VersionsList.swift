@@ -27,10 +27,10 @@ extension BibleVersionsViewModel {
     }
 
     public func switchToVersion(_ versionId: Int) {
-        Task { await switchToVersionAsync(versionId) }
+        Task { await switchToVersion(versionId) }
     }
 
-    func switchToVersionAsync(_ versionId: Int) async {
+    func switchToVersion(_ versionId: Int) async {
         do {
             let version = try await versionRepository.version(withId: versionId)
             onVersionChange(version)
@@ -40,10 +40,10 @@ extension BibleVersionsViewModel {
     }
 
     public func handleVersionPickerTap(_ versionId: Int) {
-        Task { await handleVersionPickerTapAsync(versionId) }
+        Task { await handleVersionPickerTap(versionId) }
     }
 
-    func handleVersionPickerTapAsync(_ versionId: Int) async {
+    func handleVersionPickerTap(_ versionId: Int) async {
         do {
             showFullProgressViewOverlay = true
             defer {

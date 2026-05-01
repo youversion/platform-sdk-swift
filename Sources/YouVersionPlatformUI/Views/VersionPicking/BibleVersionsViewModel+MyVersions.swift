@@ -9,10 +9,10 @@ extension BibleVersionsViewModel {
     }
 
     public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
-        Task { await myVersionMoreInfoMenuTappedAsync(versionId) }
+        Task { await myVersionMoreInfoMenuTapped(versionId) }
     }
 
-    func myVersionMoreInfoMenuTappedAsync(_ versionId: Int) async {
+    func myVersionMoreInfoMenuTapped(_ versionId: Int) async {
         do {
             selectedVersion = try await versionRepository.version(withId: versionId)
             versionsStackPush(to: .versionInfo)
@@ -37,10 +37,10 @@ extension BibleVersionsViewModel {
     }
 
     public func myVersionDownloadMenuTapped(_ versionId: Int) {
-        Task { await myVersionDownloadMenuTappedAsync(versionId) }
+        Task { await myVersionDownloadMenuTapped(versionId) }
     }
 
-    func myVersionDownloadMenuTappedAsync(_ versionId: Int) async {
+    func myVersionDownloadMenuTapped(_ versionId: Int) async {
         if let version = try? await versionRepository.version(withId: versionId) {
             conditionalDownloadButtonTapped(version: version)
         } else {
