@@ -175,7 +175,13 @@ public struct BibleTextView: View {
     }
 
     private func loadBlocks() async {
-        loadingPhase = .loading
+        // Only enter the loading phase for the network path. The html: init
+        // pre-parses blocks synchronously at init time, so rendering them
+        // immediately on first frame avoids a placeholder flash while
+        // updateVersionTextDirection() does its async lookup.
+        if providedBlocks == nil {
+            loadingPhase = .loading
+        }
         do {
             if let providedBlocks {
                 self.blocks = providedBlocks
