@@ -171,6 +171,24 @@ public enum BibleVersionRendering {
         #endif
     }
 
+    /// Verse index from a visible verse-number span (`yv-vlbl` / `vlbl`).
+    /// Prefer the `v` HTML attribute; otherwise parse digits from descendant text (supports mild nesting).
+    private static func verseNumberFromVerseLabelSpan(_ node: BibleTextNode) -> Int? {
+        guard node.type == .span else { return nil }
+        guard node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") else { return nil }
+        if let v = node.attributes["v"], let i = Int(v) {
+            return i
+        }
+        func textConcat(_ n: BibleTextNode) -> String {
+            if n.type == .text {
+                return n.text
+            }
+            return n.children.reduce(into: "") { $0 += textConcat($1) }
+        }
+        let trimmed = textConcat(node).trimmingCharacters(in: .whitespacesAndNewlines)
+        return Int(trimmed)
+    }
+
     private static func handleBlockChild(
         _ node: BibleTextNode,
         stateIn: StateIn,
@@ -185,6 +203,15 @@ public enum BibleVersionRendering {
         }
 
         BibleVersionRenderingStyles.interpretTextAttr(node, stateIn: stateIn, stateDown: &stateDown, stateUp: &stateUp)
+
+        // Verse is normally advanced by invisible <span class="yv-v" v="n">. Some chapter HTML only
+        // uses visible <span class="yv-vlbl">n</span> (after the first verse) without a matching
+        // yv-v, which left stateUp.verse stuck on the prior verse and tagged an entire paragraph
+        // with one reference — e.g. audio indicator spanning multiple verses in one block.
+        if let vi = verseNumberFromVerseLabelSpan(node) {
+            stateUp.verse = vi
+            stateUp.rendering = (vi >= stateIn.fromVerse) && (vi <= stateIn.toVerse)
+        }
 
         if stateUp.rendering && !node.text.isEmpty {
             var txt = BibleAttributedString(node.text)

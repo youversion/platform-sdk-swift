@@ -41,29 +41,33 @@ extension BibleTextView {
         let noteIndicatorIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
         let audioActiveIndicatorColor: Color?
+        let audioActiveVerse: Int?
 
-        init(verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil) {
+        init(verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, audioActiveVerse: Int? = nil) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             noteIndicatorIcon = Image("noteIndicatorIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
             self.audioActiveIndicatorColor = audioActiveIndicatorColor
+            self.audioActiveVerse = audioActiveVerse
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
             let noteIndicatorImage = context.resolve(noteIndicatorIcon)
 
-            if let indicatorColor = audioActiveIndicatorColor {
+            // Union typographic bounds of runs for the active verse only — not full `line` bounds.
+            // Multiple verses often share one typographic line in a paragraph; using the whole line
+            // incorrectly stretched the bar across neighboring verses.
+            if let indicatorColor = audioActiveIndicatorColor, let activeVerse = audioActiveVerse {
                 var barMinY: CGFloat?
                 var barMaxY: CGFloat?
                 var barX: CGFloat = .infinity
                 for line in layout {
-                    let lineRect = line.typographicBounds.rect
-                    let lineContainsActive = line.contains(where: { $0[RenderHowAttribute.self]?.audioActive == true })
-                    if lineContainsActive {
-                        barMinY = min(barMinY ?? .infinity, lineRect.minY)
-                        barMaxY = max(barMaxY ?? -.infinity, lineRect.maxY)
-                        barX = min(barX, lineRect.minX)
+                    for run in line where run[RenderHowAttribute.self]?.verseNumber == activeVerse {
+                        let runRect = run.typographicBounds.rect
+                        barMinY = min(barMinY ?? .infinity, runRect.minY)
+                        barMaxY = max(barMaxY ?? -.infinity, runRect.maxY)
+                        barX = min(barX, runRect.minX)
                     }
                 }
                 if let minY = barMinY, let maxY = barMaxY {
@@ -166,13 +170,14 @@ extension BibleTextView {
         var underlined = false
         var underlineColor: Color?
         var audioActive = false
+        var verseNumber: Int?
         var footnoteImage = false
         var noteIndicatorImage = false
         var noteIndicatorBox = false
         var noteIndicatorBoxColor: Color?
     }
 
-    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -184,13 +189,9 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            var isUnderlined = false
-            if let reference {
-                if category == .scripture || category == .verseLabel {
-                    t.backgroundColor = highlightFor(reference: reference)
-                    // better, we could have our TextRenderer add the color to some portions
-                }
-                isUnderlined = isSelected(reference) && category == .scripture
+            if category == .scripture || category == .verseLabel {
+                t.backgroundColor = highlightFor(reference: reference)
+                // better, we could have our TextRenderer add the color to some portions
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
@@ -234,25 +235,26 @@ extension BibleTextView {
                 textCombo = textCombo + Text(" ")
                 continue
             }
-            isUnderlined = (reference.map(isSelected) ?? false) && category == .scripture
+            let isUnderlined = (reference.map(isSelected) ?? false) && category == .scripture
             let isActive = isAudioActive(reference) && (category == .scripture || category == .verseLabel)
+            let verse = reference?.verseStart
             if isUnderlined {
                 for (fgColor, subRange) in t.runs[\.foregroundColor] {
                     let subStr = AttributedString(t[subRange])
                     // swiftlint:disable:next shorthand_operator
                     textCombo = textCombo + Text(subStr).customAttribute(
-                        RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive)
+                        RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive, verseNumber: verse)
                     )
                 }
             } else if isActive {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
-                    RenderHowAttribute(audioActive: true, footnoteImage: category == .footnoteImage)
+                    RenderHowAttribute(audioActive: true, verseNumber: verse, footnoteImage: category == .footnoteImage)
                 )
             } else {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
-                    RenderHowAttribute(footnoteImage: category == .footnoteImage)
+                    RenderHowAttribute(verseNumber: verse, footnoteImage: category == .footnoteImage)
                 )
             }
         }
@@ -267,7 +269,8 @@ extension BibleTextView {
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(
                 verseSelectionStyle: textOptions.verseSelectionStyle,
-                audioActiveIndicatorColor: textOptions.audioActiveIndicatorColor
+                audioActiveIndicatorColor: textOptions.audioActiveIndicatorColor,
+                audioActiveVerse: audioActiveVerse
             ))
         } else {
             return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
@@ -275,8 +278,8 @@ extension BibleTextView {
     }
 
     private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
-        textView(
-            for: block.text,
+        textViewFor(
+            double: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
             textOptions: textOptions
@@ -301,8 +304,8 @@ extension BibleTextView {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
                     ForEach(row.doubles, id: \.self) { cell in
-                        textView(
-                            for: cell.double,
+                        textViewFor(
+                            double: cell.double,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
                             textOptions: textOptions
@@ -316,7 +319,10 @@ extension BibleTextView {
         .padding()
     }
 
-    private func isSelected(_ reference: BibleReference) -> Bool {
+    private func isSelected(_ reference: BibleReference?) -> Bool {
+        guard let reference else {
+            return false
+        }
         for verse in selectedVerses {
             if verse.chapter == reference.chapter && verse.verseStart == reference.verseStart {
                 return true
@@ -324,6 +330,7 @@ extension BibleTextView {
         }
         return false
     }
+
     private func isAudioActive(_ reference: BibleReference?) -> Bool {
         guard let audioActiveVerse, let reference else {
             return false

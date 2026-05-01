@@ -214,6 +214,68 @@ import Testing
         #expect(hasScriptureContaining(blocks, text: "Fifth verse text."))
     }
 
+    @Test func testYvVLblWithoutFollowingYvVUpdatesVerseForScripture() async throws {
+        // Real chapter HTML can repeat only yv-vlbl for verses 2+ in a paragraph; if stateUp.verse
+        // is not updated from the label, all text after verse 1 stays tagged as verse 1.
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="1"></span>
+                <span class="yv-vlbl">1</span>
+                First.
+                <span class="yv-vlbl">2</span>
+                Second.
+                <span class="yv-v" v="3"></span>
+                <span class="yv-vlbl">3</span>
+                Third.
+            </div>
+        </div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "JHN", chapter: 1, verseStart: 1, verseEnd: 10)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.count == 1)
+        let s = blocks[0].text.asAttributedString
+        var verseBySnippet: [String: Int?] = [:]
+        for run in s.runs[\.bibleTextCategory, \.bibleReference] {
+            guard run.0 == .scripture, let ref = run.1 else { continue }
+            let text = String(s[run.2].characters)
+            for key in ["First", "Second", "Third"] where text.contains(key) {
+                verseBySnippet[key] = ref.verseStart
+            }
+        }
+        #expect(verseBySnippet["First"] == 1)
+        #expect(verseBySnippet["Second"] == 2)
+        #expect(verseBySnippet["Third"] == 3)
+    }
+
+    @Test func testYvVLblWithNestedSpanStillUpdatesVerseForScripture() async throws {
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="1"></span>
+                <span class="yv-vlbl">1</span>
+                First.
+                <span class="yv-vlbl"><span class="inner">2</span></span>
+                Second.
+            </div>
+        </div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "JHN", chapter: 1, verseStart: 1, verseEnd: 10)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.count == 1)
+        let s = blocks[0].text.asAttributedString
+        var verseBySnippet: [String: Int?] = [:]
+        for run in s.runs[\.bibleTextCategory, \.bibleReference] {
+            guard run.0 == .scripture, let ref = run.1 else { continue }
+            let text = String(s[run.2].characters)
+            for key in ["First", "Second"] where text.contains(key) {
+                verseBySnippet[key] = ref.verseStart
+            }
+        }
+        #expect(verseBySnippet["First"] == 1)
+        #expect(verseBySnippet["Second"] == 2)
+    }
+
     @Test func testHeaderIsNotRenderedWhenRenderHeadlinesIsFalse() async throws {
         let html = """
         <div>

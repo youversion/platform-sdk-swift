@@ -85,14 +85,14 @@ public struct BibleTextView: View {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
                         .overlay(alignment: .leading) {
-                            if #unavailable(iOS 18) {
-                                if blockContainsAudioActiveVerse(blockIndex: index),
-                                   let color = textOptions.audioActiveIndicatorColor {
-                                    RoundedRectangle(cornerRadius: 1.5)
-                                        .fill(color)
-                                        .frame(width: 3)
-                                        .padding(.leading, -12)
-                                }
+                            if #available(iOS 18, *) {
+                                EmptyView()
+                            } else if blockContainsAudioActiveVerse(blockIndex: index),
+                                      let color = textOptions.audioActiveIndicatorColor {
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .fill(color)
+                                    .frame(width: 3)
+                                    .padding(.leading, -12)
                             }
                         }
                         .id(block.verseAnchorId ?? "block-\(block.id)")
