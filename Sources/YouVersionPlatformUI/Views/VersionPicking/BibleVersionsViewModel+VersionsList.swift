@@ -33,10 +33,16 @@ extension BibleVersionsViewModel {
     func switchToVersion(_ versionId: Int) async {
         do {
             let version = try await versionRepository.version(withId: versionId)
-            onVersionChange(version)
+            setCurrentVersion(version)
         } catch {
             handleVersionLoadingError(error)
         }
+    }
+
+    /// Sets the current version directly when the caller has already resolved a
+    /// ``BibleVersion`` (skipping the network fetch).
+    public func switchToVersion(_ version: BibleVersion) {
+        setCurrentVersion(version)
     }
 
     public func handleVersionPickerTap(_ versionId: Int) {

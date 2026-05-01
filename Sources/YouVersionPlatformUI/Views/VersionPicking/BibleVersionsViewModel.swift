@@ -6,7 +6,20 @@ import YouVersionPlatformCore
 @MainActor
 @Observable
 public final class BibleVersionsViewModel {
-    public var onVersionChange: ((BibleVersion) -> Void)
+    /// The currently selected Bible version. Observe this property to react
+    /// when the user picks a version (either at initial load or from the
+    /// version picker UI).
+    public private(set) var currentVersion: BibleVersion?
+
+    @available(*, deprecated, message: "Observe currentVersion instead.")
+    public var onVersionChange: ((BibleVersion) -> Void) {
+        get { _onVersionChange }
+        set { _onVersionChange = newValue }
+    }
+
+    @ObservationIgnored
+    private var _onVersionChange: (BibleVersion) -> Void
+
     /// called when the user chooses to download a version and they're not yet signed in.
     public var onSignInRequired: (() -> Void)?
     public var colorTheme: ReaderTheme?
@@ -22,15 +35,32 @@ public final class BibleVersionsViewModel {
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private var hasLoadedInitialState = false
 
-    /// onVersionChange: called when the user has chosen a new version (or their first). The caller should ensure their current reference exists in this new version and choose a new one if not.
+    /// Creates a Bible versions view model.
+    ///
+    /// Observe ``currentVersion`` to react when a version is selected.
     public init(
-        onVersionChange: @escaping (BibleVersion) -> Void,
         versionRepository: any BibleVersionRepositoryProtocol = BibleVersionRepository.shared
     ) {
         self.myVersions = []
         self.suggestedLanguagesList = []
-        self.onVersionChange = onVersionChange
+        self._onVersionChange = { _ in }
         self.versionRepository = versionRepository
+    }
+
+    @available(*, deprecated, message: "Use init(versionRepository:) and observe currentVersion instead.")
+    public convenience init(
+        onVersionChange: @escaping (BibleVersion) -> Void,
+        versionRepository: any BibleVersionRepositoryProtocol = BibleVersionRepository.shared
+    ) {
+        self.init(versionRepository: versionRepository)
+        self._onVersionChange = onVersionChange
+    }
+
+    /// Sets the current version and fires the deprecated ``onVersionChange``
+    /// callback for callers that haven't migrated to observing ``currentVersion``.
+    func setCurrentVersion(_ version: BibleVersion) {
+        currentVersion = version
+        _onVersionChange(version)
     }
 
     /// Loads the initial version data once for this model instance.
@@ -96,7 +126,7 @@ public final class BibleVersionsViewModel {
 
         if let version = loadedVersion {
             myVersions.insert(version)
-            onVersionChange(version)
+            setCurrentVersion(version)
         } else {
             await selectFallbackVersion(savedIds: savedIds)
         }
@@ -110,7 +140,7 @@ public final class BibleVersionsViewModel {
             versionsStackPush(to: .moreVersions)
             return
         }
-        onVersionChange(version)
+        setCurrentVersion(version)
 
         myVersions.insert(version)
     }
@@ -319,7 +349,7 @@ public final class BibleVersionsViewModel {
 
     public static var preview: BibleVersionsViewModel {
         // Create a minimal BibleVersionsViewModel for preview purposes
-        let vm = BibleVersionsViewModel { _ in }
+        let vm = BibleVersionsViewModel()
 
         let previewVersion = BibleVersion.preview
         vm.myVersions = [previewVersion]

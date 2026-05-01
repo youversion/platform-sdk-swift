@@ -3,7 +3,6 @@ import YouVersionPlatformCore
 
 public struct BibleVersionPickingButton: View {
     @State private var versionsViewModel: BibleVersionsViewModel
-    @State private var version: BibleVersion?
     private let initialVersionId: Int
     private let onVersionChange: ((BibleVersion) -> Void)?
     @Environment(\.colorScheme) private var colorScheme
@@ -13,12 +12,13 @@ public struct BibleVersionPickingButton: View {
         onVersionChange: ((BibleVersion) -> Void)? = nil
     ) {
         self.initialVersionId = initialVersionId
-        self._versionsViewModel = State(wrappedValue: BibleVersionsViewModel { _ in })
+        self._versionsViewModel = State(wrappedValue: BibleVersionsViewModel())
         self.onVersionChange = onVersionChange
     }
 
     public var body: some View {
         @Bindable var bindableVersionsViewModel = versionsViewModel
+        let version = versionsViewModel.currentVersion
 
         Button {
             versionsViewModel.openVersionsStack(currentBibleLanguage: version?.languageTag ?? "en")
@@ -36,8 +36,12 @@ public struct BibleVersionPickingButton: View {
                 .presentationDetents([.large])
         }
         .task {
-            versionsViewModel.onVersionChange = handleVersionChange
             await versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+        }
+        .onChange(of: versionsViewModel.currentVersion) { _, newVersion in
+            if let newVersion {
+                onVersionChange?(newVersion)
+            }
         }
         .onChange(of: colorScheme, initial: true) { _, newScheme in
             versionsViewModel.colorTheme = ReaderTheme(
@@ -47,11 +51,6 @@ public struct BibleVersionPickingButton: View {
                 colorScheme: newScheme
             )
         }
-    }
-
-    private func handleVersionChange(_ version: BibleVersion) {
-        self.version = version
-        onVersionChange?(version)
     }
 }
 

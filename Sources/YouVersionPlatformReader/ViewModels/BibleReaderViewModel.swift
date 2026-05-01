@@ -23,8 +23,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
     let highlightsViewModel: BibleHighlightsViewModel
-    var versionsViewModel: BibleVersionsViewModel
-    var version: BibleVersion?
+    let versionsViewModel: BibleVersionsViewModel
+    var version: BibleVersion? { versionsViewModel.currentVersion }
     let onVerseTap: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
 
@@ -90,10 +90,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         self.verseSelectionStyle = verseSelectionStyle
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         let shouldLoadVersionsViewModel = versionsViewModel == nil
-        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel { _ in }
-        self.versionsViewModel.onVersionChange = { [weak self] version in
-            self?.onVersionChange(version: version)
-        }
+        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
         self.versionsViewModel.onSignInRequired = { [weak self] in
             self?.onSignInRequired()
         }
@@ -107,6 +104,24 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             let initialVersionId = self.reference.versionId
             Task { [weak self] in
                 await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+            }
+        }
+
+        observeCurrentVersion()
+    }
+
+    /// Reacts to ``BibleVersionsViewModel/currentVersion`` changes by updating
+    /// the reader's reference. The Observation framework's tracking is one-shot,
+    /// so the method re-arms itself after each fired change.
+    private func observeCurrentVersion() {
+        withObservationTracking {
+            _ = versionsViewModel.currentVersion
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.observeCurrentVersion()
+                if let version = self?.versionsViewModel.currentVersion {
+                    self?.handleVersionPicked(version)
+                }
             }
         }
     }
@@ -133,8 +148,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         )
     }
 
-    func onVersionChange(version: BibleVersion) {
-        self.version = version
+    func handleVersionPicked(_ version: BibleVersion) {
+        // If the reference is already aligned with this version (e.g., the
+        // version was set as a side effect of onHeaderSelectionChange), there's
+        // nothing to do — avoid recursing back into onHeaderSelectionChange.
+        guard reference.versionId != version.id else {
+            return
+        }
         reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
         Task {
             await onHeaderSelectionChange(reference, showIntro: false)

@@ -225,7 +225,7 @@ extension BibleReaderViewModel {
         do {
             if version?.id != reference.versionId {
                 let newVersion = try await versionsViewModel.versionRepository.version(withId: reference.versionId)
-                version = newVersion
+                versionsViewModel.switchToVersion(newVersion)
                 versionsViewModel.myVersions.insert(newVersion)
             }
             self.reference = reference

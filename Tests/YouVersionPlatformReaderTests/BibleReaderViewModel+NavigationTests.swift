@@ -203,7 +203,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         )
         let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2, verse: 1)
         vm.showBookIntro = showIntro
-        vm.version = nil
+        // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
         vm.lastScrollOffset = 123
         vm.scrollToTop = false
@@ -228,7 +228,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         )
         let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2, verse: 1)
         vm.showBookIntro = showIntro
-        vm.version = nil
+        // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
         vm.lastScrollOffset = 123
         vm.scrollToTop = false
@@ -363,7 +363,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         let reference = BibleReference(versionId: Self.versionId, bookUSFM: referenceBook, chapter: referenceChapter)
         let vm = BibleReaderViewModel(reference: reference)
         let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: referenceBook, chapter: referenceChapter, verse: 1)
-        vm.version = makeVersion(with: books)
+        vm.versionsViewModel.switchToVersion(makeVersion(with: books))
         vm.showBookIntro = showBookIntro
         vm.isChangingChapter = false
         vm.lastScrollOffset = 321
