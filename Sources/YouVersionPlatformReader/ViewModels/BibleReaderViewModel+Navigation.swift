@@ -71,7 +71,9 @@ extension BibleReaderViewModel {
 
         let threshold: CGFloat = 10
         let animation: Animation? = isReduceMotionEnabled ? nil : .easeInOut(duration: 0.1)
-        if offset <= 0 {
+        // offset is the content's minY in the scroll viewport: 0 at top,
+        // negative while scrolled down, positive when rubber-banding past top.
+        if offset >= 0 {
             withAnimation(animation) { showChrome = true }
         } else if abs(offset - lastScrollOffset) >= threshold {
             if offset < lastScrollOffset - threshold {
