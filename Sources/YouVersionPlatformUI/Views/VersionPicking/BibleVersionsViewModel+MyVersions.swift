@@ -8,15 +8,16 @@ extension BibleVersionsViewModel {
         showingVersionsStack = false
     }
 
-    @discardableResult
-    public func myVersionMoreInfoMenuTapped(_ versionId: Int) -> Task<Void, Never> {
-        Task {
-            do {
-                selectedVersion = try await versionRepository.version(withId: versionId)
-                versionsStackPush(to: .versionInfo)
-            } catch {
-                handleVersionLoadingError(error)
-            }
+    public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
+        Task { await myVersionMoreInfoMenuTappedAsync(versionId) }
+    }
+
+    func myVersionMoreInfoMenuTappedAsync(_ versionId: Int) async {
+        do {
+            selectedVersion = try await versionRepository.version(withId: versionId)
+            versionsStackPush(to: .versionInfo)
+        } catch {
+            handleVersionLoadingError(error)
         }
     }
 
@@ -35,16 +36,17 @@ extension BibleVersionsViewModel {
         }
     }
 
-    @discardableResult
-    public func myVersionDownloadMenuTapped(_ versionId: Int) -> Task<Void, Never> {
-        Task {
-            if let version = try? await versionRepository.version(withId: versionId) {
-                conditionalDownloadButtonTapped(version: version)
-            } else {
-                showGenericAlert = true
-                textForGenericAlertTitle = .localized("generic.error")
-                textForGenericAlertBody = .localized("myVersions.downloadErrorBody")
-            }
+    public func myVersionDownloadMenuTapped(_ versionId: Int) {
+        Task { await myVersionDownloadMenuTappedAsync(versionId) }
+    }
+
+    func myVersionDownloadMenuTappedAsync(_ versionId: Int) async {
+        if let version = try? await versionRepository.version(withId: versionId) {
+            conditionalDownloadButtonTapped(version: version)
+        } else {
+            showGenericAlert = true
+            textForGenericAlertTitle = .localized("generic.error")
+            textForGenericAlertBody = .localized("myVersions.downloadErrorBody")
         }
     }
 
