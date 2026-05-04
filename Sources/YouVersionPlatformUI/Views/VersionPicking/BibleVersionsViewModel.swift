@@ -17,7 +17,7 @@ public final class BibleVersionsViewModel {
     var showGenericAlert = false
     var textForGenericAlertTitle = ""
     var textForGenericAlertBody = ""
-    private(set) var textForGenericAlertOKButton = "OK"
+    private(set) var textForGenericAlertOKButton = String.localized("generic.ok")
     
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private var hasLoadedInitialState = false
