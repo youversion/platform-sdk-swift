@@ -110,9 +110,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         observeCurrentVersion()
     }
 
-    /// Reacts to ``BibleVersionsViewModel/currentVersion`` changes by updating
-    /// the reader's reference. The Observation framework's tracking is one-shot,
-    /// so the method re-arms itself after each fired change.
+    // Reacts to BibleVersionsViewModel.currentVersion changes by updating
+    // the reader's reference. The Observation framework's tracking is one-shot,
+    // so the method re-arms itself after each fired change.
     private func observeCurrentVersion() {
         withObservationTracking {
             _ = versionsViewModel.currentVersion
@@ -148,10 +148,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         )
     }
 
+    /// Aligns the reader's reference to a newly picked version and triggers a
+    /// header selection change to load its content. No-ops when the reference's
+    /// versionId already matches — this is the guard that prevents
+    /// `onHeaderSelectionChange` from looping back through the
+    /// `currentVersion` observation chain.
     func handleVersionPicked(_ version: BibleVersion) {
-        // If the reference is already aligned with this version (e.g., the
-        // version was set as a side effect of onHeaderSelectionChange), there's
-        // nothing to do — avoid recursing back into onHeaderSelectionChange.
         guard reference.versionId != version.id else {
             return
         }

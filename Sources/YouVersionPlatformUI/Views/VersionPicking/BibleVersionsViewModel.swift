@@ -354,6 +354,7 @@ public final class BibleVersionsViewModel {
         let previewVersion = BibleVersion.preview
         vm.myVersions = [previewVersion]
         vm.selectedVersion = previewVersion
+        vm.switchToVersion(previewVersion)
 
         return vm
     }
