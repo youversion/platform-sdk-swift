@@ -31,9 +31,17 @@ public struct BibleReaderIntroView: View {
                    let html = try? await YouVersionAPI.Bible.introMaterial(versionId: reference.versionId, passageId: passageId) {
                     self.html = html
                 } else {
-                    self.html = "<div>Error loading Intro</div>"
+                    self.html = "<div>\(String.localized("reader.introLoadError").htmlEscaped)</div>"
                 }
             }
         }
+    }
+}
+
+private extension String {
+    var htmlEscaped: String {
+        replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
     }
 }

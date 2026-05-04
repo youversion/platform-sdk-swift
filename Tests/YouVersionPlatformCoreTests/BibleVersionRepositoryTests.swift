@@ -185,29 +185,29 @@ struct BibleVersionRepositoryTests {
     // MARK: Other methods
 
     @Test
-    func diskCacheVersionIsPresentReflectsStoredMetadata() async throws {
+    func diskCacheContainsVersionReflectsStoredMetadata() async throws {
         let storage = try RepositoryTemporaryStorage()
         defer { storage.remove() }
         let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
 
-        #expect(diskCache.versionIsPresent(for: Self.fixture.id) == false)
+        #expect(diskCache.containsVersion(withId: Self.fixture.id) == false)
 
         await diskCache.addVersion(Self.fixture)
 
-        #expect(diskCache.versionIsPresent(for: Self.fixture.id))
+        #expect(diskCache.containsVersion(withId: Self.fixture.id))
     }
 
     @Test
-    func versionIsPresentReflectsDownloadCache() async throws {
+    func containsVersionReflectsDownloadCache() async throws {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let downloadCache = BibleVersionDownloadCache(directoryProvider: storage.provider)
 
-        #expect(await repository.versionIsPresent(for: Self.fixture.id) == false)
+        #expect(await repository.containsVersion(withId: Self.fixture.id) == false)
 
         await downloadCache.addVersion(Self.fixture)
 
-        #expect(await repository.versionIsPresent(for: Self.fixture.id))
+        #expect(await repository.containsVersion(withId: Self.fixture.id))
         #expect(api.callCount == 0)
     }
 

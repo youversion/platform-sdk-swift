@@ -3,17 +3,17 @@ import YouVersionPlatformCore
 
 struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
     @Environment(BibleVersionsViewModel.self) private var viewModel
-    let item: BibleVersion
+    let version: BibleVersion
 
     var body: some View {
         HStack(spacing: 12) {
             Button {
-                viewModel.myVersionItemTapped(item.id)
+                viewModel.myVersionItemTapped(version.id)
             } label: {
                 HStack(spacing: 12) {
                     // Rounded square with abbreviation
                     VStack(spacing: 0) {
-                        let abbreviation = item.localizedAbbreviation ?? item.abbreviation ?? String(item.id)
+                        let abbreviation = version.localizedAbbreviation ?? version.abbreviation ?? String(version.id)
                         let (letters, numbers) = splitAbbreviation(abbreviation)
 
                         Text(letters)
@@ -41,12 +41,12 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
                     )
 
                     VStack(alignment: .leading) {
-                        if let id = item.organizationId {
+                        if let id = version.organizationId {
                             Text(viewModel.organizationName(id: id) ?? "")
                                 .font(.caption2)
                                 .foregroundStyle(viewModel.readerTextMutedColor)
                         }
-                        Text(item.localizedTitle ?? item.title ?? item.localizedAbbreviation ?? item.abbreviation ?? String(item.id))
+                        Text(version.localizedTitle ?? version.title ?? version.localizedAbbreviation ?? version.abbreviation ?? String(version.id))
                             .font(.body)
                             .layoutPriority(1)
                             .lineLimit(3)
@@ -65,9 +65,9 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
 
     private var ellipsisMenuButton: some View {
         Menu {
-            if viewModel.versionRepository.downloadStatus(for: item.id) == .downloadable {
+            if viewModel.versionRepository.downloadStatus(for: version.id) == .downloadable {
                 Button(action: {
-                    viewModel.myVersionDownloadMenuTapped(item.id)
+                    viewModel.myVersionDownloadMenuTapped(version.id)
                 }) {
                     HStack {
                         Text(String.localized("menu.download"))
@@ -77,9 +77,9 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
                     }
                 }
             }
-            if viewModel.versionRepository.downloadStatus(for: item.id) == .downloaded {
+            if viewModel.versionRepository.downloadStatus(for: version.id) == .downloaded {
                 Button(action: {
-                    viewModel.myVersionRemoveDownloadMenuTapped(item.id)
+                    viewModel.myVersionRemoveDownloadMenuTapped(version.id)
                 }) {
                     HStack {
                         Text(String.localized("menu.removeDownload"))
@@ -91,7 +91,7 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
             }
 
             Button(action: {
-                viewModel.myVersionMoreInfoMenuTapped(item.id)
+                viewModel.myVersionMoreInfoMenuTapped(version.id)
             }) {
                 HStack {
                     Text(String.localized("menu.moreInfo"))
@@ -103,7 +103,7 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
 
             if viewModel.myVersions.count > 1 {
                 Button(role: .destructive, action: {
-                    viewModel.myVersionRemoveVersionMenuTapped(item.id)
+                    viewModel.myVersionRemoveVersionMenuTapped(version.id)
                 }) {
                     HStack {
                         Text(String.localized("menu.removeFromList"))
@@ -126,7 +126,7 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
     VStack {
         Divider()
         BibleVersionsMyVersionsListItem(
-            item: BibleVersionsViewModel.preview.myVersions.first!
+            version: BibleVersionsViewModel.preview.myVersions.first!
         )
         Divider()
     }

@@ -60,7 +60,7 @@ actor BibleVersionDiskCache {
         storage.decoded(BibleVersion.self, for: .versionMetadata(versionId: id))
     }
 
-    nonisolated func versionIsPresent(for id: Int) -> Bool {
+    nonisolated func containsVersion(withId id: Int) -> Bool {
         storage.contains(.versionMetadata(versionId: id))
     }
 
@@ -106,7 +106,7 @@ actor BibleVersionDownloadCache {
         self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
-    nonisolated func versionIsPresent(for id: Int) -> Bool {
+    nonisolated func containsVersion(withId id: Int) -> Bool {
         storage.contains(.versionMetadata(versionId: id))
     }
 
@@ -268,12 +268,17 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
         return version
     }
 
+    public func containsVersion(withId id: Int) -> Bool {
+        downloadCache.containsVersion(withId: id)
+    }
+
+    @available(*, deprecated, renamed: "containsVersion(withId:)")
     public func versionIsPresent(for id: Int) -> Bool {
-        downloadCache.versionIsPresent(for: id)
+        containsVersion(withId: id)
     }
 
     public func downloadVersion(withId id: Int) async throws {
-        if downloadCache.versionIsPresent(for: id) {
+        if downloadCache.containsVersion(withId: id) {
             return
         }
 
@@ -289,7 +294,7 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
     }
 
     nonisolated public func downloadStatus(for id: Int) -> BibleVersionDownloadStatus {
-        if downloadCache.versionIsPresent(for: id) {
+        if downloadCache.containsVersion(withId: id) {
             return .downloaded
         }
         // TODO: look at the BibleVersion to see if it's downloadable or not.

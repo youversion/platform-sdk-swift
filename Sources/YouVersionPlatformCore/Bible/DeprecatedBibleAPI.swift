@@ -71,7 +71,7 @@ public actor VersionDiskCache: BibleVersionCaching {
     }
 
     nonisolated public func versionIsPresent(for id: Int) -> Bool {
-        inner.versionIsPresent(for: id)
+        inner.containsVersion(withId: id)
     }
 
     public func addVersion(_ version: BibleVersion) async {
@@ -96,7 +96,7 @@ public actor VersionDownloadCache: BibleVersionCaching {
     }
 
     nonisolated public func versionIsPresent(for id: Int) -> Bool {
-        inner.versionIsPresent(for: id)
+        inner.containsVersion(withId: id)
     }
 
     public func version(withId id: Int) async -> BibleVersion? {

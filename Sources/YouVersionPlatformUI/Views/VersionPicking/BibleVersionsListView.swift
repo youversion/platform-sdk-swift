@@ -19,11 +19,11 @@ public struct BibleVersionsListView: View {
             .buttonStyle(.plain)
             Group {
                 if let versions = filteredVersions {
-                    List(versions, id: \.id) { v in
+                    List(versions, id: \.id) { version in
                         Button {
-                            viewModel.handleVersionPickerTap(v.id)
+                            viewModel.handleVersionPickerTap(version.id)
                         } label: {
-                            BibleVersionOverviewListItem(item: v)
+                            BibleVersionOverviewListItem(version: version)
                         }
                         .buttonStyle(.plain)
                         .listRowBackground(viewModel.readerCanvasPrimaryColor)

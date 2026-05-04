@@ -62,8 +62,8 @@ struct BibleVersionsInfoView: View {
     private func refreshDownloadStatus() {
         Task {
             if let version = viewModel.selectedVersion {
-                isVersionDownloaded = await BibleVersionRepository.shared.versionIsPresent(
-                    for: version.id
+                isVersionDownloaded = await BibleVersionRepository.shared.containsVersion(
+                    withId: version.id
                 )
             }
         }

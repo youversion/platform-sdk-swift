@@ -68,13 +68,7 @@ extension BibleVersionsViewModel {
             return
         }
         do {
-            let time1 = Date()
             let languages = try await YouVersionAPI.Languages.languages(fields: ["language", "display_names"])
-            let elapsed = Date().timeIntervalSince(time1)
-            YouVersionPlatformLogger.debug(
-                "loadLanguageNames got \(languages.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                category: "Reader"
-            )
             var map: [String: String] = [:]
             for language in languages where language.displayNames != nil {
                 if let displayNames = language.displayNames,
