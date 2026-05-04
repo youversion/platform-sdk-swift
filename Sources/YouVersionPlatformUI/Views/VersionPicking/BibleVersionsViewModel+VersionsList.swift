@@ -7,9 +7,9 @@ extension BibleVersionsViewModel {
     }
 
     public var bibleVersionStatisticsPromo: String {
-        guard let versions = permittedVersionsList, !versions.isEmpty else {
+        guard let versions = cachedPermittedVersions, !versions.isEmpty else {
             Task {
-                await permittedVersionsListing()
+                await permittedVersions()
             }
             return ""
         }
@@ -66,9 +66,9 @@ extension BibleVersionsViewModel {
             var map: [String: String] = [:]
             for language in languages where language.displayNames != nil {
                 if let displayNames = language.displayNames,
-                   let name = bestDisplayName(for: displayNames),
-                   let languageCode = language.language {
-                    map[languageCode] = name
+                   let name = preferredDisplayName(from: displayNames),
+                   let languageTag = language.language {
+                    map[languageTag] = name
                 }
             }
             YouVersionPlatformLogger.debug("loadLanguageNames filtered to \(map.count) with displayNames.", category: "Reader")
@@ -79,7 +79,7 @@ extension BibleVersionsViewModel {
     }
 
     public func languageTapped() {
-        if permittedVersionsList?.isEmpty ?? true {
+        if cachedPermittedVersions?.isEmpty ?? true {
             showGenericAlert = true
             textForGenericAlertTitle = .localized("generic.error")
             textForGenericAlertBody = .localized("reader.availableLanguagesErrorBody")
@@ -92,7 +92,7 @@ extension BibleVersionsViewModel {
     }
 
     /// Heuristically return the name from the map which is the "closest" for the user.
-    private func bestDisplayName(for names: [String: String?]) -> String? {
+    private func preferredDisplayName(from names: [String: String?]) -> String? {
         if names.isEmpty {
             return nil
         }

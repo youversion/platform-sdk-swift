@@ -59,7 +59,7 @@ public struct BibleVersionsListView: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .onChange(of: viewModel.activeLanguage, initial: true) { _, newValue in
-            viewModel.fetchVersionsInLanguage(code: newValue)
+            viewModel.fetchVersions(forLanguageTag: newValue)
         }
     }
 
@@ -92,7 +92,7 @@ public struct BibleVersionsListView: View {
 
     private var languageDisplay: some View {
         let language = viewModel.activeLanguage
-        let versionsInLanguage = viewModel.permittedVersionsList?.filter { $0.languageTag == language } ?? []
+        let versionsInLanguage = viewModel.cachedPermittedVersions?.filter { $0.languageTag == language } ?? []
         return HStack {
             Image(systemName: "globe")
             Text(viewModel.languageName(language))
@@ -112,7 +112,7 @@ public struct BibleVersionsListView: View {
 
     private var filteredVersions: [BibleVersion]? {
         let language = viewModel.activeLanguage
-        guard let versionsList = viewModel.versionsInLanguage[language] else {
+        guard let versionsList = viewModel.versionsByLanguageTag[language] else {
             return nil
         }
 
