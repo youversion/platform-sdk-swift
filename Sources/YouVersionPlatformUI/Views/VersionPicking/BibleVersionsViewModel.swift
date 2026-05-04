@@ -51,10 +51,10 @@ public final class BibleVersionsViewModel {
     }
     
     private func removeUnpermittedVersions(initialVersionId: Int?) async {
-        guard let permittedVersions = await permittedVersions() else {
+        guard let permitted = await permittedVersions() else {
             return  // when offline, we don't get a list, but don't delete anything!
         }
-        let permittedIds = Set(permittedVersions.map(\.id))
+        let permittedIds = Set(permitted.map(\.id))
         await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
         
         for version in myVersions where !permittedIds.contains(version.id) {

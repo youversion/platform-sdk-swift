@@ -145,8 +145,10 @@ struct BibleVersionsLanguagesView: View {
 
     // De-dup + locale-aware, case-insensitive sort
     private func sortedUniqueLanguageTags(_ items: [String]) -> [String] {
-        Array(Set(items)).sorted {
-            viewModel.languageName($0).localizedCaseInsensitiveCompare(viewModel.languageName($1)) == .orderedAscending
+        let unique = Array(Set(items))
+        let names = Dictionary(uniqueKeysWithValues: unique.map { ($0, viewModel.languageName($0)) })
+        return unique.sorted {
+            names[$0, default: $0].localizedCaseInsensitiveCompare(names[$1, default: $1]) == .orderedAscending
         }
     }
 }
