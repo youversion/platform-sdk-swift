@@ -69,7 +69,7 @@ public extension YouVersionAPI {
         /// - Throws:
         ///   - `URLError.badURL` if the URL could not be constructed.
         ///   - `URLError.badServerResponse` if the server response could not be decoded.
-        public static func getHighlights(
+        public static func highlights(
             bibleId: Int,
             passageId: String,
             accessToken providedToken: String? = nil,
@@ -96,7 +96,7 @@ public extension YouVersionAPI {
             }
 
             if httpResponse.statusCode == 401 {
-                YouVersionPlatformLogger.error("getHighlights: error 401: unauthorized. Check your access token", category: "Highlights")
+                YouVersionPlatformLogger.error("highlights: error 401: unauthorized. Check your access token", category: "Highlights")
                 return []
             }
 
@@ -105,7 +105,7 @@ public extension YouVersionAPI {
             }
 
             guard httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
-                YouVersionPlatformLogger.error("getHighlights: unexpected status code \(httpResponse.statusCode)", category: "Highlights")
+                YouVersionPlatformLogger.error("highlights: unexpected status code \(httpResponse.statusCode)", category: "Highlights")
                 return []
             }
 
@@ -114,6 +114,21 @@ public extension YouVersionAPI {
             }
 
             return decodedResponse.data
+        }
+
+        @available(*, deprecated, renamed: "highlights(bibleId:passageId:accessToken:session:)")
+        public static func getHighlights(
+            bibleId: Int,
+            passageId: String,
+            accessToken providedToken: String? = nil,
+            session: URLSession = .shared
+        ) async throws -> [HighlightResponse] {
+            try await highlights(
+                bibleId: bibleId,
+                passageId: passageId,
+                accessToken: providedToken,
+                session: session
+            )
         }
 
         // MARK: - Update (PUT)

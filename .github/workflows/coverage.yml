@@ -75,9 +75,9 @@ jobs:
           echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
           echo "Coverage: $COVERAGE%"
 
-      - name: Update coverage JSON for shields.io
+      - name: Build coverage JSON for shields.io
         run: |
-          mkdir -p .github/badges
+          mkdir -p coverage-output
           COVERAGE="${{ steps.coverage.outputs.percentage }}"
 
           # Determine color based on coverage
@@ -92,7 +92,7 @@ jobs:
           fi
 
           # Create JSON endpoint for shields.io
-          cat > .github/badges/coverage.json << EOF
+          cat > coverage-output/coverage.json << EOF
           {
             "schemaVersion": 1,
             "label": "coverage",
@@ -101,11 +101,19 @@ jobs:
           }
           EOF
 
-      - name: Commit coverage data
+      - name: Check out badges branch
+        uses: actions/checkout@v4
+        with:
+          ref: badges
+          path: badges-branch
+          ssh-key: ${{ secrets.RELEASE_SSH_KEY }}
+
+      - name: Commit coverage data to badges branch
+        working-directory: badges-branch
         run: |
+          cp ../coverage-output/coverage.json coverage.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase --autostash origin main
-          git add .github/badges/coverage.json
-          git diff --staged --quiet || git commit -m "chore: update coverage badge [skip ci]"
+          git add coverage.json
+          git diff --staged --quiet || git commit -m "chore: update coverage badge"
           git push

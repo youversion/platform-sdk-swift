@@ -104,7 +104,7 @@ extension URLRequest {
             return (json, response)
         }
 
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.9",
             accessToken: "swift-test-suite",
@@ -131,7 +131,7 @@ extension URLRequest {
             return (Data(), response)
         }
 
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",
@@ -207,7 +207,7 @@ extension URLRequest {
             return (Data(), response)
         }
 
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",
@@ -226,7 +226,7 @@ extension URLRequest {
             return (Data(), response)
         }
 
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",

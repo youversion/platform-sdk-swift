@@ -3,13 +3,13 @@ import YouVersionPlatformCore
 
 struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
     @Environment(BibleVersionsViewModel.self) private var viewModel
-    let item: BibleVersion
+    let version: BibleVersion
 
     var body: some View {
         HStack(spacing: 12) {
             // Rounded square with abbreviation
             VStack(spacing: 0) {
-                let abbreviation = item.localizedAbbreviation ?? item.abbreviation ?? String(item.id)
+                let abbreviation = version.localizedAbbreviation ?? version.abbreviation ?? String(version.id)
                 let (letters, numbers) = splitAbbreviation(abbreviation)
 
                 Text(letters)
@@ -38,7 +38,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
             )
 
             // Version title
-            Text(item.localizedTitle ?? item.title ?? item.localizedAbbreviation ?? item.abbreviation ?? String(item.id))
+            Text(version.localizedTitle ?? version.title ?? version.localizedAbbreviation ?? version.abbreviation ?? String(version.id))
                 .font(.body)
 
             Spacer()
@@ -53,7 +53,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
 #Preview {
     VStack {
         Divider()
-        BibleVersionOverviewListItem(item: BibleVersion.preview)
+        BibleVersionOverviewListItem(version: BibleVersion.preview)
             .environment(BibleVersionsViewModel.preview)
         Divider()
     }

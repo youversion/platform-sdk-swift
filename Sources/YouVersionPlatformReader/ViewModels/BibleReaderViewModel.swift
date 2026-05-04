@@ -90,7 +90,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
-
     private class ReaderSettings: Codable {
         let fontFamily: String?
         let fontSize: CGFloat?
@@ -249,8 +248,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             lineSpacing: lineSpacing,
             paragraphSpacing: lineSpacing,
             textColor: readerTextPrimaryColor,
-            verseNumColor: readerVerseNumColor,
-            wocColor: readerWordsOfChristColor,
+            verseNumberColor: readerVerseNumColor,
+            wordsOfChristColor: readerWordsOfChristColor,
             footnoteMode: .image,
             footnoteMarker: nil,
             verseSelectionStyle: verseSelectionStyle,
@@ -340,10 +339,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     func updateSignInState() {
         Task {
-            let hasValidToken = await YouVersionAPI.hasValidToken()
-            await MainActor.run {
-                isSignedIn = hasValidToken
-            }
+            isSignedIn = await YouVersionAPI.hasValidToken()
         }
     }
 

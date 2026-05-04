@@ -9,6 +9,8 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     var thrownError: Error?
     var downloadedIds: [Int] = []
 
+    init() {}
+
     func setVersion(_ version: BibleVersion) {
         versionById[version.id] = version
     }
@@ -49,7 +51,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         .notDownloadable
     }
 
-    func removeVersion(withId versionId: Int) async {
+    func removeVersion(withId id: Int) async {
     }
 
     func removeUnpermittedVersions(permittedIds: Set<Int>) async {
@@ -76,8 +78,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.switchToVersion(version.id)
-        await waitFor { changedVersion == version }
+        await viewModel.switchToVersion(version.id)
 
         #expect(changedVersion == version)
         #expect(viewModel.showGenericAlert == false)
@@ -92,8 +93,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.switchToVersion(111)
-        await waitFor { viewModel.showGenericAlert }
+        await viewModel.switchToVersion(111)
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
@@ -110,8 +110,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.handleVersionPickerTap(version.id)
-        await waitFor { viewModel.selectedVersion == version }
+        await viewModel.handleVersionPickerTap(version.id)
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -129,8 +128,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.myVersionMoreInfoMenuTapped(version.id)
-        await waitFor { viewModel.selectedVersion == version }
+        await viewModel.myVersionMoreInfoMenuTapped(version.id)
 
         #expect(viewModel.selectedVersion == version)
         #expect(viewModel.versionsPickerStack == [.versionInfo])
@@ -145,8 +143,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             versionRepository: repository
         )
 
-        viewModel.myVersionDownloadMenuTapped(444)
-        await waitFor { viewModel.showGenericAlert }
+        await viewModel.myVersionDownloadMenuTapped(444)
 
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
@@ -170,20 +167,5 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
             books: nil,
             textDirection: "ltr"
         )
-    }
-
-    private func waitFor(
-        timeoutNanoseconds: UInt64 = 1_000_000_000,
-        condition: @escaping @MainActor () -> Bool
-    ) async {
-        let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
-        while DispatchTime.now().uptimeNanoseconds < deadline {
-            if condition() {
-                return
-            }
-            await Task.yield()
-            try? await Task.sleep(nanoseconds: 10_000_000)
-        }
-        Issue.record("Timed out waiting for condition")
     }
 }

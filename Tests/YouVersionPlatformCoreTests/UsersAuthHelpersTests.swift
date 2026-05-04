@@ -78,7 +78,7 @@ import Testing
         }
     }
 
-    @Test func performRefreshSuccessReturnsNewTokens() async throws {
+    @Test func refreshSignInSuccessReturnsNewTokens() async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         await YouVersionPlatformConfiguration.configure(appKey: "test-app")
 
@@ -106,8 +106,8 @@ import Testing
             return (responseData, response)
         }
 
-        let result = try await YouVersionAPI.Users.performRefresh(
-            with: "refresh-token-value",
+        let result = try await YouVersionAPI.Users.refreshSignIn(
+            withToken: "refresh-token-value",
             idToken: "id-token",
             session: session
         )
@@ -121,7 +121,7 @@ import Testing
         await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
     }
 
-    @Test func performRefreshNon200Throws() async {
+    @Test func refreshSignInNon200Throws() async {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         await YouVersionPlatformConfiguration.configure(appKey: "test-app")
 
@@ -134,8 +134,8 @@ import Testing
         }
 
         await #expect(throws: URLError.self) {
-            _ = try await YouVersionAPI.Users.performRefresh(
-                with: "refresh-token-value",
+            _ = try await YouVersionAPI.Users.refreshSignIn(
+                withToken: "refresh-token-value",
                 idToken: nil,
                 session: session
             )

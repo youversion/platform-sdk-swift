@@ -27,29 +27,33 @@ extension BibleVersionsViewModel {
     }
 
     public func switchToVersion(_ versionId: Int) {
-        Task {
-            do {
-                let version = try await versionRepository.version(withId: versionId)
-                onVersionChange(version)
-            } catch {
-                handleVersionLoadingError(error)
-            }
+        Task { await switchToVersion(versionId) }
+    }
+
+    func switchToVersion(_ versionId: Int) async {
+        do {
+            let version = try await versionRepository.version(withId: versionId)
+            onVersionChange(version)
+        } catch {
+            handleVersionLoadingError(error)
         }
     }
 
     public func handleVersionPickerTap(_ versionId: Int) {
-        Task {
-            do {
-                showFullProgressViewOverlay = true
-                defer {
-                    showFullProgressViewOverlay = false
-                }
-                let version = try await versionRepository.version(withId: versionId)
-                selectedVersion = version
-                versionsStackPush(to: .versionInfo)
-            } catch {
-                handleVersionLoadingError(error)
+        Task { await handleVersionPickerTap(versionId) }
+    }
+
+    func handleVersionPickerTap(_ versionId: Int) async {
+        do {
+            showFullProgressViewOverlay = true
+            defer {
+                showFullProgressViewOverlay = false
             }
+            let version = try await versionRepository.version(withId: versionId)
+            selectedVersion = version
+            versionsStackPush(to: .versionInfo)
+        } catch {
+            handleVersionLoadingError(error)
         }
     }
 
@@ -58,13 +62,7 @@ extension BibleVersionsViewModel {
             return
         }
         do {
-            let time1 = Date()
             let languages = try await YouVersionAPI.Languages.languages(fields: ["language", "display_names"])
-            let elapsed = Date().timeIntervalSince(time1)
-            YouVersionPlatformLogger.debug(
-                "loadLanguageNames got \(languages.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                category: "Reader"
-            )
             var map: [String: String] = [:]
             for language in languages where language.displayNames != nil {
                 if let displayNames = language.displayNames,

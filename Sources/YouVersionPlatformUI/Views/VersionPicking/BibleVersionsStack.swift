@@ -33,14 +33,13 @@ public struct BibleVersionsStack: View {
         } else {
             ZStack {
                 BibleVersionsListView()
+                
                 if viewModel.showFullProgressViewOverlay {
                     Color.gray.opacity(0.2)
-                }
-                if viewModel.showFullProgressViewOverlay {
+                    
                     ProgressView()
                 }
             }
-
         }
     }
 

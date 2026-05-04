@@ -77,7 +77,7 @@ public extension YouVersionAPI.Users {
                     continuation.resume(throwing: error)
                 } else if let callbackURL {
                     do {
-                        let result = try await YouVersionAPI.Users.getSignInResult(
+                        let result = try await YouVersionAPI.Users.signInResult(
                             from: callbackURL,
                             state: authorizationRequest.parameters.state,
                             codeVerifier: authorizationRequest.parameters.codeVerifier,

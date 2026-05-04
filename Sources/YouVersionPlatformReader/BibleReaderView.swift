@@ -10,10 +10,11 @@ public struct BibleReaderView: View {
 #endif
 
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let fontSettingsDetent = PresentationDetent.height(360)
-    private let fontListDetent = PresentationDetent.height(480)
+    let fontSettingsDetent = PresentationDetent.height(360)
+    let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
@@ -49,6 +50,9 @@ public struct BibleReaderView: View {
     ///   - onReferenceChange: An optional closure called whenever the displayed
     ///     chapter reference changes — for example when the user taps the
     ///     next/previous chapter buttons or picks a new book/chapter from the header.
+    ///   - onChapterComplete: An optional closure called once when the user scrolls
+    ///     near the bottom of the chapter content. Fires at most once per chapter;
+    ///     resets when the reader navigates to a different chapter.
     ///   - audioActiveReference: The verse currently being narrated by audio
     ///     playback. When this value changes, the reader auto-scrolls to keep
     ///     the active verse visible. Pass `nil` when audio is not playing.
@@ -118,6 +122,14 @@ public struct BibleReaderView: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
+            viewModel.textForGenericAlertTitle,
+            isPresented: $viewModel.showGenericAlert
+        ) {
+            Button(viewModel.textForGenericAlertOKButton) { }
+        } message: {
+            Text(viewModel.textForGenericAlertBody)
+        }
+        .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation
         ) {
@@ -146,6 +158,12 @@ public struct BibleReaderView: View {
         .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
         }
+        .sheet(isPresented: $viewModel.showingVersionsStack) {
+            BibleVersionsStack()
+                .environment(viewModel.versionsViewModel)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.large])
+        }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             if newValue {
                 startSignIn()
@@ -165,8 +183,8 @@ public struct BibleReaderView: View {
         .onChange(of: viewModel.reference, initial: true) { _, newReference in
             verseAnchors = []
             lastScrolledVerse = nil
-            viewModel.onReferenceChange?(newReference)
             viewModel.resetChapterCompleteTracking()
+            viewModel.onReferenceChange?(newReference)
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -271,11 +289,6 @@ public struct BibleReaderView: View {
     private var mainScroller: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geo.frame(in: .named("scrollView")).minY)
-                }
-                .frame(height: 0)
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
                         if viewModel.showBookIntro {
@@ -300,18 +313,18 @@ public struct BibleReaderView: View {
                     .padding(.vertical)
                     .padding(.horizontal, 30)
                     .id("topOfContent")
+                    .onGeometryChange(for: CGFloat.self) { proxy in
+                        proxy.frame(in: .named("scrollView")).minY
+                    } action: { newOffset in
+                        viewModel.handleScroll(offset: newOffset)
+                    }
                 } else {
                     ProgressView()
                         .tint(viewModel.readerTextMutedColor)
                         .padding(.vertical, 48)
                 }
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geo.frame(in: .named("scrollView")).maxY)
-                }
-                .frame(height: 0)
             }
-            .coordinateSpace(name: "scrollView")
+            .coordinateSpace(.named("scrollView"))
             .background(
                 GeometryReader { geo in
                     Color.clear
@@ -322,17 +335,15 @@ public struct BibleReaderView: View {
                 }
             )
             .onPreferenceChange(VerseAnchorsPreferenceKey.self) { verseAnchors = $0 }
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                Task { @MainActor in
-                    viewModel.handleScroll(offset: value)
-                }
-            }
             .onChange(of: viewModel.scrollToTop) { _, shouldScroll in
                 if shouldScroll {
                     scrollProxy.scrollTo("topOfContent", anchor: .top)
                     viewModel.scrollToTop = false
                     lastScrolledVerse = nil
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    // Wait for scroll animation before clearing the flag.
+                    Task { @MainActor in
+                        // swiftlint:disable:next common_debug_statements
+                        try? await Task.sleep(for: .seconds(0.5))
                         viewModel.isChangingChapter = false
                     }
                 }
@@ -362,15 +373,16 @@ public struct BibleReaderView: View {
         }
         lastScrolledVerse = anchorVerse
         let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
-        DispatchQueue.main.async {
-            withAnimation(.easeInOut(duration: 0.3)) {
+        Task { @MainActor in
+            let animation: Animation? = reduceMotion ? nil : .easeInOut(duration: 0.3)
+            withAnimation(animation) {
                 scrollProxy.scrollTo(anchorId, anchor: .center)
             }
         }
     }
 
 #if !os(tvOS)
-    final class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
 #if canImport(UIKit)
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -386,19 +398,9 @@ public struct BibleReaderView: View {
     }
 #endif
 
-    /// Helper to detect scroll offset in ScrollView
-    private struct ScrollOffsetPreferenceKey: PreferenceKey {
-        typealias Value = CGFloat
-        static var defaultValue: Value { .zero }
-        static func reduce(value: inout Value, nextValue: () -> Value) {
-            value = nextValue()
-        }
-    }
-
     // MARK: - Action handlers
 
     private func startSignIn() {
-        // TODO: move this code into BibleReaderViewModel
         Task {
             do {
                 viewModel.startSignInFlow = false

@@ -74,7 +74,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     }
                 }
                 .background(viewModel.readerCanvasPrimaryColor)
-                .listStyle(PlainListStyle())
+                .listStyle(.plain)
             }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
@@ -82,20 +82,22 @@ public struct BibleReaderBookAndChapterPickerView: View {
     }
 
     private func sectionHeaderView(_ bookCode: String) -> some View {
-        HStack(spacing: 8) {
-            Text(bookNameProvider(bookCode) ?? bookCode)
-                .font(.body)
-            Spacer(minLength: 4)
-            Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
-                .font(.system(size: 14))
-        }
-        .contentShape(Rectangle())
-        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
-        .onTapGesture {
+        Button {
             withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
             }
+        } label: {
+            HStack(spacing: 8) {
+                Text(bookNameProvider(bookCode) ?? bookCode)
+                    .font(.body)
+                Spacer(minLength: 4)
+                Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 14))
+            }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
         .textCase(nil)
     }
 
@@ -108,39 +110,31 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, nil, introId)
                 }) {
-                    chapterListButton(image: Image("i-icon", bundle: .YouVersionUIBundle))
+                    chapterListButton(Text(Image("i-icon", bundle: .YouVersionUIBundle)))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
             }
             ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
                 Button(action: {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, idx + 1, nil)
                 }) {
-                    chapterListButton(label: label)
+                    chapterListButton(Text(label))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, 8)
     }
     
-    private func chapterListButton(label: String? = nil, image: Image? = nil) -> some View {
-        Group {
-            if let label {
-                Text(label)
-            } else if let image {
-                Text(image)
-            } else {
-                Text("")
-            }
-        }
-        .font(.system(size: 14, weight: .bold))
-        .frame(width: chapterButtonSize, height: chapterButtonSize)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(viewModel.readerButtonPrimaryColor)
-        )
+    private func chapterListButton(_ text: Text) -> some View {
+        text
+            .font(.system(size: 14, weight: .bold))
+            .frame(width: chapterButtonSize, height: chapterButtonSize)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(viewModel.readerButtonPrimaryColor)
+            )
     }
 }
 

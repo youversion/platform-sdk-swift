@@ -43,22 +43,16 @@ public struct BibleReaderHeaderView: View {
             }
         }
         .padding(.leading, 16)
-        .padding(.top, spaceNeeded ? 32 : 0)  // hack. See below.
-        .background(
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(of: proxy.size.width, initial: true) { _, w in
-                        // This enables a hack to avoid overlapping the red/yellow/green
-                        // buttons on iPad running 26+. iPadOS changes the layout and adds
-                        // those buttons, such that we need different top padding.
+        // Avoid overlapping the red/yellow/green window buttons that iPadOS 26+ adds
+        // when running compact (Slide Over / split-screen narrow).
+        .padding(.top, spaceNeeded ? 32 : 0)
 #if canImport(UIKit)
-                        if #available(iOS 26, *) {
-                            spaceNeeded = UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .compact
-                        }
-#endif
-                    }
+        .onChange(of: horizontalSizeClass, initial: true) { _, _ in
+            if #available(iOS 26, *) {
+                spaceNeeded = UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .compact
             }
-        )
+        }
+#endif
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: showChrome)
         .sheet(
             isPresented: $viewModel.showingBookPicker,
@@ -157,24 +151,26 @@ public struct BibleReaderHeaderView: View {
     }
 
     private func compactLabelsView(bookAndChapter: String, versionAbbreviation: String) -> some View {
-        HStack(spacing: 8) {
-            Text(bookAndChapter)
-                .font(.system(size: 14, weight: .semibold))
-
-            Divider()
-                .frame(width: 1, height: 14)
-
-            Text(versionAbbreviation)
-                .font(.system(size: 14, weight: .semibold))
-        }
-        .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .frame(height: 24)
-        .contentShape(Rectangle())
-        .onTapGesture {
+        Button {
             withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
                 onCompactTap?()
             }
+        } label: {
+            HStack(spacing: 8) {
+                Text(bookAndChapter)
+                    .font(.system(size: 14, weight: .semibold))
+
+                Divider()
+                    .frame(width: 1, height: 14)
+
+                Text(versionAbbreviation)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .foregroundStyle(viewModel.readerTextPrimaryColor)
+            .frame(height: 24)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
 
 }

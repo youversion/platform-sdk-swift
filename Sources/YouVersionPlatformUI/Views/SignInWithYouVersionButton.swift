@@ -13,7 +13,7 @@ public struct SignInWithYouVersionButton: View {
         case rectangle
     }
     
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     private let shape: ButtonShape
     private let mode: Mode
     private let isStroked: Bool
@@ -133,7 +133,7 @@ private struct SignInWithYouVersionButtonStyle: ButtonStyle {
                 )
         } else {
             content
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(.rect(cornerRadius: 4))
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
                         .stroke(strokeColor, lineWidth: strokeWidth)

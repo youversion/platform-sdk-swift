@@ -9,13 +9,15 @@ extension BibleVersionsViewModel {
     }
 
     public func myVersionMoreInfoMenuTapped(_ versionId: Int) {
-        Task {
-            do {
-                selectedVersion = try await versionRepository.version(withId: versionId)
-                versionsStackPush(to: .versionInfo)
-            } catch {
-                handleVersionLoadingError(error)
-            }
+        Task { await myVersionMoreInfoMenuTapped(versionId) }
+    }
+
+    func myVersionMoreInfoMenuTapped(_ versionId: Int) async {
+        do {
+            selectedVersion = try await versionRepository.version(withId: versionId)
+            versionsStackPush(to: .versionInfo)
+        } catch {
+            handleVersionLoadingError(error)
         }
     }
 
@@ -35,14 +37,16 @@ extension BibleVersionsViewModel {
     }
 
     public func myVersionDownloadMenuTapped(_ versionId: Int) {
-        Task {
-            if let version = try? await versionRepository.version(withId: versionId) {
-                conditionalDownloadButtonTapped(version: version)
-            } else {
-                showGenericAlert = true
-                textForGenericAlertTitle = .localized("generic.error")
-                textForGenericAlertBody = .localized("myVersions.downloadErrorBody")
-            }
+        Task { await myVersionDownloadMenuTapped(versionId) }
+    }
+
+    func myVersionDownloadMenuTapped(_ versionId: Int) async {
+        if let version = try? await versionRepository.version(withId: versionId) {
+            conditionalDownloadButtonTapped(version: version)
+        } else {
+            showGenericAlert = true
+            textForGenericAlertTitle = .localized("generic.error")
+            textForGenericAlertBody = .localized("myVersions.downloadErrorBody")
         }
     }
 

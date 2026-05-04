@@ -23,9 +23,7 @@ private struct CustomBackButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .if(shouldHideSystemBackButton) { view in
-                view.navigationBarBackButtonHidden(true)
-            }
+            .navigationBarBackButtonHidden(shouldHideSystemBackButton)
             .toolbar {
                 #if os(iOS)
                 if #unavailable(iOS 26) {

@@ -17,7 +17,7 @@ public final class BibleVersionsViewModel {
     var showGenericAlert = false
     var textForGenericAlertTitle = ""
     var textForGenericAlertBody = ""
-    private(set) var textForGenericAlertOKButton = "OK"
+    private(set) var textForGenericAlertOKButton = String.localized("generic.ok")
     
     private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private var hasLoadedInitialState = false
@@ -73,7 +73,7 @@ public final class BibleVersionsViewModel {
         }
 
         // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        for id in VersionDownloadCache.downloadedVersions where !myVersions.contains(where: { $0.id == id }) {
+        for id in BibleVersionRepository.defaultDownloadedVersionIds where !myVersions.contains(where: { $0.id == id }) {
             if let version = try? await versionRepository.versionIfCached(id) {
                 myVersions.insert(version)
             }
@@ -127,7 +127,7 @@ public final class BibleVersionsViewModel {
     /// - Returns: A fallback version ID, or `nil` if no version is available
     ///   (typically because the device is offline).
     private func fallbackVersion(savedIds: Set<Int>) async -> Int? {
-        let downloadedVersionIds = VersionDownloadCache.downloadedVersions
+        let downloadedVersionIds = BibleVersionRepository.defaultDownloadedVersionIds
         if let downloadedVersionId = downloadedVersionIds.first {
             return downloadedVersionId
         }
@@ -169,20 +169,10 @@ public final class BibleVersionsViewModel {
             return permittedVersionsList
         }
         
-        let time1 = Date()
         let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
-        let elapsed = Date().timeIntervalSince(time1)
-        YouVersionPlatformLogger.debug(
-            "fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.",
-            category: "Reader"
-        )
-        
-        if let versions {
-            await MainActor.run {
-                if self.permittedVersionsList == nil {
-                    self.permittedVersionsList = versions
-                }
-            }
+
+        if let versions, permittedVersionsList == nil {
+            permittedVersionsList = versions
         }
         return versions
     }
@@ -200,25 +190,15 @@ public final class BibleVersionsViewModel {
         }
         versionsBeingFetched.insert(code)
         Task {
-            let time1 = Date()
             if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
-                let elapsed = Date().timeIntervalSince(time1)
-                YouVersionPlatformLogger.debug(
-                    "fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                    category: "Reader"
-                )
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
                     return a < b
                 }
-                await MainActor.run {
-                    self.versionsInLanguage[code] = sortedVersions
-                }
+                versionsInLanguage[code] = sortedVersions
             }
-            _ = await MainActor.run {
-                versionsBeingFetched.remove(code)
-            }
+            versionsBeingFetched.remove(code)
         }
     }
     
@@ -247,13 +227,7 @@ public final class BibleVersionsViewModel {
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
         do {
-            let time1 = Date()
             suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
-            let elapsed = Date().timeIntervalSince(time1)
-            YouVersionPlatformLogger.debug(
-                "loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.",
-                category: "Reader"
-            )
         } catch {
             YouVersionPlatformLogger.error("Error fetching languages: \(error.localizedDescription)", category: "Reader")
         }

@@ -21,7 +21,7 @@ public enum YouVersionAPI {
             return true
         }
         guard let refreshToken = data.refreshToken,
-              let result = try? await Users.performRefresh(with: refreshToken, idToken: data.idToken, session: session) else {
+              let result = try? await Users.refreshSignIn(withToken: refreshToken, idToken: data.idToken, session: session) else {
             YouVersionPlatformLogger.error("token refresh failed", category: "Auth")
             return false
         }

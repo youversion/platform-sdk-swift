@@ -61,32 +61,35 @@ struct BibleVersionsLanguagesView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     if selectedSegment == .suggested {
                         Text(String.localized("languageList.regional"))
-                            .font(YouVersionFonts.fontHeaderM)
+                            .font(YouVersionFonts.headerMedium)
                             .padding(.leading)
                     }
                     ForEach(languageCodes, id: \.self) { language in
-                        HStack {
-                            Text(viewModel.languageName(language))
-                            Spacer()
-                        }
-                        .frame(minHeight: 44)
-                        .padding(.horizontal)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
+                        Button {
                             viewModel.chosenLanguage = language
                             viewModel.versionsStackPop()
+                        } label: {
+                            HStack {
+                                Text(viewModel.languageName(language))
+                                Spacer()
+                            }
+                            .frame(minHeight: 44)
+                            .padding(.horizontal)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
             }
 
         }
-        .onAppear {
+        .task(id: viewModel.colorTheme) {
 #if canImport(UIKit)
-            UISegmentedControl.appearance().tintColor = UIColor(viewModel.readerButtonPrimaryColor)
-            UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
-            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
-            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
+            let appearance = UISegmentedControl.appearance()
+            appearance.tintColor = UIColor(viewModel.readerButtonPrimaryColor)
+            appearance.selectedSegmentTintColor = UIColor(viewModel.readerButtonContrastColor)
+            appearance.setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextPrimaryColor)], for: .normal)
+            appearance.setTitleTextAttributes([.foregroundColor: UIColor(viewModel.readerTextInvertedColor)], for: .selected)
 #endif
         }
         #if os(iOS)

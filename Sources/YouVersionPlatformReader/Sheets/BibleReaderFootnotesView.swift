@@ -11,8 +11,8 @@ struct BibleReaderFootnotesView: View {
             lineSpacing: viewModel.textOptions.lineSpacing,
             paragraphSpacing: viewModel.textOptions.paragraphSpacing,
             textColor: viewModel.textOptions.textColor,
-            verseNumColor: viewModel.textOptions.verseNumColor,
-            wocColor: viewModel.textOptions.wocColor,
+            verseNumberColor: viewModel.textOptions.verseNumberColor,
+            wordsOfChristColor: viewModel.textOptions.wordsOfChristColor,
             renderHeadlines: false,
             renderVerseNumbers: false,
             footnoteMode: .letters,
@@ -23,7 +23,7 @@ struct BibleReaderFootnotesView: View {
             if let version = viewModel.version,
                 let reference = viewModel.footnotesToDisplay.first?.reference {
                 Text(version.displayTitle(for: reference))
-                    .font(YouVersionFonts.fontHeaderS)
+                    .font(YouVersionFonts.headerSmall)
                     .padding(.bottom)
                 ScrollView {
                     BibleTextView(reference, textOptions: textOptions)
@@ -36,7 +36,7 @@ struct BibleReaderFootnotesView: View {
                             let txt = footnote.text.setFont(.footnote, from: BibleTextFonts(familyName: "San Francisco", baseSize: 15))
                             HStack(alignment: .firstTextBaseline) {
                                 Text(character + ".")
-                                    .font(YouVersionFonts.fontLabelS)
+                                    .font(YouVersionFonts.labelSmall)
                                 Text(txt.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }

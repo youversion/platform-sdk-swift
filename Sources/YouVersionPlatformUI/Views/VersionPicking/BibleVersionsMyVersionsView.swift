@@ -9,7 +9,7 @@ public struct BibleVersionsMyVersionsView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(sortedMyVersions, id: \.id) { v in
-                        BibleVersionsMyVersionsListItem(item: v)
+                        BibleVersionsMyVersionsListItem(version: v)
                             .padding(.vertical, 6)
                     }
                 }
