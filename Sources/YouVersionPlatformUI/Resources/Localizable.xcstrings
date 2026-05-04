@@ -1129,17 +1129,6 @@
         }
       }
     },
-    "reader.introLoadError" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Introductory material could not be loaded."
-          }
-        }
-      }
-    },
     "reader.footnoteTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1147,6 +1136,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Footnote"
+          }
+        }
+      }
+    },
+    "reader.introLoadError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Introductory material could not be loaded."
           }
         }
       }
