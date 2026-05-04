@@ -301,6 +301,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func openFontSettings() {
+        showingFontList = false
         showingFontSettings = true
     }
 
