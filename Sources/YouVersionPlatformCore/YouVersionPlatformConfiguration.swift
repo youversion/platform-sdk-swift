@@ -19,6 +19,12 @@ public struct YouVersionPlatformConfiguration {
     /// in all languages are available. Tags follow BCP 47 (e.g. `"en"` for English).
     nonisolated(unsafe) public private(set) static var permittedLanguageTags: Set<String>?
 
+    /// When set, only Bible versions whose `id` is in this set are made available in the
+    /// version picker UI and other version listings. When `nil` (the default), all versions
+    /// are available. Combines with ``permittedLanguageTags`` — a version must satisfy both
+    /// filters to be available.
+    nonisolated(unsafe) public private(set) static var permittedVersionIds: Set<Int>?
+
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
 
@@ -34,7 +40,8 @@ public struct YouVersionPlatformConfiguration {
         appName: String? = nil,
         isSignInEnabled: Bool = true,
         signInPromptMessage: String? = nil,
-        permittedLanguageTags: Set<String>? = nil
+        permittedLanguageTags: Set<String>? = nil,
+        permittedVersionIds: Set<Int>? = nil
     ) {
         let defaults = UserDefaults.standard
 
@@ -49,6 +56,7 @@ public struct YouVersionPlatformConfiguration {
         Self.isSignInEnabled = isSignInEnabled
         Self.signInPromptMessage = signInPromptMessage
         Self.permittedLanguageTags = permittedLanguageTags
+        Self.permittedVersionIds = permittedVersionIds
 
         // Create and save an Install ID if it's not present
         if let existing = defaults.string(forKey: installIdKey) {

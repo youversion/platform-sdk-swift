@@ -163,16 +163,18 @@ public final class BibleVersionsViewModel {
         }
         
         if let allVersions = try? await YouVersionAPI.Bible.versions() {
-            let versions: [BibleVersion]
-            if let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
-                versions = allVersions.filter {
-                    guard let tag = $0.languageTag else {
+            let versions = allVersions.filter { version in
+                if let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
+                    guard let tag = version.languageTag, permittedTags.contains(tag) else {
                         return false
                     }
-                    return permittedTags.contains(tag)
                 }
-            } else {
-                versions = allVersions
+                if let permittedIds = YouVersionPlatformConfiguration.permittedVersionIds {
+                    guard permittedIds.contains(version.id) else {
+                        return false
+                    }
+                }
+                return true
             }
 
             // are any of the permitted versions in their myVersions list?
@@ -212,15 +214,18 @@ public final class BibleVersionsViewModel {
         }
         
         let fetched = try? await YouVersionAPI.Bible.permittedVersions()
-        let versions: [YouVersionAPI.Bible.BibleVersionMinimalInfo]? = if let fetched, let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
-            fetched.filter {
-                guard let tag = $0.languageTag else {
+        let versions = fetched?.filter { version in
+            if let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
+                guard let tag = version.languageTag, permittedTags.contains(tag) else {
                     return false
                 }
-                return permittedTags.contains(tag)
             }
-        } else {
-            fetched
+            if let permittedIds = YouVersionPlatformConfiguration.permittedVersionIds {
+                guard permittedIds.contains(version.id) else {
+                    return false
+                }
+            }
+            return true
         }
 
         if let versions, cachedPermittedVersions == nil {
@@ -242,7 +247,12 @@ public final class BibleVersionsViewModel {
         }
         languageTagsBeingFetched.insert(languageTag)
         Task {
-            if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: languageTag) {
+            if let fetched = try? await YouVersionAPI.Bible.versions(forLanguageTag: languageTag) {
+                let unsortedVersions: [BibleVersion] = if let permittedIds = YouVersionPlatformConfiguration.permittedVersionIds {
+                    fetched.filter { permittedIds.contains($0.id) }
+                } else {
+                    fetched
+                }
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)

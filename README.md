@@ -192,6 +192,19 @@ YouVersionPlatformConfiguration.configure(
 
 Tags follow [BCP 47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) (e.g. `"en"` for English, `"es"` for Spanish). When the resulting list contains versions in only one language, the language button in the version picker is hidden automatically.
 
+#### Filtering Available Versions
+
+To restrict the version picker to a specific set of Bible versions, pass `permittedVersionIds` during configuration:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    permittedVersionIds: [12, 111, 1588]
+)
+```
+
+IDs are the YouVersion Bible version IDs (e.g. `111` for NIV, `1588` for AMP). Combines with `permittedLanguageTags` — a version must satisfy both filters to be shown.
+
 
 ### Implementing Sign In
 
