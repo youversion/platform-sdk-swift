@@ -17,6 +17,7 @@ struct BibleReaderFontListView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 24, weight: .semibold))
                     }
+                    .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontList.backButton)
                     .padding()
                     Spacer()
                 }
@@ -62,6 +63,7 @@ struct BibleReaderFontListView: View {
                     isSelected ? viewModel.readerSurfacePrimaryColor : viewModel.readerCanvasPrimaryColor
                 )
             }
+            .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontList.fontButton(family: family))
         }
     }
 }

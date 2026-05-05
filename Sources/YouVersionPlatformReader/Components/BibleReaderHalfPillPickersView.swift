@@ -1,11 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-private enum BibleReaderHalfPillPickersAccessibilityIdentifier {
-    static let bookAndChapterPickerButton = "bibleReader.bookAndChapterPickerButton"
-    static let versionPickerButton = "bibleReader.versionPickerButton"
-}
-
 struct BibleReaderHalfPillPickersView: View {
     let bookAndChapter: String
     let versionAbbreviation: String
@@ -30,7 +25,7 @@ struct BibleReaderHalfPillPickersView: View {
             }
             .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .left))
-            .accessibilityIdentifier(BibleReaderHalfPillPickersAccessibilityIdentifier.bookAndChapterPickerButton)
+            .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.Header.bookAndChapterPickerButton)
 
             Rectangle()
                 .frame(width: 2, height: compactMode ? 29 : 40)
@@ -48,7 +43,7 @@ struct BibleReaderHalfPillPickersView: View {
             }
             .buttonStyle(.plain)
             .clipShape(HalfPillShape(side: .right))
-            .accessibilityIdentifier(BibleReaderHalfPillPickersAccessibilityIdentifier.versionPickerButton)
+            .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.Header.versionPickerButton)
         }
         .background(buttonColor)
         .clipShape(Capsule())

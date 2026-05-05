@@ -7,6 +7,7 @@ struct BibleReaderHeaderMenuView: View {
     var body: some View {
         Menu {
             Button(String.localized("menu.fontSettings"), action: openFontSettings)
+                .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.Header.fontSettingsMenuButton)
             if YouVersionPlatformConfiguration.isSignInEnabled {
                 if viewModel.isSignedIn {
                     Button(String.localized("menu.signOut"), role: .destructive, action: signOut)
@@ -23,6 +24,7 @@ struct BibleReaderHeaderMenuView: View {
         .onAppear {
             viewModel.updateSignInState()
         }
+        .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.Header.menuButton)
     }
 
     private func openFontSettings() {

@@ -1,23 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-private enum BibleReaderBookAndChapterPickerAccessibilityIdentifier {
-    static let sheet = "bibleReader.bookAndChapterPicker.sheet"
-    static let cancelButton = "bibleReader.bookAndChapterPicker.cancelButton"
-
-    static func bookButton(_ bookCode: String) -> String {
-        "bibleReader.bookAndChapterPicker.bookButton.\(bookCode)"
-    }
-
-    static func introButton(_ bookCode: String) -> String {
-        "bibleReader.bookAndChapterPicker.introButton.\(bookCode)"
-    }
-
-    static func chapterButton(bookCode: String, chapter: Int) -> String {
-        "bibleReader.bookAndChapterPicker.chapterButton.\(bookCode).\(chapter)"
-    }
-}
-
 public struct BibleReaderBookAndChapterPickerView: View {
     @Binding var expandedBookCode: String?
     @Binding var isPresented: Bool
@@ -61,7 +44,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     Button(String.localized("generic.cancel")) {
                         isPresented = false
                     }
-                    .accessibilityIdentifier(BibleReaderBookAndChapterPickerAccessibilityIdentifier.cancelButton)
+                    .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.BookChapterPicker.cancelButton)
                     .padding(.leading, 16)
                     HStack {
                         Spacer()
@@ -98,7 +81,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
-        .accessibilityIdentifier(BibleReaderBookAndChapterPickerAccessibilityIdentifier.sheet)
+        .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.BookChapterPicker.sheet)
     }
 
     private func sectionHeaderView(_ bookCode: String) -> some View {
@@ -117,7 +100,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier(BibleReaderBookAndChapterPickerAccessibilityIdentifier.bookButton(bookCode))
+        .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.BookChapterPicker.bookButton(bookCode))
         .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
         .textCase(nil)
     }
@@ -134,7 +117,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     chapterListButton(Text(Image("i-icon", bundle: .YouVersionUIBundle)))
                 }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier(BibleReaderBookAndChapterPickerAccessibilityIdentifier.introButton(bookCode))
+                .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.BookChapterPicker.introButton(bookCode))
             }
             ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
                 Button(action: {
@@ -145,7 +128,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(
-                    BibleReaderBookAndChapterPickerAccessibilityIdentifier.chapterButton(
+                    BibleReaderAccessibilityIdentifiers.BookChapterPicker.chapterButton(
                         bookCode: bookCode,
                         chapter: idx + 1
                     )

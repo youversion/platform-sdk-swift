@@ -13,6 +13,7 @@ struct BibleReaderFontSettingsView: View {
             } label: {
                 fontDisplayButton
             }
+            .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontSettings.fontFamilyButton)
             themePicker
         }
         .padding(.horizontal, 24)
@@ -53,6 +54,7 @@ struct BibleReaderFontSettingsView: View {
                             selected: isSelected(theme)
                         )
                     }
+                    .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontSettings.themeButton(theme.id))
                 }
             }
             .padding(.bottom)
@@ -113,6 +115,7 @@ struct BibleReaderFontSettingsView: View {
                     HalfRoundedRectangleShape(side: .left)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
+                .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontSettings.smallerFontButton)
 
                 Rectangle()
                     .frame(width: 2, height: 40)
@@ -133,6 +136,7 @@ struct BibleReaderFontSettingsView: View {
                     HalfRoundedRectangleShape(side: .right)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
+                .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontSettings.biggerFontButton)
             }
 
             Spacer()
@@ -158,6 +162,7 @@ struct BibleReaderFontSettingsView: View {
                 )
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.FontSettings.lineSpacingButton)
 
         }
     }
