@@ -162,19 +162,31 @@ public final class BibleVersionsViewModel {
             return downloadedVersionId
         }
         
-        if let versions = try? await YouVersionAPI.Bible.versions() {
+        if let allVersions = try? await YouVersionAPI.Bible.versions() {
+            let versions: [BibleVersion]
+            if let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
+                versions = allVersions.filter {
+                    guard let tag = $0.languageTag else {
+                        return false
+                    }
+                    return permittedTags.contains(tag)
+                }
+            } else {
+                versions = allVersions
+            }
+
             // are any of the permitted versions in their myVersions list?
             for version in versions where savedIds.contains(version.id) {
                 return version.id
             }
-            
+
             // For now, fall back to a Bible in English.
             // It would be better to search for a bible in the device's language,
             // before defaulting to English.
             if let version = versions.first(where: { $0.languageTag == "en" }) {
                 return version.id
             }
-            
+
             if let version = versions.first {
                 return version.id
             }
@@ -199,7 +211,17 @@ public final class BibleVersionsViewModel {
             return cachedPermittedVersions
         }
         
-        let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
+        let fetched = try? await YouVersionAPI.Bible.permittedVersions()
+        let versions: [YouVersionAPI.Bible.BibleVersionMinimalInfo]? = if let fetched, let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
+            fetched.filter {
+                guard let tag = $0.languageTag else {
+                    return false
+                }
+                return permittedTags.contains(tag)
+            }
+        } else {
+            fetched
+        }
 
         if let versions, cachedPermittedVersions == nil {
             cachedPermittedVersions = versions
