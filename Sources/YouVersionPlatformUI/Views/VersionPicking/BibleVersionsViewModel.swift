@@ -42,7 +42,7 @@ public final class BibleVersionsViewModel {
         versionRepository: any BibleVersionRepositoryProtocol = BibleVersionRepository.shared
     ) {
         self.myVersions = []
-        self.suggestedLanguagesList = []
+        self.suggestedLanguages = []
         self._onVersionChange = { _ in }
         self.versionRepository = versionRepository
     }
@@ -81,10 +81,10 @@ public final class BibleVersionsViewModel {
     }
     
     private func removeUnpermittedVersions(initialVersionId: Int?) async {
-        guard let permittedVersions = await permittedVersionsListing() else {
+        guard let permitted = await permittedVersions() else {
             return  // when offline, we don't get a list, but don't delete anything!
         }
-        let permittedIds = Set(permittedVersions.map(\.id))
+        let permittedIds = Set(permitted.map(\.id))
         await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
         
         for version in myVersions where !permittedIds.contains(version.id) {
@@ -186,49 +186,49 @@ public final class BibleVersionsViewModel {
     
     // MARK: - Versions list
     
-    /// Maps from a languageCode to a list of BibleVersion objects for that language.
-    var versionsInLanguage: [String: [BibleVersion]] = [:]
+    /// Maps from a language tag to a list of BibleVersion objects for that language.
+    var versionsByLanguageTag: [String: [BibleVersion]] = [:]
     
     /// Holds minimal information about all Bible versions available to this app, in all languages.
-    private(set) var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    private(set) var cachedPermittedVersions: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
     
     /// Returns minimal information about all Bible versions available to this app, in all languages.
     /// On error or when offline, returns nil
-    func permittedVersionsListing() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
-        if let permittedVersionsList {
-            return permittedVersionsList
+    func permittedVersions() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
+        if let cachedPermittedVersions {
+            return cachedPermittedVersions
         }
         
         let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
 
-        if let versions, permittedVersionsList == nil {
-            permittedVersionsList = versions
+        if let versions, cachedPermittedVersions == nil {
+            cachedPermittedVersions = versions
         }
         return versions
     }
     
-    private var versionsBeingFetched: Set<String> = []
+    private var languageTagsBeingFetched: Set<String> = []
     
-    /// Causes data to be fetched, if necessary, to fill out `versionsInLanguage` for the given language code.
-    /// The fetch happens in a separate task. UI should observe `versionsInLanguage` and update when it does.
-    func fetchVersionsInLanguage(code: String) {
-        guard versionsInLanguage[code] == nil else {
+    /// Causes data to be fetched, if necessary, to fill out `versionsByLanguageTag` for the given language tag.
+    /// The fetch happens in a separate task. UI should observe `versionsByLanguageTag` and update when it does.
+    func fetchVersions(forLanguageTag languageTag: String) {
+        guard versionsByLanguageTag[languageTag] == nil else {
             return  // no need to fetch: we already have the data
         }
-        guard !versionsBeingFetched.contains(code) else {
+        guard !languageTagsBeingFetched.contains(languageTag) else {
             return
         }
-        versionsBeingFetched.insert(code)
+        languageTagsBeingFetched.insert(languageTag)
         Task {
-            if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
+            if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: languageTag) {
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
                     return a < b
                 }
-                versionsInLanguage[code] = sortedVersions
+                versionsByLanguageTag[languageTag] = sortedVersions
             }
-            versionsBeingFetched.remove(code)
+            languageTagsBeingFetched.remove(languageTag)
         }
     }
     
@@ -250,49 +250,48 @@ public final class BibleVersionsViewModel {
     
     // MARK: - Languages picking
     
-    private(set) var suggestedLanguagesList: [LanguageOverview]
+    private(set) var suggestedLanguages: [LanguageOverview]
     var chosenLanguage: String?
     var languageNames: [String: String] = [:]
     
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
         do {
-            suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
+            suggestedLanguages = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
         } catch {
             YouVersionPlatformLogger.error("Error fetching languages: \(error.localizedDescription)", category: "Reader")
         }
     }
     
-    /// Returns languages likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
-    var suggestedLanguages: [String] {
-        guard !suggestedLanguagesList.isEmpty else {
+    /// Language tags likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
+    var suggestedLanguageTags: [String] {
+        guard !suggestedLanguages.isEmpty else {
             return ["en", "es"]
         }
-        let codes = extractLanguageCodes(languages: suggestedLanguagesList)
-        guard let versionsInfo = permittedVersionsList else {
-            return codes
+        let tags = uniqueLanguageTags(from: suggestedLanguages)
+        guard let versionsInfo = cachedPermittedVersions else {
+            return tags
         }
-        let ret = codes.filter { code in
-            versionsInfo.isEmpty || versionsInfo.contains(where: { $0.languageTag == code })
+        let ret = tags.filter { tag in
+            versionsInfo.isEmpty || versionsInfo.contains(where: { $0.languageTag == tag })
         }
         return ret
     }
-    
+
     func languageName(_ lang: String) -> String {
         languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
     }
-    
-    /// Returns language codes from the list, preferring the 3-letter language codes
-    private func extractLanguageCodes(languages: [LanguageOverview]) -> [String] {
-        let languageCodes = languages.compactMap { $0.language }
-        
-        // Remove duplicates while preserving order
+
+    /// Returns deduplicated language tags from the list, preserving order.
+    private func uniqueLanguageTags(from languages: [LanguageOverview]) -> [String] {
+        let languageTags = languages.compactMap { $0.language }
+
         var seen = Set<String>()
-        return languageCodes.filter { languageCode in
-            if seen.contains(languageCode) {
+        return languageTags.filter { languageTag in
+            if seen.contains(languageTag) {
                 return false
             } else {
-                seen.insert(languageCode)
+                seen.insert(languageTag)
                 return true
             }
         }
@@ -313,13 +312,13 @@ public final class BibleVersionsViewModel {
     
     var selectedVersion: BibleVersion?
     
-    var organizationInfo: [String: Organization] = [:]
+    private var organizationsById: [String: Organization] = [:]
     
     func organizationName(id: String) -> String? {
-        guard let org = organizationInfo[id] else {
+        guard let org = organizationsById[id] else {
             Task {
                 if let data = try? await YouVersionAPI.Organizations.organization(id: id) {
-                    organizationInfo[id] = data
+                    organizationsById[id] = data
                 }
             }
             return nil
