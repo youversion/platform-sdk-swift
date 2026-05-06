@@ -28,7 +28,11 @@ fi
 echo "Stamping SDK version $VERSION into $FILE..."
 
 # Replace the literal between quotes on the `static let current = "..."` line.
-sed -i '' "s/static let current = \"[^\"]*\"/static let current = \"$VERSION\"/" "$FILE"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i '' "s/static let current = \"[^\"]*\"/static let current = \"$VERSION\"/" "$FILE"
+else
+  sed -i "s/static let current = \"[^\"]*\"/static let current = \"$VERSION\"/" "$FILE"
+fi
 
 if ! grep -q "static let current = \"$VERSION\"" "$FILE"; then
   echo "Error: Failed to stamp version into $FILE"
