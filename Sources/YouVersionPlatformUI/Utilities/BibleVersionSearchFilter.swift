@@ -1,6 +1,6 @@
 import YouVersionPlatformCore
 
-func filterBibleVersions(_ versions: [BibleVersion], matching searchText: String) -> [BibleVersion] {
+func filteredBibleVersions(_ versions: [BibleVersion], matching searchText: String) -> [BibleVersion] {
     guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
         return versions
     }

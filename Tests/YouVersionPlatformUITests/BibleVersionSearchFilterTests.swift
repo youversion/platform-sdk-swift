@@ -8,30 +8,30 @@ import Testing
             makeVersion(id: 1, title: "English Standard Version", abbreviation: "ESV", languageTag: "en"),
             makeVersion(id: 2, title: "Nueva Versión Internacional", abbreviation: "NVI", languageTag: "es"),
         ]
-        #expect(filterBibleVersions(versions, matching: "") == versions)
+        #expect(filteredBibleVersions(versions, matching: "") == versions)
     }
 
     @Test func whitespaceOnlyQueryReturnsAll() {
         let versions = [makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")]
-        #expect(filterBibleVersions(versions, matching: "   \t\n") == versions)
+        #expect(filteredBibleVersions(versions, matching: "   \t\n") == versions)
     }
 
     @Test func matchesTitleCaseInsensitively() {
         let kjv = makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")
         let esv = makeVersion(id: 2, title: "English Standard Version", abbreviation: "ESV", languageTag: "en")
 
-        #expect(filterBibleVersions([kjv, esv], matching: "king") == [kjv])
-        #expect(filterBibleVersions([kjv, esv], matching: "KING") == [kjv])
-        #expect(filterBibleVersions([kjv, esv], matching: "standard") == [esv])
+        #expect(filteredBibleVersions([kjv, esv], matching: "king") == [kjv])
+        #expect(filteredBibleVersions([kjv, esv], matching: "KING") == [kjv])
+        #expect(filteredBibleVersions([kjv, esv], matching: "standard") == [esv])
     }
 
     @Test func matchesAbbreviationCaseInsensitively() {
         let kjv = makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")
         let nvi = makeVersion(id: 2, title: "Nueva Versión Internacional", abbreviation: "NVI", languageTag: "es")
 
-        #expect(filterBibleVersions([kjv, nvi], matching: "kjv") == [kjv])
-        #expect(filterBibleVersions([kjv, nvi], matching: "KJV") == [kjv])
-        #expect(filterBibleVersions([kjv, nvi], matching: "nvi") == [nvi])
+        #expect(filteredBibleVersions([kjv, nvi], matching: "kjv") == [kjv])
+        #expect(filteredBibleVersions([kjv, nvi], matching: "KJV") == [kjv])
+        #expect(filteredBibleVersions([kjv, nvi], matching: "nvi") == [nvi])
     }
 
     @Test func matchesLanguageTagCaseInsensitively() {
@@ -39,36 +39,36 @@ import Testing
         let spanish = makeVersion(id: 2, title: "Biblia", abbreviation: "BIB", languageTag: "es")
         let chineseTraditional = makeVersion(id: 3, title: "聖經", abbreviation: "CT", languageTag: "zh-TW")
 
-        #expect(filterBibleVersions([english, spanish], matching: "en") == [english])
-        #expect(filterBibleVersions([english, spanish], matching: "es") == [spanish])
+        #expect(filteredBibleVersions([english, spanish], matching: "en") == [english])
+        #expect(filteredBibleVersions([english, spanish], matching: "es") == [spanish])
         // Mixed-case tag: searching "TW" lowercases to "tw", must still match "zh-TW"
-        #expect(filterBibleVersions([english, chineseTraditional], matching: "TW") == [chineseTraditional])
+        #expect(filteredBibleVersions([english, chineseTraditional], matching: "TW") == [chineseTraditional])
     }
 
     @Test func nilTitleMatchedAsEmpty() {
         let version = makeVersion(id: 1, title: nil, abbreviation: "TST", languageTag: "en")
-        #expect(filterBibleVersions([version], matching: "tst") == [version])
-        #expect(filterBibleVersions([version], matching: "anything").isEmpty)
+        #expect(filteredBibleVersions([version], matching: "tst") == [version])
+        #expect(filteredBibleVersions([version], matching: "anything").isEmpty)
     }
 
     @Test func nilAbbreviationFallsBackToVersionId() {
         let version = makeVersion(id: 1234, title: "Test Version", abbreviation: nil, languageTag: "en")
-        #expect(filterBibleVersions([version], matching: "1234") == [version])
+        #expect(filteredBibleVersions([version], matching: "1234") == [version])
     }
 
     @Test func noMatchReturnsEmpty() {
         let versions = [makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")]
-        #expect(filterBibleVersions(versions, matching: "xyz").isEmpty)
+        #expect(filteredBibleVersions(versions, matching: "xyz").isEmpty)
     }
 
     @Test func queryMatchingMultipleFieldsIncludesVersionOnce() {
         // title and abbreviation both contain "test" — version should appear once
         let version = makeVersion(id: 1, title: "Test Bible", abbreviation: "TEST", languageTag: "en")
-        #expect(filterBibleVersions([version], matching: "test") == [version])
+        #expect(filteredBibleVersions([version], matching: "test") == [version])
     }
 
     @Test func emptyVersionListReturnsEmpty() {
-        #expect(filterBibleVersions([], matching: "anything").isEmpty)
+        #expect(filteredBibleVersions([], matching: "anything").isEmpty)
     }
 
     // MARK: -
