@@ -14,6 +14,18 @@ All notable changes to this project will be documented in this file.
 
 * pluralize versionList.statisticsFormat in all locales ([db0eac4](https://github.com/youversion/platform-sdk-swift/commit/db0eac4e21302c637b525a1751070f8836fa8ec3))
 
+## [5.1.0](https://github.com/youversion/platform-sdk-swift/compare/5.0.0...5.1.0) (2026-05-06)
+
+
+### Features
+
+* add x-yvp-sdk header reporting SDK version on configured requests ([#103](https://github.com/youversion/platform-sdk-swift/issues/103)) ([2cd621a](https://github.com/youversion/platform-sdk-swift/commit/2cd621a946e091daf832c583906860b812b73293))
+
+
+### Bug Fixes
+
+* pluralize versionList.statisticsFormat in all locales ([db0eac4](https://github.com/youversion/platform-sdk-swift/commit/db0eac4e21302c637b525a1751070f8836fa8ec3))
+
 ## [4.10.0](https://github.com/youversion/platform-sdk-swift/compare/4.9.2...4.10.0) (2026-05-06)
 
 
