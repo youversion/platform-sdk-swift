@@ -55,9 +55,34 @@ git tag -f "$VERSION"
 echo "Pushing tag $VERSION (force, tag-only — not pushing main)..."
 git push --force origin "refs/tags/$VERSION"
 
-# Reset working tree back to origin/main so any subsequent release steps see
-# a clean main and cannot accidentally push commit Y to main.
-echo "Resetting working tree to origin/main..."
-git reset --hard origin/main
+# Drop the local-only commit Y so subsequent steps cannot accidentally push
+# Y to main. Unwind by relative position (HEAD~1 = X, the @semantic-release/git
+# release commit) rather than `origin/main`: @semantic-release/git pushes via
+# the repository URL rather than the named remote, so the local
+# refs/remotes/origin/main is NOT updated to point at X. Resetting to
+# origin/main therefore overshoots and reverts to a pre-release main, leaving
+# the working tree's podspec versions stale before publish-pods.sh runs.
+echo "Dropping local commit Y (HEAD returns to released commit X)..."
+git reset --hard HEAD~1
+
+# Belt-and-suspenders: assert each podspec on disk now reads $VERSION before
+# we hand off to publish-pods.sh. If a future change re-breaks the reset, fail
+# loudly here rather than silently mis-publishing a stale version.
+echo "Verifying podspec versions before publish..."
+PODSPECS=(
+  YouVersionPlatform.podspec
+  YouVersionPlatformCore.podspec
+  YouVersionPlatformReader.podspec
+  YouVersionPlatformUI.podspec
+)
+for PODSPEC in "${PODSPECS[@]}"; do
+  if ! grep -qF "s.version      = '$VERSION'" "$PODSPEC"; then
+    echo "❌ $PODSPEC s.version is not '$VERSION' — refusing to hand off to publish-pods.sh." >&2
+    echo "   Found: $(grep 's.version' "$PODSPEC" | head -1)" >&2
+    echo "   This indicates the prior reset left the working tree at the wrong commit." >&2
+    exit 1
+  fi
+  echo "  ✓ $PODSPEC at $VERSION"
+done
 
 echo "✅ Release tag $VERSION now points at SDKVersion-stamped commit (off-main)."

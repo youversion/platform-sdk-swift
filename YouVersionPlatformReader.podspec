@@ -18,6 +18,8 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'SWIFT_COMPILATION_MODE' => 'wholemodule'
+    'SWIFT_COMPILATION_MODE' => 'wholemodule',
+    # See note in YouVersionPlatformCore.podspec — must match.
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name YouVersionPlatform'
   }
 end

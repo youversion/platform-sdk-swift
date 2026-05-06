@@ -16,6 +16,11 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'SWIFT_COMPILATION_MODE' => 'wholemodule'
+    'SWIFT_COMPILATION_MODE' => 'wholemodule',
+    # SPM passes -package-name automatically based on Package.swift's `name`.
+    # CocoaPods does not, so any `package`-access-level symbol fails to build
+    # without this flag. Must match Package.swift's package name and be
+    # identical across all sibling pods that share `package` symbols.
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name YouVersionPlatform'
   }
 end
