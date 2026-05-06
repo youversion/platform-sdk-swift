@@ -76,7 +76,7 @@ PODSPECS=(
   YouVersionPlatformUI.podspec
 )
 for PODSPEC in "${PODSPECS[@]}"; do
-  if ! grep -qE "s\.version[[:space:]]+=[[:space:]]+'$VERSION'" "$PODSPEC"; then
+  if ! grep -qF "s.version      = '$VERSION'" "$PODSPEC"; then
     echo "❌ $PODSPEC s.version is not '$VERSION' — refusing to hand off to publish-pods.sh." >&2
     echo "   Found: $(grep 's.version' "$PODSPEC" | head -1)" >&2
     echo "   This indicates the prior reset left the working tree at the wrong commit." >&2
