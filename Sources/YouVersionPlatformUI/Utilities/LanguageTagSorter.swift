@@ -6,8 +6,8 @@ func sortedUniqueLanguageTags(_ tags: [String], languageName: (String) -> String
     }
 }
 
-func filterLanguageTags(_ tags: [String], matching searchText: String, languageName: (String) -> String) -> [String] {
-    guard !searchText.isEmpty else {
+func filteredLanguageTags(_ tags: [String], matching searchText: String, languageName: (String) -> String) -> [String] {
+    guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
         return tags
     }
     return tags.filter {

@@ -48,7 +48,12 @@ import Testing
 
     @Test func emptySearchReturnsAllTags() {
         let tags = ["en", "es", "fr"]
-        #expect(filterLanguageTags(tags, matching: "", languageName: { $0 }) == tags)
+        #expect(filteredLanguageTags(tags, matching: "", languageName: { $0 }) == tags)
+    }
+
+    @Test func whitespaceOnlySearchReturnsAllTags() {
+        let tags = ["en", "es", "fr"]
+        #expect(filteredLanguageTags(tags, matching: "   \t\n", languageName: { $0 }) == tags)
     }
 
     @Test func matchesTagCaseInsensitively() {
@@ -56,8 +61,8 @@ import Testing
         let names = ["en": "English", "zh-TW": "Chinese Traditional", "ar": "Arabic"]
         let name: (String) -> String = { names[$0] ?? $0 }
 
-        #expect(filterLanguageTags(tags, matching: "EN", languageName: name) == ["en"])
-        #expect(filterLanguageTags(tags, matching: "zh", languageName: name) == ["zh-TW"])
+        #expect(filteredLanguageTags(tags, matching: "EN", languageName: name) == ["en"])
+        #expect(filteredLanguageTags(tags, matching: "zh", languageName: name) == ["zh-TW"])
     }
 
     @Test func matchesDisplayNameCaseInsensitively() {
@@ -65,22 +70,22 @@ import Testing
         let names = ["en": "English", "es": "Español", "fr": "French"]
         let name: (String) -> String = { names[$0] ?? $0 }
 
-        #expect(filterLanguageTags(tags, matching: "french", languageName: name) == ["fr"])
-        #expect(filterLanguageTags(tags, matching: "ENGLISH", languageName: name) == ["en"])
+        #expect(filteredLanguageTags(tags, matching: "french", languageName: name) == ["fr"])
+        #expect(filteredLanguageTags(tags, matching: "ENGLISH", languageName: name) == ["en"])
     }
 
     @Test func noMatchReturnsEmpty() {
         let tags = ["en", "es", "fr"]
-        #expect(filterLanguageTags(tags, matching: "xyz", languageName: { $0 }).isEmpty)
+        #expect(filteredLanguageTags(tags, matching: "xyz", languageName: { $0 }).isEmpty)
     }
 
     @Test func queryMatchingAllTagsReturnsAll() {
         let tags = ["en-US", "en-GB", "en-AU"]
-        let result = filterLanguageTags(tags, matching: "en", languageName: { $0 })
+        let result = filteredLanguageTags(tags, matching: "en", languageName: { $0 })
         #expect(result == tags)
     }
 
     @Test func emptyTagListReturnsEmpty() {
-        #expect(filterLanguageTags([], matching: "en", languageName: { $0 }).isEmpty)
+        #expect(filteredLanguageTags([], matching: "en", languageName: { $0 }).isEmpty)
     }
 }

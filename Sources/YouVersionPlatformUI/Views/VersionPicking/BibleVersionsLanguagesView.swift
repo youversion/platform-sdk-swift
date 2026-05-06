@@ -135,7 +135,7 @@ struct BibleVersionsLanguagesView: View {
         case .all:
             return sortedUniqueLanguageTags(availableLanguageTags, languageName: viewModel.languageName)
         case .searching:
-            let filtered = filterLanguageTags(availableLanguageTags, matching: searchText, languageName: viewModel.languageName)
+            let filtered = filteredLanguageTags(availableLanguageTags, matching: searchText, languageName: viewModel.languageName)
             return sortedUniqueLanguageTags(filtered, languageName: viewModel.languageName)
         }
     }
