@@ -115,20 +115,7 @@ public struct BibleVersionsListView: View {
         guard let versions = viewModel.versionsByLanguageTag[language] else {
             return nil
         }
-
-        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return versions
-        }
-        let query = searchText.lowercased()
-        return versions.filter { version in
-            guard version.languageTag == language else {
-                return false
-            }
-            let title = (version.title ?? "").lowercased()
-            let abbr = (version.abbreviation ?? String(version.id)).lowercased()
-            let lang = (version.languageTag ?? "")
-            return title.contains(query) || abbr.contains(query) || lang.contains(query)
-        }
+        return filterBibleVersions(versions, matching: searchText)
     }
 
 }
