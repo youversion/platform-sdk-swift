@@ -4,11 +4,12 @@ func filteredBibleVersions(_ versions: [BibleVersion], matching searchText: Stri
     guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
         return versions
     }
-    let query = searchText.lowercased()
     return versions.filter { version in
-        let title = (version.title ?? "").lowercased()
-        let abbr = (version.abbreviation ?? String(version.id)).lowercased()
-        let lang = (version.languageTag ?? "").lowercased()
-        return title.contains(query) || abbr.contains(query) || lang.contains(query)
+        let title = version.title ?? ""
+        let abbr = version.abbreviation ?? String(version.id)
+        let lang = version.languageTag ?? ""
+        return title.localizedCaseInsensitiveContains(searchText) ||
+            abbr.localizedCaseInsensitiveContains(searchText) ||
+            lang.localizedCaseInsensitiveContains(searchText)
     }
 }
