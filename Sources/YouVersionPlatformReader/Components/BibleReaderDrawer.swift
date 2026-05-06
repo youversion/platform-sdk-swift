@@ -1,5 +1,4 @@
 import SwiftUI
-import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 struct BibleReaderDrawer: View {
@@ -16,7 +15,7 @@ struct BibleReaderDrawer: View {
                 .padding(.bottom, 8)
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
-                    if YouVersionAPI.isSignedIn {
+                    if viewModel.isSignedIn {
                         highlightColorButtons
                     }
 #if !os(tvOS)

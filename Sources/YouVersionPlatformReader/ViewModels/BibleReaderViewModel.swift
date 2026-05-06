@@ -27,6 +27,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var version: BibleVersion? { versionsViewModel.currentVersion }
     let onVerseTap: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
+    private let authentication: BibleReaderAuthentication
 
     // MARK: - UI state of the Reader itself
     var showChrome = true
@@ -60,7 +61,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
-    private(set) var isSignedIn = false
+    private(set) var isSignedIn: Bool
     var showSignOutConfirmation = false
 
     init(
@@ -68,8 +69,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
         versionsViewModel: BibleVersionsViewModel? = nil,
-        onVerseTap: ((BibleReference) -> Void)? = nil
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        authentication: BibleReaderAuthentication? = nil
     ) {
+        let authentication = authentication ?? .default
         if let reference {
             self.reference = reference
             self.showBookIntro = false
@@ -88,6 +91,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
         self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
+        self.authentication = authentication
+        self.isSignedIn = authentication.isSignedIn
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         let shouldLoadVersionsViewModel = versionsViewModel == nil
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
@@ -154,13 +159,17 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     /// `onHeaderSelectionChange` from looping back through the
     /// `currentVersion` observation chain.
     func handleVersionPicked(_ version: BibleVersion) {
+        Task {
+            await handleVersionPicked(version)
+        }
+    }
+
+    func handleVersionPicked(_ version: BibleVersion) async {
         guard reference.versionId != version.id else {
             return
         }
         reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-        Task {
-            await onHeaderSelectionChange(reference, showIntro: false)
-        }
+        await onHeaderSelectionChange(reference, showIntro: false)
     }
 
     func onSignInRequired() {
@@ -199,13 +208,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         showingFontSettings = true
     }
 
-    func handleSmallerFontTap() {
+    func decreaseFontSize() {
         if let newSize = ReaderFonts.nextSmallerSize(currentSize: textOptions.fontSize) {
             setFont(size: newSize)
         }
     }
 
-    func handleBiggerFontTap() {
+    func increaseFontSize() {
         if let newSize = ReaderFonts.nextLargerSize(currentSize: textOptions.fontSize) {
             setFont(size: newSize)
         }
@@ -221,7 +230,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func selectNextLineSpacing() {
+    func cycleLineSpacing() {
         lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: lineSpacing)
         saveUserSettingsToStorage()
     }
@@ -232,14 +241,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func updateSignInState() {
-        Task {
-            isSignedIn = await YouVersionAPI.hasValidToken()
-        }
+    func updateSignInState() async {
+        isSignedIn = await authentication.hasValidToken()
     }
 
     func signIn() {
-        if YouVersionAPI.isSignedIn {
+        if isSignedIn {
             return
         }
         startSignInFlow = true
@@ -250,7 +257,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func confirmSignOut() {
-        YouVersionAPI.Users.signOut()
+        authentication.signOut()
         highlightsViewModel.reset()
         isSignedIn = false
     }
