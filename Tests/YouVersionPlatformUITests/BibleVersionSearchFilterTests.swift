@@ -34,12 +34,15 @@ import Testing
         #expect(filterBibleVersions([kjv, nvi], matching: "nvi") == [nvi])
     }
 
-    @Test func matchesLanguageTag() {
+    @Test func matchesLanguageTagCaseInsensitively() {
         let english = makeVersion(id: 1, title: "Bible", abbreviation: "BIB", languageTag: "en")
         let spanish = makeVersion(id: 2, title: "Biblia", abbreviation: "BIB", languageTag: "es")
+        let chineseTraditional = makeVersion(id: 3, title: "聖經", abbreviation: "CT", languageTag: "zh-TW")
 
         #expect(filterBibleVersions([english, spanish], matching: "en") == [english])
         #expect(filterBibleVersions([english, spanish], matching: "es") == [spanish])
+        // Mixed-case tag: searching "TW" lowercases to "tw", must still match "zh-TW"
+        #expect(filterBibleVersions([english, chineseTraditional], matching: "TW") == [chineseTraditional])
     }
 
     @Test func nilTitleMatchedAsEmpty() {
