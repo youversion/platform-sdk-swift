@@ -140,6 +140,30 @@ import Testing
 #endif
     }
 
+#if !canImport(UIKit)
+    @Test
+    func highlightColorActionsNoOpWhenColorCannotBeConverted() {
+        Support.clearReaderDefaults()
+        let highlightsRepository = MockBibleHighlightsRepository()
+        let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let color = Color(hex: "#DDAAFF")
+        viewModel.selectedVerses = [reference]
+        viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
+
+        #expect(viewModel.isColorPresentOnAnySelectedVerses(color) == false)
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(color) == false)
+
+        viewModel.addVerseColor(color)
+        viewModel.removeVerseColor(color)
+
+        #expect(viewModel.selectedVerses == [reference])
+        #expect(viewModel.highlightsViewModel.highlights(for: reference) == [BibleHighlight(reference, color: "DDAAFF")])
+        #expect(highlightsRepository.queuedOperations.count == 1)
+        #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
+    }
+#endif
+
     @Test
     func shareableURLAndTitleUsesMergedSelectionAndCurrentVersion() throws {
         let viewModel = Support.makeViewModel()
