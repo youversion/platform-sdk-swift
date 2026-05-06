@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.10.0](https://github.com/youversion/platform-sdk-swift/compare/4.9.2...4.10.0) (2026-05-06)
+
+
+### Features
+
+* add x-yvp-sdk header reporting SDK version on configured requests ([#103](https://github.com/youversion/platform-sdk-swift/issues/103)) ([2cd621a](https://github.com/youversion/platform-sdk-swift/commit/2cd621a946e091daf832c583906860b812b73293))
+
 ## [5.0.0](https://github.com/youversion/platform-sdk-swift/compare/4.9.1...5.0.0) (2026-05-01)
 
 

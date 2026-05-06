@@ -81,6 +81,8 @@ jobs:
         run: |
           chmod +x scripts/update-pod-versions.sh
           chmod +x scripts/publish-pods.sh
+          chmod +x scripts/stamp-sdk-version.sh
+          chmod +x scripts/release-stamp-and-tag.sh
 
       - name: Setup Git
         run: |
