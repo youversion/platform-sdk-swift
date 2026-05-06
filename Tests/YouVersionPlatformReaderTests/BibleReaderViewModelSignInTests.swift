@@ -58,9 +58,11 @@ import Testing
     @Test
     func signOutShowsConfirmationAndConfirmSignOutClearsStateAndHighlights() {
         Support.clearReaderDefaults()
-        let viewModel = Support.makeViewModel()
+        let viewModel = Support.makeViewModel(isSignedIn: true)
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
+
+        #expect(viewModel.isSignedIn)
 
         viewModel.signOut()
         #expect(viewModel.showSignOutConfirmation)
