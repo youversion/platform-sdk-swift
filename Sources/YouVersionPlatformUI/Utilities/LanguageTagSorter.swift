@@ -7,11 +7,12 @@ func sortedUniqueLanguageTags(_ tags: [String], languageName: (String) -> String
 }
 
 func filteredLanguageTags(_ tags: [String], matching searchText: String, languageName: (String) -> String) -> [String] {
-    guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+    let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !query.isEmpty else {
         return tags
     }
     return tags.filter {
-        $0.localizedCaseInsensitiveContains(searchText) ||
-        languageName($0).localizedCaseInsensitiveContains(searchText)
+        $0.localizedCaseInsensitiveContains(query) ||
+        languageName($0).localizedCaseInsensitiveContains(query)
     }
 }

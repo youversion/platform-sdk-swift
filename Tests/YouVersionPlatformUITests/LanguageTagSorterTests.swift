@@ -56,6 +56,12 @@ import Testing
         #expect(filteredLanguageTags(tags, matching: "   \t\n", languageName: { $0 }) == tags)
     }
 
+    @Test func queryWithSurroundingSpacesMatchesAsIfTrimmed() {
+        let tags = ["en", "es", "fr"]
+        let names = ["en": "English", "es": "Español", "fr": "French"]
+        #expect(filteredLanguageTags(tags, matching: " French ", languageName: { names[$0] ?? $0 }) == ["fr"])
+    }
+
     @Test func matchesTagCaseInsensitively() {
         let tags = ["en", "zh-TW", "ar"]
         let names = ["en": "English", "zh-TW": "Chinese Traditional", "ar": "Arabic"]

@@ -16,6 +16,12 @@ import Testing
         #expect(filteredBibleVersions(versions, matching: "   \t\n") == versions)
     }
 
+    @Test func queryWithSurroundingSpacesMatchesAsIfTrimmed() {
+        let kjv = makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")
+        let esv = makeVersion(id: 2, title: "English Standard Version", abbreviation: "ESV", languageTag: "en")
+        #expect(filteredBibleVersions([kjv, esv], matching: " king ") == [kjv])
+    }
+
     @Test func matchesTitleCaseInsensitively() {
         let kjv = makeVersion(id: 1, title: "King James Version", abbreviation: "KJV", languageTag: "en")
         let esv = makeVersion(id: 2, title: "English Standard Version", abbreviation: "ESV", languageTag: "en")
