@@ -70,14 +70,14 @@ import Testing
 
         #expect(viewModel.textOptions.fontSize == 21)
 
-        viewModel.handleSmallerFontTap()
+        viewModel.decreaseFontSize()
         #expect(viewModel.textOptions.fontSize == 18)
 
-        viewModel.handleBiggerFontTap()
+        viewModel.increaseFontSize()
         #expect(viewModel.textOptions.fontSize == 21)
 
         viewModel.setFont(family: "Georgia", size: 27)
-        viewModel.handleBiggerFontTap()
+        viewModel.increaseFontSize()
         #expect(viewModel.textOptions.fontFamily == "Georgia")
         #expect(viewModel.textOptions.fontSize == 27)
 
@@ -128,14 +128,14 @@ import Testing
     }
 
     @Test
-    func selectNextLineSpacingCyclesThroughOptionsAndPersists() {
+    func cycleLineSpacingCyclesThroughOptionsAndPersists() {
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel()
 
-        viewModel.selectNextLineSpacing()
+        viewModel.cycleLineSpacing()
         #expect(viewModel.textOptions.lineSpacing == 18)
 
-        viewModel.selectNextLineSpacing()
+        viewModel.cycleLineSpacing()
         #expect(viewModel.textOptions.lineSpacing == 6)
 
         #expect(Support.makeViewModel().textOptions.lineSpacing == 6)

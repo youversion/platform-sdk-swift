@@ -100,7 +100,7 @@ struct BibleReaderFontSettingsView: View {
 
             HStack(spacing: 0) {
                 Button {
-                    viewModel.handleSmallerFontTap()
+                    viewModel.decreaseFontSize()
                 } label: {
                     Text("A")
                         .font(.system(size: 14))
@@ -120,7 +120,7 @@ struct BibleReaderFontSettingsView: View {
                     .overlay(viewModel.readerCanvasPrimaryColor)
 
                 Button {
-                    viewModel.handleBiggerFontTap()
+                    viewModel.increaseFontSize()
                 } label: {
                     Text("A")
                         .font(.system(size: 28))
@@ -138,7 +138,7 @@ struct BibleReaderFontSettingsView: View {
             Spacer()
 
             Button {
-                viewModel.selectNextLineSpacing()
+                viewModel.cycleLineSpacing()
             } label: {
                 let currentSpacing = viewModel.textOptions.lineSpacing ?? ReaderFonts.lineSpacingOptions.first ?? 6
                 VStack(

@@ -105,7 +105,7 @@ extension BibleReaderViewModel {
             return
         }
         
-        if YouVersionAPI.isSignedIn {
+        if isSignedIn {
             if selectedVerses.contains(reference) {
                 selectedVerses.remove(reference)
             } else {

@@ -305,7 +305,7 @@ public struct BibleReaderView: View {
                 dump(result)
 #endif
                 
-                viewModel.updateSignInState()
+                await viewModel.updateSignInState()
             } catch {
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }

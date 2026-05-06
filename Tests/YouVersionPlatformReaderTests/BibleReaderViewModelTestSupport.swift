@@ -66,18 +66,26 @@ enum BibleReaderViewModelTestSupport {
         reference: BibleReference? = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1),
         highlightsRepository: MockBibleHighlightsRepository = MockBibleHighlightsRepository(),
         versionRepository: any BibleVersionRepositoryProtocol = MockBibleVersionRepository(),
-        onVerseTap: ((BibleReference) -> Void)? = nil
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        isSignedIn: Bool = false,
+        hasValidToken: Bool? = nil
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),
             repository: highlightsRepository
         )
         let versionsViewModel = BibleVersionsViewModel(versionRepository: versionRepository)
+        let authentication = BibleReaderAuthentication(
+            isSignedIn: { isSignedIn },
+            hasValidToken: { hasValidToken ?? isSignedIn },
+            signOut: { }
+        )
         return BibleReaderViewModel(
             reference: reference,
             highlightsViewModel: highlightsViewModel,
             versionsViewModel: versionsViewModel,
-            onVerseTap: onVerseTap
+            onVerseTap: onVerseTap,
+            authentication: authentication
         )
     }
 
@@ -118,16 +126,6 @@ enum BibleReaderViewModelTestSupport {
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
     }
 
-    @MainActor
-    static func waitUntil(_ description: String, condition: @MainActor () -> Bool) async {
-        for _ in 0..<10 {
-            if condition() {
-                return
-            }
-            await Task.yield()
-        }
-        Issue.record("Timed out waiting for \(description)")
-    }
 }
 
 struct TestError: Error {}

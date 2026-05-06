@@ -48,14 +48,14 @@ import Testing
     }
 
     @Test
-    func handleVersionPickedNoOpsWhenVersionIsUnchanged() {
+    func handleVersionPickedNoOpsWhenVersionIsUnchanged() async {
         let viewModel = Support.makeViewModel()
         let selectedReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 1)
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
         viewModel.selectedVerses = [selectedReference]
         viewModel.showingVerseActionsDrawer = true
 
-        viewModel.handleVersionPicked(Support.makeBibleVersion(id: Support.versionId))
+        await viewModel.handleVersionPicked(Support.makeBibleVersion(id: Support.versionId))
 
         #expect(viewModel.reference == BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1))
         #expect(viewModel.selectedVerses == [selectedReference])
@@ -67,10 +67,7 @@ import Testing
         let repository = MockBibleVersionRepository()
         let viewModel = Support.makeViewModel(versionRepository: repository)
 
-        viewModel.handleVersionPicked(Support.makeBibleVersion(id: 111))
-        await Support.waitUntil("version picked to load current version") {
-            viewModel.versionsViewModel.currentVersion != nil
-        }
+        await viewModel.handleVersionPicked(Support.makeBibleVersion(id: 111))
 
         #expect(viewModel.reference == BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 1))
         #expect(viewModel.versionsViewModel.currentVersion == Support.makeBibleVersion(id: 111))

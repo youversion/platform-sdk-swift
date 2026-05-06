@@ -1,4 +1,3 @@
-import Foundation
 import Testing
 @testable import YouVersionPlatformCore
 @testable import YouVersionPlatformReader
@@ -10,9 +9,8 @@ import Testing
     @Test
     func handleVerseTapPromptsForSignInWhenUnsignedOutAndSignInEnabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.clearAuthTokens()
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
-        let viewModel = Support.makeViewModel()
+        let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
             reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
@@ -27,9 +25,8 @@ import Testing
     @Test
     func handleVerseTapDoesNothingWhenUnsignedOutAndSignInDisabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.clearAuthTokens()
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: false)
-        let viewModel = Support.makeViewModel()
+        let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
             reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
@@ -45,35 +42,22 @@ import Testing
     @Test
     func signInStartsFlowOnlyWhenSignedOut() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.clearAuthTokens()
-        let viewModel = Support.makeViewModel()
+        let signedOutViewModel = Support.makeViewModel(isSignedIn: false)
 
-        viewModel.signIn()
-        #expect(viewModel.startSignInFlow)
+        signedOutViewModel.signIn()
 
-        viewModel.startSignInFlow = false
-        YouVersionPlatformConfiguration.saveAuthData(
-            accessToken: "access-token",
-            refreshToken: nil,
-            idToken: nil,
-            expiryDate: nil
-        )
+        #expect(signedOutViewModel.startSignInFlow)
 
-        viewModel.signIn()
+        let signedInViewModel = Support.makeViewModel(isSignedIn: true)
 
-        #expect(viewModel.startSignInFlow == false)
-        YouVersionPlatformConfiguration.clearAuthTokens()
+        signedInViewModel.signIn()
+
+        #expect(signedInViewModel.startSignInFlow == false)
     }
 
     @Test
-    func signOutShowsConfirmationAndConfirmSignOutClearsAuthAndHighlights() {
+    func signOutShowsConfirmationAndConfirmSignOutClearsStateAndHighlights() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.saveAuthData(
-            accessToken: "access-token",
-            refreshToken: nil,
-            idToken: nil,
-            expiryDate: nil
-        )
         let viewModel = Support.makeViewModel()
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
@@ -83,27 +67,17 @@ import Testing
 
         viewModel.confirmSignOut()
 
-        #expect(YouVersionAPI.isSignedIn == false)
+        #expect(viewModel.isSignedIn == false)
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
     }
 
     @Test
-    func updateSignInStateUsesCurrentTokenState() async {
+    func updateSignInStateUsesAuthenticationState() async {
         Support.clearReaderDefaults()
-        let viewModel = Support.makeViewModel()
-        YouVersionPlatformConfiguration.saveAuthData(
-            accessToken: "access-token",
-            refreshToken: "refresh-token",
-            idToken: nil,
-            expiryDate: Date().addingTimeInterval(60)
-        )
+        let viewModel = Support.makeViewModel(hasValidToken: true)
 
-        viewModel.updateSignInState()
-        await Support.waitUntil("sign-in state to update") {
-            viewModel.isSignedIn
-        }
+        await viewModel.updateSignInState()
 
         #expect(viewModel.isSignedIn)
-        YouVersionPlatformConfiguration.clearAuthTokens()
     }
 }

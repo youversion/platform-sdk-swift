@@ -74,13 +74,7 @@ import Testing
     @Test
     func handleVerseTapTogglesSelectionWhenSignedIn() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.saveAuthData(
-            accessToken: "access-token",
-            refreshToken: nil,
-            idToken: nil,
-            expiryDate: nil
-        )
-        let viewModel = Support.makeViewModel()
+        let viewModel = Support.makeViewModel(isSignedIn: true)
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
 
         viewModel.handleVerseTap(reference: reference, actionType: "", footnotes: [])
@@ -92,7 +86,6 @@ import Testing
 
         #expect(viewModel.selectedVerses.isEmpty)
         #expect(viewModel.showingVerseActionsDrawer == false)
-        YouVersionPlatformConfiguration.clearAuthTokens()
     }
 
     @Test
