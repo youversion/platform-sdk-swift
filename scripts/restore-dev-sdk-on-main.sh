@@ -62,7 +62,13 @@ fi
 # 2. Tag $VERSION must exist and point at HEAD. semantic-release creates and
 #    pushes the tag between prepare and publish; if it didn't (or pointed
 #    elsewhere), our topology assumption is broken.
-TAG_SHA=$(git rev-parse "refs/tags/$VERSION" 2>/dev/null || echo "")
+#
+#    Use refs/tags/$VERSION^{} to dereference to the target commit. This is
+#    a no-op for lightweight tags (which is what semantic-release creates
+#    today) but correctly resolves annotated tags to their commit SHA, so
+#    the comparison stays valid if any plugin or upstream change starts
+#    producing annotated tags.
+TAG_SHA=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
 HEAD_SHA=$(git rev-parse HEAD)
 if [ -z "$TAG_SHA" ]; then
   echo "❌ Tag $VERSION does not exist locally." >&2
