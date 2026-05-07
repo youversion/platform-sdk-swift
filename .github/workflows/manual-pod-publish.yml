@@ -28,6 +28,9 @@ on:
 env:
   XCODE_VERSION: latest-stable
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: macos-26
@@ -77,7 +80,7 @@ jobs:
       - name: Publish pods to trunk
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: bash scripts/publish-pods.sh ${{ inputs.version }}
+        run: bash scripts/publish-pods.sh "${{ inputs.version }}"
 
       - name: Restore SDKVersion to Dev on main
         if: ${{ inputs.restore_dev }}
