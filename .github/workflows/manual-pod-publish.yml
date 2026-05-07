@@ -80,6 +80,9 @@ jobs:
       - name: Publish pods to trunk
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        # Note: publish-pods.sh has CDN-propagation sleeps commented out.
+        # --synchronous waits for trunk acknowledgement but CDN indexing can
+        # lag; if dependent pushes fail, uncomment the sleep lines in the script.
         run: bash scripts/publish-pods.sh "${{ inputs.version }}"
 
       - name: Restore SDKVersion to Dev on main
