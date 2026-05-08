@@ -179,6 +179,32 @@ YouVersionPlatformConfiguration.configure(
 
 When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
 
+#### Filtering Available Languages
+
+By default, the version picker offers Bible versions in every available language. To restrict it to a specific set of languages, pass `permittedLanguageTags` during configuration. For example, to make only English versions available:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    permittedLanguageTags: ["en"]
+)
+```
+
+Tags follow [BCP 47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) (e.g. `"en"` for English, `"es"` for Spanish). When the resulting list contains versions in only one language, the language button in the version picker is hidden automatically.
+
+#### Filtering Available Versions
+
+To restrict the version picker to a specific set of Bible versions, pass `permittedVersionIds` during configuration:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    permittedVersionIds: [12, 111, 1588]
+)
+```
+
+IDs are the YouVersion Bible version IDs (e.g. `111` for NIV, `1588` for AMP). Combines with `permittedLanguageTags` — a version must satisfy both filters to be shown.
+
 
 ### Implementing Sign In
 
