@@ -68,7 +68,6 @@ import Testing
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
-        // The source throws URLError(.badServerResponse) for any non-200 status
         let errorBody = """
         {"error": "invalid_grant"}
         """.data(using: .utf8)!
@@ -78,7 +77,7 @@ import Testing
             return (errorBody, response)
         }
 
-        await #expect(throws: URLError.self) {
+        await #expect(throws: URLError(.badServerResponse)) {
             _ = try await YouVersionAPI.Users.obtainTokens(
                 from: "bad-code",
                 codeVerifier: "verifier",
@@ -92,13 +91,12 @@ import Testing
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
-        // The source throws URLError(.badServerResponse) for any non-200 status
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
 
-        await #expect(throws: URLError.self) {
+        await #expect(throws: URLError(.badServerResponse)) {
             _ = try await YouVersionAPI.Users.obtainTokens(
                 from: "auth-code",
                 codeVerifier: "verifier",
