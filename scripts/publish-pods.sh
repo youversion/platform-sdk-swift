@@ -16,7 +16,8 @@ fi
 # a partial failure.
 pod_already_published() {
   local pod="$1"
-  local escaped="${VERSION//./\\.}"
+  local version="$2"
+  local escaped="${version//./\\.}"
   pod trunk info "$pod" 2>/dev/null \
     | grep -Eq "^[[:space:]]+- ${escaped} \("
 }
@@ -24,7 +25,7 @@ pod_already_published() {
 publish_pod() {
   local pod_name="$1"
   local podspec="$2"
-  if pod_already_published "$pod_name"; then
+  if pod_already_published "$pod_name" "$VERSION"; then
     echo "  ✓ $pod_name $VERSION already on trunk — skipping"
     return 0
   fi
