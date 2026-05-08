@@ -24,8 +24,8 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "bash scripts/update-pod-versions.sh ${nextRelease.version}",
-        "publishCmd": "bash scripts/release-stamp-and-tag.sh ${nextRelease.version} && bash scripts/publish-pods.sh ${nextRelease.version}"
+        "prepareCmd": "bash scripts/update-pod-versions.sh ${nextRelease.version} && bash scripts/stamp-sdk-version.sh ${nextRelease.version}",
+        "publishCmd": "bash scripts/restore-dev-sdk-on-main.sh ${nextRelease.version} && bash scripts/publish-pods.sh ${nextRelease.version}"
       }
     ],
     "@semantic-release/github",
@@ -34,6 +34,7 @@
       {
         "assets": [
           "CHANGELOG.md",
+          "Sources/YouVersionPlatformCore/SDKVersion.swift",
           "YouVersionPlatform.podspec",
           "YouVersionPlatformCore.podspec",
           "YouVersionPlatformReader.podspec",

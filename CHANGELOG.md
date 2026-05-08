@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.0](https://github.com/youversion/platform-sdk-swift/compare/5.1.1...5.2.0) (2026-05-08)
+
+
+### Features
+
+* **reader:** limit versions by language and version id ([#101](https://github.com/youversion/platform-sdk-swift/issues/101)) ([979f5ac](https://github.com/youversion/platform-sdk-swift/commit/979f5ace1e4243bcf840b49f3e426154cd828ea0))
+
+## [5.1.1](https://github.com/youversion/platform-sdk-swift/compare/5.1.0...5.1.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ci:** make pod publish resumable after partial trunk failure ([#112](https://github.com/youversion/platform-sdk-swift/issues/112)) ([77c45d0](https://github.com/youversion/platform-sdk-swift/commit/77c45d0430aab952e35c5840c9c1413111e1b934))
+
+## [5.1.0](https://github.com/youversion/platform-sdk-swift/compare/5.0.0...5.1.0) (2026-05-07)
+
+
+### Features
+
+* add x-yvp-sdk header reporting SDK version on configured requests ([#103](https://github.com/youversion/platform-sdk-swift/issues/103)) ([2cd621a](https://github.com/youversion/platform-sdk-swift/commit/2cd621a946e091daf832c583906860b812b73293))
+
+
+### Bug Fixes
+
+* **ci:** fix release script reset stale origin for YPE-2293  ([#105](https://github.com/youversion/platform-sdk-swift/issues/105)) ([1db2e3a](https://github.com/youversion/platform-sdk-swift/commit/1db2e3a76fdd81200c5b7f599a1b0bef4e109ee4)), closes [#1](https://github.com/youversion/platform-sdk-swift/issues/1)
+* **ci:** keep release tag on main so semantic-release can find it on next run.  ([#110](https://github.com/youversion/platform-sdk-swift/issues/110)) ([da7b8be](https://github.com/youversion/platform-sdk-swift/commit/da7b8bebec1b72fe82e821e15bad8c87dd76bb8f))
+* pluralize versionList.statisticsFormat in all locales ([db0eac4](https://github.com/youversion/platform-sdk-swift/commit/db0eac4e21302c637b525a1751070f8836fa8ec3))
+
+## [5.1.0](https://github.com/youversion/platform-sdk-swift/compare/5.0.0...5.1.0) (2026-05-06)
+
+
+### Features
+
+* add x-yvp-sdk header reporting SDK version on configured requests ([#103](https://github.com/youversion/platform-sdk-swift/issues/103)) ([2cd621a](https://github.com/youversion/platform-sdk-swift/commit/2cd621a946e091daf832c583906860b812b73293))
+
+
+### Bug Fixes
+
+* **ci:** fix release script reset stale origin for YPE-2293  ([#105](https://github.com/youversion/platform-sdk-swift/issues/105)) ([1db2e3a](https://github.com/youversion/platform-sdk-swift/commit/1db2e3a76fdd81200c5b7f599a1b0bef4e109ee4)), closes [#1](https://github.com/youversion/platform-sdk-swift/issues/1)
+* pluralize versionList.statisticsFormat in all locales ([db0eac4](https://github.com/youversion/platform-sdk-swift/commit/db0eac4e21302c637b525a1751070f8836fa8ec3))
+
 ## [5.1.0](https://github.com/youversion/platform-sdk-swift/compare/5.0.0...5.1.0) (2026-05-06)
 
 

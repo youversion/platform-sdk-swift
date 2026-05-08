@@ -11,12 +11,14 @@ public struct BibleVersionsListView: View {
                 Color.clear.frame(height: 72)
             }
             searchInput
-            Button {
-                viewModel.languageTapped()
-            } label: {
-                languageDisplay
+            if hasMultiplePermittedLanguages {
+                Button {
+                    viewModel.languageTapped()
+                } label: {
+                    languageDisplay
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             Group {
                 if let versions = filteredVersions {
                     List(versions, id: \.id) { version in
@@ -88,6 +90,13 @@ public struct BibleVersionsListView: View {
         )
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
+    }
+
+    private var hasMultiplePermittedLanguages: Bool {
+        guard let versions = viewModel.cachedPermittedVersions else {
+            return true
+        }
+        return Set(versions.compactMap { $0.languageTag }).count > 1
     }
 
     private var languageDisplay: some View {
