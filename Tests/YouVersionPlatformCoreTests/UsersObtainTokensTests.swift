@@ -26,7 +26,7 @@ import Testing
             let body = requestBodyString(request)
             #expect(body.contains("code=auth-code"))
             #expect(body.contains("code_verifier=verifier"))
-            #expect(body.contains("redirect_uri=youversionauth"))
+            #expect(body.contains("redirect_uri=youversionauth://callback"))
             #expect(body.contains("grant_type=authorization_code"))
 
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
