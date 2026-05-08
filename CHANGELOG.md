@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.0](https://github.com/youversion/platform-sdk-swift/compare/5.1.1...5.2.0) (2026-05-08)
+
+
+### Features
+
+* **reader:** limit versions by language and version id ([#101](https://github.com/youversion/platform-sdk-swift/issues/101)) ([979f5ac](https://github.com/youversion/platform-sdk-swift/commit/979f5ace1e4243bcf840b49f3e426154cd828ea0))
+
 ## [5.1.1](https://github.com/youversion/platform-sdk-swift/compare/5.1.0...5.1.1) (2026-05-08)
 
 
