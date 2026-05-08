@@ -18,6 +18,7 @@ pod_already_published() {
   local pod="$1"
   local version="$2"
   local escaped="${version//./\\.}"
+  # "**Regex anchored to a specific `pod trunk info` output format**"
   pod trunk info "$pod" 2>/dev/null \
     | grep -Eq "^[[:space:]]+- ${escaped} \("
 }
