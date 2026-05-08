@@ -34,6 +34,7 @@ import Testing
         #expect(versions.count == 2)
         #expect(versions.first?.id == 1)
         #expect(versions.first?.languageTag == "en")
+        #expect(versions.last?.languageTag == "de")
         let _ = try #require(capturedRequest)
     }
 
