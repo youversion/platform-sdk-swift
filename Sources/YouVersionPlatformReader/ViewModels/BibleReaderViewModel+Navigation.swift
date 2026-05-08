@@ -127,6 +127,14 @@ extension BibleReaderViewModel {
             if response == .handled {
                 return
             }
+        }
+
+        if isSignedIn {
+            if selectedVerses.contains(reference) {
+                selectedVerses.remove(reference)
+            } else {
+                selectedVerses.insert(reference)
+            }
         } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
             showingSignInSheet = true
             return
@@ -215,7 +223,7 @@ extension BibleReaderViewModel {
         guard let version,
               !references.isEmpty,
               // Bug, maybe: this URL only points to the first reference in possibly several.
-              // Discontiguous selection could benefit from multiple urls... 
+              // Discontiguous selection could benefit from multiple urls...
               let url = version.shareUrl(reference: references.first!)
         else {
             return nil
@@ -252,9 +260,9 @@ extension BibleReaderViewModel {
         removeVerseSelection()
         do {
             if version?.id != reference.versionId {
-                let newVersion = try await versionRepository.version(withId: reference.versionId)
-                version = newVersion
-                myVersions.insert(newVersion)
+                let newVersion = try await versionsViewModel.versionRepository.version(withId: reference.versionId)
+                versionsViewModel.switchToVersion(newVersion)
+                versionsViewModel.myVersions.insert(newVersion)
             }
             self.reference = reference
             self.showBookIntro = showIntro

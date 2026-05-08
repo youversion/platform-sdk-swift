@@ -4,13 +4,13 @@ import FoundationNetworking
 #endif
 
 public extension YouVersionAPI.Bible {
-    /// Retrieves a list of Bible versions available for a specified language code.
+    /// Retrieves a list of Bible versions available for a specified language tag.
     ///
-    /// This function fetches Bible version overviews for the provided three-letter language code (e.g., "eng").
+    /// This function fetches Bible version overviews for the provided BCP 47 language tag (e.g., "en").
     /// A valid `YouVersionPlatformConfiguration.appKey` must be set for the request to succeed.
     ///
     /// - Parameters:
-    ///   - languageTag: An optional language code per BCP 47 for filtering available Bible versions. If `nil`
+    ///   - languageTag: An optional language tag per BCP 47 for filtering available Bible versions. If `nil`
     ///     the function returns versions for all languages.
     ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: An array of ``BibleVersion`` objects representing the available Bible versions for the language.

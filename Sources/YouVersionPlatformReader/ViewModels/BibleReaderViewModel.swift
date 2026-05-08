@@ -10,7 +10,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
-    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     var reference: BibleReference {
         didSet {
             if let data = try? JSONEncoder().encode(reference) {
@@ -24,180 +23,18 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
     let highlightsViewModel: BibleHighlightsViewModel
-    var versionsViewModel: BibleVersionsViewModel
-    var version: BibleVersion?
-
-    let versionRepository = BibleVersionRepository()
+    let versionsViewModel: BibleVersionsViewModel
+    var version: BibleVersion? { versionsViewModel.currentVersion }
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
     let onReferenceChange: ((BibleReference) -> Void)?
     let onChapterComplete: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
     let audioActiveIndicatorColor: Color?
+    private let authentication: BibleReaderAuthentication
     var scrollViewHeight: CGFloat = 0
     var maxObservedOffset: CGFloat = 0
     var hasNotifiedChapterComplete = false
-
-    init(reference: BibleReference? = nil, highlightsViewModel: BibleHighlightsViewModel? = nil, verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil, onNoteIndicatorTap: ((BibleReference) -> Void)? = nil, onReferenceChange: ((BibleReference) -> Void)? = nil, onChapterComplete: ((BibleReference) -> Void)? = nil) {
-        // grab the saved data first, because initializing myVersions will clear the saved data.
-        let savedIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
-
-        if let reference {
-            self.reference = reference
-            self.showBookIntro = false
-        } else {
-            if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
-               let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
-                self.reference = savedValue
-                self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
-            } else {
-                // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let downloads = VersionDownloadCache.downloadedVersions
-                let versionId = reference?.versionId ?? downloads.first ?? savedIds.first ?? 3034
-                self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
-                self.showBookIntro = false
-            }
-        }
-
-        self.onVerseTap = onVerseTap
-        self.onNoteIndicatorTap = onNoteIndicatorTap
-        self.onReferenceChange = onReferenceChange
-        self.onChapterComplete = onChapterComplete
-        self.verseSelectionStyle = verseSelectionStyle
-        self.audioActiveIndicatorColor = audioActiveIndicatorColor
-        self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        self.versionsViewModel = BibleVersionsViewModel { _ in }
-        self.colorTheme = ReaderTheme.theme()
-        self.myVersions = []
-        self.suggestedLanguagesList = []
-
-        self.versionsViewModel.onVersionChange = { [weak self] version in
-            self?.onVersionChange(version: version)
-        }
-        self.versionsViewModel.onSignInRequired = { [weak self] in
-            self?.onSignInRequired()
-        }
-
-        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-        self.versionsViewModel.colorTheme = colorTheme
-
-        ReaderFonts.installFontsIfNeeded()
-        Task {
-            await loadVersionIfNeeded(savedIds: savedIds)
-            await restoreMyVersions(savedIds: savedIds)
-            await loadSuggestedLanguages()
-            await removeUnpermittedVersions()
-        }
-    }
-
-    private class ReaderSettings: Codable {
-        let fontFamily: String?
-        let fontSize: CGFloat?
-        let lineSpacing: CGFloat?
-        let colorTheme: Int?
-        init(fontFamily: String?, fontSize: CGFloat?, lineSpacing: CGFloat?, colorTheme: Int?) {
-            self.fontFamily = fontFamily
-            self.fontSize = fontSize
-            self.lineSpacing = lineSpacing
-            self.colorTheme = colorTheme
-        }
-    }
-
-    private func removeUnpermittedVersions() async {
-        guard let permittedVersions = await permittedVersionsListing() else {
-            return  // when offline, we don't get a list, but don't delete anything!
-        }
-        let permittedIds = Set(permittedVersions.map(\.id))
-        await versionRepository.removeUnpermittedVersions(permittedIds: permittedIds)
-
-        for version in self.myVersions where !permittedIds.contains(version.id) {
-            self.myVersions.remove(version)
-        }
-        if !permittedIds.contains(reference.versionId) {
-            await selectFallbackVersion(savedIds: Array(self.myVersions.map(\.id)))
-        }
-    }
-
-    private func restoreMyVersions(savedIds: [Int]) async {
-        for id in savedIds {
-            if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
-            }
-        }
-
-        // downloaded versions must also be in MyVersions, otherwise they couldn't be deleted.
-        let downloads = VersionDownloadCache.downloadedVersions
-        for id in downloads {
-            if self.myVersions.contains(where: { $0.id == id }) {
-                continue
-            }
-            if let version = try? await versionRepository.versionIfCached(id) {
-                self.myVersions.insert(version)
-            }
-        }
-    }
-
-    private func loadVersionIfNeeded(savedIds: [Int]) async {
-        if self.version == nil || self.version!.id != reference.versionId {
-            do {
-                version = try await versionRepository.version(withId: reference.versionId)
-                if let version {
-                    self.myVersions.insert(version)
-                }
-            } catch YouVersionAPIError.notPermitted {
-                await selectFallbackVersion(savedIds: savedIds)
-            } catch {
-                print("Error loading default version: \(error)")
-            }
-        }
-    }
-
-    private func selectFallbackVersion(savedIds: [Int]) async {
-        guard let nextBestVersion = await findAnyAcceptableVersion(savedIds: Set(savedIds)),
-        let version = try? await versionRepository.version(withId: nextBestVersion)
-        else {
-            // bring up the UI, let the user choose.
-            versionsPickerStack.append(.moreVersions)
-            showingVersionsStack = true
-          return
-        }
-        self.version = version
-        self.reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-        self.myVersions.insert(version)
-    }
-
-    private func findAnyAcceptableVersion(savedIds: Set<Int>) async -> Int? {
-        let downloads = VersionDownloadCache.downloadedVersions
-        if !downloads.isEmpty {
-            return downloads.first!
-        }
-
-        if let versions = try? await YouVersionAPI.Bible.versions() {
-            // are any of the permitted versions in their myVersions list?
-            for version in versions where savedIds.contains(version.id) {
-                return version.id
-            }
-
-            // For now, fall back to a Bible in English.
-            // It would be better to search for a bible in the device's language,
-            // before defaulting to English.
-            if let version = versions.first(where: { $0.languageTag == "en" }) {
-                return version.id
-            }
-
-            if let version = versions.first {
-                return version.id
-            }
-        } else {
-            print("Could not fetch the permitted versions")
-        }
-        return nil  // at this point we must be offline or the app has been shut down. Give up.
-    }
-
-    var showGenericAlert = false
-    var textForGenericAlertTitle = ""
-    var textForGenericAlertBody = ""
-    private(set) var textForGenericAlertOKButton = "OK"
 
     // MARK: - UI state of the Reader itself
     var showChrome = true
@@ -206,7 +43,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var isChangingChapter = false
     var showingSignInSheet = false
     var showingFontSettings = false
-    var showingFontList = false
+    var showingFontList = false // swiftlint:disable:this collection_suffix_property
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
@@ -231,8 +68,83 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
-    private(set) var isSignedIn = false
+    private(set) var isSignedIn: Bool
     var showSignOutConfirmation = false
+
+    init(
+        reference: BibleReference? = nil,
+        highlightsViewModel: BibleHighlightsViewModel? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        versionsViewModel: BibleVersionsViewModel? = nil,
+        audioActiveIndicatorColor: Color? = nil,
+        onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+        onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+        onReferenceChange: ((BibleReference) -> Void)? = nil,
+        onChapterComplete: ((BibleReference) -> Void)? = nil,
+        authentication: BibleReaderAuthentication? = nil
+    ) {
+        let authentication = authentication ?? .default
+        if let reference {
+            self.reference = reference
+            self.showBookIntro = false
+        } else {
+            if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
+               let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
+                self.reference = savedValue
+                self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
+            } else {
+                // no specified or saved version, so, pick a downloaded one, else a safe default.
+                let versionId = reference?.versionId ?? BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
+                self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
+                self.showBookIntro = false
+            }
+        }
+
+        self.onVerseTap = onVerseTap
+        self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onReferenceChange = onReferenceChange
+        self.onChapterComplete = onChapterComplete
+        self.verseSelectionStyle = verseSelectionStyle
+        self.audioActiveIndicatorColor = audioActiveIndicatorColor
+        self.authentication = authentication
+        self.isSignedIn = authentication.isSignedIn
+        self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
+        let shouldLoadVersionsViewModel = versionsViewModel == nil
+        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
+        self.versionsViewModel.onSignInRequired = { [weak self] in
+            self?.onSignInRequired()
+        }
+
+        loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
+        self.versionsViewModel.colorTheme = colorTheme
+
+        ReaderFonts.installFontsIfNeeded()
+
+        if shouldLoadVersionsViewModel {
+            let initialVersionId = self.reference.versionId
+            Task { [weak self] in
+                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+            }
+        }
+
+        observeCurrentVersion()
+    }
+
+    // Reacts to BibleVersionsViewModel.currentVersion changes by updating
+    // the reader's reference. The Observation framework's tracking is one-shot,
+    // so the method re-arms itself after each fired change.
+    private func observeCurrentVersion() {
+        withObservationTracking {
+            _ = versionsViewModel.currentVersion
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.observeCurrentVersion()
+                if let version = self?.versionsViewModel.currentVersion {
+                    self?.handleVersionPicked(version)
+                }
+            }
+        }
+    }
 
     var verseActionsDrawerAnimation: Animation {
         isReduceMotionEnabled ? .easeInOut(duration: 0.2) : .smooth(duration: 0.3)
@@ -259,12 +171,23 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         )
     }
 
-    func onVersionChange(version: BibleVersion) {
-        self.version = version
-        reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+    /// Aligns the reader's reference to a newly picked version and triggers a
+    /// header selection change to load its content. No-ops when the reference's
+    /// versionId already matches — this is the guard that prevents
+    /// `onHeaderSelectionChange` from looping back through the
+    /// `currentVersion` observation chain.
+    func handleVersionPicked(_ version: BibleVersion) {
         Task {
-            await onHeaderSelectionChange(reference, showIntro: false)
+            await handleVersionPicked(version)
         }
+    }
+
+    func handleVersionPicked(_ version: BibleVersion) async {
+        guard reference.versionId != version.id else {
+            return
+        }
+        reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+        await onHeaderSelectionChange(reference, showIntro: false)
     }
 
     func onSignInRequired() {
@@ -304,13 +227,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         showingFontSettings = true
     }
 
-    func handleSmallerFontTap() {
+    func decreaseFontSize() {
         if let newSize = ReaderFonts.nextSmallerSize(currentSize: textOptions.fontSize) {
             setFont(size: newSize)
         }
     }
 
-    func handleBiggerFontTap() {
+    func increaseFontSize() {
         if let newSize = ReaderFonts.nextLargerSize(currentSize: textOptions.fontSize) {
             setFont(size: newSize)
         }
@@ -326,7 +249,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func selectNextLineSpacing() {
+    func cycleLineSpacing() {
         lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: lineSpacing)
         saveUserSettingsToStorage()
     }
@@ -337,14 +260,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func updateSignInState() {
-        Task {
-            isSignedIn = await YouVersionAPI.hasValidToken()
-        }
+    func updateSignInState() async {
+        isSignedIn = await authentication.hasValidToken()
     }
 
     func signIn() {
-        if YouVersionAPI.isSignedIn {
+        if isSignedIn {
             return
         }
         startSignInFlow = true
@@ -355,7 +276,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func confirmSignOut() {
-        YouVersionAPI.Users.signOut()
+        authentication.signOut()
         highlightsViewModel.reset()
         isSignedIn = false
     }
@@ -366,19 +287,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var versionsInLanguage: [String: [BibleVersion]] = [:]
 
     /// Holds minimal information about all Bible versions available to this app, in all languages.
-    var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    var permittedVersionsList: [YouVersionAPI.Bible.BibleVersionMinimalInfo]? // swiftlint:disable:this collection_suffix_property
 
     /// Returns minimal information about all Bible versions available to this app, in all languages.
     /// On error or when offline, returns nil
     func permittedVersionsListing() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
-        if let permittedVersionsList {
+        if let permittedVersionsList { // swiftlint:disable:this collection_suffix_property
             return permittedVersionsList
         }
 
-        let time1 = Date()
         let versions = try? await YouVersionAPI.Bible.permittedVersions(forLanguageTag: nil)
-        let elapsed = Date().timeIntervalSince(time1)
-        print("fetchBibleVersionMinimalInfo got \(versions?.count ?? -999) in \(String(format: "%.2f", elapsed)) seconds.")
 
         if let versions {
             await MainActor.run {
@@ -403,10 +321,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
         versionsBeingFetched.insert(code)
         Task {
-            let time1 = Date()
             if let unsortedVersions = try? await YouVersionAPI.Bible.versions(forLanguageTag: code) {
-                let elapsed = Date().timeIntervalSince(time1)
-                print("fetchVersionsInLanguage('\(code)') got \(unsortedVersions.count) in \(String(format: "%.2f", elapsed)) seconds.")
                 let sortedVersions = unsortedVersions.sorted {
                     let a = $0.localizedTitle ?? $0.title ?? $0.localizedAbbreviation ?? $0.abbreviation ?? String($0.id)
                     let b = $1.localizedTitle ?? $1.title ?? $1.localizedAbbreviation ?? $1.abbreviation ?? String($1.id)
@@ -422,35 +337,22 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
+    var showGenericAlert = false
+    var textForGenericAlertTitle = ""
+    var textForGenericAlertBody = ""
+    private(set) var textForGenericAlertOKButton = "OK"
     var showFullProgressViewOverlay = false
-
-    // MARK: - My Versions
-    var myVersions: Set<BibleVersion> = [] {
-        didSet {
-            Task {
-                // The below iteration must be run in a Task to avoid view re-creation loops.
-                let ids = myVersions.map { $0.id }
-                UserDefaults.standard.set(ids, forKey: userDefaultsKeyForMyVersions)
-            }
-        }
-    }
-
-    var showVersionInfoSharingAlert = false
-    var showVersionInfoSharingText = ""
 
     // MARK: - Languages picking
 
-    var suggestedLanguagesList: [LanguageOverview]
+    var suggestedLanguagesList: [LanguageOverview] = [] // swiftlint:disable:this collection_suffix_property
     var chosenLanguage: String?
     var languageNames: [String: String] = [:]
 
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
         do {
-            let time1 = Date()
             suggestedLanguagesList = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
-            let elapsed = Date().timeIntervalSince(time1)
-            print("loadSuggestedLanguages got \(suggestedLanguagesList.count) in \(String(format: "%.2f", elapsed)) seconds.")
         } catch {
             print("Error fetching languages: \(error.localizedDescription)")
         }
@@ -518,5 +420,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             return nil
         }
         return org.name
+    }
+
+    private struct ReaderSettings: Codable {
+        let fontFamily: String?
+        let fontSize: CGFloat?
+        let lineSpacing: CGFloat?
+        let colorTheme: Int?
     }
 }

@@ -37,7 +37,7 @@ struct BibleTextNodeParser {
             .replacingOccurrences(of: "<br />", with: "<br/>")
 
         // Decode common HTML named entities to Unicode characters XML can handle
-        let entityMap: [String: String] = [
+        let replacements: [String: String] = [
             "&nbsp;": " ",
             "&mdash;": "—",
             "&ndash;": "–",
@@ -49,7 +49,7 @@ struct BibleTextNodeParser {
             "&copy;": "©",
             "&trade;": "™"
         ]
-        for (k, v) in entityMap {
+        for (k, v) in replacements {
             s = s.replacingOccurrences(of: k, with: v)
         }
 

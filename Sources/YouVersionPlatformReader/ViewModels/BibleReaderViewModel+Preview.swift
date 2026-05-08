@@ -10,7 +10,7 @@ extension BibleReaderViewModel {
         let vm = BibleReaderViewModel(reference: BibleReference(versionId: 3034, bookUSFM: "GEN", chapter: 1))
 
         let previewVersion = BibleVersion.preview
-        vm.version = previewVersion
+        vm.versionsViewModel.switchToVersion(previewVersion)
 
         let footnoteReference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 21, verse: 1)
         vm.footnotesToDisplay = [

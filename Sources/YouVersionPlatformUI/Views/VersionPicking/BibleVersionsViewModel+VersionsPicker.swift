@@ -20,10 +20,10 @@ extension BibleVersionsViewModel {
 
     public func openVersionsStack(currentBibleLanguage: String) {
         Task {
-            await permittedVersionsListing()
+            await permittedVersions()
         }
         currentBibleVersionLanguage = currentBibleLanguage
-        fetchVersionsInLanguage(code: activeLanguage)
+        fetchVersions(forLanguageTag: activeLanguage)
         chosenLanguage = nil  // reset the search field
         versionsPickerStack.removeAll()
         showingVersionsStack = true
