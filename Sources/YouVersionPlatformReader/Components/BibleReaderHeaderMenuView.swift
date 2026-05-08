@@ -16,8 +16,8 @@ struct BibleReaderHeaderMenuView: View {
                 fontSettingsButton
             }
         }
-        .onAppear {
-            viewModel.updateSignInState()
+        .task {
+            await viewModel.updateSignInState()
         }
     }
 

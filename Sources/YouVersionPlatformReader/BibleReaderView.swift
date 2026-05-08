@@ -412,7 +412,7 @@ public struct BibleReaderView: View {
                 dump(result)
 #endif
                 
-                viewModel.updateSignInState()
+                await viewModel.updateSignInState()
             } catch {
                 print(error)
             }

@@ -2081,25 +2081,193 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d Versionen in %d Sprachen"
+            "value" : "%1$#@versions_string@ in %2$#@languages_string@"
+          },
+          "substitutions" : {
+            "languages_string" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Sprache"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Sprachen"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Übersetzung"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Übersetzungen"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d versions in %d languages"
+            "value" : "%#@versions_string@ in %#@languages_string@"
+          },
+          "substitutions" : {
+            "languages_string" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Language"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Languages"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Version"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Versions"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "es-MX" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d versiones en %d idiomas"
+            "value" : "%#@versions_string@ en %#@languages_string@"
+          },
+          "substitutions" : {
+            "languages_string" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu idioma"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu idiomas"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Versión"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu Versiones"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%d versions en %d langues"
+            "value" : "%1$#@versions_string@ dans %2$#@languages_string@"
+          },
+          "substitutions" : {
+            "languages_string" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu langue"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu langues"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lu",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu version"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%lu versions"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

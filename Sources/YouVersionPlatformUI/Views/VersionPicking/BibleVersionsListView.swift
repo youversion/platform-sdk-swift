@@ -11,12 +11,14 @@ public struct BibleVersionsListView: View {
                 Color.clear.frame(height: 72)
             }
             searchInput
-            Button {
-                viewModel.languageTapped()
-            } label: {
-                languageDisplay
+            if hasMultiplePermittedLanguages {
+                Button {
+                    viewModel.languageTapped()
+                } label: {
+                    languageDisplay
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             Group {
                 if let versions = filteredVersions {
                     List(versions, id: \.id) { version in
@@ -59,7 +61,7 @@ public struct BibleVersionsListView: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .onChange(of: viewModel.activeLanguage, initial: true) { _, newValue in
-            viewModel.fetchVersionsInLanguage(code: newValue)
+            viewModel.fetchVersions(forLanguageTag: newValue)
         }
     }
 
@@ -90,9 +92,16 @@ public struct BibleVersionsListView: View {
         .padding(.bottom, 8)
     }
 
+    private var hasMultiplePermittedLanguages: Bool {
+        guard let versions = viewModel.cachedPermittedVersions else {
+            return true
+        }
+        return Set(versions.compactMap { $0.languageTag }).count > 1
+    }
+
     private var languageDisplay: some View {
         let language = viewModel.activeLanguage
-        let versionsInLanguage = viewModel.permittedVersionsList?.filter { $0.languageTag == language } ?? []
+        let versionsInLanguage = viewModel.cachedPermittedVersions?.filter { $0.languageTag == language } ?? []
         return HStack {
             Image(systemName: "globe")
             Text(viewModel.languageName(language))
@@ -112,23 +121,10 @@ public struct BibleVersionsListView: View {
 
     private var filteredVersions: [BibleVersion]? {
         let language = viewModel.activeLanguage
-        guard let versionsList = viewModel.versionsInLanguage[language] else {
+        guard let versions = viewModel.versionsByLanguageTag[language] else {
             return nil
         }
-
-        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return versionsList
-        }
-        let query = searchText.lowercased()
-        return versionsList.filter { v in
-            guard v.languageTag == language else {
-                return false
-            }
-            let title = (v.title ?? "").lowercased()
-            let abbr = (v.abbreviation ?? String(v.id)).lowercased()
-            let lang = (v.languageTag ?? "")
-            return title.contains(query) || abbr.contains(query) || lang.contains(query)
-        }
+        return filteredBibleVersions(versions, matching: searchText)
     }
 
 }

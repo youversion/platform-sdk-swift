@@ -45,7 +45,7 @@ struct BibleVersionsLanguagesView: View {
                 Picker("", selection: $selectedSegment) {
                     let allMsg = String(
                         format: String.localized("languageList.allWithCount"),
-                        allPermittedLanguages.count,
+                        availableLanguageTags.count,
                         String.localized("languageList.all")
                     )
                     Text(String.localized("languageList.suggested"))
@@ -64,7 +64,7 @@ struct BibleVersionsLanguagesView: View {
                             .font(YouVersionFonts.headerMedium)
                             .padding(.leading)
                     }
-                    ForEach(languageCodes, id: \.self) { language in
+                    ForEach(languageTags, id: \.self) { language in
                         Button {
                             viewModel.chosenLanguage = language
                             viewModel.versionsStackPop()
@@ -121,46 +121,22 @@ struct BibleVersionsLanguagesView: View {
 
     // MARK: - Helpers
 
-    private var allPermittedLanguages: [String] {
-        guard let versionsInfo = viewModel.permittedVersionsList else {
+    private var availableLanguageTags: [String] {
+        guard let versionsInfo = viewModel.cachedPermittedVersions else {
             return []
         }
         return Array(Set(versionsInfo.compactMap { $0.languageTag }))
     }
 
-    private var languageCodes: [String] {
+    private var languageTags: [String] {
         switch selectedSegment {
         case .suggested:
-            return viewModel.suggestedLanguages
+            return viewModel.suggestedLanguageTags
         case .all:
-            return sortedUnique(allPermittedLanguages)
+            return sortedUniqueLanguageTags(availableLanguageTags, languageName: viewModel.languageName)
         case .searching:
-            return sortedUnique(allPermittedLanguages.filter {
-                searchText.isEmpty ||
-                $0.localizedCaseInsensitiveContains(searchText) ||
-                viewModel.languageName($0).localizedCaseInsensitiveContains(searchText)
-            })
-        }
-    }
-
-    // De-dup + locale-aware, case-insensitive sort
-    private func sortedUnique(_ items: [String]) -> [String] {
-        let list = Array(Set(items)).map {
-            LanguageAndCode(language: viewModel.languageName($0), code: $0)
-        }
-        return list.sorted().map { $0.code }
-    }
-
-    private struct LanguageAndCode: Comparable {
-        let language: String
-        let code: String
-
-        static func < (lhs: LanguageAndCode, rhs: LanguageAndCode) -> Bool {
-            lhs.language.localizedCaseInsensitiveCompare(rhs.language) == .orderedAscending
-        }
-
-        static func == (lhs: LanguageAndCode, rhs: LanguageAndCode) -> Bool {
-            lhs.language == rhs.language
+            let filtered = filteredLanguageTags(availableLanguageTags, matching: searchText, languageName: viewModel.languageName)
+            return sortedUniqueLanguageTags(filtered, languageName: viewModel.languageName)
         }
     }
 }

@@ -16,6 +16,7 @@ public extension URLRequest {
         var request = URLRequest(url: url, cachePolicy: cachePolicy)
         if let appKey = YouVersionPlatformConfiguration.appKey {
             request.setValue(appKey, forHTTPHeaderField: "x-yvp-app-key")
+            request.setValue("SwiftSDK=\(SDKVersion.current)", forHTTPHeaderField: "x-yvp-sdk")
         }
         if let installId = YouVersionPlatformConfiguration.installId {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")

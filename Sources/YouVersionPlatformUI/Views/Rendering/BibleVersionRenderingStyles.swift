@@ -158,7 +158,7 @@ final class BibleVersionRenderingStyles {
                 marginTop = stateIn.fonts.baseSize / 3
 
             case "yv-h", "yvh":  // yv-h meaning header
-                let fontMap: [String: BibleTextFontOption] = [
+                let fontsByClass: [String: BibleTextFontOption] = [
                     "s1": .header,
                     "imt": .header,
                     "imt1": .header,
@@ -182,7 +182,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.textCategory = .header
                 stateDown.currentFont = .header
                 for c in classes {
-                    if let font = fontMap[c] {
+                    if let font = fontsByClass[c] {
                         stateDown.currentFont = font
                     }
                 }
