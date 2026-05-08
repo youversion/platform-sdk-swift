@@ -82,13 +82,14 @@ import Testing
             return (malformed, response)
         }
 
-        await #expect(throws: URLError.self) {
+        await #expect(throws: YouVersionAPIError.cannotDownload) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
     @Test func votdRequestSetsAppKeyHeader() async throws {
+        YouVersionPlatformConfiguration.configure(appKey: "test-app-key")
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -106,5 +107,6 @@ import Testing
         let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, accessToken: "swift-test-suite", session: session)
         let req = try #require(captured)
         #expect(req.url?.absoluteString.contains("/99") == true)
+        #expect(req.value(forHTTPHeaderField: "x-yvp-app-key") == "test-app-key")
     }
 }
