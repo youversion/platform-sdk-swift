@@ -21,8 +21,8 @@ struct BibleReaderHeaderMenuView: View {
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .padding()
         }
-        .onAppear {
-            viewModel.updateSignInState()
+        .task {
+            await viewModel.updateSignInState()
         }
         .accessibilityIdentifier(BibleReaderAccessibilityIdentifiers.Header.menuButton)
     }

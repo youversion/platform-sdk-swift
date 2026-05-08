@@ -62,13 +62,14 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 @Suite struct BibleVersionsViewModelTests {
     @Test
     func initUsesSharedRepositoryByDefault() {
-        let viewModel = BibleVersionsViewModel { _ in }
+        let viewModel = BibleVersionsViewModel()
 
         #expect(viewModel.versionRepository is BibleVersionRepository)
     }
 
+    @available(*, deprecated, message: "Exercises the deprecated callback initializer for backwards compatibility.")
     @Test
-    func switchToVersionUsesInjectedRepository() async {
+    func deprecatedOnVersionChangeCallbackIsInvokedWhenVersionChanges() async {
         let repository = MockBibleVersionRepository()
         let version = makeBibleVersion(id: 111)
         await repository.setVersion(version)
@@ -81,6 +82,18 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         await viewModel.switchToVersion(version.id)
 
         #expect(changedVersion == version)
+    }
+
+    @Test
+    func switchToVersionUsesInjectedRepository() async {
+        let repository = MockBibleVersionRepository()
+        let version = makeBibleVersion(id: 112)
+        await repository.setVersion(version)
+        let viewModel = BibleVersionsViewModel(versionRepository: repository)
+
+        await viewModel.switchToVersion(version.id)
+
+        #expect(viewModel.currentVersion == version)
         #expect(viewModel.showGenericAlert == false)
     }
 
@@ -88,10 +101,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     func switchToVersionShowsAlertWhenRepositoryThrows() async {
         let repository = MockBibleVersionRepository()
         await repository.setThrownError(NSError(domain: "BibleVersionsViewModelTests", code: 99))
-        let viewModel = BibleVersionsViewModel(
-            onVersionChange: { _ in Issue.record("onVersionChange should not be called") },
-            versionRepository: repository
-        )
+        let viewModel = BibleVersionsViewModel(versionRepository: repository)
 
         await viewModel.switchToVersion(111)
 
@@ -105,10 +115,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         let repository = MockBibleVersionRepository()
         let version = makeBibleVersion(id: 222)
         await repository.setVersion(version)
-        let viewModel = BibleVersionsViewModel(
-            onVersionChange: { _ in },
-            versionRepository: repository
-        )
+        let viewModel = BibleVersionsViewModel(versionRepository: repository)
 
         await viewModel.handleVersionPickerTap(version.id)
 
@@ -123,10 +130,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         let repository = MockBibleVersionRepository()
         let version = makeBibleVersion(id: 333)
         await repository.setVersion(version)
-        let viewModel = BibleVersionsViewModel(
-            onVersionChange: { _ in },
-            versionRepository: repository
-        )
+        let viewModel = BibleVersionsViewModel(versionRepository: repository)
 
         await viewModel.myVersionMoreInfoMenuTapped(version.id)
 
@@ -138,10 +142,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     @Test
     func myVersionDownloadMenuTappedShowsAlertWhenRepositoryCannotLoadVersion() async {
         let repository = MockBibleVersionRepository()
-        let viewModel = BibleVersionsViewModel(
-            onVersionChange: { _ in Issue.record("onVersionChange should not be called") },
-            versionRepository: repository
-        )
+        let viewModel = BibleVersionsViewModel(versionRepository: repository)
 
         await viewModel.myVersionDownloadMenuTapped(444)
 

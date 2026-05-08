@@ -133,22 +133,10 @@ struct BibleVersionsLanguagesView: View {
         case .suggested:
             return viewModel.suggestedLanguageTags
         case .all:
-            return sortedUniqueLanguageTags(availableLanguageTags)
+            return sortedUniqueLanguageTags(availableLanguageTags, languageName: viewModel.languageName)
         case .searching:
-            return sortedUniqueLanguageTags(availableLanguageTags.filter {
-                searchText.isEmpty ||
-                $0.localizedCaseInsensitiveContains(searchText) ||
-                viewModel.languageName($0).localizedCaseInsensitiveContains(searchText)
-            })
-        }
-    }
-
-    // De-dup + locale-aware, case-insensitive sort
-    private func sortedUniqueLanguageTags(_ items: [String]) -> [String] {
-        let unique = Array(Set(items))
-        let names = Dictionary(uniqueKeysWithValues: unique.map { ($0, viewModel.languageName($0)) })
-        return unique.sorted {
-            names[$0, default: $0].localizedCaseInsensitiveCompare(names[$1, default: $1]) == .orderedAscending
+            let filtered = filteredLanguageTags(availableLanguageTags, matching: searchText, languageName: viewModel.languageName)
+            return sortedUniqueLanguageTags(filtered, languageName: viewModel.languageName)
         }
     }
 }

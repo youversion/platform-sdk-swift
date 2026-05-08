@@ -68,28 +68,30 @@ LINUX_SOURCEKIT_LIB_PATH=/root/.local/share/swiftly/toolchains/6.1.3/usr/lib swi
 ## Common Workflows
 
 ### Git Branching Process
-The project follows a structured git workflow with `main` as the primary branch.
 
-**⚠️ IMPORTANT: Never push directly to main. Always use feature/task branches and pull requests.**
+**⚠️ IMPORTANT: Every change goes on a branch, every branch is named after its Jira ticket, and every merge into `main` goes through a pull request. No direct edits or pushes to `main`.**
 
-**Small Tasks (Non-Urgent):**
-1. Create task branch from `main` using pattern: `initials/ticket-number` or `initials/ticket-number-description`
-   - Examples: `dk/BA-1204`, `ew/BA-1204-plans-update`, `jm/plans-update`, `ae/BA-5678`
-2. Complete work and create PR targeted back to `main`
+**Branch naming**: `<JIRA-TICKET>-<kebab-description>`
 
-**Feature Branches:**
-Use for large tasks or risky changes (SDK updates, major API adoption):
-1. Create feature branch from `main` with `feature/` prefix
-   - Examples: `feature/offline-search`
-2. Create task branches off the feature branch
-3. Create PRs targeting the feature branch
-4. Merge task branches into feature branch
-5. Merge feature branch into `main` once approved
+- Examples: `YPE-2293-swift-sdk-add-x-yvp-sdk-http-header-for-version-reporting`, `BA-1204-plans-update`, `BA-5678-bibles-cache-cleanup`
+- The ticket prefix comes first; no initials prefix, no `feature/` prefix.
+- Every branch — including doc-only edits, tooling changes, and small fixes — must have a Jira ticket and follow this pattern. If there's no ticket, create one before starting work.
 
-**Updating Feature Branches:**
-- Merge `main` into feature branch first
-- Then merge updated feature branch into task branch
-- Never merge `main` directly into task branch
+**Standard workflow**:
+1. Create the branch from `main`.
+2. Make changes on the branch.
+3. Open a PR back to `main`. PR title matches the first line of the commit message.
+
+**Feature branches** (for large tasks or risky changes spanning multiple sub-tickets):
+1. Create the feature branch from `main` using the parent epic's ticket: `<EPIC-TICKET>-<kebab-description>` (e.g., `YPE-1900-offline-search`).
+2. Create task branches off the feature branch using each sub-ticket: `<TASK-TICKET>-<kebab-description>`.
+3. Open PRs from task branches targeting the feature branch.
+4. Open a final PR from the feature branch to `main` once the feature is complete.
+
+**Updating feature branches with changes from `main`**:
+- Merge `main` into the feature branch first.
+- Then merge the updated feature branch into the task branch.
+- Never merge `main` directly into a task branch.
 
 ### Adding New Features
 1. Identify the appropriate internal framework or create new module
@@ -110,6 +112,28 @@ When writing or reviewing code in this repo, load the relevant skill:
 - **`audit-swift`** (`.claude/skills/audit-swift/SKILL.md`) — project Swift conventions: access control, async/await, code organization, idioms, formatting.
 - **`audit-swift-ui`** (`.claude/skills/audit-swift-ui/SKILL.md`) — SwiftUI-specific rules: Dynamic Type, `@State` privacy, view naming.
 - **`naming`** (`.claude/skills/naming/SKILL.md`) — naming Swift entities (types, protocols, functions, parameters, properties, cases).
+
+## Release Process
+
+Releases are driven by `semantic-release` from `main` (see `.github/workflows/release.yml` and `.releaserc.json`). Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They behave differently on purpose.
+
+**Podspecs** are bumped by `scripts/update-pod-versions.sh` during the prepare phase. The change is committed to `main` along with the `CHANGELOG.md` update.
+
+**`Sources/YouVersionPlatformCore/SDKVersion.swift`** is bumped by `scripts/release-stamp-and-tag.sh` during the publish phase, on a *separate child commit* that is **not pushed to `main`**. The release tag is force-moved to point at this stamped commit. Topology after a release:
+
+```
+main:  ... ─ X (podspec=4.9.2, CHANGELOG, SDKVersion="Dev")     ← main HEAD
+                  \
+                   Y (… +SDKVersion="4.9.2")                    ← tag 4.9.2
+```
+
+Why: `main` always reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR CI report `SwiftSDK=Dev` rather than poisoning the data lake with stale or imprecise versions. SPM consumers resolving a tag and CocoaPods consumers (whose podspec source is `:tag => s.version.to_s`) both fetch `Y`, so production traffic reports the precise released version.
+
+**Footguns**:
+- `git checkout <tag>` lands on a detached commit not reachable from `main`. Expected.
+- `git log main` does not show any commit that ever modified `SDKVersion.swift` to a real version. Expected — those commits live only on tags.
+- Don't cherry-pick a tagged commit onto `main`; it would leak the stamped version.
+- If you change the shape of the `static let current = "..."` line in `SDKVersion.swift`, also update `scripts/stamp-sdk-version.sh`.
 
 ## Localization
 

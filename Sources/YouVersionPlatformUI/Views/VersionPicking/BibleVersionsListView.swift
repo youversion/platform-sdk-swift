@@ -11,12 +11,14 @@ public struct BibleVersionsListView: View {
                 Color.clear.frame(height: 72)
             }
             searchInput
-            Button {
-                viewModel.languageTapped()
-            } label: {
-                languageDisplay
+            if hasMultiplePermittedLanguages {
+                Button {
+                    viewModel.languageTapped()
+                } label: {
+                    languageDisplay
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             Group {
                 if let versions = filteredVersions {
                     List(versions, id: \.id) { version in
@@ -90,6 +92,13 @@ public struct BibleVersionsListView: View {
         .padding(.bottom, 8)
     }
 
+    private var hasMultiplePermittedLanguages: Bool {
+        guard let versions = viewModel.cachedPermittedVersions else {
+            return true
+        }
+        return Set(versions.compactMap { $0.languageTag }).count > 1
+    }
+
     private var languageDisplay: some View {
         let language = viewModel.activeLanguage
         let versionsInLanguage = viewModel.cachedPermittedVersions?.filter { $0.languageTag == language } ?? []
@@ -115,20 +124,7 @@ public struct BibleVersionsListView: View {
         guard let versions = viewModel.versionsByLanguageTag[language] else {
             return nil
         }
-
-        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return versions
-        }
-        let query = searchText.lowercased()
-        return versions.filter { version in
-            guard version.languageTag == language else {
-                return false
-            }
-            let title = (version.title ?? "").lowercased()
-            let abbr = (version.abbreviation ?? String(version.id)).lowercased()
-            let lang = (version.languageTag ?? "")
-            return title.contains(query) || abbr.contains(query) || lang.contains(query)
-        }
+        return filteredBibleVersions(versions, matching: searchText)
     }
 
 }
