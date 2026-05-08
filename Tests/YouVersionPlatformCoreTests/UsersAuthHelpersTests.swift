@@ -5,7 +5,8 @@ import FoundationNetworking
 import Testing
 @testable import YouVersionPlatformCore
 
-@Suite(.serialized) struct UsersAuthHelpersTests {
+extension ConfigurationStateTests {
+@Suite struct UsersAuthHelpersTests {
 
     @Test func obtainCodeReturnsAuthorizationCode() throws {
         let location = "youversionauth://callback?state=xyz&code=abc123&scope=bibles"
@@ -143,6 +144,7 @@ import Testing
 
         await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
     }
+}
 }
 
 private func makeTestJWT(claims: [String: Any]) throws -> String {

@@ -5,7 +5,8 @@ import FoundationNetworking
 import Testing
 @testable import YouVersionPlatformCore
 
-@Suite(.serialized) struct YouVersionPlatformConfigurationTests {
+extension ConfigurationStateTests {
+@Suite struct YouVersionPlatformConfigurationTests {
 
     // MARK: - configure
 
@@ -194,4 +195,5 @@ import Testing
         #expect(YouVersionPlatformConfiguration.appKey == "top-level-key")
         await YouVersionPlatformConfiguration.configure(appKey: original)
     }
+}
 }

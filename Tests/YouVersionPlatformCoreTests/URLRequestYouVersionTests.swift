@@ -5,7 +5,8 @@ import FoundationNetworking
 import Testing
 @testable import YouVersionPlatformCore
 
-@Suite(.serialized) struct URLRequestYouVersionTests {
+extension ConfigurationStateTests {
+@Suite struct URLRequestYouVersionTests {
 
     @Test func sdkVersionHeaderIsSetWhenAppKeyConfigured() async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
@@ -32,4 +33,5 @@ import Testing
 
         await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
     }
+}
 }
