@@ -14,20 +14,20 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         }
         
         self.versionId = versionId
-        self.bookUSFM = bookUSFM
+        self.bookUSFM = bookUSFM.uppercased()
         self.chapter = chapter
         self.verseStart = verse
         self.verseEnd = verse
     }
-    
+
     public init(versionId: Int, bookUSFM: String, chapter: Int, verseStart: Int, verseEnd: Int) {
         assert(chapter >= 1, "Starting chapter must be greater than or equal to 1.")
         assert(verseStart >= 1, "Starting verse must be greater than or equal to 1.")
         assert(verseEnd >= 1, "Ending verse must be greater than or equal to 1.")
         assert(verseEnd >= verseStart, "Ending verse must be equal to or after starting verse.")
-        
+
         self.versionId = versionId
-        self.bookUSFM = bookUSFM
+        self.bookUSFM = bookUSFM.uppercased()
         self.chapter = chapter
         self.verseStart = verseStart
         self.verseEnd = verseEnd
@@ -88,30 +88,28 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
     }
 
     public var chapterUSFM: String? {
-        "\(bookUSFM.uppercased()).\(chapter)"
+        "\(bookUSFM).\(chapter)"
     }
 
     public var asUSFM: String {
-        let upperBookUSFM = bookUSFM.uppercased()
         if let verseStart {
             if let verseEnd, verseStart != verseEnd {
-                return "\(upperBookUSFM).\(chapter).\(verseStart)-\(upperBookUSFM).\(chapter).\(verseEnd)"
+                return "\(bookUSFM).\(chapter).\(verseStart)-\(bookUSFM).\(chapter).\(verseEnd)"
             } else {
-                return "\(upperBookUSFM).\(chapter).\(verseStart)"
+                return "\(bookUSFM).\(chapter).\(verseStart)"
             }
         } else {
-            return "\(upperBookUSFM).\(chapter)"
+            return "\(bookUSFM).\(chapter)"
         }
     }
 
     /// Returns whether this reference is available in the provided Bible version metadata.
     public func existsIn(version: BibleVersion) -> Bool {
-        let normalizedBookUSFM = bookUSFM.uppercased()
-        guard version.bookUSFMs.contains(where: { $0.uppercased() == normalizedBookUSFM }) else {
+        guard version.bookUSFMs.contains(where: { $0.uppercased() == bookUSFM }) else {
             return false
         }
 
-        guard let book = version.book(with: normalizedBookUSFM) else {
+        guard let book = version.book(with: bookUSFM) else {
             return true
         }
 
@@ -129,7 +127,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func overlaps(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() else {
+                bookUSFM == otherReference.bookUSFM else {
             return false
         }
 
@@ -164,7 +162,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func contains(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() else {
+                bookUSFM == otherReference.bookUSFM else {
             return false
         }
 
@@ -199,7 +197,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func isAdjacentOrOverlapping(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() &&
+                bookUSFM == otherReference.bookUSFM &&
                 chapter == otherReference.chapter else {
             return false
         }
@@ -271,7 +269,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBCVCV) {
             let (_, bText, cText, vText, _, v2Text) = match.output
             if let c = Int(cText), let v = Int(vText), let v2 = Int(v2Text) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookUSFM: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
@@ -284,7 +282,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
                 if String(bText) != String(b2Text) {
                     return nil
                 }
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookUSFM: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
@@ -294,7 +292,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBCVV) {
             let (_, bText, cText, vText, v2Text) = match.output
             if let c = Int(cText), let v = Int(vText), let v2 = Int(v2Text) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookUSFM: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
@@ -304,7 +302,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBCV) {
             let (_, bText, cText, vText) = match.output
             if let c = Int(cText), let v = Int(vText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v)
+                return reference(bookUSFM: String(bText), chapter: c, verseStart: v, verseEnd: v)
             }
             return nil
         }
@@ -314,7 +312,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBC) {
             let (_, bText, cText) = match.output
             if let c = Int(cText) {
-                return BibleReference(versionId: versionId, bookUSFM: bText.uppercased(), chapter: c)
+                return BibleReference(versionId: versionId, bookUSFM: String(bText), chapter: c)
             }
             return nil
         }
@@ -324,7 +322,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBCC) {
             let (_, bText, cText, _) = match.output
             if let c = Int(cText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: 1, verseEnd: 1)
+                return reference(bookUSFM: String(bText), chapter: c, verseStart: 1, verseEnd: 1)
             }
             return nil
         }
