@@ -199,7 +199,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func isAdjacentOrOverlapping(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM &&
+                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() &&
                 chapter == otherReference.chapter else {
             return false
         }
