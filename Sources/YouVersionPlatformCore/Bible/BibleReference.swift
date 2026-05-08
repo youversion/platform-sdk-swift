@@ -33,6 +33,20 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         self.verseEnd = verseEnd
     }
 
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let versionId = try container.decode(Int.self, forKey: .versionId)
+        let bookUSFM = try container.decode(String.self, forKey: .bookUSFM)
+        let chapter = try container.decode(Int.self, forKey: .chapter)
+        let verseStart = try container.decodeIfPresent(Int.self, forKey: .verseStart)
+        let verseEnd = try container.decodeIfPresent(Int.self, forKey: .verseEnd)
+        if let verseStart, let verseEnd {
+            self.init(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verseStart: verseStart, verseEnd: verseEnd)
+        } else {
+            self.init(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verseStart)
+        }
+    }
+
     public var debugDescription: String {
         let prefix = "bible\(versionId)__\(bookUSFM).\(chapter)"
         if let verseStart {
