@@ -26,7 +26,8 @@ import Testing
             let body = requestBodyString(request)
             #expect(body.contains("code=auth-code"))
             #expect(body.contains("code_verifier=verifier"))
-            #expect(body.contains("redirect_uri=youversionauth://callback"))
+            #expect(body.contains("redirect_uri=youversionauth"))
+            #expect(body.contains("grant_type=authorization_code"))
 
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (responseData, response)
@@ -50,6 +51,50 @@ import Testing
 
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        await #expect(throws: URLError.self) {
+            _ = try await YouVersionAPI.Users.obtainTokens(
+                from: "auth-code",
+                codeVerifier: "verifier",
+                redirectUri: "youversionauth://callback",
+                session: session
+            )
+        }
+    }
+
+    @Test func obtainTokens400InvalidGrantThrows() async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        // The source throws URLError(.badServerResponse) for any non-200 status
+        let errorBody = """
+        {"error": "invalid_grant"}
+        """.data(using: .utf8)!
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!
+            return (errorBody, response)
+        }
+
+        await #expect(throws: URLError.self) {
+            _ = try await YouVersionAPI.Users.obtainTokens(
+                from: "bad-code",
+                codeVerifier: "verifier",
+                redirectUri: "youversionauth://callback",
+                session: session
+            )
+        }
+    }
+
+    @Test func obtainTokens401UnauthorizedThrows() async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        // The source throws URLError(.badServerResponse) for any non-200 status
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
 
