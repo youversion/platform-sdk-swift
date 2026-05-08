@@ -2,8 +2,8 @@ enum BibleReaderAccessibilityIdentifiers {
     enum Header {
         static let menuButton = "bibleReader.header.menuButton"
         static let fontSettingsMenuButton = "bibleReader.header.fontSettingsMenuButton"
-        static let bookAndChapterPickerButton = "bibleReader.bookAndChapterPickerButton"
-        static let versionPickerButton = "bibleReader.versionPickerButton"
+        static let bookAndChapterPickerButton = "bibleReader.header.bookAndChapterPickerButton"
+        static let versionPickerButton = "bibleReader.header.versionPickerButton"
     }
 
     enum BookChapterPicker {
@@ -29,8 +29,8 @@ enum BibleReaderAccessibilityIdentifiers {
         static let fontFamilyButton = "bibleReader.fontSettings.fontFamilyButton"
         static let lineSpacingButton = "bibleReader.fontSettings.lineSpacingButton"
 
-        static func themeButton(_ themeId: Int) -> String {
-            "bibleReader.fontSettings.themeButton.\(themeId)"
+        static func themeButton(_ themeID: Int) -> String {
+            "bibleReader.fontSettings.themeButton.\(themeID)"
         }
     }
 
