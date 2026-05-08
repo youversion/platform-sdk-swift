@@ -129,7 +129,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func overlaps(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM else {
+                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() else {
             return false
         }
 
@@ -164,7 +164,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func contains(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM else {
+                bookUSFM.uppercased() == otherReference.bookUSFM.uppercased() else {
             return false
         }
 
@@ -314,7 +314,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         if let match = usfm.wholeMatch(of: patBC) {
             let (_, bText, cText) = match.output
             if let c = Int(cText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: 1, verseEnd: 1)
+                return BibleReference(versionId: versionId, bookUSFM: bText.uppercased(), chapter: c)
             }
             return nil
         }

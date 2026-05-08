@@ -46,8 +46,13 @@ func testUnvalidatedReference_invalidVerseOrder() {
 @Test
 func testUnvalidatedReference_chapterOnly() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 1)
+    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
     #expect(ref == expected)
+    #expect(ref.verseStart == nil)
+    #expect(ref.verseEnd == nil)
+    // A chapter-level reference should overlap any verse within that chapter
+    let verse5 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 5)
+    #expect(ref.overlaps(with: verse5))
 }
 
 
