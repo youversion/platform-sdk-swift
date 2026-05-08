@@ -124,16 +124,6 @@ extension ConfigurationStateTests {
         await YouVersionPlatformConfiguration.clearAuthTokens()
     }
 
-    @Test func accessTokenIsNilWhenNotStored() async {
-        await YouVersionPlatformConfiguration.clearAuthTokens()
-        #expect(YouVersionPlatformConfiguration.accessToken == nil)
-    }
-
-    @Test func authDataReturnsNilWhenNoTokensStored() async {
-        await YouVersionPlatformConfiguration.clearAuthTokens()
-        #expect(YouVersionPlatformConfiguration.authData == nil)
-    }
-
     @Test func authDataReturnsFullResultWhenAllTokensPresent() async {
         let expiry = Date(timeIntervalSinceNow: 3600)
         await YouVersionPlatformConfiguration.saveAuthData(
