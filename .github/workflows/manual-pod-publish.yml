@@ -72,6 +72,15 @@ jobs:
           done
           echo "✓ Checkout looks consistent with ${{ inputs.version }}."
 
+      # The tagged commit is the source-of-truth for the *release artifact*
+      # (podspecs + SDKVersion.swift), but the *publish tooling* should always
+      # be the latest version on main — otherwise a fix to publish-pods.sh
+      # can't help a recovery run that checks out an older tag.
+      - name: Overlay publish scripts from main
+        run: |
+          git fetch origin main
+          git checkout origin/main -- scripts/
+
       - name: Verify scripts are executable
         run: |
           chmod +x scripts/publish-pods.sh
