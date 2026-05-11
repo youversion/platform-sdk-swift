@@ -79,7 +79,9 @@ import Testing
         {"content":"<div>ok</div>"}
         """.data(using: .utf8)!
 
+        var capturedRequest: URLRequest?
         HTTPMocking.setHandler(token: token) { request in
+            capturedRequest = request
             let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (json, resp)
         }
@@ -87,6 +89,13 @@ import Testing
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
         let html = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         #expect(html == "<div>ok</div>")
+
+        let req = try #require(capturedRequest)
+        let components = URLComponents(url: req.url!, resolvingAgainstBaseURL: false)
+        let queryItems = components?.queryItems ?? []
+        #expect(queryItems.contains(where: { $0.name == "format" && $0.value == "html" }))
+        #expect(queryItems.contains(where: { $0.name == "include_notes" && $0.value == "true" }))
+        #expect(queryItems.contains(where: { $0.name == "include_headings" && $0.value == "true" }))
     }
 
     @MainActor
@@ -133,6 +142,27 @@ import Testing
 
         let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
         await #expect(throws: YouVersionAPIError.invalidResponse) {
+            _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
+        }
+    }
+
+    @MainActor
+    @Test func chapterInvalidContentThrowsInvalidDownload() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        // 200 response with valid JSON but missing the "content" key
+        let json = """
+        {"other_field": "no content here"}
+        """.data(using: .utf8)!
+
+        HTTPMocking.setHandler(token: token) { request in
+            let resp = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (json, resp)
+        }
+
+        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        await #expect(throws: YouVersionAPIError.invalidDownload) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
     }

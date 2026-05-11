@@ -14,8 +14,8 @@ import Testing
 
         let json = """
         {"data": [
-            {"id": 1, "title": "English Version", "abbreviation": "en", "language": "en"},
-            {"id": 2, "title": "German Version", "abbreviation": "de", "language": "de"}
+            {"id": 1, "title": "English Version", "abbreviation": "en", "language_tag": "en"},
+            {"id": 2, "title": "German Version", "abbreviation": "de", "language_tag": "de"}
         ]}
         """.data(using: .utf8)!
         var capturedRequest: URLRequest?
@@ -33,6 +33,8 @@ import Testing
 
         #expect(versions.count == 2)
         #expect(versions.first?.id == 1)
+        #expect(versions.first?.languageTag == "en")
+        #expect(versions.last?.languageTag == "de")
         let _ = try #require(capturedRequest)
     }
 
@@ -79,5 +81,46 @@ import Testing
         await #expect(throws: YouVersionAPIError.invalidResponse) {
             _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
+    }
+
+    @MainActor
+    @Test func versionsPaginationCombinesBothPages() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        let page1 = """
+        {"data": [
+            {"id": 1, "title": "Version One", "language_tag": "en"}
+        ], "next_page_token": "token-abc"}
+        """.data(using: .utf8)!
+
+        let page2 = """
+        {"data": [
+            {"id": 2, "title": "Version Two", "language_tag": "en"}
+        ]}
+        """.data(using: .utf8)!
+
+        var requestCount = 0
+
+        HTTPMocking.setHandler(token: token) { request in
+            requestCount += 1
+            let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+            let queryItems = components?.queryItems ?? []
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            if requestCount == 1 {
+                #expect(!queryItems.contains(where: { $0.name == "page_token" }))
+                return (page1, response)
+            } else {
+                #expect(queryItems.contains(where: { $0.name == "page_token" && $0.value == "token-abc" }))
+                return (page2, response)
+            }
+        }
+
+        let versions = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
+
+        #expect(requestCount == 2)
+        #expect(versions.count == 2)
+        #expect(versions[0].id == 1)
+        #expect(versions[1].id == 2)
     }
 }

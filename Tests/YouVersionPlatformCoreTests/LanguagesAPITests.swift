@@ -59,8 +59,12 @@ import Testing
         #expect(languages[1].id == "es")
         #expect(languages[1].language == "Spanish")
         #expect(languages[1].defaultBibleId == 128)
-        
-        let _ = try #require(capturedRequest)
+
+        let request = try #require(capturedRequest)
+        #expect(request.url?.path.contains("/v1/languages") == true)
+        let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+        let queryItems = components?.queryItems ?? []
+        #expect(queryItems.contains(where: { $0.name == "page_size" && $0.value == "99" }))
     }
 
     @MainActor
@@ -178,6 +182,45 @@ import Testing
 
         let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         #expect(languages.isEmpty)
+    }
+
+    @MainActor
+    @Test func languagesPaginationCombinesBothPages() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        let page1Languages = [
+            LanguageOverview(id: "en", language: "English", defaultBibleId: 3034)
+        ]
+        let page2Languages = [
+            LanguageOverview(id: "es", language: "Spanish", defaultBibleId: 128)
+        ]
+
+        let page1Data = try JSONEncoder().encode(LanguagesResponse(data: page1Languages, nextPageToken: "token-xyz", totalSize: nil))
+        let page2Data = try JSONEncoder().encode(LanguagesResponse(data: page2Languages, nextPageToken: nil, totalSize: nil))
+
+        var requestCount = 0
+
+        HTTPMocking.setHandler(token: token) { request in
+            requestCount += 1
+            let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+            let queryItems = components?.queryItems ?? []
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            if requestCount == 1 {
+                #expect(!queryItems.contains(where: { $0.name == "page_token" }))
+                return (page1Data, response)
+            } else {
+                #expect(queryItems.contains(where: { $0.name == "page_token" && $0.value == "token-xyz" }))
+                return (page2Data, response)
+            }
+        }
+
+        let languages = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
+
+        #expect(requestCount == 2)
+        #expect(languages.count == 2)
+        #expect(languages[0].id == "en")
+        #expect(languages[1].id == "es")
     }
 
     // Helper struct for encoding test responses
