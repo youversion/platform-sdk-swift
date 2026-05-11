@@ -21,28 +21,24 @@ struct SampleApp: App {
                 BibleReaderView()
                     .tabItem {
                         Label("Bible", systemImage: "book.closed.fill")
-                            .accessibilityIdentifier("sampleApp.tab.bible")
                     }
                     .tag(0)
 
                 VotdContainerView()
                     .tabItem {
                         Label("VOTD", systemImage: "sun.max.fill")
-                            .accessibilityIdentifier("sampleApp.tab.verseOfTheDay")
                     }
                     .tag(1)
 
                 CardView()
                     .tabItem {
                         Label("Card", systemImage: "doc.plaintext")
-                            .accessibilityIdentifier("sampleApp.tab.card")
                     }
                     .tag(2)
 
                 ProfileView()
                     .tabItem {
                         Label("Profile", systemImage: "person.fill")
-                            .accessibilityIdentifier("sampleApp.tab.profile")
                     }
                     .tag(3)
             }
