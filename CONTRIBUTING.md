@@ -34,7 +34,7 @@ This SDK is organized as a Swift Package with multiple targets:
 
 This project follows idiomatic Swift conventions as outlined in [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/). Key points:
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages
+- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` or `npx commitlint --from=origin/main --to=HEAD --verbose`)
 - Run `swiftlint` before submitting PRs
 - Prefer `async`/`await` over completion handlers
 - Use protocol-oriented programming patterns

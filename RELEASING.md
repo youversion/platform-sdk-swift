@@ -123,12 +123,18 @@ This allows semantic-release to push release commits and tags directly to `main`
 
 ### Test commitlint
 
-```bash
-# Valid commit message
-echo "feat: add new feature" | npx commitlint
+Conventional Commits are enforced in CI by `.github/workflows/commit-lint.yml`. There is no local Git hook — Xcode commits and Windows contributors bypass hooks too unreliably for that to be worth maintaining. To check your branch's commits locally before pushing:
 
-# Invalid commit message (should fail)
-echo "invalid message" | npx commitlint
+```bash
+# Lint every commit on your branch that isn't on main
+npx commitlint --from=origin/main --to=HEAD --verbose
+
+# Or, equivalently:
+npm run commitlint
+
+# Pipe a single message to test rule changes
+echo "feat: add new feature" | npx commitlint
+echo "invalid message" | npx commitlint   # should fail
 ```
 
 ### Test semantic-release (dry-run)
