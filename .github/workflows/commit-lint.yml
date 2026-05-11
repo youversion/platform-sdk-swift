@@ -2,7 +2,7 @@ name: Commit Lint
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
@@ -54,10 +54,20 @@ jobs:
           cat semrel.log
           NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
           [ -z "$NEXT" ] && NEXT="none"
-          BREAKING=$(grep -c "BREAKING CHANGE" semrel.log || echo 0)
+          # Detect "major" via semantic-release's own release-type log line.
+          # This catches both `BREAKING CHANGE:` footers AND the `feat!:` /
+          # `fix!:` shorthand, which doesn't emit the footer keyword.
+          if grep -qiE "complete:[[:space:]]*major[[:space:]]+release|release type[[:space:]]+is[[:space:]]+major" semrel.log; then
+            IS_MAJOR=1
+          else
+            IS_MAJOR=0
+          fi
+          # Best-effort: pull any explicit BREAKING CHANGE footer text for the comment.
+          # `feat!:` commits without a footer won't have notes here, and that's fine —
+          # the banner is gated on IS_MAJOR, not on the presence of footer text.
           awk '/BREAKING CHANGE:/{flag=1} flag{print; if(/^$/) flag=0}' semrel.log > breaking.txt || true
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
-          echo "breaking_count=$BREAKING" >> "$GITHUB_OUTPUT"
+          echo "is_major=$IS_MAJOR" >> "$GITHUB_OUTPUT"
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -69,7 +79,7 @@ jobs:
           MARKER='<!-- commit-lint-bot -->'
           STATUS="${{ steps.commitlint.outputs.status }}"
           NEXT="${{ steps.semrel.outputs.next }}"
-          BREAKING="${{ steps.semrel.outputs.breaking_count }}"
+          IS_MAJOR="${{ steps.semrel.outputs.is_major }}"
           SEMREL_STATUS="${{ steps.semrel.outputs.status }}"
 
           {
@@ -87,18 +97,20 @@ jobs:
                 echo '### 📦 Release preview: _no release_'
                 echo
                 echo 'These commits would not trigger a new release on `main`.'
-              elif [ "${BREAKING:-0}" -gt 0 ]; then
+              elif [ "${IS_MAJOR:-0}" = "1" ]; then
                 echo "### 🚨🚨🚨 BREAKING CHANGES DETECTED — Next release: \`v$NEXT\` (MAJOR)"
                 echo
-                echo 'This PR introduces one or more **BREAKING CHANGE** footers. Merging will publish a **major** version bump.'
+                echo 'This PR introduces one or more breaking changes (either a `BREAKING CHANGE:` footer or a `feat!:` / `fix!:` shorthand). Merging will publish a **major** version bump.'
                 echo
-                echo '<details><summary>Breaking change notes</summary>'
-                echo
-                echo '```'
-                head -c 4000 breaking.txt 2>/dev/null || true
-                echo
-                echo '```'
-                echo '</details>'
+                if [ -s breaking.txt ]; then
+                  echo '<details><summary>Breaking change notes</summary>'
+                  echo
+                  echo '```'
+                  head -c 4000 breaking.txt
+                  echo
+                  echo '```'
+                  echo '</details>'
+                fi
               else
                 echo "### 📦 Release preview: \`v$NEXT\`"
                 echo
@@ -147,7 +159,7 @@ jobs:
       - name: Find existing bot comment
         if: always()
         id: find_comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
@@ -155,7 +167,7 @@ jobs:
 
       - name: Upsert PR comment
         if: always()
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
         with:
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
