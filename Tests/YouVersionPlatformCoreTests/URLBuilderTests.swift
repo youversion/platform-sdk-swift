@@ -62,6 +62,17 @@ struct URLBuilderTests {
     }
 
     @Test
+    func testHighlightsDeleteURLWithHyphenatedPassageId() throws {
+        // Hyphens are valid URL path characters (RFC 3986), so a verse-range passageId like
+        // "GEN.1.3-GEN.1.5" is safe to interpolate directly into the path.
+        // Note: only URL-path-safe passageIds are supported; the source does not percent-encode
+        // the passageId before embedding it in the path segment.
+        let url = try #require(URLBuilder.highlightsDeleteURL(bibleId: 1, passageId: "GEN.1.3-GEN.1.5"))
+        #expect(url.absoluteString == "https://api.youversion.com/v1/highlights/GEN.1.3-GEN.1.5?bible_id=1")
+        #expect(url.path.contains("GEN.1.3-GEN.1.5"))
+    }
+
+    @Test
     func testLanguagesURLs() throws {
         // Configure using defaults (no host environment)
 
