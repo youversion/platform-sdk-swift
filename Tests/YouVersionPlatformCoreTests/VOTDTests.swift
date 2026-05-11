@@ -82,7 +82,7 @@ import Testing
             return (malformed, response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect(throws: URLError.self) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }

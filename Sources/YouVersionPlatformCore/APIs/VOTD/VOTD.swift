@@ -16,7 +16,7 @@ public extension YouVersionAPI {
         /// - Returns: A ``YouVersionVerseOfTheDay`` containing the verse text, reference, and associated information.
         /// - Throws:
         ///   - `URLError.badURL` if the URL could not be constructed.
-        ///   - `YouVersionAPIError.cannotDownload` if the server response could not be decoded.
+        ///   - `URLError.badServerResponse` if the server response could not be decoded.
         public static func verseOfTheDay(dayOfYear: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionVerseOfTheDay {
             guard let url = URLBuilder.votdURL(dayOfYear: dayOfYear) else {
                 throw URLError(.badURL)
@@ -27,7 +27,7 @@ public extension YouVersionAPI {
                 session: session
             )
             guard let decodedResponse = try? JSONDecoder().decode(YouVersionVerseOfTheDay.self, from: data) else {
-                throw YouVersionAPIError.cannotDownload
+                throw URLError(.badServerResponse)
             }
             return decodedResponse
         }
