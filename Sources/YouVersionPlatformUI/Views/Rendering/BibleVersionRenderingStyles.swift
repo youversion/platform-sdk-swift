@@ -53,6 +53,10 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 8
                 
+            case "pm", "pmo", "pmc", "pmr":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 4
+                stateDown.marginBottom = 0.60 * fontSize
 
 
             case "m", "nb", "im":
@@ -116,10 +120,6 @@ final class BibleVersionRenderingStyles {
             case "iq4", "q4", "qm4":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
-
-            case "pm", "pmo", "pmc", "pmr":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 2
 
             case "d":  // "d" # A Hebrew text heading, to provide description (e.g. Psalms)
                 stateDown.currentFont = .headerItalic
