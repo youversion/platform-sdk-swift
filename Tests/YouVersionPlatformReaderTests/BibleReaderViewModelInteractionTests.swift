@@ -13,24 +13,24 @@ import Testing
         let viewModel = Support.makeViewModel()
         viewModel.showChrome = true
 
-        viewModel.handleScroll(offset: -5)
+        viewModel.handleScroll(offset: -5, contentHeight: 4000)
         #expect(viewModel.showChrome)
 
-        viewModel.handleScroll(offset: -30)
+        viewModel.handleScroll(offset: -30, contentHeight: 4000)
         #expect(viewModel.showChrome == false)
 
-        viewModel.handleScroll(offset: -25)
+        viewModel.handleScroll(offset: -25, contentHeight: 4000)
         #expect(viewModel.showChrome == false)
 
-        viewModel.handleScroll(offset: -5)
+        viewModel.handleScroll(offset: -5, contentHeight: 4000)
         #expect(viewModel.showChrome)
 
-        viewModel.handleScroll(offset: 0)
+        viewModel.handleScroll(offset: 0, contentHeight: 4000)
         #expect(viewModel.showChrome)
     }
 
     @Test
-    func handleScrollFiresChapterCompleteWhenScrolledPastOneAndAHalfViewports() {
+    func handleScrollFiresChapterCompleteWhenBottomOfContentReached() {
         var completedReference: BibleReference?
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
         let viewModel = Support.makeViewModel(
@@ -40,12 +40,28 @@ import Testing
         viewModel.scrollViewHeight = 800
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        // Scrolling less than 1.5x viewport should not fire
-        viewModel.handleScroll(offset: -1000)
+        // Content of height 2000 scrolled by -200 still has its bottom at 1800 — well below viewport bottom 800.
+        viewModel.handleScroll(offset: -200, contentHeight: 2000)
         #expect(completedReference == nil)
 
-        // Scrolling beyond 1.5x viewport (offset < -(800 * 1.5) = -1200) should fire
-        viewModel.handleScroll(offset: -1300)
+        // Scrolled by -1200, the bottom of content is at 2000 - 1200 = 800 ≤ 800 → fires.
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(completedReference == reference)
+    }
+
+    @Test
+    func handleScrollFiresChapterCompleteImmediatelyForShortContent() {
+        var completedReference: BibleReference?
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
+        let viewModel = Support.makeViewModel(
+            reference: reference,
+            onChapterComplete: { completedReference = $0 }
+        )
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        // Content shorter than the viewport: the bottom is already visible on first geometry event.
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
         #expect(completedReference == reference)
     }
 
@@ -56,9 +72,9 @@ import Testing
         viewModel.scrollViewHeight = 800
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        viewModel.handleScroll(offset: -1300)
-        viewModel.handleScroll(offset: -1500)
-        viewModel.handleScroll(offset: -2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1400, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1600, contentHeight: 2000)
 
         #expect(callCount == 1)
     }
@@ -70,29 +86,40 @@ import Testing
         viewModel.scrollViewHeight = 800
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        viewModel.handleScroll(offset: -1300)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         #expect(callCount == 1)
 
         viewModel.resetChapterCompleteTracking()
-        // Sub-threshold scroll after reset must not fire: verifies minObservedOffset was zeroed
-        viewModel.handleScroll(offset: -100)
+        // Sub-threshold scroll after reset must not fire.
+        viewModel.handleScroll(offset: -100, contentHeight: 2000)
         #expect(callCount == 1)
 
-        viewModel.handleScroll(offset: -1300)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         #expect(callCount == 2)
     }
 
     @Test
-    func handleScrollDoesNothingWhileChangingChapter() {
-        let viewModel = Support.makeViewModel()
+    func handleScrollSkipsSideEffectsButRecordsGeometryWhileChangingChapter() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
         viewModel.isChangingChapter = true
-        viewModel.lastScrollOffset = -30
         viewModel.showChrome = true
 
-        viewModel.handleScroll(offset: -100)
+        // Even though the bottom-of-content condition is met, no side effects
+        // fire while the chapter-change guard is active.
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
 
-        #expect(viewModel.lastScrollOffset == -30)
         #expect(viewModel.showChrome)
+        #expect(callCount == 0)
+
+        // The geometry was recorded, so the moment the guard clears, the
+        // didSet on isChangingChapter re-evaluates and fires onChapterComplete.
+        // This is what allows short chapters reached via prev/next to fire
+        // without requiring any user scroll.
+        viewModel.isChangingChapter = false
+        #expect(callCount == 1)
     }
 
     @Test

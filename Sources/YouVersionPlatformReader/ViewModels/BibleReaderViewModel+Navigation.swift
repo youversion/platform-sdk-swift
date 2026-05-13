@@ -72,7 +72,17 @@ extension BibleReaderViewModel {
         showingVerseActionsDrawer = false
     }
 
-    func handleScroll(offset: CGFloat) {
+    func handleScroll(offset: CGFloat, contentHeight: CGFloat) {
+        // Always record the latest geometry so a freshly-navigated chapter has
+        // its contentHeight ready the moment the isChangingChapter guard clears.
+        // Without this, short chapters reached via prev/next would never fire
+        // onChapterComplete: every geometry event during the 0.5s scroll-reset
+        // window would be dropped, leaving contentHeight at 0 and no further
+        // scroll events to populate it.
+        let previousScrollOffset = lastScrollOffset
+        lastScrollOffset = offset
+        self.contentHeight = contentHeight
+
         guard !isChangingChapter else {
             return
         }
@@ -83,20 +93,34 @@ extension BibleReaderViewModel {
         // negative while scrolled down, positive when rubber-banding past top.
         if offset >= 0 {
             withAnimation(animation) { self.showChrome = true }
-        } else if abs(offset - lastScrollOffset) >= threshold {
-            if offset < lastScrollOffset - threshold {
+        } else if abs(offset - previousScrollOffset) >= threshold {
+            if offset < previousScrollOffset - threshold {
                 withAnimation(animation) { self.showChrome = false }
-            } else if offset > lastScrollOffset + threshold {
+            } else if offset > previousScrollOffset + threshold {
                 withAnimation(animation) { self.showChrome = true }
             }
         }
-        lastScrollOffset = offset
-        minObservedOffset = min(minObservedOffset, offset)
 
-        if scrollViewHeight > 0
-            && minObservedOffset < -(scrollViewHeight * 1.5)
+        evaluateChapterCompleteFromCachedGeometry()
+    }
+
+    /// Fires `onChapterComplete` if the latest cached geometry indicates the
+    /// bottom of the content is in view. Safe to call any time; gated by
+    /// `hasNotifiedChapterComplete` so it fires at most once per chapter.
+    func evaluateChapterCompleteFromCachedGeometry() {
+        // The bottom of the content has come into view when the content's
+        // bottom edge (offset + contentHeight) is at or above the viewport's
+        // bottom edge (scrollViewHeight). The small epsilon absorbs subpixel
+        // rounding so we don't miss a fire by a hair.
+        let bottomEpsilon: CGFloat = 8
+        let bottomReached = scrollViewHeight > 0
+            && contentHeight > 0
+            && (lastScrollOffset + contentHeight) <= (scrollViewHeight + bottomEpsilon)
+
+        if bottomReached
             && version != nil
-            && !hasNotifiedChapterComplete {
+            && !hasNotifiedChapterComplete
+            && !isChangingChapter {
             hasNotifiedChapterComplete = true
             onChapterComplete?(reference)
         }
@@ -104,7 +128,7 @@ extension BibleReaderViewModel {
 
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
-        minObservedOffset = 0
+        contentHeight = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
