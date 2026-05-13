@@ -180,7 +180,12 @@ public struct BibleReaderView: View {
         .onChange(of: reduceMotion, initial: true) { _, newValue in
             viewModel.isReduceMotionEnabled = newValue
         }
-        .onChange(of: viewModel.reference, initial: true) { _, newReference in
+        .onAppear {
+            verseAnchors = []
+            lastScrolledVerse = nil
+            viewModel.resetChapterCompleteTracking()
+        }
+        .onChange(of: viewModel.reference) { _, newReference in
             verseAnchors = []
             lastScrolledVerse = nil
             viewModel.resetChapterCompleteTracking()
