@@ -93,6 +93,11 @@ import Testing
         // User has not scrolled yet; bottom is not reached.
         viewModel.handleScroll(offset: 0, contentHeight: 3000)
         #expect(callCount == 0)
+
+        // User scrolls to the end of the long chapter: 3000 - 2200 = 800 ≤ 800,
+        // height is stable, so the deferred fire is now delivered.
+        viewModel.handleScroll(offset: -2200, contentHeight: 3000)
+        #expect(callCount == 1)
     }
 
     @Test
