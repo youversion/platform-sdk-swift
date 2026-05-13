@@ -106,7 +106,7 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             if let phase = loadingPhase {
                 if let placeholder {
                     placeholder(phase)
@@ -115,7 +115,8 @@ public struct BibleTextView: View {
                 }
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
+                    let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom)
                 }
             }
         }
@@ -282,7 +283,6 @@ public struct BibleTextOptions {
     public let fontFamily: String
     public let fontSize: CGFloat
     public let lineSpacing: CGFloat?
-    public let paragraphSpacing: CGFloat?
     public let textColor: Color?
     public let verseNumberColor: Color?
     public let wordsOfChristColor: Color
@@ -306,8 +306,7 @@ public struct BibleTextOptions {
                 verseSelectionStyle: VerseSelectionStyle = .solid) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
-        self.lineSpacing = lineSpacing ?? fontSize / 2
-        self.paragraphSpacing = paragraphSpacing ?? fontSize / 2
+        self.lineSpacing = lineSpacing ?? 0
         self.textColor = textColor
         self.verseNumberColor = verseNumberColor
         self.wordsOfChristColor = wordsOfChristColor
@@ -342,7 +341,6 @@ public struct BibleTextOptions {
             fontFamily: fontFamily,
             fontSize: fontSize,
             lineSpacing: lineSpacing,
-            paragraphSpacing: paragraphSpacing,
             textColor: textColor,
             verseNumberColor: verseNumColor,
             wordsOfChristColor: wocColor,

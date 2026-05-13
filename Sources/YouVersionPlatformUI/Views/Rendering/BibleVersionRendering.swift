@@ -352,7 +352,7 @@ public enum BibleVersionRendering {
                 BibleTextBlock(
                     text: BibleAttributedString(),
                     chapter: stateUp.chapter,
-                    firstLineHeadIndent: 0, headIndent: 0, marginTop: 10,
+                    firstLineHeadIndent: 0, headIndent: 0, marginTop: 10, marginBottom: 0,
                     alignment: .leading,
                     footnotes: stateUp.footnotes,
                     rows: rows
@@ -370,7 +370,6 @@ public enum BibleVersionRendering {
     ) {
         var stateDown = parentStateDown
         stateDown.nodeDepth += 1
-        var marginTop: CGFloat = 0
         stateDown.currentFont = .textFont
 
         if node.type != .block {
@@ -388,8 +387,7 @@ public enum BibleVersionRendering {
             node.classes,
             stateIn: stateIn,
             stateDown: &stateDown,
-            stateUp: &stateUp,
-            marginTop: &marginTop
+            stateUp: &stateUp
         )
 
         for (index, child) in node.children.enumerated() {
@@ -397,7 +395,7 @@ public enum BibleVersionRendering {
                 let hadPendingText = !stateUp.isTextEmpty
                 if hadPendingText {
                     if stateUp.rendering {
-                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                     }
                     stateUp.clearText()
                 }
@@ -434,13 +432,12 @@ public enum BibleVersionRendering {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
                     if !stateUp.isTextEmpty {
                         if stateUp.rendering {
-                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                             stateUp.clearText()
-                            //stateDown.marginTop = marginTop  // TODO
                             handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                             var tmpStateDown = stateDown
                             tmpStateDown.alignment = .trailing
-                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp, marginTop: marginTop))
+                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))
                         }
                         stateUp.clearText()
                     }
@@ -450,22 +447,22 @@ public enum BibleVersionRendering {
             }
         }
         if !stateUp.isTextEmpty {
-            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
             stateUp.clearText()
         }
     }
 
     private static func createBlock(
         stateDown: StateDown,
-        stateUp: inout StateUp,
-        marginTop: CGFloat
+        stateUp: inout StateUp
     ) -> BibleTextBlock {
         let block = BibleTextBlock(
             text: stateUp.text,
             chapter: stateUp.chapter,
             firstLineHeadIndent: stateUp.firstLineHeadIndent,
             headIndent: stateUp.headIndent,
-            marginTop: marginTop,
+            marginTop: stateDown.marginTop,
+            marginBottom: stateDown.marginBottom,
             alignment: stateDown.alignment,
             footnotes: stateUp.footnotes
         )
@@ -530,6 +527,8 @@ public enum BibleVersionRendering {
         var baselineOffset: CGFloat = 0
         var textCategory: BibleTextCategory
         var nodeDepth: Int  // for debugging purposes mostly
+        var marginTop: CGFloat = 0
+        var marginBottom: CGFloat = 0
     }
 
     // As we walk the node structure, these are attributes which

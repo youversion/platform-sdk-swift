@@ -17,6 +17,9 @@ public enum BibleTextFontOption {
     case header3
     case header4
     case footnote
+    //case font100emPlain
+    case font117em600
+    case font100em600italic
 }
 
 public struct BibleTextFonts {
@@ -64,7 +67,12 @@ public struct BibleTextFonts {
             .header: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
             .headerSmallerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 0.76).italic(),
             .textFont: Font.custom(familyName, fixedSize: baseSize),
-            .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.65).smallCaps()
+            .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.65).smallCaps(),
+            // new way of organizing these:
+            .font117em600: Font.custom(familyName, fixedSize: baseSize * 1.17).weight(.semibold),
+            .font100em600italic: Font.custom(italicFamilyName, fixedSize: baseSize).weight(.semibold).italic()
         ]
     }
+    
+    
 }

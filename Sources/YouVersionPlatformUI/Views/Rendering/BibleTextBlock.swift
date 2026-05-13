@@ -9,6 +9,7 @@ public struct BibleTextBlock: Identifiable {
     public let firstLineHeadIndent: Int  // The indentation of the first line of the paragraph. Always >= 0.
     public let headIndent: Int  // The indentation of the paragraph’s lines other than the first. Always >= 0.
     public let marginTop: CGFloat
+    public let marginBottom: CGFloat
     public let alignment: TextAlignment
     public let footnotes: [BibleFootnote]
 
@@ -18,6 +19,7 @@ public struct BibleTextBlock: Identifiable {
         firstLineHeadIndent: Int,
         headIndent: Int,
         marginTop: CGFloat,
+        marginBottom: CGFloat,
         alignment: TextAlignment,
         footnotes: [BibleFootnote],
         rows: [[BibleAttributedString]] = []
@@ -27,6 +29,7 @@ public struct BibleTextBlock: Identifiable {
         self.firstLineHeadIndent = firstLineHeadIndent
         self.headIndent = headIndent
         self.marginTop = marginTop
+        self.marginBottom = marginBottom
         self.alignment = alignment
         self.footnotes = footnotes
         self.rows = rows

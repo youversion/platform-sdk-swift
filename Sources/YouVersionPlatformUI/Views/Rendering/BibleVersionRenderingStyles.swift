@@ -9,10 +9,8 @@ final class BibleVersionRenderingStyles {
         _ classes: [String],
         stateIn: BibleVersionRendering.StateIn,
         stateDown: inout BibleVersionRendering.StateDown,
-        stateUp: inout BibleVersionRendering.StateUp,
-        marginTop: inout CGFloat
+        stateUp: inout BibleVersionRendering.StateUp
     ) {
-        let indentStep = 1
         let ignoredTags = [  // things we don't currently care about:
             "s1",
             "b",   // Poetry text stanza break (e.g. stanza break)
@@ -29,13 +27,33 @@ final class BibleVersionRenderingStyles {
             "im",  // non-indented intro paragraph
             "ior"  // marks references in an outline
         ]
+        let fontSize = stateIn.fonts.baseSize
 
         for c in classes {
             switch c {
-
+                
             case "p", "ip", "imi", "ipi":
-                stateUp.firstLineHeadIndent = indentStep * 2
+                stateDown.marginBottom = 0.60 * fontSize
+                stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
+                
+            case "s1":
+                stateDown.marginTop = 0
+                stateDown.marginBottom = 0.25 * fontSize
+
+            case "s2":
+                stateDown.marginTop = fontSize
+                stateDown.marginBottom = 0
+                
+            case "q1", "iq1":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 4
+                
+            case "q2", "iq2":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 8
+                
+
 
             case "m", "nb", "im":
                 stateUp.firstLineHeadIndent = 0
@@ -54,40 +72,40 @@ final class BibleVersionRenderingStyles {
                 stateUp.headIndent = 2
 
             case "pi", "pi1":
-                stateUp.firstLineHeadIndent = indentStep
+                stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
 
             case "pi2":
-                stateUp.firstLineHeadIndent = indentStep
-                stateUp.headIndent = indentStep * 2
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 2
 
             case "pi3":
-                stateUp.firstLineHeadIndent = indentStep
-                stateUp.headIndent = indentStep * 3
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 3
 
             case "li1", "ili", "ili1":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = indentStep
+                stateUp.headIndent = 1
 
             case "li2", "ili2":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = indentStep * 2
+                stateUp.headIndent = 2
 
             case "li3", "ili3":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = indentStep * 3
+                stateUp.headIndent = 3
 
             case "li4", "ili4":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = indentStep * 4
+                stateUp.headIndent = 4
 
-            case "iq", "iq1", "q", "q1", "qm", "qm1":
-                // Sadly SwiftUI cannot do this yet, but we want (0, 2 * indentStep) here.
+            case "iq", "q", "qm", "qm1":
+                // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
-            case "iq2", "q2", "qm2":
-                // Sadly SwiftUI cannot do this yet, but we want (indentStep, 2 * indentStep) here.
+            case "qm2":
+                // Sadly SwiftUI cannot do this yet, but we want (1, 2) here.
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
@@ -101,7 +119,7 @@ final class BibleVersionRenderingStyles {
 
             case "pm", "pmo", "pmc", "pmr":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = indentStep * 2
+                stateUp.headIndent = 2
 
             case "d":  // "d" # A Hebrew text heading, to provide description (e.g. Psalms)
                 stateDown.currentFont = .headerItalic
@@ -113,26 +131,26 @@ final class BibleVersionRenderingStyles {
             case "iot":
                 stateDown.currentFont = .textFontBold
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 3
+                stateDown.marginTop = fontSize / 3
 
             case "is", "is1":
                 stateDown.currentFont = .header
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 2
+                stateDown.marginTop = fontSize / 2
 
             case "is2":
                 stateDown.currentFont = .textFontBold
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 3
+                stateDown.marginTop = fontSize / 3
 
             case "io", "io1":
-                stateUp.headIndent = indentStep * 2
+                stateUp.headIndent = 2
 
             case "io2":
-                stateUp.headIndent = indentStep * 3
+                stateUp.headIndent = 3
 
             case "io3", "io4":
-                stateUp.headIndent = indentStep * 4
+                stateUp.headIndent = 4
 
             case "imt", "imt1", "imte", "imte1":
                 stateDown.textCategory = .header
@@ -143,28 +161,28 @@ final class BibleVersionRenderingStyles {
                 stateDown.textCategory = .header
                 stateDown.currentFont = .headerItalic
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 2
+                stateDown.marginTop = fontSize / 2
 
             case "imt3":
                 stateDown.textCategory = .header
                 stateDown.currentFont = .header3
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 3
+                stateDown.marginTop = fontSize / 3
 
             case "imt4":
                 stateDown.textCategory = .header
                 stateDown.currentFont = .header4
                 stateDown.alignment = .center
-                marginTop = stateIn.fonts.baseSize / 3
+                stateDown.marginTop = fontSize / 3
 
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
-                    "s1": .header,
+                    "s1": .font117em600,
+                    "s2": .font100em600italic,
                     "imt": .header,
                     "imt1": .header,
                     "ms": .header2,
                     "ms1": .header2,
-                    "s2": .header2,
                     "ms2": .header2,
                     "imt2": .header2,
                     "s3": .header3,
@@ -178,7 +196,7 @@ final class BibleVersionRenderingStyles {
                     "sr": .headerItalic,
                     "mr": .headerSmaller
                 ]
-                marginTop = stateIn.fonts.baseSize
+                stateDown.marginTop = fontSize
                 stateDown.textCategory = .header
                 stateDown.currentFont = .header
                 for c in classes {
@@ -187,7 +205,7 @@ final class BibleVersionRenderingStyles {
                     }
                 }
                 if classes.contains("r") || classes.contains("mr") {
-                    marginTop = 0 - (stateIn.fonts.baseSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
+                    stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
                 }
 
                 stateUp.firstLineHeadIndent = 0

@@ -9,7 +9,6 @@ struct BibleReaderFootnotesView: View {
             fontFamily: viewModel.textOptions.fontFamily,
             fontSize: 16,
             lineSpacing: viewModel.textOptions.lineSpacing,
-            paragraphSpacing: viewModel.textOptions.paragraphSpacing,
             textColor: viewModel.textOptions.textColor,
             verseNumberColor: viewModel.textOptions.verseNumberColor,
             wordsOfChristColor: viewModel.textOptions.wordsOfChristColor,

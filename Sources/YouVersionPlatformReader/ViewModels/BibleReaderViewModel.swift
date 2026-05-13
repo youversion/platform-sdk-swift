@@ -143,7 +143,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             fontSize: ourFontSize,
             // TODO: maybe have one of these spacings be a delta added to the other:
             lineSpacing: lineSpacing,
-            paragraphSpacing: lineSpacing,
             textColor: readerTextPrimaryColor,
             verseNumberColor: readerVerseNumColor,
             wordsOfChristColor: readerWordsOfChristColor,
