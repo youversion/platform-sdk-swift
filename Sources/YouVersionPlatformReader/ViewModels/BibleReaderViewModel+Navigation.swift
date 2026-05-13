@@ -180,7 +180,7 @@ extension BibleReaderViewModel {
 
     func addVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            print("Unable to convert color to hex: \(color)")
+            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "BibleReader")
             return
         }
         highlightsViewModel.addHighlights(references: Array(selectedVerses), color: hex)
@@ -189,7 +189,7 @@ extension BibleReaderViewModel {
 
     func removeVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            print("Unable to convert color to hex: \(color)")
+            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "BibleReader")
             return
         }
         for reference in selectedVerses {
@@ -274,7 +274,7 @@ extension BibleReaderViewModel {
             showChrome = true
             scrollToTop = true
         } catch {
-            print("Error loading version/chapter: \(error)")
+            YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "BibleReader")
         }
     }
 

@@ -74,6 +74,10 @@ import Testing
         #expect(callCount == 1)
 
         viewModel.resetChapterCompleteTracking()
+        // Sub-threshold scroll after reset must not fire: verifies minObservedOffset was zeroed
+        viewModel.handleScroll(offset: -100)
+        #expect(callCount == 1)
+
         viewModel.handleScroll(offset: -1300)
         #expect(callCount == 2)
     }
