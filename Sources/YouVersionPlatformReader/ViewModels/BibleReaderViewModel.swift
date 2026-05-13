@@ -186,8 +186,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         } else {
             ReaderFonts.defaultFontFamily
         }
-        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
-        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        fontSize = ReaderFonts.nextLargerSize(currentSize: (savedValue.fontSize ?? ReaderFonts.defaultFontSize) - 0.001)
+        lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: (savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing) - 0.001)
         colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
     }
 
