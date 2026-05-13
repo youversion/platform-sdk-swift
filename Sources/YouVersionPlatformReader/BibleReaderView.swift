@@ -13,8 +13,8 @@ public struct BibleReaderView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    let fontSettingsDetent = PresentationDetent.height(360)
-    let fontListDetent = PresentationDetent.height(480)
+    private let fontSettingsDetent = PresentationDetent.height(360)
+    private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent: PresentationDetent
     @State private var detents: Set<PresentationDetent>
     private var externalSelectedVerses: Binding<Set<BibleReference>>?
