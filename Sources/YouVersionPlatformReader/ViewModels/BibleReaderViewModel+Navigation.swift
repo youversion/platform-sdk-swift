@@ -91,13 +91,10 @@ extension BibleReaderViewModel {
             }
         }
         lastScrollOffset = offset
-        maxObservedOffset = max(maxObservedOffset, offset)
+        minObservedOffset = min(minObservedOffset, offset)
 
-        let bottomThreshold: CGFloat = 100
         if scrollViewHeight > 0
-            && maxObservedOffset > scrollViewHeight * 1.5
-            && offset > 0
-            && offset <= scrollViewHeight + bottomThreshold
+            && minObservedOffset < -(scrollViewHeight * 1.5)
             && version != nil
             && !hasNotifiedChapterComplete {
             hasNotifiedChapterComplete = true
@@ -107,7 +104,7 @@ extension BibleReaderViewModel {
 
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
-        maxObservedOffset = 0
+        minObservedOffset = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
@@ -124,7 +121,15 @@ extension BibleReaderViewModel {
 
         if let onVerseTap {
             let response = onVerseTap(reference)
-            if response == .handled {
+            switch response {
+            case .handled:
+                return
+            case .toggleSelection:
+                if selectedVerses.contains(reference) {
+                    selectedVerses.remove(reference)
+                } else {
+                    selectedVerses.insert(reference)
+                }
                 return
             }
         }
@@ -138,19 +143,13 @@ extension BibleReaderViewModel {
         } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
             showingSignInSheet = true
             return
-        }
-
-        if selectedVerses.contains(reference) {
-            selectedVerses.remove(reference)
         } else {
-            selectedVerses.insert(reference)
+            return
         }
 
-        if onVerseTap == nil {
-            let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
-            withAnimation(animation) {
-                showingVerseActionsDrawer = !selectedVerses.isEmpty
-            }
+        let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
+        withAnimation(animation) {
+            showingVerseActionsDrawer = !selectedVerses.isEmpty
         }
     }
 
@@ -181,7 +180,7 @@ extension BibleReaderViewModel {
 
     func addVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            print("Unable to convert color to hex: \(color)")
+            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "BibleReader")
             return
         }
         highlightsViewModel.addHighlights(references: Array(selectedVerses), color: hex)
@@ -190,7 +189,7 @@ extension BibleReaderViewModel {
 
     func removeVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
-            print("Unable to convert color to hex: \(color)")
+            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "BibleReader")
             return
         }
         for reference in selectedVerses {
@@ -275,7 +274,7 @@ extension BibleReaderViewModel {
             showChrome = true
             scrollToTop = true
         } catch {
-            print("Error loading version/chapter: \(error)")
+            YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "BibleReader")
         }
     }
 

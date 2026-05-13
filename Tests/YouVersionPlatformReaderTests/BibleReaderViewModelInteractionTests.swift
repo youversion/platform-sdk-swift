@@ -30,6 +30,59 @@ import Testing
     }
 
     @Test
+    func handleScrollFiresChapterCompleteWhenScrolledPastOneAndAHalfViewports() {
+        var completedReference: BibleReference?
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
+        let viewModel = Support.makeViewModel(
+            reference: reference,
+            onChapterComplete: { completedReference = $0 }
+        )
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        // Scrolling less than 1.5x viewport should not fire
+        viewModel.handleScroll(offset: -1000)
+        #expect(completedReference == nil)
+
+        // Scrolling beyond 1.5x viewport (offset < -(800 * 1.5) = -1200) should fire
+        viewModel.handleScroll(offset: -1300)
+        #expect(completedReference == reference)
+    }
+
+    @Test
+    func handleScrollFiresChapterCompleteAtMostOncePerChapter() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        viewModel.handleScroll(offset: -1300)
+        viewModel.handleScroll(offset: -1500)
+        viewModel.handleScroll(offset: -2000)
+
+        #expect(callCount == 1)
+    }
+
+    @Test
+    func handleScrollResetsChapterCompleteOnReferenceChange() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        viewModel.handleScroll(offset: -1300)
+        #expect(callCount == 1)
+
+        viewModel.resetChapterCompleteTracking()
+        // Sub-threshold scroll after reset must not fire: verifies minObservedOffset was zeroed
+        viewModel.handleScroll(offset: -100)
+        #expect(callCount == 1)
+
+        viewModel.handleScroll(offset: -1300)
+        #expect(callCount == 2)
+    }
+
+    @Test
     func handleScrollDoesNothingWhileChangingChapter() {
         let viewModel = Support.makeViewModel()
         viewModel.isChangingChapter = true
@@ -62,7 +115,7 @@ import Testing
     func handleVerseTapUsesCustomVerseTapHandlerBeforeSelection() {
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         var tappedReference: BibleReference?
-        let viewModel = Support.makeViewModel(onVerseTap: { tappedReference = $0 })
+        let viewModel = Support.makeViewModel(onVerseTap: { tappedReference = $0; return .handled })
 
         viewModel.handleVerseTap(reference: reference, actionType: "", footnotes: [])
 

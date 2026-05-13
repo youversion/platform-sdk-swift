@@ -93,10 +93,12 @@ extension BibleTextView {
                         return
                     }
                     let padding: CGFloat = 2
-                    let boxRect = CGRect(x: start - padding,
-                                         y: boxY,
-                                         width: (boxEnd - start) + padding * 2,
-                                         height: boxHeight)
+                    let boxRect = CGRect(
+                        x: start - padding,
+                        y: boxY,
+                        width: (boxEnd - start) + padding * 2,
+                        height: boxHeight
+                    )
                     let path = RoundedRectangle(cornerRadius: 2).path(in: boxRect)
                     context.fill(path, with: .color(boxColor ?? .gray))
                     boxStart = nil
@@ -208,9 +210,11 @@ extension BibleTextView {
                 pencilAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
-                    RenderHowAttribute(noteIndicatorImage: true,
-                                       noteIndicatorBox: true,
-                                       noteIndicatorBoxColor: boxColor)
+                    RenderHowAttribute(
+                        noteIndicatorImage: true,
+                        noteIndicatorBox: true,
+                        noteIndicatorBoxColor: boxColor
+                    )
                 )
 
                 var spacerAttr = AttributedString("\u{2009}")
@@ -219,16 +223,20 @@ extension BibleTextView {
                 spacerAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(spacerAttr).customAttribute(
-                    RenderHowAttribute(noteIndicatorBox: true,
-                                       noteIndicatorBoxColor: boxColor)
+                    RenderHowAttribute(
+                        noteIndicatorBox: true,
+                        noteIndicatorBoxColor: boxColor
+                    )
                 )
 
                 var verseAttr = t
                 verseAttr.link = noteURL
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(verseAttr).customAttribute(
-                    RenderHowAttribute(noteIndicatorBox: true,
-                                       noteIndicatorBoxColor: boxColor)
+                    RenderHowAttribute(
+                        noteIndicatorBox: true,
+                        noteIndicatorBoxColor: boxColor
+                    )
                 )
 
                 // swiftlint:disable:next shorthand_operator
