@@ -121,7 +121,15 @@ extension BibleReaderViewModel {
 
         if let onVerseTap {
             let response = onVerseTap(reference)
-            if response == .handled {
+            switch response {
+            case .handled:
+                return
+            case .toggleSelection:
+                if selectedVerses.contains(reference) {
+                    selectedVerses.remove(reference)
+                } else {
+                    selectedVerses.insert(reference)
+                }
                 return
             }
         }
@@ -135,19 +143,13 @@ extension BibleReaderViewModel {
         } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
             showingSignInSheet = true
             return
-        }
-
-        if selectedVerses.contains(reference) {
-            selectedVerses.remove(reference)
         } else {
-            selectedVerses.insert(reference)
+            return
         }
 
-        if onVerseTap == nil {
-            let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
-            withAnimation(animation) {
-                showingVerseActionsDrawer = !selectedVerses.isEmpty
-            }
+        let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
+        withAnimation(animation) {
+            showingVerseActionsDrawer = !selectedVerses.isEmpty
         }
     }
 

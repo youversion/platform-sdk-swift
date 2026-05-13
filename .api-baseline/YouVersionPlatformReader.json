@@ -75,7 +75,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(reference:verseSelectionStyle:onVerseTap:)",
+            "printedName": "init(reference:selectedVerses:verseSelectionStyle:onVerseTap:onNoteIndicatorTap:onReferenceChange:onChapterComplete:audioActiveReference:audioActiveIndicatorColor:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -100,10 +100,69 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Binding<Swift.Set<YouVersionPlatformCore.BibleReference>>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Binding",
+                    "printedName": "SwiftUI.Binding<Swift.Set<YouVersionPlatformCore.BibleReference>>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<YouVersionPlatformCore.BibleReference>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "BibleReference",
+                            "printedName": "YouVersionPlatformCore.BibleReference",
+                            "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "usr": "s:7SwiftUI7BindingV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "VerseSelectionStyle",
                 "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
                 "hasDefaultArg": true,
                 "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> YouVersionPlatformReader.VerseTapResponse)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> YouVersionPlatformReader.VerseTapResponse",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "VerseTapResponse",
+                        "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                        "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               },
               {
                 "kind": "TypeNominal",
@@ -138,11 +197,109 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Color?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAIcSgtcfc",
-            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAIcSgtcfc",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap0m13NoteIndicatorO00M15ReferenceChange0M15ChapterComplete011audioActiveR00vwQ5ColorAC0abC4Core0eR0VSg_7SwiftUI7BindingVyShyAOGGSg0abC2UI0nkL0VAA0nO8ResponseOAOcSgyAOcSgA1_A1_ApQ0X0VSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap0m13NoteIndicatorO00M15ReferenceChange0M15ChapterComplete011audioActiveR00vwQ5ColorAC0abC4Core0eR0VSg_7SwiftUI7BindingVyShyAOGGSg0abC2UI0nkL0VAA0nO8ResponseOAOcSgyAOcSgA1_A1_ApQ0X0VSgtcfc",
             "moduleName": "YouVersionPlatformReader",
             "declAttributes": [
               "Preconcurrency",
@@ -153,7 +310,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(reference:appName:signInMessage:verseSelectionStyle:onVerseTap:)",
+            "printedName": "init(reference:appName:signInMessage:selectedVerses:verseSelectionStyle:onVerseTap:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -190,6 +347,37 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SwiftUI.Binding<Swift.Set<YouVersionPlatformCore.BibleReference>>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Binding",
+                    "printedName": "SwiftUI.Binding<Swift.Set<YouVersionPlatformCore.BibleReference>>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<YouVersionPlatformCore.BibleReference>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "BibleReference",
+                            "printedName": "YouVersionPlatformCore.BibleReference",
+                            "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "usr": "s:7SwiftUI7BindingV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "VerseSelectionStyle",
                 "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
                 "hasDefaultArg": true,
@@ -198,24 +386,18 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> YouVersionPlatformReader.VerseTapResponse)?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> YouVersionPlatformReader.VerseTapResponse",
                     "children": [
                       {
-                        "kind": "TypeNameAlias",
-                        "name": "Void",
-                        "printedName": "Swift.Void",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Void",
-                            "printedName": "()"
-                          }
-                        ]
+                        "kind": "TypeNominal",
+                        "name": "VerseTapResponse",
+                        "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                        "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -231,8 +413,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
-            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage14selectedVerses19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S7SwiftUI7BindingVyShyALGGSg0abcX00spQ0VAA0sT8ResponseOALcSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage14selectedVerses19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S7SwiftUI7BindingVyShyALGGSg0abcX00spQ0VAA0sT8ResponseOALcSgtcfc",
             "moduleName": "YouVersionPlatformReader",
             "deprecated": true,
             "declAttributes": [
@@ -1084,6 +1266,236 @@
             ],
             "usr": "s:7SwiftUI4ViewP",
             "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "VerseTapResponse",
+        "printedName": "VerseTapResponse",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "toggleSelection",
+            "printedName": "toggleSelection",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformReader.VerseTapResponse.Type) -> YouVersionPlatformReader.VerseTapResponse",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "VerseTapResponse",
+                    "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                    "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformReader.VerseTapResponse.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "VerseTapResponse",
+                        "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                        "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:24YouVersionPlatformReader16VerseTapResponseO15toggleSelectionyA2CmF",
+            "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO15toggleSelectionyA2CmF",
+            "moduleName": "YouVersionPlatformReader"
+          },
+          {
+            "kind": "Var",
+            "name": "handled",
+            "printedName": "handled",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformReader.VerseTapResponse.Type) -> YouVersionPlatformReader.VerseTapResponse",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "VerseTapResponse",
+                    "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                    "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformReader.VerseTapResponse.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "VerseTapResponse",
+                        "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                        "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:24YouVersionPlatformReader16VerseTapResponseO7handledyA2CmF",
+            "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO7handledyA2CmF",
+            "moduleName": "YouVersionPlatformReader"
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_enum_equals",
+            "printedName": "__derived_enum_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseTapResponse",
+                "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseTapResponse",
+                "printedName": "YouVersionPlatformReader.VerseTapResponse",
+                "usr": "s:24YouVersionPlatformReader16VerseTapResponseO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader16VerseTapResponseO21__derived_enum_equalsySbAC_ACtFZ",
+            "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO21__derived_enum_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements",
+              "Semantics"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader16VerseTapResponseO4hash4intoys6HasherVz_tF",
+            "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO4hash4intoys6HasherVz_tF",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader16VerseTapResponseO9hashValueSivp",
+            "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO9hashValueSivp",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader16VerseTapResponseO9hashValueSivg",
+                "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO9hashValueSivg",
+                "moduleName": "YouVersionPlatformReader",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:24YouVersionPlatformReader16VerseTapResponseO",
+        "mangledName": "$s24YouVersionPlatformReader16VerseTapResponseO",
+        "moduleName": "YouVersionPlatformReader",
+        "isEnumExhaustive": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
           }
         ]
       },

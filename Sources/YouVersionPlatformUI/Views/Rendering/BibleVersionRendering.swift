@@ -171,8 +171,12 @@ public enum BibleVersionRendering {
     /// Verse index from a visible verse-number span (`yv-vlbl` / `vlbl`).
     /// Prefer the `v` HTML attribute; otherwise parse digits from descendant text (supports mild nesting).
     private static func verseNumberFromVerseLabelSpan(_ node: BibleTextNode) -> Int? {
-        guard node.type == .span else { return nil }
-        guard node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") else { return nil }
+        guard node.type == .span else {
+            return nil
+        }
+        guard node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") else {
+            return nil
+        }
         if let v = node.attributes["v"], let i = Int(v) {
             return i
         }

@@ -6127,6 +6127,55 @@
               {
                 "kind": "Function",
                 "name": "version",
+                "printedName": "version(withId:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5BibleO7version6withId11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5BibleO7version6withId11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "version",
                 "printedName": "version(versionId:accessToken:session:)",
                 "children": [
                   {
@@ -6167,6 +6216,58 @@
                 "declKind": "Func",
                 "usr": "s:22YouVersionPlatformCore0aB3APIO5BibleO7version0G2Id11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
                 "mangledName": "$s22YouVersionPlatformCore0aB3APIO5BibleO7version0G2Id11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "deprecated": true,
+                "declAttributes": [
+                  "Available"
+                ],
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "metadataForVersion",
+                "printedName": "metadataForVersion(withId:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5BibleO011metadataForB06withId11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5BibleO011metadataForB06withId11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
                 "isFromExtension": true,
@@ -6217,6 +6318,10 @@
                 "mangledName": "$s22YouVersionPlatformCore0aB3APIO5BibleO05basicB09versionId11accessToken7sessionAA0fB0VSi_SSSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
+                "deprecated": true,
+                "declAttributes": [
+                  "Available"
+                ],
                 "isFromExtension": true,
                 "throwing": true,
                 "funcSelfKind": "NonMutating"
@@ -6740,6 +6845,68 @@
               },
               {
                 "kind": "Function",
+                "name": "highlights",
+                "printedName": "highlights(bibleId:passageId:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.HighlightResponse]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HighlightResponse",
+                        "printedName": "YouVersionPlatformCore.HighlightResponse",
+                        "usr": "s:22YouVersionPlatformCore17HighlightResponseV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO10HighlightsO10highlights7bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO10HighlightsO10highlights7bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
                 "name": "getHighlights",
                 "printedName": "getHighlights(bibleId:passageId:accessToken:session:)",
                 "children": [
@@ -6797,6 +6964,10 @@
                 "mangledName": "$s22YouVersionPlatformCore0aB3APIO10HighlightsO03getF07bibleId07passageI011accessToken7sessionSayAA17HighlightResponseVGSi_S2SSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
+                "deprecated": true,
+                "declAttributes": [
+                  "Available"
+                ],
                 "throwing": true,
                 "funcSelfKind": "NonMutating"
               },
@@ -7116,6 +7287,63 @@
             "children": [
               {
                 "kind": "Function",
+                "name": "signInResult",
+                "printedName": "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignInWithYouVersionResult",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionResult",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URL",
+                    "printedName": "Foundation.URL",
+                    "usr": "s:10Foundation3URLV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO12signInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA04Signh4WithabI0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO12signInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA04Signh4WithabI0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
                 "name": "getSignInResult",
                 "printedName": "getSignInResult(from:state:codeVerifier:redirectUri:nonce:session:)",
                 "children": [
@@ -7168,6 +7396,57 @@
                 "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO15getSignInResult4from5state12codeVerifier11redirectUri5nonce7sessionAA0hi4WithabJ0V10Foundation3URLV_S4SSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
+                "deprecated": true,
+                "declAttributes": [
+                  "Available"
+                ],
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "refreshSignIn",
+                "printedName": "refreshSignIn(withToken:idToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignInWithYouVersionResult",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionResult",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO13refreshSignIn9withToken02idK07sessionAA0hi4WithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO13refreshSignIn9withToken02idK07sessionAA0hi4WithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
                 "throwing": true,
                 "funcSelfKind": "NonMutating"
               },
@@ -7215,6 +7494,10 @@
                 "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO14performRefresh4with7idToken7sessionAA010SignInWithaB6ResultVSS_SSSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
+                "deprecated": true,
+                "declAttributes": [
+                  "Available"
+                ],
                 "throwing": true,
                 "funcSelfKind": "NonMutating"
               },
@@ -9188,287 +9471,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "ChapterDiskCache",
-        "printedName": "ChapterDiskCache",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(versionId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC06removeB09versionIdySi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC06removeB09versionIdySi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "unownedExecutor",
-            "printedName": "unownedExecutor",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnownedSerialExecutor",
-                "printedName": "_Concurrency.UnownedSerialExecutor",
-                "usr": "s:Sce"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevp",
-            "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "intro_Macosx": "10.15",
-            "intro_iOS": "13.0",
-            "intro_tvOS": "13.0",
-            "intro_watchOS": "6.0",
-            "declAttributes": [
-              "Available",
-              "Available",
-              "Available",
-              "Available",
-              "Final",
-              "Nonisolated",
-              "Semantics"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UnownedSerialExecutor",
-                    "printedName": "_Concurrency.UnownedSerialExecutor",
-                    "usr": "s:Sce"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevg",
-                "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC",
-        "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC",
-        "moduleName": "YouVersionPlatformCore",
-        "hasMissingDesignatedInitializers": true,
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Actor",
-            "printedName": "Actor",
-            "usr": "s:ScA",
-            "mangledName": "$sScA"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "ChapterDownloadCache",
-        "printedName": "ChapterDownloadCache",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "chaptersArePresent",
-            "printedName": "chaptersArePresent(versionId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC18chaptersArePresent9versionIdSbSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC18chaptersArePresent9versionIdSbSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Nonisolated"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(versionId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC06removeB09versionIdySi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC06removeB09versionIdySi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "unownedExecutor",
-            "printedName": "unownedExecutor",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnownedSerialExecutor",
-                "printedName": "_Concurrency.UnownedSerialExecutor",
-                "usr": "s:Sce"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevp",
-            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "intro_Macosx": "10.15",
-            "intro_iOS": "13.0",
-            "intro_tvOS": "13.0",
-            "intro_watchOS": "6.0",
-            "declAttributes": [
-              "Available",
-              "Available",
-              "Available",
-              "Available",
-              "Final",
-              "Nonisolated",
-              "Semantics"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UnownedSerialExecutor",
-                    "printedName": "_Concurrency.UnownedSerialExecutor",
-                    "usr": "s:Sce"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevg",
-                "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC",
-        "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC",
-        "moduleName": "YouVersionPlatformCore",
-        "hasMissingDesignatedInitializers": true,
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Actor",
-            "printedName": "Actor",
-            "usr": "s:ScA",
-            "mangledName": "$sScA"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "BibleChapterRepository",
         "printedName": "BibleChapterRepository",
         "children": [
@@ -9524,6 +9526,24 @@
             ]
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleChapterRepository",
+                "printedName": "YouVersionPlatformCore.BibleChapterRepository",
+                "usr": "s:22YouVersionPlatformCore22BibleChapterRepositoryC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore22BibleChapterRepositoryCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore22BibleChapterRepositoryCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Convenience"
+          },
+          {
             "kind": "Function",
             "name": "chapter",
             "printedName": "chapter(withReference:)",
@@ -9569,9 +9589,6 @@
             "usr": "s:22YouVersionPlatformCore22BibleChapterRepositoryC06removeB06withIdySi_tYaF",
             "mangledName": "$s22YouVersionPlatformCore22BibleChapterRepositoryC06removeB06withIdySi_tYaF",
             "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Custom"
-            ],
             "funcSelfKind": "NonMutating"
           },
           {
@@ -13460,6 +13477,311 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "BibleNoteIndicatorsCache",
+        "printedName": "BibleNoteIndicatorsCache",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "shared",
+            "printedName": "shared",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleNoteIndicatorsCache",
+                "printedName": "YouVersionPlatformCore.BibleNoteIndicatorsCache",
+                "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC6sharedACvpZ",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC6sharedACvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "Custom"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleNoteIndicatorsCache",
+                    "printedName": "YouVersionPlatformCore.BibleNoteIndicatorsCache",
+                    "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC6sharedACvgZ",
+                "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC6sharedACvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "indicatedUSFMs",
+            "printedName": "indicatedUSFMs",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC14indicatedUSFMsShySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC14indicatedUSFMsShySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "SetterAccess",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC14indicatedUSFMsShySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC14indicatedUSFMsShySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "setIndicators",
+            "printedName": "setIndicators(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC03setG0yyShySSGF",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC03setG0yyShySSGF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addIndicator",
+            "printedName": "addIndicator(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC12addIndicator3forySS_tF",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC12addIndicator3forySS_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeIndicator",
+            "printedName": "removeIndicator(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC15removeIndicator3forySS_tF",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC15removeIndicator3forySS_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hasNote",
+            "printedName": "hasNote(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC03hasF03forSbSS_tF",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC03hasF03forSbSS_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "reset",
+            "printedName": "reset()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC5resetyyF",
+            "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC5resetyyF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore24BibleNoteIndicatorsCacheC",
+        "mangledName": "$s22YouVersionPlatformCore24BibleNoteIndicatorsCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "declAttributes": [
+          "Final",
+          "Custom"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Observable",
+            "printedName": "Observable",
+            "usr": "s:11Observation10ObservableP",
+            "mangledName": "$s11Observation10ObservableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "BibleReference",
         "printedName": "BibleReference",
         "children": [
@@ -16945,76 +17267,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "BibleVersionAPIClient",
-        "printedName": "BibleVersionAPIClient",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP7version6withIdAA0eB0VSi_tYaKF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP7version6withIdAA0eB0VSi_tYaKF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionAPIClient>",
-            "protocolReq": true,
-            "throwing": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Protocol",
-        "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP",
-        "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP",
-        "moduleName": "YouVersionPlatformCore",
-        "genericSig": "<Self : Swift.Sendable>",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "BibleVersionRepositoryProtocol",
         "printedName": "BibleVersionRepositoryProtocol",
         "children": [
@@ -17235,1146 +17487,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "BibleVersionCaching",
-        "printedName": "BibleVersionCaching",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.BibleVersion?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "BibleVersion",
-                    "printedName": "YouVersionPlatformCore.BibleVersion",
-                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP7version6withIdAA0eB0VSgSi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP7version6withIdAA0eB0VSgSi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addVersion",
-            "printedName": "addVersion(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP03addB0yyAA0eB0VYaF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP03addB0yyAA0eB0VYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP06removeB06withIdySi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP06removeB06withIdySi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "versionIsPresent",
-            "printedName": "versionIsPresent(for:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP16versionIsPresent3forSbSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP16versionIsPresent3forSbSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeUnpermittedVersions",
-            "printedName": "removeUnpermittedVersions(permittedIds:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Set",
-                "printedName": "Swift.Set<Swift.Int>",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "usr": "s:Sh"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Protocol",
-        "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
-        "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP",
-        "moduleName": "YouVersionPlatformCore",
-        "genericSig": "<Self : Swift.Sendable>",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "VersionClient",
-        "printedName": "VersionClient",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "VersionClient",
-                "printedName": "YouVersionPlatformCore.VersionClient",
-                "usr": "s:22YouVersionPlatformCore0B6ClientC"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore0B6ClientCACycfc",
-            "mangledName": "$s22YouVersionPlatformCore0B6ClientCACycfc",
-            "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B6ClientC7version6withIdAA05BibleB0VSi_tYaKF",
-            "mangledName": "$s22YouVersionPlatformCore0B6ClientC7version6withIdAA05BibleB0VSi_tYaKF",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Final"
-            ],
-            "throwing": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore0B6ClientC",
-        "mangledName": "$s22YouVersionPlatformCore0B6ClientC",
-        "moduleName": "YouVersionPlatformCore",
-        "declAttributes": [
-          "Final"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "BibleVersionAPIClient",
-            "printedName": "BibleVersionAPIClient",
-            "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "VersionMemoryCache",
-        "printedName": "VersionMemoryCache",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "VersionMemoryCache",
-                "printedName": "YouVersionPlatformCore.VersionMemoryCache",
-                "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheCACycfc",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheCACycfc",
-            "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.BibleVersion?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "BibleVersion",
-                    "printedName": "YouVersionPlatformCore.BibleVersion",
-                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "versionIsPresent",
-            "printedName": "versionIsPresent(for:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC16versionIsPresent3forSbSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC16versionIsPresent3forSbSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Nonisolated"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addVersion",
-            "printedName": "addVersion(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC03addB0yyAA05BibleB0VYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC03addB0yyAA05BibleB0VYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC06removeB06withIdySi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC06removeB06withIdySi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeUnpermittedVersions",
-            "printedName": "removeUnpermittedVersions(permittedIds:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Set",
-                "printedName": "Swift.Set<Swift.Int>",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "usr": "s:Sh"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "unownedExecutor",
-            "printedName": "unownedExecutor",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnownedSerialExecutor",
-                "printedName": "_Concurrency.UnownedSerialExecutor",
-                "usr": "s:Sce"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevp",
-            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "intro_Macosx": "10.15",
-            "intro_iOS": "13.0",
-            "intro_tvOS": "13.0",
-            "intro_watchOS": "6.0",
-            "declAttributes": [
-              "Available",
-              "Available",
-              "Available",
-              "Available",
-              "Final",
-              "Nonisolated",
-              "Semantics"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UnownedSerialExecutor",
-                    "printedName": "_Concurrency.UnownedSerialExecutor",
-                    "usr": "s:Sce"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevg",
-                "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC",
-        "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC",
-        "moduleName": "YouVersionPlatformCore",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "BibleVersionCaching",
-            "printedName": "BibleVersionCaching",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Actor",
-            "printedName": "Actor",
-            "usr": "s:ScA",
-            "mangledName": "$sScA"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "VersionDiskCache",
-        "printedName": "VersionDiskCache",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "VersionDiskCache",
-                "printedName": "YouVersionPlatformCore.VersionDiskCache",
-                "usr": "s:22YouVersionPlatformCore0B9DiskCacheC"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheCACycfc",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheCACycfc",
-            "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.BibleVersion?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "BibleVersion",
-                    "printedName": "YouVersionPlatformCore.BibleVersion",
-                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC7version6withIdAA05BibleB0VSgSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC7version6withIdAA05BibleB0VSgSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "versionIsPresent",
-            "printedName": "versionIsPresent(for:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC16versionIsPresent3forSbSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC16versionIsPresent3forSbSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Nonisolated"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addVersion",
-            "printedName": "addVersion(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC03addB0yyAA05BibleB0VYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC03addB0yyAA05BibleB0VYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC06removeB06withIdySi_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC06removeB06withIdySi_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeUnpermittedVersions",
-            "printedName": "removeUnpermittedVersions(permittedIds:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Set",
-                "printedName": "Swift.Set<Swift.Int>",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "usr": "s:Sh"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "unownedExecutor",
-            "printedName": "unownedExecutor",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnownedSerialExecutor",
-                "printedName": "_Concurrency.UnownedSerialExecutor",
-                "usr": "s:Sce"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevp",
-            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "intro_Macosx": "10.15",
-            "intro_iOS": "13.0",
-            "intro_tvOS": "13.0",
-            "intro_watchOS": "6.0",
-            "declAttributes": [
-              "Available",
-              "Available",
-              "Available",
-              "Available",
-              "Final",
-              "Nonisolated",
-              "Semantics"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UnownedSerialExecutor",
-                    "printedName": "_Concurrency.UnownedSerialExecutor",
-                    "usr": "s:Sce"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevg",
-                "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore0B9DiskCacheC",
-        "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC",
-        "moduleName": "YouVersionPlatformCore",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "BibleVersionCaching",
-            "printedName": "BibleVersionCaching",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Actor",
-            "printedName": "Actor",
-            "usr": "s:ScA",
-            "mangledName": "$sScA"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "VersionDownloadCache",
-        "printedName": "VersionDownloadCache",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "VersionDownloadCache",
-                "printedName": "YouVersionPlatformCore.VersionDownloadCache",
-                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheCACycfc",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheCACycfc",
-            "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "versionIsPresent",
-            "printedName": "versionIsPresent(for:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC16versionIsPresent3forSbSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC16versionIsPresent3forSbSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "Nonisolated"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "version",
-            "printedName": "version(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.BibleVersion?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "BibleVersion",
-                    "printedName": "YouVersionPlatformCore.BibleVersion",
-                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC7version6withIdAA05BibleB0VSgSi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC7version6withIdAA05BibleB0VSgSi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addVersion",
-            "printedName": "addVersion(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "BibleVersion",
-                "printedName": "YouVersionPlatformCore.BibleVersion",
-                "usr": "s:22YouVersionPlatformCore05BibleB0V"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC03addB0yyAA05BibleB0VYaF",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC03addB0yyAA05BibleB0VYaF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeVersion",
-            "printedName": "removeVersion(withId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC06removeB06withIdySi_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC06removeB06withIdySi_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeUnpermittedVersions",
-            "printedName": "removeUnpermittedVersions(permittedIds:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Set",
-                "printedName": "Swift.Set<Swift.Int>",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "usr": "s:Sh"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tF",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tF",
-            "moduleName": "YouVersionPlatformCore",
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "downloadedVersions",
-            "printedName": "downloadedVersions",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[Swift.Int]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvpZ",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvpZ",
-            "moduleName": "YouVersionPlatformCore",
-            "static": true,
-            "declAttributes": [
-              "Final"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Array",
-                    "printedName": "[Swift.Int]",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      }
-                    ],
-                    "usr": "s:Sa"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvgZ",
-                "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvgZ",
-                "moduleName": "YouVersionPlatformCore",
-                "static": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "unownedExecutor",
-            "printedName": "unownedExecutor",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnownedSerialExecutor",
-                "printedName": "_Concurrency.UnownedSerialExecutor",
-                "usr": "s:Sce"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevp",
-            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "intro_Macosx": "10.15",
-            "intro_iOS": "13.0",
-            "intro_tvOS": "13.0",
-            "intro_watchOS": "6.0",
-            "declAttributes": [
-              "Available",
-              "Available",
-              "Available",
-              "Available",
-              "Final",
-              "Nonisolated",
-              "Semantics"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UnownedSerialExecutor",
-                    "printedName": "_Concurrency.UnownedSerialExecutor",
-                    "usr": "s:Sce"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevg",
-                "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC",
-        "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC",
-        "moduleName": "YouVersionPlatformCore",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "BibleVersionCaching",
-            "printedName": "BibleVersionCaching",
-            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
-            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Actor",
-            "printedName": "Actor",
-            "usr": "s:ScA",
-            "mangledName": "$sScA"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "BibleVersionRepository",
         "printedName": "BibleVersionRepository",
         "children": [
@@ -18432,6 +17544,24 @@
           {
             "kind": "Constructor",
             "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersionRepository",
+                "printedName": "YouVersionPlatformCore.BibleVersionRepository",
+                "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Convenience"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
             "printedName": "init(apiClient:memoryCache:diskCache:downloadCache:)",
             "children": [
               {
@@ -18473,7 +17603,11 @@
             "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC9apiClient11memoryCache04diskJ008downloadJ0AcA0eB9APIClient_p_AA0eB7Caching_pAaI_pAaI_ptcfc",
             "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC9apiClient11memoryCache04diskJ008downloadJ0AcA0eB9APIClient_p_AA0eB7Caching_pAaI_pAaI_ptcfc",
             "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "init_kind": "Convenience"
           },
           {
             "kind": "Function",
@@ -18535,6 +17669,30 @@
           },
           {
             "kind": "Function",
+            "name": "containsVersion",
+            "printedName": "containsVersion(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC08containsB06withIdSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC08containsB06withIdSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "versionIsPresent",
             "printedName": "versionIsPresent(for:)",
             "children": [
@@ -18555,6 +17713,10 @@
             "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC16versionIsPresent3forSbSi_tF",
             "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC16versionIsPresent3forSbSi_tF",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "funcSelfKind": "NonMutating"
           },
           {
@@ -18876,6 +18038,125 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Var",
+            "name": "downloadedVersionIds",
+            "printedName": "downloadedVersionIds",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC010downloadedB3IdsSaySiGvp",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC010downloadedB3IdsSaySiGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.Int]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC010downloadedB3IdsSaySiGvg",
+                "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC010downloadedB3IdsSaySiGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "defaultDownloadedVersionIds",
+            "printedName": "defaultDownloadedVersionIds",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC017defaultDownloadedB3IdsSaySiGvpZ",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC017defaultDownloadedB3IdsSaySiGvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "isInternal": true,
+            "declAttributes": [
+              "Final"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.Int]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC017defaultDownloadedB3IdsSaySiGvgZ",
+                "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC017defaultDownloadedB3IdsSaySiGvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isInternal": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "removeVersion",
             "printedName": "removeVersion(withId:)",
@@ -18989,6 +18270,7 @@
         "usr": "s:22YouVersionPlatformCore05BibleB10RepositoryC",
         "mangledName": "$s22YouVersionPlatformCore05BibleB10RepositoryC",
         "moduleName": "YouVersionPlatformCore",
+        "hasMissingDesignatedInitializers": true,
         "conformances": [
           {
             "kind": "Conformance",
@@ -19031,6 +18313,1545 @@
             "printedName": "BibleVersionRepositoryProtocol",
             "usr": "s:22YouVersionPlatformCore05BibleB18RepositoryProtocolP",
             "mangledName": "$s22YouVersionPlatformCore05BibleB18RepositoryProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Actor",
+            "printedName": "Actor",
+            "usr": "s:ScA",
+            "mangledName": "$sScA"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleVersionAPIClient",
+        "printedName": "BibleVersionAPIClient",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP7version6withIdAA0eB0VSi_tYaKF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP7version6withIdAA0eB0VSi_tYaKF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionAPIClient>",
+            "protocolReq": true,
+            "throwing": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP",
+        "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP",
+        "moduleName": "YouVersionPlatformCore",
+        "genericSig": "<Self : Swift.Sendable>",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleVersionCaching",
+        "printedName": "BibleVersionCaching",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleVersion?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP7version6withIdAA0eB0VSgSi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP7version6withIdAA0eB0VSgSi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addVersion",
+            "printedName": "addVersion(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP03addB0yyAA0eB0VYaF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP03addB0yyAA0eB0VYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP06removeB06withIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP06removeB06withIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "versionIsPresent",
+            "printedName": "versionIsPresent(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP16versionIsPresent3forSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP16versionIsPresent3forSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUnpermittedVersions",
+            "printedName": "removeUnpermittedVersions(permittedIds:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "genericSig": "<Self where Self : YouVersionPlatformCore.BibleVersionCaching>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
+        "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP",
+        "moduleName": "YouVersionPlatformCore",
+        "genericSig": "<Self : Swift.Sendable>",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "VersionClient",
+        "printedName": "VersionClient",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "VersionClient",
+                "printedName": "YouVersionPlatformCore.VersionClient",
+                "usr": "s:22YouVersionPlatformCore0B6ClientC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0B6ClientCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore0B6ClientCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B6ClientC7version6withIdAA05BibleB0VSi_tYaKF",
+            "mangledName": "$s22YouVersionPlatformCore0B6ClientC7version6withIdAA05BibleB0VSi_tYaKF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Final"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore0B6ClientC",
+        "mangledName": "$s22YouVersionPlatformCore0B6ClientC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Final",
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "BibleVersionAPIClient",
+            "printedName": "BibleVersionAPIClient",
+            "usr": "s:22YouVersionPlatformCore05BibleB9APIClientP",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB9APIClientP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "VersionMemoryCache",
+        "printedName": "VersionMemoryCache",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "VersionMemoryCache",
+                "printedName": "YouVersionPlatformCore.VersionMemoryCache",
+                "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleVersion?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "versionIsPresent",
+            "printedName": "versionIsPresent(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC16versionIsPresent3forSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC16versionIsPresent3forSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addVersion",
+            "printedName": "addVersion(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC03addB0yyAA05BibleB0VYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC03addB0yyAA05BibleB0VYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC06removeB06withIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC06removeB06withIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUnpermittedVersions",
+            "printedName": "removeUnpermittedVersions(permittedIds:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "unownedExecutor",
+            "printedName": "unownedExecutor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnownedSerialExecutor",
+                "printedName": "_Concurrency.UnownedSerialExecutor",
+                "usr": "s:Sce"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevp",
+            "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "implicit": true,
+            "intro_Macosx": "10.15",
+            "intro_iOS": "13.0",
+            "intro_tvOS": "13.0",
+            "intro_watchOS": "6.0",
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Final",
+              "Nonisolated",
+              "Semantics"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UnownedSerialExecutor",
+                    "printedName": "_Concurrency.UnownedSerialExecutor",
+                    "usr": "s:Sce"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevg",
+                "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC15unownedExecutorScevg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore0B11MemoryCacheC",
+        "mangledName": "$s22YouVersionPlatformCore0B11MemoryCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "BibleVersionCaching",
+            "printedName": "BibleVersionCaching",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Actor",
+            "printedName": "Actor",
+            "usr": "s:ScA",
+            "mangledName": "$sScA"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "VersionDiskCache",
+        "printedName": "VersionDiskCache",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "VersionDiskCache",
+                "printedName": "YouVersionPlatformCore.VersionDiskCache",
+                "usr": "s:22YouVersionPlatformCore0B9DiskCacheC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleVersion?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "versionIsPresent",
+            "printedName": "versionIsPresent(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC16versionIsPresent3forSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC16versionIsPresent3forSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addVersion",
+            "printedName": "addVersion(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC03addB0yyAA05BibleB0VYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC03addB0yyAA05BibleB0VYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC06removeB06withIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC06removeB06withIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUnpermittedVersions",
+            "printedName": "removeUnpermittedVersions(permittedIds:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "unownedExecutor",
+            "printedName": "unownedExecutor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnownedSerialExecutor",
+                "printedName": "_Concurrency.UnownedSerialExecutor",
+                "usr": "s:Sce"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevp",
+            "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "implicit": true,
+            "intro_Macosx": "10.15",
+            "intro_iOS": "13.0",
+            "intro_tvOS": "13.0",
+            "intro_watchOS": "6.0",
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Final",
+              "Nonisolated",
+              "Semantics"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UnownedSerialExecutor",
+                    "printedName": "_Concurrency.UnownedSerialExecutor",
+                    "usr": "s:Sce"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevg",
+                "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC15unownedExecutorScevg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore0B9DiskCacheC",
+        "mangledName": "$s22YouVersionPlatformCore0B9DiskCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "BibleVersionCaching",
+            "printedName": "BibleVersionCaching",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Actor",
+            "printedName": "Actor",
+            "usr": "s:ScA",
+            "mangledName": "$sScA"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "VersionDownloadCache",
+        "printedName": "VersionDownloadCache",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "VersionDownloadCache",
+                "printedName": "YouVersionPlatformCore.VersionDownloadCache",
+                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheCACycfc",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheCACycfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "versionIsPresent",
+            "printedName": "versionIsPresent(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC16versionIsPresent3forSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC16versionIsPresent3forSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "version",
+            "printedName": "version(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleVersion?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleVersion",
+                    "printedName": "YouVersionPlatformCore.BibleVersion",
+                    "usr": "s:22YouVersionPlatformCore05BibleB0V"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC7version6withIdAA05BibleB0VSgSi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addVersion",
+            "printedName": "addVersion(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleVersion",
+                "printedName": "YouVersionPlatformCore.BibleVersion",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC03addB0yyAA05BibleB0VYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC03addB0yyAA05BibleB0VYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(withId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC06removeB06withIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC06removeB06withIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUnpermittedVersions",
+            "printedName": "removeUnpermittedVersions(permittedIds:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC25removeUnpermittedVersions12permittedIdsyShySiG_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "downloadedVersions",
+            "printedName": "downloadedVersions",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "Final"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.Int]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC18downloadedVersionsSaySiGvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "unownedExecutor",
+            "printedName": "unownedExecutor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnownedSerialExecutor",
+                "printedName": "_Concurrency.UnownedSerialExecutor",
+                "usr": "s:Sce"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevp",
+            "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "implicit": true,
+            "intro_Macosx": "10.15",
+            "intro_iOS": "13.0",
+            "intro_tvOS": "13.0",
+            "intro_watchOS": "6.0",
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Final",
+              "Nonisolated",
+              "Semantics"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UnownedSerialExecutor",
+                    "printedName": "_Concurrency.UnownedSerialExecutor",
+                    "usr": "s:Sce"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevg",
+                "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC15unownedExecutorScevg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore0B13DownloadCacheC",
+        "mangledName": "$s22YouVersionPlatformCore0B13DownloadCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "BibleVersionCaching",
+            "printedName": "BibleVersionCaching",
+            "usr": "s:22YouVersionPlatformCore05BibleB7CachingP",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB7CachingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Actor",
+            "printedName": "Actor",
+            "usr": "s:ScA",
+            "mangledName": "$sScA"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterDiskCache",
+        "printedName": "ChapterDiskCache",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(versionId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC06removeB09versionIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC06removeB09versionIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "unownedExecutor",
+            "printedName": "unownedExecutor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnownedSerialExecutor",
+                "printedName": "_Concurrency.UnownedSerialExecutor",
+                "usr": "s:Sce"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevp",
+            "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "implicit": true,
+            "intro_Macosx": "10.15",
+            "intro_iOS": "13.0",
+            "intro_tvOS": "13.0",
+            "intro_watchOS": "6.0",
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Final",
+              "Nonisolated",
+              "Semantics"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UnownedSerialExecutor",
+                    "printedName": "_Concurrency.UnownedSerialExecutor",
+                    "usr": "s:Sce"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevg",
+                "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC15unownedExecutorScevg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore16ChapterDiskCacheC",
+        "mangledName": "$s22YouVersionPlatformCore16ChapterDiskCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Actor",
+            "printedName": "Actor",
+            "usr": "s:ScA",
+            "mangledName": "$sScA"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterDownloadCache",
+        "printedName": "ChapterDownloadCache",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "chaptersArePresent",
+            "printedName": "chaptersArePresent(versionId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC18chaptersArePresent9versionIdSbSi_tF",
+            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC18chaptersArePresent9versionIdSbSi_tF",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeVersion",
+            "printedName": "removeVersion(versionId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC06removeB09versionIdySi_tYaF",
+            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC06removeB09versionIdySi_tYaF",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "unownedExecutor",
+            "printedName": "unownedExecutor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnownedSerialExecutor",
+                "printedName": "_Concurrency.UnownedSerialExecutor",
+                "usr": "s:Sce"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevp",
+            "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "implicit": true,
+            "intro_Macosx": "10.15",
+            "intro_iOS": "13.0",
+            "intro_tvOS": "13.0",
+            "intro_watchOS": "6.0",
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Available",
+              "Final",
+              "Nonisolated",
+              "Semantics"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UnownedSerialExecutor",
+                    "printedName": "_Concurrency.UnownedSerialExecutor",
+                    "usr": "s:Sce"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevg",
+                "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC15unownedExecutorScevg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:22YouVersionPlatformCore20ChapterDownloadCacheC",
+        "mangledName": "$s22YouVersionPlatformCore20ChapterDownloadCacheC",
+        "moduleName": "YouVersionPlatformCore",
+        "deprecated": true,
+        "declAttributes": [
+          "Available"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
           },
           {
             "kind": "Conformance",
@@ -20182,6 +21003,170 @@
           },
           {
             "kind": "Var",
+            "name": "permittedLanguageTags",
+            "printedName": "permittedLanguageTags",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Set<Swift.String>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV21permittedLanguageTagsShySSGSgvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV21permittedLanguageTagsShySSGSgvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Nonisolated",
+              "SetterAccess",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Set<Swift.String>?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Swift.String>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV21permittedLanguageTagsShySSGSgvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV21permittedLanguageTagsShySSGSgvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "permittedVersionIds",
+            "printedName": "permittedVersionIds",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Set<Swift.Int>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV09permittedB3IdsShySiGSgvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV09permittedB3IdsShySiGSgvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Nonisolated",
+              "SetterAccess",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Set<Swift.Int>?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Swift.Int>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV09permittedB3IdsShySiGSgvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV09permittedB3IdsShySiGSgvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "installId",
             "printedName": "installId",
             "children": [
@@ -20249,7 +21234,7 @@
           {
             "kind": "Function",
             "name": "configure",
-            "printedName": "configure(appKey:apiHost:appName:isSignInEnabled:signInPromptMessage:)",
+            "printedName": "configure(appKey:apiHost:appName:isSignInEnabled:signInPromptMessage:permittedLanguageTags:permittedVersionIds:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -20321,11 +21306,57 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Set<Swift.String>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Set<Swift.Int>?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessageySSSg_A2JSbAJtFZ",
-            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessageySSSg_A2JSbAJtFZ",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3IdsySSSg_A2LSbALShySSGSgShySiGSgtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3IdsySSSg_A2LSbALShySSGSgShySiGSgtFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "declAttributes": [
