@@ -72,7 +72,7 @@ extension BibleReaderViewModel {
         showingVerseActionsDrawer = false
     }
 
-    func handleScroll(offset: CGFloat) {
+    func handleScroll(offset: CGFloat, contentHeight: CGFloat) {
         guard !isChangingChapter else {
             return
         }
@@ -91,10 +91,18 @@ extension BibleReaderViewModel {
             }
         }
         lastScrollOffset = offset
-        minObservedOffset = min(minObservedOffset, offset)
+        self.contentHeight = contentHeight
 
-        if scrollViewHeight > 0
-            && minObservedOffset < -(scrollViewHeight * 1.5)
+        // The bottom of the content has come into view when the content's
+        // bottom edge (offset + contentHeight) is at or above the viewport's
+        // bottom edge (scrollViewHeight). The small epsilon absorbs subpixel
+        // rounding so we don't miss a fire by a hair.
+        let bottomEpsilon: CGFloat = 8
+        let bottomReached = scrollViewHeight > 0
+            && contentHeight > 0
+            && (offset + contentHeight) <= (scrollViewHeight + bottomEpsilon)
+
+        if bottomReached
             && version != nil
             && !hasNotifiedChapterComplete {
             hasNotifiedChapterComplete = true
@@ -104,7 +112,7 @@ extension BibleReaderViewModel {
 
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
-        minObservedOffset = 0
+        contentHeight = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {

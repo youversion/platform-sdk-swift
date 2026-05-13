@@ -50,9 +50,12 @@ public struct BibleReaderView: View {
     ///   - onReferenceChange: An optional closure called whenever the displayed
     ///     chapter reference changes — for example when the user taps the
     ///     next/previous chapter buttons or picks a new book/chapter from the header.
-    ///   - onChapterComplete: An optional closure called once when the user scrolls
-    ///     near the bottom of the chapter content. Fires at most once per chapter;
-    ///     resets when the reader navigates to a different chapter.
+    ///   - onChapterComplete: An optional closure called once when the bottom of
+    ///     the chapter content scrolls into the viewport — i.e. the reader has
+    ///     reached the end of the chapter. For chapters shorter than the
+    ///     viewport, this fires as soon as the chapter is displayed. Fires at
+    ///     most once per chapter; resets when the reader navigates to a
+    ///     different chapter.
     ///   - audioActiveReference: The verse currently being narrated by audio
     ///     playback. When this value changes, the reader auto-scrolls to keep
     ///     the active verse visible. Pass `nil` when audio is not playing.
@@ -318,10 +321,10 @@ public struct BibleReaderView: View {
                     .padding(.vertical)
                     .padding(.horizontal, 30)
                     .id("topOfContent")
-                    .onGeometryChange(for: CGFloat.self) { proxy in
-                        proxy.frame(in: .named("scrollView")).minY
-                    } action: { newOffset in
-                        viewModel.handleScroll(offset: newOffset)
+                    .onGeometryChange(for: CGRect.self) { proxy in
+                        proxy.frame(in: .named("scrollView"))
+                    } action: { newFrame in
+                        viewModel.handleScroll(offset: newFrame.minY, contentHeight: newFrame.height)
                     }
                 } else {
                     ProgressView()
