@@ -91,13 +91,10 @@ extension BibleReaderViewModel {
             }
         }
         lastScrollOffset = offset
-        maxObservedOffset = max(maxObservedOffset, offset)
+        minObservedOffset = min(minObservedOffset, offset)
 
-        let bottomThreshold: CGFloat = 100
         if scrollViewHeight > 0
-            && maxObservedOffset > scrollViewHeight * 1.5
-            && offset > 0
-            && offset <= scrollViewHeight + bottomThreshold
+            && minObservedOffset < -(scrollViewHeight * 1.5)
             && version != nil
             && !hasNotifiedChapterComplete {
             hasNotifiedChapterComplete = true
@@ -107,7 +104,7 @@ extension BibleReaderViewModel {
 
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
-        maxObservedOffset = 0
+        minObservedOffset = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {

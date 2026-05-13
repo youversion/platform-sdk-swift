@@ -33,7 +33,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     let audioActiveIndicatorColor: Color?
     private let authentication: BibleReaderAuthentication
     var scrollViewHeight: CGFloat = 0
-    var maxObservedOffset: CGFloat = 0
+    var minObservedOffset: CGFloat = 0
     var hasNotifiedChapterComplete = false
 
     // MARK: - UI state of the Reader itself
