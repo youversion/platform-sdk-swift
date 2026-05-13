@@ -44,13 +44,14 @@ import Testing
         viewModel.handleScroll(offset: -200, contentHeight: 2000)
         #expect(completedReference == nil)
 
-        // Scrolled by -1200, the bottom of content is at 2000 - 1200 = 800 ≤ 800 → fires.
+        // Scrolled by -1200, the bottom of content is at 2000 - 1200 = 800 ≤ 800.
+        // contentHeight has been stable at 2000 across two events → fires.
         viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         #expect(completedReference == reference)
     }
 
     @Test
-    func handleScrollFiresChapterCompleteImmediatelyForShortContent() {
+    func handleScrollFiresChapterCompleteForShortContentOnceHeightIsStable() {
         var completedReference: BibleReference?
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
         let viewModel = Support.makeViewModel(
@@ -60,9 +61,43 @@ import Testing
         viewModel.scrollViewHeight = 800
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        // Content shorter than the viewport: the bottom is already visible on first geometry event.
+        // First geometry event for short content: height is not yet stable
+        // (no prior observation), so the fire is suppressed.
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
+        #expect(completedReference == nil)
+
+        // Second event with the same height: layout has settled, fire allowed.
         viewModel.handleScroll(offset: 0, contentHeight: 400)
         #expect(completedReference == reference)
+    }
+
+    @Test
+    func handleScrollSuppressesChapterCompleteDuringAsyncContentLoad() {
+        // Reproduces the bug where onChapterComplete fired on initial open of
+        // a long chapter: BibleTextView starts with empty blocks and lays out
+        // tiny, then text loads and content grows past the viewport. We must
+        // not fire during the tiny-initial-layout window.
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        // Initial layout: copyright block only, fits in viewport.
+        viewModel.handleScroll(offset: 0, contentHeight: 120)
+        #expect(callCount == 0)
+
+        // Text loads — content height jumps to its real (long) value.
+        viewModel.handleScroll(offset: 0, contentHeight: 3000)
+        #expect(callCount == 0)
+
+        // User has not scrolled yet; bottom is not reached.
+        viewModel.handleScroll(offset: 0, contentHeight: 3000)
+        #expect(callCount == 0)
+
+        // User scrolls to the end of the long chapter: 3000 - 2200 = 800 ≤ 800,
+        // height is stable, so the deferred fire is now delivered.
+        viewModel.handleScroll(offset: -2200, contentHeight: 3000)
+        #expect(callCount == 1)
     }
 
     @Test
@@ -87,13 +122,16 @@ import Testing
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
         viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         #expect(callCount == 1)
 
         viewModel.resetChapterCompleteTracking()
         // Sub-threshold scroll after reset must not fire.
         viewModel.handleScroll(offset: -100, contentHeight: 2000)
+        viewModel.handleScroll(offset: -100, contentHeight: 2000)
         #expect(callCount == 1)
 
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         viewModel.handleScroll(offset: -1200, contentHeight: 2000)
         #expect(callCount == 2)
     }
@@ -107,8 +145,9 @@ import Testing
         viewModel.isChangingChapter = true
         viewModel.showChrome = true
 
-        // Even though the bottom-of-content condition is met, no side effects
-        // fire while the chapter-change guard is active.
+        // Two consecutive stable-height events while the guard is active:
+        // geometry is recorded but no side effects fire.
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
         viewModel.handleScroll(offset: 0, contentHeight: 400)
 
         #expect(viewModel.showChrome)
