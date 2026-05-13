@@ -99,16 +99,27 @@ import Testing
     }
 
     @Test
-    func handleScrollDoesNothingWhileChangingChapter() {
-        let viewModel = Support.makeViewModel()
+    func handleScrollSkipsSideEffectsButRecordsGeometryWhileChangingChapter() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
         viewModel.isChangingChapter = true
-        viewModel.lastScrollOffset = -30
         viewModel.showChrome = true
 
-        viewModel.handleScroll(offset: -100, contentHeight: 2000)
+        // Even though the bottom-of-content condition is met, no side effects
+        // fire while the chapter-change guard is active.
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
 
-        #expect(viewModel.lastScrollOffset == -30)
         #expect(viewModel.showChrome)
+        #expect(callCount == 0)
+
+        // The geometry was recorded, so the moment the guard clears, the
+        // didSet on isChangingChapter re-evaluates and fires onChapterComplete.
+        // This is what allows short chapters reached via prev/next to fire
+        // without requiring any user scroll.
+        viewModel.isChangingChapter = false
+        #expect(callCount == 1)
     }
 
     @Test

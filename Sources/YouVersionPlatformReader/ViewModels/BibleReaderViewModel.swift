@@ -40,7 +40,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showChrome = true
     var lastScrollOffset: CGFloat = 0
     var scrollToTop = false
-    var isChangingChapter = false
+    var isChangingChapter = false {
+        didSet {
+            // When a chapter-change finishes, re-evaluate using cached geometry
+            // so short chapters reached via prev/next still fire onChapterComplete
+            // without requiring the user to scroll.
+            if oldValue && !isChangingChapter {
+                evaluateChapterCompleteFromCachedGeometry()
+            }
+        }
+    }
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
