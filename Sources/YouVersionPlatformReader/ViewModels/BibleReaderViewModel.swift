@@ -34,6 +34,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private let authentication: BibleReaderAuthentication
     var scrollViewHeight: CGFloat = 0
     var contentHeight: CGFloat = 0
+    /// The contentHeight reported by the previous geometry event for the
+    /// current chapter. Used to detect when layout has settled: chapter
+    /// completion only fires once contentHeight matches across two events,
+    /// so the brief initial layout pass (small `blocks: []` placeholder
+    /// before the chapter text loads) can't spuriously satisfy the bottom-
+    /// reached check.
+    var previousContentHeight: CGFloat = 0
     var hasNotifiedChapterComplete = false
 
     // MARK: - UI state of the Reader itself

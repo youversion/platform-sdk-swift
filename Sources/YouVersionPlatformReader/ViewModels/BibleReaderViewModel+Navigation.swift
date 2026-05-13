@@ -81,6 +81,7 @@ extension BibleReaderViewModel {
         // scroll events to populate it.
         let previousScrollOffset = lastScrollOffset
         lastScrollOffset = offset
+        previousContentHeight = self.contentHeight
         self.contentHeight = contentHeight
 
         guard !isChangingChapter else {
@@ -117,7 +118,16 @@ extension BibleReaderViewModel {
             && contentHeight > 0
             && (lastScrollOffset + contentHeight) <= (scrollViewHeight + bottomEpsilon)
 
+        // Require contentHeight to be stable across two consecutive geometry
+        // events. BibleTextView loads its blocks asynchronously, so the first
+        // layout pass reports a small contentHeight (just the copyright block
+        // and padding) that can spuriously satisfy the bottom-reached check.
+        // Waiting for a stable height ensures we only fire once the chapter
+        // text has actually rendered.
+        let heightIsStable = contentHeight == previousContentHeight
+
         if bottomReached
+            && heightIsStable
             && version != nil
             && !hasNotifiedChapterComplete
             && !isChangingChapter {
@@ -129,6 +139,7 @@ extension BibleReaderViewModel {
     func resetChapterCompleteTracking() {
         hasNotifiedChapterComplete = false
         contentHeight = 0
+        previousContentHeight = 0
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
