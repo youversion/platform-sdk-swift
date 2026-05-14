@@ -93,18 +93,23 @@ extension BibleReaderViewModel {
         lastScrollOffset = offset
     }
 
-    func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
+    func handleVerseTap(
+        reference: BibleReference,
+        actionType: String,
+        footnotes: [BibleFootnote],
+        onVerseTap: ((BibleReference) -> Void)? = nil
+    ) {
         if actionType == BibleVersionRendering.LinkSchemes.footnote.rawValue {
             showingFootnotes = true
             footnotesToDisplay = footnotes
             return
         }
-        
-        if let onVerseTap {
-            onVerseTap(reference)
+
+        if onVerseTap != nil {
+            onVerseTap?(reference)
             return
         }
-        
+
         if isSignedIn {
             if selectedVerses.contains(reference) {
                 selectedVerses.remove(reference)

@@ -62,11 +62,42 @@ import Testing
     func handleVerseTapUsesCustomVerseTapHandlerBeforeSelection() {
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         var tappedReference: BibleReference?
-        let viewModel = Support.makeViewModel(onVerseTap: { tappedReference = $0 })
+        let viewModel = Support.makeViewModel()
 
-        viewModel.handleVerseTap(reference: reference, actionType: "", footnotes: [])
+        viewModel.handleVerseTap(
+            reference: reference,
+            actionType: "",
+            footnotes: [],
+            onVerseTap: { tappedReference = $0 }
+        )
 
         #expect(tappedReference == reference)
+        #expect(viewModel.selectedVerses.isEmpty)
+        #expect(viewModel.showingVerseActionsDrawer == false)
+    }
+
+    @Test
+    func handleVerseTapUsesCurrentVerseTapHandlerBeforeSelection() {
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        var tappedReferences: [BibleReference] = []
+        let viewModel = Support.makeViewModel()
+
+        viewModel.handleVerseTap(
+            reference: reference,
+            actionType: "",
+            footnotes: [],
+            onVerseTap: { _ in }
+        )
+
+        let updatedReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
+        viewModel.handleVerseTap(
+            reference: updatedReference,
+            actionType: "",
+            footnotes: [],
+            onVerseTap: { tappedReferences.append($0) }
+        )
+
+        #expect(tappedReferences == [updatedReference])
         #expect(viewModel.selectedVerses.isEmpty)
         #expect(viewModel.showingVerseActionsDrawer == false)
     }

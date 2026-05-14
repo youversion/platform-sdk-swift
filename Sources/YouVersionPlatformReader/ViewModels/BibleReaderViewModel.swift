@@ -25,9 +25,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     let highlightsViewModel: BibleHighlightsViewModel
     let versionsViewModel: BibleVersionsViewModel
     var version: BibleVersion? { versionsViewModel.currentVersion }
-    let onVerseTap: ((BibleReference) -> Void)?
-    let verseSelectionStyle: VerseSelectionStyle
+    var verseSelectionStyle: VerseSelectionStyle
     private let authentication: BibleReaderAuthentication
+    private let shouldLoadVersionsViewModel: Bool
+    private var hasConfiguredInitialState: Bool
 
     // MARK: - UI state of the Reader itself
     var showChrome = true
@@ -69,7 +70,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
         versionsViewModel: BibleVersionsViewModel? = nil,
-        onVerseTap: ((BibleReference) -> Void)? = nil,
+        loadInitialState: Bool = true,
         authentication: BibleReaderAuthentication? = nil
     ) {
         let authentication = authentication ?? .default
@@ -89,12 +90,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             }
         }
 
-        self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
         self.authentication = authentication
         self.isSignedIn = authentication.isSignedIn
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        let shouldLoadVersionsViewModel = versionsViewModel == nil
+        self.shouldLoadVersionsViewModel = versionsViewModel == nil
+        self.hasConfiguredInitialState = loadInitialState
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
         self.versionsViewModel.onSignInRequired = { [weak self] in
             self?.onSignInRequired()
@@ -105,14 +106,35 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
         ReaderFonts.installFontsIfNeeded()
 
-        if shouldLoadVersionsViewModel {
-            let initialVersionId = self.reference.versionId
-            Task { [weak self] in
-                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
-            }
+        if loadInitialState {
+            loadVersionsViewModelInitialStateIfNeeded()
         }
 
         observeCurrentVersion()
+    }
+
+    /// Applies the view's initial inputs and starts version loading once.
+    func configureInitialStateIfNeeded(reference: BibleReference?, verseSelectionStyle: VerseSelectionStyle) {
+        guard !hasConfiguredInitialState else {
+            return
+        }
+        hasConfiguredInitialState = true
+        self.verseSelectionStyle = verseSelectionStyle
+        if let reference {
+            self.reference = reference
+            self.showBookIntro = false
+        }
+        loadVersionsViewModelInitialStateIfNeeded()
+    }
+
+    private func loadVersionsViewModelInitialStateIfNeeded() {
+        guard shouldLoadVersionsViewModel else {
+            return
+        }
+        let initialVersionId = reference.versionId
+        Task { [weak self] in
+            await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
+        }
     }
 
     // Reacts to BibleVersionsViewModel.currentVersion changes by updating

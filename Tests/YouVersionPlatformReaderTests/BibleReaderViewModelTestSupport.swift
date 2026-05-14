@@ -66,7 +66,6 @@ enum BibleReaderViewModelTestSupport {
         reference: BibleReference? = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1),
         highlightsRepository: MockBibleHighlightsRepository = MockBibleHighlightsRepository(),
         versionRepository: any BibleVersionRepositoryProtocol = MockBibleVersionRepository(),
-        onVerseTap: ((BibleReference) -> Void)? = nil,
         isSignedIn: Bool = false,
         hasValidToken: Bool? = nil,
         signOut: @escaping @MainActor () -> Void = {}
@@ -85,7 +84,6 @@ enum BibleReaderViewModelTestSupport {
             reference: reference,
             highlightsViewModel: highlightsViewModel,
             versionsViewModel: versionsViewModel,
-            onVerseTap: onVerseTap,
             authentication: authentication
         )
     }
