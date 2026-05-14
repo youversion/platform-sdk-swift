@@ -4,7 +4,7 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
-    @State private var viewModel: BibleReaderViewModel
+    @StateObject private var viewModelStore: BibleReaderViewModelStore
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -40,7 +40,11 @@ public struct BibleReaderView: View {
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        _viewModelStore = StateObject(wrappedValue: BibleReaderViewModelStore(
+            reference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap
+        ))
         detents = [fontSettingsDetent, fontListDetent]
         selectedDetent = fontSettingsDetent
     }
@@ -64,6 +68,8 @@ public struct BibleReaderView: View {
     }
 
     public var body: some View {
+        @Bindable var bindableViewModel = viewModel
+
         VStack(spacing: 0) {
             header
             Spacer()
@@ -88,31 +94,31 @@ public struct BibleReaderView: View {
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
             String.localized("signOut.question"),
-            isPresented: $viewModel.showSignOutConfirmation
+            isPresented: $bindableViewModel.showSignOutConfirmation
         ) {
             Button(String.localized("button.signOut"), role: .destructive) { viewModel.confirmSignOut() }
             Button(String.localized("generic.cancel"), role: .cancel) { }
         } message: {
             Text(String.localized("signOut.explanation"))
         }
-        .sheet(isPresented: $viewModel.showingFontSettings, content: {
+        .sheet(isPresented: $bindableViewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
-        .sheet(isPresented: $viewModel.showingFootnotes, content: {
+        .sheet(isPresented: $bindableViewModel.showingFootnotes, content: {
             BibleReaderFootnotesView()
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .presentationBackground(viewModel.readerCanvasPrimaryColor)
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.medium, .large])
         })
-        .sheet(isPresented: $viewModel.showingIntroFootnoteSheet, content: {
+        .sheet(isPresented: $bindableViewModel.showingIntroFootnoteSheet, content: {
             BibleReaderIntroFootnoteView()
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .presentationBackground(viewModel.readerCanvasPrimaryColor)
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.height(250), .medium, .large])
         })
-        .sheet(isPresented: $viewModel.showingSignInSheet) {
+        .sheet(isPresented: $bindableViewModel.showingSignInSheet) {
             signInView
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
@@ -128,6 +134,11 @@ public struct BibleReaderView: View {
     }
 
     // MARK: - Helper views
+
+    private var viewModel: BibleReaderViewModel {
+        viewModelStore.viewModel
+    }
+
     private var header: some View {
         HStack {
             if viewModel.version != nil {
@@ -224,7 +235,9 @@ public struct BibleReaderView: View {
     }
 
     private var mainScroller: some View {
-        ScrollViewReader { scrollProxy in
+        @Bindable var bindableViewModel = viewModel
+
+        return ScrollViewReader { scrollProxy in
             ScrollView {
                 if viewModel.version != nil {
                     VStack(alignment: .leading) {
@@ -234,7 +247,7 @@ public struct BibleReaderView: View {
                             BibleTextView(
                                 viewModel.reference,
                                 textOptions: viewModel.textOptions,
-                                selectedVerses: $viewModel.selectedVerses,
+                                selectedVerses: $bindableViewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
                                 }
@@ -289,6 +302,25 @@ public struct BibleReaderView: View {
         }
     }
 #endif
+
+    // `@StateObject` owns this store so SwiftUI rebuilds of `BibleReaderView`
+    // do not create extra reader models and launch duplicate model tasks.
+    @MainActor
+    private final class BibleReaderViewModelStore: ObservableObject {
+        let viewModel: BibleReaderViewModel
+
+        init(
+            reference: BibleReference?,
+            verseSelectionStyle: VerseSelectionStyle,
+            onVerseTap: ((BibleReference) -> Void)?
+        ) {
+            viewModel = BibleReaderViewModel(
+                reference: reference,
+                verseSelectionStyle: verseSelectionStyle,
+                onVerseTap: onVerseTap
+            )
+        }
+    }
 
     // MARK: - Action handlers
 
