@@ -364,6 +364,39 @@
         }
       }
     },
+    "dataExchange.continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "dataExchange.highlights.explanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouVersion will ask you to grant access before highlights can be saved."
+          }
+        }
+      }
+    },
+    "dataExchange.highlights.question" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow this app to save highlights with YouVersion?"
+          }
+        }
+      }
+    },
     "generic.back" : {
       "extractionState" : "manual",
       "localizations" : {

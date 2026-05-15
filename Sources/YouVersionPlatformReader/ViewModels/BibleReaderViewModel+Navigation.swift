@@ -149,8 +149,7 @@ extension BibleReaderViewModel {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
             return
         }
-        highlightsViewModel.addHighlights(references: Array(selectedVerses), color: hex)
-        removeVerseSelection()
+        addHighlightOrStartPermissionFlow(references: selectedVerses, color: hex)
     }
 
     func removeVerseColor(_ color: Color) {

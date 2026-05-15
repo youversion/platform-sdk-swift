@@ -61,8 +61,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
+    var showingDataExchangeConfirmation = false
+    var startDataExchangeFlow = false
     private(set) var isSignedIn: Bool
     var showSignOutConfirmation = false
+    private var pendingHighlight: PendingHighlight?
 
     init(
         reference: BibleReference? = nil,
@@ -245,6 +248,44 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         isSignedIn = await authentication.hasValidToken()
     }
 
+    /// Continues a pending highlight action after the user has completed sign-in.
+    func continuePendingHighlightAfterSignIn() {
+        guard pendingHighlight != nil, isSignedIn else {
+            return
+        }
+        if authentication.hasDataExchangePermission(.highlights) {
+            applyPendingHighlight()
+        } else {
+            showingDataExchangeConfirmation = true
+        }
+    }
+
+    /// Confirms the just-in-time data exchange prompt and starts the browser flow.
+    func confirmDataExchangePrompt() {
+        guard pendingHighlight != nil, isSignedIn else {
+            return
+        }
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = true
+    }
+
+    /// Cancels the just-in-time data exchange prompt without changing highlights.
+    func cancelDataExchangePrompt() {
+        clearPendingHighlight()
+    }
+
+    /// Completes the just-in-time data exchange browser flow.
+    func completeDataExchangeFlow(with result: DataExchangeRequestResult) {
+        startDataExchangeFlow = false
+        showingDataExchangeConfirmation = false
+        switch result {
+        case .granted:
+            applyPendingHighlight()
+        case .cancelled:
+            clearPendingHighlight()
+        }
+    }
+
     func signIn() {
         if isSignedIn {
             return
@@ -260,6 +301,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.signOut()
         highlightsViewModel.reset()
         isSignedIn = false
+        clearPendingHighlight()
     }
 
     private struct ReaderSettings: Codable {
@@ -267,5 +309,50 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         let fontSize: CGFloat?
         let lineSpacing: CGFloat?
         let colorTheme: Int?
+    }
+
+    private struct PendingHighlight {
+        let references: Set<BibleReference>
+        let color: String
+    }
+
+    /// Adds a highlight immediately or starts the just-in-time permission flow when needed.
+    func addHighlightOrStartPermissionFlow(references: Set<BibleReference>, color: String) {
+        guard !references.isEmpty else {
+            return
+        }
+        if !isSignedIn {
+            guard YouVersionPlatformConfiguration.isSignInEnabled else {
+                return
+            }
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            startSignInFlow = true
+            return
+        }
+        if authentication.hasDataExchangePermission(.highlights) {
+            applyHighlight(references: references, color: color)
+        } else {
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            showingDataExchangeConfirmation = true
+        }
+    }
+
+    private func applyPendingHighlight() {
+        guard let pendingHighlight else {
+            return
+        }
+        applyHighlight(references: pendingHighlight.references, color: pendingHighlight.color)
+        self.pendingHighlight = nil
+    }
+
+    private func applyHighlight(references: Set<BibleReference>, color: String) {
+        highlightsViewModel.addHighlights(references: Array(references), color: color)
+        removeVerseSelection()
+    }
+
+    private func clearPendingHighlight() {
+        pendingHighlight = nil
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = false
     }
 }

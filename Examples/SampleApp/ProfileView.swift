@@ -4,6 +4,7 @@ import YouVersionPlatform
 struct ProfileView: View {
     @State private var contextProvider = ContextProvider()
     @State private var isSignedIn = false
+    @State private var dataExchangeStatus: String?
 
     var body: some View {
         VStack {
@@ -12,9 +13,19 @@ struct ProfileView: View {
                     .padding()
                 Text(YouVersionAPI.Users.currentUserName ?? "(no name)")
                 Text(YouVersionAPI.Users.currentUserEmail ?? "(no email)")
+                Button("Request highlights permission") {
+                    requestHighlightsPermission()
+                }
+                .padding(.top)
+                if let dataExchangeStatus {
+                    Text(dataExchangeStatus)
+                        .font(.footnote)
+                        .padding(.top, 4)
+                }
                 Button("Sign out") {
                     YouVersionAPI.Users.signOut()
                     isSignedIn = false
+                    dataExchangeStatus = nil
                 }
                 .padding(.top)
             } else {
@@ -25,6 +36,23 @@ struct ProfileView: View {
         }
         .onAppear {
             isSignedIn = YouVersionAPI.isSignedIn
+        }
+    }
+
+    func requestHighlightsPermission() {
+        Task {
+            do {
+                let session = DataExchangeSession(contextProvider: contextProvider)
+                let result = try await session.requestDataExchange(permissions: [.highlights])
+                dataExchangeStatus = switch result {
+                case .granted:
+                    "Highlights permission granted."
+                case .cancelled:
+                    "Highlights permission cancelled."
+                }
+            } catch {
+                dataExchangeStatus = "Highlights permission failed: \(error.localizedDescription)"
+            }
         }
     }
 

@@ -176,6 +176,39 @@ extension ConfigurationStateTests {
             #expect(YouVersionPlatformConfiguration.authData == nil)
             #expect(YouVersionPlatformConfiguration.accessToken == nil)
         }
+
+        // MARK: - Data exchange permissions
+
+        @Test func saveDataExchangePermissionPersistsPermission() async {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            await YouVersionPlatformConfiguration.saveDataExchangePermission(.highlights)
+
+            #expect(YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights))
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func hasDataExchangePermissionReturnsFalseWhenPermissionAbsent() async {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(!YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights))
+        }
+
+        @Test func hasDataExchangePermissionReturnsFalseForUnknownStoredPermission() async {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            UserDefaults.standard.set(["future-permission"], forKey: dataExchangePermissionsKey)
+
+            #expect(!YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights))
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func clearAuthTokensClearsDataExchangePermissions() async {
+            await YouVersionPlatformConfiguration.saveDataExchangePermission(.highlights)
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(!YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights))
+        }
         
         // MARK: - Top-level configure function
         
@@ -187,3 +220,5 @@ extension ConfigurationStateTests {
         }
     }
 }
+
+private let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"

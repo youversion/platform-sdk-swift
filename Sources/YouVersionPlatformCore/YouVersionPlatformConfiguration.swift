@@ -32,6 +32,11 @@ public struct YouVersionPlatformConfiguration {
     private static let refreshTokenKey = "YouVersionPlatformRefreshToken"
     private static let idTokenKey = "YouVersionPlatformIDToken"
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
+    private static let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
+
+    private static var savedDataExchangePermissions: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: dataExchangePermissionsKey) ?? [])
+    }
 
     @MainActor
     public static func configure(
@@ -86,10 +91,22 @@ public struct YouVersionPlatformConfiguration {
     @MainActor
     public static func clearAuthTokens() {
         saveAuthData(accessToken: nil, refreshToken: nil, idToken: nil, expiryDate: nil)
+        UserDefaults.standard.removeObject(forKey: dataExchangePermissionsKey)
     }
 
     public static var accessToken: String? {
         UserDefaults.standard.string(forKey: accessTokenKey)
+    }
+
+    /// Returns whether the user has granted a data exchange permission.
+    public static func hasDataExchangePermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+        savedDataExchangePermissions.contains(permission.rawValue)
+    }
+
+    /// Saves a data exchange permission granted by the user.
+    @MainActor
+    public static func saveDataExchangePermission(_ permission: SignInWithYouVersionPermission) {
+        saveDataExchangePermissions([permission])
     }
 
     public static var authData: SignInWithYouVersionResult? {
@@ -109,6 +126,13 @@ public struct YouVersionPlatformConfiguration {
             idToken: idToken,
             expiryDate: expiryDate
         )
+    }
+
+    @MainActor
+    private static func saveDataExchangePermissions(_ permissions: Set<SignInWithYouVersionPermission>) {
+        var rawValues = savedDataExchangePermissions
+        rawValues.formUnion(permissions.map(\.rawValue))
+        UserDefaults.standard.set(Array(rawValues).sorted(), forKey: dataExchangePermissionsKey)
     }
 
 }

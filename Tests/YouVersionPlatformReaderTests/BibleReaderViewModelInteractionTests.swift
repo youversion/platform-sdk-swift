@@ -106,7 +106,11 @@ import Testing
     func addAndRemoveVerseColorUpdateHighlightsForSelectedVerses() {
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
-        let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
+        let viewModel = Support.makeViewModel(
+            highlightsRepository: highlightsRepository,
+            isSignedIn: true,
+            hasDataExchangePermission: { $0 == .highlights }
+        )
         let firstReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
         let color = Color(hex: "#DDAAFF")

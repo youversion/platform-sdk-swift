@@ -38,6 +38,29 @@ public enum URLBuilder {
         return components.url
     }
 
+    public static func dataExchangeTokenURL(appKey: String?, appID: String? = nil) -> URL? {
+        var components = baseURLComponents
+        components.path = "/data-exchange/token"
+        let queryItems = [
+            appKey.map { URLQueryItem(name: "x-yvp-app-key", value: $0) },
+            appID.map { URLQueryItem(name: "x-yvp-app-id", value: $0) }
+        ].compactMap { $0 }
+        if !queryItems.isEmpty {
+            components.queryItems = queryItems
+        }
+        return components.url
+    }
+
+    public static func dataExchangeURL(token: String, appKey: String) -> URL? {
+        var components = baseURLComponents
+        components.path = "/data-exchange"
+        components.queryItems = [
+            URLQueryItem(name: "token", value: token),
+            URLQueryItem(name: "app_key", value: appKey)
+        ]
+        return components.url
+    }
+
     public static func organizationsURL(id: String) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/organizations/\(id)"

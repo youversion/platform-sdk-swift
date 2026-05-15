@@ -8,6 +8,7 @@ import Testing
         #expect(SignInWithYouVersionPermission.openid.rawValue == "openid")
         #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
         #expect(SignInWithYouVersionPermission.email.rawValue == "email")
+        #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
     }
 
     @Test func userInfoAvatarUrlFormatting() {

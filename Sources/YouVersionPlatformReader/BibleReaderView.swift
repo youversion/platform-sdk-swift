@@ -122,6 +122,15 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("signOut.explanation"))
         }
+        .alert(
+            String.localized("dataExchange.highlights.question"),
+            isPresented: $viewModel.showingDataExchangeConfirmation
+        ) {
+            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+        } message: {
+            Text(String.localized("dataExchange.highlights.explanation"))
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -145,6 +154,11 @@ private struct ReaderContent: View {
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             if newValue {
                 startSignIn()
+            }
+        }
+        .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
+            if newValue {
+                startDataExchange()
             }
         }
         .onChange(of: reduceMotion, initial: true) { _, newValue in
@@ -325,15 +339,33 @@ private struct ReaderContent: View {
             do {
                 viewModel.startSignInFlow = false
 #if !os(tvOS)
-                let result = try await YouVersionAPI.Users.signIn(
+                _ = try await YouVersionAPI.Users.signIn(
                     permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
-                dump(result)
 #endif
                 
                 await viewModel.updateSignInState()
+                viewModel.continuePendingHighlightAfterSignIn()
             } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+
+    private func startDataExchange() {
+        Task {
+            do {
+                viewModel.startDataExchangeFlow = false
+#if !os(tvOS)
+                let session = DataExchangeSession(contextProvider: contextProvider)
+#else
+                let session = DataExchangeSession()
+#endif
+                let result = try await session.requestDataExchange(permissions: [.highlights])
+                viewModel.completeDataExchangeFlow(with: result)
+            } catch {
+                viewModel.completeDataExchangeFlow(with: .cancelled)
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
         }
