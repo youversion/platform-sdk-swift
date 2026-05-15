@@ -50,17 +50,23 @@ jobs:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set +e
-          # On a PR, env-ci detects this branch (HEAD_REF) but it's not in the
-          # configured `branches: ["main"]` allowlist, so the analyzer bails.
-          # Override the allowlist for this invocation only with exactly one
-          # entry: the PR head branch. semantic-release then sees we're on a
-          # valid release branch and runs the full analysis against our merge
-          # base. `--no-ci` skips the refuse-on-PR check. The file config
-          # (`.releaserc.json`) is untouched, so real releases still only ship
-          # from `main`.
+          # Canonical workaround for running semantic-release --dry-run on a
+          # PR (see semantic-release discussions #1886 and #1937):
           #
-          # Why not `--branches '**'`? It expands to every branch in the repo
-          # and semantic-release rejects branch sets above 3.
+          #   1. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's on
+          #      GitHub Actions and to report the branch as `refs/pull/N/merge`.
+          #      With it gone, env-ci falls back to git-based branch detection
+          #      and sees us on the PR head branch.
+          #   2. Override the branches allowlist with just that head branch.
+          #      A single entry keeps us well under semantic-release's
+          #      max-3-release-branches validation.
+          #   3. --no-ci skips the refuse-on-PR check that runs even after
+          #      branch detection passes.
+          #
+          # The file config (`.releaserc.json`) is untouched, so real releases
+          # still only ship from `main`. actions/checkout uses the merge ref
+          # by default, which is what we want analyzed.
+          unset GITHUB_ACTIONS
           npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
