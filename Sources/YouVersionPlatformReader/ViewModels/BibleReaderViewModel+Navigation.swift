@@ -10,15 +10,15 @@ extension BibleReaderViewModel {
         isChangingChapter = true
         removeVerseSelection()
         if reference.chapter > 1 {
-            reference = BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter - 1)
+            reference = BibleReference(versionId: reference.versionId, bookId: reference.bookId, chapter: reference.chapter - 1)
         } else {
-            if let books = version.books, let bookIndex = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
+            if let books = version.books, let bookIndex = books.firstIndex(where: { $0.id == reference.bookId }) {
                 if showBookIntro == false && books[bookIndex].intro != nil {
                     showBookIntro = true  // and leave the reference at chapter 1
                 } else if bookIndex > 0 {
                     let previousBook = books[bookIndex - 1]
                     let maxChapter = previousBook.chapters?.count ?? 0
-                    reference = BibleReference(versionId: reference.versionId, bookUSFM: previousBook.id ?? "", chapter: maxChapter)
+                    reference = BibleReference(versionId: reference.versionId, bookId: previousBook.id ?? "", chapter: maxChapter)
                     showBookIntro = false
                 }
             }
@@ -39,17 +39,17 @@ extension BibleReaderViewModel {
         }
         isChangingChapter = true
         removeVerseSelection()
-        if let books = version.books, let index = books.firstIndex(where: { $0.id == reference.bookUSFM }) {
+        if let books = version.books, let index = books.firstIndex(where: { $0.id == reference.bookId }) {
             let currentBook = books[index]
             let maxChapter = currentBook.chapters?.count ?? 0
             if showBookIntro {
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.id ?? "", chapter: 1)
+                reference = BibleReference(versionId: reference.versionId, bookId: currentBook.id ?? "", chapter: 1)
                 showBookIntro = false
             } else if reference.chapter < maxChapter {
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: currentBook.id ?? "", chapter: reference.chapter + 1)
+                reference = BibleReference(versionId: reference.versionId, bookId: currentBook.id ?? "", chapter: reference.chapter + 1)
             } else if index < books.count - 1 {
                 let nextBook = books[index + 1]
-                reference = BibleReference(versionId: reference.versionId, bookUSFM: nextBook.id ?? "", chapter: 1)
+                reference = BibleReference(versionId: reference.versionId, bookId: nextBook.id ?? "", chapter: 1)
                 if nextBook.intro != nil {
                     showBookIntro = true
                 }

@@ -31,7 +31,7 @@ struct URLBuilderTests {
         #expect(versions.absoluteString == "https://api.youversion.com/v1/bibles?language_ranges%5B%5D=en&page_size=99")
 
         // Test /v1/bibles/{versionId}/passages endpoints
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         let passage = try #require(URLBuilder.passageURL(reference: reference))
         #expect(passage.absoluteString == "https://api.youversion.com/v1/bibles/1/passages/GEN.1?format=text&include_notes=true&include_headings=true")
 

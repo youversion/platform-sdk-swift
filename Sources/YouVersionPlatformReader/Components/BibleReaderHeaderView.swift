@@ -64,7 +64,7 @@ public struct BibleReaderHeaderView: View {
                 BibleReaderBookAndChapterPickerView(
                     expandedBookCode: $viewModel.headerExpandedBookCode,
                     isPresented: $viewModel.showingBookPicker,
-                    bookCodes: version.bookUSFMs,
+                    bookCodes: version.bookIds,
                     versionId: viewModel.reference.versionId,
                     bookNameProvider: { bookCode in version.bookName(bookCode) },
                     chapterLabelsProvider: { bookCode in version.chapterLabels(bookCode) },
@@ -126,11 +126,11 @@ public struct BibleReaderHeaderView: View {
         guard let version = viewModel.version else {
             return ""
         }
-        return "\(version.bookName(viewModel.reference.bookUSFM) ?? viewModel.reference.bookUSFM) \(String(viewModel.reference.chapter))"
+        return "\(version.bookName(viewModel.reference.bookId) ?? viewModel.reference.bookId) \(String(viewModel.reference.chapter))"
     }
 
     private var introString: String {
-        guard let book = viewModel.version?.book(with: viewModel.reference.bookUSFM),
+        guard let book = viewModel.version?.book(with: viewModel.reference.bookId),
               let intro = book.intro
         else {
             return ""

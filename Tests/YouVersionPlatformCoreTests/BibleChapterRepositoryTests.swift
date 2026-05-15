@@ -28,7 +28,7 @@ final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchec
 // MARK: - Tests
 
 struct BibleChapterRepositoryTests {
-    private let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 1)
+    private let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 1)
 
     @discardableResult
     private func makeRepository(
@@ -175,9 +175,9 @@ struct BibleChapterRepositoryTests {
         reference: BibleReference,
         storage: RepositoryTemporaryStorage
     ) -> URL {
-        let chapterUSFM = reference.chapterUSFM ?? "unknown"
+        let chapterPassageId = reference.chapterPassageId ?? "unknown"
         return BibleContentStorage(storageKind: storageKind, directoryProvider: storage.provider)
-            .url(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
+            .url(for: .chapter(versionId: reference.versionId, passageId: chapterPassageId))
     }
 }
 

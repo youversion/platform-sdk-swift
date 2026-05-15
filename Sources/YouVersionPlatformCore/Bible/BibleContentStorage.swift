@@ -26,7 +26,7 @@ enum BibleContentStorageResource: Sendable {
     case versionDirectory(versionId: Int)
     case versionMetadata(versionId: Int)
     case chaptersDirectory(versionId: Int)
-    case chapter(versionId: Int, usfm: String)
+    case chapter(versionId: Int, passageId: String)
 }
 
 struct BibleContentStorage: Sendable {
@@ -79,9 +79,9 @@ struct BibleContentStorage: Sendable {
         case let .chaptersDirectory(versionId):
             url(for: .versionDirectory(versionId: versionId))
                 .appending(path: "Chapters", directoryHint: .isDirectory)
-        case let .chapter(versionId, usfm):
+        case let .chapter(versionId, passageId):
             url(for: .chaptersDirectory(versionId: versionId))
-                .appending(path: usfm, directoryHint: .notDirectory)
+                .appending(path: passageId, directoryHint: .notDirectory)
         }
     }
 

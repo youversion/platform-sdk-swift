@@ -45,7 +45,7 @@ import Testing
     @Test
     func handleVerseTapWithFootnoteActionShowsFootnotes() {
         let viewModel = Support.makeViewModel()
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let footnote = BibleFootnote(text: BibleAttributedString("Footnote"), reference: reference, id: "one")
 
         viewModel.handleVerseTap(
@@ -60,7 +60,7 @@ import Testing
 
     @Test
     func handleVerseTapUsesCustomVerseTapHandlerBeforeSelection() {
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         var tappedReference: BibleReference?
         let viewModel = Support.makeViewModel(onVerseTap: { tappedReference = $0 })
 
@@ -75,7 +75,7 @@ import Testing
     func handleVerseTapTogglesSelectionWhenSignedIn() {
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel(isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
 
         viewModel.handleVerseTap(reference: reference, actionType: "", footnotes: [])
 
@@ -92,7 +92,7 @@ import Testing
     func removeVerseSelectionClearsSelectionAndHidesDrawer() {
         let viewModel = Support.makeViewModel()
         viewModel.selectedVerses = [
-            BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
         ]
         viewModel.showingVerseActionsDrawer = true
 
@@ -107,8 +107,8 @@ import Testing
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
-        let firstReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
-        let secondReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
+        let firstReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let secondReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 17)
         let color = Color(hex: "#DDAAFF")
         viewModel.selectedVerses = [firstReference, secondReference]
 
@@ -146,7 +146,7 @@ import Testing
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let color = Color(hex: "#DDAAFF")
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
@@ -170,8 +170,8 @@ import Testing
         let version = Support.makeBibleVersion(id: Support.versionId)
         viewModel.versionsViewModel.switchToVersion(version)
         viewModel.selectedVerses = [
-            BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17),
-            BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 17),
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
         ]
 
         let result = try #require(viewModel.shareableURLAndTitleForSelection)

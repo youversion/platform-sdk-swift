@@ -77,7 +77,7 @@ public enum URLBuilder {
     /// URL to fetch text and metadata for a given BibleReference. "format" must be "text" or "html".
     public static func passageURL(reference: BibleReference, format: String = "text") -> URL? {
         var components = baseURLComponents
-        components.path = "/v1/bibles/\(reference.versionId)/passages/\(reference.asUSFM)"
+        components.path = "/v1/bibles/\(reference.versionId)/passages/\(reference.passageId)"
         components.queryItems = [
             URLQueryItem(name: "format", value: format),
             URLQueryItem(name: "include_notes", value: "true"),

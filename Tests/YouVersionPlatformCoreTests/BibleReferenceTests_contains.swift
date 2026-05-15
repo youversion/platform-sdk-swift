@@ -5,8 +5,8 @@ import Testing
 
 @Test
 func testContains_SameReference() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 3)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 3)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 3)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 3)
     
     #expect(ref1.contains(with: ref2))
     #expect(ref2.contains(with: ref1))
@@ -14,8 +14,8 @@ func testContains_SameReference() {
 
 @Test
 func testContains_RangeContainsSingleVerse() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 5)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 5)
     
     #expect(ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -23,8 +23,8 @@ func testContains_RangeContainsSingleVerse() {
 
 @Test
 func testContains_RangeContainsSmallerRange() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 7)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 7)
     
     #expect(ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -32,8 +32,8 @@ func testContains_RangeContainsSmallerRange() {
 
 @Test
 func testContains_RangeContainsRangeAtBoundary() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
     
     #expect(ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -41,8 +41,8 @@ func testContains_RangeContainsRangeAtBoundary() {
 
 @Test
 func testContains_RangeContainsRangeAtEndBoundary() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 7, verseEnd: 10)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 10)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 7, verseEnd: 10)
     
     #expect(ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -50,8 +50,8 @@ func testContains_RangeContainsRangeAtEndBoundary() {
 
 @Test
 func testContains_OverlappingRangesDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 9)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 9)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -59,8 +59,8 @@ func testContains_OverlappingRangesDoNotContain() {
 
 @Test
 func testContains_AdjacentRangesDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 6, verseEnd: 8)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 6, verseEnd: 8)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -68,8 +68,8 @@ func testContains_AdjacentRangesDoNotContain() {
 
 @Test
 func testContains_SeparateRangesDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 8, verseEnd: 10)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 8, verseEnd: 10)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -77,8 +77,8 @@ func testContains_SeparateRangesDoNotContain() {
 
 @Test
 func testContains_DifferentChaptersDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 2, verseStart: 1, verseEnd: 10)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 2, verseStart: 1, verseEnd: 10)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -86,8 +86,8 @@ func testContains_DifferentChaptersDoNotContain() {
 
 @Test
 func testContains_DifferentBooksDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "EXO", chapter: 1, verseStart: 1, verseEnd: 10)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
+    let ref2 = BibleReference(versionId: 1, bookId: "EXO", chapter: 1, verseStart: 1, verseEnd: 10)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -95,8 +95,8 @@ func testContains_DifferentBooksDoNotContain() {
 
 @Test
 func testContains_DifferentVersionsDoNotContain() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
-    let ref2 = BibleReference(versionId: 2, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 50)
+    let ref2 = BibleReference(versionId: 2, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10)
     
     #expect(!ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -104,8 +104,8 @@ func testContains_DifferentVersionsDoNotContain() {
 
 @Test
 func testContains_EdgeCaseSingleVerseRanges() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 5)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 5)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 5)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 5)
     
     #expect(ref1.contains(with: ref2))
     #expect(ref2.contains(with: ref1))
@@ -113,8 +113,8 @@ func testContains_EdgeCaseSingleVerseRanges() {
 
 @Test
 func testContains_EdgeCaseLargeRanges() {
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "PSA", chapter: 119, verseStart: 1, verseEnd: 176)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "PSA", chapter: 119, verseStart: 80, verseEnd: 120)
+    let ref1 = BibleReference(versionId: 1, bookId: "PSA", chapter: 119, verseStart: 1, verseEnd: 176)
+    let ref2 = BibleReference(versionId: 1, bookId: "PSA", chapter: 119, verseStart: 80, verseEnd: 120)
     
     #expect(ref1.contains(with: ref2))
     #expect(!ref2.contains(with: ref1))
@@ -124,8 +124,8 @@ func testContains_EdgeCaseLargeRanges() {
 func testContains_EdgeCaseNilHandling() {
     // Test edge cases around nil handling in the contains function
     // The function defaults nil verseStart to 1 and nil verseEnd to verseStart
-    let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
-    let ref2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+    let ref1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
+    let ref2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
     
     #expect(!ref1.contains(with: ref2))
     #expect(ref2.contains(with: ref1))
@@ -133,32 +133,32 @@ func testContains_EdgeCaseNilHandling() {
 
 @Test
 func testContains_ChapterContainsSingleVerse() {
-    let chapter = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-    let single = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 10)
+    let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+    let single = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 10)
     #expect(chapter.contains(with: single))
     #expect(!single.contains(with: chapter))
 }
 
 @Test
 func testContains_ChapterContainsRange() {
-    let chapter = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-    let range = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
+    let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+    let range = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 7)
     #expect(chapter.contains(with: range))
     #expect(!range.contains(with: chapter))
 }
 
 @Test
 func testContains_ChapterContainsChapter_SameChapter() {
-    let chapter1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-    let chapter2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+    let chapter1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+    let chapter2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
     #expect(chapter1.contains(with: chapter2))
     #expect(chapter2.contains(with: chapter1))
 }
 
 @Test
 func testContains_ChapterDoesNotContainDifferentChapter() {
-    let chapter1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
-    let chapter2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 2)
+    let chapter1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+    let chapter2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 2)
     #expect(!chapter1.contains(with: chapter2))
     #expect(!chapter2.contains(with: chapter1))
 }
@@ -168,17 +168,17 @@ func testContains_ComplexContainmentScenarios() {
     // Test various complex containment scenarios
     let scenarios: [(BibleReference, BibleReference, Bool, Bool)] = [
         // (ref1, ref2, ref1ContainsRef2, ref2ContainsRef1)
-        (BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10),
-         BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 7), true, false),
+        (BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10),
+         BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 7), true, false),
         
-        (BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 15),
-         BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10), false, false),
+        (BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 15),
+         BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10), false, false),
         
-        (BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
-         BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5), true, true),
+        (BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
+         BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5), true, true),
         
-        (BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
-         BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5), true, false),
+        (BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
+         BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5), true, false),
     ]
     
     for (ref1, ref2, ref1ContainsRef2, ref2ContainsRef1) in scenarios {

@@ -104,7 +104,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
         )
     }
 }
@@ -117,7 +117,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
         )
     }
 }
@@ -130,7 +130,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)
         )
     }
 }
@@ -152,7 +152,7 @@ To open to a specific passage:
 
 ```swift
 BibleReaderView(
-    reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 23)
+    reference: BibleReference(versionId: 3034, bookId: "PSA", chapter: 23)
 )
 ```
 

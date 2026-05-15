@@ -12,21 +12,21 @@ import Testing
     func initWithExplicitReferenceUsesReferenceAndHidesIntro() {
         Support.clearReaderDefaults()
         UserDefaults.standard.set(true, forKey: Support.displayIntroKey)
-        let savedReference = BibleReference(versionId: 111, bookUSFM: "EXO", chapter: 3)
+        let savedReference = BibleReference(versionId: 111, bookId: "EXO", chapter: 3)
         UserDefaults.standard.set(try? JSONEncoder().encode(savedReference), forKey: Support.referenceKey)
 
         let viewModel = Support.makeViewModel(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
+            reference: BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1)
         )
 
-        #expect(viewModel.reference == BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1))
+        #expect(viewModel.reference == BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1))
         #expect(viewModel.showBookIntro == false)
     }
 
     @Test
     func initWithoutExplicitReferenceRestoresSavedReferenceAndIntroState() {
         Support.clearReaderDefaults()
-        let savedReference = BibleReference(versionId: 111, bookUSFM: "EXO", chapter: 3)
+        let savedReference = BibleReference(versionId: 111, bookId: "EXO", chapter: 3)
         UserDefaults.standard.set(try? JSONEncoder().encode(savedReference), forKey: Support.referenceKey)
         UserDefaults.standard.set(true, forKey: Support.displayIntroKey)
 
@@ -42,7 +42,7 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: nil)
 
-        #expect(viewModel.reference == BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1))
+        #expect(viewModel.reference == BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1))
         #expect(viewModel.showBookIntro == false)
     }
 
@@ -50,10 +50,10 @@ import Testing
     func referenceAndShowBookIntroPersistWhenChanged() {
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "GEN", chapter: 1)
+            reference: BibleReference(versionId: Support.versionId, bookId: "GEN", chapter: 1)
         )
 
-        let newReference = BibleReference(versionId: Support.versionId, bookUSFM: "ROM", chapter: 8)
+        let newReference = BibleReference(versionId: Support.versionId, bookId: "ROM", chapter: 8)
         viewModel.reference = newReference
         viewModel.showBookIntro = true
 
