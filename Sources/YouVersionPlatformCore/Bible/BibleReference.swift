@@ -122,7 +122,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         compare(a: lhs, b: rhs) < 0
     }
 
-    public var chapterPassageId: String? {
+    public var chapterPassageId: String {
         "\(bookId).\(chapter)"
     }
 

@@ -175,9 +175,8 @@ struct BibleChapterRepositoryTests {
         reference: BibleReference,
         storage: RepositoryTemporaryStorage
     ) -> URL {
-        let chapterPassageId = reference.chapterPassageId ?? "unknown"
-        return BibleContentStorage(storageKind: storageKind, directoryProvider: storage.provider)
-            .url(for: .chapter(versionId: reference.versionId, passageId: chapterPassageId))
+        BibleContentStorage(storageKind: storageKind, directoryProvider: storage.provider)
+            .url(for: .chapter(versionId: reference.versionId, passageId: reference.chapterPassageId))
     }
 }
 

@@ -46,7 +46,7 @@ struct BibleVersionTests {
         ("REEV", false),
         ("R", false)
     ])
-    func bookUSFMValidation(passageId: String, isValid: Bool) {
+    func bookIdValidation(passageId: String, isValid: Bool) {
         let normalized = passageId.uppercased()
         #expect(Self.canonicalBookIds.contains(normalized) == isValid)
     }
