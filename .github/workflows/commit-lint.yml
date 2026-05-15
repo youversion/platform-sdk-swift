@@ -47,16 +47,21 @@ jobs:
         if: steps.commitlint.outputs.status == '0'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set +e
-          # On a PR, env-ci reports the branch as `refs/pull/N/merge`, which
-          # doesn't match the configured `branches: ["main"]` allowlist — so
-          # the analyzer bails before computing a version. `--branches '**'`
-          # overrides the allowlist for this invocation only (the file config
-          # is untouched), and `--no-ci` skips semantic-release's refuse-on-PR
-          # check. Together they let the analyzer run against the PR's merge
-          # commit and report the version that `main` *would* land on.
-          npx semantic-release --dry-run --no-ci --branches '**' > semrel.log 2>&1
+          # On a PR, env-ci detects this branch (HEAD_REF) but it's not in the
+          # configured `branches: ["main"]` allowlist, so the analyzer bails.
+          # Override the allowlist for this invocation only with exactly one
+          # entry: the PR head branch. semantic-release then sees we're on a
+          # valid release branch and runs the full analysis against our merge
+          # base. `--no-ci` skips the refuse-on-PR check. The file config
+          # (`.releaserc.json`) is untouched, so real releases still only ship
+          # from `main`.
+          #
+          # Why not `--branches '**'`? It expands to every branch in the repo
+          # and semantic-release rejects branch sets above 3.
+          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
           NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
