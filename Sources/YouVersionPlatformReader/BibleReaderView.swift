@@ -4,18 +4,11 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
-    @State private var viewModel: BibleReaderViewModel
-#if !os(tvOS)
-    @State private var contextProvider = ContextProvider()
-#endif
+    @State private var viewModel: BibleReaderViewModel?
 
-    @Environment(\.openURL) private var openURL
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let fontSettingsDetent = PresentationDetent.height(360)
-    private let fontListDetent = PresentationDetent.height(480)
-    @State private var selectedDetent: PresentationDetent
-    @State private var detents: Set<PresentationDetent>
+    private let initialReference: BibleReference?
+    private let verseSelectionStyle: VerseSelectionStyle
+    private let onVerseTap: ((BibleReference) -> Void)?
 
     /// Creates a Bible reader view.
     ///
@@ -40,9 +33,9 @@ public struct BibleReaderView: View {
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
-        detents = [fontSettingsDetent, fontListDetent]
-        selectedDetent = fontSettingsDetent
+        self.initialReference = reference
+        self.verseSelectionStyle = verseSelectionStyle
+        self.onVerseTap = onVerseTap
     }
 
     /// Creates a Bible reader view with sign-in configuration.
@@ -64,6 +57,40 @@ public struct BibleReaderView: View {
     }
 
     public var body: some View {
+        Group {
+            if let viewModel {
+                ReaderContent(viewModel: viewModel)
+            } else {
+                Color.clear
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = BibleReaderViewModel(
+                    reference: initialReference,
+                    verseSelectionStyle: verseSelectionStyle,
+                    onVerseTap: onVerseTap
+                )
+            }
+        }
+    }
+}
+
+private struct ReaderContent: View {
+    @Bindable var viewModel: BibleReaderViewModel
+#if !os(tvOS)
+    @State private var contextProvider = ContextProvider()
+#endif
+
+    @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let fontSettingsDetent = PresentationDetent.height(360)
+    private let fontListDetent = PresentationDetent.height(480)
+    @State private var selectedDetent = PresentationDetent.height(360)
+    @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+
+    var body: some View {
         VStack(spacing: 0) {
             header
             Spacer()
