@@ -50,15 +50,22 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           set +e
-          # semantic-release refuses to run on branches outside its configured
-          # `branches` list. On a PR, HEAD is a detached merge ref like
-          # `refs/pull/N/merge` which doesn't match `main`, so the analyzer bails
-          # before computing a version. Simulate "merged to base" by pointing a
-          # local branch with the base's name at the PR's merge commit, then
-          # running semantic-release as if we were on that branch.
+          # semantic-release uses env-ci to detect the current branch, and on
+          # GitHub Actions PRs env-ci reports the merge ref (refs/pull/N/merge),
+          # which never matches the configured `branches: ["main"]` — so it
+          # bails before analyzing commits. To get a real preview:
+          #   1. Point a local branch named after the base ref at the PR's
+          #      merge commit, so git HEAD looks like "merged to main".
+          #   2. Strip the GITHUB_* env vars that signal "we're in CI on a PR"
+          #      so env-ci falls back to git-based branch detection and sees
+          #      us on `main`. We keep GITHUB_TOKEN for the github plugin.
           MERGE_SHA=$(git rev-parse HEAD)
           git checkout -B "$BASE_REF" "$MERGE_SHA"
-          npx semantic-release --dry-run --no-ci > semrel.log 2>&1
+          env -u CI -u GITHUB_ACTIONS -u GITHUB_REF -u GITHUB_REF_NAME \
+              -u GITHUB_REF_TYPE -u GITHUB_HEAD_REF -u GITHUB_BASE_REF \
+              -u GITHUB_EVENT_NAME -u GITHUB_EVENT_PATH -u GITHUB_SHA \
+              -u GITHUB_RUN_ID -u GITHUB_RUN_NUMBER -u GITHUB_WORKFLOW \
+            npx semantic-release --dry-run > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
           NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
