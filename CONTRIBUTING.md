@@ -34,7 +34,38 @@ This SDK is organized as a Swift Package with multiple targets:
 
 This project follows idiomatic Swift conventions as outlined in [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/). Key points:
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` or `npx commitlint --from=origin/main --to=HEAD --verbose`)
+- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages — they drive semantic-release's version bumps and the auto-generated CHANGELOG. Validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` (or `npx commitlint --from=origin/main --to=HEAD --verbose`).
+
+  **Format:** `<type>(<optional scope>): <subject>`
+
+  **Allowed types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+
+  **Version-bump behavior:**
+  - `feat:` → minor bump (e.g. `5.2.2` → `5.3.0`)
+  - `fix:` and `perf:` → patch bump (e.g. `5.2.2` → `5.2.3`)
+  - Everything else → no release
+  - Any commit with `!` after the type/scope, **or** a `BREAKING CHANGE:` footer → major bump (e.g. `5.2.2` → `6.0.0`)
+
+  **Examples:**
+
+  ```text
+  feat(reader): add highlight color picker to BibleReaderView
+
+  fix(core): normalize bookUSFM case in overlaps/contains
+
+  docs: clarify SDK installation steps in README
+
+  refactor(ui): extract VerseRow into its own SwiftUI view
+
+  chore(deps): bump SwiftLint to 0.55.1
+
+  feat(api)!: rename PlatformClient.fetch(_:) to PlatformClient.load(_:)
+
+  BREAKING CHANGE: `fetch(_:)` has been removed. Migrate to `load(_:)`,
+  which throws instead of returning an optional.
+  ```
+
+  Keep the subject in the imperative mood ("add", "fix", "rename" — not "added"/"fixes"). Use a `scope` (e.g. `reader`, `core`, `ui`, `api`) when the change is localized; omit it when the change is repo-wide.
 - Run `swiftlint` before submitting PRs
 - Prefer `async`/`await` over completion handlers
 - Use protocol-oriented programming patterns

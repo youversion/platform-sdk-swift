@@ -47,9 +47,18 @@ jobs:
         if: steps.commitlint.outputs.status == '0'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           set +e
-          npx semantic-release --dry-run --no-ci --branches "${{ github.event.pull_request.base.ref }}" > semrel.log 2>&1
+          # semantic-release refuses to run on branches outside its configured
+          # `branches` list. On a PR, HEAD is a detached merge ref like
+          # `refs/pull/N/merge` which doesn't match `main`, so the analyzer bails
+          # before computing a version. Simulate "merged to base" by pointing a
+          # local branch with the base's name at the PR's merge commit, then
+          # running semantic-release as if we were on that branch.
+          MERGE_SHA=$(git rev-parse HEAD)
+          git checkout -B "$BASE_REF" "$MERGE_SHA"
+          npx semantic-release --dry-run --no-ci > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
           NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
