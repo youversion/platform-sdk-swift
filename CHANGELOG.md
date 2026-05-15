@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.2](https://github.com/youversion/platform-sdk-swift/compare/5.2.1...5.2.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* BibleReaderViewModel created on every render ([#122](https://github.com/youversion/platform-sdk-swift/issues/122)) ([8dad856](https://github.com/youversion/platform-sdk-swift/commit/8dad8567eca81ef94d78ee1376a05903178fd76b))
+
 ## [5.2.1](https://github.com/youversion/platform-sdk-swift/compare/5.2.0...5.2.1) (2026-05-11)
 
 
