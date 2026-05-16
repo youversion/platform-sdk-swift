@@ -70,7 +70,7 @@ enum BibleReaderViewModelTestSupport {
         isSignedIn: Bool = false,
         hasValidToken: Bool? = nil,
         signOut: @escaping @MainActor () -> Void = {},
-        hasDataExchangePermission: @escaping @MainActor (SignInWithYouVersionPermission) -> Bool = { _ in false }
+        hasDataExchangePermission: @escaping @MainActor (DataExchangePermission) -> Bool = { _ in false }
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),

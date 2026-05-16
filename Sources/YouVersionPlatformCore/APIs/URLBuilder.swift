@@ -54,6 +54,7 @@ public enum URLBuilder {
     public static func dataExchangeURL(token: String, appKey: String) -> URL? {
         var components = baseURLComponents
         components.path = "/data-exchange"
+        // TODO do we need this? URLQueryItem(name: "x-yvp-app-key", value: appKey)
         components.queryItems = [
             URLQueryItem(name: "token", value: token),
             URLQueryItem(name: "app_key", value: appKey)

@@ -99,13 +99,13 @@ public struct YouVersionPlatformConfiguration {
     }
 
     /// Returns whether the user has granted a data exchange permission.
-    public static func hasDataExchangePermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+    public static func hasDataExchangePermission(_ permission: DataExchangePermission) -> Bool {
         savedDataExchangePermissions.contains(permission.rawValue)
     }
 
     /// Saves a data exchange permission granted by the user.
     @MainActor
-    public static func saveDataExchangePermission(_ permission: SignInWithYouVersionPermission) {
+    public static func saveDataExchangePermission(_ permission: DataExchangePermission) {
         saveDataExchangePermissions([permission])
     }
 
@@ -129,7 +129,7 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    private static func saveDataExchangePermissions(_ permissions: Set<SignInWithYouVersionPermission>) {
+    private static func saveDataExchangePermissions(_ permissions: Set<DataExchangePermission>) {
         var rawValues = savedDataExchangePermissions
         rawValues.formUnion(permissions.map(\.rawValue))
         UserDefaults.standard.set(Array(rawValues).sorted(), forKey: dataExchangePermissionsKey)

@@ -365,7 +365,7 @@ private struct ReaderContent: View {
                 let result = try await session.requestDataExchange(permissions: [.highlights])
                 viewModel.completeDataExchangeFlow(with: result)
             } catch {
-                viewModel.completeDataExchangeFlow(with: .cancelled)
+                viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
         }

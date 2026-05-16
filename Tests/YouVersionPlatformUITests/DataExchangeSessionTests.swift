@@ -6,35 +6,42 @@ import Testing
 @Suite struct DataExchangeSessionTests {
 
     @Test func grantedStatusReturnsGrantedResult() throws {
-        let url = try #require(URL(string: "youversionauth://callback?status=granted"))
+        let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights"))
 
-        let result = try DataExchangeSession.requestResult(from: url)
+        let result = DataExchangeSession.requestResult(from: url)
 
-        #expect(result == .granted)
+        #expect(result.status == .granted)
+        #expect(result.isGranted)
+        #expect(result.grantedPermissions == [.highlights])
     }
 
-    @Test func cancelStatusReturnsCancelledResult() throws {
-        let url = try #require(URL(string: "youversionauth://callback?status=cancel"))
+    @Test func multipleGrantedPermissionsArePreserved() throws {
+        let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights&granted_permissions=notes"))
 
-        let result = try DataExchangeSession.requestResult(from: url)
+        let result = DataExchangeSession.requestResult(from: url)
 
-        #expect(result == .cancelled)
+        #expect(result.status == .granted)
+        #expect(result.grantedPermissions == [.highlights, .unknown("notes")])
     }
 
-    @Test func missingStatusThrowsBadServerResponse() throws {
+    @Test func missingStatusReturnsEmptyStatus() throws {
         let url = try #require(URL(string: "youversionauth://callback"))
 
-        #expect(throws: URLError(.badServerResponse)) {
-            try DataExchangeSession.requestResult(from: url)
-        }
+        let result = DataExchangeSession.requestResult(from: url)
+
+        #expect(result.status == .missing)
+        #expect(result.grantedPermissions.isEmpty)
+        #expect(!result.isGranted)
     }
 
-    @Test func unknownStatusThrowsBadServerResponse() throws {
-        let url = try #require(URL(string: "youversionauth://callback?status=denied"))
+    @Test func unknownStatusIsPreserved() throws {
+        let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=needs_review&granted_permissions=highlights"))
 
-        #expect(throws: URLError(.badServerResponse)) {
-            try DataExchangeSession.requestResult(from: url)
-        }
+        let result = DataExchangeSession.requestResult(from: url)
+
+        #expect(result.status == .unknown("needs_review"))
+        #expect(result.grantedPermissions == [.highlights])
+        #expect(!result.isGranted)
     }
 
 }

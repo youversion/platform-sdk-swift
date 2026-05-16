@@ -53,7 +53,7 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
         viewModel.cancelDataExchangePrompt()
-        viewModel.completeDataExchangeFlow(with: .granted)
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
@@ -84,7 +84,7 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: .granted)
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference) == [BibleHighlight(reference, color: "DDAAFF")])
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
@@ -102,7 +102,41 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: .cancelled)
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
+
+        #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
+        #expect(highlightsRepository.queuedOperations.isEmpty)
+        #expect(viewModel.selectedVerses == [reference])
+        #expect(viewModel.startDataExchangeFlow == false)
+    }
+
+    @Test
+    func unknownDataExchangeStatusDoesNotApplyPendingHighlight() {
+        let highlightsRepository = MockBibleHighlightsRepository()
+        let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        viewModel.selectedVerses = [reference]
+        viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
+        viewModel.confirmDataExchangePrompt()
+
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .unknown("needs_review"), grantedPermissions: [.highlights]))
+
+        #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
+        #expect(highlightsRepository.queuedOperations.isEmpty)
+        #expect(viewModel.selectedVerses == [reference])
+        #expect(viewModel.startDataExchangeFlow == false)
+    }
+
+    @Test
+    func grantedDataExchangeFlowWithoutHighlightsPermissionDoesNotApplyPendingHighlight() {
+        let highlightsRepository = MockBibleHighlightsRepository()
+        let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        viewModel.selectedVerses = [reference]
+        viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
+        viewModel.confirmDataExchangePrompt()
+
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.unknown("notes")]))
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)

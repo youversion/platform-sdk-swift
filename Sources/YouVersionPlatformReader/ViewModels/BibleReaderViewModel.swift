@@ -278,10 +278,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     func completeDataExchangeFlow(with result: DataExchangeRequestResult) {
         startDataExchangeFlow = false
         showingDataExchangeConfirmation = false
-        switch result {
-        case .granted:
+        if result.isGranted && result.grantedPermissions.contains(.highlights) {
             applyPendingHighlight()
-        case .cancelled:
+        } else {
             clearPendingHighlight()
         }
     }

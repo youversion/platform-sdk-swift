@@ -19,7 +19,7 @@ public extension YouVersionAPI {
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
         public static func token(
-            permissions: Set<SignInWithYouVersionPermission>,
+            permissions: Set<DataExchangePermission>,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> DataExchangeToken {
@@ -37,13 +37,10 @@ public extension YouVersionAPI {
             }
 
             let requestBody = DataExchangeTokenCreate(
-                permissions: permissions
-                    .map(\.rawValue)
-                    .sorted()
+                permissions: permissions.map(\.rawValue)
             )
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session)
-            request.setValue(nil, forHTTPHeaderField: "X-YV-LAT")
             request.httpMethod = "POST"
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

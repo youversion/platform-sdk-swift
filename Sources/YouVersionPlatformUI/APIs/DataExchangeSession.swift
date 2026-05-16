@@ -3,9 +3,53 @@ import AuthenticationServices
 import Foundation
 import YouVersionPlatformCore
 
-public enum DataExchangeRequestResult: String, Sendable {
-    case granted
-    case cancelled = "cancel"
+public struct DataExchangeRequestResult: Equatable, Sendable {
+    public enum Status: RawRepresentable, Hashable, CustomStringConvertible, Sendable {
+        case granted
+        case cancel
+        case missing
+        case unknown(String)
+
+        public init(rawValue: String) {
+            switch rawValue {
+            case "granted":
+                self = .granted
+            case "cancel":
+                self = .cancel
+            case "":
+                self = .missing
+            default:
+                self = .unknown(rawValue)
+            }
+        }
+
+        public var rawValue: String {
+            switch self {
+            case .granted:
+                return "granted"
+            case .cancel:
+                return "cancel"
+            case .missing:
+                return ""
+            case .unknown(let rawValue):
+                return rawValue
+            }
+        }
+
+        public var description: String { rawValue }
+    }
+
+    public let status: Status
+    public let grantedPermissions: [DataExchangePermission]
+
+    public init(status: Status, grantedPermissions: [DataExchangePermission]) {
+        self.status = status
+        self.grantedPermissions = grantedPermissions
+    }
+
+    public var isGranted: Bool {
+        status == .granted
+    }
 }
 
 public struct DataExchangeSession {
@@ -23,11 +67,11 @@ public struct DataExchangeSession {
     /// Presents the YouVersion data exchange permission flow to the user and returns the selected result.
     ///
     /// - Parameter permissions: The set of permissions to request from the user.
-    /// - Returns: A ``DataExchangeRequestResult`` describing whether the request was granted or cancelled.
-    /// - Throws: An error if the token request fails, the browser session fails, or the callback status is invalid.
+    /// - Returns: A ``DataExchangeRequestResult`` containing the callback status and granted permission values.
+    /// - Throws: An error if the token request or browser session fails.
     @MainActor
     public func requestDataExchange(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: Set<DataExchangePermission>
     ) async throws -> DataExchangeRequestResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
@@ -47,23 +91,24 @@ public struct DataExchangeSession {
             session.start()
         }
 
-        if result == .granted {
-            permissions.forEach(YouVersionPlatformConfiguration.saveDataExchangePermission)
+        if result.isGranted {
+            result.grantedPermissions
+                .forEach(YouVersionPlatformConfiguration.saveDataExchangePermission)
         }
 
         return result
     }
 
-    static func requestResult(from callbackURL: URL) throws -> DataExchangeRequestResult {
-        guard
-            let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
-            let status = components.queryItems?.first(where: { $0.name == "status" })?.value,
-            let result = DataExchangeRequestResult(rawValue: status)
-        else {
-            throw URLError(.badServerResponse)
-        }
-
-        return result
+    static func requestResult(from callbackURL: URL) -> DataExchangeRequestResult {
+        let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        return DataExchangeRequestResult(
+            status: queryItems.first { $0.name == "data_exchange_status" }?.value
+                .map { DataExchangeRequestResult.Status(rawValue: $0) } ?? .missing,
+            grantedPermissions: queryItems
+                .filter { $0.name == "granted_permissions" }
+                .compactMap(\.value)
+                .map { DataExchangePermission(rawValue: $0) }
+        )
     }
 
     private func dataExchangeSession(
@@ -78,12 +123,8 @@ public struct DataExchangeSession {
             if let error {
                 continuation.resume(throwing: error)
             } else if let callbackURL {
-                do {
-                    let result = try Self.requestResult(from: callbackURL)
-                    continuation.resume(returning: result)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+                let result = Self.requestResult(from: callbackURL)
+                continuation.resume(returning: result)
             } else {
                 continuation.resume(throwing: URLError(.badServerResponse))
             }

@@ -9,8 +9,10 @@ extension ConfigurationStateTests {
     @Suite struct DataExchangeAPITests {
 
     @Test func permissionRawValueAndDescription() {
-        #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
-        #expect(SignInWithYouVersionPermission.highlights.description == "highlights")
+        #expect(DataExchangePermission.highlights.rawValue == "highlights")
+        #expect(DataExchangePermission.highlights.description == "highlights")
+        #expect(DataExchangePermission(rawValue: "notes") == .unknown("notes"))
+        #expect(DataExchangePermission(rawValue: "notes").rawValue == "notes")
     }
 
     @MainActor
@@ -38,7 +40,7 @@ extension ConfigurationStateTests {
         }
 
         let result = try await YouVersionAPI.DataExchange.token(
-            permissions: [.profile, .highlights],
+            permissions: [.highlights],
             accessToken: "access-token",
             session: session
         )
@@ -56,7 +58,7 @@ extension ConfigurationStateTests {
         #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer access-token")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
         #expect(request.value(forHTTPHeaderField: HTTPMocking.tokenHeader) == token)
-        #expect(body.permissions == ["highlights", "profile"])
+        #expect(body.permissions == ["highlights"])
     }
 
     @MainActor
