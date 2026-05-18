@@ -69,8 +69,10 @@ jobs:
           #   4. --no-ci skips the refuse-on-PR check that runs even after
           #      branch detection passes.
           #
-          # The file config (`.releaserc.json`) is untouched, so real releases
-          # still only ship from `main`.
+          # The committed `.releaserc.json` is rewritten in this throwaway
+          # CI checkout (see plugin-filter step below); the version in the
+          # repo is untouched, so real releases on `main` still ship with
+          # the full plugin list.
           git checkout -B "$HEAD_REF" "origin/$HEAD_REF"
 
           # Capture the current released version up-front so we can always
@@ -78,20 +80,30 @@ jobs:
           # determines no bump is warranted, the answer is "current stays".
           CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
 
-          # Override the plugin list for the dry-run only. The repo's
-          # `.releaserc.json` includes `@semantic-release/git` and
-          # `@semantic-release/github`, whose `verifyConditions` steps run
-          # even in dry-run and try to verify push/API permissions against
-          # the repo. On a PR event the GITHUB_TOKEN doesn't have
-          # `contents: write` (and shouldn't), so the git plugin's
-          # `git push --dry-run` fails noisily with a 403 and trips
-          # EGITNOPERMISSION. For a version preview we only need the
-          # analyzer + notes generator. The actual release on `main` still
-          # uses the full plugin list from the config file unchanged.
+          # Filter `.releaserc.json` in place to only the analysis plugins
+          # (commit-analyzer + release-notes-generator), preserving their
+          # inline configs — `preset: conventionalcommits` stays intact, so
+          # the preview uses the exact same semver-inference rules as the
+          # real release on `main`. The other plugins (git, github,
+          # changelog, exec) run `verifyConditions` even in --dry-run, and
+          # `@semantic-release/git` fails noisily with EGITNOPERMISSION
+          # because PR-event GITHUB_TOKEN lacks `contents: write`. Dropping
+          # them removes the noise without affecting version calculation.
+          # CI working tree is throwaway, so the in-place rewrite is safe.
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = '.releaserc.json';
+          const cfg = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const keep = new Set([
+            '@semantic-release/commit-analyzer',
+            '@semantic-release/release-notes-generator',
+          ]);
+          cfg.plugins = cfg.plugins.filter(p => keep.has(Array.isArray(p) ? p[0] : p));
+          fs.writeFileSync(path, JSON.stringify(cfg, null, 2));
+          NODE
+
           unset GITHUB_ACTIONS
-          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" \
-            --plugins '@semantic-release/commit-analyzer' '@semantic-release/release-notes-generator' \
-            > semrel.log 2>&1
+          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
 
