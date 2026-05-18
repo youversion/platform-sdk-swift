@@ -4,16 +4,22 @@ This project uses [semantic-release](https://semantic-release.gitbook.io/) for a
 
 ## Overview
 
-Releases are fully automated based on commit messages following the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+Releases use [semantic-release](https://semantic-release.gitbook.io/) to compute the next version from [Conventional Commits](https://www.conventionalcommits.org/) since the last tag, but the release itself is **triggered manually**, not automatically on every push to `main`. A human (or scheduled job) decides when to cut a release; merging a PR by itself never publishes.
 
 ## How It Works
 
-1. **Commit with conventional format** → Commitlint validates your message
-2. **Merge to `main`** → GitHub Actions triggers semantic-release
-3. **Semantic-release analyzes commits** → Determines version bump (major/minor/patch)
-4. **Version bump and changelog** → Updates all 4 podspec files and CHANGELOG.md
-5. **Git tag and GitHub release** → Creates version tag (e.g., `1.0.0`) and GitHub release
-6. **Publish to CocoaPods** → Publishes all pods in dependency order
+1. **Develop on a branch with conventional commit subjects** → the `Commit Lint` workflow validates each PR and previews the version that *would* be cut today.
+2. **Merge PRs to `main`** → nothing publishes. `main` just accumulates work.
+3. **When ready to release, trigger the Release workflow manually** → Actions tab → `Release` → "Run workflow" (or `gh workflow run release.yml`).
+4. **Semantic-release analyzes commits since the last tag** → determines version bump (major/minor/patch).
+5. **Version bump and changelog** → updates all 4 podspec files, stamps `SDKVersion.swift`, writes a `CHANGELOG.md` entry.
+6. **Git tag and GitHub release** → creates the version tag (e.g., `5.3.0`) and a GitHub release.
+7. **Publish to CocoaPods** → publishes all pods in dependency order.
+8. **Restore `SDKVersion.swift` to `"Dev"`** → a follow-up commit returns the on-main constant to `"Dev"` so PR builds don't report a stale released version. The tag stays at the stamped commit (see [AGENTS.md → Release Process](./AGENTS.md#release-process) for the X/Y topology).
+
+### Why manual
+
+Auto-publishing on every push to `main` makes the publish surface too easy to trip — any commit message body or release-process change that an analyzer reads as a major bump goes straight to consumers. Manual trigger gives a deliberate review point between merge and publish, and keeps the per-PR version preview as the early warning.
 
 ## Commit Message Format
 
