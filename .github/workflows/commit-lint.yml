@@ -53,14 +53,16 @@ jobs:
           # Canonical workaround for running semantic-release --dry-run on a
           # PR (see semantic-release discussions #1886 and #1937):
           #
-          #   1. Attach HEAD to a local branch named after the PR head ref.
-          #      actions/checkout leaves us in detached-HEAD state at the PR
-          #      merge commit; without a symbolic ref, env-ci's git-based
-          #      branch detection returns `undefined` and the analyzer bails.
+          #   1. Reset HEAD to `origin/$HEAD_REF` (the actual PR head commit,
+          #      not the synthetic merge ref actions/checkout leaves us on).
+          #      This both gives env-ci a real symbolic ref to report (instead
+          #      of `undefined` on detached HEAD) AND keeps local == remote so
+          #      semantic-release's "local branch is behind remote" check
+          #      passes.
           #   2. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's
           #      on GitHub Actions and to report the branch as
           #      `refs/pull/N/merge`. With it gone, env-ci falls back to git,
-          #      which now reports the head-ref branch we just created.
+          #      which now reports the head-ref branch.
           #   3. Override the branches allowlist with just that head branch
           #      — a single entry, well under semantic-release's
           #      max-3-release-branches validation.
@@ -69,26 +71,47 @@ jobs:
           #
           # The file config (`.releaserc.json`) is untouched, so real releases
           # still only ship from `main`.
-          git checkout -B "$HEAD_REF" HEAD
+          git checkout -B "$HEAD_REF" "origin/$HEAD_REF"
+
+          # Capture the current released version up-front so we can always
+          # report a "calculated version" — even when semantic-release
+          # determines no bump is warranted, the answer is "current stays".
+          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+
           unset GITHUB_ACTIONS
           npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
+
           NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
-          [ -z "$NEXT" ] && NEXT="none"
-          # Detect "major" via semantic-release's own release-type log line.
-          # This catches both `BREAKING CHANGE:` footers AND the `feat!:` /
-          # `fix!:` shorthand, which doesn't emit the footer keyword.
-          if grep -qiE "complete:[[:space:]]*major[[:space:]]+release|release type[[:space:]]+is[[:space:]]+major" semrel.log; then
-            IS_MAJOR=1
+          # Extract semantic-release's calculated release type from its own
+          # "Analysis of N commit(s) complete: <type> release" log line.
+          RELEASE_TYPE=$(grep -Eo "Analysis of [0-9]+ commits?, complete: [a-z]+ release|complete:[[:space:]]*[a-z]+[[:space:]]+release" semrel.log \
+            | tail -1 \
+            | awk '{for(i=1;i<=NF;i++) if($i=="release") print $(i-1)}')
+
+          # When semantic-release decides no bump, NEXT is empty. The
+          # "calculated version" in that case is simply the current version
+          # — surface that explicitly so the comment is never blank.
+          if [ -z "$NEXT" ]; then
+            NEXT="$CURRENT_VERSION"
+            NO_BUMP=1
+            [ -z "$RELEASE_TYPE" ] && RELEASE_TYPE="none"
           else
-            IS_MAJOR=0
+            NO_BUMP=0
           fi
-          # Best-effort: pull any explicit BREAKING CHANGE footer text for the comment.
-          # `feat!:` commits without a footer won't have notes here, and that's fine —
-          # the banner is gated on IS_MAJOR, not on the presence of footer text.
+
+          if [ "$RELEASE_TYPE" = "major" ]; then IS_MAJOR=1; else IS_MAJOR=0; fi
+
+          # Pull any explicit BREAKING CHANGE footer text for the comment.
+          # `feat!:` commits without a footer won't have notes here, and
+          # that's fine — the banner is gated on IS_MAJOR.
           awk '/BREAKING CHANGE:/{flag=1} flag{print; if(/^$/) flag=0}' semrel.log > breaking.txt || true
+
+          echo "current=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "no_bump=$NO_BUMP" >> "$GITHUB_OUTPUT"
           echo "is_major=$IS_MAJOR" >> "$GITHUB_OUTPUT"
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           exit 0
@@ -100,7 +123,10 @@ jobs:
           set -e
           MARKER='<!-- commit-lint-bot -->'
           STATUS="${{ steps.commitlint.outputs.status }}"
+          CURRENT="${{ steps.semrel.outputs.current }}"
           NEXT="${{ steps.semrel.outputs.next }}"
+          RELEASE_TYPE="${{ steps.semrel.outputs.release_type }}"
+          NO_BUMP="${{ steps.semrel.outputs.no_bump }}"
           IS_MAJOR="${{ steps.semrel.outputs.is_major }}"
           SEMREL_STATUS="${{ steps.semrel.outputs.status }}"
 
@@ -115,12 +141,12 @@ jobs:
                 echo '> ⚠️ `semantic-release --dry-run` exited non-zero. Release preview may be incomplete. This does not block the PR.'
                 echo
               fi
-              if [ -z "$NEXT" ] || [ "$NEXT" = "none" ]; then
-                echo '### 📦 Release preview: _no release_'
+              if [ "${NO_BUMP:-0}" = "1" ]; then
+                echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` (no bump)"
                 echo
-                echo 'These commits would not trigger a new release on `main`.'
+                echo 'These commits do not trigger a version bump. The published version on `main` would remain `v'"$CURRENT"'`.'
               elif [ "${IS_MAJOR:-0}" = "1" ]; then
-                echo "### 🚨🚨🚨 BREAKING CHANGES DETECTED — Next release: \`v$NEXT\` (MAJOR)"
+                echo "### 🚨🚨🚨 BREAKING CHANGES DETECTED — \`v$CURRENT\` → \`v$NEXT\` (MAJOR)"
                 echo
                 echo 'This PR introduces one or more breaking changes (either a `BREAKING CHANGE:` footer or a `feat!:` / `fix!:` shorthand). Merging will publish a **major** version bump.'
                 echo
@@ -134,7 +160,8 @@ jobs:
                   echo '</details>'
                 fi
               else
-                echo "### 📦 Release preview: \`v$NEXT\`"
+                BUMP_LABEL="${RELEASE_TYPE:-release}"
+                echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` ($BUMP_LABEL)"
                 echo
                 echo 'Merging this PR will trigger a new release on `main`.'
               fi
