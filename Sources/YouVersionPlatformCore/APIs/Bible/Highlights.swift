@@ -85,7 +85,6 @@ public extension YouVersionAPI {
             }
 
             if httpResponse.statusCode == 204 {
-                print("204 for highlights for \(bibleId)/\(passageId)")//, category: "Highlights")
                 return []
             }
 
@@ -98,7 +97,6 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
 
-            print("Got \(decodedResponse.data.count) highlights for \(bibleId)/\(passageId)")//, category: "Highlights")
             return decodedResponse.data
         }
 
@@ -164,12 +162,9 @@ public extension YouVersionAPI {
             }
 
             let highlightRequest = HighlightRequest(
-                requestId: UUID().uuidString,
-                highlight: HighlightRequestHighlight(
-                    bibleId: bibleId,
-                    passageId: passageId,
-                    color: color.lowercased()
-                )
+                bibleId: bibleId,
+                passageId: passageId,
+                color: color.lowercased()
             )
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
@@ -177,12 +172,15 @@ public extension YouVersionAPI {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(highlightRequest)
 
-            print("Sending a highlight: \(url) & \(highlightRequest)")//, category: "Highlights")
             let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
-            print("highlight response: statusCode=\(httpResponse.statusCode)")//, category: "Highlights")
+            if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
+                YouVersionPlatformLogger.error("Highlights: error \(httpResponse.statusCode) on \(method) for bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
+            } else {
+                YouVersionPlatformLogger.debug("Highlights: successful \(method) for bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
+            }
 
             return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
         }
@@ -224,6 +222,8 @@ public extension YouVersionAPI {
 
             if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
                 YouVersionPlatformLogger.error("highlights: unexpected status code deleting: \(httpResponse.statusCode)", category: "Highlights")
+            } else {
+                YouVersionPlatformLogger.debug("Highlights: deleted at bibleId: \(bibleId), passageId: \(passageId)")
             }
 
             return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
@@ -234,20 +234,6 @@ public extension YouVersionAPI {
 // MARK: - Request/Response Models
 
 private struct HighlightRequest: Codable, CustomDebugStringConvertible {
-    let requestId: String
-    let highlight: HighlightRequestHighlight
-
-    enum CodingKeys: String, CodingKey {
-        case requestId = "request_id"
-        case highlight
-    }
-    
-    var debugDescription: String {
-        "HighlightRequest(requestId: \(requestId), highlight: \(highlight.debugDescription))"
-    }
-}
-
-private struct HighlightRequestHighlight: Codable, CustomDebugStringConvertible {
     let bibleId: Int
     let passageId: String
     let color: String
@@ -259,7 +245,7 @@ private struct HighlightRequestHighlight: Codable, CustomDebugStringConvertible 
     }
     
     var debugDescription: String {
-        "HighlightRequestBody(bibleId: \(bibleId), passageId: \(passageId), color: \(color))"
+        "HighlightRequest(bibleId: \(bibleId), passageId: \(passageId), color: \(color))"
     }
 }
 
