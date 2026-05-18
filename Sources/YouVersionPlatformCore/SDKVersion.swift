@@ -5,5 +5,5 @@
 // in-repo and PR-CI builds report "Dev". If you change the shape of the
 // declaration below, also update scripts/stamp-sdk-version.sh.
 enum SDKVersion {
-    static let current = "Dev"
+    static let current = "6.0.0"
 }
