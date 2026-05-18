@@ -53,19 +53,23 @@ jobs:
           # Canonical workaround for running semantic-release --dry-run on a
           # PR (see semantic-release discussions #1886 and #1937):
           #
-          #   1. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's on
-          #      GitHub Actions and to report the branch as `refs/pull/N/merge`.
-          #      With it gone, env-ci falls back to git-based branch detection
-          #      and sees us on the PR head branch.
-          #   2. Override the branches allowlist with just that head branch.
-          #      A single entry keeps us well under semantic-release's
+          #   1. Attach HEAD to a local branch named after the PR head ref.
+          #      actions/checkout leaves us in detached-HEAD state at the PR
+          #      merge commit; without a symbolic ref, env-ci's git-based
+          #      branch detection returns `undefined` and the analyzer bails.
+          #   2. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's
+          #      on GitHub Actions and to report the branch as
+          #      `refs/pull/N/merge`. With it gone, env-ci falls back to git,
+          #      which now reports the head-ref branch we just created.
+          #   3. Override the branches allowlist with just that head branch
+          #      — a single entry, well under semantic-release's
           #      max-3-release-branches validation.
-          #   3. --no-ci skips the refuse-on-PR check that runs even after
+          #   4. --no-ci skips the refuse-on-PR check that runs even after
           #      branch detection passes.
           #
           # The file config (`.releaserc.json`) is untouched, so real releases
-          # still only ship from `main`. actions/checkout uses the merge ref
-          # by default, which is what we want analyzed.
+          # still only ship from `main`.
+          git checkout -B "$HEAD_REF" HEAD
           unset GITHUB_ACTIONS
           npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
           STATUS=$?
