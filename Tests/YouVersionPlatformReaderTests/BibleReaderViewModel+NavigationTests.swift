@@ -1,6 +1,8 @@
+import SwiftUI
 import Testing
 @testable import YouVersionPlatformCore
 @testable import YouVersionPlatformReader
+@testable import YouVersionPlatformUI
 
 struct BookFixture: Sendable {
     let id: String
@@ -344,6 +346,124 @@ let previousChapterCases: [PreviousChapterCase] = [
         )
         #expect(vm.showBookIntro == testCase.expectedShowBookIntro, Comment("Case: \(testCase.name)"))
         assertNavigationSideEffects(on: vm)
+    }
+
+#if canImport(UIKit)
+    @Test
+    func selectedVerseColorPresenceMatchesHexCaseInsensitivelyAndIgnoresHashPrefix() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let firstReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let secondReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 18)
+        let selectedColor = Color(hex: "#DDAAFF")
+        viewModel.selectedVerses = [firstReference, secondReference]
+        viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
+        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
+
+        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
+
+        viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
+
+        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
+    }
+
+    @Test
+    func removeVerseColorRemovesMatchingHighlightsForSelectedVersesOnly() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let matchingReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let nonmatchingReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 18)
+        let selectedColor = Color(hex: "#DDAAFF")
+        viewModel.selectedVerses = [matchingReference, nonmatchingReference]
+        viewModel.showingVerseActionsDrawer = true
+        viewModel.highlightsViewModel.addHighlights(references: [matchingReference], color: "#ddaaff")
+        viewModel.highlightsViewModel.addHighlights(references: [nonmatchingReference], color: "00FF00")
+        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
+
+        viewModel.removeVerseColor(selectedColor)
+
+        #expect(viewModel.selectedVerses.isEmpty)
+        #expect(viewModel.showingVerseActionsDrawer == false)
+        #expect(viewModel.highlightsViewModel.highlights(for: matchingReference).isEmpty)
+        #expect(viewModel.highlightsViewModel.highlights(for: nonmatchingReference) == [
+            BibleHighlight(nonmatchingReference, color: "00FF00"),
+        ])
+        #expect(viewModel.highlightsViewModel.highlights(for: unselectedReference) == [
+            BibleHighlight(unselectedReference, color: "DDAAFF"),
+        ])
+    }
+#endif
+
+    @Test
+    func shareableVerseTextRendersCachedChapterTextForReferences() async throws {
+        let versionId = 909001
+        let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
+        let verseReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="16"></span><span class="yv-vlbl">16</span>
+                For God so loved the world.
+            </div>
+        </div>
+        """
+        await BibleChapterRepository.shared.removeVersion(withId: versionId)
+        let storage = BibleContentStorage(storageKind: .cache)
+        let chapterUSFM = try #require(chapterReference.chapterUSFM)
+        try storage.writeString(
+            html,
+            to: .chapter(versionId: versionId, usfm: chapterUSFM)
+        )
+        let viewModel = BibleReaderViewModel(reference: chapterReference)
+
+        let text = await viewModel.shareableVerseText(references: [verseReference])
+
+        #expect(text.contains("For God so loved the world."))
+        await BibleChapterRepository.shared.removeVersion(withId: versionId)
+    }
+
+    @Test
+    func handleVerseActionCopyWithSelectedVersesClearsSelectionAndHidesDrawer() async throws {
+        let versionId = 909002
+        let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
+        let selectedReferences = [
+            BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 17),
+        ]
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="16"></span><span class="yv-vlbl">16</span>Verse sixteen.
+                <span class="yv-v" v="17"></span><span class="yv-vlbl">17</span>Verse seventeen.
+            </div>
+        </div>
+        """
+        await BibleChapterRepository.shared.removeVersion(withId: versionId)
+        let storage = BibleContentStorage(storageKind: .cache)
+        let chapterUSFM = try #require(chapterReference.chapterUSFM)
+        try storage.writeString(
+            html,
+            to: .chapter(versionId: versionId, usfm: chapterUSFM)
+        )
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(reference: chapterReference)
+        viewModel.versionsViewModel.switchToVersion(
+            BibleReaderViewModelTestSupport.makeBibleVersion(id: versionId)
+        )
+        viewModel.selectedVerses = Set(selectedReferences)
+        viewModel.showingVerseActionsDrawer = true
+
+        viewModel.handleVerseActionCopy()
+
+        #expect(viewModel.selectedVerses.isEmpty)
+        #expect(viewModel.showingVerseActionsDrawer == false)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        await BibleChapterRepository.shared.removeVersion(withId: versionId)
     }
 
     private func assertNavigationSideEffects(on vm: BibleReaderViewModel) {
