@@ -78,8 +78,20 @@ jobs:
           # determines no bump is warranted, the answer is "current stays".
           CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
 
+          # Override the plugin list for the dry-run only. The repo's
+          # `.releaserc.json` includes `@semantic-release/git` and
+          # `@semantic-release/github`, whose `verifyConditions` steps run
+          # even in dry-run and try to verify push/API permissions against
+          # the repo. On a PR event the GITHUB_TOKEN doesn't have
+          # `contents: write` (and shouldn't), so the git plugin's
+          # `git push --dry-run` fails noisily with a 403 and trips
+          # EGITNOPERMISSION. For a version preview we only need the
+          # analyzer + notes generator. The actual release on `main` still
+          # uses the full plugin list from the config file unchanged.
           unset GITHUB_ACTIONS
-          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
+          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" \
+            --plugins '@semantic-release/commit-analyzer' '@semantic-release/release-notes-generator' \
+            > semrel.log 2>&1
           STATUS=$?
           cat semrel.log
 
