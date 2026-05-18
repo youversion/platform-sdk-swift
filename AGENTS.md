@@ -61,7 +61,7 @@ LINUX_SOURCEKIT_LIB_PATH=/root/.local/share/swiftly/toolchains/6.1.3/usr/lib swi
 - Unit tests for core functionality
 
 ### Code Style
-- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit messages (enforced by commitlint)
+- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) for commit messages (enforced in CI by the `Commit Lint` workflow — no local hook required)
 - Protocol-oriented programming patterns
 - Extensive use of extensions for code organization
 

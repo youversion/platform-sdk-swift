@@ -1,0 +1,199 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: commit-lint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint-commits:
+    name: Lint commits & preview release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint commit messages
+        id: commitlint
+        run: |
+          set +e
+          npx commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose > commitlint.log 2>&1
+          STATUS=$?
+          cat commitlint.log
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Semantic-release dry-run
+        id: semrel
+        if: steps.commitlint.outputs.status == '0'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set +e
+          # Canonical workaround for running semantic-release --dry-run on a
+          # PR (see semantic-release discussions #1886 and #1937):
+          #
+          #   1. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's on
+          #      GitHub Actions and to report the branch as `refs/pull/N/merge`.
+          #      With it gone, env-ci falls back to git-based branch detection
+          #      and sees us on the PR head branch.
+          #   2. Override the branches allowlist with just that head branch.
+          #      A single entry keeps us well under semantic-release's
+          #      max-3-release-branches validation.
+          #   3. --no-ci skips the refuse-on-PR check that runs even after
+          #      branch detection passes.
+          #
+          # The file config (`.releaserc.json`) is untouched, so real releases
+          # still only ship from `main`. actions/checkout uses the merge ref
+          # by default, which is what we want analyzed.
+          unset GITHUB_ACTIONS
+          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
+          STATUS=$?
+          cat semrel.log
+          NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
+          [ -z "$NEXT" ] && NEXT="none"
+          # Detect "major" via semantic-release's own release-type log line.
+          # This catches both `BREAKING CHANGE:` footers AND the `feat!:` /
+          # `fix!:` shorthand, which doesn't emit the footer keyword.
+          if grep -qiE "complete:[[:space:]]*major[[:space:]]+release|release type[[:space:]]+is[[:space:]]+major" semrel.log; then
+            IS_MAJOR=1
+          else
+            IS_MAJOR=0
+          fi
+          # Best-effort: pull any explicit BREAKING CHANGE footer text for the comment.
+          # `feat!:` commits without a footer won't have notes here, and that's fine —
+          # the banner is gated on IS_MAJOR, not on the presence of footer text.
+          awk '/BREAKING CHANGE:/{flag=1} flag{print; if(/^$/) flag=0}' semrel.log > breaking.txt || true
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "is_major=$IS_MAJOR" >> "$GITHUB_OUTPUT"
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Build PR comment body
+        id: body
+        if: always()
+        run: |
+          set -e
+          MARKER='<!-- commit-lint-bot -->'
+          STATUS="${{ steps.commitlint.outputs.status }}"
+          NEXT="${{ steps.semrel.outputs.next }}"
+          IS_MAJOR="${{ steps.semrel.outputs.is_major }}"
+          SEMREL_STATUS="${{ steps.semrel.outputs.status }}"
+
+          {
+            echo "$MARKER"
+            if [ "$STATUS" = "0" ]; then
+              echo '## ✅ Commit Lint: passed'
+              echo
+              echo 'All commit messages in this PR conform to [Conventional Commits](https://www.conventionalcommits.org/).'
+              echo
+              if [ "$SEMREL_STATUS" != "0" ]; then
+                echo '> ⚠️ `semantic-release --dry-run` exited non-zero. Release preview may be incomplete. This does not block the PR.'
+                echo
+              fi
+              if [ -z "$NEXT" ] || [ "$NEXT" = "none" ]; then
+                echo '### 📦 Release preview: _no release_'
+                echo
+                echo 'These commits would not trigger a new release on `main`.'
+              elif [ "${IS_MAJOR:-0}" = "1" ]; then
+                echo "### 🚨🚨🚨 BREAKING CHANGES DETECTED — Next release: \`v$NEXT\` (MAJOR)"
+                echo
+                echo 'This PR introduces one or more breaking changes (either a `BREAKING CHANGE:` footer or a `feat!:` / `fix!:` shorthand). Merging will publish a **major** version bump.'
+                echo
+                if [ -s breaking.txt ]; then
+                  echo '<details><summary>Breaking change notes</summary>'
+                  echo
+                  echo '```'
+                  head -c 4000 breaking.txt
+                  echo
+                  echo '```'
+                  echo '</details>'
+                fi
+              else
+                echo "### 📦 Release preview: \`v$NEXT\`"
+                echo
+                echo 'Merging this PR will trigger a new release on `main`.'
+              fi
+              echo
+              echo '<details><summary>semantic-release dry-run output</summary>'
+              echo
+              echo '```'
+              tail -c 6000 semrel.log 2>/dev/null || true
+              echo
+              echo '```'
+              echo '</details>'
+            else
+              echo '## ❌ Commit Lint: failed'
+              echo
+              echo 'One or more commit messages in this PR do not conform to [Conventional Commits](https://www.conventionalcommits.org/).'
+              echo 'This must be fixed before this PR can be merged.'
+              echo
+              echo '### commitlint output'
+              echo
+              echo '```'
+              cat commitlint.log
+              echo '```'
+              echo
+              echo '### How to fix'
+              echo
+              echo '1. Reword the offending commit(s) so the subject matches `type(scope): description`.'
+              echo '   - Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.'
+              echo '   - Breaking changes: append `!` after the type/scope, or add a `BREAKING CHANGE:` footer.'
+              echo '2. Rewrite history on your branch:'
+              echo
+              echo '   ```bash'
+              echo '   # most recent commit'
+              echo '   git commit --amend'
+              echo '   # earlier commits'
+              echo '   git rebase -i origin/${{ github.event.pull_request.base.ref }}'
+              echo '   git push --force-with-lease'
+              echo '   ```'
+              echo
+              echo 'See `commitlint.config.js` for the full ruleset.'
+            fi
+          } > comment.md
+          echo "path=$PWD/comment.md" >> "$GITHUB_OUTPUT"
+
+      - name: Find existing bot comment
+        if: always()
+        id: find_comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- commit-lint-bot -->'
+
+      - name: Upsert PR comment
+        if: always()
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: ${{ steps.body.outputs.path }}
+          edit-mode: replace
+
+      - name: Fail job if commitlint failed
+        if: steps.commitlint.outputs.status != '0'
+        run: |
+          echo "Commit lint failed — see PR comment for details."
+          exit 1
