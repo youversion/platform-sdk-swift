@@ -73,7 +73,14 @@ jobs:
           # CI checkout (see plugin-filter step below); the version in the
           # repo is untouched, so real releases on `main` still ship with
           # the full plugin list.
-          git checkout -B "$HEAD_REF" "origin/$HEAD_REF"
+          # Fork PRs don't have their head branch on `origin` (origin is the
+          # base repo), so the first attempt silently fails on fork-originated
+          # PRs. The HEAD fallback reattaches to the merge ref still under our
+          # feet, which is enough for env-ci's git fallback to report a real
+          # symbolic ref. Non-fork PRs hit the first form and never reach the
+          # fallback.
+          git checkout -B "$HEAD_REF" "origin/$HEAD_REF" 2>/dev/null \
+            || git checkout -B "$HEAD_REF" HEAD
 
           # Capture the current released version up-front so we can always
           # report a "calculated version" — even when semantic-release
@@ -166,7 +173,7 @@ jobs:
                 echo
               fi
               if [ "${NO_BUMP:-0}" = "1" ]; then
-                echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` (no bump)"
+                echo "### 📦 Release preview: \`v$CURRENT\` (no bump)"
                 echo
                 echo 'These commits do not trigger a version bump. The published version on `main` would remain `v'"$CURRENT"'`.'
               elif [ "${IS_MAJOR:-0}" = "1" ]; then
