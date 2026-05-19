@@ -46,6 +46,13 @@ import Testing
         #expect(version.displayTitle(for: reference) == "Genesis 1:3 NIV")
     }
 
+    @Test func displayTitleIncludesVerseRange() {
+        let version = makeBibleVersion()
+        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+
+        #expect(version.displayTitle(for: reference) == "Genesis 1:3-5 NIV")
+    }
+
     @Test func displayTitleIncludesSingleVerseInSingleChapterBook() {
         let version = makeBibleVersion()
         let reference = BibleReference(versionId: 111, bookUSFM: "JUD", chapter: 1, verse: 4)

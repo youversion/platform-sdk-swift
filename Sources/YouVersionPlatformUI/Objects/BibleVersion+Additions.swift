@@ -55,12 +55,17 @@ public extension BibleVersion {
         let bookAndChapterSeparator = hasOneChapter ? "" : " "
         let chapter = hasOneChapter ? "" : String(reference.chapter)
 
-        if reference.verseEnd == 999 || reference.verseStart == nil {
+        if reference.verseEnd == 999 {
             // Whole chapter
             return [bookName, bookAndChapterSeparator, chapter]
         }
 
-        guard let verseStart = reference.verseStart, let verseEnd = reference.verseEnd else {
+        guard let verseStart = reference.verseStart else {
+            // Whole chapter
+            return [bookName, bookAndChapterSeparator, chapter]
+        }
+
+        guard let verseEnd = reference.verseEnd else {
             assertionFailure("BibleReference verseEnd should be set when verseStart is set.")
             return [bookName, bookAndChapterSeparator, chapter]
         }
