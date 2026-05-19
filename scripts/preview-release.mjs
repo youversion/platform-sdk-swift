@@ -75,10 +75,15 @@ function getCommits(base, head) {
 
 function getCurrentVersion() {
   try {
-    return execSync("git describe --tags --abbrev=0", {
+    const tag = execSync("git describe --tags --abbrev=0", {
       cwd: REPO_ROOT,
       encoding: "utf8",
     }).trim();
+    // Strip leading `v` so the caller always gets a bare semver string
+    // (e.g. "1.2.3"). The workflow already prepends `v` in the display
+    // strings, and semver.inc() also returns without a prefix — keeping
+    // both in sync avoids a `vv1.2.3` double-prefix in PR comments.
+    return tag.replace(/^v/, "") || "0.0.0";
   } catch {
     return "0.0.0";
   }
