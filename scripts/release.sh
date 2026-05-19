@@ -236,6 +236,12 @@ bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
 
 Y_SHA=$(git rev-parse HEAD)
 
+# Clean up the generated notes file so a successful run leaves the repo
+# tidy. The .gitignore entry covers the unlikely case where this rm
+# doesn't fire (script killed, etc.), but removing it explicitly on the
+# success path is the principled cleanup.
+rm -f notes.md
+
 echo
 echo "✅ Release $VERSION complete."
 echo "   Tag $VERSION -> $X_SHA (commit X)"
