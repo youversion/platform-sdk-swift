@@ -102,6 +102,9 @@ import Testing
         let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
         let queryItems = components?.queryItems ?? []
         #expect(queryItems.contains(where: { $0.name == "language_ranges[]" && $0.value == "*" }))
+        #expect(queryItems.contains(where: { $0.name == "page_size" && $0.value == "*" }))
+        #expect(queryItems.contains(where: { $0.name == "fields[]" && $0.value == "id" }))
+        #expect(queryItems.contains(where: { $0.name == "fields[]" && $0.value == "language_tag" }))
     }
 
     @MainActor
@@ -111,6 +114,21 @@ import Testing
 
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        await #expect(throws: YouVersionAPIError.notPermitted) {
+            _ = try await YouVersionAPI.Bible.permittedVersions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
+        }
+    }
+
+    @MainActor
+    @Test func permittedVersionsForbiddenThrowsNotPermitted() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 403, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
 
