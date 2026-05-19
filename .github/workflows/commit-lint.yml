@@ -42,52 +42,63 @@ jobs:
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Semantic-release dry-run
-        id: semrel
+      - name: Compute release preview
+        id: preview
         if: steps.commitlint.outputs.status == '0'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          set +e
-          # Canonical workaround for running semantic-release --dry-run on a
-          # PR (see semantic-release discussions #1886 and #1937):
+          set -e
+          # Direct call to `@semantic-release/commit-analyzer` via
+          # scripts/preview-release.mjs. Skips the full
+          # `semantic-release --dry-run` lifecycle entirely.
           #
-          #   1. Unset GITHUB_ACTIONS. env-ci uses that flag to decide it's on
-          #      GitHub Actions and to report the branch as `refs/pull/N/merge`.
-          #      With it gone, env-ci falls back to git-based branch detection
-          #      and sees us on the PR head branch.
-          #   2. Override the branches allowlist with just that head branch.
-          #      A single entry keeps us well under semantic-release's
-          #      max-3-release-branches validation.
-          #   3. --no-ci skips the refuse-on-PR check that runs even after
-          #      branch detection passes.
+          # Why this exists: the previous dry-run approach silently
+          # failed on PR events because semantic-release's core
+          # `verifyAuth` step runs `git push --dry-run` to test push
+          # permission — and the `pull_request`-event `GITHUB_TOKEN`
+          # has `contents: read` only. That auth check aborts the
+          # whole lifecycle BEFORE `analyzeCommits` runs, producing a
+          # silent false-negative "no bump" preview (the exact
+          # fail-open class that hid the major bump on the squash of
+          # PR #117). `--no-ci` skips the CI env check, not the auth
+          # verification — there is no flag to disable it.
           #
-          # The file config (`.releaserc.json`) is untouched, so real releases
-          # still only ship from `main`. actions/checkout uses the merge ref
-          # by default, which is what we want analyzed.
-          unset GITHUB_ACTIONS
-          npx semantic-release --dry-run --no-ci --branches "$HEAD_REF" > semrel.log 2>&1
-          STATUS=$?
-          cat semrel.log
-          NEXT=$(grep -Eo "The next release version is [0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?" semrel.log | tail -1 | awk '{print $NF}')
-          [ -z "$NEXT" ] && NEXT="none"
-          # Detect "major" via semantic-release's own release-type log line.
-          # This catches both `BREAKING CHANGE:` footers AND the `feat!:` /
-          # `fix!:` shorthand, which doesn't emit the footer keyword.
-          if grep -qiE "complete:[[:space:]]*major[[:space:]]+release|release type[[:space:]]+is[[:space:]]+major" semrel.log; then
-            IS_MAJOR=1
-          else
-            IS_MAJOR=0
-          fi
-          # Best-effort: pull any explicit BREAKING CHANGE footer text for the comment.
-          # `feat!:` commits without a footer won't have notes here, and that's fine —
-          # the banner is gated on IS_MAJOR, not on the presence of footer text.
-          awk '/BREAKING CHANGE:/{flag=1} flag{print; if(/^$/) flag=0}' semrel.log > breaking.txt || true
+          # The analyzer module has no auth concerns, no env-ci, no
+          # branch-detection, no `verifyConditions`. Given a list of
+          # commits and the same plugin config production uses on
+          # `main` (read from `.releaserc.json`), it deterministically
+          # returns the release type.
+          #
+          # If the analyzer errors, this step fails (set -e). That is
+          # intentional: a broken preview should be loud, not silent.
+          node scripts/preview-release.mjs \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            > preview.json 2> analyzer.log
+          cat analyzer.log
+          cat preview.json
+
+          CURRENT=$(jq -r .current preview.json)
+          NEXT=$(jq -r .next preview.json)
+          RELEASE_TYPE=$(jq -r .release_type preview.json)
+          # Derive NO_BUMP / IS_MAJOR from RELEASE_TYPE rather than reading
+          # the script's `is_major` JSON field. `jq -r .is_major` would
+          # stringify the boolean as "true"/"false", but the comment-body
+          # step compares against "1"/"0" — depending on jq's output
+          # format here is a footgun. RELEASE_TYPE is canonical.
+          case "$RELEASE_TYPE" in
+            null)  NO_BUMP=1; IS_MAJOR=0 ;;
+            major) NO_BUMP=0; IS_MAJOR=1 ;;
+            *)     NO_BUMP=0; IS_MAJOR=0 ;;
+          esac
+
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
           echo "is_major=$IS_MAJOR" >> "$GITHUB_OUTPUT"
-          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
-          exit 0
+          echo "no_bump=$NO_BUMP" >> "$GITHUB_OUTPUT"
 
       - name: Build PR comment body
         id: body
@@ -96,9 +107,11 @@ jobs:
           set -e
           MARKER='<!-- commit-lint-bot -->'
           STATUS="${{ steps.commitlint.outputs.status }}"
-          NEXT="${{ steps.semrel.outputs.next }}"
-          IS_MAJOR="${{ steps.semrel.outputs.is_major }}"
-          SEMREL_STATUS="${{ steps.semrel.outputs.status }}"
+          CURRENT="${{ steps.preview.outputs.current }}"
+          NEXT="${{ steps.preview.outputs.next }}"
+          RELEASE_TYPE="${{ steps.preview.outputs.release_type }}"
+          NO_BUMP="${{ steps.preview.outputs.no_bump }}"
+          IS_MAJOR="${{ steps.preview.outputs.is_major }}"
 
           {
             echo "$MARKER"
@@ -107,38 +120,25 @@ jobs:
               echo
               echo 'All commit messages in this PR conform to [Conventional Commits](https://www.conventionalcommits.org/).'
               echo
-              if [ "$SEMREL_STATUS" != "0" ]; then
-                echo '> ⚠️ `semantic-release --dry-run` exited non-zero. Release preview may be incomplete. This does not block the PR.'
+              if [ "${NO_BUMP:-0}" = "1" ]; then
+                echo "### 📦 Release preview: \`v$CURRENT\` (no bump)"
                 echo
-              fi
-              if [ -z "$NEXT" ] || [ "$NEXT" = "none" ]; then
-                echo '### 📦 Release preview: _no release_'
-                echo
-                echo 'These commits would not trigger a new release on `main`.'
+                echo 'These commits do not trigger a version bump. The published version on `main` would remain `v'"$CURRENT"'`.'
               elif [ "${IS_MAJOR:-0}" = "1" ]; then
-                echo "### 🚨🚨🚨 BREAKING CHANGES DETECTED — Next release: \`v$NEXT\` (MAJOR)"
+                echo "### 🚨🚨🚨 Major version bump detected — \`v$CURRENT\` → \`v$NEXT\` (MAJOR)"
                 echo
-                echo 'This PR introduces one or more breaking changes (either a `BREAKING CHANGE:` footer or a `feat!:` / `fix!:` shorthand). Merging will publish a **major** version bump.'
-                echo
-                if [ -s breaking.txt ]; then
-                  echo '<details><summary>Breaking change notes</summary>'
-                  echo
-                  echo '```'
-                  head -c 4000 breaking.txt
-                  echo
-                  echo '```'
-                  echo '</details>'
-                fi
+                echo 'The analyzer classified one or more commits as a major bump (a footer at start-of-line with the breaking-change token, or a `feat!:` / `fix!:` shorthand). If this is intentional, proceed. If this is prose accidentally tripping the parser, reword the offending commit body before merging — see the analyzer log below to identify which commit triggered the classification.'
               else
-                echo "### 📦 Release preview: \`v$NEXT\`"
+                BUMP_LABEL="${RELEASE_TYPE:-release}"
+                echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` ($BUMP_LABEL)"
                 echo
-                echo 'Merging this PR will trigger a new release on `main`.'
+                echo 'Merging this PR will, on the next manual release dispatch, ship as the version above.'
               fi
               echo
-              echo '<details><summary>semantic-release dry-run output</summary>'
+              echo '<details><summary>Release analyzer output</summary>'
               echo
               echo '```'
-              tail -c 6000 semrel.log 2>/dev/null || true
+              tail -c 6000 analyzer.log 2>/dev/null || true
               echo
               echo '```'
               echo '</details>'
