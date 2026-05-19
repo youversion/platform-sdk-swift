@@ -188,6 +188,9 @@ public struct BibleReaderView: View {
             lastScrolledVerse = nil
             viewModel.resetChapterCompleteTracking()
         }
+        .task {
+            await viewModel.onAppear()
+        }
         .onChange(of: viewModel.reference) { _, newReference in
             verseAnchors = []
             lastScrolledVerse = nil

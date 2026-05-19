@@ -91,7 +91,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         reference: BibleReference? = nil,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
-        versionsViewModel: BibleVersionsViewModel? = nil,
         audioActiveIndicatorColor: Color? = nil,
         onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
         onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
@@ -125,8 +124,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         self.authentication = authentication
         self.isSignedIn = authentication.isSignedIn
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
-        let shouldLoadVersionsViewModel = versionsViewModel == nil
-        self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
+        self.versionsViewModel = BibleVersionsViewModel()
         self.versionsViewModel.onSignInRequired = { [weak self] in
             self?.onSignInRequired()
         }
@@ -136,14 +134,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
         ReaderFonts.installFontsIfNeeded()
 
-        if shouldLoadVersionsViewModel {
-            let initialVersionId = self.reference.versionId
-            Task { [weak self] in
-                await self?.versionsViewModel.loadInitialState(initialVersionId: initialVersionId)
-            }
-        }
-
         observeCurrentVersion()
+    }
+
+    func onAppear() async {
+        await versionsViewModel.loadInitialState(initialVersionId: reference.versionId)
     }
 
     // Reacts to BibleVersionsViewModel.currentVersion changes by updating
