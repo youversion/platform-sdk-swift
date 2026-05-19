@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.3](https://github.com/youversion/platform-sdk-swift/compare/5.2.2...5.2.3) (2026-05-18)
+
+
+### Bug Fixes
+
+* **ci:** switch release publishing from auto-on-push to manual `workflow_dispatch` trigger. The Release workflow no longer fires on every merge to `main`; cut releases on demand from the Actions tab (or `gh workflow run release.yml`). See [RELEASING.md](./RELEASING.md).
+
+
+### Continuous Integration
+
+* replace Husky commit-msg hook with CI commit-lint + release preview ([#117](https://github.com/youversion/platform-sdk-swift/issues/117)) ([1d21411](https://github.com/youversion/platform-sdk-swift/commit/1d214119f6e4792d6c49607f4d37d425df1e20d4))
+
 ## [5.2.2](https://github.com/youversion/platform-sdk-swift/compare/5.2.1...5.2.2) (2026-05-15)
 
 

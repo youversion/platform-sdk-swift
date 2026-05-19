@@ -115,7 +115,7 @@ When writing or reviewing code in this repo, load the relevant skill:
 
 ## Release Process
 
-Releases are driven by `semantic-release` from `main` (see `.github/workflows/release.yml` and `.releaserc.json`). Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They behave differently on purpose.
+Releases are driven by `semantic-release` from `main` (see `.github/workflows/release.yml` and `.releaserc.json`). **The Release workflow is triggered manually via `workflow_dispatch`** — go to the Actions tab and click "Run workflow", or run `gh workflow run release.yml`. Merging to `main` does **not** publish on its own; merges only land code, and a human decides when to cut the next release. Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They behave differently on purpose.
 
 **Podspecs** are bumped by `scripts/update-pod-versions.sh` during the prepare phase. The change is committed to `main` along with the `CHANGELOG.md` update.
 
