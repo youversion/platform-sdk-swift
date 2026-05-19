@@ -129,7 +129,9 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 
 if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
-  echo "❌ Tag $VERSION already exists locally" >&2
+  # Workflow checks out with fetch-depth: 0, so this also catches tags
+  # already on origin — the local clone has every remote tag.
+  echo "❌ Tag $VERSION already exists (in local refs, which include everything fetched from origin)" >&2
   exit 1
 fi
 
