@@ -83,8 +83,16 @@ jobs:
           CURRENT=$(jq -r .current preview.json)
           NEXT=$(jq -r .next preview.json)
           RELEASE_TYPE=$(jq -r .release_type preview.json)
-          IS_MAJOR=$(jq -r .is_major preview.json)
-          if [ "$RELEASE_TYPE" = "null" ]; then NO_BUMP=1; else NO_BUMP=0; fi
+          # Derive NO_BUMP / IS_MAJOR from RELEASE_TYPE rather than reading
+          # the script's `is_major` JSON field. `jq -r .is_major` would
+          # stringify the boolean as "true"/"false", but the comment-body
+          # step compares against "1"/"0" — depending on jq's output
+          # format here is a footgun. RELEASE_TYPE is canonical.
+          case "$RELEASE_TYPE" in
+            null)  NO_BUMP=1; IS_MAJOR=0 ;;
+            major) NO_BUMP=0; IS_MAJOR=1 ;;
+            *)     NO_BUMP=0; IS_MAJOR=0 ;;
+          esac
 
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
