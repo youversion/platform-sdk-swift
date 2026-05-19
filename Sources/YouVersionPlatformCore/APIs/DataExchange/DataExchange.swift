@@ -29,16 +29,11 @@ public extension YouVersionAPI {
             guard let appKey = YouVersionPlatformConfiguration.appKey else {
                 throw YouVersionAPIError.missingAuthentication
             }
-            guard let url = URLBuilder.dataExchangeTokenURL(
-                appKey: appKey,
-                appID: nil
-            ) else {
+            guard let url = URLBuilder.dataExchangeTokenURL(appKey: appKey) else {
                 throw URLError(.badURL)
             }
 
-            let requestBody = DataExchangeTokenCreate(
-                permissions: permissions.map(\.rawValue)
-            )
+            let requestBody = DataExchangeTokenCreate(permissions: permissions.map(\.rawValue))
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session)
             request.httpMethod = "POST"

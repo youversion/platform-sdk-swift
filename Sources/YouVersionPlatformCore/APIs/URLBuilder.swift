@@ -38,16 +38,12 @@ public enum URLBuilder {
         return components.url
     }
 
-    public static func dataExchangeTokenURL(appKey: String?, appID: String? = nil) -> URL? {
+    public static func dataExchangeTokenURL(appKey: String) -> URL? {
         var components = baseURLComponents
         components.path = "/data-exchange/token"
-        let queryItems = [
-            appKey.map { URLQueryItem(name: "x-yvp-app-key", value: $0) },
-            appID.map { URLQueryItem(name: "x-yvp-app-id", value: $0) }
-        ].compactMap { $0 }
-        if !queryItems.isEmpty {
-            components.queryItems = queryItems
-        }
+        components.queryItems = [
+            URLQueryItem(name: "x-yvp-app-key", value: appKey)
+        ]
         return components.url
     }
 

@@ -74,22 +74,12 @@ struct URLBuilderTests {
 
     @Test
     func testDataExchangeTokenURL() throws {
-        let url = try #require(URLBuilder.dataExchangeTokenURL(appKey: "app-key", appID: "app-id"))
+        let url = try #require(URLBuilder.dataExchangeTokenURL(appKey: "app-key"))
         let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
         let items = components.queryItems ?? []
 
         #expect(components.path == "/data-exchange/token")
         #expect(items.first { $0.name == "x-yvp-app-key" }?.value == "app-key")
-        #expect(items.first { $0.name == "x-yvp-app-id" }?.value == "app-id")
-    }
-
-    @Test
-    func testDataExchangeTokenURLOmitsAbsentQueryItems() throws {
-        let url = try #require(URLBuilder.dataExchangeTokenURL(appKey: nil, appID: nil))
-        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
-
-        #expect(components.path == "/data-exchange/token")
-        #expect(components.queryItems == nil)
     }
 
     @Test
