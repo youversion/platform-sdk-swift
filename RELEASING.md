@@ -177,6 +177,27 @@ The analyzer log in the PR comment's `<details>` block shows which commit trigge
 
 The script is idempotent via `pod trunk info`. Re-dispatch with the same version; the already-published pods will be skipped and the missing ones retried. If `pod trunk info` itself is unreliable, check `pod trunk me` to confirm authentication.
 
+### The release script aborted after pushing the tag — main is stamped with the released version
+
+If `release.sh` dies in any of the post-push steps (`gh release create`, `publish-pods.sh`, `restore-dev-sdk-on-main.sh`), `main` HEAD is commit **X** with `SDKVersion.swift` reading the released version, and commit **Y** was never created. Re-running `release.sh` won't recover — its pre-flight requires `SDKVersion.swift` to read `"Dev"` and will refuse to proceed.
+
+Finish the release by running the remaining steps manually:
+
+```bash
+VERSION=<the version that was being released>
+
+# If the GitHub release wasn't created (check the Releases page):
+gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
+
+# Idempotent via `pod trunk info` — safe regardless of how far the script got:
+bash scripts/publish-pods.sh "$VERSION"
+
+# Creates commit Y and restores SDKVersion to "Dev":
+bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
+```
+
+`notes.md` is left in place when the script aborts (the success-path `rm` doesn't fire), so it's available for the `gh release create` call. Verify with `git log -2 --oneline` (Y on top of X) and `pod trunk info YouVersionPlatformCore` (latest matches `$VERSION`).
+
 ### Need an emergency release without the workflow
 
 The pieces of `scripts/release.sh` can be run by hand:
