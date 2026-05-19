@@ -70,6 +70,12 @@ public final class BibleVersionsViewModel {
         }
         hasLoadedInitialState = true
 
+        defer {
+            if Task.isCancelled {
+                hasLoadedInitialState = false
+            }
+        }
+
         // Grab the saved data first, because initializing myVersions clears the saved data.
         let savedIds = Set(UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? [])
 
