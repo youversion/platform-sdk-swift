@@ -196,6 +196,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
 @MainActor
 @Suite struct BibleReaderViewModelNavigationTests {
+    private static var nextGeneratedVersionId = 909_000
     private static let versionId = 3034
 
     @Test(arguments: [false, true])
@@ -402,7 +403,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
     @Test
     func shareableVerseTextRendersCachedChapterTextForReferences() async throws {
-        let versionId = 909001
+        let versionId = Self.generatedVersionId()
         let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
         let verseReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         let html = """
@@ -413,7 +414,6 @@ let previousChapterCases: [PreviousChapterCase] = [
             </div>
         </div>
         """
-        await BibleChapterRepository.shared.removeVersion(withId: versionId)
         let storage = BibleContentStorage(storageKind: .cache)
         let chapterUSFM = try #require(chapterReference.chapterUSFM)
         try storage.writeString(
@@ -430,7 +430,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
     @Test
     func handleVerseActionCopyWithSelectedVersesClearsSelectionAndHidesDrawer() async throws {
-        let versionId = 909002
+        let versionId = Self.generatedVersionId()
         let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
         let selectedReferences = [
             BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
@@ -444,7 +444,6 @@ let previousChapterCases: [PreviousChapterCase] = [
             </div>
         </div>
         """
-        await BibleChapterRepository.shared.removeVersion(withId: versionId)
         let storage = BibleContentStorage(storageKind: .cache)
         let chapterUSFM = try #require(chapterReference.chapterUSFM)
         try storage.writeString(
@@ -458,11 +457,11 @@ let previousChapterCases: [PreviousChapterCase] = [
         viewModel.selectedVerses = Set(selectedReferences)
         viewModel.showingVerseActionsDrawer = true
 
-        viewModel.handleVerseActionCopy()
+        let copyTask = try #require(viewModel.handleVerseActionCopy())
 
         #expect(viewModel.selectedVerses.isEmpty)
         #expect(viewModel.showingVerseActionsDrawer == false)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await copyTask.value
         await BibleChapterRepository.shared.removeVersion(withId: versionId)
     }
 
@@ -472,6 +471,11 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(vm.scrollToTop == true)
         #expect(vm.selectedVerses.isEmpty)
         #expect(vm.showingVerseActionsDrawer == false)
+    }
+
+    private static func generatedVersionId() -> Int {
+        nextGeneratedVersionId += 1
+        return nextGeneratedVersionId
     }
 
     private func makeViewModel(
