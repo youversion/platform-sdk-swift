@@ -92,8 +92,7 @@ public struct DataExchangeSession {
         }
 
         if result.isGranted {
-            result.grantedPermissions
-                .forEach(YouVersionPlatformConfiguration.saveDataExchangePermission)
+            YouVersionPlatformConfiguration.saveDataExchangePermissions(result.grantedPermissions)
         }
 
         return result

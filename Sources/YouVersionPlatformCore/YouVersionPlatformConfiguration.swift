@@ -103,12 +103,6 @@ public struct YouVersionPlatformConfiguration {
         savedDataExchangePermissions.contains(permission.rawValue)
     }
 
-    /// Saves a data exchange permission granted by the user.
-    @MainActor
-    public static func saveDataExchangePermission(_ permission: DataExchangePermission) {
-        saveDataExchangePermissions([permission])
-    }
-
     public static var authData: SignInWithYouVersionResult? {
         guard
             let accessToken = UserDefaults.standard.string(forKey: accessTokenKey),
@@ -129,7 +123,7 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    private static func saveDataExchangePermissions(_ permissions: Set<DataExchangePermission>) {
+    public static func saveDataExchangePermissions(_ permissions: [DataExchangePermission]) {
         var rawValues = savedDataExchangePermissions
         rawValues.formUnion(permissions.map(\.rawValue))
         UserDefaults.standard.set(Array(rawValues).sorted(), forKey: dataExchangePermissionsKey)

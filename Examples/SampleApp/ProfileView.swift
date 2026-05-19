@@ -4,8 +4,9 @@ import YouVersionPlatform
 struct ProfileView: View {
     @State private var contextProvider = ContextProvider()
     @State private var isSignedIn = false
-    @State private var dataExchangeStatus: String?
-
+    @State private var dataExchangeStatusText: String?
+    @State private var hasHighlightsPermission: Bool = false
+    
     var body: some View {
         VStack {
             if isSignedIn {
@@ -13,19 +14,21 @@ struct ProfileView: View {
                     .padding()
                 Text(YouVersionAPI.Users.currentUserName ?? "(no name)")
                 Text(YouVersionAPI.Users.currentUserEmail ?? "(no email)")
-                Button("Request highlights permission") {
-                    requestHighlightsPermission()
+                    .padding(.bottom)
+                if hasHighlightsPermission {
+                    Text("Highlights permission: granted")
+                } else {
+                    Button("Request highlights permission") {
+                        requestHighlightsPermission()
+                    }
                 }
-                .padding(.top)
-                if let dataExchangeStatus {
-                    Text(dataExchangeStatus)
+                if let dataExchangeStatusText {
+                    Text(dataExchangeStatusText)
                         .font(.footnote)
-                        .padding(.top, 4)
+                        .padding(.vertical)
                 }
                 Button("Sign out") {
-                    YouVersionAPI.Users.signOut()
-                    isSignedIn = false
-                    dataExchangeStatus = nil
+                    doSignOut()
                 }
                 .padding(.top)
             } else {
@@ -36,25 +39,10 @@ struct ProfileView: View {
         }
         .onAppear {
             isSignedIn = YouVersionAPI.isSignedIn
+            hasHighlightsPermission = YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights)
         }
     }
-
-    func requestHighlightsPermission() {
-        Task {
-            do {
-                let session = DataExchangeSession(contextProvider: contextProvider)
-                let result = try await session.requestDataExchange(permissions: [.highlights])
-                if result.isGranted {
-                    dataExchangeStatus = "Highlights permission granted."
-                } else {
-                    dataExchangeStatus = "Highlights permission status: \(result.status)"
-                }
-            } catch {
-                dataExchangeStatus = "Highlights permission failed: \(error.localizedDescription)"
-            }
-        }
-    }
-
+    
     func doSignIn() {
         Task {
             do {
@@ -65,12 +53,39 @@ struct ProfileView: View {
                 // The user is signed in! Their accessToken will automatically be saved
                 // to UserDefaults on this device, so they don't have to log in again next time.
                 // Now you may use accessors like YouVersionAPI.Users.currentUserName.
+                
+                // To prove out the UX: immediately request the highlights permission
+                requestHighlightsPermission()
             } catch {
                 print("Sign In failed: \(error.localizedDescription)")
             }
             isSignedIn = YouVersionAPI.isSignedIn
         }
     }
+    
+    func doSignOut() {
+        YouVersionAPI.Users.signOut()
+        isSignedIn = false
+        dataExchangeStatusText = nil
+        hasHighlightsPermission = false
+    }
+    
+    func requestHighlightsPermission() {
+        dataExchangeStatusText = nil
+        Task {
+            do {
+                let session = DataExchangeSession(contextProvider: contextProvider)
+                let result = try await session.requestDataExchange(permissions: [.highlights])
+                if !result.isGranted {
+                    dataExchangeStatusText = "Highlights permission status: \(result.status)"
+                }
+                hasHighlightsPermission = YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights)
+            } catch {
+                dataExchangeStatusText = "Highlights permission failed: \(error.localizedDescription)"
+            }
+        }
+    }
+
 }
 
 #Preview {
