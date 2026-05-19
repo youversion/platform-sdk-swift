@@ -36,11 +36,11 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages — they drive semantic-release's version bumps and the auto-generated CHANGELOG. Validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` (or `npx commitlint --from=origin/main --to=HEAD --verbose`).
 
-  > **⚠️ Important: every commit subject on `main` is scanned to compute the next version.**
+  > **⚠️ Important: every commit subject on `main` is scanned to compute the next version when a release is cut.**
   >
-  > This repo squash-merges PRs. The **squash commit subject becomes a single commit on `main`** — its `<type>` is what semantic-release reads, not the individual commits on your branch. GitHub seeds the squash subject from the PR title by default, so **make sure your PR title is itself a valid Conventional Commit** (e.g. `feat(reader): add highlight color picker`). If the squash subject is `chore:` you'll get no release even if every commit on your branch was a `feat`.
+  > This repo squash-merges PRs. The **squash commit subject becomes a single commit on `main`** — its `<type>` is what semantic-release reads, not the individual commits on your branch. GitHub seeds the squash subject from the PR title by default, so **make sure your PR title is itself a valid Conventional Commit** (e.g. `feat(reader): add highlight color picker`). If the squash subject is `chore:` it contributes no release signal even if every commit on your branch was a `feat`.
   >
-  > On each push to `main`, semantic-release walks the entire commit history back to the last release tag and picks the **highest** bump it finds — one `feat` among ten `chore`s still triggers a minor release; one `BREAKING CHANGE` anywhere triggers a major. The CI `Commit Lint` workflow on each PR previews the next version using the same logic.
+  > Releases are cut on demand — see [RELEASING.md](./RELEASING.md). When the Release workflow is triggered, semantic-release walks the entire commit history back to the last release tag and picks the **highest** bump it finds across that window — one `feat` among ten `chore`s still produces a minor release; one `BREAKING CHANGE` footer (or `!` shorthand) anywhere produces a major. The CI `Commit Lint` workflow on each PR previews the version that *would* be cut today, using the same logic, so you can see your PR's impact before merging.
 
   **Format:** `<type>(<optional scope>): <subject>`
 
