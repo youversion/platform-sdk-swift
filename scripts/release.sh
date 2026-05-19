@@ -84,6 +84,25 @@ CALCULATED=$(echo "$PREVIEW_JSON" | node -e "let s=''; process.stdin.on('data', 
 CALC_TYPE=$(echo "$PREVIEW_JSON" | node -e "let s=''; process.stdin.on('data', d=>s+=d).on('end', () => { const j=JSON.parse(s||'{}'); console.log(j.release_type || 'none'); });")
 echo "Calculated:     $CALCULATED ($CALC_TYPE)"
 
+# Write a side-by-side audit block to the GitHub Actions step summary
+# when running in CI. Surfaces "calculator said X, human chose Y" in the
+# job's web UI without needing to dig into the log.
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  {
+    echo "## Release \`$VERSION\`"
+    echo
+    echo "| Source            | Version            |"
+    echo "| ----------------- | ------------------ |"
+    echo "| Current tag       | \`$CURRENT_TAG\`   |"
+    echo "| Analyzer-computed | \`$CALCULATED\` ($CALC_TYPE) |"
+    echo "| Chosen (input)    | **\`$VERSION\`**   |"
+    if [ "$DRY_RUN" = "1" ]; then
+      echo
+      echo "> 🧪 **DRY_RUN=1** — workflow will build commit X + tag locally, then stop. No push, no GitHub release, no pod publish."
+    fi
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
+
 # Warn (don't block) if chosen version is more than one major above calculated.
 node -e "
   const semver = require('semver');
@@ -215,7 +234,20 @@ echo
 echo "Restoring SDKVersion to Dev on main..."
 bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
 
+Y_SHA=$(git rev-parse HEAD)
+
 echo
 echo "✅ Release $VERSION complete."
 echo "   Tag $VERSION -> $X_SHA (commit X)"
-echo "   main HEAD     -> $(git rev-parse HEAD) (commit Y, SDKVersion=\"Dev\")"
+echo "   main HEAD     -> $Y_SHA (commit Y, SDKVersion=\"Dev\")"
+
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  {
+    echo
+    echo "### ✅ Released"
+    echo
+    echo "- Tag \`$VERSION\` → \`$X_SHA\` (commit X)"
+    echo "- main HEAD → \`$Y_SHA\` (commit Y)"
+    echo "- GitHub release: [\`$VERSION\`](https://github.com/${GITHUB_REPOSITORY:-youversion/platform-sdk-swift}/releases/tag/$VERSION)"
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
