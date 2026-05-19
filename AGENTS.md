@@ -115,25 +115,35 @@ When writing or reviewing code in this repo, load the relevant skill:
 
 ## Release Process
 
-Releases are driven by `semantic-release` from `main` (see `.github/workflows/release.yml` and `.releaserc.json`). **The Release workflow is triggered manually via `workflow_dispatch`** — go to the Actions tab and click "Run workflow", or run `gh workflow run release.yml`. Merging to `main` does **not** publish on its own; merges only land code, and a human decides when to cut the next release. Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They behave differently on purpose.
+Releases are **manually triggered with an explicit version input** via `workflow_dispatch`. There is no auto-release on merges to `main`. Merging to `main` only lands code; a human decides when to cut a release and which version to ship.
 
-**Podspecs** are bumped by `scripts/update-pod-versions.sh` during the prepare phase. The change is committed to `main` along with the `CHANGELOG.md` update.
+The release pipeline does not invoke `semantic-release` as an orchestrator. We use `@semantic-release/commit-analyzer` and `@semantic-release/release-notes-generator` as ESM libraries (via `scripts/preview-release.mjs` and `scripts/generate-release-notes.mjs`), and `scripts/release.sh` orchestrates the rest. See [RELEASING.md](./RELEASING.md) for the full operator guide.
 
-**`Sources/YouVersionPlatformCore/SDKVersion.swift`** is bumped by `scripts/release-stamp-and-tag.sh` during the publish phase, on a *separate child commit* that is **not pushed to `main`**. The release tag is force-moved to point at this stamped commit. Topology after a release:
-
-```
-main:  ... ─ X (podspec=4.9.2, CHANGELOG, SDKVersion="Dev")     ← main HEAD
-                  \
-                   Y (… +SDKVersion="4.9.2")                    ← tag 4.9.2
+To dispatch a release:
+```bash
+gh workflow run release.yml -f version=5.3.0
+# add -f dry-run=true to validate the workflow without shipping
 ```
 
-Why: `main` always reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR CI report `SwiftSDK=Dev` rather than poisoning the data lake with stale or imprecise versions. SPM consumers resolving a tag and CocoaPods consumers (whose podspec source is `:tag => s.version.to_s`) both fetch `Y`, so production traffic reports the precise released version.
+Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They live in the same commit X but the SDKVersion handling has a twist.
+
+**Podspecs** are bumped by `scripts/update-pod-versions.sh`, called from `release.sh` before commit X.
+
+**`Sources/YouVersionPlatformCore/SDKVersion.swift`** is stamped to the release version by `scripts/stamp-sdk-version.sh` in commit X (so consumers fetching the tag see the real version), then restored to `"Dev"` in a follow-up commit Y by `scripts/restore-dev-sdk-on-main.sh`. Both X and Y are pushed to `main`; the tag stays at X. Topology after a release:
+
+```
+main:  ... ─ X (podspec=5.3.0, CHANGELOG entry, SDKVersion="5.3.0")   ← TAG 5.3.0
+                   \
+                    Y (SDKVersion="Dev")                              ← main HEAD
+```
+
+Why: `main` HEAD reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR CI report `SwiftSDK=Dev` rather than poisoning the data lake with stale or imprecise versions. SPM consumers resolving a tag and CocoaPods consumers (podspec source is `:tag => s.version.to_s`) fetch X, so production traffic reports the precise released version. Y is reachable from `main` and X is reachable from Y, so `git tag --merged main` still finds the release tag — that wasn't true in an earlier design that placed Y off-main.
 
 **Footguns**:
-- `git checkout <tag>` lands on a detached commit not reachable from `main`. Expected.
-- `git log main` does not show any commit that ever modified `SDKVersion.swift` to a real version. Expected — those commits live only on tags.
-- Don't cherry-pick a tagged commit onto `main`; it would leak the stamped version.
+- `git log main` does show every release: X (stamped, tagged) sits one commit behind every Y (Dev-restore). To find the tag commits, `git log main --grep '^chore(release):'` works.
+- Don't manually rebase or amend X or Y — they're part of an enforced topology that `restore-dev-sdk-on-main.sh`'s pre-flight asserts depend on.
 - If you change the shape of the `static let current = "..."` line in `SDKVersion.swift`, also update `scripts/stamp-sdk-version.sh`.
+- The Commit Lint workflow's PR preview shows what the analyzer would compute as the next version. The release workflow logs that value side-by-side with the human's chosen value for audit — they don't have to match.
 
 ## Localization
 
