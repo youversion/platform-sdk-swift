@@ -253,7 +253,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard pendingHighlight != nil, isSignedIn else {
             return
         }
-        if authentication.hasDataExchangePermission(.highlights) {
+        if authentication.hasPermission(.highlights) {
             applyPendingHighlight()
         } else {
             showingDataExchangeConfirmation = true
@@ -328,7 +328,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             startSignInFlow = true
             return
         }
-        if authentication.hasDataExchangePermission(.highlights) {
+        if authentication.hasPermission(.highlights) {
             applyHighlight(references: references, color: color)
         } else {
             pendingHighlight = PendingHighlight(references: references, color: color)

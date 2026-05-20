@@ -4,6 +4,12 @@ import FoundationNetworking
 #endif
 
 public extension YouVersionAPI {
+
+    /// Returns whether the user has granted a data exchange permission.
+    static func hasPermission(_ permission: DataExchangePermission) -> Bool {
+        YouVersionPlatformConfiguration.savedDataExchangePermissions.contains(permission.rawValue)
+    }
+
     enum DataExchange {
 
         /// Creates a short-lived token for the just-in-time data exchange browser flow.

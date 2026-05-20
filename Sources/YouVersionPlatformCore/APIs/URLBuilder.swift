@@ -42,7 +42,7 @@ public enum URLBuilder {
         var components = baseURLComponents
         components.path = "/data-exchange/token"
         components.queryItems = [
-            URLQueryItem(name: "x-yvp-app-key", value: appKey)
+            URLQueryItem(name: "app-key", value: appKey)
         ]
         return components.url
     }

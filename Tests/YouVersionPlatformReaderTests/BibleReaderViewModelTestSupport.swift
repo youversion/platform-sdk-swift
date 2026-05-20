@@ -70,7 +70,7 @@ enum BibleReaderViewModelTestSupport {
         isSignedIn: Bool = false,
         hasValidToken: Bool? = nil,
         signOut: @escaping @MainActor () -> Void = {},
-        hasDataExchangePermission: @escaping @MainActor (DataExchangePermission) -> Bool = { _ in false }
+        hasPermission: @escaping @MainActor (DataExchangePermission) -> Bool = { _ in false }
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),
@@ -81,7 +81,7 @@ enum BibleReaderViewModelTestSupport {
             isSignedIn: { isSignedIn },
             hasValidToken: { hasValidToken ?? isSignedIn },
             signOut: signOut,
-            hasDataExchangePermission: hasDataExchangePermission
+            hasPermission: hasPermission
         )
         return BibleReaderViewModel(
             reference: reference,

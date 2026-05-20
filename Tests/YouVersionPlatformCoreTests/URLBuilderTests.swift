@@ -79,7 +79,7 @@ struct URLBuilderTests {
         let items = components.queryItems ?? []
 
         #expect(components.path == "/data-exchange/token")
-        #expect(items.first { $0.name == "x-yvp-app-key" }?.value == "app-key")
+        #expect(items.first { $0.name == "app-key" }?.value == "app-key")
     }
 
     @Test

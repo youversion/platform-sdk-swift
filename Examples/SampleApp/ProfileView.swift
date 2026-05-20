@@ -39,7 +39,7 @@ struct ProfileView: View {
         }
         .onAppear {
             isSignedIn = YouVersionAPI.isSignedIn
-            hasHighlightsPermission = YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights)
+            hasHighlightsPermission = YouVersionAPI.hasPermission(.highlights)
         }
     }
     
@@ -79,7 +79,7 @@ struct ProfileView: View {
                 if !result.isGranted {
                     dataExchangeStatusText = "Highlights permission status: \(result.status)"
                 }
-                hasHighlightsPermission = YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights)
+                hasHighlightsPermission = YouVersionAPI.hasPermission(.highlights)
             } catch {
                 dataExchangeStatusText = "Highlights permission failed: \(error.localizedDescription)"
             }

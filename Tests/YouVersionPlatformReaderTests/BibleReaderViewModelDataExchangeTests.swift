@@ -13,7 +13,7 @@ import Testing
         let viewModel = Support.makeViewModel(
             highlightsRepository: highlightsRepository,
             isSignedIn: true,
-            hasDataExchangePermission: { $0 == .highlights }
+            hasPermission: { $0 == .highlights }
         )
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]

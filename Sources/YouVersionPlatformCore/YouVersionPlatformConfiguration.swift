@@ -34,7 +34,7 @@ public struct YouVersionPlatformConfiguration {
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
     private static let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
 
-    private static var savedDataExchangePermissions: Set<String> {
+    static var savedDataExchangePermissions: Set<String> {
         Set(UserDefaults.standard.stringArray(forKey: dataExchangePermissionsKey) ?? [])
     }
 
@@ -96,11 +96,6 @@ public struct YouVersionPlatformConfiguration {
 
     public static var accessToken: String? {
         UserDefaults.standard.string(forKey: accessTokenKey)
-    }
-
-    /// Returns whether the user has granted a data exchange permission.
-    public static func hasDataExchangePermission(_ permission: DataExchangePermission) -> Bool {
-        savedDataExchangePermissions.contains(permission.rawValue)
     }
 
     public static var authData: SignInWithYouVersionResult? {
