@@ -5,7 +5,7 @@ struct ProfileView: View {
     @State private var contextProvider = ContextProvider()
     @State private var isSignedIn = false
     @State private var dataExchangeStatusText: String?
-    @State private var hasHighlightsPermission: Bool = false
+    @State private var hasHighlightsPermission = false
     
     var body: some View {
         VStack {

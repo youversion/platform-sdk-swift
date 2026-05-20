@@ -53,7 +53,7 @@ extension ConfigurationStateTests {
         #expect(result.token == "data-exchange-token")
         #expect(request.httpMethod == "POST")
         #expect(components.path == "/data-exchange/token")
-        #expect(queryItems.first { $0.name == "app-key" }?.value == "test-app-key")
+        #expect(queryItems.first { $0.name == "x-yvp-app-key" }?.value == "test-app-key")
         #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer access-token")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
         #expect(request.value(forHTTPHeaderField: HTTPMocking.tokenHeader) == token)

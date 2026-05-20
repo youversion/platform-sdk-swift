@@ -179,10 +179,10 @@ extension ConfigurationStateTests {
 
         // MARK: - Data exchange permissions
 
-        @Test func saveDataExchangePermissionPersistsPermission() async {
+        @Test func saveDataExchangePermissionsPersistsPermission() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
-            await YouVersionPlatformConfiguration.saveDataExchangePermission(.highlights)
+            await YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
 
             #expect(YouVersionPlatformConfiguration.hasDataExchangePermission(.highlights))
             await YouVersionPlatformConfiguration.clearAuthTokens()
@@ -203,7 +203,7 @@ extension ConfigurationStateTests {
         }
 
         @Test func clearAuthTokensClearsDataExchangePermissions() async {
-            await YouVersionPlatformConfiguration.saveDataExchangePermission(.highlights)
+            await YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
 
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
