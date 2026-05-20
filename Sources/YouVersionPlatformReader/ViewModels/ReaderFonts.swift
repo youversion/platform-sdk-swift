@@ -38,8 +38,8 @@ public enum ReaderFonts {
     static let suggestedFamilies = [
         "Untitled Serif",
         "Avenir Next",
-        // New York
-        // San Francisco
+        "New York",
+        "San Francisco",
         // Gentium Plus
         "Baskerville", "Georgia", "Helvetica Neue", "Hoefler Text", "Verdana"
         // OpenDyslexic
@@ -79,6 +79,18 @@ public enum ReaderFonts {
 
     static func isPermittedFont(_ family: String) -> Bool {
         suggestedFamilies.contains(family) || otherFamilies.contains(family)
+    }
+
+    static func displayFont(familyName: String, size: CGFloat) -> Font {
+        if familyName == "San Francisco" {
+            return Font.system(size: size)
+        }
+
+        if familyName == "New York" {
+            return Font.system(size: size, design: .serif)
+        }
+
+        return Font.custom(familyName, size: size)
     }
 
     // MARK: - Font Sizes and Spacing

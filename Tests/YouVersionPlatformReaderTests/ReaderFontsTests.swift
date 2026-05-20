@@ -5,6 +5,8 @@ struct ReaderFontsTests {
     @Test
     func isPermittedFontAcceptsSuggestedAndOtherFamilies() {
         #expect(ReaderFonts.isPermittedFont("Untitled Serif"))
+        #expect(ReaderFonts.isPermittedFont("New York"))
+        #expect(ReaderFonts.isPermittedFont("San Francisco"))
         #expect(ReaderFonts.isPermittedFont("Georgia"))
         #expect(ReaderFonts.isPermittedFont("Arial"))
         #expect(ReaderFonts.isPermittedFont("Times New Roman"))

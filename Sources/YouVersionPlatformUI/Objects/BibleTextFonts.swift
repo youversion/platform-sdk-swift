@@ -37,9 +37,10 @@ public struct BibleTextFonts {
 #endif
         self.baseSize = baseSize
         verseNumBaselineOffset = baseSize * 0.3
+
         let boldFamilyName: String
         let italicFamilyName: String
-        
+
         if familyName.hasSuffix("-Regular") {
             let base = familyName.split(separator: "-").dropLast().joined(separator: "-")
             boldFamilyName = base + "-Bold"
@@ -49,22 +50,33 @@ public struct BibleTextFonts {
             italicFamilyName = familyName
         }
 
-        let larger = Font.custom(familyName, fixedSize: baseSize * 1.1)
         fonts = [
-            .textFontItalic: Font.custom(italicFamilyName, fixedSize: baseSize).italic(),
-            .textFontBold: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
-            .smallCaps: Font.custom(familyName, fixedSize: baseSize).lowercaseSmallCaps(),
-            .headerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 1.1).italic(),
-            .headerSmaller: Font.custom(boldFamilyName, fixedSize: baseSize * 0.9).weight(.medium),
-            .header2: Font.custom(boldFamilyName, fixedSize: baseSize * 1.1).weight(.bold),
-            .header3: larger,
-            .header4: larger,
-            .footnote: Font.custom(familyName, fixedSize: baseSize * 0.8),
+            .textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
+            .textFontBold: Self.font(familyName: boldFamilyName, size: baseSize).bold(),
+            .smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
+            .headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
+            .headerSmaller: Self.font(familyName: boldFamilyName, size: baseSize * 0.9).weight(.medium),
+            .header2: Self.font(familyName: boldFamilyName, size: baseSize * 1.1).weight(.bold),
+            .header3: Self.font(familyName: familyName, size: baseSize * 1.1),
+            .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
+            .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
             // below are validated standards:
-            .header: Font.custom(boldFamilyName, fixedSize: baseSize).bold(),
-            .headerSmallerItalic: Font.custom(italicFamilyName, fixedSize: baseSize * 0.76).italic(),
-            .textFont: Font.custom(familyName, fixedSize: baseSize),
-            .verseNumFont: Font.custom(familyName, fixedSize: baseSize * 0.65).smallCaps()
+            .header: Self.font(familyName: boldFamilyName, size: baseSize).bold(),
+            .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
+            .textFont: Self.font(familyName: familyName, size: baseSize),
+            .verseNumFont: Self.font(familyName: familyName, size: baseSize * 0.65).smallCaps()
         ]
+    }
+
+    private static func font(familyName: String, size: CGFloat) -> Font {
+        if familyName == "San Francisco" || familyName == "SF Pro Text" || familyName.hasPrefix("SFProText-") {
+            return Font.system(size: size)
+        }
+
+        if familyName == "New York" || familyName.hasPrefix("NewYork-") {
+            return Font.system(size: size, design: .serif)
+        }
+
+        return Font.custom(familyName, fixedSize: size)
     }
 }
