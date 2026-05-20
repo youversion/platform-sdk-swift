@@ -9,7 +9,7 @@
   },
   "scripts": {
     "semantic-release": "semantic-release",
-    "prepare": "husky"
+    "commitlint": "commitlint --from=origin/main --to=HEAD --verbose"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
@@ -21,7 +21,6 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.4",
     "@semantic-release/release-notes-generator": "^12.1.0",
-    "husky": "^8.0.3",
     "semantic-release": "^22.0.10"
   }
 }
