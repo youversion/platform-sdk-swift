@@ -41,9 +41,8 @@ public extension YouVersionAPI {
 
             let requestBody = DataExchangeTokenCreate(permissions: permissions.map(\.rawValue))
 
-            var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session)
+            var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
-            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
 

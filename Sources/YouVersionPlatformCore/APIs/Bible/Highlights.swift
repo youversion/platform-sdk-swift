@@ -223,7 +223,7 @@ public extension YouVersionAPI {
             if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
                 YouVersionPlatformLogger.error("highlights: unexpected status code deleting: \(httpResponse.statusCode)", category: "Highlights")
             } else {
-                YouVersionPlatformLogger.debug("Highlights: deleted at bibleId: \(bibleId), passageId: \(passageId)")
+                YouVersionPlatformLogger.debug("Highlights: deleted at bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
             }
 
             return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
