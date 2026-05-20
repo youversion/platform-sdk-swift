@@ -128,6 +128,25 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   exit 1
 fi
 
+# Guard against a non-main dispatch landing feature-branch commits on
+# main. `gh workflow run release.yml --ref feature-branch` would pass
+# every other pre-flight, and `git push origin HEAD:main` would then
+# bypass branch protection via the deploy key. Dry-runs are explicitly
+# supported on any branch (no push fires), so we skip this guard for them.
+if [ "$DRY_RUN" != "1" ]; then
+  HEAD_SHA=$(git rev-parse HEAD)
+  MAIN_SHA=$(git rev-parse origin/main 2>/dev/null || echo "")
+  if [ -z "$MAIN_SHA" ]; then
+    echo "❌ origin/main ref not found locally — workflow checkout must use fetch-depth: 0" >&2
+    exit 1
+  fi
+  if [ "$HEAD_SHA" != "$MAIN_SHA" ]; then
+    echo "❌ HEAD ($HEAD_SHA) is not at origin/main ($MAIN_SHA)" >&2
+    echo "   Live releases must be dispatched on the main branch. Re-run with --ref main." >&2
+    exit 1
+  fi
+fi
+
 if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
   # Workflow checks out with fetch-depth: 0, so this also catches tags
   # already on origin — the local clone has every remote tag.
