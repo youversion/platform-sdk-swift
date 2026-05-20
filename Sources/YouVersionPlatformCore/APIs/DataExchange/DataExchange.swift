@@ -7,7 +7,7 @@ public extension YouVersionAPI {
 
     /// Returns whether the user has granted a data exchange permission.
     static func hasPermission(_ permission: DataExchangePermission) -> Bool {
-        YouVersionPlatformConfiguration.savedDataExchangePermissions.contains(permission.rawValue)
+        YouVersionPlatformConfiguration.savedDataExchangePermissions.contains(permission)
     }
 
     enum DataExchange {
