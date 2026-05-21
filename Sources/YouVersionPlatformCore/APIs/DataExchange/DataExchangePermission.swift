@@ -1,10 +1,8 @@
 import Foundation
 
-public enum DataExchangePermission: RawRepresentable, CaseIterable, Hashable, Codable, CustomStringConvertible, Sendable {
+public enum DataExchangePermission: RawRepresentable, Hashable, Codable, CustomStringConvertible, Sendable {
     case highlights
     case unknown(String)
-
-    public static let allCases: [DataExchangePermission] = [.highlights]
 
     public init(rawValue: String) {
         switch rawValue {

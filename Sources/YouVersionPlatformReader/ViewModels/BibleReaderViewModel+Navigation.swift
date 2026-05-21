@@ -105,17 +105,13 @@ extension BibleReaderViewModel {
             return
         }
         
-        if isSignedIn {
-            if selectedVerses.contains(reference) {
-                selectedVerses.remove(reference)
-            } else {
-                selectedVerses.insert(reference)
-            }
-            withAnimation(verseActionsDrawerAnimation) {
-                showingVerseActionsDrawer = !selectedVerses.isEmpty
-            }
-        } else if YouVersionPlatformConfiguration.isSignInEnabled {
-            showingSignInSheet = true
+        if selectedVerses.contains(reference) {
+            selectedVerses.remove(reference)
+        } else {
+            selectedVerses.insert(reference)
+        }
+        withAnimation(verseActionsDrawerAnimation) {
+            showingVerseActionsDrawer = !selectedVerses.isEmpty
         }
     }
 

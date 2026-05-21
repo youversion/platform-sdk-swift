@@ -52,7 +52,8 @@ public enum URLBuilder {
         components.path = "/data-exchange"
         components.queryItems = [
             URLQueryItem(name: "token", value: token),
-            URLQueryItem(name: "app_key", value: appKey)
+            URLQueryItem(name: "app_key", value: appKey),
+            URLQueryItem(name: "x-yvp-app-key", value: appKey)
         ]
         return components.url
     }

@@ -152,13 +152,16 @@ private struct ReaderContent: View {
             signInView
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
+            // TODO: move this to the viewModel
             if newValue {
-                startSignIn()
+                viewModel.startSignIn(contextProvider: contextProvider)
             }
         }
         .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
             if newValue {
-                startDataExchange()
+#if !os(tvOS)
+                viewModel.startDataExchange(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: reduceMotion, initial: true) { _, newValue in
@@ -330,46 +333,6 @@ private struct ReaderContent: View {
         }
     }
 #endif
-
-    // MARK: - Action handlers
-
-    private func startSignIn() {
-        // TODO: move this code into BibleReaderViewModel
-        Task {
-            do {
-                viewModel.startSignInFlow = false
-#if !os(tvOS)
-                _ = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-#endif
-                
-                await viewModel.updateSignInState()
-                viewModel.continuePendingHighlightAfterSignIn()
-            } catch {
-                YouVersionPlatformLogger.error("\(error)", category: "Reader")
-            }
-        }
-    }
-
-    private func startDataExchange() {
-        Task {
-            do {
-                viewModel.startDataExchangeFlow = false
-#if !os(tvOS)
-                let session = DataExchangeSession(contextProvider: contextProvider)
-#else
-                let session = DataExchangeSession()
-#endif
-                let result = try await session.requestDataExchange(permissions: [.highlights])
-                viewModel.completeDataExchangeFlow(with: result)
-            } catch {
-                viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
-                YouVersionPlatformLogger.error("\(error)", category: "Reader")
-            }
-        }
-    }
 
 }
 

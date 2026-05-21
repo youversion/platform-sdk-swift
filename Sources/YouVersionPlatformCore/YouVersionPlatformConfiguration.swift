@@ -34,7 +34,7 @@ public struct YouVersionPlatformConfiguration {
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
     private static let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
 
-    static var savedDataExchangePermissions: [DataExchangePermission] {
+    static var dataExchangePermissions: [DataExchangePermission] {
         UserDefaults.standard
             .stringArray(forKey: dataExchangePermissionsKey)?
             .map { DataExchangePermission(rawValue: $0) } ?? []
@@ -119,9 +119,8 @@ public struct YouVersionPlatformConfiguration {
         )
     }
 
-    @MainActor
     public static func saveDataExchangePermissions(_ permissions: [DataExchangePermission]) {
-        let rawValues = Set(savedDataExchangePermissions + permissions)
+        let rawValues = Set(dataExchangePermissions + permissions)
             .map(\.rawValue)
             .sorted()
         UserDefaults.standard.set(rawValues, forKey: dataExchangePermissionsKey)

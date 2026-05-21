@@ -1,3 +1,6 @@
+#if canImport(AuthenticationServices)
+import AuthenticationServices
+#endif
 import CoreText
 import Foundation
 import SwiftUI
@@ -250,13 +253,31 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Continues a pending highlight action after the user has completed sign-in.
     func continuePendingHighlightAfterSignIn() {
-        guard pendingHighlight != nil, isSignedIn else {
+        guard pendingHighlight != nil && isSignedIn else {
             return
         }
         if authentication.hasPermission(.highlights) {
             applyPendingHighlight()
         } else {
-            showingDataExchangeConfirmation = true
+            startDataExchangeFlow = true
+        }
+    }
+
+    func startDataExchange(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        Task {
+            do {
+                startDataExchangeFlow = false
+#if !os(tvOS)
+                let session = DataExchangeSession(contextProvider: contextProvider)
+#else
+                let session = DataExchangeSession()
+#endif
+                let result = try await session.requestDataExchange(permissions: [.highlights])
+                completeDataExchangeFlow(with: result)
+            } catch {
+                completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
+                YouVersionPlatformLogger.error("\(error)", category: "BibleReader")
+            }
         }
     }
 
@@ -284,6 +305,25 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             clearPendingHighlight()
         }
     }
+
+#if !os(tvOS)
+    func startSignIn(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        Task {
+            do {
+                startSignInFlow = false
+                _ = try await YouVersionAPI.Users.signIn(
+                    permissions: [.profile, .email],
+                    contextProvider: contextProvider
+                )
+                
+                await updateSignInState()
+                continuePendingHighlightAfterSignIn()
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+#endif
 
     func signIn() {
         if isSignedIn {
@@ -328,6 +368,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             startSignInFlow = true
             return
         }
+        
         if authentication.hasPermission(.highlights) {
             applyHighlight(references: references, color: color)
         } else {

@@ -7,7 +7,7 @@ public extension YouVersionAPI {
 
     /// Returns whether the user has granted a data exchange permission.
     static func hasPermission(_ permission: DataExchangePermission) -> Bool {
-        YouVersionPlatformConfiguration.savedDataExchangePermissions.contains(permission)
+        YouVersionPlatformConfiguration.dataExchangePermissions.contains(permission)
     }
 
     enum DataExchange {
@@ -24,8 +24,8 @@ public extension YouVersionAPI {
         ///   - `YouVersionAPIError.notPermitted` when the server returns `401`.
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
-        public static func token(
-            permissions: Set<DataExchangePermission>,
+        public static func updateToken(
+            withPermissions permissions: Set<DataExchangePermission>,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> DataExchangeToken {
@@ -39,7 +39,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let requestBody = DataExchangeTokenCreate(permissions: permissions.map(\.rawValue))
+            let requestBody = DataExchangeTokenRequest(permissions: permissions.map(\.rawValue))
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
@@ -66,6 +66,6 @@ public struct DataExchangeToken: Codable, Sendable, Equatable {
     public let token: String
 }
 
-private struct DataExchangeTokenCreate: Codable {
+private struct DataExchangeTokenRequest: Codable {
     let permissions: [String]
 }

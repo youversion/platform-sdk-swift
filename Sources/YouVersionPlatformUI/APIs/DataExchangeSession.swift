@@ -77,7 +77,7 @@ public struct DataExchangeSession {
             throw YouVersionAPIError.missingAuthentication
         }
 
-        let token = try await YouVersionAPI.DataExchange.token(permissions: permissions)
+        let token = try await YouVersionAPI.DataExchange.updateToken(withPermissions: permissions)
         guard let url = URLBuilder.dataExchangeURL(token: token.token, appKey: appKey) else {
             throw URLError(.badURL)
         }

@@ -177,7 +177,7 @@ import Testing
         viewModel.continuePendingHighlightAfterSignIn()
 
         #expect(viewModel.isSignedIn)
-        #expect(viewModel.showingDataExchangeConfirmation)
+        #expect(viewModel.startDataExchangeFlow)
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
     }
