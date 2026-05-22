@@ -57,14 +57,7 @@ echo "Current tag:    $CURRENT_TAG"
 echo "Chosen version: $VERSION"
 
 VALIDATION_CODE=0
-node -e "
-  const semver = require('semver');
-  const v = process.argv[1];
-  const cur = process.argv[2];
-  if (!semver.valid(v)) { console.error('not_semver'); process.exit(11); }
-  if (!semver.gt(v, cur)) { console.error('not_greater'); process.exit(12); }
-  process.exit(0);
-" "$VERSION" "$CURRENT_TAG" || VALIDATION_CODE=$?
+node scripts/release-validate.mjs "$VERSION" "$CURRENT_TAG" || VALIDATION_CODE=$?
 
 if [ "$VALIDATION_CODE" -eq 11 ]; then
   echo "❌ '$VERSION' is not valid semver" >&2
@@ -104,15 +97,7 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
 fi
 
 # Warn (don't block) if chosen version is more than one major above calculated.
-node -e "
-  const semver = require('semver');
-  const chosen = process.argv[1];
-  const calc = process.argv[2];
-  if (!semver.valid(calc)) process.exit(0);
-  if (semver.major(chosen) > semver.major(calc) + 1) {
-    console.error('⚠️  Chosen version ' + chosen + ' is more than one major above calculated ' + calc + '. Proceeding, but double-check this is intentional.');
-  }
-" "$VERSION" "$CALCULATED" >&2 || true
+node scripts/release-warn-version-jump.mjs "$VERSION" "$CALCULATED" >&2 || true
 
 # --- Pre-flight -------------------------------------------------------------
 
