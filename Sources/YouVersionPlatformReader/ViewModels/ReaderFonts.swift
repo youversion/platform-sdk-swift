@@ -82,15 +82,14 @@ public enum ReaderFonts {
     }
 
     static func displayFont(familyName: String, size: CGFloat) -> Font {
-        if familyName == "San Francisco" {
-            return Font.system(size: size)
+        switch familyName {
+        case "San Francisco":
+            .system(size: size)
+        case "New York":
+            .system(size: size, design: .serif)
+        default:
+            .custom(familyName, size: size)
         }
-
-        if familyName == "New York" {
-            return Font.system(size: size, design: .serif)
-        }
-
-        return Font.custom(familyName, size: size)
     }
 
     // MARK: - Font Sizes and Spacing
