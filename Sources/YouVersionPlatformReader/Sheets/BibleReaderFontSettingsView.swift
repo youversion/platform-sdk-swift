@@ -27,7 +27,7 @@ struct BibleReaderFontSettingsView: View {
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 let family = viewModel.textOptions.fontFamily
                 Text(family)
-                    .font(.custom(family, size: 22))
+                    .font(ReaderFonts.displayFont(familyName: family, size: 22))
             }
             Spacer()
             Image(systemName: "chevron.right")
