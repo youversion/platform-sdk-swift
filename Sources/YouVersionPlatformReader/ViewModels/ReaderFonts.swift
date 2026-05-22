@@ -95,7 +95,7 @@ public enum ReaderFonts {
     // MARK: - Font Sizes and Spacing
 
     static let availableSizes: [CGFloat] = [9, 12, 15, 18, 21, 24, 27]
-    static let lineSpacingOptions: [CGFloat] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]  // multiples of fontSize
+    static let lineSpacingOptions: [CGFloat] = [0.3, 0.4, 0.6]
 
     // MARK: - Default Values
 

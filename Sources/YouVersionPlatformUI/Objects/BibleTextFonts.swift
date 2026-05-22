@@ -18,6 +18,8 @@ public enum BibleTextFontOption {
     case header4
     case footnote
     //case font100emPlain
+    case font117em500
+    case font117em500italic
     case font117em600
     case font100em600italic
 }
@@ -39,7 +41,7 @@ public struct BibleTextFonts {
         let baseSize = 21.0
 #endif
         self.baseSize = baseSize
-        verseNumBaselineOffset = baseSize * 0.3
+        verseNumBaselineOffset = baseSize * 0.2
 
         let boldFamilyName: String
         let italicFamilyName: String
@@ -67,7 +69,12 @@ public struct BibleTextFonts {
             .header: Self.font(familyName: boldFamilyName, size: baseSize).bold(),
             .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
             .textFont: Self.font(familyName: familyName, size: baseSize),
-            .verseNumFont: Self.font(familyName: familyName, size: baseSize * 0.65).smallCaps()
+            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
+            // new way of organizing these:
+            .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
+            .font117em500italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
+            .font117em600: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.semibold),
+            .font100em600italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.bold).italic()
         ]
     }
 
