@@ -22,7 +22,7 @@ public extension URLRequest {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")
         }
         if let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
-            request.setValue(accessToken, forHTTPHeaderField: "X-YV-LAT")
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         return request
     }

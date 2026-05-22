@@ -32,6 +32,13 @@ public struct YouVersionPlatformConfiguration {
     private static let refreshTokenKey = "YouVersionPlatformRefreshToken"
     private static let idTokenKey = "YouVersionPlatformIDToken"
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
+    private static let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
+
+    static var dataExchangePermissions: [DataExchangePermission] {
+        UserDefaults.standard
+            .stringArray(forKey: dataExchangePermissionsKey)?
+            .map { DataExchangePermission(rawValue: $0) } ?? []
+    }
 
     @MainActor
     public static func configure(
@@ -86,6 +93,7 @@ public struct YouVersionPlatformConfiguration {
     @MainActor
     public static func clearAuthTokens() {
         saveAuthData(accessToken: nil, refreshToken: nil, idToken: nil, expiryDate: nil)
+        UserDefaults.standard.removeObject(forKey: dataExchangePermissionsKey)
     }
 
     public static var accessToken: String? {
@@ -109,6 +117,13 @@ public struct YouVersionPlatformConfiguration {
             idToken: idToken,
             expiryDate: expiryDate
         )
+    }
+
+    public static func saveDataExchangePermissions(_ permissions: [DataExchangePermission]) {
+        let rawValues = Set(dataExchangePermissions + permissions)
+            .map(\.rawValue)
+            .sorted()
+        UserDefaults.standard.set(rawValues, forKey: dataExchangePermissionsKey)
     }
 
 }

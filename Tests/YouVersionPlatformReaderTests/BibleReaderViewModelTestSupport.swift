@@ -69,7 +69,8 @@ enum BibleReaderViewModelTestSupport {
         onVerseTap: ((BibleReference) -> Void)? = nil,
         isSignedIn: Bool = false,
         hasValidToken: Bool? = nil,
-        signOut: @escaping @MainActor () -> Void = {}
+        signOut: @escaping @MainActor () -> Void = {},
+        hasPermission: @escaping @MainActor (DataExchangePermission) -> Bool = { _ in false }
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),
@@ -79,7 +80,8 @@ enum BibleReaderViewModelTestSupport {
         let authentication = BibleReaderAuthentication(
             isSignedIn: { isSignedIn },
             hasValidToken: { hasValidToken ?? isSignedIn },
-            signOut: signOut
+            signOut: signOut,
+            hasPermission: hasPermission
         )
         return BibleReaderViewModel(
             reference: reference,

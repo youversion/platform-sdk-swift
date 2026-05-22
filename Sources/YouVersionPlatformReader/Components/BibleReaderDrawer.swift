@@ -15,9 +15,7 @@ struct BibleReaderDrawer: View {
                 .padding(.bottom, 8)
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
-                    if viewModel.isSignedIn {
-                        highlightColorButtons
-                    }
+                    highlightColorButtons
 #if !os(tvOS)
                     copyButton
                     if let (url, title) = viewModel.shareableURLAndTitleForSelection {

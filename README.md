@@ -179,6 +179,19 @@ YouVersionPlatformConfiguration.configure(
 
 When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
 
+#### Highlight Permissions
+
+When the built-in reader needs permission to save highlights to YouVersion, it requests that permission just in time. The reader checks for an existing grant first, prompts the user to sign in if needed, asks for confirmation, and then opens the secure YouVersion permission flow.
+
+Apps that need to start the same permission flow directly can use `DataExchangeSession`:
+
+```swift
+let session = DataExchangeSession(contextProvider: contextProvider)
+let result = try await session.requestDataExchange(permissions: [.highlights])
+```
+
+This API shape is currently a placeholder and may change as the data exchange flow settles.
+
 #### Filtering Available Languages
 
 By default, the version picker offers Bible versions in every available language. To restrict it to a specific set of languages, pass `permittedLanguageTags` during configuration. For example, to make only English versions available:
