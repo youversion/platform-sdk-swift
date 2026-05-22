@@ -27,7 +27,7 @@ extension BibleTextView {
     // NSAttributedString has paragraphStyle.firstLineHeadIndent which would be ideal.
     private func indentString(_ indent: Int) -> AttributedString {
         let nbsp = "\u{00a0}"
-        return AttributedString(String(repeating: nbsp, count: min(max(indent * 4, 0), 24)))
+        return AttributedString(String(repeating: nbsp, count: min(max(indent * 3, 0), 24)))
     }
 
     // Custom text renderer which implements the custom way we want to underline
