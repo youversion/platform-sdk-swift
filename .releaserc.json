@@ -1,6 +1,4 @@
 {
-  "branches": ["main"],
-  "tagFormat": "${version}",
   "plugins": [
     [
       "@semantic-release/commit-analyzer",
@@ -12,35 +10,6 @@
       "@semantic-release/release-notes-generator",
       {
         "preset": "conventionalcommits"
-      }
-    ],
-    [
-      "@semantic-release/changelog",
-      {
-        "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file."
-      }
-    ],
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "bash scripts/update-pod-versions.sh ${nextRelease.version} && bash scripts/stamp-sdk-version.sh ${nextRelease.version}",
-        "publishCmd": "bash scripts/restore-dev-sdk-on-main.sh ${nextRelease.version} && bash scripts/publish-pods.sh ${nextRelease.version}"
-      }
-    ],
-    "@semantic-release/github",
-    [
-      "@semantic-release/git",
-      {
-        "assets": [
-          "CHANGELOG.md",
-          "Sources/YouVersionPlatformCore/SDKVersion.swift",
-          "YouVersionPlatform.podspec",
-          "YouVersionPlatformCore.podspec",
-          "YouVersionPlatformReader.podspec",
-          "YouVersionPlatformUI.podspec"
-        ],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ]
   ]

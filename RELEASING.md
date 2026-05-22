@@ -1,113 +1,75 @@
 # Release Process
 
-This project uses [semantic-release](https://semantic-release.gitbook.io/) for automated versioning and package publishing.
+Releases on this repo are **manually triggered with an explicit version input**. A human types the version they want to publish into the Actions UI (or `gh workflow run`), the workflow validates it, and the release ships. There is no auto-release on merges to `main`.
 
 ## Overview
 
-Releases use [semantic-release](https://semantic-release.gitbook.io/) to compute the next version from [Conventional Commits](https://www.conventionalcommits.org/) since the last tag, but the release itself is **triggered manually**, not automatically on every push to `main`. A human (or scheduled job) decides when to cut a release; merging a PR by itself never publishes.
+The release pipeline does not use `semantic-release` as an orchestrator. We use two pieces of it as libraries:
+
+- [`@semantic-release/commit-analyzer`](https://github.com/semantic-release/commit-analyzer) — invoked by `scripts/preview-release.mjs` to compute what version the commits *would* suggest (shown in the PR's Commit Lint comment and in the release workflow's job summary for audit).
+- [`@semantic-release/release-notes-generator`](https://github.com/semantic-release/release-notes-generator) — invoked by `scripts/generate-release-notes.mjs` to render the CHANGELOG entry and GitHub release body from commits since the last tag.
+
+Everything else (validation, version stamping, podspec updates, commit, tag, push, GitHub release creation, pod publish, Dev-restore) is in `scripts/release.sh`, which the release workflow calls directly.
+
+This split exists because `semantic-release`'s lifecycle tightly couples computation to execution. There is no hook to override its calculated version — the only way to ship a version that differs from what the analyzer computes is to commit-message-engineer history, which is brittle, slow, and unreviewable. By making the version an explicit workflow input we get one-click overrides, a side-by-side audit log of "calculator said X, human chose Y," and no history rewrites.
 
 ## How It Works
 
-1. **Develop on a branch with conventional commit subjects** → the `Commit Lint` workflow validates each PR and previews the version that *would* be cut today.
-2. **Merge PRs to `main`** → nothing publishes. `main` just accumulates work.
-3. **When ready to release, trigger the Release workflow manually** → Actions tab → `Release` → "Run workflow" (or `gh workflow run release.yml`).
-4. **Semantic-release analyzes commits since the last tag** → determines version bump (major/minor/patch).
-5. **Version bump and changelog** → updates all 4 podspec files, stamps `SDKVersion.swift`, writes a `CHANGELOG.md` entry.
-6. **Git tag and GitHub release** → creates the version tag (e.g., `5.3.0`) and a GitHub release.
-7. **Publish to CocoaPods** → publishes all pods in dependency order.
-8. **Restore `SDKVersion.swift` to `"Dev"`** → a follow-up commit returns the on-main constant to `"Dev"` so PR builds don't report a stale released version. The tag stays at the stamped commit (see [AGENTS.md → Release Process](./AGENTS.md#release-process) for the X/Y topology).
-
-### Why manual
-
-Auto-publishing on every push to `main` makes the publish surface too easy to trip — any commit message body or release-process change that an analyzer reads as a major bump goes straight to consumers. Manual trigger gives a deliberate review point between merge and publish, and keeps the per-PR version preview as the early warning.
-
-## Commit Message Format
-
-Use this format for all commits:
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-### Types (determines version bump)
-
-- **feat**: A new feature (→ **MINOR** version bump, e.g., 1.0.0 → 1.1.0)
-- **fix**: A bug fix (→ **PATCH** version bump, e.g., 1.0.0 → 1.0.1)
-- **BREAKING CHANGE**: Breaking API change (→ **MAJOR** version bump, e.g., 1.0.0 → 2.0.0)
-
-### Other types (no version bump)
-
-- **docs**: Documentation changes
-- **style**: Code formatting
-- **refactor**: Code refactoring
-- **perf**: Performance improvements
-- **test**: Test changes
-- **build**: Build system changes
-- **ci**: CI/CD changes
-- **chore**: Maintenance tasks
-
-### Examples
-
-```bash
-# Patch release (1.0.0 → 1.0.1)
-git commit -m "fix: resolve crash on iPad when opening reader"
-
-# Minor release (1.0.0 → 1.1.0)
-git commit -m "feat: add dark mode support to reader"
-
-# Major release (1.0.0 → 2.0.0)
-git commit -m "feat: redesign Bible reader API
-
-BREAKING CHANGE: BibleReader.open() now returns async Result<Void, Error>"
-
-# With scope
-git commit -m "fix(reader): correct verse highlighting behavior"
-```
+1. **Develop on a branch with conventional commit subjects.** The `Commit Lint` workflow validates every PR and previews the version the analyzer would compute.
+2. **Merge PRs to `main`.** Nothing publishes. `main` just accumulates work.
+3. **Decide on a version.** The most recent merged PR's Commit Lint comment shows the analyzer-computed value, which is the suggested next version. You can accept that or override.
+4. **Dispatch the Release workflow** from the Actions tab → `Release` → "Run workflow", or via CLI:
+   ```bash
+   gh workflow run release.yml -f version=5.3.0
+   ```
+   To validate the workflow end-to-end on a feature branch without shipping, also pass `-f dry-run=true`.
+5. **The workflow runs `scripts/release.sh`**, which:
+   - Validates the input is valid semver and strictly greater than the current tag.
+   - Logs the calculator's computed value alongside the chosen value in the job summary.
+   - Warns (but does not block) if the chosen version is more than one major above calculated.
+   - Generates release notes from commits since the last tag.
+   - Prepends the new entry to `CHANGELOG.md`.
+   - Stamps `SDKVersion.swift` and all four podspecs to the chosen version.
+   - Commits everything as `chore(release): <version> [skip ci]` (commit **X**), with the release notes embedded as the commit body.
+   - Tags **X** with the version and pushes both to `main`.
+   - Creates a GitHub release with the generated notes.
+   - Publishes all four pods to CocoaPods trunk in dependency order.
+   - Creates a follow-up commit **Y** that restores `SDKVersion.swift` to `"Dev"` on `main`, so subsequent dev/CI builds don't report a stale released version. The tag stays at **X** (which is reachable from `main` via Y → X).
 
 ## Required GitHub Configuration
 
 ### GitHub Secrets
 
-The following secrets must be configured in your GitHub repository:
+The following secrets must be configured in the repository:
 
-#### 1. DEPLOY_KEY
+#### 1. `RELEASE_SSH_KEY`
 
-An SSH private key used to bypass branch protection rules and push release commits/tags to `main`:
+An SSH private key used to bypass the `main` branch-protection ruleset so the release workflow can push commits **X** and **Y** and the version tag.
 
 1. Generate an SSH key pair:
    ```bash
-   ssh-keygen -t ed25519 -C "github-actions-semantic-release" -f deploy_key -N ""
+   ssh-keygen -t ed25519 -C "github-actions-release" -f release_key -N ""
    ```
-
-2. Add the **public key** (`deploy_key.pub`) as a Deploy Key:
-   - Go to `https://github.com/youversion/platform-sdk-swift/settings/keys`
-   - Click "Add deploy key"
-   - Title: `semantic-release` (or your preferred name)
-   - Paste contents of `deploy_key.pub`
+2. Add the **public key** (`release_key.pub`) as a Deploy Key at `https://github.com/youversion/platform-sdk-swift/settings/keys`:
+   - Title: `release` (or your preferred name)
+   - Paste contents of `release_key.pub`
    - **Check "Allow write access"** ✓
+3. Add the **private key** (`release_key`) as a repository secret at `https://github.com/youversion/platform-sdk-swift/settings/secrets/actions`:
+   - Name: `RELEASE_SSH_KEY`
+   - Value: paste entire contents of the `release_key` file
 
-3. Add the **private key** (`deploy_key`) as a repository secret:
-   - Go to `https://github.com/youversion/platform-sdk-swift/settings/secrets/actions`
-   - Click "New repository secret"
-   - Name: `DEPLOY_KEY`
-   - Value: Paste entire contents of `deploy_key` file
+> **Important:** the secret name `RELEASE_SSH_KEY` must match the reference in `.github/workflows/release.yml`. If you rename the secret, update the workflow too.
 
-> **Important:** The secret name `DEPLOY_KEY` must match the reference in `.github/workflows/release.yml`. If you change the secret name, update the workflow file accordingly.
+#### 2. `COCOAPODS_TRUNK_TOKEN`
 
-#### 2. COCOAPODS_TRUNK_TOKEN
-
-Your CocoaPods trunk session token:
+Your CocoaPods trunk session token, used by `scripts/publish-pods.sh` to authenticate the `pod trunk push` calls.
 
 ```bash
 # Get your token from ~/.netrc after registering
 cat ~/.netrc | grep cocoapods.org
 ```
 
-Or get it from CocoaPods trunk:
+Or:
 
 ```bash
 pod trunk me
@@ -117,19 +79,53 @@ Add the token to repository secrets as `COCOAPODS_TRUNK_TOKEN`.
 
 ### Branch Protection Configuration
 
-The Deploy Key bypasses the `main` branch protection ruleset that requires pull requests. To configure:
+The `main` branch ruleset requires pull requests, but the release workflow needs to push **X** and **Y** commits and the tag directly. The Deploy Key configured above bypasses this.
 
 1. Go to `https://github.com/youversion/platform-sdk-swift/settings/rules`
-2. Edit the ruleset for `main` branch
-3. Under "Bypass list", ensure "Deploy keys" is enabled for bypass
+2. Edit the ruleset for `main`
+3. Under "Bypass list", ensure "Deploy keys" is enabled
 
-This allows semantic-release to push release commits and tags directly to `main` during the automated release process.
+## Local Testing
 
-## Testing Release Steps Locally
+### Preview the version the analyzer would suggest
+
+```bash
+node scripts/preview-release.mjs \
+  --base "$(git describe --tags --abbrev=0)" \
+  --head HEAD
+```
+
+Outputs JSON: `{"current": "5.2.2", "next": "5.2.3", "release_type": "patch", ...}`. The same logic the `Commit Lint` workflow uses on every PR.
+
+### Generate release notes for a hypothetical version
+
+```bash
+node scripts/generate-release-notes.mjs \
+  --base "$(git describe --tags --abbrev=0)" \
+  --head HEAD \
+  --version 5.2.3
+```
+
+Prints the markdown that would be prepended to `CHANGELOG.md` and used as the GitHub release body.
+
+### Dry-run the full release end-to-end
+
+```bash
+VERSION=5.2.3 DRY_RUN=1 SKIP_LINT=1 bash scripts/release.sh
+```
+
+Validates the version, generates notes, updates `CHANGELOG.md` and podspecs, stamps `SDKVersion.swift`, builds commit X, tags it — then stops without pushing. `SKIP_LINT=1` bypasses the `pod lib lint` step which needs Xcode + iOS simulator runtime (CI has it; most dev machines don't).
+
+Clean up after a dry-run:
+
+```bash
+git reset --hard HEAD^
+git tag -d <version>
+git restore .
+rm -f notes.md
+```
 
 ### Test commitlint
-
-Conventional Commits are enforced in CI by `.github/workflows/commit-lint.yml`. There is no local Git hook — Xcode commits and Windows contributors bypass hooks too unreliably for that to be worth maintaining. To check your branch's commits locally before pushing:
 
 ```bash
 # Lint every commit on your branch that isn't on main
@@ -143,99 +139,90 @@ echo "feat: add new feature" | npx commitlint
 echo "invalid message" | npx commitlint   # should fail
 ```
 
-### Test semantic-release (dry-run)
-
-```bash
-# See what version would be released
-npx semantic-release --dry-run
-```
-
-### Test version update script
-
-```bash
-# Test updating to version 1.2.3 (won't actually publish)
-bash scripts/update-pod-versions.sh 1.2.3
-```
-
 ## Version Synchronization
 
-All 4 podspecs are kept in sync:
+All four podspecs are kept in sync via `scripts/update-pod-versions.sh`:
 
 - `YouVersionPlatformCore.podspec`
 - `YouVersionPlatformUI.podspec` (depends on Core)
 - `YouVersionPlatformReader.podspec` (depends on UI)
 - `YouVersionPlatform.podspec` (umbrella, depends on all)
 
-The `update-pod-versions.sh` script ensures:
-- All podspecs get the same version number
-- Inter-pod dependencies reference the correct version
+Inter-pod dependencies use `s.version.to_s`, so a single version-bump call updates everything coherently.
 
 ## Publishing Order
 
-Pods are published in dependency order:
+Pods are published in dependency order by `scripts/publish-pods.sh`:
 
 1. **YouVersionPlatformCore** (no dependencies)
 2. **YouVersionPlatformUI** (depends on Core)
 3. **YouVersionPlatformReader** (depends on UI)
 4. **YouVersionPlatform** (umbrella, depends on all)
 
-## Manual Release (Emergency)
-
-If you need to release manually:
-
-```bash
-# 1. Update versions
-bash scripts/update-pod-versions.sh 1.2.3
-
-# 2. Update CHANGELOG.md manually
-
-# 3. Commit changes
-git add .
-git commit -m "chore(release): 1.2.3 [skip ci]"
-
-# 4. Create tag
-git tag 1.2.3
-
-# 5. Push
-git push origin main --tags
-
-# 6. Publish to CocoaPods
-bash scripts/publish-pods.sh 1.2.3
-
-# 7. Create GitHub release manually
-```
+`pod trunk push` is non-idempotent and can partial-succeed: a network blip can leave Core published but UI not. The script checks `pod trunk info <PodName>` for the target version before each push, so re-running on the same version is safe.
 
 ## Troubleshooting
 
-### Release didn't trigger
+### The Commit Lint preview shows a major bump on a "patch" PR
 
-- Verify you merged to `main` branch
-- Check that commits follow Conventional Commits format
-- Look at GitHub Actions logs for errors
+`conventional-commits-parser` treats `BREAKING CHANGE` at the start of any commit body line as a breaking-change footer, regardless of surrounding markdown or quotes. The most common cause: a long commit body wraps and a paragraph happens to start with that token. Reword the offending line on your branch.
 
-### CocoaPods publish failed
+The analyzer log in the PR comment's `<details>` block shows which commit triggered the classification.
 
-- Verify `COCOAPODS_TRUNK_TOKEN` secret is set correctly
-- Check that podspec files are valid: `pod spec lint *.podspec`
-- Ensure you have permission to publish these pods
+### The release dispatch is rejected with "is not strictly greater than current tag"
 
-### Commitlint blocking commits
+`release.sh` refuses to ship a version less than or equal to the latest tag. If you genuinely need to re-tag (e.g., recovering from a partial release), delete the old tag from origin first, then dispatch again.
 
-- Make sure your commit message follows the format: `type(scope): subject`
-- Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
-- Bypass temporarily (not recommended): `git commit --no-verify`
+### CocoaPods publish failed midway
 
-## Swift Package Manager
+The script is idempotent via `pod trunk info`. Re-dispatch with the same version; the already-published pods will be skipped and the missing ones retried. If `pod trunk info` itself is unreliable, check `pod trunk me` to confirm authentication.
 
-SPM uses git tags for versioning. When semantic-release creates a tag like `1.0.0`, SPM users can reference it in their `Package.swift`:
+### The release script aborted after pushing the tag — main is stamped with the released version
 
-```swift
-.package(url: "https://github.com/YouVersion/platform-sdk-swift.git", from: "1.0.0")
+If `release.sh` dies in any of the post-push steps (`gh release create`, `publish-pods.sh`, `restore-dev-sdk-on-main.sh`), `main` HEAD is commit **X** with `SDKVersion.swift` reading the released version, and commit **Y** was never created. Re-running `release.sh` won't recover — its pre-flight requires `SDKVersion.swift` to read `"Dev"` and will refuse to proceed.
+
+Finish the release by running the remaining steps manually:
+
+```bash
+VERSION=<the version that was being released>
+
+# If the GitHub release wasn't created (check the Releases page):
+gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
+
+# Idempotent via `pod trunk info` — safe regardless of how far the script got:
+bash scripts/publish-pods.sh "$VERSION"
+
+# Creates commit Y and restores SDKVersion to "Dev":
+bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
 ```
 
-## Resources
+`notes.md` is left in place when the script aborts (the success-path `rm` doesn't fire), so it's available for the `gh release create` call. Verify with `git log -2 --oneline` (Y on top of X) and `pod trunk info YouVersionPlatformCore` (latest matches `$VERSION`).
 
-- [Conventional Commits](https://www.conventionalcommits.org/)
-- [Semantic Versioning](https://semver.org/)
-- [semantic-release Documentation](https://semantic-release.gitbook.io/)
-- [Commitlint Rules](https://commitlint.js.org/#/reference-rules)
+### Need an emergency release without the workflow
+
+The pieces of `scripts/release.sh` can be run by hand:
+
+```bash
+VERSION=5.2.3
+
+# Compute and inspect what would happen
+node scripts/preview-release.mjs --base "$(git describe --tags --abbrev=0)" --head HEAD
+node scripts/generate-release-notes.mjs --base "$(git describe --tags --abbrev=0)" --head HEAD --version "$VERSION" > notes.md
+
+# Update files
+bash scripts/update-pod-versions.sh "$VERSION"
+bash scripts/stamp-sdk-version.sh "$VERSION"
+# manually prepend notes.md to CHANGELOG.md
+
+# Commit X, tag, push
+git add CHANGELOG.md Sources/YouVersionPlatformCore/SDKVersion.swift *.podspec
+git commit -m "chore(release): $VERSION [skip ci]" -m "$(cat notes.md)"
+git tag "$VERSION"
+git push origin main "$VERSION"
+
+# Publish
+bash scripts/publish-pods.sh "$VERSION"
+
+# Restore Dev
+bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
+```

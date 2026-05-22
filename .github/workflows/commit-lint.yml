@@ -29,6 +29,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test release scripts
+        # Exercises scripts/release-validate.mjs and
+        # scripts/release-warn-version-jump.mjs — the version-validation
+        # paths called by scripts/release.sh at release time. Running
+        # here on every PR catches Node / OS / shell regressions before
+        # they reach a live release dispatch. This job runs Node 20 on
+        # ubuntu-latest; release.yml runs Node lts/* on macos-26 — the
+        # cross-environment coverage guards against env-dependent drift.
+        run: bash scripts/test-release-scripts.sh
+
       - name: Lint commit messages
         id: commitlint
         run: |

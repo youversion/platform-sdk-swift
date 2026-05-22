@@ -80,3 +80,9 @@ yarn-error.log*
 
 # Husky
 .husky/_/
+
+# Release artifacts
+# scripts/release.sh and dry-runs write generated release notes here.
+# The path is anchored to the repo root so a future `docs/notes.md` (or
+# anything in a subdirectory) is not silently ignored.
+/notes.md
