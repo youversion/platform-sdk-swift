@@ -29,6 +29,11 @@ for PODSPEC in YouVersionPlatform.podspec YouVersionPlatformCore.podspec YouVers
   echo "  ✓ $PODSPEC"
 done
 
+if [ "${SKIP_LINT:-0}" = "1" ]; then
+  echo "Skipping podspec lint (SKIP_LINT=1)."
+  exit 0
+fi
+
 echo "Validating podspecs (full xcodebuild — slow but mirrors trunk)..."
 
 # Use `pod lib lint` rather than `pod spec lint`. `spec lint` clones the
