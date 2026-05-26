@@ -179,12 +179,12 @@ func testOverlaps_EdgeCaseNilHandling() {
 
 @Test
 func testOverlaps_CaseSensitiveBookComparison() {
-    // Test that book comparison is case-sensitive (as implemented)
+    // Test that book comparison is case-insensitive (bookUSFM is normalized to uppercase)
     let ref1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
     let ref2 = BibleReference(versionId: 1, bookUSFM: "gen", chapter: 1, verse: 1)
-    
-    #expect(!ref1.overlaps(with: ref2))
-    #expect(!ref2.overlaps(with: ref1))
+
+    #expect(ref1.overlaps(with: ref2))
+    #expect(ref2.overlaps(with: ref1))
 }
 
 @Test

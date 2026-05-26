@@ -55,27 +55,27 @@ public extension BibleVersion {
         let bookAndChapterSeparator = hasOneChapter ? "" : " "
         let chapter = hasOneChapter ? "" : String(reference.chapter)
 
-        switch (reference.verseStart, reference.verseEnd) {
-        case (_, let verseEnd?) where verseEnd == 999:
+        if reference.verseEnd == 999 {
             // Whole chapter
             return [bookName, bookAndChapterSeparator, chapter]
-            
-        case (nil, _):
+        }
+
+        guard let verseStart = reference.verseStart else {
             // Whole chapter
             return [bookName, bookAndChapterSeparator, chapter]
-            
-        case let (verseStart?, verseEnd?):
-            if verseStart == verseEnd {
-                // Single verse
-                return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart)]
-            } else {
-                // Verse range
-                return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart), "-", String(verseEnd)]
-            }
-            
-        case let (verseStart?, nil):
-            // Single verse with no verseEnd
+        }
+
+        guard let verseEnd = reference.verseEnd else {
+            assertionFailure("BibleReference verseEnd should be set when verseStart is set.")
+            return [bookName, bookAndChapterSeparator, chapter]
+        }
+
+        if verseStart == verseEnd {
+            // Single verse
             return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart)]
+        } else {
+            // Verse range
+            return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart), "-", String(verseEnd)]
         }
     }
 }
