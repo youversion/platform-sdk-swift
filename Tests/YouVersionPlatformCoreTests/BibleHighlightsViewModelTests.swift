@@ -252,7 +252,7 @@ struct BibleHighlightsViewModelTests {
         viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         // give the async task a moment
         try? await Task.sleep(nanoseconds: 50_000_000)
-        #expect(mockRepository.highlightsCallCount >= 0)
+        #expect(mockRepository.highlightsCallCount > 0)
     }
     
     @Test

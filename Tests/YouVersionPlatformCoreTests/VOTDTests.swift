@@ -88,7 +88,7 @@ import Testing
     }
 
     @MainActor
-    @Test func votdRequestSetsAppKeyHeader() async throws {
+    @Test func votdRequestUsesCorrectDayInURL() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -103,7 +103,7 @@ import Testing
             return (json, response)
         }
 
-        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, accessToken: "swift-test-suite", session: session)
+        let _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 99, accessToken: nil, session: session)
         let req = try #require(captured)
         #expect(req.url?.absoluteString.contains("/99") == true)
     }
