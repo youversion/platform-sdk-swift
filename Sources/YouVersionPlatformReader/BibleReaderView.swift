@@ -4,23 +4,17 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
-    @State private var viewModel: BibleReaderViewModel
-#if !os(tvOS)
-    @State private var contextProvider = ContextProvider()
-#endif
+    @State private var viewModel: BibleReaderViewModel?
 
-    @Environment(\.openURL) private var openURL
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let fontSettingsDetent = PresentationDetent.height(360)
-    private let fontListDetent = PresentationDetent.height(480)
-    @State private var selectedDetent: PresentationDetent
-    @State private var detents: Set<PresentationDetent>
-    private var externalSelectedVerses: Binding<Set<BibleReference>>?
-    private var audioActiveReference: BibleReference?
-    @State private var lastScrolledVerse: Int?
-    @State private var verseAnchors: [Int] = []
+    private let initialReference: BibleReference?
+    private let verseSelectionStyle: VerseSelectionStyle
+    private let onVerseTap: ((BibleReference) -> VerseTapResponse)?
+    private let onNoteIndicatorTap: ((BibleReference) -> Void)?
+    private let onReferenceChange: ((BibleReference) -> Void)?
+    private let onChapterComplete: ((BibleReference) -> Void)?
+    private let audioActiveIndicatorColor: Color?
+    private let externalSelectedVerses: Binding<Set<BibleReference>>?
+    private let audioActiveReference: BibleReference?
 
     /// Creates a Bible reader view.
     ///
@@ -75,11 +69,15 @@ public struct BibleReaderView: View {
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
+        self.initialReference = reference
         self.externalSelectedVerses = selectedVerses
+        self.verseSelectionStyle = verseSelectionStyle
+        self.onVerseTap = onVerseTap
+        self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onReferenceChange = onReferenceChange
+        self.onChapterComplete = onChapterComplete
         self.audioActiveReference = audioActiveReference
-        viewModel = BibleReaderViewModel(reference: reference, verseSelectionStyle: verseSelectionStyle, audioActiveIndicatorColor: audioActiveIndicatorColor, onVerseTap: onVerseTap, onNoteIndicatorTap: onNoteIndicatorTap, onReferenceChange: onReferenceChange, onChapterComplete: onChapterComplete)
-        detents = [fontSettingsDetent, fontListDetent]
-        selectedDetent = fontSettingsDetent
+        self.audioActiveIndicatorColor = audioActiveIndicatorColor
     }
 
     /// Creates a Bible reader view with sign-in configuration.
@@ -102,6 +100,51 @@ public struct BibleReaderView: View {
     }
 
     public var body: some View {
+        Group {
+            if let viewModel {
+                ReaderContent(
+                    viewModel: viewModel,
+                    externalSelectedVerses: externalSelectedVerses,
+                    audioActiveReference: audioActiveReference
+                )
+            } else {
+                Color.clear
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = BibleReaderViewModel(
+                    reference: initialReference,
+                    verseSelectionStyle: verseSelectionStyle,
+                    audioActiveIndicatorColor: audioActiveIndicatorColor,
+                    onVerseTap: onVerseTap,
+                    onNoteIndicatorTap: onNoteIndicatorTap,
+                    onReferenceChange: onReferenceChange,
+                    onChapterComplete: onChapterComplete
+                )
+            }
+        }
+    }
+}
+
+private struct ReaderContent: View {
+    @Bindable var viewModel: BibleReaderViewModel
+    let externalSelectedVerses: Binding<Set<BibleReference>>?
+    let audioActiveReference: BibleReference?
+
+#if !os(tvOS)
+    @State private var contextProvider = ContextProvider()
+#endif
+
+    @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let fontSettingsDetent = PresentationDetent.height(360)
+    private let fontListDetent = PresentationDetent.height(480)
+    @State private var selectedDetent = PresentationDetent.height(360)
+    @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+
+    var body: some View {
         VStack(spacing: 0) {
             header
             Spacer()
@@ -110,7 +153,12 @@ public struct BibleReaderView: View {
                 .frame(height: 1)
             ZStack {
                 VStack {
-                    mainScroller
+                    ReaderMainScroller(
+                        viewModel: viewModel,
+                        audioActiveReference: audioActiveReference
+                    ) {
+                        bibleCopyrightBlock
+                    }
                     Spacer(minLength: 0)
                 }
                 BibleReaderNavButtons()
@@ -184,13 +232,9 @@ public struct BibleReaderView: View {
             viewModel.isReduceMotionEnabled = newValue
         }
         .onAppear {
-            verseAnchors = []
-            lastScrolledVerse = nil
             viewModel.resetChapterCompleteTracking()
         }
         .onChange(of: viewModel.reference) { _, newReference in
-            verseAnchors = []
-            lastScrolledVerse = nil
             viewModel.resetChapterCompleteTracking()
             viewModel.onReferenceChange?(newReference)
         }
@@ -294,101 +338,6 @@ public struct BibleReaderView: View {
         }
     }
 
-    private var mainScroller: some View {
-        ScrollViewReader { scrollProxy in
-            ScrollView {
-                if viewModel.version != nil {
-                    VStack(alignment: .leading) {
-                        if viewModel.showBookIntro {
-                            BibleReaderIntroView()
-                        } else {
-                            BibleTextView(
-                                viewModel.reference,
-                                textOptions: viewModel.textOptions,
-                                selectedVerses: $viewModel.selectedVerses,
-                                onVerseTap: { reference, actionType, footnotes, footnoteId in
-                                    viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                                },
-                                onAnchorsChanged: { anchors in
-                                    verseAnchors = anchors
-                                },
-                                audioActiveVerse: audioActiveReference?.verseStart
-                            )
-                        }
-                        bibleCopyrightBlock
-                    }
-                    .frame(maxWidth: viewModel.readerMaxWidth)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .id("topOfContent")
-                    .onGeometryChange(for: CGRect.self) { proxy in
-                        proxy.frame(in: .named("scrollView"))
-                    } action: { newFrame in
-                        viewModel.handleScroll(offset: newFrame.minY, contentHeight: newFrame.height)
-                    }
-                } else {
-                    ProgressView()
-                        .tint(viewModel.readerTextMutedColor)
-                        .padding(.vertical, 48)
-                }
-            }
-            .coordinateSpace(.named("scrollView"))
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .onAppear { viewModel.scrollViewHeight = geo.size.height }
-                        .onChange(of: geo.size.height) { _, newHeight in
-                            viewModel.scrollViewHeight = newHeight
-                        }
-                }
-            )
-            .onPreferenceChange(VerseAnchorsPreferenceKey.self) { verseAnchors = $0 }
-            .onChange(of: viewModel.scrollToTop) { _, shouldScroll in
-                if shouldScroll {
-                    scrollProxy.scrollTo("topOfContent", anchor: .top)
-                    viewModel.scrollToTop = false
-                    lastScrolledVerse = nil
-                    // Wait for scroll animation before clearing the flag.
-                    Task { @MainActor in
-                        // swiftlint:disable:next common_debug_statements
-                        try? await Task.sleep(for: .seconds(0.5))
-                        viewModel.isChangingChapter = false
-                    }
-                }
-            }
-            .onChange(of: audioActiveReference) { _, _ in
-                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
-            }
-            .onChange(of: verseAnchors) { _, _ in
-                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
-            }
-        }
-    }
-
-    private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
-        guard let audioRef = audioActiveReference,
-              let verse = audioRef.verseStart,
-              audioRef.chapter == viewModel.reference.chapter,
-              audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased(),
-              !viewModel.isChangingChapter else {
-            return
-        }
-        guard let anchorVerse = verseAnchors.last(where: { $0 <= verse }) else {
-            return
-        }
-        guard anchorVerse != lastScrolledVerse else {
-            return
-        }
-        lastScrolledVerse = anchorVerse
-        let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
-        Task { @MainActor in
-            let animation: Animation? = reduceMotion ? nil : .easeInOut(duration: 0.3)
-            withAnimation(animation) {
-                scrollProxy.scrollTo(anchorId, anchor: .center)
-            }
-        }
-    }
-
 #if !os(tvOS)
     class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
@@ -419,14 +368,13 @@ public struct BibleReaderView: View {
                 )
                 dump(result)
 #endif
-                
+
                 await viewModel.updateSignInState()
             } catch {
                 YouVersionPlatformLogger.error("Sign-in error: \(error)", category: "BibleReader")
             }
         }
     }
-
 }
 
 #Preview {
