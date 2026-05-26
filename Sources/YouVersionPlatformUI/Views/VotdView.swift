@@ -72,7 +72,7 @@ public struct VotdView: View {
                 let textOptions = BibleTextOptions(
                     fontSize: 24,
                     renderHeadlines: false,
-                    renderVerseNumbers: false,
+                    renderVerseNumbers: false
                 )
                 BibleTextView(reference, textOptions: textOptions)
                     .minimumScaleFactor(0.5)
