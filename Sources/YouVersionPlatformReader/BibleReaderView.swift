@@ -141,8 +141,8 @@ private struct ReaderContent: View {
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
 
-    var externalSelectedVerses: Binding<Set<BibleReference>>?
-    var audioActiveReference: BibleReference?
+    private var externalSelectedVerses: Binding<Set<BibleReference>>?
+    private var audioActiveReference: BibleReference?
     @State private var lastScrolledVerse: Int?
     @State private var verseAnchors: [Int] = []
 
