@@ -12,7 +12,6 @@ final class BibleVersionRenderingStyles {
         stateUp: inout BibleVersionRendering.StateUp
     ) {
         let ignoredTags = [  // things we don't currently care about:
-            "s1",
             "b",   // Poetry text stanza break (e.g. stanza break)
             "lh",  // A list header (introductory remark)
             "li",  // A list entry, level 1 (if single level)
@@ -40,7 +39,8 @@ final class BibleVersionRenderingStyles {
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
-
+                stateDown.alignment = .center
+                
             case "s2":
                 stateDown.marginTop = fontSize
                 stateDown.marginBottom = 0
