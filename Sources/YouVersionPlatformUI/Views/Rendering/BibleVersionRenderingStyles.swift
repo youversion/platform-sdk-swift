@@ -16,11 +16,9 @@ final class BibleVersionRenderingStyles {
             "lh",  // A list header (introductory remark)
             "li",  // A list entry, level 1 (if single level)
             "lf",  // List footer (introductory remark)
-            "ms1", "ms2", "ms3", "ms4", "s2", "s3", "s4", "sp",  // handled inside yv-h
+            "ms1", "ms2", "ms3", "ms4", "s3", "s4", "sp",  // handled inside yv-h
             "iex", // see John 7:52
-            "ms1",
             "qa",
-            "r",
             "sr",
             "po",
             "im",  // non-indented intro paragraph
@@ -31,6 +29,13 @@ final class BibleVersionRenderingStyles {
         for c in classes {
             switch c {
                 
+            case "d":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font100emItalic
+                stateDown.marginTop = 0.60 * fontSize
+                stateDown.marginBottom = 1.20 * fontSize
+                stateDown.textCategory = .header
+
             case "li1", "ili", "ili1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
@@ -71,6 +76,10 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 6
 
+            case "qr":
+                stateDown.alignment = .trailing
+                stateDown.currentFont = .font100emItalic
+
             case "q1", "iq1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
@@ -82,11 +91,13 @@ final class BibleVersionRenderingStyles {
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
+                stateDown.currentFont = .font117em500
                 stateUp.headIndent = 0
                 
             case "s2":
                 stateDown.marginTop = 0.5 * fontSize
                 stateDown.marginBottom = 0.5 * fontSize
+                stateDown.currentFont = .font100em500Italic
                 stateUp.headIndent = 0
 
             // The tags below here are not yet adjusted for our new
@@ -112,8 +123,9 @@ final class BibleVersionRenderingStyles {
             case "ms", "mr", "cl":
                 stateDown.alignment = .center
                 stateDown.marginBottom = 0.60 * fontSize
+                stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
 
-            case "pr", "qr":
+            case "pr":
                 stateDown.alignment = .trailing
 
             case "pc", "qc":
@@ -138,15 +150,6 @@ final class BibleVersionRenderingStyles {
             case "iq4", "q4", "qm4":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
-
-            case "d":
-                stateDown.alignment = .center
-                stateDown.currentFont = .font100emItalic
-                stateDown.marginBottom = 0.60 * fontSize
-                stateDown.textCategory = .header
-                if !stateIn.renderHeadlines {
-                    stateUp.rendering = false
-                }
 
             case "iot":
                 stateDown.currentFont = .font100em500
@@ -194,12 +197,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .header4
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
+            
+            case "r":
+                stateDown.currentFont = .headerSmallerItalic
+                stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
 
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
-                    "s1": .font117em500,
-                    "s2": .font100em500Italic,
-                    //"d": .font117em500italic,
                     "imt": .header,
                     "imt1": .header,
                     "ms": .font117em500,
@@ -215,22 +219,15 @@ final class BibleVersionRenderingStyles {
                     "ms4": .header4,
                     "imt4": .header4,
                     "sp": .headerItalic,
-                    "r": .headerSmallerItalic,
                     "sr": .headerItalic
                 ]
-                stateDown.marginTop = fontSize
-                stateDown.textCategory = .header
-                stateDown.currentFont = .header
                 for c in classes {
                     if let font = fontsByClass[c] {
                         stateDown.currentFont = font
+                        stateUp.firstLineHeadIndent = 0
                     }
                 }
-                if classes.contains("r") || classes.contains("mr") {
-                    stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
-                }
-
-                stateUp.firstLineHeadIndent = 0
+                stateDown.textCategory = .header
                 if !stateIn.renderHeadlines {
                     stateUp.rendering = false
                 }
