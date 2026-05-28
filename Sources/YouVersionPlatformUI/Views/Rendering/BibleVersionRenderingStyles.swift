@@ -226,11 +226,6 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
-            case "pmc":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 4
-                stateDown.marginBottom = 0.60 * fontSize
-
             case "pr":
                 stateDown.alignment = .trailing
 
