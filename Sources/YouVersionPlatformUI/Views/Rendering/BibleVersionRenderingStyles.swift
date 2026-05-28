@@ -11,16 +11,6 @@ final class BibleVersionRenderingStyles {
         stateDown: inout BibleVersionRendering.StateDown,
         stateUp: inout BibleVersionRendering.StateUp
     ) {
-        let ignoredTags = [  // things we don't currently care about:
-            "b",   // Poetry text stanza break (e.g. stanza break)
-            "lh",  // A list header (introductory remark)
-            "li",  // A list entry, level 1 (if single level)
-            "lf",  // List footer (introductory remark)
-            "ms2", "ms3", "ms4", "s3", "s4",  // handled inside yv-h
-            "sr",
-            "po",
-            "ior"  // marks references in an outline
-        ]
         let fontSize = stateIn.fonts.baseSize
 
         for c in classes {
@@ -87,6 +77,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0
                 
             case "ms1":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font117em500
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+
+            case "ms2", "ms3", "ms4":
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.currentFont = .font117em500
                 stateDown.marginBottom = 0.50 * fontSize
@@ -213,12 +210,19 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font117em500
                 stateUp.headIndent = 0
                 
-            case "s2":
+            case "s2", "s3", "s4":
                 stateDown.marginTop = 0.5 * fontSize
                 stateDown.marginBottom = 0.5 * fontSize
                 stateDown.currentFont = .font100em500Italic
                 stateUp.headIndent = 0
-
+                
+            case "yv-h", "yvh":
+                stateUp.firstLineHeadIndent = 0
+                stateDown.textCategory = .header
+                if !stateIn.renderHeadlines {
+                    stateUp.rendering = false
+                }
+                
             // The tags below here are not yet adjusted for our new
             // typography standards; they may or may not reflect the new way.
             case "imi":
@@ -230,7 +234,6 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .trailing
 
             case "iq", "q":
-                // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
@@ -240,7 +243,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = fontSize / 3
 
             case "is", "is1":
-                stateDown.currentFont = .header
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
 
@@ -260,59 +263,39 @@ final class BibleVersionRenderingStyles {
 
             case "imt1", "imte", "imte1":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .header
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
 
             case "imt2", "imte2":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .headerItalic
+                stateDown.currentFont = .font100emItalic
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
 
             case "imt3":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .header3
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
 
             case "imt4":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .header4
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
             
             case "r":
-                stateDown.currentFont = .headerSmallerItalic
-                stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
+                stateDown.currentFont = .font076emItalic
+                stateDown.marginTop = 0
 
-            case "yv-h", "yvh":  // yv-h meaning header
-                let fontsByClass: [String: BibleTextFontOption] = [
-                    "imt1": .header,
-                    "ms2": .header2,
-                    "imt2": .header2,
-                    "s3": .header3,
-                    "ms3": .header3,
-                    "imt3": .header3,
-                    "s4": .header4,
-                    "ms4": .header4,
-                    "imt4": .header4,
-                    "sr": .headerItalic
-                ]
-                for c in classes {
-                    if let font = fontsByClass[c] {
-                        stateDown.currentFont = font
-                    }
-                }
-                stateUp.firstLineHeadIndent = 0
-                stateDown.textCategory = .header
-                if !stateIn.renderHeadlines {
-                    stateUp.rendering = false
-                }
+            case "sr":
+                stateDown.currentFont = .font100emItalic
+                
+            case "b", "lh", "li", "lf", "po", "ior":
+                break
 
             default:
-                if !ignoredTags.contains(c) {
-                    BibleVersionRendering.assertionFailed("interpreting block classes: unexpected ", string: c)
-                }
+                BibleVersionRendering.assertionFailed("interpretBlockClasses: unexpected class: \(c)")
             }
         }
     }
@@ -325,7 +308,7 @@ final class BibleVersionRenderingStyles {
     ) {
         // this is a weird place to do this, but the tag is on a block, and block classes don't usually change fonts, so...
         if stateDown.smallcaps {
-            stateDown.currentFont = .smallCaps
+            stateDown.currentFont = .font100emSmallCaps
         }
 
         for c in node.classes {
@@ -339,7 +322,7 @@ final class BibleVersionRenderingStyles {
                     }
                 }
             } else if node.classes.contains("nd") || node.classes.contains("sc") {
-                stateDown.currentFont = .smallCaps
+                stateDown.currentFont = .font100emSmallCaps
                 stateDown.smallcaps = true
             } else if node.classes.contains("tl") || node.classes.contains("it") || node.classes.contains("add") {
                 stateDown.currentFont = .font100emItalic

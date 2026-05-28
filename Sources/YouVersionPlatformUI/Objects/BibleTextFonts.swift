@@ -4,27 +4,17 @@ import UIKit
 #endif
 
 public enum BibleTextFontOption {
-    case textFont
-    case textFontBold
-    case textFontItalic
-    case verseNumFont
-    case smallCaps
-    case header
-    case headerItalic
-    case headerSmaller
-    case headerSmallerItalic
-    case header2
-    case header3
-    case header4
-    case footnote
+    case font076emItalic
     case font100em
-    case font100emBold
     case font100emItalic
+    case font100emSmallCaps
     case font100em500
     case font100em500Italic
     case font117em500
     case font117em500Italic
     case font117em600
+    case footnote
+    case verseNumFont
 }
 
 public struct BibleTextFonts {
@@ -46,38 +36,26 @@ public struct BibleTextFonts {
         self.baseSize = baseSize
         verseNumBaselineOffset = baseSize * 0.2
 
-        let boldFamilyName: String
         let italicFamilyName: String
 
         if familyName.hasSuffix("-Regular") {
             let base = familyName.split(separator: "-").dropLast().joined(separator: "-")
-            boldFamilyName = base + "-Bold"
             italicFamilyName = base + "-Italic"
         } else {
-            boldFamilyName = familyName
             italicFamilyName = familyName
         }
 
         fonts = [
-            .smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
-            .headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
-            .headerSmaller: Self.font(familyName: boldFamilyName, size: baseSize * 0.9).weight(.medium),
-            .header2: Self.font(familyName: boldFamilyName, size: baseSize * 1.1).weight(.bold),
-            .header3: Self.font(familyName: familyName, size: baseSize * 1.1),
-            .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
-            .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
-            // below are validated standards:
-            .header: Self.font(familyName: boldFamilyName, size: baseSize).bold(),
-            .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            .textFont: Self.font(familyName: familyName, size: baseSize),
-            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
-            // new typography standards all use from the below:
+            .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
             .font100em: Self.font(familyName: familyName, size: baseSize),
             .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            .font100em500: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium),
+            .font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
+            .font100em500: Self.font(familyName: familyName, size: baseSize).weight(.medium),
             .font100em500Italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium).italic(),
             .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
-            .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic()
+            .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
+            .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
+            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps()
         ]
     }
 
