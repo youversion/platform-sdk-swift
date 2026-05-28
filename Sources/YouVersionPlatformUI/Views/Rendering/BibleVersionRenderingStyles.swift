@@ -149,6 +149,12 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
+                
+            case "qm":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
 
             case "qm1":
                 stateDown.marginBottom = 0.50 * fontSize
@@ -216,7 +222,7 @@ final class BibleVersionRenderingStyles {
             case "pr":
                 stateDown.alignment = .trailing
 
-            case "iq", "q", "qm":
+            case "iq", "q":
                 // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
