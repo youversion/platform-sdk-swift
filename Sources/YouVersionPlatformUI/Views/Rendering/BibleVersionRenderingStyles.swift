@@ -17,7 +17,6 @@ final class BibleVersionRenderingStyles {
             "li",  // A list entry, level 1 (if single level)
             "lf",  // List footer (introductory remark)
             "ms2", "ms3", "ms4", "s3", "s4",  // handled inside yv-h
-            "iex", // see John 7:52
             "sr",
             "po",
             "ior"  // marks references in an outline
@@ -40,6 +39,10 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 1.20 * fontSize
                 stateDown.textCategory = .header
 
+            case "iex":
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 0
+                
             case "imt":
                 stateDown.alignment = .center
                 stateDown.currentFont = .font117em500
@@ -123,18 +126,12 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 6
 
-            case "pm":
+            case "pm", "pmc", "pmo":
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
-            case "pmo":
-                stateDown.marginBottom = 0.50 * fontSize
-                stateDown.marginTop = 0.50 * fontSize
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 2
-                
             case "pmr":
                 stateDown.alignment = .trailing
                 stateDown.marginBottom = 0.50 * fontSize
