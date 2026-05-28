@@ -18,7 +18,6 @@ final class BibleVersionRenderingStyles {
             "lf",  // List footer (introductory remark)
             "ms1", "ms2", "ms3", "ms4", "s3", "s4", "sp",  // handled inside yv-h
             "iex", // see John 7:52
-            "qa",
             "sr",
             "po",
             "ior"  // marks references in an outline
@@ -27,6 +26,12 @@ final class BibleVersionRenderingStyles {
 
         for c in classes {
             switch c {
+                
+            case "cl":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font117em500
+                stateDown.marginBottom = 0.25 * fontSize
+                stateDown.marginTop = 0
                 
             case "d":
                 stateDown.alignment = .center
@@ -92,6 +97,13 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
+            case "qa":
+                stateDown.currentFont = .font117em500Italic
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateDown.textCategory = .header
+                stateUp.headIndent = 0
+
             case "qm1":
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
@@ -116,6 +128,14 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 4
                 
+            case "iq3", "q3":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 6
+
+            case "iq4", "q4":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 6
+
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
@@ -148,7 +168,7 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
                 
-            case "ms", "mr", "cl":
+            case "ms", "mr":
                 stateDown.alignment = .center
                 stateDown.marginBottom = 0.60 * fontSize
                 stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
@@ -166,11 +186,11 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
-            case "iq3", "q3", "qm3":
+            case "qm3":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
-            case "iq4", "q4", "qm4":
+            case "qm4":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
