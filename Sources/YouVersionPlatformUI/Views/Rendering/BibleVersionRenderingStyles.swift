@@ -224,9 +224,9 @@ final class BibleVersionRenderingStyles {
                 for c in classes {
                     if let font = fontsByClass[c] {
                         stateDown.currentFont = font
-                        stateUp.firstLineHeadIndent = 0
                     }
                 }
+                stateUp.firstLineHeadIndent = 0
                 stateDown.textCategory = .header
                 if !stateIn.renderHeadlines {
                     stateUp.rendering = false
