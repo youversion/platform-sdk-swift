@@ -21,7 +21,6 @@ final class BibleVersionRenderingStyles {
             "qa",
             "sr",
             "po",
-            "im",  // non-indented intro paragraph
             "ior"  // marks references in an outline
         ]
         let fontSize = stateIn.fonts.baseSize
@@ -34,6 +33,11 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100emItalic
                 stateDown.marginTop = 0.60 * fontSize
                 stateDown.marginBottom = 1.20 * fontSize
+                stateDown.textCategory = .header
+
+            case "imt":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font117em500
                 stateDown.textCategory = .header
 
             case "li1", "ili", "ili1":
@@ -52,7 +56,7 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 8
 
-            case "m":
+            case "m", "im":
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
                 stateUp.firstLineHeadIndent = 0
@@ -75,6 +79,30 @@ final class BibleVersionRenderingStyles {
             case "pi3":
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 6
+
+            case "pm":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
+            case "pmo":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
+            case "qm1":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
+            case "qm2":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 4
 
             case "qr":
                 stateDown.alignment = .trailing
@@ -111,12 +139,12 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
-            case "pm", "pmo", "pmc", "pmr":
+            case "pmc", "pmr":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 4
                 stateDown.marginBottom = 0.60 * fontSize
 
-            case "nb", "im":
+            case "nb":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
                 
@@ -133,13 +161,8 @@ final class BibleVersionRenderingStyles {
                 stateDown.smallcaps = true
                 stateDown.textCategory = .header
 
-            case "iq", "q", "qm", "qm1":
+            case "iq", "q", "qm":
                 // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
-
-            case "qm2":
-                // Sadly SwiftUI cannot do this yet, but we want (1, 2) here.
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
@@ -175,7 +198,7 @@ final class BibleVersionRenderingStyles {
             case "io3", "io4":
                 stateUp.headIndent = 4
 
-            case "imt", "imt1", "imte", "imte1":
+            case "imt1", "imte", "imte1":
                 stateDown.textCategory = .header
                 stateDown.currentFont = .header
                 stateDown.alignment = .center
@@ -204,7 +227,6 @@ final class BibleVersionRenderingStyles {
 
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
-                    "imt": .header,
                     "imt1": .header,
                     "ms": .font117em500,
                     "mr": .font117em500Italic,
