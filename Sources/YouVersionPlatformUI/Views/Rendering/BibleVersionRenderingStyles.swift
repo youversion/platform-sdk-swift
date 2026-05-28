@@ -71,6 +71,18 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
+            case "mr":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font117em500Italic
+                stateDown.marginBottom = 0.60 * fontSize
+                stateDown.marginTop = 0
+
+            case "ms":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font100em500
+                stateDown.marginBottom = 0.60 * fontSize
+                stateDown.marginTop = 0
+
             case "nb":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
@@ -110,6 +122,10 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0.50 * fontSize
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
+                
+            case "pmr":
+                stateDown.alignment = .trailing
+                stateDown.marginBottom = 0.50 * fontSize
 
             case "qa":
                 stateDown.currentFont = .font117em500Italic
@@ -176,15 +192,10 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
-            case "pmc", "pmr":
+            case "pmc":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 4
                 stateDown.marginBottom = 0.60 * fontSize
-
-            case "ms", "mr":
-                stateDown.alignment = .center
-                stateDown.marginBottom = 0.60 * fontSize
-                stateDown.marginTop = 0 - (fontSize * 0.75)  // bug: should be a % of lineSpacing but we don't have that here yet
 
             case "pr":
                 stateDown.alignment = .trailing
@@ -261,9 +272,6 @@ final class BibleVersionRenderingStyles {
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
                     "imt1": .header,
-                    "ms": .font117em500,
-                    "mr": .font117em500Italic,
-                    "cl": .font117em500,
                     "ms1": .header2,
                     "ms2": .header2,
                     "imt2": .header2,
@@ -329,7 +337,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
             } else {
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fr", "ft",
-                     "qs", "sc", "nd", "cl", "w", "litl", "rq", "x"].contains(c) {
+                     "qs", "sc", "nd", "w", "litl", "rq", "x"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }
