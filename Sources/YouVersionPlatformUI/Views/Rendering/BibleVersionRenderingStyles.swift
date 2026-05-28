@@ -47,6 +47,12 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 8
 
+            case "m":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
+                
             case "p", "ip":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
@@ -65,6 +71,14 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 6
 
+            case "q1", "iq1":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+                
+            case "q2", "iq2":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 4
+                
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
@@ -86,20 +100,12 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
-            case "q1", "iq1":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 3
-                
-            case "q2", "iq2":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 6
-                
             case "pm", "pmo", "pmc", "pmr":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 4
                 stateDown.marginBottom = 0.60 * fontSize
 
-            case "m", "nb", "im":
+            case "nb", "im":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
                 
