@@ -16,7 +16,7 @@ final class BibleVersionRenderingStyles {
             "lh",  // A list header (introductory remark)
             "li",  // A list entry, level 1 (if single level)
             "lf",  // List footer (introductory remark)
-            "ms1", "ms2", "ms3", "ms4", "s3", "s4",  // handled inside yv-h
+            "ms2", "ms3", "ms4", "s3", "s4",  // handled inside yv-h
             "iex", // see John 7:52
             "sr",
             "po",
@@ -82,6 +82,12 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100em500
                 stateDown.marginBottom = 0.60 * fontSize
                 stateDown.marginTop = 0
+                
+            case "ms1":
+                stateDown.alignment = .center
+                stateDown.currentFont = .font117em500
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
 
             case "nb":
                 stateUp.firstLineHeadIndent = 0
@@ -132,6 +138,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
                 stateDown.textCategory = .header
+                stateUp.headIndent = 0
+
+            case "qc":
+                stateDown.alignment = .center
+                stateDown.marginBottom = 0
+                stateDown.marginTop = 0
+                stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
 
             case "qm1":
@@ -200,11 +213,6 @@ final class BibleVersionRenderingStyles {
             case "pr":
                 stateDown.alignment = .trailing
 
-            case "qc":
-                stateDown.alignment = .center
-                stateDown.smallcaps = true
-                stateDown.textCategory = .header
-
             case "iq", "q", "qm":
                 // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
                 stateUp.firstLineHeadIndent = 0
@@ -272,7 +280,6 @@ final class BibleVersionRenderingStyles {
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
                     "imt1": .header,
-                    "ms1": .header2,
                     "ms2": .header2,
                     "imt2": .header2,
                     "s3": .header3,
@@ -337,7 +344,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
             } else {
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fr", "ft",
-                     "qs", "sc", "nd", "w", "litl", "rq", "x"].contains(c) {
+                     "qs", "nd", "w", "litl", "rq", "x"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }
