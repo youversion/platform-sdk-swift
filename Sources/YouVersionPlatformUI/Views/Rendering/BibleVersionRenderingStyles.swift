@@ -31,19 +31,60 @@ final class BibleVersionRenderingStyles {
         for c in classes {
             switch c {
                 
-            case "p", "ip", "imi", "ipi":
+            case "li1", "ili", "ili1":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
+            case "li2", "ili2":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 4
+
+            case "li3", "ili3":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 6
+
+            case "li4", "ili4":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 8
+
+            case "p", "ip":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
+            case "pi", "pi1", "ipi":
+                stateDown.marginBottom = 0.60 * fontSize
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 2
+
+            case "pi2":
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 4
+
+            case "pi3":
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 6
+
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
-                stateDown.alignment = .center
+                stateUp.headIndent = 0
                 
             case "s2":
-                stateDown.marginTop = fontSize
-                stateDown.marginBottom = 0
+                stateDown.marginTop = 0.5 * fontSize
+                stateDown.marginBottom = 0.5 * fontSize
+                stateUp.headIndent = 0
+
+            // The tags below here are not yet adjusted for our new
+            // typography standards; they may or may not reflect the new way.
+            case "mi":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
+            case "imi":
+                stateDown.marginBottom = 0.60 * fontSize
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 0
                 
             case "q1", "iq1":
                 stateUp.firstLineHeadIndent = 0
@@ -74,38 +115,6 @@ final class BibleVersionRenderingStyles {
                 stateDown.smallcaps = true
                 stateDown.textCategory = .header
 
-            case "mi":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 2
-
-            case "pi", "pi1":
-                stateUp.firstLineHeadIndent = 1
-                stateUp.headIndent = 0
-
-            case "pi2":
-                stateUp.firstLineHeadIndent = 1
-                stateUp.headIndent = 2
-
-            case "pi3":
-                stateUp.firstLineHeadIndent = 1
-                stateUp.headIndent = 3
-
-            case "li1", "ili", "ili1":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 1
-
-            case "li2", "ili2":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 2
-
-            case "li3", "ili3":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 3
-
-            case "li4", "ili4":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 4
-
             case "iq", "q", "qm", "qm1":
                 // Sadly SwiftUI cannot do this yet, but we want (0, 2) here.
                 stateUp.firstLineHeadIndent = 0
@@ -126,7 +135,7 @@ final class BibleVersionRenderingStyles {
 
             case "d":
                 stateDown.alignment = .center
-                stateDown.currentFont = .textFontItalic
+                stateDown.currentFont = .font100emItalic
                 stateDown.marginBottom = 0.60 * fontSize
                 stateDown.textCategory = .header
                 if !stateIn.renderHeadlines {
@@ -134,7 +143,7 @@ final class BibleVersionRenderingStyles {
                 }
 
             case "iot":
-                stateDown.currentFont = .textFontBold
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
 
@@ -144,7 +153,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = fontSize / 2
 
             case "is2":
-                stateDown.currentFont = .textFontBold
+                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
 
@@ -182,13 +191,13 @@ final class BibleVersionRenderingStyles {
 
             case "yv-h", "yvh":  // yv-h meaning header
                 let fontsByClass: [String: BibleTextFontOption] = [
-                    "s1": .font117em600,
-                    "s2": .font100em600italic,
+                    "s1": .font117em500,
+                    "s2": .font100em500Italic,
                     //"d": .font117em500italic,
                     "imt": .header,
                     "imt1": .header,
                     "ms": .font117em500,
-                    "mr": .font117em500italic,
+                    "mr": .font117em500Italic,
                     "cl": .font117em500,
                     "ms1": .header2,
                     "ms2": .header2,
@@ -253,11 +262,11 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .smallCaps
                 stateDown.smallcaps = true
             } else if node.classes.contains("tl") || node.classes.contains("it") || node.classes.contains("add") {
-                stateDown.currentFont = .textFontItalic
+                stateDown.currentFont = .font100emItalic
             } else if node.classes.contains("fq") || node.classes.contains("fqa") || node.classes.contains("add") {
-                stateDown.currentFont = .textFontItalic
+                stateDown.currentFont = .font100emItalic
             } else if node.classes.contains("qs") || node.classes.contains("qt") {
-                stateDown.currentFont = .textFontItalic
+                stateDown.currentFont = .font100emItalic
             } else if node.classes.contains("ord") || node.classes.contains("fv") || node.classes.contains("sup") {
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset

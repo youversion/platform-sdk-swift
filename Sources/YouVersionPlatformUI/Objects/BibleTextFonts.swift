@@ -17,11 +17,14 @@ public enum BibleTextFontOption {
     case header3
     case header4
     case footnote
-    //case font100emPlain
+    case font100em
+    case font100emBold
+    case font100emItalic
+    case font100em500
+    case font100em500Italic
     case font117em500
-    case font117em500italic
+    case font117em500Italic
     case font117em600
-    case font100em600italic
 }
 
 public struct BibleTextFonts {
@@ -56,8 +59,6 @@ public struct BibleTextFonts {
         }
 
         fonts = [
-            .textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            .textFontBold: Self.font(familyName: boldFamilyName, size: baseSize).bold(),
             .smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
             .headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
             .headerSmaller: Self.font(familyName: boldFamilyName, size: baseSize * 0.9).weight(.medium),
@@ -70,11 +71,13 @@ public struct BibleTextFonts {
             .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
             .textFont: Self.font(familyName: familyName, size: baseSize),
             .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
-            // new way of organizing these:
+            // new typography standards all use from the below:
+            .font100em: Self.font(familyName: familyName, size: baseSize),
+            .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
+            .font100em500: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium),
+            .font100em500Italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium).italic(),
             .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
-            .font117em500italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
-            .font117em600: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.semibold),
-            .font100em600italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.bold).italic()
+            .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic()
         ]
     }
 

@@ -29,6 +29,7 @@ struct BibleReaderFootnotesView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.bottom)
                     Divider()
+                        .padding(.bottom, 8)
                     VStack(alignment: .leading) {
                         ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
                             let character = String(UnicodeScalar(97 + (index % 26))!)
@@ -40,6 +41,7 @@ struct BibleReaderFootnotesView: View {
                                     .multilineTextAlignment(.leading)
                             }
                             Divider()
+                                .padding(.vertical, 8)
                         }
                     }
                 }
@@ -47,7 +49,7 @@ struct BibleReaderFootnotesView: View {
             }
         }
         .padding(.horizontal, 24)
-        .padding(.top, 24)
+        .padding(.top, 36)
     }
     
 }
