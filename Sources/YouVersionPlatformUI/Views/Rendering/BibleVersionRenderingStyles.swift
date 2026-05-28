@@ -67,11 +67,21 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 0
                 
+            case "mi":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
+
             case "p", "ip":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
                 
+            case "pc":
+                stateDown.alignment = .center
+                stateDown.marginBottom = 0.60 * fontSize
+                stateDown.smallcaps = true
+                stateDown.textCategory = .header
+
             case "pi", "pi1", "ipi":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
@@ -128,11 +138,11 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 4
                 
-            case "iq3", "q3":
+            case "q3", "iq3":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 6
 
-            case "iq4", "q4":
+            case "q4", "iq4":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 6
 
@@ -150,10 +160,6 @@ final class BibleVersionRenderingStyles {
 
             // The tags below here are not yet adjusted for our new
             // typography standards; they may or may not reflect the new way.
-            case "mi":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 2
-
             case "imi":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
@@ -176,7 +182,7 @@ final class BibleVersionRenderingStyles {
             case "pr":
                 stateDown.alignment = .trailing
 
-            case "pc", "qc":
+            case "qc":
                 stateDown.alignment = .center
                 stateDown.smallcaps = true
                 stateDown.textCategory = .header
