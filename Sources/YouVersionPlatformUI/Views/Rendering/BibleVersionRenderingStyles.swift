@@ -16,7 +16,7 @@ final class BibleVersionRenderingStyles {
             "lh",  // A list header (introductory remark)
             "li",  // A list entry, level 1 (if single level)
             "lf",  // List footer (introductory remark)
-            "ms1", "ms2", "ms3", "ms4", "s3", "s4", "sp",  // handled inside yv-h
+            "ms1", "ms2", "ms3", "ms4", "s3", "s4",  // handled inside yv-h
             "iex", // see John 7:52
             "sr",
             "po",
@@ -71,6 +71,10 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
+            case "nb":
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
+                
             case "p", "ip":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
@@ -145,6 +149,13 @@ final class BibleVersionRenderingStyles {
             case "q4", "iq4":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 6
+                
+            case "sp":
+                stateDown.currentFont = .font117em500Italic
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
 
             case "s1":
                 stateDown.marginTop = 0
@@ -170,10 +181,6 @@ final class BibleVersionRenderingStyles {
                 stateUp.headIndent = 4
                 stateDown.marginBottom = 0.60 * fontSize
 
-            case "nb":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
-                
             case "ms", "mr":
                 stateDown.alignment = .center
                 stateDown.marginBottom = 0.60 * fontSize
@@ -266,7 +273,6 @@ final class BibleVersionRenderingStyles {
                     "s4": .header4,
                     "ms4": .header4,
                     "imt4": .header4,
-                    "sp": .headerItalic,
                     "sr": .headerItalic
                 ]
                 for c in classes {
