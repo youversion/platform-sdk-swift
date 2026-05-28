@@ -104,7 +104,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.smallcaps = true
                 stateDown.textCategory = .header
 
-            case "pi", "pi1", "ipi":
+            case "pi":
+                stateDown.marginBottom = 0.50 * fontSize
+                stateDown.marginTop = 0.50 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
+
+            case "pi1", "ipi":
                 stateDown.marginBottom = 0.60 * fontSize
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 2
@@ -337,7 +343,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100emItalic
             } else if node.classes.contains("fq") || node.classes.contains("fqa") || node.classes.contains("add") {
                 stateDown.currentFont = .font100emItalic
-            } else if node.classes.contains("qs") || node.classes.contains("qt") {
+            } else if node.classes.contains("qs") || node.classes.contains("qt") || node.classes.contains("bk") {
                 stateDown.currentFont = .font100emItalic
             } else if node.classes.contains("ord") || node.classes.contains("fv") || node.classes.contains("sup") {
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
