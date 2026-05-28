@@ -101,7 +101,7 @@ public enum BibleVersionRendering {
             woc: false,
             smallcaps: false,
             alignment: .leading,
-            currentFont: .textFont,
+            currentFont: .font100em,
             baselineOffset: 0,
             textCategory: .scripture,
             nodeDepth: 0
@@ -287,7 +287,7 @@ public enum BibleVersionRendering {
         traceLog(node, stateDown: stateDown)
         for child in node.children {
             if child.type == .span || child.type == .text {
-                stateDown.currentFont = .textFont
+                stateDown.currentFont = .font100em
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                 // handleBlockChild puts its result into stateUp.text
             } else {
@@ -370,7 +370,7 @@ public enum BibleVersionRendering {
     ) {
         var stateDown = parentStateDown
         stateDown.nodeDepth += 1
-        stateDown.currentFont = .textFont
+        stateDown.currentFont = .font100em
 
         if node.type != .block {
             assertionFailed("unexpected: handleNodeBlock was given: ", type: node.type)
