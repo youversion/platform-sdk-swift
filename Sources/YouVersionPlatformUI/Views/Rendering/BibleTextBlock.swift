@@ -34,4 +34,25 @@ public struct BibleTextBlock: Identifiable {
         self.footnotes = footnotes
         self.rows = rows
     }
+
+    public init(
+        text: BibleAttributedString,
+        chapter: Int,
+        firstLineHeadIndent: Int,
+        headIndent: Int,
+        marginTop: CGFloat,
+        alignment: TextAlignment,
+        footnotes: [BibleFootnote],
+        rows: [[BibleAttributedString]] = []
+    ) {
+        self.text = text
+        self.chapter = chapter
+        self.firstLineHeadIndent = firstLineHeadIndent
+        self.headIndent = headIndent
+        self.marginTop = marginTop
+        self.marginBottom = 0
+        self.alignment = alignment
+        self.footnotes = footnotes
+        self.rows = rows
+    }
 }
