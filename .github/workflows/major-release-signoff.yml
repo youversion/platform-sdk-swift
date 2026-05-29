@@ -4,7 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   issue_comment:
-    types: [created, edited]
+    # `deleted` ensures the gate re-runs when a signoff comment is removed,
+    # so a previously-cached `success` status doesn't outlive its evidence.
+    types: [created, edited, deleted]
 
 permissions:
   contents: read
@@ -111,6 +113,16 @@ jobs:
           NEXT_VERSION: ${{ steps.preview.outputs.next }}
         run: |
           set -e
+          # Guard: when release_type=major, the analyzer must also have
+          # produced a real `next` version. An empty or literal "null"
+          # value here would degenerate the matcher regex into something
+          # that matches almost every comment (empty case) or any comment
+          # containing the word "null". Fail loud instead of silently
+          # passing the gate.
+          if [ -z "$NEXT_VERSION" ] || [ "$NEXT_VERSION" = "null" ]; then
+            echo "::error::release_type=major but next version is empty or null; aborting signoff check."
+            exit 1
+          fi
           # Escape dots in the version so the bash regex literal-matches
           # them. NEXT_VERSION looks like "6.0.0"; an unescaped dot would
           # match any single char.
