@@ -36,6 +36,35 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
    - Publishes all four pods to CocoaPods trunk in dependency order.
    - Creates a follow-up commit **Y** that restores `SDKVersion.swift` to `"Dev"` on `main`, so subsequent dev/CI builds don't report a stale released version. The tag stays at **X** (which is reachable from `main` via Y → X).
 
+## Major Release Signoff
+
+PRs that **introduce a breaking change** are gated by a required PR status check named `major-release-signoff`. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
+
+A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission posts a single comment containing **all three** of:
+
+1. The verbatim acknowledgment phrase:
+
+   > Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+
+2. The precise next version string (e.g. `v6.0.0` or `6.0.0`), and
+3. A 🚀 (`:rocket:`) emoji.
+
+A copy-paste-ready example (assuming the next version is `6.0.0`):
+
+```
+Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+
+v6.0.0 🚀
+```
+
+The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply.
+
+The check re-runs automatically when a qualifying comment is posted or edited; once it sees a comment from a write-access collaborator containing both tokens, it flips to `success` and merging is unblocked. The approver's comment lives in PR history as the audit record — no extra log is required.
+
+Permission is verified via `GET /repos/{owner}/{repo}/collaborators/{username}/permission` against the workflow-default `GITHUB_TOKEN`, so signoff authorization piggybacks on the same access list GitHub already uses for merge permissions — no separate allowlist file or org-scoped token to keep in sync.
+
+If the PR doesn't actually contain a breaking change (e.g. the trigger is prose accidentally matching the `BREAKING CHANGE` token), the fix is in the commit messages, not the signoff: reword the offending commit subject/body so the analyzer no longer detects a breaking change (see the `Commit Lint` PR comment for which commit triggered it), force-push, and the gate will go green on its own.
+
 ## Required GitHub Configuration
 
 ### GitHub Secrets
@@ -84,6 +113,7 @@ The `main` branch ruleset requires pull requests, but the release workflow needs
 1. Go to `https://github.com/youversion/platform-sdk-swift/settings/rules`
 2. Edit the ruleset for `main`
 3. Under "Bypass list", ensure "Deploy keys" is enabled
+4. Under "Require status checks to pass", add `major-release-signoff` to the required checks list so the gate actually blocks merges on major PRs (without this the workflow runs but the failure won't block the merge button).
 
 ## Local Testing
 
