@@ -40,11 +40,11 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
 
 PRs that **introduce a breaking change** are gated by a required PR status check named `major-release-signoff`. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
 
-A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission posts a single comment containing **all three** of:
+A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission (and who is **not** the PR author) posts a single comment containing **all three (3) of the following:**
 
-1. The verbatim acknowledgment phrase:
+1. The verbatim affirmation phrase:
 
-   > Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+   > I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
 
 2. The precise next version string (e.g. `v6.0.0` or `6.0.0`), and
 3. A 🚀 (`:rocket:`) emoji.
@@ -52,12 +52,12 @@ A "breaking change" is detected the same way `@semantic-release/commit-analyzer`
 A copy-paste-ready example (assuming the next version is `6.0.0`):
 
 ```
-Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
 
 v6.0.0 🚀
 ```
 
-The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply.
+The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply. The PR author is excluded — signoff has to come from a *different* write-access collaborator, so the gate guarantees a second pair of eyes.
 
 The check re-runs automatically when a qualifying comment is posted or edited; once it sees a comment from a write-access collaborator containing both tokens, it flips to `success` and merging is unblocked. The approver's comment lives in PR history as the audit record — no extra log is required.
 

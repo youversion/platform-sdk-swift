@@ -133,12 +133,15 @@ jobs:
           # Rocket: literal emoji or :rocket: shortcode.
           ROCKET_RE='(🚀|:rocket:)'
           # Acceptance criterion (1): the approver must quote the bot's
-          # template phrase verbatim. Kept on a single line so GitHub's
-          # "Quote reply" produces a comment containing this substring
-          # after a leading `> ` prefix — which we strip during normalize
-          # below. Any deviation (typo, paraphrase, dropped word) fails
-          # the match, which is the strict AC reading.
-          TEMPLATE_PHRASE='Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides'
+          # affirmation phrase verbatim. The phrase is an active
+          # confirmation that the breaking change is intentional and
+          # that the approver has read the release procedures and
+          # documented impact — not just a passive "yes". Kept on a
+          # single logical block so GitHub's "Quote reply" produces a
+          # comment containing this substring after `> ` prefixes that
+          # we strip during normalize below. Any deviation (typo,
+          # paraphrase, dropped word) fails the match.
+          TEMPLATE_PHRASE='I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.'
 
           # Normalize: drop `>` quote markers and collapse all whitespace
           # (incl. newlines) to a single space. This way "Quote reply"
@@ -243,18 +246,18 @@ jobs:
             echo "$MARKER"
             echo "## 🚨 Breaking change detected — signoff required for \`v$NEXT_VERSION\`"
             echo
-            echo "One or more commits on this PR introduce a **breaking change** (a \`BREAKING CHANGE\` footer or a \`!\` in the type, e.g. \`feat!:\`), which would ship as a major version bump (\`v$NEXT_VERSION\`). Merging is blocked until a repo collaborator with write access comments on this PR with all three of:"
+            echo "One or more commits on this PR introduce a **breaking change** (a \`BREAKING CHANGE\` footer or a \`!\` in the type, e.g. \`feat!:\`), which would ship as a major version bump (\`v$NEXT_VERSION\`). Merging is blocked until a repo collaborator with write access comments on this PR with **all three (3) of the following:**"
             echo
             echo "1. The verbatim acknowledgment phrase below,"
             echo "2. The precise next version (\`v$NEXT_VERSION\` or \`$NEXT_VERSION\`), and"
             echo "3. A 🚀 (\`:rocket:\`) emoji."
             echo
-            echo "Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
+            echo "I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release."
             echo
             echo "**Copy-paste-ready reply:**"
             echo
             echo '```'
-            echo "Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
+            echo "I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release."
             echo
             echo "v$NEXT_VERSION 🚀"
             echo '```'
