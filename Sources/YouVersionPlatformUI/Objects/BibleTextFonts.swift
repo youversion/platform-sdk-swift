@@ -77,7 +77,20 @@ public struct BibleTextFonts {
             .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
             .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
             .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
-            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps()
+            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
+            
+            // below are deprecated:
+            .textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
+            .textFontBold: Self.font(familyName: familyName, size: baseSize).bold(),
+            .smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
+            .headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
+            .headerSmaller: Self.font(familyName: familyName, size: baseSize * 0.9).weight(.medium),
+            .header2: Self.font(familyName: familyName, size: baseSize * 1.1).weight(.bold),
+            .header3: Self.font(familyName: familyName, size: baseSize * 1.1),
+            .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
+            .header: Self.font(familyName: familyName, size: baseSize).bold(),
+            .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
+            .textFont: Self.font(familyName: familyName, size: baseSize),
         ]
     }
 
