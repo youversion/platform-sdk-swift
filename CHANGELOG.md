@@ -2,6 +2,240 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.2.3](https://github.com/youversion/platform-sdk-swift/compare/5.2.2...5.2.3) (2026-05-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* footers.
+  - Posts a sticky PR comment (via peter-evans/find-comment +
+    create-or-update-comment) on both success and failure, with a prominent
+    warning when a major bump is detected.
+  - Treats a non-zero semantic-release dry-run as a warning only, so a release
+    config glitch never blocks unrelated PRs.
+- Add an `npm run commitlint` script for local pre-push validation.
+- Update AGENTS.md, RELEASING.md, and CONTRIBUTING.md to describe the new
+  CI-enforced flow and the local check.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): pin commit-lint actions to SHAs, catch feat! breaking changes, drop edited trigger
+
+Addresses three review comments on the commit-lint workflow:
+
+- Pin peter-evans/find-comment and peter-evans/create-or-update-comment to
+  full commit SHAs (v3.1.0 and v4.0.0 respectively). Floating major tags
+  could be silently force-pushed to a malicious SHA, and this workflow has
+  `pull-requests: write`.
+- Detect major releases via semantic-release's own log line ("complete:
+  major release" / "release type is major") instead of grepping for the
+  literal "BREAKING CHANGE" string. The previous check missed the `feat!:`
+  and `fix!:` shorthand, which produces a major bump without emitting the
+  footer keyword. Banner now fires correctly for both forms.
+- Drop the `edited` PR trigger. It re-ran the full workflow on every PR
+  title/body edit despite the workflow only validating commit-range
+  contents, not PR metadata. `synchronize` already re-runs on every new
+  commit push, which is the only event that can change what we lint.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): make semantic-release dry-run actually compute the next version, expand commit examples
+
+- semantic-release was logging "configured to only run on main" and bailing
+  on PR runs because HEAD is `refs/pull/N/merge`, which isn't in the
+  `branches` allowlist. The previous `--branches` override was the wrong
+  knob: that controls _which_ branch can release, not _which_ branch
+  semantic-release thinks it's on. Now we point a local branch at the PR
+  merge commit using the base ref name and let semantic-release run as if
+  the PR had already merged, which is exactly the preview we want.
+- Address review feedback on CONTRIBUTING.md: add a fuller Conventional
+  Commits section with type list, version-bump table, six worked examples
+  (feat / fix / docs / refactor / chore / breaking change with footer),
+  and a note about imperative mood and scopes. Aimed at coding agents and
+  humans who haven't internalized the spec.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): strip GitHub Actions env vars so semantic-release dry-run detects the right branch
+
+Previous fix moved git HEAD to a local branch named after the PR base ref,
+but semantic-release never looked at git — it relies on env-ci, which
+reads GITHUB_ACTIONS + GITHUB_REF + GITHUB_EVENT_NAME and reports the
+branch as `refs/pull/N/merge` on PR events. That ref never matches the
+configured `branches: ["main"]` allowlist, so the analyzer bails with
+"triggered on the branch refs/pull/N/merge ... won't be published"
+before computing a version. The --no-ci flag bypasses the CI auth check,
+not the env-ci branch detection.
+
+Wrap the semantic-release invocation in `env -u ...` to unset the
+GitHub Actions env vars that signal "PR in CI". env-ci then falls back
+to git-based detection and sees us on `main` (because of the local
+checkout in the previous step), so the analyzer runs end-to-end and the
+PR comment shows the real next version.
+
+GITHUB_TOKEN is preserved so the @semantic-release/github plugin's
+verifyConditions step still passes.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* docs: annotate commit examples with version bumps and call out squash-merge behavior
+
+Two pieces of contributor feedback on CONTRIBUTING.md:
+
+- Each example now shows the bump it would trigger (MINOR / PATCH /
+  NO RELEASE / MAJOR) with concrete before-and-after versions, so
+  contributors and agents can see the consequence at a glance.
+- Add an explicit callout that this repo squash-merges and that the
+  squash commit subject — seeded from the PR title — is what
+  semantic-release reads on `main`. Also state that the entire commit
+  history back to the last tag is scanned and the highest bump wins.
+  This prevents the "all my commits were `feat` but the PR was titled
+  `chore: ...` and no release happened" trap.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* refactor(ci): simplify semantic-release dry-run with --branches '**' --no-ci
+
+Replace the env-var stripping + local-branch-rename dance with the
+direct CLI override: `--branches '**' --no-ci`. `--branches '**'`
+loosens the analyzer's branch allowlist for this invocation only (the
+`.releaserc.json` config is untouched, so real releases are still
+locked to `main`), and `--no-ci` bypasses the refuse-on-PR check.
+Same dry-run output, ~10 fewer lines, no GITHUB_* env juggling.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): scope semantic-release dry-run --branches to the PR head ref only
+
+`--branches '**'` expanded against every branch in the repo (~13) and
+tripped semantic-release's max-3-release-branches validation:
+ERELEASEBRANCHES "The release branches are invalid". Limit the override
+to a single entry — the PR head branch — which is what env-ci already
+detects us on. That keeps the allowlist exactly one branch wide, well
+under the limit, and aligned with the detected branch so the analyzer
+runs end-to-end.
+
+The file config in `.releaserc.json` is still untouched, so real
+releases continue to ship only from `main`.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): unset GITHUB_ACTIONS for semantic-release dry-run (canonical workaround)
+* **ci:** bump inference, which is all that matters for the
+preview. The actual release on `main` still uses the full plugin list
+from .releaserc.json (unchanged).
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): preserve conventionalcommits preset in dry-run by filtering plugins in place
+
+Previous commit dropped @semantic-release/git's verifyConditions noise
+by passing --plugins on the CLI, but that override forfeited the inline
+plugin configs from .releaserc.json — most importantly the
+`preset: conventionalcommits` on commit-analyzer and
+release-notes-generator. The preview then ran against the angular
+preset default, which differs from what the real release on `main` uses.
+
+Filter .releaserc.json in place with a short node script instead,
+keeping only commit-analyzer and release-notes-generator WITH their
+original inline configs. The dry-run now uses the exact same semver-
+inference rules as the real release, just without the
+verifyConditions-heavy plugins (git, github, changelog, exec) that
+neither contribute to version calculation nor work cleanly under the
+read-only PR-event GITHUB_TOKEN.
+
+The CI working tree is throwaway, so the in-place rewrite has no
+persistence concern. The committed .releaserc.json on `main` is
+untouched.
+
+Refs YPE-2398
+
+Co-Authored-By: Craft Agent <agents-noreply@craft.do>
+
+* fix(ci): guard checkout for fork PRs and simplify no-bump preview
+
+Two follow-ups from review on the dry-run-detached-head fix:
+
+- Fall back to `git checkout -B "$HEAD_REF" HEAD` when origin/$HEAD_REF
+  doesn't exist (fork PRs). origin is the base repo, so origin/<fork-
+  branch> isn't there; without the fallback the checkout silently fails
+  and HEAD stays detached. Internal PRs hit the first form and never
+  reach the fallback.
+
+- Drop the redundant arrow in the no-bump comment headline. CURRENT and
+  NEXT are the same value in that case, so "v5.2.2 -> v5.2.2 (no bump)"
+  was just noise; the headline now reads "v5.2.2 (no bump)".
+
+Refs YPE-2398
+
+* fix(ci): replace semantic-release dry-run with direct analyzer call
+
+The previous `semantic-release --dry-run` approach silently failed on
+every PR. Even after the detached-HEAD branch-detection fix and the
+plugin filter, semantic-release's core `verifyAuth` step runs
+`git push --dry-run` to test push permission. The `pull_request`-event
+`GITHUB_TOKEN` has `contents: read` only, so the push test fails with
+EGITNOPERMISSION and the lifecycle aborts before `analyzeCommits`
+executes. The workflow then exits with NEXT empty, NO_BUMP=1,
+IS_MAJOR=0 — the comment says "no bump" when the actual answer might
+be a major-version release. `--no-ci` skips the CI env check, not the
+auth verification; there is no flag to disable the auth check.
+
+Drop the dry-run entirely. Call `@semantic-release/commit-analyzer`
+directly from `scripts/preview-release.mjs`. The script:
+
+- Reads the commit-analyzer plugin config from `.releaserc.json` so
+  the preview applies the same preset (conventionalcommits) and
+  release rules the production release uses on `main`.
+- Collects commits in `base..head` via `git log` and feeds them to
+  `analyzeCommits()`.
+- Computes the next version with `semver.inc(current, releaseType)`.
+- Prints JSON `{current, next, release_type, is_major, commit_count}`.
+- Routes the analyzer's signale-shaped log to stderr (separate from
+  the stdout JSON) so the workflow can capture and surface per-commit
+  classification in the PR comment.
+
+The workflow step shrinks from ~100 lines of branch-detection +
+plugin-filter + env-var workarounds to ~30 lines of "call the script,
+parse the JSON." If the script errors, set -e propagates and the
+step fails loudly — no more silent fail-open.
+
+This commit's CI run also serves as a live validation: applied to
+
+### Features
+
+* **release:** manual version-input release, no semantic-release orchestration ([#135](https://github.com/youversion/platform-sdk-swift/issues/135)) ([9918d19](https://github.com/youversion/platform-sdk-swift/commit/9918d1961dc5538ff8d817835db41ffff9462617))
+
+
+### Bug Fixes
+
+* **ci:** make commit-lint dry-run actually compute the next version (YPE-2398 follow-up) ([#125](https://github.com/youversion/platform-sdk-swift/issues/125)) ([c6ebd45](https://github.com/youversion/platform-sdk-swift/commit/c6ebd455006e7ef0155d83fe88776a7c38f9b47f))
+* **ci:** switch release publishing from auto-on-push to manual workflow_dispatch trigger ([#132](https://github.com/youversion/platform-sdk-swift/issues/132)) ([9bd318a](https://github.com/youversion/platform-sdk-swift/commit/9bd318aa4ba002df6d16eaec44afcd002c96cfe7))
+* don't display headlines in VotdView ([fe9a6ef](https://github.com/youversion/platform-sdk-swift/commit/fe9a6ef18e609baa6620b1752ab3921568ad92a7))
+* Handle BibleReference verse cases in display title, and enforce verseEnd invariant ([cbec1c1](https://github.com/youversion/platform-sdk-swift/commit/cbec1c1c656a2c8c8038e2fc72f545132c631472))
+* support system font families in Bible text ([1ada5a2](https://github.com/youversion/platform-sdk-swift/commit/1ada5a20fffe5f180ca3361c2d3e615f7293f9d1))
+
+
+### Continuous Integration
+
+* replace Husky commit-msg hook with CI commit-lint + release preview ([#117](https://github.com/youversion/platform-sdk-swift/issues/117)) ([1d21411](https://github.com/youversion/platform-sdk-swift/commit/1d214119f6e4792d6c49607f4d37d425df1e20d4)), closes [#1886](https://github.com/youversion/platform-sdk-swift/issues/1886) [#1937](https://github.com/youversion/platform-sdk-swift/issues/1937)
+
 ## [5.2.3](https://github.com/youversion/platform-sdk-swift/compare/5.2.2...5.2.3) (2026-05-18)
 
 
