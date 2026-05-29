@@ -83,9 +83,8 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0.50 * fontSize
 
             case "ms2", "ms3", "ms4":
-                stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
-                stateDown.currentFont = .font117em500
+                stateDown.currentFont = .font100em500
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
 
