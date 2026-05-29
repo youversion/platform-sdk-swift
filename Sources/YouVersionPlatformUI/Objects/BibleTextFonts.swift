@@ -14,6 +14,29 @@ public enum BibleTextFontOption {
     case font117em500Italic
     case footnote
     case verseNumFont
+
+    @available(*, deprecated, renamed: "font100em")
+    case textFont
+    @available(*, deprecated, renamed: "font100em500")
+    case textFontBold
+    @available(*, deprecated, renamed: "font100emItalic")
+    case textFontItalic
+    @available(*, deprecated, renamed: "font100emSmallCaps")
+    case smallCaps
+    @available(*, deprecated, renamed: "font117em500")
+    case header
+    @available(*, deprecated, renamed: "font117em500Italic")
+    case headerItalic
+    @available(*, deprecated, renamed: "font100em500")
+    case headerSmaller
+    @available(*, deprecated, renamed: "font100em500Italic")
+    case headerSmallerItalic
+    @available(*, deprecated, renamed: "font100em500")
+    case header2
+    @available(*, deprecated, renamed: "font100em500")
+    case header3
+    @available(*, deprecated, renamed: "font100em500")
+    case header4
 }
 
 public struct BibleTextFonts {

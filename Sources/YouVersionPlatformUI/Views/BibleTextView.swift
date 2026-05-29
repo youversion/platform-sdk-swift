@@ -306,7 +306,7 @@ public struct BibleTextOptions {
                 verseSelectionStyle: VerseSelectionStyle = .solid) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
-        self.lineSpacing = lineSpacing ?? 0
+        self.lineSpacing = lineSpacing
         self.textColor = textColor
         self.verseNumberColor = verseNumberColor
         self.wordsOfChristColor = wordsOfChristColor

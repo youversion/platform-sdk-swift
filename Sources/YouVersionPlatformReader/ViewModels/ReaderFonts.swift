@@ -115,6 +115,7 @@ public enum ReaderFonts {
 
     static func nextLineSpacing(currentSpacing: CGFloat) -> CGFloat {
         lineSpacingOptions.filter { $0 > currentSpacing }.min()
-        ?? lineSpacingOptions.min()!
+        ?? lineSpacingOptions.min()
+        ?? defaultLineSpacing
     }
 }
