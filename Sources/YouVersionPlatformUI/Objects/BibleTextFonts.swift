@@ -90,7 +90,7 @@ public struct BibleTextFonts {
             .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
             .header: Self.font(familyName: familyName, size: baseSize).bold(),
             .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            .textFont: Self.font(familyName: familyName, size: baseSize),
+            .textFont: Self.font(familyName: familyName, size: baseSize)
         ]
     }
 
