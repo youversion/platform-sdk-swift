@@ -158,19 +158,27 @@ extension BibleTextView {
         return Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 15, verticalSpacing: 10) {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
-                    ForEach(row.doubles, id: \.self) { cell in
+                    ForEach(Array(row.doubles.enumerated()), id: \.element) { index, cell in
+                        let isTrailingCell = index == row.doubles.count - 1 && index > 0
+                        // below works around a Grid weirdness where it would add extra space
+                        let string = cell.double.characters.isEmpty ? BibleAttributedString(" ") : cell.double
                         textView(
-                            for: cell.double,
+                            for: string,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
                             textOptions: textOptions
                         )
-                        .fixedSize(horizontal: false, vertical: true)
-                        .gridColumnAlignment(.leading)
+                        .fixedSize(horizontal: isTrailingCell, vertical: true)
+                        .frame(
+                            maxWidth: index == 0 ? .infinity : nil,
+                            alignment: isTrailingCell ? .trailing : .leading
+                        )
+                        .gridColumnAlignment(isTrailingCell ? .trailing : .leading)
                     }
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
     }
 
