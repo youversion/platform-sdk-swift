@@ -141,7 +141,7 @@ extension BibleTextView {
         .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
         .padding(.top, ignoreMarginTop ? 0 : max(0, block.marginTop - previousMarginBottom))
-        .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions))
+        .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions) + (textOptions.paragraphSpacing ?? 0.0))
     }
 
     private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {

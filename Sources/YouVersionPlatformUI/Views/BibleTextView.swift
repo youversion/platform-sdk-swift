@@ -283,6 +283,7 @@ public struct BibleTextOptions {
     public let fontFamily: String
     public let fontSize: CGFloat
     public let lineSpacing: CGFloat?
+    public let paragraphSpacing: CGFloat?
     public let textColor: Color?
     public let verseNumberColor: Color?
     public let wordsOfChristColor: Color
@@ -307,6 +308,7 @@ public struct BibleTextOptions {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         self.lineSpacing = lineSpacing
+        self.paragraphSpacing = paragraphSpacing
         self.textColor = textColor
         self.verseNumberColor = verseNumberColor
         self.wordsOfChristColor = wordsOfChristColor
@@ -341,6 +343,7 @@ public struct BibleTextOptions {
             fontFamily: fontFamily,
             fontSize: fontSize,
             lineSpacing: lineSpacing,
+            paragraphSpacing: paragraphSpacing,
             textColor: textColor,
             verseNumberColor: verseNumColor,
             wordsOfChristColor: wocColor,
