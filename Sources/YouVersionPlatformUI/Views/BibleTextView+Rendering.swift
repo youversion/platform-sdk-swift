@@ -126,7 +126,7 @@ extension BibleTextView {
     }
     
     private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {
-        textOptions.fontSize * (textOptions.lineSpacing ?? 1.5)
+        textOptions.fontSize * (textOptions.lineSpacing ?? 0.4)
     }
 
     /// ignoreMarginTop is used so that the topmost block won't have a top margin applied.
