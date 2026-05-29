@@ -12,7 +12,6 @@ public enum BibleTextFontOption {
     case font100em500Italic
     case font117em500
     case font117em500Italic
-    case font117em600
     case footnote
     case verseNumFont
 }
