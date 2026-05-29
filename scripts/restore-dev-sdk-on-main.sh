@@ -46,6 +46,35 @@ fi
 
 cd "$(dirname "$0")/.."
 
+# --- Already-restored fast path ---------------------------------------------
+#
+# When release.sh re-runs against an in-flight $VERSION (resume mode), this
+# script may be called after a previous run already created the Y commit and
+# pushed it. Detect that exact state and exit 0 — otherwise the strict
+# pre-flights below (which expect HEAD=X with SDKVersion=$VERSION) would
+# refuse to proceed and block recovery.
+#
+# Required state to recognize "Y already present":
+#   - HEAD's SDKVersion.swift reads "Dev"
+#   - HEAD~1 is the tag $VERSION's commit (i.e. X)
+#   - HEAD~1's SDKVersion.swift reads "$VERSION"
+#
+# All three together rule out look-alike states (a Dev commit that isn't our
+# Y; an HEAD~1 that happens to match the tag by coincidence in a non-release
+# context).
+if grep -qF 'static let current = "Dev"' Sources/YouVersionPlatformCore/SDKVersion.swift; then
+  TAG_SHA_FOR_IDEMP=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
+  HEAD_PARENT_SHA=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+  if [ -n "$TAG_SHA_FOR_IDEMP" ] && [ "$TAG_SHA_FOR_IDEMP" = "$HEAD_PARENT_SHA" ]; then
+    PARENT_SDK_LINE=$(git show "HEAD~1:Sources/YouVersionPlatformCore/SDKVersion.swift" 2>/dev/null \
+      | grep 'static let current' | head -1 || echo "")
+    if echo "$PARENT_SDK_LINE" | grep -qF "static let current = \"$VERSION\""; then
+      echo "✓ Dev-restore commit Y for $VERSION already present at HEAD — nothing to do."
+      exit 0
+    fi
+  fi
+fi
+
 # --- Pre-flight assertions ---------------------------------------------------
 
 # 1. SDKVersion at HEAD must read $VERSION. If not, prepareCmd is

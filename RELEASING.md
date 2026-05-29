@@ -163,6 +163,8 @@ Pods are published in dependency order by `scripts/publish-pods.sh`:
 
 ## Troubleshooting
 
+For failure-by-failure recovery (trunk-API timeout, partial pod publish, post-push abort, diverged Dev-restore, rogue tag, expired trunk session, rejected SSH key) see [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md). The short version: **for almost every partial failure, re-dispatch `release.yml` with the same version**. `release.sh` detects when the tag already exists on origin and enters resume mode, replaying only the steps that didn't complete.
+
 ### The Commit Lint preview shows a major bump on a "patch" PR
 
 `conventional-commits-parser` treats `BREAKING CHANGE` at the start of any commit body line as a breaking-change footer, regardless of surrounding markdown or quotes. The most common cause: a long commit body wraps and a paragraph happens to start with that token. Reword the offending line on your branch.
@@ -171,32 +173,7 @@ The analyzer log in the PR comment's `<details>` block shows which commit trigge
 
 ### The release dispatch is rejected with "is not strictly greater than current tag"
 
-`release.sh` refuses to ship a version less than or equal to the latest tag. If you genuinely need to re-tag (e.g., recovering from a partial release), delete the old tag from origin first, then dispatch again.
-
-### CocoaPods publish failed midway
-
-The script is idempotent via `pod trunk info`. Re-dispatch with the same version; the already-published pods will be skipped and the missing ones retried. If `pod trunk info` itself is unreliable, check `pod trunk me` to confirm authentication.
-
-### The release script aborted after pushing the tag — main is stamped with the released version
-
-If `release.sh` dies in any of the post-push steps (`gh release create`, `publish-pods.sh`, `restore-dev-sdk-on-main.sh`), `main` HEAD is commit **X** with `SDKVersion.swift` reading the released version, and commit **Y** was never created. Re-running `release.sh` won't recover — its pre-flight requires `SDKVersion.swift` to read `"Dev"` and will refuse to proceed.
-
-Finish the release by running the remaining steps manually:
-
-```bash
-VERSION=<the version that was being released>
-
-# If the GitHub release wasn't created (check the Releases page):
-gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
-
-# Idempotent via `pod trunk info` — safe regardless of how far the script got:
-bash scripts/publish-pods.sh "$VERSION"
-
-# Creates commit Y and restores SDKVersion to "Dev":
-bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
-```
-
-`notes.md` is left in place when the script aborts (the success-path `rm` doesn't fire), so it's available for the `gh release create` call. Verify with `git log -2 --oneline` (Y on top of X) and `pod trunk info YouVersionPlatformCore` (latest matches `$VERSION`).
+`release.sh` refuses to ship a version less than or equal to the latest tag — except when you're dispatching the **same** version that's already tagged on origin, which is the resume gesture and is allowed. If you typed the wrong version, dispatch with a corrected one.
 
 ### Need an emergency release without the workflow
 
