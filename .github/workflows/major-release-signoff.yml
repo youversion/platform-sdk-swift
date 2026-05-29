@@ -36,6 +36,7 @@ jobs:
             PR_NUMBER=${{ github.event.pull_request.number }}
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            PR_AUTHOR=${{ github.event.pull_request.user.login }}
           else
             PR_NUMBER=${{ github.event.issue.number }}
             # issue_comment payload has no head/base info — look it up so
@@ -43,10 +44,12 @@ jobs:
             PR_JSON=$(gh api repos/${{ github.repository }}/pulls/$PR_NUMBER)
             BASE_SHA=$(jq -r .base.sha <<<"$PR_JSON")
             HEAD_SHA=$(jq -r .head.sha <<<"$PR_JSON")
+            PR_AUTHOR=$(jq -r .user.login <<<"$PR_JSON")
           fi
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
 
       - name: Checkout PR head
         uses: actions/checkout@v4
@@ -104,6 +107,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+          PR_AUTHOR: ${{ steps.pr.outputs.pr_author }}
           NEXT_VERSION: ${{ steps.preview.outputs.next }}
         run: |
           set -e
@@ -122,7 +126,7 @@ jobs:
           # after a leading `> ` prefix — which we strip during normalize
           # below. Any deviation (typo, paraphrase, dropped word) fails
           # the match, which is the strict AC reading.
-          TEMPLATE_PHRASE='Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides'
+          TEMPLATE_PHRASE='Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides'
 
           # Normalize: drop `>` quote markers and collapse all whitespace
           # (incl. newlines) to a single space. This way "Quote reply"
@@ -149,6 +153,13 @@ jobs:
             # Skip bot accounts entirely — github-actions[bot] etc. can't
             # be signing off.
             if [ "$USER_TYPE" = "Bot" ]; then
+              continue
+            fi
+            # Skip the PR author — the whole point of the gate is a
+            # second pair of eyes. An author with write access could
+            # otherwise post the acknowledgment comment themselves and
+            # clear the gate, defeating the AC.
+            if [ "$LOGIN" = "$PR_AUTHOR" ]; then
               continue
             fi
             # Content match first: cheap, and most comments won't qualify.
@@ -226,12 +237,12 @@ jobs:
             echo "2. The precise next version (\`v$NEXT_VERSION\` or \`$NEXT_VERSION\`), and"
             echo "3. A 🚀 (\`:rocket:\`) emoji."
             echo
-            echo "Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
+            echo "Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
             echo
             echo "**Copy-paste-ready reply:**"
             echo
             echo '```'
-            echo "Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
+            echo "Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides"
             echo
             echo "v$NEXT_VERSION 🚀"
             echo '```'

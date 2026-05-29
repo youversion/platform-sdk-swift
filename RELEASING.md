@@ -44,7 +44,7 @@ A "breaking change" is detected the same way `@semantic-release/commit-analyzer`
 
 1. The verbatim acknowledgment phrase:
 
-   > Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+   > Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
 
 2. The precise next version string (e.g. `v6.0.0` or `6.0.0`), and
 3. A 🚀 (`:rocket:`) emoji.
@@ -52,7 +52,7 @@ A "breaking change" is detected the same way `@semantic-release/commit-analyzer`
 A copy-paste-ready example (assuming the next version is `6.0.0`):
 
 ```
-Please respond with the precise version number to be released and add the :rocket: emojii BOTH in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
+Please respond with the precise version number to be released and add the :rocket: emoji in order to continue merging. For more information about how releases are calculated, read our CONTRIBUTING and RELEASING guides
 
 v6.0.0 🚀
 ```
