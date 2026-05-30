@@ -194,7 +194,7 @@ final class BibleVersionRenderingStyles {
 
             case "q4", "iq4":
                 stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 6
+                stateUp.headIndent = 8
                 
             case "sp":
                 stateDown.currentFont = .font117em500Italic
