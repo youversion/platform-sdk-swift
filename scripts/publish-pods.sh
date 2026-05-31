@@ -81,13 +81,18 @@ publish_pod_with_retry() {
     fi
 
     # Transient signatures — upstream timeout, network blip, 5xx.
-    if [ "$attempt" -lt "$max_attempts" ] && \
-       grep -qE "timed out|timeout|50[234]|temporarily unavailable|Could not resolve host|Connection reset|RPC failed" "$out"; then
-      echo "  ⚠ $pod_name: transient trunk failure on attempt $attempt — sleeping 30s and retrying"
-      sleep 30
-      rm -f "$out"
-      attempt=$((attempt + 1))
-      continue
+    if grep -qE "timed out|timeout|50[234]|temporarily unavailable|Could not resolve host|Connection reset|RPC failed" "$out"; then
+      if [ "$attempt" -lt "$max_attempts" ]; then
+        echo "  ⚠ $pod_name: transient trunk failure on attempt $attempt — sleeping 30s and retrying"
+        sleep 30
+        rm -f "$out"
+        attempt=$((attempt + 1))
+        continue
+      else
+        echo "  ✗ $pod_name: transient trunk failure on attempt $attempt — max attempts reached"
+        rm -f "$out"
+        return 1
+      fi
     fi
 
     # Unclassified failure — don't retry blind. Surface the output to the log.

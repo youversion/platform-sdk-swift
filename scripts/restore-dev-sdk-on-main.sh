@@ -26,10 +26,12 @@
 # Y on top of X here.
 #
 # Pre-conditions when this script runs:
-# - HEAD is X (semantic-release's release commit, just pushed to main).
+# - HEAD is X, or (in release.sh resume mode where main diverged after X was
+#   pushed) a descendant of X — i.e. tag $VERSION must be reachable from HEAD.
 # - SDKVersion.swift at HEAD reads "$VERSION" (set by prepareCmd's
-#   stamp-sdk-version.sh invocation).
-# - Tag $VERSION exists locally and on origin, pointing at HEAD.
+#   stamp-sdk-version.sh invocation; descendant commits should not be touching
+#   SDKVersion.swift, so it still reads the version stamped at X).
+# - Tag $VERSION exists locally and on origin, reachable from HEAD.
 #
 # Post-conditions on success:
 # - main HEAD = Y, with SDKVersion.swift = "Dev".
@@ -88,15 +90,22 @@ if ! grep -qF "$EXPECTED_LINE" Sources/YouVersionPlatformCore/SDKVersion.swift; 
   exit 1
 fi
 
-# 2. Tag $VERSION must exist and point at HEAD. semantic-release creates and
-#    pushes the tag between prepare and publish; if it didn't (or pointed
-#    elsewhere), our topology assumption is broken.
+# 2. Tag $VERSION must exist and be reachable from HEAD. The release script
+#    creates and pushes the tag at X between prepare and publish; if it
+#    didn't (or pointed somewhere disjoint), our topology assumption is
+#    broken.
 #
 #    Use refs/tags/$VERSION^{} to dereference to the target commit. This is
-#    a no-op for lightweight tags (which is what semantic-release creates
-#    today) but correctly resolves annotated tags to their commit SHA, so
-#    the comparison stays valid if any plugin or upstream change starts
+#    a no-op for lightweight tags (which is what we create today) but
+#    correctly resolves annotated tags to their commit SHA, so the
+#    reachability check stays valid if any plugin or upstream change starts
 #    producing annotated tags.
+#
+#    Reachability (ancestor-or-equal), not strict equality: in release.sh
+#    resume mode after a diverged-main failure (RELEASE-RUNBOOK.md Failure
+#    Mode #5), HEAD is origin/main = C — an unrelated commit on top of X,
+#    not X itself. The resulting topology X → C → Y is still valid (tag
+#    stays at X; X is reachable from main via Y → C → X).
 TAG_SHA=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
 HEAD_SHA=$(git rev-parse HEAD)
 if [ -z "$TAG_SHA" ]; then
@@ -104,9 +113,9 @@ if [ -z "$TAG_SHA" ]; then
   echo "   semantic-release should have created it before invoking this script." >&2
   exit 1
 fi
-if [ "$TAG_SHA" != "$HEAD_SHA" ]; then
-  echo "❌ Tag $VERSION points at $TAG_SHA but HEAD is $HEAD_SHA." >&2
-  echo "   Aborting before pushing Dev-restore — this would leave the tag and main out of sync." >&2
+if ! git merge-base --is-ancestor "$TAG_SHA" "$HEAD_SHA"; then
+  echo "❌ Tag $VERSION at $TAG_SHA is not reachable from HEAD ($HEAD_SHA)." >&2
+  echo "   Aborting before pushing Dev-restore — the tag and main would end up disjoint." >&2
   exit 1
 fi
 
