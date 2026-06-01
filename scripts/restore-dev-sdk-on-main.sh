@@ -58,19 +58,21 @@ cd "$(dirname "$0")/.."
 #
 # Required state to recognize "Y already present":
 #   - HEAD's SDKVersion.swift reads "Dev"
-#   - HEAD~1 is the tag $VERSION's commit (i.e. X)
-#   - HEAD~1's SDKVersion.swift reads "$VERSION"
+#   - Tag $VERSION is reachable from HEAD (ancestor-or-equal)
+#   - Tag $VERSION's own tree has SDKVersion reading "$VERSION"
 #
-# All three together rule out look-alike states (a Dev commit that isn't our
-# Y; an HEAD~1 that happens to match the tag by coincidence in a non-release
-# context).
+# Using an ancestor check (not strict HEAD~1 equality) covers both the normal
+# topology (Y directly on X) and the diverged-main topology (Y on C on X,
+# Failure Mode #5), where HEAD~1 is C — not X — and the strict parent check
+# would incorrectly miss the already-restored state.
 if grep -qF 'static let current = "Dev"' Sources/YouVersionPlatformCore/SDKVersion.swift; then
   TAG_SHA_FOR_IDEMP=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
-  HEAD_PARENT_SHA=$(git rev-parse HEAD~1 2>/dev/null || echo "")
-  if [ -n "$TAG_SHA_FOR_IDEMP" ] && [ "$TAG_SHA_FOR_IDEMP" = "$HEAD_PARENT_SHA" ]; then
-    PARENT_SDK_LINE=$(git show "HEAD~1:Sources/YouVersionPlatformCore/SDKVersion.swift" 2>/dev/null \
+  HEAD_SHA_FOR_IDEMP=$(git rev-parse HEAD 2>/dev/null || echo "")
+  if [ -n "$TAG_SHA_FOR_IDEMP" ] && [ -n "$HEAD_SHA_FOR_IDEMP" ] && \
+     git merge-base --is-ancestor "$TAG_SHA_FOR_IDEMP" "$HEAD_SHA_FOR_IDEMP" 2>/dev/null; then
+    TAG_SDK_LINE_IDEMP=$(git show "refs/tags/$VERSION:Sources/YouVersionPlatformCore/SDKVersion.swift" 2>/dev/null \
       | grep 'static let current' | head -1 || echo "")
-    if echo "$PARENT_SDK_LINE" | grep -qF "static let current = \"$VERSION\""; then
+    if echo "$TAG_SDK_LINE_IDEMP" | grep -qF "static let current = \"$VERSION\""; then
       echo "✓ Dev-restore commit Y for $VERSION already present at HEAD — nothing to do."
       exit 0
     fi
