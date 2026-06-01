@@ -166,6 +166,12 @@ BibleReaderView(
 )
 ```
 
+#### Reader Theme
+
+The reader ships with seven built-in themes (four light, three dark). The user can pick a theme from the reader's font-settings sheet, and their choice is persisted across launches.
+
+Until the user picks a theme, the reader follows the device's system color scheme — a built-in light theme in light mode, a built-in dark theme in dark mode — and updates live when the device toggles between them. Once the user picks a theme inside the reader, their choice is persisted and the reader stays on it regardless of subsequent system color scheme changes.
+
 #### Disabling Sign-In
 
 By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. To disable all sign-in UI — including the verse-tap prompt, the header menu sign-in option, and the version-download auth check — set `isSignInEnabled` to `false` during configuration:
