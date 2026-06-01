@@ -138,6 +138,8 @@ jobs:
                 echo "### 🚨🚨🚨 Major version bump detected — \`v$CURRENT\` → \`v$NEXT\` (MAJOR)"
                 echo
                 echo 'The analyzer classified one or more commits as a major bump (a footer at start-of-line with the breaking-change token, or a `feat!:` / `fix!:` shorthand). If this is intentional, proceed. If this is prose accidentally tripping the parser, reword the offending commit body before merging — see the analyzer log below to identify which commit triggered the classification.'
+                echo
+                echo 'Because this PR introduces a breaking change, merging is **blocked by the `major-release-signoff` check** until a write-access collaborator comments with the precise version and a 🚀. See [RELEASING.md](./RELEASING.md#major-release-signoff) for the signoff format.'
               else
                 BUMP_LABEL="${RELEASE_TYPE:-release}"
                 echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` ($BUMP_LABEL)"
