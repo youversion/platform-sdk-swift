@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct YouVersionAPITests {
+    @Suite(.serialized) struct YouVersionAPITests {
         @Test func hasValidTokenReturnsFalseWithoutStoredAuthData() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
@@ -41,6 +41,14 @@ extension ConfigurationStateTests {
 
         @Test func hasValidTokenRefreshesExpiringTokenAndStoresResponse() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
+            let responsePayload: [String: String] = [
+                "access_token": "new-access-token",
+                "expires_in": "7200",
+                "refresh_token": "new-refresh-token",
+                "scope": "ignored"
+            ]
+            let responseData = try JSONEncoder().encode(responsePayload)
+
             await YouVersionPlatformConfiguration.configure(appKey: "test-app")
             await YouVersionPlatformConfiguration.saveAuthData(
                 accessToken: "old-access-token",
@@ -51,14 +59,6 @@ extension ConfigurationStateTests {
 
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }
-
-            let responsePayload: [String: String] = [
-                "access_token": "new-access-token",
-                "expires_in": "7200",
-                "refresh_token": "new-refresh-token",
-                "scope": "ignored"
-            ]
-            let responseData = try JSONEncoder().encode(responsePayload)
 
             HTTPMocking.setHandler(token: token) { request in
                 #expect(request.url?.path == "/auth/token")
