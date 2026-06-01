@@ -267,7 +267,9 @@ private struct ReaderContent: View {
                                 }
                             )
                         }
-                        bibleCopyrightBlock
+                        VStack(alignment: .center) {
+                            bibleCopyrightBlock
+                        }
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)
                     .padding(.vertical)
