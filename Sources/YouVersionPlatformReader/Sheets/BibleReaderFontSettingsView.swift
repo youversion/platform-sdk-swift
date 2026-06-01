@@ -140,10 +140,9 @@ struct BibleReaderFontSettingsView: View {
             Button {
                 viewModel.cycleLineSpacing()
             } label: {
-                let currentSpacing = viewModel.textOptions.lineSpacing ?? ReaderFonts.lineSpacingOptions.first ?? 0.4
                 VStack(
                     alignment: .leading,
-                    spacing: currentSpacing * 10
+                    spacing: lineSpacingButtonSpacing
                 ) {
                     Rectangle().frame(width: 32, height: 2)
                     Rectangle().frame(width: 32, height: 2)
@@ -160,6 +159,14 @@ struct BibleReaderFontSettingsView: View {
             .buttonStyle(.plain)
 
         }
+    }
+
+    private var lineSpacingButtonSpacing: CGFloat {
+        let currentSpacing = viewModel.textOptions.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        let closestOptionIndex = ReaderFonts.lineSpacingOptions.indices.min {
+            abs(ReaderFonts.lineSpacingOptions[$0] - currentSpacing) < abs(ReaderFonts.lineSpacingOptions[$1] - currentSpacing)
+        }
+        return CGFloat((closestOptionIndex ?? 0) * 2 + 1)
     }
 }
 
