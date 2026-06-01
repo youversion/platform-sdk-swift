@@ -1,5 +1,13 @@
 module.exports = {
   extends: ["@commitlint/config-conventional"],
+  // Release commits (`chore(release): X.Y.Z [skip ci]`) carry the generated
+  // release-notes body, which routinely contains lines > 100 chars (URLs,
+  // embedded prior-commit bodies) and `* ` bullet lines the parser treats
+  // as footer entries. They're already on `main` by the time any PR sees
+  // them, so they don't need re-validation. Skip them outright as a
+  // belt-and-suspenders alongside the workflow's `origin/<base>..head`
+  // range, which already excludes them in the normal case.
+  ignores: [(message) => /^chore\(release\): \d+\.\d+\.\d+/.test(message)],
   rules: {
     "body-max-line-length": [2, "always", 300],
     "type-enum": [
