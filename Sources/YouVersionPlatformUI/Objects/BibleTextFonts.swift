@@ -7,7 +7,6 @@ public enum BibleTextFontOption {
     case font076emItalic
     case font100em
     case font100emItalic
-    case font100emSmallCaps
     case font100em500
     case font100em500Italic
     case font117em500
@@ -37,6 +36,8 @@ public enum BibleTextFontOption {
     case header3
     @available(*, deprecated, renamed: "font100em500")
     case header4
+    @available(*, deprecated, message: "set inSmallcaps instead")
+    case font100emSmallCaps
 }
 
 public struct BibleTextFonts {
@@ -71,7 +72,6 @@ public struct BibleTextFonts {
             .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
             .font100em: Self.font(familyName: familyName, size: baseSize),
             .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            .font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
             .font100em500: Self.font(familyName: familyName, size: baseSize).weight(.medium),
             .font100em500Italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium).italic(),
             .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
@@ -90,7 +90,8 @@ public struct BibleTextFonts {
             .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
             .header: Self.font(familyName: familyName, size: baseSize).bold(),
             .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            .textFont: Self.font(familyName: familyName, size: baseSize)
+            .textFont: Self.font(familyName: familyName, size: baseSize),
+            .font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps()
         ]
     }
 
