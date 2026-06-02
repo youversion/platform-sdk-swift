@@ -141,9 +141,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         return BibleTextOptions(
             fontFamily: fontFamily ?? "Georgia",
             fontSize: ourFontSize,
-            // TODO: maybe have one of these spacings be a delta added to the other:
             lineSpacing: lineSpacing,
-            paragraphSpacing: lineSpacing,
+            paragraphSpacing: nil,
             textColor: readerTextPrimaryColor,
             verseNumberColor: readerVerseNumColor,
             wordsOfChristColor: readerWordsOfChristColor,
@@ -187,8 +186,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         } else {
             ReaderFonts.defaultFontFamily
         }
-        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
-        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        fontSize = ReaderFonts.nextLargerSize(currentSize: (savedValue.fontSize ?? ReaderFonts.defaultFontSize) - 0.001)
+        lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: (savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing) - 0.001)
         colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
     }
 

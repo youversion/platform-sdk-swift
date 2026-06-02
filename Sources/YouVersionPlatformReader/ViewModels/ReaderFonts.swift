@@ -95,13 +95,13 @@ public enum ReaderFonts {
     // MARK: - Font Sizes and Spacing
 
     static let availableSizes: [CGFloat] = [9, 12, 15, 18, 21, 24, 27]
-    static let lineSpacingOptions: [CGFloat] = [6, 12, 18]
+    static let lineSpacingOptions: [CGFloat] = [0.3, 0.4, 0.6]
 
     // MARK: - Default Values
 
     static let defaultFontFamily = "Untitled Serif"
-    static let defaultFontSize: CGFloat = 21
-    static let defaultLineSpacing: CGFloat = 12
+    static let defaultFontSize: CGFloat = availableSizes[availableSizes.count / 2]
+    static let defaultLineSpacing: CGFloat = lineSpacingOptions[lineSpacingOptions.count / 2]
 
     // MARK: - Utility Functions
 
@@ -115,7 +115,7 @@ public enum ReaderFonts {
 
     static func nextLineSpacing(currentSpacing: CGFloat) -> CGFloat {
         lineSpacingOptions.filter { $0 > currentSpacing }.min()
-            ?? lineSpacingOptions.min()
-            ?? 6
+        ?? lineSpacingOptions.min()
+        ?? defaultLineSpacing
     }
 }
