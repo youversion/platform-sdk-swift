@@ -191,7 +191,7 @@ public enum BibleVersionRendering {
                 // The concept is/was HTML, which does this collapsing internally.
                 txt = BibleAttributedString(" ")
             }
-            txt.setFont(stateDown.currentFont, inSmallcaps: stateDown.smallcaps, from: stateIn.fonts)
+            txt.setFont(stateDown.currentFont, from: stateIn.fonts, inSmallcaps: stateDown.smallcaps)
             if stateDown.woc {
                 txt.setColor(stateIn.wocColor)
             }

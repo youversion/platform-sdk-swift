@@ -43,7 +43,7 @@ public final class BibleAttributedString: Equatable, Hashable {
     }
 
     @discardableResult
-    public func setFont(_ option: BibleTextFontOption, inSmallcaps: Bool = false, from fonts: BibleTextFonts) -> BibleAttributedString {
+    public func setFont(_ option: BibleTextFontOption, from fonts: BibleTextFonts, inSmallcaps: Bool = false) -> BibleAttributedString {
         let font = fonts.font(for: option)
         two.font = inSmallcaps ? font.lowercaseSmallCaps() : font
         return self
