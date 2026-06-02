@@ -305,11 +305,6 @@ final class BibleVersionRenderingStyles {
         stateDown: inout BibleVersionRendering.StateDown,
         stateUp: inout BibleVersionRendering.StateUp
     ) {
-        // this is a weird place to do this, but the tag is on a block, and block classes don't usually change fonts, so...
-        if stateDown.smallcaps {
-            stateDown.currentFont = .font100emSmallCaps
-        }
-
         for c in node.classes {
             if c == "wj" {
                 stateDown.woc = true
@@ -321,7 +316,6 @@ final class BibleVersionRenderingStyles {
                     }
                 }
             } else if node.classes.contains("nd") || node.classes.contains("sc") {
-                stateDown.currentFont = .font100emSmallCaps
                 stateDown.smallcaps = true
             } else if node.classes.contains("tl") || node.classes.contains("it") || node.classes.contains("add") {
                 stateDown.currentFont = .font100emItalic
