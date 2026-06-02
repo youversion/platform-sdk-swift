@@ -154,9 +154,6 @@ private struct ReaderContent: View {
         .onChange(of: colorScheme, initial: true) { _, newValue in
             viewModel.colorScheme = newValue
         }
-        .onChange(of: viewModel.colorTheme, initial: true) { _, newValue in
-            viewModel.versionsViewModel.colorTheme = newValue
-        }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }

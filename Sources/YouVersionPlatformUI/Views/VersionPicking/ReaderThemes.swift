@@ -24,16 +24,6 @@ public struct ReaderTheme: Identifiable, Equatable, Sendable {
     public static func theme(withId: Int? = nil) -> ReaderTheme {
         allThemes.first(where: { $0.id == withId }) ?? allThemes.first!
     }
-
-    /// Returns the built-in theme that naturally matches a given color scheme:
-    /// a light theme for ``ColorScheme/light``, a dark theme for ``ColorScheme/dark``.
-    public static func systemDefault(for colorScheme: ColorScheme) -> ReaderTheme {
-        switch colorScheme {
-        case .dark: return ReaderTheme.theme(withId: 7)
-        case .light: return ReaderTheme.theme(withId: 1)
-        @unknown default: return ReaderTheme.theme()
-        }
-    }
 }
 
 @MainActor

@@ -132,10 +132,10 @@ import Testing
         let viewModel = Support.makeViewModel()
 
         viewModel.colorScheme = .light
-        #expect(viewModel.colorTheme == ReaderTheme.systemDefault(for: .light))
+        #expect(viewModel.colorTheme == ColorScheme.light.readerTheme)
 
         viewModel.colorScheme = .dark
-        #expect(viewModel.colorTheme == ReaderTheme.systemDefault(for: .dark))
+        #expect(viewModel.colorTheme == ColorScheme.dark.readerTheme)
     }
 
     @Test
@@ -165,9 +165,9 @@ import Testing
         // stored theme: toggling its colorScheme moves colorTheme with it.
         let restored = Support.makeViewModel()
         restored.colorScheme = .light
-        #expect(restored.colorTheme == ReaderTheme.systemDefault(for: .light))
+        #expect(restored.colorTheme == ColorScheme.light.readerTheme)
         restored.colorScheme = .dark
-        #expect(restored.colorTheme == ReaderTheme.systemDefault(for: .dark))
+        #expect(restored.colorTheme == ColorScheme.dark.readerTheme)
     }
 
     @Test

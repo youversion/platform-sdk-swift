@@ -41,7 +41,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
     var isReduceMotionEnabled = false
-    var colorScheme: ColorScheme = .light
     var selectedVerses: Set<BibleReference> = []
     var showingBookPicker = false
     private var showingChapterPicker = false
@@ -57,15 +56,23 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     // MARK: - Colors
 
-    /// The user's persisted theme choice, or `nil` if they have not picked one
-    /// inside the reader's settings yet.
-    private var persistedTheme: ReaderTheme?
+    var colorScheme: ColorScheme = .light {
+        didSet { syncVersionsViewModelTheme() }
+    }
 
-    /// The theme currently in effect. Returns the user's persisted pick when
+    private var userSelectedTheme: ReaderTheme? {
+        didSet { syncVersionsViewModelTheme() }
+    }
+
+    /// The theme currently in effect. Returns the user's selected theme when
     /// they have one, otherwise a built-in theme matching the device's
     /// appearance (``colorScheme``).
     var colorTheme: ReaderTheme? {
-        persistedTheme ?? ReaderTheme.systemDefault(for: colorScheme)
+        userSelectedTheme ?? colorScheme.readerTheme
+    }
+
+    private func syncVersionsViewModelTheme() {
+        versionsViewModel.colorTheme = colorTheme
     }
 
     // MARK: - Sign In & Out
@@ -111,7 +118,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
 
         loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-        self.versionsViewModel.colorTheme = colorTheme
+        syncVersionsViewModelTheme()
 
         ReaderFonts.installFontsIfNeeded()
 
@@ -199,9 +206,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         fontSize = ReaderFonts.nextLargerSize(currentSize: (savedValue.fontSize ?? ReaderFonts.defaultFontSize) - 0.001)
         lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: (savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing) - 0.001)
         if let savedThemeId = savedValue.colorTheme {
-            persistedTheme = ReaderTheme.theme(withId: savedThemeId)
+            userSelectedTheme = ReaderTheme.theme(withId: savedThemeId)
         }
-        // else: no saved theme yet — persistedTheme stays nil and colorTheme
+        // else: no saved theme yet — userSelectedTheme stays nil and colorTheme
         // tracks the device's system color scheme until the user picks one.
     }
 
@@ -210,7 +217,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             fontFamily: fontFamily,
             fontSize: fontSize,
             lineSpacing: lineSpacing,
-            colorTheme: persistedTheme?.id
+            colorTheme: userSelectedTheme?.id
         )
         if let data = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
@@ -249,8 +256,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func setColorTheme(_ theme: ReaderTheme) {
-        persistedTheme = theme
-        versionsViewModel.colorTheme = theme
+        userSelectedTheme = theme
         saveUserSettingsToStorage()
     }
 
