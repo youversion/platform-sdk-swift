@@ -36,6 +36,9 @@ struct ReaderMainScroller<Footer: View>: View {
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
                                 },
+                                onCollectibleTap: { id in
+                                    viewModel.onCollectibleTap?(id)
+                                },
                                 onAnchorsChanged: { anchors in
                                     verseAnchors = anchors
                                 },
