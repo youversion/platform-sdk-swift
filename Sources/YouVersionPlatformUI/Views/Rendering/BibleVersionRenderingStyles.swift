@@ -331,7 +331,7 @@ final class BibleVersionRenderingStyles {
 
             default:
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fr", "ft",
-                     "qs", "nd", "w", "litl", "rq", "x"].contains(c) {
+                     "w", "litl", "rq", "x"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }
