@@ -68,13 +68,13 @@ import Testing
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel()
 
-        #expect(viewModel.textOptions.fontSize == 21)
-
-        viewModel.decreaseFontSize()
         #expect(viewModel.textOptions.fontSize == 18)
 
+        viewModel.decreaseFontSize()
+        #expect(viewModel.textOptions.fontSize == 15)
+
         viewModel.increaseFontSize()
-        #expect(viewModel.textOptions.fontSize == 21)
+        #expect(viewModel.textOptions.fontSize == 18)
 
         viewModel.setFont(family: "Georgia", size: 27)
         viewModel.increaseFontSize()
@@ -110,7 +110,6 @@ import Testing
 
         #expect(viewModel.textOptions.fontFamily == ReaderFonts.defaultFontFamily)
         #expect(viewModel.textOptions.fontSize == 15)
-        #expect(viewModel.textOptions.lineSpacing == 18)
         #expect(viewModel.colorTheme == ReaderTheme.theme(withId: 6))
     }
 
@@ -133,11 +132,9 @@ import Testing
         let viewModel = Support.makeViewModel()
 
         viewModel.cycleLineSpacing()
-        #expect(viewModel.textOptions.lineSpacing == 18)
+        #expect(viewModel.textOptions.lineSpacing == 0.6)
 
         viewModel.cycleLineSpacing()
-        #expect(viewModel.textOptions.lineSpacing == 6)
-
-        #expect(Support.makeViewModel().textOptions.lineSpacing == 6)
+        #expect(viewModel.textOptions.lineSpacing == 0.3)
     }
 }

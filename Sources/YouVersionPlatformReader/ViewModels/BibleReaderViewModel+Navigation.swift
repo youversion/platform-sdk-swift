@@ -200,13 +200,15 @@ extension BibleReaderViewModel {
         return (url, referenceTitlesJoined)
     }
 
-    func handleVerseActionCopy() {
+    @discardableResult
+    // swiftlint:disable:next var_over_func
+    func handleVerseActionCopy() -> Task<Void, Never>? {
         guard !selectedVerses.isEmpty else {
-            return
+            return nil
         }
         let references = BibleReference.referencesByMerging(references: Array(selectedVerses).sorted())
         removeVerseSelection()
-        Task {
+        return Task {
             let t = await shareableVerseText(references: references)
             if let (url, title) = shareableURLAndTitleFor(references: references) {
                 let data = "\(t)\n\(title)\n\(url.absoluteString)"
