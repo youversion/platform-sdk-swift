@@ -632,6 +632,30 @@ public enum BibleVersionRendering {
         case footnote
         case reference
         case noteIndicator
+        case collectible
+    }
+
+    /// Builds the tap link for a collectible term. The opaque `id` is carried as a
+    /// percent-encoded query item so any value — including ids with spaces, slashes,
+    /// or mixed case — round-trips intact (unlike embedding it in the URL host).
+    static func collectibleLink(id: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = LinkSchemes.collectible.rawValue
+        components.host = "tap"
+        components.queryItems = [URLQueryItem(name: "id", value: id)]
+        return components.url
+    }
+
+    /// Extracts the opaque collectible id from a collectible tap link, or `nil` if the
+    /// URL is not a collectible link.
+    static func collectibleID(from url: URL) -> String? {
+        guard url.scheme == LinkSchemes.collectible.rawValue else {
+            return nil
+        }
+        return URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?
+            .first { $0.name == "id" }?
+            .value
     }
 }
 

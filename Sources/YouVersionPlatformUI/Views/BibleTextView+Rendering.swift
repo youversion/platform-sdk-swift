@@ -195,6 +195,9 @@ extension BibleTextView {
                 t.backgroundColor = highlightFor(reference: reference)
                 // better, we could have our TextRenderer add the color to some portions
             }
+            if category == .scripture {
+                applyTermHighlights(to: &t, reference: reference)
+            }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
                 let hasHighlight = highlightFor(reference: reference) != .clear
@@ -344,6 +347,38 @@ extension BibleTextView {
             return false
         }
         return reference.verseStart == audioActiveVerse
+    }
+
+    /// Applies a distinct background and a tappable `collectible://<id>` link to the
+    /// first case-insensitive occurrence of each matching term within this scripture run.
+    /// The link overrides the verse-level tap link only on the term's character range, so
+    /// footnote and cross-reference tap targets (separate runs) are unaffected.
+    private func applyTermHighlights(to t: inout AttributedString, reference: BibleReference?) {
+        guard let reference else {
+            return
+        }
+        let plain = String(t.characters)
+        guard !plain.isEmpty else {
+            return
+        }
+        for highlight in ourTermHighlights {
+            guard highlight.appliesTo(verse: reference),
+                  let matched = highlight.firstMatchRange(in: plain) else {
+                continue
+            }
+            let lower = plain.distance(from: plain.startIndex, to: matched.lowerBound)
+            let upper = plain.distance(from: plain.startIndex, to: matched.upperBound)
+            let chars = t.characters
+            guard let start = chars.index(chars.startIndex, offsetBy: lower, limitedBy: chars.endIndex),
+                  let end = chars.index(chars.startIndex, offsetBy: upper, limitedBy: chars.endIndex) else {
+                continue
+            }
+            t[start..<end].backgroundColor = Color(hex: highlight.color)
+            if let textColor = highlight.textColor {
+                t[start..<end].foregroundColor = Color(hex: textColor)
+            }
+            t[start..<end].link = BibleVersionRendering.collectibleLink(id: highlight.id)
+        }
     }
 
     private func highlightFor(reference: BibleReference?) -> Color {

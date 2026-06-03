@@ -27,6 +27,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var version: BibleVersion? { versionsViewModel.currentVersion }
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
+    let onCollectibleTap: ((String) -> Void)?
     let onReferenceChange: ((BibleReference) -> Void)?
     let onChapterComplete: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
@@ -95,6 +96,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         audioActiveIndicatorColor: Color? = nil,
         onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
         onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+        onCollectibleTap: ((String) -> Void)? = nil,
         onReferenceChange: ((BibleReference) -> Void)? = nil,
         onChapterComplete: ((BibleReference) -> Void)? = nil,
         authentication: BibleReaderAuthentication? = nil
@@ -118,6 +120,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onCollectibleTap = onCollectibleTap
         self.onReferenceChange = onReferenceChange
         self.onChapterComplete = onChapterComplete
         self.verseSelectionStyle = verseSelectionStyle

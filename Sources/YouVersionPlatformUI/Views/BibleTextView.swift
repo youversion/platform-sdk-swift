@@ -8,6 +8,7 @@ public struct BibleTextView: View {
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
+    private let onCollectibleTap: ((String) -> Void)?
     private let onAnchorsChanged: (([Int]) -> Void)?
     let audioActiveVerse: Int?
     private let placeholder: ((BibleTextLoadingPhase) -> AnyView)?
@@ -24,6 +25,10 @@ public struct BibleTextView: View {
         BibleHighlightsCache.shared.highlights(overlapping: reference)
     }
 
+    var ourTermHighlights: [BibleTermHighlight] {
+        BibleTermHighlightsCache.shared.termHighlights(overlapping: reference)
+    }
+
     public init(
         _ reference: BibleReference,
         textOptions: BibleTextOptions? = nil,
@@ -32,6 +37,7 @@ public struct BibleTextView: View {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.onCollectibleTap = nil
         self.onAnchorsChanged = nil
         self.audioActiveVerse = nil
         self._selectedVerses = .constant([])
@@ -46,6 +52,7 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
+        onCollectibleTap: ((String) -> Void)? = nil,
         onAnchorsChanged: (([Int]) -> Void)? = nil,
         audioActiveVerse: Int? = nil,
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
@@ -54,6 +61,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
         self.onVerseTap = onVerseTap
+        self.onCollectibleTap = onCollectibleTap
         self.onAnchorsChanged = onAnchorsChanged
         self.audioActiveVerse = audioActiveVerse
         self.placeholder = placeholder
@@ -86,6 +94,7 @@ public struct BibleTextView: View {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.onCollectibleTap = nil
         self.onAnchorsChanged = nil
         self.audioActiveVerse = nil
         self._selectedVerses = .constant([])
@@ -156,6 +165,10 @@ public struct BibleTextView: View {
         }
         .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
+            if let collectibleID = BibleVersionRendering.collectibleID(from: url) {
+                onCollectibleTap?(collectibleID)
+                return .handled
+            }
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
                 let footnotes = footnotesFor(reference: reference)

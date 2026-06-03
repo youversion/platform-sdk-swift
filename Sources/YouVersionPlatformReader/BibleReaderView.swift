@@ -10,6 +10,7 @@ public struct BibleReaderView: View {
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     private let onNoteIndicatorTap: ((BibleReference) -> Void)?
+    private let onCollectibleTap: ((String) -> Void)?
     private let onReferenceChange: ((BibleReference) -> Void)?
     private let onChapterComplete: ((BibleReference) -> Void)?
     private let audioActiveIndicatorColor: Color?
@@ -41,6 +42,10 @@ public struct BibleReaderView: View {
     ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
     ///     that has a note indicator (pencil icon) and is not already selected. When
     ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
+    ///   - onCollectibleTap: An optional closure called when the user taps a highlighted
+    ///     collectible term (see ``BibleTermHighlightsCache``). The closure receives the
+    ///     opaque `id` supplied with the ``BibleTermHighlight``. Collectible term taps are
+    ///     routed separately from verse, footnote, and cross-reference taps.
     ///   - onReferenceChange: An optional closure called whenever the displayed
     ///     chapter reference changes — for example when the user taps the
     ///     next/previous chapter buttons or picks a new book/chapter from the header.
@@ -60,6 +65,7 @@ public struct BibleReaderView: View {
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+                onCollectibleTap: ((String) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
                 onChapterComplete: ((BibleReference) -> Void)? = nil,
                 audioActiveReference: BibleReference? = nil,
@@ -74,6 +80,7 @@ public struct BibleReaderView: View {
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onCollectibleTap = onCollectibleTap
         self.onReferenceChange = onReferenceChange
         self.onChapterComplete = onChapterComplete
         self.audioActiveReference = audioActiveReference
@@ -119,6 +126,7 @@ public struct BibleReaderView: View {
                     audioActiveIndicatorColor: audioActiveIndicatorColor,
                     onVerseTap: onVerseTap,
                     onNoteIndicatorTap: onNoteIndicatorTap,
+                    onCollectibleTap: onCollectibleTap,
                     onReferenceChange: onReferenceChange,
                     onChapterComplete: onChapterComplete
                 )
