@@ -100,8 +100,7 @@ struct BibleTextNodeParser {
             }
 
             let tag = source.substring(with: match.range)
-            let trimmedTag = tag.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedTag.hasSuffix("/>") else {
+            guard !tag.hasSuffix("/>") else {
                 continue
             }
 
