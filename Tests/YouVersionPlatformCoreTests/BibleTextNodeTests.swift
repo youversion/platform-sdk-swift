@@ -115,6 +115,50 @@ func testParse_LeadingWhitespaceBeforeFirstChildIsIgnored() throws {
     #expect(renderedText == "One Two")
 }
 
+@Test
+func testParse_UnsupportedElementsAreIgnoredAndChildrenArePreserved() throws {
+    let html = "<div>Before <p>inside <em>emphasis</em></p> after <custom><span class=\"nd\">Lord</span></custom>.</div>"
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before inside emphasis after Lord.")
+}
+
+@Test
+func testParse_UnsupportedVoidElementsAreIgnored() throws {
+    let html = "<div>Before <br> after <br class=\"poetry\"> done <img alt=\"ignored\"> end</div>"
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before after done end")
+}
+
+@Test
+func testParse_UnclosedHTMLVoidElementsParseSuccessfully() throws {
+    let html = """
+    <div>Before
+    <area><base><BR><col><embed><hr><img alt="ignored"><input value="ignored">
+    <link><meta name="ignored" content="ignored"><param><source><track><wbr>
+    after</div>
+    """
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before after")
+}
+
 private func collectRenderedText(from node: BibleTextNode) -> String {
     var text = ""
     appendRenderedText(from: node, into: &text)
@@ -128,5 +172,13 @@ private func appendRenderedText(from node: BibleTextNode, into text: inout Strin
 
     for child in node.children {
         appendRenderedText(from: child, into: &text)
+    }
+}
+
+private func expectSupportedNodeTypes(in node: BibleTextNode) {
+    _ = node.type
+
+    for child in node.children {
+        expectSupportedNodeTypes(in: child)
     }
 }

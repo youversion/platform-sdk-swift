@@ -5,6 +5,38 @@ import FoundationXML
 
 /// Parses YouVersion Bible chapter HTML into an immutable `BibleTextNode` tree.
 struct BibleTextNodeParser {
+    private static let supportedElementNames = Set([
+        "block",
+        "div",
+        "root",
+        "span",
+        "table",
+        "td",
+        "text",
+        "tr"
+    ])
+
+    private static let htmlVoidElementNames = Set([
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr"
+    ])
+
+    private static let voidElementExpression: NSRegularExpression = {
+        // swiftlint:disable:next force_try
+        try! NSRegularExpression(pattern: #"<([A-Za-z][A-Za-z0-9:-]*)([^<>]*)>"#)
+    }()
 
     static func parse(_ html: String) throws -> BibleTextNode {
         let sanitized = sanitizeForXML(html: html)
@@ -32,9 +64,7 @@ struct BibleTextNodeParser {
         var s = html
 
         // Self-close common void elements if they appear unclosed
-        s = s.replacingOccurrences(of: "<br>", with: "<br/>")
-            .replacingOccurrences(of: "<br >", with: "<br/>")
-            .replacingOccurrences(of: "<br />", with: "<br/>")
+        s = selfClosedHTMLVoidElements(in: s)
 
         // Decode common HTML named entities to Unicode characters XML can handle
         let replacements: [String: String] = [
@@ -55,6 +85,30 @@ struct BibleTextNodeParser {
 
         // Wrap with a root element to guarantee a single top-level node
         return "<root>\n" + s + "\n</root>"
+    }
+
+    private static func selfClosedHTMLVoidElements(in html: String) -> String {
+        let source = html as NSString
+        let mutableHTML = NSMutableString(string: html)
+        let fullRange = NSRange(location: 0, length: source.length)
+        let matches = voidElementExpression.matches(in: html, range: fullRange)
+
+        for match in matches.reversed() {
+            let elementName = source.substring(with: match.range(at: 1)).lowercased()
+            guard htmlVoidElementNames.contains(elementName) else {
+                continue
+            }
+
+            let tag = source.substring(with: match.range)
+            guard !tag.hasSuffix("/>") else {
+                continue
+            }
+
+            let replacement = String(tag.dropLast()) + "/>"
+            mutableHTML.replaceCharacters(in: match.range, with: replacement)
+        }
+
+        return mutableHTML as String
     }
 
     /// Builds the BibleTextNode tree bottom-up so all nodes are immutable once created.
@@ -88,7 +142,7 @@ struct BibleTextNodeParser {
                     partialResult[entry.key] = entry.value
                 }
             }
-            stack.append(Frame(name: elementName, classes: classes, attributes: filteredAttributes, children: []))
+            stack.append(Frame(name: elementName.lowercased(), classes: classes, attributes: filteredAttributes, children: []))
         }
 
         func parser(_ parser: XMLParser, foundCharacters string: String) {
@@ -135,6 +189,14 @@ struct BibleTextNodeParser {
             guard let frame = stack.popLast() else {
                 return
             }
+
+            guard BibleTextNodeParser.supportedElementNames.contains(frame.name) else {
+                if !stack.isEmpty {
+                    stack[stack.count - 1].children.append(contentsOf: frame.children)
+                }
+                return
+            }
+
             let node = BibleTextNode(
                 name: frame.name,
                 children: frame.children,
