@@ -269,6 +269,7 @@ private struct ReaderContent: View {
                         }
                         VStack(alignment: .center) {
                             bibleCopyrightBlock
+                                .frame(maxWidth: viewModel.readerMaxWidth)
                         }
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)
