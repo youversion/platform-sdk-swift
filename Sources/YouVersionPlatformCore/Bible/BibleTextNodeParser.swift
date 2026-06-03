@@ -33,6 +33,11 @@ struct BibleTextNodeParser {
         "wbr"
     ])
 
+    private static let voidElementExpression: NSRegularExpression = {
+        // swiftlint:disable:next force_try
+        try! NSRegularExpression(pattern: #"<([A-Za-z][A-Za-z0-9:-]*)([^<>]*)>"#)
+    }()
+
     static func parse(_ html: String) throws -> BibleTextNode {
         let sanitized = sanitizeForXML(html: html)
         guard let data = sanitized.data(using: .utf8) else {
@@ -83,15 +88,10 @@ struct BibleTextNodeParser {
     }
 
     private static func selfClosedHTMLVoidElements(in html: String) -> String {
-        let pattern = #"<([A-Za-z][A-Za-z0-9:-]*)([^<>]*)>"#
-        guard let expression = try? NSRegularExpression(pattern: pattern) else {
-            return html
-        }
-
         let source = html as NSString
         let mutableHTML = NSMutableString(string: html)
         let fullRange = NSRange(location: 0, length: source.length)
-        let matches = expression.matches(in: html, range: fullRange)
+        let matches = voidElementExpression.matches(in: html, range: fullRange)
 
         for match in matches.reversed() {
             let elementName = source.substring(with: match.range(at: 1)).lowercased()
