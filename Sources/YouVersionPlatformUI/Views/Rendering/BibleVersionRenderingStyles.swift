@@ -306,29 +306,32 @@ final class BibleVersionRenderingStyles {
         stateUp: inout BibleVersionRendering.StateUp
     ) {
         for c in node.classes {
-            if c == "wj" {
+            switch c {
+
+            case "wj":
                 stateDown.woc = true
-            } else if c == "yv-v" || c == "verse" {  // (invisible) start of a verse.
+
+            case "yv-v", "verse":  // (invisible) start of a verse.
                 if let v = node.attributes["v"] {
                     if let vi = Int(v) {
                         stateUp.verse = vi
                         stateUp.rendering = (vi >= stateIn.fromVerse) && (vi <= stateIn.toVerse)
                     }
                 }
-            } else if node.classes.contains("nd") || node.classes.contains("sc") {
+
+            case "nd", "sc":
                 stateDown.smallcaps = true
-            } else if node.classes.contains("tl") || node.classes.contains("it") || node.classes.contains("add") {
+
+            case "tl", "it", "add", "fq", "fqa", "qs", "qt", "bk":
                 stateDown.currentFont = .font100emItalic
-            } else if node.classes.contains("fq") || node.classes.contains("fqa") || node.classes.contains("add") {
-                stateDown.currentFont = .font100emItalic
-            } else if node.classes.contains("qs") || node.classes.contains("qt") || node.classes.contains("bk") {
-                stateDown.currentFont = .font100emItalic
-            } else if node.classes.contains("ord") || node.classes.contains("fv") || node.classes.contains("sup") {
+
+            case "ord", "fv", "sup":
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
-            } else {
+
+            default:
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fr", "ft",
-                     "qs", "nd", "w", "litl", "rq", "x"].contains(c) {
+                     "w", "litl", "rq", "x"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }
