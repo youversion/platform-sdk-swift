@@ -323,7 +323,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.smallcaps = true
 
             case "tl", "it", "add", "fq", "fqa", "qs", "qt", "bk":
-                stateDown.currentFont = .textFontItalic
+                stateDown.currentFont = .font100emItalic
 
             case "ord", "fv", "sup":
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
