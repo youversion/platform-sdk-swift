@@ -31,6 +31,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     // MARK: - UI state of the Reader itself
     var showChrome = true
+    @ObservationIgnored
     var lastScrollOffset: CGFloat = 0
     var scrollToTop = false
     var isChangingChapter = false

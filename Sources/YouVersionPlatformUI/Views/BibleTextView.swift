@@ -106,7 +106,7 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
             if let phase = loadingPhase {
                 if let placeholder {
                     placeholder(phase)
