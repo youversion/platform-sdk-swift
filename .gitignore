@@ -71,6 +71,7 @@ fastlane/test_output
 coverage/
 
 .claude/settings.local.json
+.omc
 
 # Node.js (semantic-release)
 node_modules/
