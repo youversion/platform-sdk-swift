@@ -33,11 +33,6 @@ struct BibleTextNodeParser {
         "wbr"
     ])
 
-    private static let voidElementExpression: NSRegularExpression = {
-        // swiftlint:disable:next force_try
-        try! NSRegularExpression(pattern: #"<([A-Za-z][A-Za-z0-9:-]*)([^<>]*)>"#)
-    }()
-
     static func parse(_ html: String) throws -> BibleTextNode {
         let sanitized = sanitizeForXML(html: html)
         guard let data = sanitized.data(using: .utf8) else {
@@ -88,27 +83,21 @@ struct BibleTextNodeParser {
     }
 
     private static func selfClosedHTMLVoidElements(in html: String) -> String {
-        let source = html as NSString
-        let mutableHTML = NSMutableString(string: html)
-        let fullRange = NSRange(location: 0, length: source.length)
-        let matches = voidElementExpression.matches(in: html, range: fullRange)
+        let voidElementExpression = #/<([A-Za-z][A-Za-z0-9:-]*)([^<>]*)>/#
 
-        for match in matches.reversed() {
-            let elementName = source.substring(with: match.range(at: 1)).lowercased()
+        return html.replacing(voidElementExpression) { match in
+            let tag = String(match.output.0)
+            let elementName = String(match.output.1).lowercased()
             guard htmlVoidElementNames.contains(elementName) else {
-                continue
+                return tag
             }
 
-            let tag = source.substring(with: match.range)
             guard !tag.hasSuffix("/>") else {
-                continue
+                return tag
             }
 
-            let replacement = String(tag.dropLast()) + "/>"
-            mutableHTML.replaceCharacters(in: match.range, with: replacement)
+            return String(tag.dropLast()) + "/>"
         }
-
-        return mutableHTML as String
     }
 
     /// Builds the BibleTextNode tree bottom-up so all nodes are immutable once created.
@@ -150,7 +139,8 @@ struct BibleTextNodeParser {
                 return
             }
 
-            let segment = string.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            let whitespaceExpression = #/\s+/#
+            let segment = string.replacing(whitespaceExpression, with: " ")
             guard !segment.isEmpty else {
                 return
             }
@@ -167,8 +157,9 @@ struct BibleTextNodeParser {
             }
 
             if let lastChild = stack[frameIndex].children.last, lastChild.type == .text {
+                let multipleSpacesExpression = #/ {2,}/#
                 let joined = (lastChild.text + segment)
-                    .replacingOccurrences(of: " {2,}", with: " ", options: .regularExpression)
+                    .replacing(multipleSpacesExpression, with: " ")
                 guard !joined.isEmpty else {
                     return
                 }
