@@ -146,6 +146,7 @@ private struct ReaderContent: View {
 
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     private let fontSettingsDetent = PresentationDetent.height(360)
     private let fontListDetent = PresentationDetent.height(480)
@@ -245,6 +246,9 @@ private struct ReaderContent: View {
         .onChange(of: viewModel.reference) { _, newReference in
             viewModel.resetChapterCompleteTracking()
             viewModel.onReferenceChange?(newReference)
+        }
+        .onChange(of: colorScheme, initial: true) { _, newValue in
+            viewModel.colorScheme = newValue
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)

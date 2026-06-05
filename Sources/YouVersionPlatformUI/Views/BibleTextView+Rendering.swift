@@ -3,9 +3,9 @@ import YouVersionPlatformCore
 
 extension BibleTextView {
     @ViewBuilder
-    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
+    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
         if block.rows.isEmpty {
-            let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop)
+            let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
             if block.alignment == .leading {
                 theView
             } else {
@@ -26,8 +26,8 @@ extension BibleTextView {
     // ParagraphStyle or any other way to specify .firstLineHeadIndent.
     // NSAttributedString has paragraphStyle.firstLineHeadIndent which would be ideal.
     private func indentString(_ indent: Int) -> AttributedString {
-        let nbsp = "\u{00a0}\u{00a0}"
-        return AttributedString(String(repeating: nbsp, count: min(max(indent, 0), 4)))
+        let nbsp = "\u{00a0}"
+        return AttributedString(String(repeating: nbsp, count: min(max(indent * 3, 0), 24)))
     }
 
     // Custom text renderer which implements the custom way we want to underline
@@ -179,7 +179,7 @@ extension BibleTextView {
         var noteIndicatorBoxColor: Color?
     }
 
-    private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -209,7 +209,7 @@ extension BibleTextView {
 
                 var pencilAttr = AttributedString("\u{2003}")
                 pencilAttr.link = noteURL
-                pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                pencilAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 pencilAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
@@ -222,7 +222,7 @@ extension BibleTextView {
 
                 var spacerAttr = AttributedString("\u{2009}")
                 spacerAttr.link = noteURL
-                spacerAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                spacerAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 spacerAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(spacerAttr).customAttribute(
@@ -275,8 +275,7 @@ extension BibleTextView {
             // effective text color comes from .tint, not .foregroundStyle.
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)
-            .lineSpacing(textOptions.lineSpacing ?? 0)
+            .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(
                 verseSelectionStyle: textOptions.verseSelectionStyle,
@@ -284,20 +283,27 @@ extension BibleTextView {
                 audioActiveVerse: audioActiveVerse
             ))
         } else {
-            return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
+            return retValue
         }
     }
+    
+    private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {
+        textOptions.fontSize * (textOptions.lineSpacing ?? 0.4)
+    }
 
-    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
-        textViewFor(
-            double: block.text,
+    /// ignoreMarginTop is used so that the topmost block won't have a top margin applied.
+    /// previousMarginBottom is provided so that it and the current marginTop can be merged together, mirroring how CSS works.
+    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
+        textView(
+            for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
             textOptions: textOptions
         )
         .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
-        .padding(.top, ignoreMarginTop ? 0 : block.marginTop + ((textOptions.paragraphSpacing ?? 0) / 2))
+        .padding(.top, ignoreMarginTop ? 0 : max(0, block.marginTop - previousMarginBottom))
+        .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions) + (textOptions.paragraphSpacing ?? 0.0))
     }
 
     private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {
@@ -314,19 +320,27 @@ extension BibleTextView {
         return Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 15, verticalSpacing: 10) {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
-                    ForEach(row.doubles, id: \.self) { cell in
-                        textViewFor(
-                            double: cell.double,
+                    ForEach(Array(row.doubles.enumerated()), id: \.element) { index, cell in
+                        let isTrailingCell = index == row.doubles.count - 1 && index > 0
+                        // below works around a Grid weirdness where it would add extra space
+                        let string = cell.double.characters.isEmpty ? BibleAttributedString(" ") : cell.double
+                        textView(
+                            for: string,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
                             textOptions: textOptions
                         )
-                        .fixedSize(horizontal: false, vertical: true)
-                        .gridColumnAlignment(.leading)
+                        .fixedSize(horizontal: isTrailingCell, vertical: true)
+                        .frame(
+                            maxWidth: index == 0 ? .infinity : nil,
+                            alignment: isTrailingCell ? .trailing : .leading
+                        )
+                        .gridColumnAlignment(isTrailingCell ? .trailing : .leading)
                     }
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
     }
 

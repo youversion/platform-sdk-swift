@@ -68,13 +68,13 @@ import Testing
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel()
 
-        #expect(viewModel.textOptions.fontSize == 21)
-
-        viewModel.decreaseFontSize()
         #expect(viewModel.textOptions.fontSize == 18)
 
+        viewModel.decreaseFontSize()
+        #expect(viewModel.textOptions.fontSize == 15)
+
         viewModel.increaseFontSize()
-        #expect(viewModel.textOptions.fontSize == 21)
+        #expect(viewModel.textOptions.fontSize == 18)
 
         viewModel.setFont(family: "Georgia", size: 27)
         viewModel.increaseFontSize()
@@ -110,7 +110,6 @@ import Testing
 
         #expect(viewModel.textOptions.fontFamily == ReaderFonts.defaultFontFamily)
         #expect(viewModel.textOptions.fontSize == 15)
-        #expect(viewModel.textOptions.lineSpacing == 18)
         #expect(viewModel.colorTheme == ReaderTheme.theme(withId: 6))
     }
 
@@ -128,16 +127,58 @@ import Testing
     }
 
     @Test
+    func colorThemeFollowsSystemSchemeWhenUserHasNotPicked() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.colorScheme = .light
+        #expect(viewModel.colorTheme == ColorScheme.light.readerTheme)
+
+        viewModel.colorScheme = .dark
+        #expect(viewModel.colorTheme == ColorScheme.dark.readerTheme)
+    }
+
+    @Test
+    func colorThemeStaysAtUserPickWhenSystemSchemeChanges() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        let userPick = ReaderTheme.theme(withId: 4)
+
+        viewModel.setColorTheme(userPick)
+
+        viewModel.colorScheme = .light
+        #expect(viewModel.colorTheme == userPick)
+
+        viewModel.colorScheme = .dark
+        #expect(viewModel.colorTheme == userPick)
+    }
+
+    @Test
+    func fontChangeBeforeThemePickDoesNotPersistAThemeId() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.increaseFontSize()
+
+        // Nothing about the theme was persisted, so a fresh view model still
+        // follows the system color scheme rather than being locked to a
+        // stored theme: toggling its colorScheme moves colorTheme with it.
+        let restored = Support.makeViewModel()
+        restored.colorScheme = .light
+        #expect(restored.colorTheme == ColorScheme.light.readerTheme)
+        restored.colorScheme = .dark
+        #expect(restored.colorTheme == ColorScheme.dark.readerTheme)
+    }
+
+    @Test
     func cycleLineSpacingCyclesThroughOptionsAndPersists() {
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel()
 
         viewModel.cycleLineSpacing()
-        #expect(viewModel.textOptions.lineSpacing == 18)
+        #expect(viewModel.textOptions.lineSpacing == 0.6)
 
         viewModel.cycleLineSpacing()
-        #expect(viewModel.textOptions.lineSpacing == 6)
-
-        #expect(Support.makeViewModel().textOptions.lineSpacing == 6)
+        #expect(viewModel.textOptions.lineSpacing == 0.3)
     }
 }
