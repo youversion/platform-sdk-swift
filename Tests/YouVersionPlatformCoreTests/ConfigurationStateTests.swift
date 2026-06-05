@@ -1,8 +1,8 @@
 import Testing
 
-/// Parent suite that serializes all tests touching `YouVersionPlatformConfiguration`'s
-/// global state. `.serialized` only prevents parallelism *within* a suite, so suites
-/// that share mutable static state must be nested under a common serialized parent to
-/// prevent cross-suite races.
+/// Parent suite for all tests that mutate `YouVersionPlatformConfiguration` global state.
+/// Each nested suite must also carry `.serialized` — the parent trait does not propagate
+/// through nested `@Suite` declarations, so without it the child suite's own tests can
+/// still interleave with each other and with sibling suites.
 @Suite(.serialized)
 struct ConfigurationStateTests {}
