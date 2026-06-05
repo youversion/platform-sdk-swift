@@ -82,15 +82,25 @@ extension BibleReaderViewModel {
         // offset is the content's minY in the scroll viewport: 0 at top,
         // negative while scrolled down, positive when rubber-banding past top.
         if offset >= 0 {
-            withAnimation(animation) { showChrome = true }
+            setChromeVisible(true, animation: animation)
         } else if abs(offset - lastScrollOffset) >= threshold {
             if offset < lastScrollOffset - threshold {
-                withAnimation(animation) { showChrome = false }
+                setChromeVisible(false, animation: animation)
             } else if offset > lastScrollOffset + threshold {
-                withAnimation(animation) { showChrome = true }
+                setChromeVisible(true, animation: animation)
             }
         }
         lastScrollOffset = offset
+    }
+
+    private func setChromeVisible(_ isVisible: Bool, animation: Animation?) {
+        guard showChrome != isVisible else {
+            return
+        }
+
+        withAnimation(animation) {
+            showChrome = isVisible
+        }
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
