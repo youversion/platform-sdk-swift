@@ -5,7 +5,7 @@ import YouVersionPlatformUI
 @Suite struct LocalizationTests {
     @Test
     func englishDefaultCancelIsTranslated() {
-        let value = String.localized("generic.cancel")
+        let value = localizedString(forKey: "generic.cancel", languageCode: "en")
 
         #expect(value == "Cancel")
         #expect(value != "generic.cancel")
@@ -40,11 +40,11 @@ import YouVersionPlatformUI
     }
 
     @Test
-    func youVersionUIBundleContainsExpectedLanguageBundles() {
-        let bundle = Bundle.YouVersionUIBundle
-
+    func youVersionUIBundleContainsExpectedLocalizations() {
         for languageCode in ["de", "fr", "es-MX"] {
-            #expect(bundle.path(forResource: languageCode, ofType: "lproj") != nil)
+            #expect(
+                localizedString(forKey: "generic.cancel", languageCode: languageCode) != "generic.cancel"
+            )
         }
     }
 
@@ -61,10 +61,42 @@ private func localizedString(
     languageCode: String,
     bundle: Bundle = .YouVersionUIBundle
 ) -> String {
-    guard let lprojPath = bundle.path(forResource: languageCode, ofType: "lproj"),
-          let localizedBundle = Bundle(path: lprojPath) else {
-        Issue.record("Missing \(languageCode).lproj in \(bundle.bundlePath)")
-        return key
+    if let lprojPath = bundle.path(forResource: languageCode, ofType: "lproj"),
+       let localizedBundle = Bundle(path: lprojPath) {
+        return localizedBundle.localizedString(forKey: key, value: nil, table: "Localizable")
     }
-    return localizedBundle.localizedString(forKey: key, value: nil, table: "Localizable")
+
+    if let value = stringCatalogLocalizedString(forKey: key, languageCode: languageCode, bundle: bundle) {
+        return value
+    }
+
+    Issue.record("Missing \(languageCode) localization for \(key) in \(bundle.bundlePath)")
+    return key
+}
+
+private func stringCatalogLocalizedString(
+    forKey key: String,
+    languageCode: String,
+    bundle: Bundle
+) -> String? {
+    guard let url = bundle.url(forResource: "Localizable", withExtension: "xcstrings") else {
+        return nil
+    }
+
+    do {
+        let data = try Data(contentsOf: url)
+        guard let catalog = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let strings = catalog["strings"] as? [String: Any],
+              let entry = strings[key] as? [String: Any],
+              let localizations = entry["localizations"] as? [String: Any],
+              let localization = localizations[languageCode] as? [String: Any],
+              let stringUnit = localization["stringUnit"] as? [String: Any],
+              let value = stringUnit["value"] as? String else {
+            return nil
+        }
+        return value
+    } catch {
+        Issue.record("Unable to read Localizable.xcstrings in \(bundle.bundlePath): \(error)")
+        return nil
+    }
 }
