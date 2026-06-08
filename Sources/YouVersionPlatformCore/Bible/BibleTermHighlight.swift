@@ -22,7 +22,14 @@ public struct BibleTermHighlight: CustomDebugStringConvertible, Sendable, Equata
     /// Delivered verbatim to `onCollectibleTap` when the term is tapped.
     public let id: String
 
-    public init(_ reference: BibleReference, term: String, color: String, textColor: String? = nil, textColorDark: String? = nil, id: String) {
+    /// Original initializer — preserved unchanged for API stability. The term keeps the
+    /// same text color in both reader themes.
+    public init(_ reference: BibleReference, term: String, color: String, textColor: String? = nil, id: String) {
+        self.init(reference, term: term, color: color, textColor: textColor, textColorDark: nil, id: id)
+    }
+
+    /// Initializer that also supplies a dark-theme text color, resolved at render time.
+    public init(_ reference: BibleReference, term: String, color: String, textColor: String?, textColorDark: String?, id: String) {
         self.reference = reference
         self.term = term
         self.color = color
