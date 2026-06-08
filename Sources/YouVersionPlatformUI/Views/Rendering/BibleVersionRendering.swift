@@ -262,7 +262,6 @@ public enum BibleVersionRendering {
                 chapter: stateUp.chapter,
                 verse: stateUp.verse
             )
-            stateDown.currentFont = .footnote
             for child in node.children {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }

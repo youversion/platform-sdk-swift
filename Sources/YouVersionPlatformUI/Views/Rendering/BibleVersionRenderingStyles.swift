@@ -325,6 +325,9 @@ final class BibleVersionRenderingStyles {
             case "tl", "it", "add", "fq", "fqa", "qs", "qt", "bk":
                 stateDown.currentFont = .font100emItalic
 
+            case "bdit":
+                stateDown.currentFont = .font100em500Italic
+            
             case "ord", "fv", "sup":
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
