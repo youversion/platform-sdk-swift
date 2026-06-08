@@ -37,7 +37,7 @@ struct BibleReaderFootnotesView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 36)
-        .task {
+        .task(id: viewModel.footnotesToDisplay.first?.reference) {
             // We prefer not to display viewModel.footnotes[] since it is in the user's
             // Bible font family and size, which might look odd in the context of this view.
             let textOptions = self.textOptions
