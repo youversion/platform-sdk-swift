@@ -20,6 +20,7 @@ public struct BibleTextView: View {
     // swiftlint:disable:next private_swiftui_state
     @State var noteIndicatedUSFMs: Set<String> = []
     @Binding var selectedVerses: Set<BibleReference>
+    @Environment(\.colorScheme) var readerColorScheme
 
     var ourHighlights: [BibleHighlight] {
         BibleHighlightsCache.shared.highlights(overlapping: reference)

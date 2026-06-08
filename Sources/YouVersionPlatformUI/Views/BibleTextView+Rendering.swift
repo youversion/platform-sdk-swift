@@ -429,8 +429,13 @@ extension BibleTextView {
                 continue
             }
             t[start..<end].backgroundColor = Color(hex: highlight.color)
-            if let textColor = highlight.textColor {
-                t[start..<end].foregroundColor = Color(hex: textColor)
+            // Resolve the term text color for the current reader theme so it recolors
+            // live when the theme changes (dark variant falls back to `textColor`).
+            let resolvedTextColor = readerColorScheme == .dark
+                ? (highlight.textColorDark ?? highlight.textColor)
+                : highlight.textColor
+            if let resolvedTextColor {
+                t[start..<end].foregroundColor = Color(hex: resolvedTextColor)
             }
             t[start..<end].link = BibleVersionRendering.collectibleLink(id: highlight.id)
         }

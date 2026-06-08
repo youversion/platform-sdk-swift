@@ -10,18 +10,24 @@ public struct BibleTermHighlight: CustomDebugStringConvertible, Sendable, Equata
     public let term: String
     /// A hex background color value for the highlight, e.g. "#E7F2FD".
     public let color: String
-    /// An optional hex color for the term text itself, e.g. "#2A85F4". When `nil` the
-    /// term keeps its surrounding scripture color.
+    /// An optional hex color for the term text itself, e.g. "#2A85F4". Used in light
+    /// reader themes and as the fallback. When `nil` the term keeps its surrounding
+    /// scripture color.
     public let textColor: String?
+    /// An optional hex color for the term text in dark reader themes, e.g. "#8FD7FF".
+    /// When `nil`, `textColor` is used in both themes. Resolved at render time so the
+    /// term recolors live when the reader theme changes.
+    public let textColorDark: String?
     /// An opaque identifier the host can map back to its own model (e.g. a collectible id).
     /// Delivered verbatim to `onCollectibleTap` when the term is tapped.
     public let id: String
 
-    public init(_ reference: BibleReference, term: String, color: String, textColor: String? = nil, id: String) {
+    public init(_ reference: BibleReference, term: String, color: String, textColor: String? = nil, textColorDark: String? = nil, id: String) {
         self.reference = reference
         self.term = term
         self.color = color
         self.textColor = textColor
+        self.textColorDark = textColorDark
         self.id = id
     }
 
