@@ -60,7 +60,7 @@ struct BibleReaderFootnotesView: View {
         }
     }
     
-    var textOptions: BibleTextOptions {
+    private var textOptions: BibleTextOptions {
         BibleTextOptions(
             fontFamily: "Untitled Serif",
             fontSize: 16,
