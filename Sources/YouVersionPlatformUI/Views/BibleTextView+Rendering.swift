@@ -160,6 +160,15 @@ extension BibleTextView {
                             height: height
                         )
                         context.draw(footnoteImage, in: rect)
+                    } else if let termColor = attrs?.termTextColor {
+                        // The term carries a `.link` (for tap routing), so SwiftUI would
+                        // color it with the global `.tint`. Recolor its glyphs by masking a
+                        // fill to the drawn text (`.sourceAtop`).
+                        context.drawLayer { layer in
+                            layer.draw(run)
+                            layer.blendMode = .sourceAtop
+                            layer.fill(Path(run.typographicBounds.rect), with: .color(termColor))
+                        }
                     } else {
                         context.draw(run)
                     }
@@ -177,6 +186,9 @@ extension BibleTextView {
         var noteIndicatorImage = false
         var noteIndicatorBox = false
         var noteIndicatorBoxColor: Color?
+        /// Text color for a collectible term. Set on the term's run so the renderer can
+        /// paint its glyphs in this color, overriding the global `.tint` that links use.
+        var termTextColor: Color?
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
@@ -257,6 +269,15 @@ extension BibleTextView {
                         RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive, verseNumber: verse)
                     )
                 }
+            } else if category == .scripture {
+                // Emit scripture run-by-run so a collectible term carries its own text
+                // color for the renderer to apply (its `.link` would otherwise force the
+                // global `.tint` color).
+                appendTermAwareRuns(
+                    t,
+                    base: RenderHowAttribute(audioActive: isActive, verseNumber: verse),
+                    to: &textCombo
+                )
             } else if isActive {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
@@ -367,6 +388,26 @@ extension BibleTextView {
     /// first case-insensitive occurrence of each matching term within this scripture run.
     /// The link overrides the verse-level tap link only on the term's character range, so
     /// footnote and cross-reference tap targets (separate runs) are unaffected.
+    /// Concatenates a scripture run's sub-runs onto `textCombo`, tagging any collectible
+    /// term run with its text color via ``RenderHowAttribute/termTextColor`` so the
+    /// renderer can paint it (a term's `.link` otherwise forces the global `.tint`).
+    private func appendTermAwareRuns(
+        _ t: AttributedString,
+        base: RenderHowAttribute,
+        to textCombo: inout Text
+    ) {
+        let collectibleScheme = BibleVersionRendering.LinkSchemes.collectible.rawValue
+        for (link, foregroundColor, range) in t.runs[\.link, \.foregroundColor] {
+            let subStr = AttributedString(t[range])
+            var attr = base
+            if link?.scheme == collectibleScheme {
+                attr.termTextColor = foregroundColor
+            }
+            // swiftlint:disable:next shorthand_operator
+            textCombo = textCombo + Text(subStr).customAttribute(attr)
+        }
+    }
+
     private func applyTermHighlights(to t: inout AttributedString, reference: BibleReference?) {
         guard let reference else {
             return
@@ -388,8 +429,13 @@ extension BibleTextView {
                 continue
             }
             t[start..<end].backgroundColor = Color(hex: highlight.color)
-            if let textColor = highlight.textColor {
-                t[start..<end].foregroundColor = Color(hex: textColor)
+            // Resolve the term text color for the current reader theme so it recolors
+            // live when the theme changes (dark variant falls back to `textColor`).
+            let resolvedTextColor = readerColorScheme == .dark
+                ? (highlight.textColorDark ?? highlight.textColor)
+                : highlight.textColor
+            if let resolvedTextColor {
+                t[start..<end].foregroundColor = Color(hex: resolvedTextColor)
             }
             t[start..<end].link = BibleVersionRendering.collectibleLink(id: highlight.id)
         }
