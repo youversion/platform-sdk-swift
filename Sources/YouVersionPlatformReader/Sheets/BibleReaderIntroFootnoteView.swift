@@ -3,7 +3,7 @@ import YouVersionPlatformUI
 
 struct BibleReaderIntroFootnoteView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -11,7 +11,8 @@ struct BibleReaderIntroFootnoteView: View {
                     .font(YouVersionFonts.headerSmall)
                     .padding(.bottom)
                 ForEach(Array(viewModel.footnotesToDisplay.enumerated()), id: \.offset) { index, footnote in
-                    Text(footnote.text.asAttributedString)
+                    let txt = footnote.text.setFont(.footnote, from: BibleTextFonts(familyName: "San Francisco", baseSize: 15))
+                    Text(txt.asAttributedString)
                         .multilineTextAlignment(.leading)
                         .lineSpacing(8)
                         .padding(.bottom)
