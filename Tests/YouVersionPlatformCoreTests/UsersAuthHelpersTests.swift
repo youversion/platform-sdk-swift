@@ -60,6 +60,48 @@ extension ConfigurationStateTests {
             #expect(result.email == "user@example.com")
         }
         
+        @Test func extractResultMergesGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(string: "youversionauth://callback?granted_permissions=highlights")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+            
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+            
+            #expect(Set(result.permissions) == Set([.openid, .email, .highlights]))
+        }
+        
+        @Test func extractResultUsesTokenScopePermissionsWhenCallbackDoesNotIncludeGrantedPermissions() throws {
+            let callbackURL = URL(string: "youversionauth://callback?code=abc123")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+            
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+            
+            #expect(result.permissions == [.openid, .email])
+        }
+        
+        @Test func extractResultIgnoresUnknownGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(string: "youversionauth://callback?granted_permissions=unknown,highlights")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+            
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+            
+            #expect(Set(result.permissions) == Set([.openid, .email, .highlights]))
+        }
+        
         @Test func extractResultFailsBadNonce() throws {
             let callbackURL = URL(string: "youversionauth://callback")!
             let payload: [String: Any] = [
@@ -157,6 +199,17 @@ extension ConfigurationStateTests {
     }
 }
 
+private func makeTokenResponse(idToken: String, scope: String) -> YouVersionAPI.Users.TokenResponse {
+    YouVersionAPI.Users.TokenResponse(
+        accessToken: "access-token",
+        expiresIn: "3600",
+        idToken: idToken,
+        refreshToken: "refresh-token",
+        scope: scope,
+        tokenType: "Bearer"
+    )
+}
+
 private func makeTestJWT(claims: [String: Any]) throws -> String {
     let header = ["alg": "RS256", "typ": "JWT"]
     let headerData = try JSONSerialization.data(withJSONObject: header)
@@ -172,4 +225,3 @@ private func base64URLEncodedString(_ data: Data) -> String {
         .replacingOccurrences(of: "/", with: "_")
         .replacingOccurrences(of: "=", with: "")
 }
-
