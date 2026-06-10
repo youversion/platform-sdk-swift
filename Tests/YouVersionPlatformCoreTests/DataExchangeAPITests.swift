@@ -194,6 +194,10 @@ extension ConfigurationStateTests {
         
         private struct Body: Decodable {
             let permissions: [String]
+
+            enum CodingKeys: String, CodingKey {
+                case permissions = "requested_permissions"
+            }
         }
     }
 }

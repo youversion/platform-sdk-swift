@@ -76,8 +76,15 @@ public struct DataExchangeSession {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
         }
+        
+        let token: DataExchangeToken
+        do {
+            token = try await YouVersionAPI.DataExchange.updateToken(withPermissions: permissions)
+        } catch {
+            YouVersionPlatformLogger.error("DataExchange.updateToken failed: \(error)", category: "DataExchange")
+            throw URLError(.badServerResponse)
+        }
 
-        let token = try await YouVersionAPI.DataExchange.updateToken(withPermissions: permissions)
         guard let url = URLBuilder.dataExchangeURL(token: token.token, appKey: appKey) else {
             throw URLError(.badURL)
         }

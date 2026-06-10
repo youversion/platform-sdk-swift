@@ -68,4 +68,8 @@ public struct DataExchangeToken: Codable, Sendable, Equatable {
 
 private struct DataExchangeTokenRequest: Codable {
     let permissions: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case permissions = "requested_permissions"
+    }
 }

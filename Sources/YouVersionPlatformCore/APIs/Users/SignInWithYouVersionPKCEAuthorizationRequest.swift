@@ -82,6 +82,9 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
         if let scopeValue = scopeValue(permissions: permissions) {
             queryItems.append(URLQueryItem(name: "scope", value: scopeValue))
         }
+        if let requestedPermissionsValue = requestedPermissionsValue(permissions: permissions), !requestedPermissionsValue.isEmpty {
+            queryItems.append(URLQueryItem(name: "requested_permissions", value: requestedPermissionsValue))
+        }
 
         guard let url = URLBuilder.authorizeURL(queryItems: queryItems) else {
             throw SignInWithYouVersionPKCEAuthorizationError.unableToConstructAuthorizeURL
@@ -131,11 +134,22 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
     }
+    
+    private static var optionalPermissions: Set<SignInWithYouVersionPermission> {
+        [.highlights]
+    }
 
     private static func scopeValue(
         permissions: Set<SignInWithYouVersionPermission>
     ) -> String? {
-        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid]))
+        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid])).subtracting(optionalPermissions)
         return fullScopes.map(\.rawValue).sorted().joined(separator: " ")
+    }
+
+    private static func requestedPermissionsValue(
+        permissions: Set<SignInWithYouVersionPermission>
+    ) -> String? {
+        let requestedPermissions = permissions.intersection(optionalPermissions)
+        return requestedPermissions.map(\.rawValue).sorted().joined(separator: ",")
     }
 }

@@ -17,7 +17,7 @@ public extension YouVersionAPI {
             let location = try await obtainLocation(from: callbackURL, state: state, session: session)
             let code = try obtainCode(from: location)
             let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri, session: session)
-            return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
+            return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce, callbackURL: callbackURL)
         }
 
         @available(*, deprecated, renamed: "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)")
@@ -119,15 +119,24 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(TokenResponse.self, from: data)
         }
 
-        static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String) throws -> SignInWithYouVersionResult {
+        static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String, callbackURL: URL) throws -> SignInWithYouVersionResult {
             let idClaims = try decodeJWT(tokens.idToken)
             guard idClaims["nonce"] as? String == nonce else {
                 YouVersionPlatformLogger.error("Nonce mismatch", category: "Auth")
                 throw URLError(.badServerResponse)
             }
-            let permissions = tokens.scope
+            var permissions = tokens.scope
                 .split(separator: ",")
                 .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+            let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
+            if let grantedPermissions = components?.queryItems?.first(where: { $0.name == "granted_permissions" })?.value {
+                let granted = grantedPermissions
+                    .split(separator: ",")
+                    .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+                permissions = Array(Set(permissions).union(Set(granted))).sorted {
+                    $0.rawValue < $1.rawValue
+                }
+            }
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
                 expiresIn: tokens.expiresIn,

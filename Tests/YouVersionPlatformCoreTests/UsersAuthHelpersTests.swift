@@ -25,6 +25,7 @@ extension ConfigurationStateTests {
         }
         
         @Test func extractResultParsesClaimsAndPermissions() throws {
+            let callbackURL = URL(string: "youversionauth://callback")!
             let payload: [String: Any] = [
                 "sub": "user-123",
                 "name": "Test User",
@@ -43,7 +44,11 @@ extension ConfigurationStateTests {
                 tokenType: "Bearer"
             )
             
-            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(from: tokens, nonce: "xyz")
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
             
             #expect(result.accessToken == "access-token")
             #expect(result.refreshToken == "refresh-token")
@@ -56,6 +61,7 @@ extension ConfigurationStateTests {
         }
         
         @Test func extractResultFailsBadNonce() throws {
+            let callbackURL = URL(string: "youversionauth://callback")!
             let payload: [String: Any] = [
                 "sub": "user-123",
                 "name": "Test User",
@@ -75,7 +81,11 @@ extension ConfigurationStateTests {
             )
             
             #expect(throws: URLError.self) {
-                _ = try YouVersionAPI.Users.extractSignInWithYouVersionResult(from: tokens, nonce: "xyz")
+                _ = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                    from: tokens,
+                    nonce: "xyz",
+                    callbackURL: callbackURL
+                )
             }
         }
         
