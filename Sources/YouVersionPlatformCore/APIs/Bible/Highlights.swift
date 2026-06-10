@@ -160,13 +160,16 @@ public extension YouVersionAPI {
             guard let url = URLBuilder.highlightsURL else {
                 throw URLError(.badURL)
             }
-
+            
             let highlightRequest = HighlightRequest(
-                bibleId: bibleId,
-                passageId: passageId,
-                color: color.lowercased()
+                requestId: UUID().uuidString,
+                highlight: HighlightRequestBody(
+                    bibleId: bibleId,
+                    passageId: passageId,
+                    color: color.lowercased()
+                )
             )
-
+            
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = method
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -233,7 +236,17 @@ public extension YouVersionAPI {
 
 // MARK: - Request/Response Models
 
-private struct HighlightRequest: Codable, CustomDebugStringConvertible {
+private struct HighlightRequest: Codable {
+    let requestId: String
+    let highlight: HighlightRequestBody
+    
+    enum CodingKeys: String, CodingKey {
+        case requestId = "request_id"
+        case highlight
+    }
+}
+
+private struct HighlightRequestBody: Codable, CustomDebugStringConvertible {
     let bibleId: Int
     let passageId: String
     let color: String
