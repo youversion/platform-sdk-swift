@@ -47,6 +47,16 @@ extension URLRequest {
         defer { HTTPMocking.clear(token: token) }
         
         struct Body: Decodable {
+            let requestId: String
+            let highlight: Highlight
+            
+            enum CodingKeys: String, CodingKey {
+                case requestId = "request_id"
+                case highlight
+            }
+        }
+        
+        struct Highlight: Decodable {
             let bibleId: Int
             let passageId: String
             let color: String
@@ -82,9 +92,10 @@ extension URLRequest {
         let jsonBody = try #require(capturedJSONBody)
         let jsonData = try JSONSerialization.data(withJSONObject: jsonBody)
         let decoded = try JSONDecoder().decode(Body.self, from: jsonData)
-        #expect(decoded.bibleId == 1)
-        #expect(decoded.passageId == "GEN.1.1")
-        #expect(decoded.color == "ff00ff")
+        #expect(UUID(uuidString: decoded.requestId) != nil)
+        #expect(decoded.highlight.bibleId == 1)
+        #expect(decoded.highlight.passageId == "GEN.1.1")
+        #expect(decoded.highlight.color == "ff00ff")
         #expect(result)
     }
     

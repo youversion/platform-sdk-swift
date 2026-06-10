@@ -79,8 +79,13 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
         if let installId = YouVersionPlatformConfiguration.installId {
             queryItems.append(URLQueryItem(name: "x-yvp-installation-id", value: installId))
         }
-        if let scopeValue = scopeValue(permissions: permissions) {
+        let scopeValue = scopeValue(permissions: permissions)
+        if !scopeValue.isEmpty {
             queryItems.append(URLQueryItem(name: "scope", value: scopeValue))
+        }
+        let permissionsValue = requestedPermissionsValue(permissions: permissions)
+        if !permissionsValue.isEmpty {
+            queryItems.append(URLQueryItem(name: "requested_permissions", value: permissionsValue))
         }
 
         guard let url = URLBuilder.authorizeURL(queryItems: queryItems) else {
@@ -131,11 +136,20 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
     }
+    
+    private static let optionalPermissions: Set<SignInWithYouVersionPermission> = [.highlights]
 
     private static func scopeValue(
         permissions: Set<SignInWithYouVersionPermission>
-    ) -> String? {
-        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid]))
+    ) -> String {
+        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid])).subtracting(optionalPermissions)
         return fullScopes.map(\.rawValue).sorted().joined(separator: " ")
+    }
+
+    private static func requestedPermissionsValue(
+        permissions: Set<SignInWithYouVersionPermission>
+    ) -> String {
+        let requestedPermissions = permissions.intersection(optionalPermissions)
+        return requestedPermissions.map(\.rawValue).sorted().joined(separator: ",")
     }
 }

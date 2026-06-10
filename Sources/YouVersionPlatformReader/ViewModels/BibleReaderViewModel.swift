@@ -276,7 +276,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 completeDataExchangeFlow(with: result)
             } catch {
                 completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
-                YouVersionPlatformLogger.error("\(error)", category: "BibleReader")
+                YouVersionPlatformLogger.error("startDataExchange failed: \(error)", category: "BibleReader")
             }
         }
     }
@@ -311,13 +311,18 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         Task {
             do {
                 startSignInFlow = false
-                _ = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: [.profile, .highlights],
                     contextProvider: contextProvider
                 )
-                
                 await updateSignInState()
-                continuePendingHighlightAfterSignIn()
+                if result.permissions.contains(.highlights) {
+                    // TODO: fix that the .highlights permission exists in two enums.
+                    YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
             } catch {
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }

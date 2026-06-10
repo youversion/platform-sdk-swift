@@ -4,6 +4,7 @@ public enum SignInWithYouVersionPermission: String, CaseIterable, Hashable, Coda
     case openid
     case profile
     case email
+    case highlights
 
     public var description: String { rawValue }
 }
