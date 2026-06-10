@@ -137,9 +137,7 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             .replacingOccurrences(of: "=", with: "")
     }
     
-    private static var optionalPermissions: Set<SignInWithYouVersionPermission> {
-        [.highlights]
-    }
+    private static let optionalPermissions: Set<SignInWithYouVersionPermission> = [.highlights]
 
     private static func scopeValue(
         permissions: Set<SignInWithYouVersionPermission>
