@@ -321,7 +321,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                     YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
                     continuePendingHighlightAfterSignIn()
                 } else {
-                    print("no permissions; taking no action")
+                    clearPendingHighlight()
                 }
             } catch {
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
