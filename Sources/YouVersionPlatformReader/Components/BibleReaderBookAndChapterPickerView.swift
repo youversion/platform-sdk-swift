@@ -52,36 +52,33 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     }
                 }
                 .padding(.vertical, 16)
-                List {
-                    ForEach(bookCodes, id: \.self) { bookCode in
-                        Section {
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach(bookCodes, id: \.self) { bookCode in
+                            bookRow(bookCode)
                             if expandedBookCode == bookCode {
                                 chapterListView(bookCode)
-#if !os(tvOS)
-                                    .listSectionSeparator(.hidden)
-#endif
+                                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                    .listRowBackground(viewModel.readerCanvasPrimaryColor)
+                                    .listRowSeparator(.hidden)
                             }
-                        } header: {
-                            ZStack(alignment: .leading) {
-                                viewModel.readerCanvasPrimaryColor
-                                sectionHeaderView(bookCode)
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 16)
-                            }
-                            .listRowInsets(EdgeInsets())
                         }
-                        .listRowBackground(viewModel.readerCanvasPrimaryColor)
+                    }
+                    .background(viewModel.readerCanvasPrimaryColor)
+                    .listStyle(.plain)
+                    .onAppear {
+                        if let expandedBookCode {
+                            proxy.scrollTo(expandedBookCode, anchor: .top)
+                        }
                     }
                 }
-                .background(viewModel.readerCanvasPrimaryColor)
-                .listStyle(.plain)
             }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
     }
 
-    private func sectionHeaderView(_ bookCode: String) -> some View {
+    private func bookRow(_ bookCode: String) -> some View {
         Button {
             withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
@@ -94,11 +91,14 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
                     .font(.system(size: 14))
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
-        .textCase(nil)
+        .id(bookCode)
+        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .listRowBackground(viewModel.readerCanvasPrimaryColor)
+        .listRowSeparator(.hidden)
     }
 
     private func chapterListView(_ bookCode: String) -> some View {

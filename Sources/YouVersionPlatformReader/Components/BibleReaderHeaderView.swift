@@ -91,7 +91,12 @@ public struct BibleReaderHeaderView: View {
             halfPillPickersView(
                 bookAndChapter: title,
                 versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
-                handleChapterTap: { viewModel.showingBookPicker.toggle() },
+                handleChapterTap: {
+                    if !viewModel.showingBookPicker {
+                        viewModel.headerExpandedBookCode = viewModel.reference.bookUSFM
+                    }
+                    viewModel.showingBookPicker.toggle()
+                },
                 handleVersionTap: { viewModel.versionsViewModel.openVersionsStack(currentBibleLanguage: version.languageTag ?? "en") }
             )
         } else {
