@@ -36,6 +36,61 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
    - Publishes all four pods to CocoaPods trunk in dependency order.
    - Creates a follow-up commit **Y** that restores `SDKVersion.swift` to `"Dev"` on `main`, so subsequent dev/CI builds don't report a stale released version. The tag stays at **X** (which is reachable from `main` via Y → X).
 
+## Pre-Release Flow (alpha/beta/rc)
+
+We ship SemVer **pre-releases** (e.g. `5.3.0-beta.1`) to float an additive feature to opt-in adopters before promoting it to a stable point release. A pre-release version is any version containing a hyphen.
+
+### How a pre-release differs from a stable release
+
+- **Dispatched from a pre-release branch, not `main`.** Stable releases ship from `main`. Pre-releases ship from a dedicated trunk branch so commit X, the tag, and the Dev-restore commit Y never touch `main`. `release.sh` derives the target branch (`RELEASE_BRANCH`) from the checked-out branch via a small allowlist:
+
+  | Branch        | `RELEASE_BRANCH`        |
+  | ------------- | ----------------------- |
+  | `main`        | `main` (stable, default)|
+  | `alpha`       | `alpha`                 |
+  | `beta`        | `beta`                  |
+  | `release/*`   | the `release/*` branch  |
+  | anything else | `main` → **rejected** for live releases (HEAD won't match `origin/main`) |
+
+  The live-release guard asserts `HEAD == origin/$RELEASE_BRANCH`. A random feature-branch dispatch still fails exactly as before, preserving the deploy-key bypass protection. (Dry-runs are allowed on any branch.)
+
+- **GitHub marks it non-latest.** When `$VERSION` contains a hyphen, `release.sh` creates the GitHub release with `--prerelease --latest=false`, so it never displaces the stable release in the repo's "Latest" slot or in "latest release" API queries. Stable releases pass `--latest` explicitly.
+
+- **`CHANGELOG.md` is only updated on stable.** Pre-release notes still generate `notes.md` for the GitHub release body, but the canonical `CHANGELOG.md` on the trunk is left untouched (`Pre-release <version> — skipping CHANGELOG.md prepend.`). Only the stable point release that consolidates the pre-releases writes the changelog entry.
+
+### Dispatching a pre-release
+
+1. Create/checkout the pre-release branch (e.g. `beta`) from the commit you want to ship and push it.
+2. Dispatch the workflow **against that branch's ref**, with a hyphenated version and the matching `prerelease` channel (the channel labels the side-by-side candidate in the job summary; the hyphenated `version` you type is what actually ships):
+   ```bash
+   gh workflow run release.yml --ref beta \
+     -f version=5.3.0-beta.1 \
+     -f prerelease=beta
+   ```
+   Preview the next candidate locally first:
+   ```bash
+   node scripts/preview-release.mjs \
+     --base "$(git describe --tags --abbrev=0)" --head HEAD --prerelease beta
+   # → { ..., "prerelease_next": "5.3.0-beta.0" }
+   ```
+3. To promote to stable, dispatch a normal release from `main` with the plain version (`-f version=5.3.0`). That run writes the `CHANGELOG.md` entry and marks the GitHub release as latest.
+
+### Consumer install guidance
+
+Pre-releases are opt-in and **must be pinned exactly** — SemVer range/optimistic operators exclude pre-release versions by design.
+
+- **Swift Package Manager.** Range operators (`from:`, `upToNextMajor`, `"5.0.0"..<"6.0.0"`) will **not** resolve a pre-release. Pin the exact version:
+  ```swift
+  .package(url: "https://github.com/youversion/platform-sdk-swift", exact: "5.3.0-beta.1")
+  ```
+
+- **CocoaPods.** The optimistic operator `~>` excludes pre-releases. Pin the exact version:
+  ```ruby
+  pod 'YouVersionPlatform', '5.3.0-beta.1'
+  ```
+
+> **CocoaPods caveat:** a stable version slot that has been **yanked** can never be re-pushed to trunk (e.g. the previously-yanked `6.0.0` — see [MEMORY / 6.0.0 incident]). Pick a fresh version number; never attempt to reuse a yanked slot, stable or pre-release.
+
 ## Major Release Signoff
 
 PRs that **introduce a breaking change** are gated by a required PR status check named `major-release-signoff`. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
