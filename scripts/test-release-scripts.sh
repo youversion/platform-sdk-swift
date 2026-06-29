@@ -60,6 +60,23 @@ assert_stderr_contains() {
   fi
 }
 
+# assert_stdout_contains <needle> <label> <command...>
+# Runs the command and asserts stdout contains the needle substring.
+assert_stdout_contains() {
+  local needle=$1
+  local label=$2
+  shift 2
+  local out
+  out=$("$@" 2>/dev/null || true)
+  if echo "$out" | grep -qF -- "$needle"; then
+    echo "  ✓ $label"
+    PASS=$((PASS + 1))
+  else
+    echo "  ✗ $label (stdout did not contain '$needle'; got: $out)"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
 # assert_stderr_empty <label> <command...>
 # Runs the command and asserts stderr is empty.
 assert_stderr_empty() {
@@ -103,6 +120,27 @@ assert_stderr_empty   "one-major jump prints no warning"    node scripts/release
 assert_stderr_contains "more than one major above" "two-major jump prints warning"   node scripts/release-warn-version-jump.mjs 7.0.0 5.2.2
 assert_stderr_contains "more than one major above" "three-major jump prints warning" node scripts/release-warn-version-jump.mjs 8.0.0 5.2.2
 assert_stderr_empty   "invalid calc is silent"              node scripts/release-warn-version-jump.mjs 5.2.3 unknown
+
+echo
+echo "preview-release.mjs (channel-aware pre-release):"
+# Uses the real repo history base..HEAD. We assert on the presence of the
+# prerelease_next field and the channel suffix rather than an exact next
+# version (which drifts as commits land), mirroring the loose-coupling style
+# of the other assertions. base=5.2.3 (a real tag) keeps the analyzer happy.
+assert_stdout_contains '"prerelease_next":null' \
+  "no --prerelease → prerelease_next is null (backward compatible)" \
+  node scripts/preview-release.mjs --base 5.2.3 --head HEAD
+assert_stdout_contains '-beta.' \
+  "--prerelease beta → emits a -beta. candidate" \
+  node scripts/preview-release.mjs --base 5.2.3 --head HEAD --prerelease beta
+assert_stdout_contains '-alpha.' \
+  "--prerelease alpha → emits an -alpha. candidate" \
+  node scripts/preview-release.mjs --base 5.2.3 --head HEAD --prerelease alpha
+assert_exit 2 "--prerelease gamma → invalid channel rejected" \
+  node scripts/preview-release.mjs --base 5.2.3 --head HEAD --prerelease gamma
+assert_stderr_contains "Invalid --prerelease channel" \
+  "invalid channel names the offending value" \
+  node scripts/preview-release.mjs --base 5.2.3 --head HEAD --prerelease gamma
 
 echo
 echo "release.sh wiring (no inline node -e):"
