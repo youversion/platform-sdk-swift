@@ -364,11 +364,30 @@ fi
 # --- Create GitHub release (idempotent) ------------------------------------
 
 echo
+# A SemVer pre-release version contains a hyphen (e.g. 5.3.0-beta.1). Such a
+# release must NOT become the repo's "Latest" release — that would displace
+# the stable release for every consumer and every "latest release" API query.
+# Pass --prerelease + --latest=false for pre-releases, and --latest for
+# stable, so the result is deterministic regardless of `gh` defaults.
+case "$VERSION" in
+  *-*)
+    RELEASE_FLAGS="--prerelease --latest=false"
+    ;;
+  *)
+    RELEASE_FLAGS="--latest"
+    ;;
+esac
+
 if gh release view "$VERSION" >/dev/null 2>&1; then
-  echo "GitHub release $VERSION already exists — leaving as-is."
+  echo "GitHub release $VERSION already exists — reconciling latest/prerelease flags."
+  # Idempotent re-run: ensure an existing release has the correct flags even
+  # if it was created by an earlier run (or by hand) with different defaults.
+  # shellcheck disable=SC2086
+  gh release edit "$VERSION" $RELEASE_FLAGS >/dev/null
 else
   echo "Creating GitHub release..."
-  gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
+  # shellcheck disable=SC2086
+  gh release create "$VERSION" --notes-file notes.md --title "$VERSION" $RELEASE_FLAGS
 fi
 
 # --- Publish pods (idempotent per-pod + retry on transient failures) -------
