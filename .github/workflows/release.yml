@@ -19,6 +19,21 @@ on:
         required: false
         type: boolean
         default: false
+      prerelease:
+        description: |
+          Pre-release channel for audit/preview. `none` = a normal stable
+          release. For a real pre-release, dispatch with --ref pointing at a
+          pre-release branch (alpha, beta, or release/*) and a hyphenated
+          version (e.g. 5.3.0-beta.1) — the channel here only labels the
+          side-by-side candidate in the job summary.
+        required: false
+        type: choice
+        default: none
+        options:
+          - none
+          - alpha
+          - beta
+          - rc
 
 env:
   XCODE_VERSION: latest-stable
@@ -111,6 +126,7 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           DRY_RUN: ${{ inputs.dry-run && '1' || '0' }}
+          PRERELEASE: ${{ inputs.prerelease }}
           # GH_TOKEN is what the `gh` CLI reads. We also export
           # GITHUB_TOKEN for any other tooling that expects it.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

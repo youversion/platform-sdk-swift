@@ -52,11 +52,54 @@ cd "$(dirname "$0")/.."
 
 VERSION="${VERSION:-}"
 DRY_RUN="${DRY_RUN:-0}"
+# Pre-release channel for the audit preview, threaded from the workflow's
+# `prerelease` choice input. `none` (or empty) means a stable release and is
+# treated as "no channel". Informational only — the human-chosen $VERSION
+# still wins; this just surfaces the channel-aware candidate side-by-side.
+PRERELEASE="${PRERELEASE:-none}"
 
 if [ -z "$VERSION" ]; then
   echo "❌ VERSION env var is required" >&2
   exit 1
 fi
+
+# --- Determine the trunk branch to release from ------------------------------
+#
+# Stable releases ship from `main` (default, unchanged behavior). Pre-releases
+# (alpha/beta/rc) ship from a dedicated branch so they never touch `main`:
+# commit X, the tag, and the Dev-restore commit Y all land on that branch.
+#
+# RELEASE_BRANCH is derived from the currently checked-out branch, gated by a
+# small allowlist. The allowlist is intentionally minimal:
+#   - `main`            → today's exact behavior (stable releases)
+#   - `alpha` / `beta`  → named long-lived pre-release channels
+#   - `release/*`       → ad-hoc release branches (e.g. release/5.3.0-rc)
+# Any OTHER branch is NOT a valid live-release trunk: the HEAD==origin/$BRANCH
+# guard below will reject it, exactly as a random feature branch is rejected
+# today. This preserves the deploy-key bypass protection (a `--ref
+# feature-branch` dispatch cannot push to main or any trunk it doesn't own).
+#
+# In CI the workflow checks out a detached HEAD or the dispatched ref; we read
+# the branch from GITHUB_REF_NAME when present, falling back to git.
+CURRENT_BRANCH="${GITHUB_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")}"
+case "$CURRENT_BRANCH" in
+  main)
+    RELEASE_BRANCH="main"
+    ;;
+  alpha|beta)
+    RELEASE_BRANCH="$CURRENT_BRANCH"
+    ;;
+  release/*)
+    RELEASE_BRANCH="$CURRENT_BRANCH"
+    ;;
+  *)
+    # Unknown branch. Default RELEASE_BRANCH to main so the live-release HEAD
+    # guard (HEAD == origin/main) rejects this dispatch unless it really is at
+    # main's tip. Dry-runs are still allowed on any branch (guard is skipped).
+    RELEASE_BRANCH="main"
+    ;;
+esac
+echo "Release branch: $RELEASE_BRANCH (current: ${CURRENT_BRANCH:-<detached>})"
 
 # --- Validate VERSION --------------------------------------------------------
 
@@ -90,10 +133,24 @@ fi
 
 # --- Compute calculated version (informational only) -------------------------
 
-PREVIEW_JSON=$(node scripts/preview-release.mjs --base "$CURRENT_TAG" --head HEAD 2>/dev/null || echo '{}')
+# Pass --prerelease through to the preview when a channel was chosen, so the
+# audit can show the channel-aware candidate (e.g. 5.3.0-beta.0) next to the
+# stable analyzer value. The script ignores it for stable runs.
+PREVIEW_PRERELEASE_ARGS=""
+case "$PRERELEASE" in
+  alpha|beta|rc)
+    PREVIEW_PRERELEASE_ARGS="--prerelease $PRERELEASE"
+    ;;
+esac
+# shellcheck disable=SC2086
+PREVIEW_JSON=$(node scripts/preview-release.mjs --base "$CURRENT_TAG" --head HEAD $PREVIEW_PRERELEASE_ARGS 2>/dev/null || echo '{}')
 CALCULATED=$(echo "$PREVIEW_JSON" | node -e "let s=''; process.stdin.on('data', d=>s+=d).on('end', () => { const j=JSON.parse(s||'{}'); console.log(j.next || j.current || 'unknown'); });")
 CALC_TYPE=$(echo "$PREVIEW_JSON" | node -e "let s=''; process.stdin.on('data', d=>s+=d).on('end', () => { const j=JSON.parse(s||'{}'); console.log(j.release_type || 'none'); });")
+PRERELEASE_CANDIDATE=$(echo "$PREVIEW_JSON" | node -e "let s=''; process.stdin.on('data', d=>s+=d).on('end', () => { const j=JSON.parse(s||'{}'); console.log(j.prerelease_next || 'n/a'); });")
 echo "Calculated:     $CALCULATED ($CALC_TYPE)"
+if [ "$PRERELEASE_CANDIDATE" != "n/a" ]; then
+  echo "Pre-release candidate ($PRERELEASE): $PRERELEASE_CANDIDATE"
+fi
 
 # Write a side-by-side audit block to the GitHub Actions step summary
 # when running in CI. Surfaces "calculator said X, human chose Y" in the
@@ -105,8 +162,12 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "| Source            | Version            |"
     echo "| ----------------- | ------------------ |"
     echo "| Current tag       | \`$CURRENT_TAG\`   |"
-    echo "| Analyzer-computed | \`$CALCULATED\` ($CALC_TYPE) |"
+    echo "| Analyzer stable   | \`$CALCULATED\` ($CALC_TYPE) |"
+    if [ "$PRERELEASE_CANDIDATE" != "n/a" ]; then
+      echo "| Pre-release candidate (\`$PRERELEASE\`) | \`$PRERELEASE_CANDIDATE\` |"
+    fi
     echo "| Chosen (input)    | **\`$VERSION\`**   |"
+    echo "| Release branch    | \`$RELEASE_BRANCH\` |"
     if [ "$RESUME" = "1" ]; then
       echo
       echo "> 🔁 **Resume mode** — tag \`$VERSION\` already exists on origin. Will skip already-completed phases."
@@ -210,21 +271,25 @@ if [ "$RESUME" = "0" ]; then
     exit 1
   fi
 
-  # Guard against a non-main dispatch landing feature-branch commits on
-  # main. `gh workflow run release.yml --ref feature-branch` would pass
-  # every other pre-flight, and `git push origin HEAD:main` would then
-  # bypass branch protection via the deploy key. Dry-runs are explicitly
-  # supported on any branch (no push fires), so we skip this guard for them.
+  # Guard against a non-trunk dispatch landing feature-branch commits on a
+  # trunk branch. `gh workflow run release.yml --ref feature-branch` would
+  # pass every other pre-flight, and `git push origin HEAD:$RELEASE_BRANCH`
+  # would then bypass branch protection via the deploy key. RELEASE_BRANCH is
+  # `main` for any non-allowlisted branch, so a random feature branch is still
+  # rejected here exactly as before (its HEAD won't equal origin/main). Dry-
+  # runs are explicitly supported on any branch (no push fires), so we skip
+  # this guard for them.
   if [ "$DRY_RUN" != "1" ]; then
     HEAD_SHA_CHECK=$(git rev-parse HEAD)
-    MAIN_SHA_CHECK=$(git rev-parse origin/main 2>/dev/null || echo "")
-    if [ -z "$MAIN_SHA_CHECK" ]; then
-      echo "❌ origin/main ref not found locally — workflow checkout must use fetch-depth: 0" >&2
+    TRUNK_SHA_CHECK=$(git rev-parse "origin/$RELEASE_BRANCH" 2>/dev/null || echo "")
+    if [ -z "$TRUNK_SHA_CHECK" ]; then
+      echo "❌ origin/$RELEASE_BRANCH ref not found locally — workflow checkout must use fetch-depth: 0" >&2
       exit 1
     fi
-    if [ "$HEAD_SHA_CHECK" != "$MAIN_SHA_CHECK" ]; then
-      echo "❌ HEAD ($HEAD_SHA_CHECK) is not at origin/main ($MAIN_SHA_CHECK)" >&2
-      echo "   Live releases must be dispatched on the main branch. Re-run with --ref main." >&2
+    if [ "$HEAD_SHA_CHECK" != "$TRUNK_SHA_CHECK" ]; then
+      echo "❌ HEAD ($HEAD_SHA_CHECK) is not at origin/$RELEASE_BRANCH ($TRUNK_SHA_CHECK)" >&2
+      echo "   Live releases must be dispatched on an allowlisted trunk branch (main, alpha, beta, release/*)." >&2
+      echo "   Re-run with --ref $RELEASE_BRANCH." >&2
       exit 1
     fi
   fi
@@ -347,28 +412,28 @@ if [ "$DRY_RUN" = "1" ]; then
   exit 0
 fi
 
-# --- Push main + tag (idempotent) ------------------------------------------
+# --- Push trunk branch + tag (idempotent) ----------------------------------
 
 echo
-echo "Pushing main and tag $VERSION..."
+echo "Pushing $RELEASE_BRANCH and tag $VERSION..."
 
 # Refresh remote-tracking refs so the comparison below is accurate.
-git fetch origin main 2>/dev/null || true
-ORIGIN_MAIN_SHA=$(git rev-parse origin/main 2>/dev/null || echo "")
+git fetch origin "$RELEASE_BRANCH" 2>/dev/null || true
+ORIGIN_TRUNK_SHA=$(git rev-parse "origin/$RELEASE_BRANCH" 2>/dev/null || echo "")
 
 if [ "$RESUME" = "0" ]; then
   # Fresh run: X is local, push it.
-  git push origin HEAD:main
-elif [ "$ORIGIN_MAIN_SHA" = "$X_SHA" ]; then
-  echo "  ✓ origin/main already at $X_SHA — skipping main push."
-elif [ -n "$ORIGIN_MAIN_SHA" ] && git merge-base --is-ancestor "$X_SHA" "$ORIGIN_MAIN_SHA" 2>/dev/null; then
+  git push origin "HEAD:$RELEASE_BRANCH"
+elif [ "$ORIGIN_TRUNK_SHA" = "$X_SHA" ]; then
+  echo "  ✓ origin/$RELEASE_BRANCH already at $X_SHA — skipping $RELEASE_BRANCH push."
+elif [ -n "$ORIGIN_TRUNK_SHA" ] && git merge-base --is-ancestor "$X_SHA" "$ORIGIN_TRUNK_SHA" 2>/dev/null; then
   # Resume after a successful X-push where Y or unrelated commits subsequently
-  # landed on main. Don't try to re-push HEAD:main from a detached tag head;
-  # the Dev-restore step handles the main-branch case.
-  echo "  ✓ origin/main has advanced past X (likely Y already created) — skipping main push."
+  # landed on the trunk branch. Don't try to re-push HEAD:$RELEASE_BRANCH from
+  # a detached tag head; the Dev-restore step handles the trunk-branch case.
+  echo "  ✓ origin/$RELEASE_BRANCH has advanced past X (likely Y already created) — skipping $RELEASE_BRANCH push."
 else
-  echo "❌ Resume mode: tag $VERSION at $X_SHA is not reachable from origin/main ($ORIGIN_MAIN_SHA)." >&2
-  echo "   Refusing to push from a detached state that doesn't descend from main. See RELEASE-RUNBOOK.md." >&2
+  echo "❌ Resume mode: tag $VERSION at $X_SHA is not reachable from origin/$RELEASE_BRANCH ($ORIGIN_TRUNK_SHA)." >&2
+  echo "   Refusing to push from a detached state that doesn't descend from $RELEASE_BRANCH. See RELEASE-RUNBOOK.md." >&2
   exit 1
 fi
 
@@ -418,24 +483,24 @@ echo
 echo "Publishing pods..."
 bash scripts/publish-pods.sh "$VERSION"
 
-# --- Restore Dev on main (Y commit) ----------------------------------------
+# --- Restore Dev on trunk branch (Y commit) --------------------------------
 #
 # In resume mode HEAD is detached at the tag, but Dev-restore must commit
-# on top of origin/main. Switch to main first.
+# on top of origin/$RELEASE_BRANCH. Switch to that branch first.
 
 if [ "$RESUME" = "1" ]; then
   echo
-  echo "Resume: checking out main before Dev-restore..."
-  git fetch origin main
-  # -B re-creates main from origin/main (in CI this is a fresh branch; in
-  # local re-runs it resets any local main to origin/main, which is what
-  # we want — no stale local diverge).
-  git checkout -B main origin/main
+  echo "Resume: checking out $RELEASE_BRANCH before Dev-restore..."
+  git fetch origin "$RELEASE_BRANCH"
+  # -B re-creates the branch from origin/$RELEASE_BRANCH (in CI this is a
+  # fresh branch; in local re-runs it resets any local branch to its origin
+  # tip, which is what we want — no stale local diverge).
+  git checkout -B "$RELEASE_BRANCH" "origin/$RELEASE_BRANCH"
 fi
 
 echo
-echo "Restoring SDKVersion to Dev on main..."
-bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
+echo "Restoring SDKVersion to Dev on $RELEASE_BRANCH..."
+bash scripts/restore-dev-sdk-on-main.sh "$VERSION" "$RELEASE_BRANCH"
 
 Y_SHA=$(git rev-parse HEAD)
 
@@ -448,7 +513,7 @@ rm -f notes.md
 echo
 echo "✅ Release $VERSION complete."
 echo "   Tag $VERSION -> $X_SHA (commit X)"
-echo "   main HEAD     -> $Y_SHA (commit Y, SDKVersion=\"Dev\")"
+echo "   $RELEASE_BRANCH HEAD -> $Y_SHA (commit Y, SDKVersion=\"Dev\")"
 
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   {
@@ -456,7 +521,7 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "### ✅ Released"
     echo
     echo "- Tag \`$VERSION\` → \`$X_SHA\` (commit X)"
-    echo "- main HEAD → \`$Y_SHA\` (commit Y)"
+    echo "- \`$RELEASE_BRANCH\` HEAD → \`$Y_SHA\` (commit Y)"
     echo "- GitHub release: [\`$VERSION\`](https://github.com/${GITHUB_REPOSITORY:-youversion/platform-sdk-swift}/releases/tag/$VERSION)"
   } >> "$GITHUB_STEP_SUMMARY"
 fi

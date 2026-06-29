@@ -41,6 +41,13 @@ set -e
 
 VERSION=$1
 
+# Target trunk branch for the Dev-restore commit Y. Defaults to `main` to
+# preserve historical behavior. Pre-release dispatches from a dedicated
+# branch (e.g. `beta`) pass their branch so Y lands there instead of main.
+# Accepts a 2nd positional arg or the RESTORE_BRANCH env var (positional
+# wins); release.sh passes it positionally.
+RESTORE_BRANCH="${2:-${RESTORE_BRANCH:-main}}"
+
 if [ -z "$VERSION" ]; then
   echo "Error: Version parameter is required"
   exit 1
@@ -131,7 +138,7 @@ fi
 
 # --- Restore SDKVersion to "Dev" ---------------------------------------------
 
-echo "Restoring SDKVersion to 'Dev' on main..."
+echo "Restoring SDKVersion to 'Dev' on $RESTORE_BRANCH..."
 bash scripts/stamp-sdk-version.sh Dev
 
 git add Sources/YouVersionPlatformCore/SDKVersion.swift
@@ -145,7 +152,7 @@ git commit -m "chore(release): restore SDKVersion to Dev after $VERSION [skip ci
 # concurrent CI), the push will fail and exit non-zero. We DO NOT want to
 # overwrite a third-party commit; better to fail loudly and let a human
 # rebase Y onto new main and re-push.
-echo "Pushing Dev-restore commit Y to main (fast-forward)..."
-git push origin HEAD:main
+echo "Pushing Dev-restore commit Y to $RESTORE_BRANCH (fast-forward)..."
+git push origin "HEAD:$RESTORE_BRANCH"
 
-echo "✅ Tag $VERSION → X (on main); main HEAD = Y with SDKVersion=\"Dev\"."
+echo "✅ Tag $VERSION → X (on $RESTORE_BRANCH); $RESTORE_BRANCH HEAD = Y with SDKVersion=\"Dev\"."
