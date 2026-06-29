@@ -17,6 +17,9 @@
 // Usage:
 //   node scripts/preview-release.mjs --base <sha> --head <sha>
 //   node scripts/preview-release.mjs --base <sha> --head <sha> --prerelease beta
+//   node scripts/preview-release.mjs --base <sha> --head <sha> --prerelease rc --current 5.3.0-beta.1
+//
+// `--current <version>` overrides the base version (default: latest git tag).
 
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
@@ -113,7 +116,11 @@ async function main() {
 
   const pluginConfig = readCommitAnalyzerConfig();
   const commits = getCommits(args.base, args.head);
-  const current = getCurrentVersion();
+  // `--current` pins the base version explicitly. Defaults to the latest tag.
+  // Useful on a pre-release branch (where `git describe` may not resolve the
+  // in-flight pre-release tag) and makes the channel math deterministically
+  // testable without manufacturing git tags.
+  const current = args.current || getCurrentVersion();
 
   const releaseType = await analyzeCommits(pluginConfig, {
     commits,
@@ -123,19 +130,34 @@ async function main() {
 
   const next = releaseType ? semver.inc(current, releaseType) : current;
 
-  // Channel-aware pre-release candidate. `semver.inc(current, releaseType)`
-  // can only finalize a version (e.g. inc('5.3.0-beta.1','minor') === '5.3.0'),
-  // never produce a `-beta.N`. When the caller requests a pre-release channel,
-  // compute the candidate explicitly:
-  //   - if `current` is already a pre-release on the SAME channel whose stable
-  //     target matches the analyzer's target, bump the numeric tail
-  //     (`prerelease` increment): 5.3.0-beta.1 → 5.3.0-beta.2;
-  //   - otherwise open a fresh pre-release line off `current` using
-  //     `pre<releaseType>` (preminor/premajor/prepatch):
-  //     5.2.3 + minor + beta → 5.3.0-beta.0.
+  // Channel-aware pre-release candidate. Two regimes, per SemVer 2.0.0 §9 —
+  // a pre-release's normal version (MAJOR.MINOR.PATCH) is the version it is a
+  // pre-release *of*, so the alpha → beta → rc sequence is a series of
+  // candidates for ONE fixed target version line:
+  //
+  //   - `current` is STABLE → start a fresh pre-release line. `pre<type>`
+  //     (premajor/preminor/prepatch) applies the core bump that moves us onto
+  //     the new line: inc('5.2.3','preminor','beta') → 5.3.0-beta.0.
+  //
+  //   - `current` is ALREADY a pre-release of target X.Y.Z → the core bump is
+  //     already baked in; re-running `pre<type>` double-bumps it
+  //     (inc('5.3.0-beta.1','preminor','rc') → 5.4.0-rc.0, WRONG — jumps off
+  //     the 5.3.0 line). Advance only the pre-release tail with `prerelease`,
+  //     which keeps the core fixed and resets the counter to 0 when the
+  //     channel identifier changes:
+  //       inc('5.3.0-beta.1','prerelease','rc')  → 5.3.0-rc.0   (channel switch)
+  //       inc('5.3.0-beta.1','prerelease','beta') → 5.3.0-beta.2 (same channel)
+  //
+  // Stages may only advance (alpha → beta → rc). `semver.inc` will silently
+  // compute a BACKWARD step (inc('5.3.0-rc.1','prerelease','beta') →
+  // 5.3.0-beta.0, which is *lower* than current), so we guard channel ordering
+  // ourselves and reject rather than emit a version release-validate.mjs would
+  // later refuse anyway.
+  //
   // When the analyzer scores no bump but a channel was requested (an additive
-  // feature being floated as a pre-release), default releaseType to 'minor'.
-  const VALID_CHANNELS = ["alpha", "beta", "rc"];
+  // feature floated as a pre-release), default the (stable-only) releaseType
+  // to 'minor'.
+  const VALID_CHANNELS = ["alpha", "beta", "rc"]; // index = precedence rank
   let prereleaseNext = null;
   if (args.prerelease != null) {
     const channel = args.prerelease;
@@ -145,23 +167,27 @@ async function main() {
       );
       process.exit(2);
     }
-    const effectiveType = releaseType || "minor";
     const currentPre = semver.prerelease(current); // e.g. ['beta', 1] or null
-    // The stable target the analyzer is aiming at for `current` (e.g. the
-    // 5.3.0 line). If `current` is already a pre-release on the requested
-    // channel AND aimed at that same stable target, we continue its numbering.
-    const sameLineTarget = semver.inc(current, "patch"); // finalizes a pre-release base
-    const currentStableTarget = currentPre
-      ? `${semver.major(current)}.${semver.minor(current)}.${semver.patch(current)}`
-      : null;
-    const continuesSameChannel =
-      currentPre &&
-      currentPre[0] === channel &&
-      currentStableTarget === sameLineTarget;
-    if (continuesSameChannel) {
-      prereleaseNext = semver.inc(current, "prerelease", channel);
-    } else {
+    if (!currentPre) {
+      // Stable → open a fresh pre-release line (the core bump is correct here).
+      const effectiveType = releaseType || "minor";
       prereleaseNext = semver.inc(current, "pre" + effectiveType, channel);
+    } else {
+      // Already a pre-release: core is frozen, only the tail advances.
+      const currentChannel = String(currentPre[0]);
+      const rank = (c) => VALID_CHANNELS.indexOf(c);
+      // rank(currentChannel) is -1 for a non-standard identifier (e.g. a
+      // hand-cut `-foo.1`); any valid `channel` has rank >= 0 > -1, so such a
+      // base is never falsely rejected — it falls through to `prerelease`.
+      if (rank(channel) < rank(currentChannel)) {
+        console.error(
+          `Refusing backward pre-release transition: current is '${current}' ` +
+          `(${currentChannel}) but requested channel '${channel}' has lower ` +
+          `precedence. Pre-release stages may only advance: alpha → beta → rc.`
+        );
+        process.exit(3);
+      }
+      prereleaseNext = semver.inc(current, "prerelease", channel);
     }
   }
 

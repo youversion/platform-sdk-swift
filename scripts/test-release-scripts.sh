@@ -143,6 +143,33 @@ assert_stderr_contains "Invalid --prerelease channel" \
   node scripts/preview-release.mjs --base 5.2.3 --head HEAD --prerelease gamma
 
 echo
+echo "preview-release.mjs (channel math — deterministic via --current):"
+# --current pins the base version so the channel math is testable without
+# manufacturing git tags. base/head still drive the analyzer, but its result
+# is irrelevant once `current` is already a pre-release (the tail advances via
+# the 'prerelease' increment regardless of release type). Asserts exact
+# next-version output, which is the whole point of this regression guard.
+PR() { node scripts/preview-release.mjs --base 5.2.3 --head HEAD --current "$1" --prerelease "$2"; }
+assert_stdout_contains '"prerelease_next":"5.3.0-alpha.0"' \
+  "stable → alpha starts a fresh line"               PR 5.2.3 alpha
+assert_stdout_contains '"prerelease_next":"5.3.0-beta.0"' \
+  "stable → beta starts a fresh line"                PR 5.2.3 beta
+assert_stdout_contains '"prerelease_next":"5.3.0-alpha.3"' \
+  "alpha → alpha continues numbering"                PR 5.3.0-alpha.2 alpha
+assert_stdout_contains '"prerelease_next":"5.3.0-beta.0"' \
+  "alpha → beta swaps channel, resets counter to .0" PR 5.3.0-alpha.2 beta
+assert_stdout_contains '"prerelease_next":"5.3.0-beta.2"' \
+  "beta → beta continues numbering"                  PR 5.3.0-beta.1 beta
+assert_stdout_contains '"prerelease_next":"5.3.0-rc.0"' \
+  "beta → rc swaps channel WITHOUT over-bumping core" PR 5.3.0-beta.1 rc
+assert_stdout_contains '"prerelease_next":"5.3.0-rc.1"' \
+  "rc → rc continues numbering"                      PR 5.3.0-rc.0 rc
+assert_exit 3 \
+  "rc → beta backward transition is rejected (exit 3)" PR 5.3.0-rc.2 beta
+assert_stderr_contains "backward pre-release transition" \
+  "backward transition explains why it is refused"   PR 5.3.0-rc.2 beta
+
+echo
 echo "release.sh wiring (no inline node -e):"
 # Guard against the inline `node -e` form sneaking back into release.sh.
 # The whole point of extracting these scripts was to eliminate the
