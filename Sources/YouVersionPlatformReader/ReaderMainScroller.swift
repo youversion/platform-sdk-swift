@@ -8,6 +8,7 @@ struct ReaderMainScroller<Footer: View>: View {
     let bibleCopyrightBlock: Footer
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.bibleReaderChapterHeader) private var chapterHeader
     @State private var verseAnchors: [Int] = []
     @State private var lastScrolledVerse: Int?
 
@@ -29,6 +30,14 @@ struct ReaderMainScroller<Footer: View>: View {
                         if viewModel.showBookIntro {
                             BibleReaderIntroView()
                         } else {
+                            chapterHeader(
+                                BibleReaderChapterHeaderContext(
+                                    reference: viewModel.reference,
+                                    bookName: viewModel.version?.bookName(viewModel.reference.bookUSFM)
+                                        ?? viewModel.reference.bookUSFM,
+                                    chapterLabel: String(viewModel.reference.chapter)
+                                )
+                            )
                             BibleTextView(
                                 viewModel.reference,
                                 textOptions: viewModel.textOptions,
