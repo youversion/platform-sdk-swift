@@ -248,8 +248,24 @@ if [ "$RESUME" = "0" ]; then
   echo "Notes: $(wc -l < notes.md | tr -d ' ') lines."
 
   # --- Update CHANGELOG.md --------------------------------------------------
+  #
+  # The canonical CHANGELOG.md is the public, stable changelog that lives on
+  # the trunk branch. Pre-release notes (e.g. 5.3.0-beta.1) must NOT pollute
+  # it — they still get a GitHub release body from notes.md above, but the
+  # CHANGELOG.md mutation is reserved for stable point releases. A pre-release
+  # version contains a hyphen.
+  case "$VERSION" in
+    *-*)
+      CHANGELOG_STABLE=0
+      ;;
+    *)
+      CHANGELOG_STABLE=1
+      ;;
+  esac
 
-  if [ -f CHANGELOG.md ]; then
+  if [ "$CHANGELOG_STABLE" = "0" ]; then
+    echo "Pre-release $VERSION — skipping CHANGELOG.md prepend."
+  elif [ -f CHANGELOG.md ]; then
     # Preserve title + intro; prepend the new entry above the first existing
     # version heading. If no existing version heading, append.
     node - <<'NODE'
@@ -269,7 +285,9 @@ NODE
     printf '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n' > CHANGELOG.md
     cat notes.md >> CHANGELOG.md
   fi
-  echo "CHANGELOG.md updated."
+  if [ "$CHANGELOG_STABLE" = "1" ]; then
+    echo "CHANGELOG.md updated."
+  fi
 
   # --- Stamp version into source files --------------------------------------
 
@@ -278,8 +296,12 @@ NODE
 
   # --- Build X commit -------------------------------------------------------
 
+  # Only stage CHANGELOG.md for stable releases — a pre-release leaves it
+  # untouched (see the "Update CHANGELOG.md" block above).
+  if [ "$CHANGELOG_STABLE" = "1" ]; then
+    git add CHANGELOG.md
+  fi
   git add \
-    CHANGELOG.md \
     Sources/YouVersionPlatformCore/SDKVersion.swift \
     YouVersionPlatform.podspec \
     YouVersionPlatformCore.podspec \
