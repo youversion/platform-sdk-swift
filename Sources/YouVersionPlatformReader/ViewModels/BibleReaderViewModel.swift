@@ -39,7 +39,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var lastScrollOffset: CGFloat = 0
     var scrollToTop = false
     var isChangingChapter = false
-    private(set) var showsFullChapter: Bool
+    var showsFullChapter: Bool
     private(set) var scrollTargetReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
@@ -213,7 +213,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Sets the current ``reference``'s verse as the target the reader should scroll to
     /// once its chapter lays out.
-    private func setScrollTarget() {
+    func setScrollTarget() {
         guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
             return
         }

@@ -165,6 +165,30 @@ BibleReaderView(
 )
 ```
 
+#### Navigating the reader from elsewhere in your app
+
+To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.
+
+```swift
+@State private var readerNavigation = BibleReaderNavigation()
+@State private var selectedTab = Tab.home
+
+var body: some View {
+    TabView(selection: $selectedTab) {
+        HomeView(onReadTap: { reference in
+            readerNavigation.request(reference, showsFullChapter: true)
+            selectedTab = .bible            // bring the reader on screen
+        })
+        .tabItem { Label("Home", systemImage: "house") }
+        .tag(Tab.home)
+
+        BibleReaderView(navigation: readerNavigation)
+            .tabItem { Label("Bible", systemImage: "book.closed") }
+            .tag(Tab.bible)
+    }
+}
+```
+
 To intercept verse taps instead of using the built-in sign-in flow:
 
 ```swift
