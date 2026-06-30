@@ -64,6 +64,7 @@ enum BibleReaderViewModelTestSupport {
     @MainActor
     static func makeViewModel(
         reference: BibleReference? = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1),
+        showsFullChapter: Bool = false,
         highlightsRepository: MockBibleHighlightsRepository = MockBibleHighlightsRepository(),
         versionRepository: any BibleVersionRepositoryProtocol = MockBibleVersionRepository(),
         onVerseTap: ((BibleReference) -> Void)? = nil,
@@ -83,6 +84,7 @@ enum BibleReaderViewModelTestSupport {
         )
         return BibleReaderViewModel(
             reference: reference,
+            showsFullChapter: showsFullChapter,
             highlightsViewModel: highlightsViewModel,
             versionsViewModel: versionsViewModel,
             onVerseTap: onVerseTap,

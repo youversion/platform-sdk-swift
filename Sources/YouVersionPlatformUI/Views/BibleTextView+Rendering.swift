@@ -6,19 +6,30 @@ extension BibleTextView {
     func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
         if block.rows.isEmpty {
             let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
-            if block.alignment == .leading {
-                theView
+            let alignedView = applyAlignment(to: theView, alignment: block.alignment)
+            // Blocks with verses are tagged with their first verse as a scroll id.
+            if let firstVerse = block.firstVerse {
+                alignedView.id(firstVerse)
             } else {
-                HStack {
-                    Spacer()
-                    theView
-                    if block.alignment == .center {
-                        Spacer()
-                    }
-                }
+                alignedView
             }
         } else {
             emitTableRows(block.rows, textOptions: textOptions)
+        }
+    }
+
+    @ViewBuilder
+    private func applyAlignment(to theView: some View, alignment: TextAlignment) -> some View {
+        if alignment == .leading {
+            theView
+        } else {
+            HStack {
+                Spacer()
+                theView
+                if alignment == .center {
+                    Spacer()
+                }
+            }
         }
     }
 
