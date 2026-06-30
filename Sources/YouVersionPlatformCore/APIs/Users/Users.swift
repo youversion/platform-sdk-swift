@@ -125,15 +125,11 @@ public extension YouVersionAPI {
                 YouVersionPlatformLogger.error("Nonce mismatch", category: "Auth")
                 throw URLError(.badServerResponse)
             }
-            var permissions = tokens.scope
-                .split(separator: ",")
-                .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+            var resultPermissions = permissions(from: tokens.scope)
             let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
             if let grantedPermissions = components?.queryItems?.first(where: { $0.name == "granted_permissions" })?.value {
-                let granted = grantedPermissions
-                    .split(separator: ",")
-                    .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
-                permissions = Array(Set(permissions).union(Set(granted))).sorted {
+                let granted = permissions(from: grantedPermissions)
+                resultPermissions = Array(Set(resultPermissions).union(Set(granted))).sorted {
                     $0.rawValue < $1.rawValue
                 }
             }
@@ -142,7 +138,7 @@ public extension YouVersionAPI {
                 expiresIn: tokens.expiresIn,
                 refreshToken: tokens.refreshToken,
                 idToken: tokens.idToken,
-                permissions: permissions,
+                permissions: resultPermissions,
                 yvpUserId: idClaims["sub"] as? String,
                 name: idClaims["name"] as? String,
                 profilePicture: idClaims["profile_picture"] as? String,
@@ -236,12 +232,13 @@ public extension YouVersionAPI {
             guard let decodedResponse = try? JSONDecoder().decode(RefreshResponse.self, from: data) else {
                 throw URLError(.badServerResponse)
             }
+            
             return SignInWithYouVersionResult(
                 accessToken: decodedResponse.accessToken,
                 expiresIn: decodedResponse.expiresIn,
                 refreshToken: decodedResponse.refreshToken,
                 idToken: idToken,
-                permissions: [],
+                permissions: permissions(from: decodedResponse.scope),
                 yvpUserId: nil
             )
         }
@@ -267,6 +264,12 @@ public extension YouVersionAPI {
                 case refreshToken = "refresh_token"
                 case scope
             }
+        }
+
+        private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+            value
+                .split { $0 == "," || $0 == " " }
+                .map { SignInWithYouVersionPermission(permissionRawValue: String($0)) }
         }
 
         // MARK: - Public Accessors

@@ -4,10 +4,15 @@ import Testing
 
 @Suite struct UsersModelsTests {
 
-    @Test func permissionRawValuesAndDescription() {
+    @Test func permissionRawValuesAndDescription() throws {
         #expect(SignInWithYouVersionPermission.openid.rawValue == "openid")
         #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
         #expect(SignInWithYouVersionPermission.email.rawValue == "email")
+        #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
+        let permission = try #require(SignInWithYouVersionPermission(rawValue: "notes"))
+        #expect(permission == .unknown("notes"))
+        #expect(permission.rawValue == "notes")
+        #expect(SignInWithYouVersionPermission.allCases == [.openid, .profile, .email, .highlights])
     }
 
     @Test func userInfoAvatarUrlFormatting() {

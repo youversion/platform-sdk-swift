@@ -32,12 +32,12 @@ public struct YouVersionPlatformConfiguration {
     private static let refreshTokenKey = "YouVersionPlatformRefreshToken"
     private static let idTokenKey = "YouVersionPlatformIDToken"
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
-    private static let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
+    private static let permissionsKey = "YouVersionPlatformDataExchangePermissions"
 
-    static var dataExchangePermissions: [DataExchangePermission] {
+    static var permissions: [SignInWithYouVersionPermission] {
         UserDefaults.standard
-            .stringArray(forKey: dataExchangePermissionsKey)?
-            .map { DataExchangePermission(rawValue: $0) } ?? []
+            .stringArray(forKey: permissionsKey)?
+            .map { SignInWithYouVersionPermission(permissionRawValue: $0) } ?? []
     }
 
     @MainActor
@@ -93,7 +93,7 @@ public struct YouVersionPlatformConfiguration {
     @MainActor
     public static func clearAuthTokens() {
         saveAuthData(accessToken: nil, refreshToken: nil, idToken: nil, expiryDate: nil)
-        UserDefaults.standard.removeObject(forKey: dataExchangePermissionsKey)
+        UserDefaults.standard.removeObject(forKey: permissionsKey)
     }
 
     public static var accessToken: String? {
@@ -115,15 +115,16 @@ public struct YouVersionPlatformConfiguration {
             accessToken: accessToken,
             refreshToken: refreshToken,
             idToken: idToken,
-            expiryDate: expiryDate
+            expiryDate: expiryDate,
+            permissions: permissions
         )
     }
 
-    public static func saveDataExchangePermissions(_ permissions: [DataExchangePermission]) {
-        let rawValues = Set(dataExchangePermissions + permissions)
+    public static func savePermissions(_ permissions: [SignInWithYouVersionPermission]) {
+        let rawValues = Set(Self.permissions + permissions)
             .map(\.rawValue)
             .sorted()
-        UserDefaults.standard.set(rawValues, forKey: dataExchangePermissionsKey)
+        UserDefaults.standard.set(rawValues, forKey: permissionsKey)
     }
 
 }

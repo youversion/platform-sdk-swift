@@ -20,7 +20,7 @@ public extension YouVersionAPI.Users {
 #if !os(tvOS)
     @MainActor
     static func signIn(
-        permissions: Set<SignInWithYouVersionPermission>,
+        permissions: [SignInWithYouVersionPermission],
         contextProvider: ASWebAuthenticationPresentationContextProviding
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
@@ -30,7 +30,7 @@ public extension YouVersionAPI.Users {
         let redirectURL = URL(string: "youversionauth://callback")!
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
-            permissions: permissions,
+            permissions: Set(permissions),
             redirectURL: redirectURL
         )
 
@@ -43,7 +43,7 @@ public extension YouVersionAPI.Users {
 #else
     @MainActor
     static func signIn(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: [SignInWithYouVersionPermission]
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
@@ -52,7 +52,7 @@ public extension YouVersionAPI.Users {
         let redirectURL = URL(string: "youversionauth://callback")!
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
-            permissions: permissions,
+            permissions: Set(permissions),
             redirectURL: redirectURL
         )
 
@@ -90,6 +90,7 @@ public extension YouVersionAPI.Users {
                             idToken: result.idToken,
                             expiryDate: result.expiryDate
                         )
+                        YouVersionPlatformConfiguration.savePermissions(result.permissions ?? [])
                         continuation.resume(returning: result)
                     } catch {
                         continuation.resume(throwing: error)

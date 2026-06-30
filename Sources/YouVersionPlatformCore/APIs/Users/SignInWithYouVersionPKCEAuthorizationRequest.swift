@@ -137,19 +137,19 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             .replacingOccurrences(of: "=", with: "")
     }
     
-    private static let optionalPermissions: Set<SignInWithYouVersionPermission> = [.highlights]
-
     private static func scopeValue(
         permissions: Set<SignInWithYouVersionPermission>
     ) -> String {
-        let fullScopes = permissions.union(Set([SignInWithYouVersionPermission.openid])).subtracting(optionalPermissions)
+        let fullScopes = permissions
+            .union(Set([SignInWithYouVersionPermission.openid]))
+            .filter(\.isAuthorizationScope)
         return fullScopes.map(\.rawValue).sorted().joined(separator: " ")
     }
 
     private static func requestedPermissionsValue(
         permissions: Set<SignInWithYouVersionPermission>
     ) -> String {
-        let requestedPermissions = permissions.intersection(optionalPermissions)
+        let requestedPermissions = permissions.filter { !$0.isAuthorizationScope }
         return requestedPermissions.map(\.rawValue).sorted().joined(separator: ",")
     }
 }
