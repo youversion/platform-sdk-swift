@@ -65,6 +65,12 @@ extension BibleReaderViewModel {
         scrollToTop = true
     }
 
+    func goToReference(_ reference: BibleReference, showsFullChapter: Bool) async {
+        self.showsFullChapter = showsFullChapter
+        await onHeaderSelectionChange(reference, showIntro: false)
+        setScrollTarget()
+    }
+
     func removeVerseSelection() {
         selectedVerses.removeAll()
         withAnimation(verseActionsDrawerAnimation) {

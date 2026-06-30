@@ -7,6 +7,7 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let readerNavigation: BibleReaderNavigation?
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
@@ -30,16 +31,21 @@ public struct BibleReaderView: View {
     ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
     ///     `reference`'s verse range — use this for passages that are just a
     ///     few verses, such as a plan day.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
     public init(reference: BibleReference? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil,
-                showsFullChapter: Bool = false
+                showsFullChapter: Bool = false,
+                readerNavigation: BibleReaderNavigation? = nil
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
         self.initialReference = reference
+        self.readerNavigation = readerNavigation
         self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
@@ -66,7 +72,7 @@ public struct BibleReaderView: View {
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel)
+                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation)
             } else {
                 Color.clear
             }
@@ -86,6 +92,7 @@ public struct BibleReaderView: View {
 
 private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
+    let readerNavigation: BibleReaderNavigation?
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -100,8 +107,9 @@ private struct ReaderContent: View {
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
 
-    init(viewModel: BibleReaderViewModel) {
+    init(viewModel: BibleReaderViewModel, readerNavigation: BibleReaderNavigation?) {
         self.viewModel = viewModel
+        self.readerNavigation = readerNavigation
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
@@ -199,6 +207,12 @@ private struct ReaderContent: View {
         }
         .onChange(of: colorScheme, initial: true) { _, newValue in
             viewModel.colorScheme = newValue
+        }
+        .onChange(of: readerNavigation?.pendingRequest) { _, _ in
+            handleNavigationRequest()
+        }
+        .onAppear {
+            handleNavigationRequest()
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -389,6 +403,16 @@ private struct ReaderContent: View {
         }
     }
 #endif
+
+    private func handleNavigationRequest() {
+        guard let readerNavigation, let request = readerNavigation.pendingRequest else {
+            return
+        }
+        readerNavigation.consumePendingRequest()
+        Task {
+            await viewModel.goToReference(request.reference, showsFullChapter: request.showsFullChapter)
+        }
+    }
 
 }
 
