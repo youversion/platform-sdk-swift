@@ -451,19 +451,37 @@ fi
 # --- Create GitHub release (idempotent) ------------------------------------
 
 echo
-# A SemVer pre-release version contains a hyphen (e.g. 5.3.0-beta.1). Such a
-# release must NOT become the repo's "Latest" release — that would displace
-# the stable release for every consumer and every "latest release" API query.
-# Pass --prerelease + --latest=false for pre-releases, and --latest for
-# stable, so the result is deterministic regardless of `gh` defaults.
+# Decide the --prerelease / --latest flags. Two orthogonal axes:
+#   - pre-release vs stable: a SemVer pre-release version has a hyphen
+#     (e.g. 5.3.0-beta.1). It must never be "Latest".
+#   - latest vs not-latest: a STABLE release is "Latest" only if it is the
+#     highest stable version overall. A maintenance release (e.g. 5.2.5 cut
+#     from a 5.x branch while main is on 6.x) is stable-but-NOT-latest, so it
+#     does not displace the newest major for consumers or "latest release"
+#     API queries.
+# $LATEST overrides the auto-decision: true | false | auto (default).
+LATEST="${LATEST:-auto}"
 case "$VERSION" in
   *-*)
     RELEASE_FLAGS="--prerelease --latest=false"
+    LATEST_DECISION="no (pre-release)"
     ;;
   *)
-    RELEASE_FLAGS="--latest"
+    case "$LATEST" in
+      true)  IS_LATEST="true" ;;
+      false) IS_LATEST="false" ;;
+      *)     IS_LATEST=$(node scripts/release-compute-latest.mjs "$VERSION" 2>/dev/null || echo "true") ;;
+    esac
+    if [ "$IS_LATEST" = "true" ]; then
+      RELEASE_FLAGS="--latest"
+      LATEST_DECISION="yes"
+    else
+      RELEASE_FLAGS="--latest=false"
+      LATEST_DECISION="no (maintenance — not the highest stable version)"
+    fi
     ;;
 esac
+echo "GitHub release flags: $RELEASE_FLAGS  (latest: $LATEST_DECISION)"
 
 if gh release view "$VERSION" >/dev/null 2>&1; then
   echo "GitHub release $VERSION already exists — reconciling latest/prerelease flags."

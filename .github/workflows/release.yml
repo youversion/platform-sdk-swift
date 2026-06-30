@@ -34,6 +34,22 @@ on:
           - alpha
           - beta
           - rc
+      latest:
+        description: |
+          Whether this stable release should be marked GitHub "Latest".
+          `auto` (default) marks it Latest only if it is the highest stable
+          version across all tags — so a maintenance release (e.g. 5.2.5 cut
+          while main is on 6.x) is published stable-but-not-latest and does
+          not displace the newest major. Pre-releases are never Latest
+          regardless of this input. Use `false` to force not-latest, `true`
+          to force Latest.
+        required: false
+        type: choice
+        default: auto
+        options:
+          - auto
+          - "true"
+          - "false"
 
 env:
   XCODE_VERSION: latest-stable
@@ -127,6 +143,7 @@ jobs:
           VERSION: ${{ inputs.version }}
           DRY_RUN: ${{ inputs.dry-run && '1' || '0' }}
           PRERELEASE: ${{ inputs.prerelease }}
+          LATEST: ${{ inputs.latest }}
           # GH_TOKEN is what the `gh` CLI reads. We also export
           # GITHUB_TOKEN for any other tooling that expects it.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

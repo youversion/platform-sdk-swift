@@ -170,6 +170,25 @@ assert_stderr_contains "backward pre-release transition" \
   "backward transition explains why it is refused"   PR 5.3.0-rc.2 beta
 
 echo
+echo "release-compute-latest.mjs (GitHub --latest decision):"
+# Pass an explicit tag list as the 2nd arg so the decision is deterministic
+# and does not depend on the ambient repo tags (CI clones may be tag-less).
+assert_stdout_contains "true"  "highest stable across tags → latest" \
+  node scripts/release-compute-latest.mjs 6.1.0 "5.2.3,6.0.0"
+assert_stdout_contains "false" "maintenance below newer major → NOT latest" \
+  node scripts/release-compute-latest.mjs 5.2.5 "5.2.3,6.0.0"
+assert_stdout_contains "false" "equal-but-not-highest → NOT latest" \
+  node scripts/release-compute-latest.mjs 5.2.3 "5.2.3,6.0.0"
+assert_stdout_contains "false" "pre-release is never latest" \
+  node scripts/release-compute-latest.mjs 6.2.0-beta.1 "5.2.3,6.0.0"
+assert_stdout_contains "true"  "first/only release (empty tag list) → latest" \
+  node scripts/release-compute-latest.mjs 5.3.0 ""
+assert_stdout_contains "false" "invalid version → conservative not-latest" \
+  node scripts/release-compute-latest.mjs garbage "5.2.3"
+assert_stdout_contains "true"  "tolerates leading v in tag list" \
+  node scripts/release-compute-latest.mjs 6.1.0 "v5.2.3,v6.0.0"
+
+echo
 echo "release.sh wiring (no inline node -e):"
 # Guard against the inline `node -e` form sneaking back into release.sh.
 # The whole point of extracting these scripts was to eliminate the

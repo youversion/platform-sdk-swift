@@ -54,7 +54,7 @@ We ship SemVer **pre-releases** (e.g. `5.3.0-beta.1`) to float an additive featu
 
   The live-release guard asserts `HEAD == origin/$RELEASE_BRANCH`. A random feature-branch dispatch still fails exactly as before, preserving the deploy-key bypass protection. (Dry-runs are allowed on any branch.)
 
-- **GitHub marks it non-latest.** When `$VERSION` contains a hyphen, `release.sh` creates the GitHub release with `--prerelease --latest=false`, so it never displaces the stable release in the repo's "Latest" slot or in "latest release" API queries. Stable releases pass `--latest` explicitly.
+- **GitHub "Latest" is decided on two axes.** When `$VERSION` contains a hyphen, `release.sh` creates the GitHub release with `--prerelease --latest=false`, so a pre-release never displaces the stable release in the repo's "Latest" slot or in "latest release" API queries. For a **stable** version, "Latest" is auto-computed by `scripts/release-compute-latest.mjs`: it is marked `--latest` only when it is the highest stable version across all tags. A **maintenance** release (e.g. `5.2.5` cut from a `5.x` branch while `main` is on `6.x`) is therefore published stable-but-**not**-latest (`--latest=false`) and does not seize the "Latest" label from the newer major. The `latest` dispatch input (`auto` | `true` | `false`, default `auto`) overrides this when you need to force the decision.
 
 - **`CHANGELOG.md` is only updated on stable.** Pre-release notes still generate `notes.md` for the GitHub release body, but the canonical `CHANGELOG.md` on the trunk is left untouched (`Pre-release <version> — skipping CHANGELOG.md prepend.`). Only the stable point release that consolidates the pre-releases writes the changelog entry.
 
