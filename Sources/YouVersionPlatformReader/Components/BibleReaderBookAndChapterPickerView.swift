@@ -58,9 +58,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                             bookRow(bookCode)
                             if expandedBookCode == bookCode {
                                 chapterListView(bookCode)
-                                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                                    .listRowBackground(viewModel.readerCanvasPrimaryColor)
-                                    .listRowSeparator(.hidden)
+                                    .bookPickerRow(background: viewModel.readerCanvasPrimaryColor, verticalInset: 0)
                             }
                         }
                     }
@@ -96,9 +94,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
         }
         .buttonStyle(.plain)
         .id(bookCode)
-        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-        .listRowBackground(viewModel.readerCanvasPrimaryColor)
-        .listRowSeparator(.hidden)
+        .bookPickerRow(background: viewModel.readerCanvasPrimaryColor, verticalInset: 8)
     }
 
     private func chapterListView(_ bookCode: String) -> some View {
@@ -166,4 +162,15 @@ public struct BibleReaderBookAndChapterPickerView: View {
         }
     )
     .environment(BibleReaderViewModel.preview)
+}
+
+private extension View {
+    /// Shared row styling for the book/chapter picker list: a full-width canvas
+    /// background, hidden separators, and horizontal insets with a configurable
+    /// vertical inset.
+    func bookPickerRow(background: Color, verticalInset: CGFloat) -> some View {
+        listRowInsets(EdgeInsets(top: verticalInset, leading: 16, bottom: verticalInset, trailing: 16))
+            .listRowBackground(background)
+            .listRowSeparator(.hidden)
+    }
 }
