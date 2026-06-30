@@ -5,6 +5,7 @@ import YouVersionPlatform
 struct SampleApp: App {
 
     @State private var selectedTab = 0
+    @State private var readerNavigation = BibleReaderNavigation()
 
     init() {
         // Get your app key from https://platform.youversion.com/
@@ -18,29 +19,35 @@ struct SampleApp: App {
     var body: some Scene {
         WindowGroup {
             TabView(selection: $selectedTab) {
-                BibleReaderView()
+                BibleReaderView(navigation: readerNavigation)
                 .tabItem {
                     Label("Bible", systemImage: "book.closed.fill")
                 }
                 .tag(0)
 
+                NavigationDemoView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
+                    .tabItem {
+                        Label("Navigate", systemImage: "arrow.uturn.right")
+                    }
+                    .tag(1)
+
                 VotdContainerView()
                     .tabItem {
                         Label("VOTD", systemImage: "sun.max.fill")
                     }
-                    .tag(1)
+                    .tag(2)
 
                 CardView()
                     .tabItem {
                         Label("Card", systemImage: "doc.plaintext")
                     }
-                    .tag(2)
+                    .tag(3)
 
                 ProfileView()
                     .tabItem {
                         Label("Profile", systemImage: "person.fill")
                     }
-                    .tag(3)
+                    .tag(4)
             }
         }
     }

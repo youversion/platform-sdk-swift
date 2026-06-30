@@ -7,6 +7,7 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let navigation: BibleReaderNavigation?
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
@@ -16,6 +17,9 @@ public struct BibleReaderView: View {
     /// - Parameters:
     ///   - reference: The Bible reference to display initially. When `nil`, the reader
     ///     restores the last-viewed reference or defaults to John 1.
+    ///   - navigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
     ///   - showsFullChapter: When `true`, the reader shows the full chapter and
     ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
     ///     `reference`'s verse range — use this for passages that are just a
@@ -31,6 +35,7 @@ public struct BibleReaderView: View {
     ///     or opens the verse actions drawer for authenticated users. Footnote taps
     ///     are always handled by the reader regardless of this closure.
     public init(reference: BibleReference? = nil,
+                navigation: BibleReaderNavigation? = nil,
                 showsFullChapter: Bool = false,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil
@@ -40,6 +45,7 @@ public struct BibleReaderView: View {
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
         self.initialReference = reference
+        self.navigation = navigation
         self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
@@ -66,7 +72,7 @@ public struct BibleReaderView: View {
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel)
+                ReaderContent(viewModel: viewModel, navigation: navigation)
             } else {
                 Color.clear
             }
@@ -86,6 +92,7 @@ public struct BibleReaderView: View {
 
 private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
+    let navigation: BibleReaderNavigation?
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -100,8 +107,9 @@ private struct ReaderContent: View {
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
 
-    init(viewModel: BibleReaderViewModel) {
+    init(viewModel: BibleReaderViewModel, navigation: BibleReaderNavigation?) {
         self.viewModel = viewModel
+        self.navigation = navigation
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
@@ -167,6 +175,12 @@ private struct ReaderContent: View {
         }
         .onChange(of: colorScheme, initial: true) { _, newValue in
             viewModel.colorScheme = newValue
+        }
+        .onChange(of: navigation?.pendingReference) { _, _ in
+            handlePendingReference()
+        }
+        .onAppear {
+            handlePendingReference()
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -360,6 +374,16 @@ private struct ReaderContent: View {
 #endif
 
     // MARK: - Action handlers
+
+    private func handlePendingReference() {
+        guard let navigation, let pending = navigation.pendingReference else {
+            return
+        }
+        navigation.consumePendingReference()
+        Task {
+            await viewModel.goToReference(pending.reference, showsFullChapter: pending.showsFullChapter)
+        }
+    }
 
     private func startSignIn() {
         // TODO: move this code into BibleReaderViewModel

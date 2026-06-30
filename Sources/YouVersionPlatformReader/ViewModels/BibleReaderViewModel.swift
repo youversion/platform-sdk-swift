@@ -200,6 +200,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         startSignInFlow = true
     }
 
+    /// Loads `reference`'s chapter in place. When `showsFullChapter` is true and the
+    /// reference names a verse beyond the first, requests a scroll to that verse
+    /// once the chapter lays out. Used when a passage is opened from elsewhere (for
+    /// example, a "Read" button in another tab via ``BibleReaderNavigation``).
+    func goToReference(_ reference: BibleReference, showsFullChapter: Bool) async {
+        self.showsFullChapter = showsFullChapter
+        await onHeaderSelectionChange(reference, showIntro: false)
+        setScrollTarget()
+    }
+
     /// Sets the current ``reference``'s verse as the target the reader should scroll to
     /// once its chapter lays out.
     private func setScrollTarget() {

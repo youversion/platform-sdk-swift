@@ -61,4 +61,76 @@ import Testing
 
         #expect(viewModel.scrollTarget == nil)
     }
+
+    @Test
+    func goToReferenceFullChapterLoadsChapterAndArmsScroll() async {
+        let viewModel = Support.makeViewModel()
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true)
+
+        #expect(viewModel.reference.bookUSFM == "JHN")
+        #expect(viewModel.reference.chapter == 3)
+        #expect(viewModel.scrollTarget?.verseStart == 16)
+    }
+
+    @Test
+    func goToReferenceVerseRangeArmsNoScroll() async {
+        let viewModel = Support.makeViewModel()
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: false)
+
+        #expect(viewModel.reference.chapter == 3)
+        #expect(viewModel.scrollTarget == nil)
+    }
+
+    @Test
+    func goToChapterReferenceArmsNoScroll() async {
+        let viewModel = Support.makeViewModel()
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        await viewModel.goToReference(
+            BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3),
+            showsFullChapter: true
+        )
+
+        #expect(viewModel.reference.chapter == 3)
+        #expect(viewModel.scrollTarget == nil)
+    }
+}
+
+@MainActor
+@Suite struct BibleReaderNavigationTests {
+    @Test
+    func requestSetsPendingReference() {
+        let navigation = BibleReaderNavigation()
+        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+
+        navigation.request(reference, showsFullChapter: true)
+
+        #expect(navigation.pendingReference?.reference == reference)
+        #expect(navigation.pendingReference?.showsFullChapter == true)
+    }
+
+    @Test
+    func requestDefaultsToVerseRange() {
+        let navigation = BibleReaderNavigation()
+
+        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+
+        #expect(navigation.pendingReference?.showsFullChapter == false)
+    }
+
+    @Test
+    func consumeClearsPendingReference() {
+        let navigation = BibleReaderNavigation()
+        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+
+        navigation.consumePendingReference()
+
+        #expect(navigation.pendingReference == nil)
+    }
 }
