@@ -13,6 +13,13 @@ public struct BibleTextBlock: Identifiable {
     public let alignment: TextAlignment
     public let footnotes: [BibleFootnote]
 
+    /// The first verse this block displays, or nil when it shows none.
+    public var firstVerse: Int? {
+        text.asAttributedString.runs[\.bibleTextCategory, \.bibleReference]
+            .first { category, _, _ in category == .scripture || category == .verseLabel }?
+            .1?.verseStart
+    }
+
     public init(
         text: BibleAttributedString,
         chapter: Int,
