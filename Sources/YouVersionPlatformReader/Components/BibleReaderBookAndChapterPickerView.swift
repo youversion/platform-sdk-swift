@@ -171,6 +171,8 @@ private extension View {
     func bookPickerRow(background: Color, verticalInset: CGFloat) -> some View {
         listRowInsets(EdgeInsets(top: verticalInset, leading: 16, bottom: verticalInset, trailing: 16))
             .listRowBackground(background)
+#if !os(tvOS)
             .listRowSeparator(.hidden)
+#endif
     }
 }
