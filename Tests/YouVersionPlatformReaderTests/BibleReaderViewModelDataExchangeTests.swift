@@ -145,7 +145,7 @@ import Testing
     }
 
     @Test
-    func signedOutUserStartsSignInBeforeShowingDataExchangeConfirmation() {
+    func signedOutUserShowsSignInSheetBeforeShowingDataExchangeConfirmation() {
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: false)
@@ -154,7 +154,8 @@ import Testing
 
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
-        #expect(viewModel.startSignInFlow)
+        #expect(viewModel.showingSignInSheet)
+        #expect(viewModel.startSignInFlow == false)
         #expect(viewModel.showingDataExchangeConfirmation == false)
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)

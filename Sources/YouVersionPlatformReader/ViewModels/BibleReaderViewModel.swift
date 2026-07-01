@@ -368,7 +368,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 return
             }
             pendingHighlight = PendingHighlight(references: references, color: color)
-            startSignInFlow = true
+            showingSignInSheet = true
             return
         }
         
