@@ -15,15 +15,24 @@ public class BibleHighlightsViewModel: ObservableObject {
     private let cache: BibleHighlightsCache
     private let repository: any BibleHighlightsRepositoryProtocol
     private var loadTasks: [BibleReference: Task<Void, Never>] = [:]
-    
+
     // MARK: - Initialization
-    
+
     public init(
         cache: BibleHighlightsCache = BibleHighlightsCache.shared,
         repository: any BibleHighlightsRepositoryProtocol = BibleHighlightsRepository()
     ) {
         self.cache = cache
         self.repository = repository
+        NotificationCenter.default.addObserver(
+            forName: YouVersionPlatformConfiguration.authStateDidChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.reset()
+            }
+        }
     }
 
     // Called e.g. when the user signs out

@@ -128,6 +128,9 @@ public struct BibleTextView: View {
             }
             return .handled
         }))
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+            BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+        }
         .task(id: LoadKey(
             reference: reference,
             fontSize: textOptions.fontSize,
