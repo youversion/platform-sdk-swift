@@ -113,8 +113,14 @@ public struct DataExchangeSession {
             grantedPermissions: queryItems
                 .filter { $0.name == "granted_permissions" }
                 .compactMap(\.value)
-                .compactMap { SignInWithYouVersionPermission(rawValue: $0) }
+                .flatMap { permissions(from: $0) }
         )
+    }
+
+    private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+        value
+            .split { $0 == "," || $0 == " " }
+            .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
     }
 
     private func dataExchangeSession(

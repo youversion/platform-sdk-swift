@@ -24,6 +24,15 @@ import Testing
         #expect(result.grantedPermissions == [.highlights, .unknown("notes")])
     }
 
+    @Test func commaAndSpaceSeparatedGrantedPermissionsArePreserved() throws {
+        let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights,notes%20bookmarks"))
+
+        let result = DataExchangeSession.requestResult(from: url)
+
+        #expect(result.status == .granted)
+        #expect(result.grantedPermissions == [.highlights, .unknown("notes"), .unknown("bookmarks")])
+    }
+
     @Test func missingStatusReturnsEmptyStatus() throws {
         let url = try #require(URL(string: "youversionauth://callback"))
 
