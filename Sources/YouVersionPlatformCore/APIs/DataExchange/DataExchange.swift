@@ -39,7 +39,8 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let requestBody = DataExchangeTokenRequest(permissions: permissions.map(\.rawValue))
+            let requestedPermissions = permissions.filter { !$0.isAuthorizationScope }
+            let requestBody = DataExchangeTokenRequest(permissions: requestedPermissions.map(\.rawValue))
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"

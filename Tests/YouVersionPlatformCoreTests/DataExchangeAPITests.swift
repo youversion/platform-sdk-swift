@@ -41,7 +41,7 @@ extension ConfigurationStateTests {
             }
             
             let result = try await YouVersionAPI.DataExchange.updateToken(
-                withPermissions: [.highlights],
+                withPermissions: [.openid, .profile, .email, .highlights],
                 accessToken: "access-token",
                 session: session
             )
