@@ -978,357 +978,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "DataExchangePermission",
-        "printedName": "DataExchangePermission",
-        "children": [
-          {
-            "kind": "Var",
-            "name": "highlights",
-            "printedName": "highlights",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(YouVersionPlatformCore.DataExchangePermission.Type) -> YouVersionPlatformCore.DataExchangePermission",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "DataExchangePermission",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                    "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "DataExchangePermission",
-                        "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO10highlightsyA2CmF",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO10highlightsyA2CmF",
-            "moduleName": "YouVersionPlatformCore"
-          },
-          {
-            "kind": "Var",
-            "name": "unknown",
-            "printedName": "unknown",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(YouVersionPlatformCore.DataExchangePermission.Type) -> (Swift.String) -> YouVersionPlatformCore.DataExchangePermission",
-                "children": [
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Swift.String) -> YouVersionPlatformCore.DataExchangePermission",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "DataExchangePermission",
-                        "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "DataExchangePermission",
-                        "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO7unknownyACSScACmF",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO7unknownyACSScACmF",
-            "moduleName": "YouVersionPlatformCore"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(rawValue:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "DataExchangePermission",
-                "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO8rawValueACSS_tcfc",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO8rawValueACSS_tcfc",
-            "moduleName": "YouVersionPlatformCore",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Var",
-            "name": "rawValue",
-            "printedName": "rawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO8rawValueSSvp",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO8rawValueSSvp",
-            "moduleName": "YouVersionPlatformCore",
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO8rawValueSSvg",
-                "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO8rawValueSSvg",
-                "moduleName": "YouVersionPlatformCore",
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "description",
-            "printedName": "description",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO11descriptionSSvp",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO11descriptionSSvp",
-            "moduleName": "YouVersionPlatformCore",
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO11descriptionSSvg",
-                "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO11descriptionSSvg",
-                "moduleName": "YouVersionPlatformCore",
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(from:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "DataExchangePermission",
-                "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Decoder",
-                "printedName": "any Swift.Decoder",
-                "usr": "s:s7DecoderP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO4fromACs7Decoder_p_tKcfc",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO4fromACs7Decoder_p_tKcfc",
-            "moduleName": "YouVersionPlatformCore",
-            "throwing": true,
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "encode",
-            "printedName": "encode(to:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Encoder",
-                "printedName": "any Swift.Encoder",
-                "usr": "s:s7EncoderP"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO6encode2toys7Encoder_p_tKF",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO6encode2toys7Encoder_p_tKF",
-            "moduleName": "YouVersionPlatformCore",
-            "throwing": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "RawValue",
-            "printedName": "RawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO8RawValuea",
-            "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO8RawValuea",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true
-          }
-        ],
-        "declKind": "Enum",
-        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO",
-        "mangledName": "$s22YouVersionPlatformCore22DataExchangePermissionO",
-        "moduleName": "YouVersionPlatformCore",
-        "isEnumExhaustive": true,
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Decodable",
-            "printedName": "Decodable",
-            "usr": "s:Se",
-            "mangledName": "$sSe"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Encodable",
-            "printedName": "Encodable",
-            "usr": "s:SE",
-            "mangledName": "$sSE"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "RawRepresentable",
-            "printedName": "RawRepresentable",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "RawValue",
-                "printedName": "RawValue",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ]
-              }
-            ],
-            "usr": "s:SY",
-            "mangledName": "$sSY"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Sendable",
-            "printedName": "Sendable",
-            "usr": "s:s8SendableP",
-            "mangledName": "$ss8SendableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SendableMetatype",
-            "printedName": "SendableMetatype",
-            "usr": "s:s16SendableMetatypeP",
-            "mangledName": "$ss16SendableMetatypeP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "LanguageOverview",
         "printedName": "LanguageOverview",
         "children": [
@@ -4867,6 +4516,190 @@
           },
           {
             "kind": "Var",
+            "name": "unknown",
+            "printedName": "unknown",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformCore.SignInWithYouVersionPermission.Type) -> (Swift.String) -> YouVersionPlatformCore.SignInWithYouVersionPermission",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO7unknownyACSScACmF",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO7unknownyACSScACmF",
+            "moduleName": "YouVersionPlatformCore"
+          },
+          {
+            "kind": "Var",
+            "name": "allCases",
+            "printedName": "allCases",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvpZ",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvgZ",
+                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvp",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvg",
+                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "description",
             "printedName": "description",
             "children": [
@@ -4905,38 +4738,51 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(rawValue:)",
+            "printedName": "init(from:)",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "SignInWithYouVersionPermission",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO4fromACs7Decoder_p_tKcfc",
             "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "declAttributes": [
-              "Inlinable"
-            ],
+            "throwing": true,
             "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO6encode2toys7Encoder_p_tKF",
+            "moduleName": "YouVersionPlatformCore",
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "TypeAlias",
@@ -4981,115 +4827,12 @@
             "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8RawValuea",
             "moduleName": "YouVersionPlatformCore",
             "implicit": true
-          },
-          {
-            "kind": "Var",
-            "name": "allCases",
-            "printedName": "allCases",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvpZ",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvpZ",
-            "moduleName": "YouVersionPlatformCore",
-            "static": true,
-            "implicit": true,
-            "declAttributes": [
-              "Nonisolated"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Array",
-                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SignInWithYouVersionPermission",
-                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                      }
-                    ],
-                    "usr": "s:Sa"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvgZ",
-                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8allCasesSayACGvgZ",
-                "moduleName": "YouVersionPlatformCore",
-                "static": true,
-                "implicit": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "rawValue",
-            "printedName": "rawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvp",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvp",
-            "moduleName": "YouVersionPlatformCore",
-            "implicit": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvg",
-                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueSSvg",
-                "moduleName": "YouVersionPlatformCore",
-                "implicit": true,
-                "declAttributes": [
-                  "Inlinable"
-                ],
-                "accessorKind": "get"
-              }
-            ]
           }
         ],
         "declKind": "Enum",
         "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO",
         "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO",
         "moduleName": "YouVersionPlatformCore",
-        "enumRawTypeName": "String",
         "isEnumExhaustive": true,
         "conformances": [
           {
@@ -5469,33 +5212,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGvp",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGvp",
-            "moduleName": "YouVersionPlatformCore",
-            "declAttributes": [
-              "HasStorage"
-            ],
-            "isLet": true,
-            "hasStorage": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
+                "name": "Optional",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]?",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -5512,9 +5230,50 @@
                     "usr": "s:Sa"
                   }
                 ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGSgvp",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SignInWithYouVersionPermission",
+                            "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                          }
+                        ],
+                        "usr": "s:Sa"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
                 "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGvg",
-                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGvg",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGSgvg",
+                "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11permissionsSayAA0efgaB10PermissionOGSgvg",
                 "moduleName": "YouVersionPlatformCore",
                 "implicit": true,
                 "declAttributes": [
@@ -5841,17 +5600,25 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                "name": "Optional",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      }
+                    ],
+                    "usr": "s:Sa"
                   }
                 ],
-                "usr": "s:Sa"
+                "usr": "s:Sq"
               },
               {
                 "kind": "TypeNominal",
@@ -5914,15 +5681,15 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07expiresF007refreshJ002idJ011permissions9yvpUserId4name14profilePicture5emailACSSSg_A3MSayAA0efgaB10PermissionOGA4Mtcfc",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07expiresF007refreshJ002idJ011permissions9yvpUserId4name14profilePicture5emailACSSSg_A3MSayAA0efgaB10PermissionOGA4Mtcfc",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07expiresF007refreshJ002idJ011permissions9yvpUserId4name14profilePicture5emailACSSSg_A3MSayAA0efgaB10PermissionOGSgA4Mtcfc",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07expiresF007refreshJ002idJ011permissions9yvpUserId4name14profilePicture5emailACSSSg_A3MSayAA0efgaB10PermissionOGSgA4Mtcfc",
             "moduleName": "YouVersionPlatformCore",
             "init_kind": "Designated"
           },
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(accessToken:refreshToken:idToken:expiryDate:)",
+            "printedName": "init(accessToken:refreshToken:idToken:expiryDate:permissions:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -5985,11 +5752,34 @@
                   }
                 ],
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07refreshJ002idJ010expiryDateACSSSg_A2H10Foundation0N0VSgtcfc",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07refreshJ002idJ010expiryDateACSSSg_A2H10Foundation0N0VSgtcfc",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07refreshJ002idJ010expiryDate11permissionsACSSSg_A2I10Foundation0N0VSgSayAA0efgaB10PermissionOGSgtcfc",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB6ResultV11accessToken07refreshJ002idJ010expiryDate11permissionsACSSSg_A2I10Foundation0N0VSgSayAA0efgaB10PermissionOGSgtcfc",
             "moduleName": "YouVersionPlatformCore",
             "init_kind": "Designated"
           }
@@ -7776,14 +7566,14 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "DataExchangePermission",
-                "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                "name": "SignInWithYouVersionPermission",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0aB3APIO13hasPermissionySbAA012DataExchangeG0OFZ",
-            "mangledName": "$s22YouVersionPlatformCore0aB3APIO13hasPermissionySbAA012DataExchangeG0OFZ",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO13hasPermissionySbAA010SignInWithabG0OFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO13hasPermissionySbAA010SignInWithabG0OFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "isFromExtension": true,
@@ -7808,13 +7598,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Set",
-                    "printedName": "Swift.Set<YouVersionPlatformCore.DataExchangePermission>",
+                    "printedName": "Swift.Set<YouVersionPlatformCore.SignInWithYouVersionPermission>",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "DataExchangePermission",
-                        "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                       }
                     ],
                     "usr": "s:Sh"
@@ -7843,8 +7633,8 @@
                   }
                 ],
                 "declKind": "Func",
-                "usr": "s:22YouVersionPlatformCore0aB3APIO12DataExchangeO11updateToken15withPermissions06accessI07sessionAA0fgI0VShyAA0fG10PermissionOG_SSSgSo12NSURLSessionCtYaKFZ",
-                "mangledName": "$s22YouVersionPlatformCore0aB3APIO12DataExchangeO11updateToken15withPermissions06accessI07sessionAA0fgI0VShyAA0fG10PermissionOG_SSSgSo12NSURLSessionCtYaKFZ",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO12DataExchangeO11updateToken15withPermissions06accessI07sessionAA0fgI0VShyAA010SignInWithaB10PermissionOG_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO12DataExchangeO11updateToken15withPermissions06accessI07sessionAA0fgI0VShyAA010SignInWithaB10PermissionOG_SSSgSo12NSURLSessionCtYaKFZ",
                 "moduleName": "YouVersionPlatformCore",
                 "static": true,
                 "throwing": true,
@@ -22075,8 +21865,8 @@
           },
           {
             "kind": "Function",
-            "name": "saveDataExchangePermissions",
-            "printedName": "saveDataExchangePermissions(_:)",
+            "name": "savePermissions",
+            "printedName": "savePermissions(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -22086,21 +21876,21 @@
               {
                 "kind": "TypeNominal",
                 "name": "Array",
-                "printedName": "[YouVersionPlatformCore.DataExchangePermission]",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "DataExchangePermission",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                    "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                   }
                 ],
                 "usr": "s:Sa"
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV27saveDataExchangePermissionsyySayAA0gH10PermissionOGFZ",
-            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV27saveDataExchangePermissionsyySayAA0gH10PermissionOGFZ",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "funcSelfKind": "NonMutating"

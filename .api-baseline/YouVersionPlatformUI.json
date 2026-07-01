@@ -481,21 +481,21 @@
               {
                 "kind": "TypeNominal",
                 "name": "Array",
-                "printedName": "[YouVersionPlatformCore.DataExchangePermission]",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "DataExchangePermission",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                    "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                   }
                 ],
                 "usr": "s:Sa"
               }
             ],
             "declKind": "Var",
-            "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core0eF10PermissionOGvp",
-            "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core0eF10PermissionOGvp",
+            "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core010SignInWithaB10PermissionOGvp",
+            "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core010SignInWithaB10PermissionOGvp",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "HasStorage"
@@ -511,21 +511,21 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Array",
-                    "printedName": "[YouVersionPlatformCore.DataExchangePermission]",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "DataExchangePermission",
-                        "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                        "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                       }
                     ],
                     "usr": "s:Sa"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core0eF10PermissionOGvg",
-                "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core0eF10PermissionOGvg",
+                "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core010SignInWithaB10PermissionOGvg",
+                "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV18grantedPermissionsSay0abC4Core010SignInWithaB10PermissionOGvg",
                 "moduleName": "YouVersionPlatformUI",
                 "implicit": true,
                 "declAttributes": [
@@ -555,21 +555,21 @@
               {
                 "kind": "TypeNominal",
                 "name": "Array",
-                "printedName": "[YouVersionPlatformCore.DataExchangePermission]",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "DataExchangePermission",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                    "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                   }
                 ],
                 "usr": "s:Sa"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV6status18grantedPermissionsA2C6StatusO_Say0abC4Core0eF10PermissionOGtcfc",
-            "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV6status18grantedPermissionsA2C6StatusO_Say0abC4Core0eF10PermissionOGtcfc",
+            "usr": "s:20YouVersionPlatformUI25DataExchangeRequestResultV6status18grantedPermissionsA2C6StatusO_Say0abC4Core010SignInWithaB10PermissionOGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI25DataExchangeRequestResultV6status18grantedPermissionsA2C6StatusO_Say0abC4Core010SignInWithaB10PermissionOGtcfc",
             "moduleName": "YouVersionPlatformUI",
             "init_kind": "Designated"
           },
@@ -731,21 +731,21 @@
               {
                 "kind": "TypeNominal",
                 "name": "Set",
-                "printedName": "Swift.Set<YouVersionPlatformCore.DataExchangePermission>",
+                "printedName": "Swift.Set<YouVersionPlatformCore.SignInWithYouVersionPermission>",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "DataExchangePermission",
-                    "printedName": "YouVersionPlatformCore.DataExchangePermission",
-                    "usr": "s:22YouVersionPlatformCore22DataExchangePermissionO"
+                    "name": "SignInWithYouVersionPermission",
+                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                   }
                 ],
                 "usr": "s:Sh"
               }
             ],
             "declKind": "Func",
-            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsAA0eF13RequestResultVShy0abC4Core0eF10PermissionOG_tYaKF",
-            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsAA0eF13RequestResultVShy0abC4Core0eF10PermissionOG_tYaKF",
+            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsAA0eF13RequestResultVShy0abC4Core010SignInWithaB10PermissionOG_tYaKF",
+            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsAA0eF13RequestResultVShy0abC4Core010SignInWithaB10PermissionOG_tYaKF",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "Custom"
@@ -12896,8 +12896,8 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Set",
-                "printedName": "Swift.Set<YouVersionPlatformCore.SignInWithYouVersionPermission>",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -12906,7 +12906,7 @@
                     "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
                   }
                 ],
-                "usr": "s:Sh"
+                "usr": "s:Sa"
               },
               {
                 "kind": "TypeNominal",
@@ -12916,8 +12916,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVShyAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
-            "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVShyAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSayAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSayAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
             "moduleName": "YouVersionPlatformUI",
             "static": true,
             "declAttributes": [
