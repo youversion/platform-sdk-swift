@@ -40,9 +40,9 @@ public struct DataExchangeRequestResult: Equatable, Sendable {
     }
 
     public let status: Status
-    public let grantedPermissions: [DataExchangePermission]
+    public let grantedPermissions: [SignInWithYouVersionPermission]
 
-    public init(status: Status, grantedPermissions: [DataExchangePermission]) {
+    public init(status: Status, grantedPermissions: [SignInWithYouVersionPermission]) {
         self.status = status
         self.grantedPermissions = grantedPermissions
     }
@@ -71,7 +71,7 @@ public struct DataExchangeSession {
     /// - Throws: An error if the token request or browser session fails.
     @MainActor
     public func requestDataExchange(
-        permissions: Set<DataExchangePermission>
+        permissions: Set<SignInWithYouVersionPermission>
     ) async throws -> DataExchangeRequestResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
@@ -99,7 +99,7 @@ public struct DataExchangeSession {
         }
 
         if result.isGranted {
-            YouVersionPlatformConfiguration.saveDataExchangePermissions(result.grantedPermissions)
+            YouVersionPlatformConfiguration.savePermissions(result.grantedPermissions)
         }
 
         return result
@@ -113,8 +113,14 @@ public struct DataExchangeSession {
             grantedPermissions: queryItems
                 .filter { $0.name == "granted_permissions" }
                 .compactMap(\.value)
-                .map { DataExchangePermission(rawValue: $0) }
+                .flatMap { permissions(from: $0) }
         )
+    }
+
+    private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+        value
+            .split { $0 == "," || $0 == " " }
+            .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
     }
 
     private func dataExchangeSession(

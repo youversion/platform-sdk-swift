@@ -18,19 +18,19 @@ struct BibleReaderAuthentication {
     private let readIsSignedIn: @MainActor () -> Bool
     private let validateToken: @MainActor () async -> Bool
     private let performSignOut: @MainActor () -> Void
-    private let readDataExchangePermission: @MainActor (DataExchangePermission) -> Bool
+    private let readPermission: @MainActor (SignInWithYouVersionPermission) -> Bool
 
     /// Creates an authentication dependency for the reader.
     init(
         isSignedIn: @escaping @MainActor () -> Bool,
         hasValidToken: @escaping @MainActor () async -> Bool,
         signOut: @escaping @MainActor () -> Void,
-        hasPermission: @escaping @MainActor (DataExchangePermission) -> Bool
+        hasPermission: @escaping @MainActor (SignInWithYouVersionPermission) -> Bool
     ) {
         self.readIsSignedIn = isSignedIn
         self.validateToken = hasValidToken
         self.performSignOut = signOut
-        self.readDataExchangePermission = hasPermission
+        self.readPermission = hasPermission
     }
 
     /// Whether the current authentication state can perform signed-in reader actions.
@@ -53,7 +53,7 @@ struct BibleReaderAuthentication {
 
     /// Whether the current user has granted a just-in-time data exchange permission.
     @MainActor
-    func hasPermission(_ permission: DataExchangePermission) -> Bool {
-        readDataExchangePermission(permission)
+    func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+        readPermission(permission)
     }
 }

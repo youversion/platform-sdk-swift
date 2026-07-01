@@ -8,11 +8,12 @@ import Testing
 extension ConfigurationStateTests {
     @Suite struct DataExchangeAPITests {
         
-        @Test func permissionRawValueAndDescription() {
-            #expect(DataExchangePermission.highlights.rawValue == "highlights")
-            #expect(DataExchangePermission.highlights.description == "highlights")
-            #expect(DataExchangePermission(rawValue: "notes") == .unknown("notes"))
-            #expect(DataExchangePermission(rawValue: "notes").rawValue == "notes")
+        @Test func permissionRawValueAndDescription() throws {
+            #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
+            #expect(SignInWithYouVersionPermission.highlights.description == "highlights")
+            let permission = try #require(SignInWithYouVersionPermission(rawValue: "notes"))
+            #expect(permission == .unknown("notes"))
+            #expect(permission.rawValue == "notes")
         }
         
         @MainActor
@@ -40,7 +41,7 @@ extension ConfigurationStateTests {
             }
             
             let result = try await YouVersionAPI.DataExchange.updateToken(
-                withPermissions: [.highlights],
+                withPermissions: [.openid, .profile, .email, .highlights],
                 accessToken: "access-token",
                 session: session
             )

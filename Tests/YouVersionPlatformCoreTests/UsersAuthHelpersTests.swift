@@ -71,7 +71,7 @@ extension ConfigurationStateTests {
                 callbackURL: callbackURL
             )
             
-            #expect(Set(result.permissions) == Set([.openid, .email, .highlights]))
+            #expect(Set(result.permissions ?? []) == Set([.openid, .email, .highlights]))
         }
         
         @Test func extractResultUsesTokenScopePermissionsWhenCallbackDoesNotIncludeGrantedPermissions() throws {
@@ -88,7 +88,7 @@ extension ConfigurationStateTests {
             #expect(result.permissions == [.openid, .email])
         }
         
-        @Test func extractResultIgnoresUnknownGrantedPermissionsFromCallbackURL() throws {
+        @Test func extractResultPreservesUnknownGrantedPermissionsFromCallbackURL() throws {
             let callbackURL = URL(string: "youversionauth://callback?granted_permissions=unknown,highlights")!
             let token = try makeTestJWT(claims: ["nonce": "xyz"])
             let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
@@ -99,7 +99,7 @@ extension ConfigurationStateTests {
                 callbackURL: callbackURL
             )
             
-            #expect(Set(result.permissions) == Set([.openid, .email, .highlights]))
+            #expect(Set(result.permissions ?? []) == Set([.openid, .email, .highlights, .unknown("unknown")]))
         }
         
         @Test func extractResultFailsBadNonce() throws {
@@ -142,7 +142,7 @@ extension ConfigurationStateTests {
                 "access_token": "new-access",
                 "expires_in": "7200",
                 "refresh_token": "new-refresh",
-                "scope": "ignored"
+                "scope": "openid,email"
             ]
             let responseData = try JSONEncoder().encode(responsePayload)
             
@@ -168,7 +168,7 @@ extension ConfigurationStateTests {
             #expect(result.accessToken == "new-access")
             #expect(result.refreshToken == "new-refresh")
             #expect(result.idToken == "id-token")
-            #expect(result.permissions.isEmpty)
+            #expect(result.permissions == [.openid, .email])
             #expect(result.yvpUserId == nil)
             
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)

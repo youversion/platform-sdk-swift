@@ -316,9 +316,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                     contextProvider: contextProvider
                 )
                 await updateSignInState()
-                if result.permissions.contains(.highlights) {
-                    // TODO: fix that the .highlights permission exists in two enums.
-                    YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
+                if let permissions = result.permissions, permissions.contains(.highlights) {
                     continuePendingHighlightAfterSignIn()
                 } else {
                     clearPendingHighlight()
@@ -370,7 +368,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 return
             }
             pendingHighlight = PendingHighlight(references: references, color: color)
-            startSignInFlow = true
+            showingSignInSheet = true
             return
         }
         

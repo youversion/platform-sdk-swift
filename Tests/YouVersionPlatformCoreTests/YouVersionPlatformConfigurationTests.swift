@@ -177,14 +177,30 @@ extension ConfigurationStateTests {
             #expect(YouVersionPlatformConfiguration.accessToken == nil)
         }
 
-        // MARK: - Data exchange permissions
+        // MARK: - Permissions
 
-        @Test func saveDataExchangePermissionsPersistsPermission() async {
+        @Test func savePermissionsPersistsPermission() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
-            YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
+            YouVersionPlatformConfiguration.savePermissions([.highlights])
 
             #expect(YouVersionAPI.hasPermission(.highlights))
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func authDataReturnsSavedPermissions() async throws {
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry
+            )
+            YouVersionPlatformConfiguration.savePermissions([.profile, .highlights, .unknown("notes")])
+
+            let authData = try #require(YouVersionPlatformConfiguration.authData)
+            #expect(authData.permissions == [.highlights, .unknown("notes"), .profile])
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
@@ -196,14 +212,15 @@ extension ConfigurationStateTests {
 
         @Test func hasPermissionReturnsFalseForUnknownStoredPermission() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
-            UserDefaults.standard.set(["future-permission"], forKey: dataExchangePermissionsKey)
+            UserDefaults.standard.set(["future-permission"], forKey: permissionsKey)
 
             #expect(!YouVersionAPI.hasPermission(.highlights))
+            #expect(YouVersionAPI.hasPermission(.unknown("future-permission")))
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
-        @Test func clearAuthTokensClearsDataExchangePermissions() async {
-            YouVersionPlatformConfiguration.saveDataExchangePermissions([.highlights])
+        @Test func clearAuthTokensClearsPermissions() async {
+            YouVersionPlatformConfiguration.savePermissions([.highlights])
 
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
@@ -221,4 +238,4 @@ extension ConfigurationStateTests {
     }
 }
 
-private let dataExchangePermissionsKey = "YouVersionPlatformDataExchangePermissions"
+private let permissionsKey = "YouVersionPlatformDataExchangePermissions"

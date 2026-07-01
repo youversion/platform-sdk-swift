@@ -5,13 +5,13 @@ public struct SignInWithYouVersionResult: Sendable {
     public let expiryDate: Date?
     public let refreshToken: String?
     public let idToken: String?
-    public let permissions: [SignInWithYouVersionPermission]
+    public let permissions: [SignInWithYouVersionPermission]?
     public let yvpUserId: String?
     public let name: String?
     public let profilePicture: String?
     public let email: String?
 
-    public init(accessToken: String?, expiresIn: String?, refreshToken: String?, idToken: String?, permissions: [SignInWithYouVersionPermission],
+    public init(accessToken: String?, expiresIn: String?, refreshToken: String?, idToken: String?, permissions: [SignInWithYouVersionPermission]?,
                 yvpUserId: String?, name: String? = nil, profilePicture: String? = nil, email: String? = nil) {
         self.accessToken = accessToken
         let seconds = Int(expiresIn ?? "0") ?? 0
@@ -24,12 +24,18 @@ public struct SignInWithYouVersionResult: Sendable {
         self.profilePicture = profilePicture
         self.email = email
     }
-    public init(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?) {
+    public init(
+        accessToken: String?,
+        refreshToken: String?,
+        idToken: String?,
+        expiryDate: Date?,
+        permissions: [SignInWithYouVersionPermission]? = []
+    ) {
         self.accessToken = accessToken
         self.expiryDate = expiryDate
         self.refreshToken = refreshToken
         self.idToken = idToken
-        self.permissions = []
+        self.permissions = permissions
         self.yvpUserId = nil
         self.name = nil
         self.profilePicture = nil

@@ -32,6 +32,9 @@ public enum YouVersionAPI {
                 idToken: result.idToken,
                 expiryDate: result.expiryDate
             )
+            if let permissions = result.permissions {
+                YouVersionPlatformConfiguration.savePermissions(permissions)
+            }
         }
         return true
     }

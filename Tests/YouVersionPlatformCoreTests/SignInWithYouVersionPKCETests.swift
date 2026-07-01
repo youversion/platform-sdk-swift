@@ -38,5 +38,22 @@ import Testing
         #expect(queryItems["scope"]?.contains("email") == true)
         #expect(queryItems["redirect_uri"] == redirectURL.absoluteString)
     }
-}
 
+    @MainActor
+    @Test func makeAuthorizationRequestSeparatesScopesAndRequestedPermissions() throws {
+        let redirectURL = URL(string: "youversionauth://callback")!
+
+        let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
+            appKey: "test-app",
+            permissions: [.profile, .highlights, .unknown("notes")],
+            redirectURL: redirectURL
+        )
+
+        let components = try #require(URLComponents(url: request.url, resolvingAgainstBaseURL: false))
+        let queryItemsArray = try #require(components.queryItems)
+        let queryItems = Dictionary(uniqueKeysWithValues: queryItemsArray.map { ($0.name, $0.value ?? "") })
+
+        #expect(queryItems["scope"] == "openid profile")
+        #expect(queryItems["requested_permissions"] == "highlights,notes")
+    }
+}
