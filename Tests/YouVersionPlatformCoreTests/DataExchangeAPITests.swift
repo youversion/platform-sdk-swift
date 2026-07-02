@@ -11,7 +11,7 @@ extension ConfigurationStateTests {
         @Test func permissionRawValueAndDescription() throws {
             #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
             #expect(SignInWithYouVersionPermission.highlights.description == "highlights")
-            let permission = try #require(SignInWithYouVersionPermission(rawValue: "notes"))
+            let permission = SignInWithYouVersionPermission(rawValue: "notes")
             #expect(permission == .unknown("notes"))
             #expect(permission.rawValue == "notes")
         }

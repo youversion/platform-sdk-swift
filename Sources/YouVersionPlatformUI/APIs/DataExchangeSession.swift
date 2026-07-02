@@ -120,7 +120,7 @@ public struct DataExchangeSession {
     private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
         value
             .split { $0 == "," || $0 == " " }
-            .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+            .map { SignInWithYouVersionPermission(rawValue: String($0)) }
     }
 
     private func dataExchangeSession(

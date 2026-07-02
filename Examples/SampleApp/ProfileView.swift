@@ -53,9 +53,6 @@ struct ProfileView: View {
                 // The user is signed in! Their accessToken will automatically be saved
                 // to UserDefaults on this device, so they don't have to log in again next time.
                 // Now you may use accessors like YouVersionAPI.Users.currentUserName.
-                
-                // To prove out the UX: immediately request the highlights permission
-                requestHighlightsPermission()
             } catch {
                 print("Sign In failed: \(error.localizedDescription)")
             }

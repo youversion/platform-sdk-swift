@@ -9,7 +9,7 @@ import Testing
         #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
         #expect(SignInWithYouVersionPermission.email.rawValue == "email")
         #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
-        let permission = try #require(SignInWithYouVersionPermission(rawValue: "notes"))
+        let permission = SignInWithYouVersionPermission(rawValue: "notes")
         #expect(permission == .unknown("notes"))
         #expect(permission.rawValue == "notes")
         #expect(SignInWithYouVersionPermission.allCases == [.openid, .profile, .email, .highlights])

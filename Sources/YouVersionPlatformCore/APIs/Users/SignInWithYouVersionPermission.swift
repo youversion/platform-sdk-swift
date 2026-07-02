@@ -14,11 +14,8 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
         .highlights
     ]
 
-    public init?(rawValue: String) {
-        self.init(permissionRawValue: rawValue)
-    }
-
-    init(permissionRawValue rawValue: String) {
+    /// Creates a permission from a raw permission value, preserving unrecognized values as ``unknown(_:)``.
+    public init(rawValue: String) {
         switch rawValue {
         case "openid":
             self = .openid
@@ -52,7 +49,7 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = SignInWithYouVersionPermission(permissionRawValue: try container.decode(String.self))
+        self = SignInWithYouVersionPermission(rawValue: try container.decode(String.self))
     }
 
     public func encode(to encoder: any Encoder) throws {

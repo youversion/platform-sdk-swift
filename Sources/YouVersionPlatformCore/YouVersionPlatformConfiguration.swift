@@ -39,7 +39,7 @@ public struct YouVersionPlatformConfiguration {
     static var permissions: [SignInWithYouVersionPermission] {
         UserDefaults.standard
             .stringArray(forKey: permissionsKey)?
-            .map { SignInWithYouVersionPermission(permissionRawValue: $0) } ?? []
+            .map { SignInWithYouVersionPermission(rawValue: $0) } ?? []
     }
 
     @MainActor
@@ -129,6 +129,10 @@ public struct YouVersionPlatformConfiguration {
             .map(\.rawValue)
             .sorted()
         UserDefaults.standard.set(rawValues, forKey: permissionsKey)
+    }
+    
+    public static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+        permissions.contains(permission)
     }
 
     private static func postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: Bool) {
