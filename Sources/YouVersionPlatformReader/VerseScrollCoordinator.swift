@@ -45,12 +45,20 @@ final class VerseScrollCoordinator {
         return anchors.blockFirstVerse(forTargetVerse: verse)
     }
 
+    /// True when the target's chapter is already rendered — its anchors are held. The scroll
+    /// can then run off the target's arrival, without waiting for anchors to fire. This is
+    /// the path a jump to a verse in the already-displayed chapter takes.
+    private var isTargetChapterRendered: Bool {
+        viewModel.scrollTarget?.chapter == anchors?.chapter
+    }
+
     init(viewModel: BibleReaderViewModel) {
         self.viewModel = viewModel
     }
 
-    /// Marks the scroll as pending, arms the safety timeout, and scrolls if the target
-    /// is already on the on-screen chapter.
+    /// Marks the scroll as pending and arms the safety timeout. If the target's chapter is
+    /// already rendered, scrolls immediately; otherwise the scroll waits for that chapter's
+    /// anchors to arrive via ``handleAnchors(_:proxy:)``.
     func handleScrollTarget(proxy: ScrollViewProxy) {
         isScrollPending = true
 
@@ -65,7 +73,9 @@ final class VerseScrollCoordinator {
             isScrollPending = false
         }
 
-        scrollToResolvedTarget(proxy: proxy)
+        if isTargetChapterRendered {
+            scrollToResolvedTarget(proxy: proxy)
+        }
     }
 
     /// Records the latest chapter's anchors and scrolls if they're what the target was
@@ -83,17 +93,16 @@ final class VerseScrollCoordinator {
         scrollToResolvedTarget(proxy: proxy)
     }
 
-    /// Scrolls to the resolved target, if there is one. Clears the scroll target, then
-    /// re-issues the scroll across several frames before clearing the pending state: the
-    /// target block may not exist on the first try (blocks lay out over frames), and
-    /// `scrollTo` is idempotent once it does. Single-flight: a new scroll cancels any
-    /// pending one.
+    /// Scrolls to the resolved target, if there is one, re-issuing the scroll across several
+    /// frames since the target block may not exist on the first try (blocks lay out over
+    /// frames) and `scrollTo` is idempotent once it does. The scroll target and pending
+    /// state are held until the scroll completes — cleared together at the end — so a repeat
+    /// ``handleAnchors(_:proxy:)`` mid-scroll still sees the chapter it's scrolling to.
+    /// Single-flight: a new scroll cancels any pending one.
     private func scrollToResolvedTarget(proxy: ScrollViewProxy) {
         guard let verseID = resolvedScrollTarget else {
             return
         }
-
-        viewModel.clearScrollTarget()
 
         safetyTask?.cancel()
         scrollTask?.cancel()
@@ -108,6 +117,7 @@ final class VerseScrollCoordinator {
                 }
                 proxy.scrollTo(verseID, anchor: .top)
             }
+            self?.viewModel.clearScrollTarget()
             self?.isScrollPending = false
         }
     }

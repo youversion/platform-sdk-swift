@@ -172,17 +172,13 @@ private struct ReaderContent: View {
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }
 
-    private var renderedReference: BibleReference {
-        let reference = viewModel.reference
-        if viewModel.showsFullChapter {
-            // Drop the verse from the reference
-            return BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
-        } else {
-            return reference
-        }
+    // MARK: - Helper views
+    private var progressView: some View {
+        ProgressView()
+            .tint(viewModel.readerTextMutedColor)
+            .padding(.vertical, 48)
     }
 
-    // MARK: - Helper views
     private var header: some View {
         HStack {
             if viewModel.version != nil {
@@ -287,7 +283,7 @@ private struct ReaderContent: View {
                             BibleReaderIntroView()
                         } else {
                             BibleTextView(
-                                renderedReference,
+                                viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
                                 textOptions: viewModel.textOptions,
                                 selectedVerses: $viewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
@@ -307,15 +303,18 @@ private struct ReaderContent: View {
                     // Hide the content until the verse scroll lands
                     // to avoid flashing.
                     .opacity(verseScrollCoordinator.isScrollPending ? 0 : 1)
+                    .overlay(alignment: .top) {
+                        if verseScrollCoordinator.isScrollPending {
+                            progressView
+                        }
+                    }
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.frame(in: .named("scrollView")).minY
                     } action: { newOffset in
                         viewModel.handleScroll(offset: newOffset)
                     }
                 } else {
-                    ProgressView()
-                        .tint(viewModel.readerTextMutedColor)
-                        .padding(.vertical, 48)
+                    progressView
                 }
             }
             .coordinateSpace(.named("scrollView"))
