@@ -20,11 +20,11 @@ final class VerseScrollCoordinator {
     /// How long a scroll stays pending before it's abandoned, in case the requested
     /// chapter never lays out and the scroll would otherwise never complete.
     private let safetyTimeout: Duration = .seconds(2)
-    /// Number of `scrollTo` attempts, one frame apart, since a large chapter's blocks
-    /// lay out over several frames and the target may not exist on the first tries.
-    private let scrollAttempts = 10
-    /// Roughly one 60Hz frame, between scroll attempts.
-    private let frameInterval: Duration = .milliseconds(16)
+    /// Roughly one 60Hz frame. The blocks are laid out in a single pass (the reader isn't
+    /// lazy), but a `scrollTo` issued in the same runloop tick the anchors arrive lands at
+    /// the chapter top — the layout isn't committed yet. Waiting one frame is enough for the
+    /// target block's position to resolve, for both short and long chapters.
+    private let settleDelay: Duration = .milliseconds(16)
 
     /// True while a verse is requested but not yet scrolled to.
     private(set) var isScrollPending = false
@@ -93,11 +93,10 @@ final class VerseScrollCoordinator {
         scrollToResolvedTarget(proxy: proxy)
     }
 
-    /// Scrolls to the resolved target, if there is one, re-issuing the scroll across several
-    /// frames since the target block may not exist on the first try (blocks lay out over
-    /// frames) and `scrollTo` is idempotent once it does. The scroll target and pending
-    /// state are held until the scroll completes — cleared together at the end — so a repeat
-    /// ``handleAnchors(_:proxy:)`` mid-scroll still sees the chapter it's scrolling to.
+    /// Scrolls to the resolved target, if there is one, after a one-frame settle so the
+    /// target block's position is committed (see ``settleDelay``). The scroll target and
+    /// pending state are held until the scroll completes — cleared together at the end — so a
+    /// repeat ``handleAnchors(_:proxy:)`` mid-scroll still sees the chapter it's scrolling to.
     /// Single-flight: a new scroll cancels any pending one.
     private func scrollToResolvedTarget(proxy: ScrollViewProxy) {
         guard let verseID = resolvedScrollTarget else {
@@ -106,17 +105,13 @@ final class VerseScrollCoordinator {
 
         safetyTask?.cancel()
         scrollTask?.cancel()
-        scrollTask = Task { @MainActor [weak self, scrollAttempts, frameInterval] in
-            for attempt in 0..<scrollAttempts {
-                if attempt > 0 {
-                    // swiftlint:disable:next common_debug_statements
-                    try? await Task.sleep(for: frameInterval)
-                    if Task.isCancelled {
-                        return
-                    }
-                }
-                proxy.scrollTo(verseID, anchor: .top)
+        scrollTask = Task { @MainActor [weak self, settleDelay] in
+            // swiftlint:disable:next common_debug_statements
+            try? await Task.sleep(for: settleDelay)
+            if Task.isCancelled {
+                return
             }
+            proxy.scrollTo(verseID, anchor: .top)
             self?.viewModel.clearScrollTarget()
             self?.isScrollPending = false
         }
