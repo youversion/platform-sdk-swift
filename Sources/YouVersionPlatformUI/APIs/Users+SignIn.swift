@@ -88,9 +88,9 @@ public extension YouVersionAPI.Users {
                             accessToken: result.accessToken,
                             refreshToken: result.refreshToken,
                             idToken: result.idToken,
-                            expiryDate: result.expiryDate
+                            expiryDate: result.expiryDate,
+                            permissions: result.permissions
                         )
-                        YouVersionPlatformConfiguration.savePermissions(result.permissions ?? [])
                         continuation.resume(returning: result)
                     } catch {
                         continuation.resume(throwing: error)

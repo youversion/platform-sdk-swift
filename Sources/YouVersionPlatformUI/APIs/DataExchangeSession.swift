@@ -98,8 +98,14 @@ public struct DataExchangeSession {
             session.start()
         }
 
-        if result.isGranted {
-            YouVersionPlatformConfiguration.savePermissions(result.grantedPermissions)
+        if result.isGranted, let authdata = YouVersionPlatformConfiguration.authData {
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: authdata.accessToken,
+                refreshToken: authdata.refreshToken,
+                idToken: authdata.idToken,
+                expiryDate: authdata.expiryDate,
+                permissions: result.grantedPermissions
+            )
         }
 
         return result

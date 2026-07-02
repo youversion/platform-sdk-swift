@@ -222,9 +222,16 @@ extension ConfigurationStateTests {
         // MARK: - Permissions
 
         @Test func savePermissionsPersistsPermission() async {
+            let expiry = Date(timeIntervalSinceNow: 3600)
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
-            YouVersionPlatformConfiguration.savePermissions([.highlights])
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry,
+                permissions: [.highlights]
+            )
 
             #expect(YouVersionAPI.hasPermission(.highlights))
             await YouVersionPlatformConfiguration.clearAuthTokens()
@@ -237,9 +244,9 @@ extension ConfigurationStateTests {
                 accessToken: "access-1",
                 refreshToken: "refresh-1",
                 idToken: nil,
-                expiryDate: expiry
+                expiryDate: expiry,
+                permissions: [.profile, .highlights, .unknown("notes")]
             )
-            YouVersionPlatformConfiguration.savePermissions([.profile, .highlights, .unknown("notes")])
 
             let authData = try #require(YouVersionPlatformConfiguration.authData)
             #expect(authData.permissions == [.highlights, .unknown("notes"), .profile])
@@ -262,7 +269,14 @@ extension ConfigurationStateTests {
         }
 
         @Test func clearAuthTokensClearsPermissions() async {
-            YouVersionPlatformConfiguration.savePermissions([.highlights])
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry,
+                permissions: [.highlights]
+            )
 
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
