@@ -162,7 +162,7 @@ import Testing
     }
 
     @Test
-    func pendingHighlightShowsDataExchangeConfirmationAfterSignInSucceeds() async {
+    func pendingHighlightStartsDataExchangeFlowDirectlyAfterSignInSucceeds() async {
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(

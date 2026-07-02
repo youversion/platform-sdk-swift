@@ -34,10 +34,12 @@ public struct YouVersionPlatformConfiguration {
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
     private static let permissionsKey = "YouVersionPlatformDataExchangePermissions"
 
+    public static let authStateDidChangeNotification = Notification.Name("YouVersionPlatformAuthStateDidChange")
+
     static var permissions: [SignInWithYouVersionPermission] {
         UserDefaults.standard
             .stringArray(forKey: permissionsKey)?
-            .map { SignInWithYouVersionPermission(permissionRawValue: $0) } ?? []
+            .map { SignInWithYouVersionPermission(rawValue: $0) } ?? []
     }
 
     @MainActor
@@ -84,10 +86,12 @@ public struct YouVersionPlatformConfiguration {
 
     @MainActor
     public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?) {
+        let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
         UserDefaults.standard.set(idToken, forKey: idTokenKey)
         UserDefaults.standard.set(expiryDate, forKey: expiryDateKey)
+        postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
     }
 
     @MainActor
@@ -125,6 +129,17 @@ public struct YouVersionPlatformConfiguration {
             .map(\.rawValue)
             .sorted()
         UserDefaults.standard.set(rawValues, forKey: permissionsKey)
+    }
+    
+    public static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+        permissions.contains(permission)
+    }
+
+    private static func postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: Bool) {
+        guard wasSignedIn != (accessToken != nil) else {
+            return
+        }
+        NotificationCenter.default.post(name: authStateDidChangeNotification, object: nil)
     }
 
 }

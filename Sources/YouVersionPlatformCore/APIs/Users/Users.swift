@@ -269,7 +269,7 @@ public extension YouVersionAPI {
         private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
             value
                 .split { $0 == "," || $0 == " " }
-                .map { SignInWithYouVersionPermission(permissionRawValue: String($0)) }
+                .map { SignInWithYouVersionPermission(rawValue: String($0)) }
         }
 
         // MARK: - Public Accessors

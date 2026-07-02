@@ -4636,17 +4636,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "SignInWithYouVersionPermission",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
               },
               {
                 "kind": "TypeNominal",
@@ -4656,8 +4648,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
-            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSgSS_tcfc",
+            "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSS_tcfc",
+            "mangledName": "$s22YouVersionPlatformCore010SignInWithaB10PermissionO8rawValueACSS_tcfc",
             "moduleName": "YouVersionPlatformCore",
             "init_kind": "Designated"
           },
@@ -21481,6 +21473,69 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "authStateDidChangeNotification",
+            "printedName": "authStateDidChangeNotification",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Name",
+                "printedName": "Foundation.Notification.Name",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Name",
+                    "printedName": "Foundation.NSNotification.Name",
+                    "usr": "c:@T@NSNotificationName"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV30authStateDidChangeNotificationSo18NSNotificationNameavpZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV30authStateDidChangeNotificationSo18NSNotificationNameavpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Name",
+                    "printedName": "Foundation.Notification.Name",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Name",
+                        "printedName": "Foundation.NSNotification.Name",
+                        "usr": "c:@T@NSNotificationName"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV30authStateDidChangeNotificationSo18NSNotificationNameavgZ",
+                "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV30authStateDidChangeNotificationSo18NSNotificationNameavgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "configure",
             "printedName": "configure(appKey:apiHost:appName:isSignInEnabled:signInPromptMessage:permittedLanguageTags:permittedVersionIds:)",
@@ -21891,6 +21946,31 @@
             "declKind": "Func",
             "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
             "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hasPermission",
+            "printedName": "hasPermission(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignInWithYouVersionPermission",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV13hasPermissionySbAA010SignInWithabG0OFZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV13hasPermissionySbAA010SignInWithabG0OFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "funcSelfKind": "NonMutating"

@@ -177,6 +177,48 @@ extension ConfigurationStateTests {
             #expect(YouVersionPlatformConfiguration.accessToken == nil)
         }
 
+        @Test @MainActor func authStateDidChangeNotificationPostsWhenSignInStateChanges() async {
+            @MainActor final class NotificationCounter {
+                private(set) var count = 0
+
+                func increment() {
+                    count += 1
+                }
+            }
+
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            let counter = NotificationCounter()
+            let observer = NotificationCenter.default.addObserver(
+                forName: YouVersionPlatformConfiguration.authStateDidChangeNotification,
+                object: nil,
+                queue: nil
+            ) { _ in
+                MainActor.assumeIsolated {
+                    counter.increment()
+                }
+            }
+            defer {
+                NotificationCenter.default.removeObserver(observer)
+            }
+
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry
+            )
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-2",
+                refreshToken: "refresh-2",
+                idToken: nil,
+                expiryDate: expiry
+            )
+            YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(counter.count == 2)
+        }
+
         // MARK: - Permissions
 
         @Test func savePermissionsPersistsPermission() async {
