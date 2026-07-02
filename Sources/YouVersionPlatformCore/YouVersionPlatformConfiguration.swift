@@ -85,12 +85,15 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?) {
+    public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?, permissions: [SignInWithYouVersionPermission]? = nil) {
         let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
         UserDefaults.standard.set(idToken, forKey: idTokenKey)
         UserDefaults.standard.set(expiryDate, forKey: expiryDateKey)
+        if let permissions {
+            savePermissions(permissions)
+        }
         postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
     }
 
@@ -124,7 +127,7 @@ public struct YouVersionPlatformConfiguration {
         )
     }
 
-    public static func savePermissions(_ permissions: [SignInWithYouVersionPermission]) {
+    private static func savePermissions(_ permissions: [SignInWithYouVersionPermission]) {
         let rawValues = Set(Self.permissions + permissions)
             .map(\.rawValue)
             .sorted()

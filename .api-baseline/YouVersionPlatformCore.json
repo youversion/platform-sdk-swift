@@ -21713,7 +21713,7 @@
           {
             "kind": "Function",
             "name": "saveAuthData",
-            "printedName": "saveAuthData(accessToken:refreshToken:idToken:expiryDate:)",
+            "printedName": "saveAuthData(accessToken:refreshToken:idToken:expiryDate:permissions:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -21775,11 +21775,34 @@
                   }
                 ],
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignInWithYouVersionPermission",
+                        "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
+                        "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV12saveAuthData11accessToken07refreshJ002idJ010expiryDateySSSg_A2I10Foundation0N0VSgtFZ",
-            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV12saveAuthData11accessToken07refreshJ002idJ010expiryDateySSSg_A2I10Foundation0N0VSgtFZ",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV12saveAuthData11accessToken07refreshJ002idJ010expiryDate11permissionsySSSg_A2J10Foundation0N0VSgSayAA010SignInWithaB10PermissionOGSgtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV12saveAuthData11accessToken07refreshJ002idJ010expiryDate11permissionsySSSg_A2J10Foundation0N0VSgSayAA010SignInWithaB10PermissionOGSgtFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "declAttributes": [
@@ -21917,38 +21940,6 @@
                 "accessorKind": "get"
               }
             ]
-          },
-          {
-            "kind": "Function",
-            "name": "savePermissions",
-            "printedName": "savePermissions(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[YouVersionPlatformCore.SignInWithYouVersionPermission]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SignInWithYouVersionPermission",
-                    "printedName": "YouVersionPlatformCore.SignInWithYouVersionPermission",
-                    "usr": "s:22YouVersionPlatformCore010SignInWithaB10PermissionO"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
-            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV15savePermissionsyySayAA010SignInWithaB10PermissionOGFZ",
-            "moduleName": "YouVersionPlatformCore",
-            "static": true,
-            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "Function",
