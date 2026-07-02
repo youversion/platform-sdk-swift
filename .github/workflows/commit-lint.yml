@@ -29,12 +29,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test release scripts
+        # Exercises scripts/release-validate.mjs and
+        # scripts/release-warn-version-jump.mjs — the version-validation
+        # paths called by scripts/release.sh at release time. Running
+        # here on every PR catches Node / OS / shell regressions before
+        # they reach a live release dispatch. This job runs Node 20 on
+        # ubuntu-latest; release.yml runs Node lts/* on macos-26 — the
+        # cross-environment coverage guards against env-dependent drift.
+        run: bash scripts/test-release-scripts.sh
+
       - name: Lint commit messages
         id: commitlint
         run: |
           set +e
+          # Use `origin/<base ref>` as the lint range's lower bound, not
+          # `pull_request.base.sha`. `base.sha` is a snapshot of the base
+          # ref at PR-event time and goes stale: if commits land on the
+          # base branch after the PR's last sync (e.g. a release), they
+          # appear inside `base.sha..head.sha` when the PR pulls them in
+          # via merge, and the lint then flags commits that already
+          # passed on the base. `origin/<base ref>` is always current
+          # main on the runner (`fetch-depth: 0` above), so the range
+          # `origin/main..head.sha` is exactly "commits in this PR that
+          # are not yet on main" — what we actually want to lint.
           npx commitlint \
-            --from "${{ github.event.pull_request.base.sha }}" \
+            --from "origin/${{ github.event.pull_request.base.ref }}" \
             --to "${{ github.event.pull_request.head.sha }}" \
             --verbose > commitlint.log 2>&1
           STATUS=$?
@@ -128,6 +148,8 @@ jobs:
                 echo "### 🚨🚨🚨 Major version bump detected — \`v$CURRENT\` → \`v$NEXT\` (MAJOR)"
                 echo
                 echo 'The analyzer classified one or more commits as a major bump (a footer at start-of-line with the breaking-change token, or a `feat!:` / `fix!:` shorthand). If this is intentional, proceed. If this is prose accidentally tripping the parser, reword the offending commit body before merging — see the analyzer log below to identify which commit triggered the classification.'
+                echo
+                echo 'Because this PR introduces a breaking change, merging is **blocked by the `major-release-signoff` check** until a write-access collaborator comments with the precise version and a 🚀. See [RELEASING.md](./RELEASING.md#major-release-signoff) for the signoff format.'
               else
                 BUMP_LABEL="${RELEASE_TYPE:-release}"
                 echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` ($BUMP_LABEL)"

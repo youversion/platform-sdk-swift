@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct YouVersionPlatformConfigurationTests {
+    @Suite(.serialized) struct YouVersionPlatformConfigurationTests {
         
         // MARK: - configure
         
