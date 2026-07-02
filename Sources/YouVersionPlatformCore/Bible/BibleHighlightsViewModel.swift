@@ -14,6 +14,7 @@ public class BibleHighlightsViewModel: ObservableObject {
 
     private let cache: BibleHighlightsCache
     private let repository: any BibleHighlightsRepositoryProtocol
+    nonisolated(unsafe) private var authStateObserver: NSObjectProtocol?
     private var loadTasks: [BibleReference: Task<Void, Never>] = [:]
 
     // MARK: - Initialization
@@ -24,7 +25,7 @@ public class BibleHighlightsViewModel: ObservableObject {
     ) {
         self.cache = cache
         self.repository = repository
-        NotificationCenter.default.addObserver(
+        self.authStateObserver = NotificationCenter.default.addObserver(
             forName: YouVersionPlatformConfiguration.authStateDidChangeNotification,
             object: nil,
             queue: nil
@@ -32,6 +33,12 @@ public class BibleHighlightsViewModel: ObservableObject {
             Task { @MainActor in
                 self?.reset()
             }
+        }
+    }
+
+    deinit {
+        if let authStateObserver {
+            NotificationCenter.default.removeObserver(authStateObserver)
         }
     }
 
