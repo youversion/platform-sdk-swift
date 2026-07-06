@@ -57,6 +57,10 @@ final class MockBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     func queueOperation(_ operation: PendingHighlightOperation) {
         queuedOperations.append(operation)
     }
+
+    func clearPendingOperations() {
+        queuedOperations.removeAll()
+    }
 }
 
 @MainActor

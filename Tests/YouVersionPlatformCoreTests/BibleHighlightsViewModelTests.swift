@@ -51,6 +51,7 @@ class MockBibleHighlightsAPIVM: BibleHighlightsAPIProtocol {
 
 class MockBibleHighlightsRepository: BibleHighlightsRepository {
     var queueOperationCallCount = 0
+    var clearPendingOperationsCallCount = 0
     var highlightsCallCount = 0
     var shouldThrowError = false
     var mockServerData: [String: [BibleHighlight]] = [:]
@@ -71,6 +72,11 @@ class MockBibleHighlightsRepository: BibleHighlightsRepository {
     override func queueOperation(_ operation: PendingHighlightOperation) {
         queueOperationCallCount += 1
         super.queueOperation(operation)
+    }
+
+    override func clearPendingOperations() {
+        clearPendingOperationsCallCount += 1
+        super.clearPendingOperations()
     }
 }
 
@@ -103,6 +109,23 @@ struct BibleHighlightsViewModelTests {
         let highlights = viewModel.highlights(for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         
         #expect(highlights.isEmpty)
+    }
+
+    @Test
+    func testResetClearsPendingOperations() {
+        let cache = BibleHighlightsCache()
+        let mockRepository = MockBibleHighlightsRepository()
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+
+        viewModel.addHighlights(references: [reference], color: "eefeef")
+
+        #expect(viewModel.pendingOperationCount == 1)
+
+        viewModel.reset()
+
+        #expect(mockRepository.clearPendingOperationsCallCount == 1)
+        #expect(viewModel.pendingOperationCount == 0)
     }
     
     // Publisher-based APIs removed; tests adjusted accordingly

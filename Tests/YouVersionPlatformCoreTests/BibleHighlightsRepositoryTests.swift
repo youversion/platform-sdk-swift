@@ -318,6 +318,25 @@ struct BibleHighlightsRepositoryTests {
         
         #expect(repository.pendingOperationCount == 2)
     }
+
+    @Test
+    func testClearPendingOperations() {
+        let mockAPI = setUp()
+        let repository = BibleHighlightsRepository(api: mockAPI)
+
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let firstOperation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
+        let secondOperation = PendingHighlightOperation(references: [reference], color: nil, operationType: .remove)
+
+        repository.queueOperation(firstOperation)
+        repository.queueOperation(secondOperation)
+
+        #expect(repository.pendingOperationCount == 2)
+
+        repository.clearPendingOperations()
+
+        #expect(repository.pendingOperationCount == 0)
+    }
     
     @Test
     func testProcessQueue() async {

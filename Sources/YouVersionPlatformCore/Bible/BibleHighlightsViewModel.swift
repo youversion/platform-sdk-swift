@@ -45,6 +45,7 @@ public class BibleHighlightsViewModel: ObservableObject {
     // Called e.g. when the user signs out
     public func reset() {
         cache.reset()
+        repository.clearPendingOperations()
     }
     
     public var pendingOperationCount: Int {

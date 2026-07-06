@@ -39,6 +39,7 @@ public protocol BibleHighlightsRepositoryProtocol {
     @MainActor func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]]
     @MainActor func queueOperation(_ operation: PendingHighlightOperation)
     @MainActor var pendingOperationCount: Int { get }
+    @MainActor func clearPendingOperations()
 }
 
 public struct OperationResult {
@@ -355,6 +356,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     
     public var pendingOperationCount: Int {
         pendingServerOperations.count
+    }
+    
+    public func clearPendingOperations() {
+        pendingServerOperations.removeAll()
     }
     
     public var failedOperationCount: Int {
