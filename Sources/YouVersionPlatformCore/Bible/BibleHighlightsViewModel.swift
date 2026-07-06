@@ -47,6 +47,10 @@ public class BibleHighlightsViewModel: ObservableObject {
         cache.reset()
     }
     
+    public var pendingOperationCount: Int {
+        repository.pendingOperationCount
+    }
+    
     // MARK: - Data Retrieval
     
     /// Synchronous method for getting highlights (views should observe cache directly and filter as needed)

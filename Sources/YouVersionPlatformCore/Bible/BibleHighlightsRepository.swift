@@ -38,6 +38,7 @@ public struct BibleHighlightsAPI: BibleHighlightsAPIProtocol {
 public protocol BibleHighlightsRepositoryProtocol {
     @MainActor func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]]
     @MainActor func queueOperation(_ operation: PendingHighlightOperation)
+    @MainActor var pendingOperationCount: Int { get }
 }
 
 public struct OperationResult {

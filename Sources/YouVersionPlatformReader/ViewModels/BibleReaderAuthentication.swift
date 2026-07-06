@@ -2,11 +2,10 @@ import YouVersionPlatformCore
 
 /// The authentication behavior used by `BibleReaderViewModel`.
 ///
-/// The reader keeps customer-facing state on `BibleReaderViewModel.isSignedIn`,
-/// but the work of reading, validating, and clearing YouVersion authentication
-/// lives here. Production uses `default`; tests can supply a deterministic
-/// instance so view model tests do not read or mutate the process-wide token
-/// store shared by other test suites.
+/// Reads, validates, and clears YouVersion authentication for `BibleReaderViewModel`.
+/// Production uses `default`; tests can supply a deterministic instance so view
+/// model tests do not read or mutate the process-wide token store shared by
+/// other test suites.
 struct BibleReaderAuthentication {
     static let `default` = BibleReaderAuthentication(
         isSignedIn: { YouVersionAPI.isSignedIn },

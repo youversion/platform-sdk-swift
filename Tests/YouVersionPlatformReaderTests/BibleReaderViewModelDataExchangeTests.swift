@@ -165,15 +165,17 @@ import Testing
     func pendingHighlightStartsDataExchangeFlowDirectlyAfterSignInSucceeds() async {
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
+        let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: false)
         let viewModel = Support.makeViewModel(
             highlightsRepository: highlightsRepository,
-            isSignedIn: false,
+            readIsSignedIn: { authenticationState.isSignedIn },
             hasValidToken: true
         )
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
+        authenticationState.isSignedIn = true
         await viewModel.updateSignInState()
         viewModel.continuePendingHighlightAfterSignIn()
 

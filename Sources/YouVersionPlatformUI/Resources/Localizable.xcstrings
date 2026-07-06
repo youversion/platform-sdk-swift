@@ -1558,6 +1558,39 @@
         }
       }
     },
+    "signOut.pendinghighlights.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out anyway"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.explanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some of your highlights haven’t been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.question" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your highlights?"
+          }
+        }
+      }
+    },
     "tab.bible": {
       "extractionState": "manual",
       "localizations": {
