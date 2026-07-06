@@ -11,7 +11,8 @@ public extension URLRequest {
     static func youVersion(
         _ url: URL,
         accessToken providedToken: String? = nil,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        omitAccessToken: Bool = false
     ) -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: cachePolicy)
         if let appKey = YouVersionPlatformConfiguration.appKey {
@@ -21,7 +22,7 @@ public extension URLRequest {
         if let installId = YouVersionPlatformConfiguration.installId {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")
         }
-        if let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
+        if !omitAccessToken, let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         return request

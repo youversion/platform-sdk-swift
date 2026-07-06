@@ -124,6 +124,15 @@ private struct ReaderContent: View {
             Text(String.localized("signOut.explanation"))
         }
         .alert(
+            String.localized("signOut.pendinghighlights.question"),
+            isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
+        ) {
+            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("generic.cancel"), role: .cancel) { }
+        } message: {
+            Text(String.localized("signOut.pendinghighlights.explanation"))
+        }
+        .alert(
             String.localized("dataExchange.highlights.question"),
             isPresented: $viewModel.showingDataExchangeConfirmation
         ) {

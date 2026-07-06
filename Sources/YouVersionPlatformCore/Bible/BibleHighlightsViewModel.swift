@@ -45,6 +45,11 @@ public class BibleHighlightsViewModel: ObservableObject {
     // Called e.g. when the user signs out
     public func reset() {
         cache.reset()
+        (repository as? any BibleHighlightsPendingOperationsClearing)?.clearPendingOperations()
+    }
+    
+    public var hasPendingOperations: Bool {
+        (repository as? any BibleHighlightsPendingOperationsReporting)?.hasPendingOperations ?? false
     }
     
     // MARK: - Data Retrieval
