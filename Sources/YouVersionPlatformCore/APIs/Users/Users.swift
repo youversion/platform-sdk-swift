@@ -216,7 +216,7 @@ public extension YouVersionAPI {
                 "refresh_token": refreshToken
             ])
 
-            var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session)
+            var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session, omitAccessToken: true)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpBody = bodyData

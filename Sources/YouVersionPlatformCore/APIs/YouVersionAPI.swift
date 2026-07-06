@@ -62,9 +62,10 @@ public enum YouVersionAPI {
         with url: URL,
         accessToken: String?,
         session: URLSession,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        omitAccessToken: Bool = false
     ) -> URLRequest {
-        var request = URLRequest.youVersion(url, accessToken: accessToken, cachePolicy: cachePolicy)
+        var request = URLRequest.youVersion(url, accessToken: accessToken, cachePolicy: cachePolicy, omitAccessToken: omitAccessToken)
 
         if let additionalHeaders = session.configuration.httpAdditionalHeaders {
             for (key, value) in additionalHeaders {
