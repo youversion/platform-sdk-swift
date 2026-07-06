@@ -286,15 +286,20 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
+#if !os(tvOS)
     func startDataExchange(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        startDataExchange(with: DataExchangeSession(contextProvider: contextProvider))
+    }
+#else
+    func startDataExchange() {
+        startDataExchange(with: DataExchangeSession())
+    }
+#endif
+
+    private func startDataExchange(with session: DataExchangeSession) {
         Task {
             do {
                 startDataExchangeFlow = false
-#if !os(tvOS)
-                let session = DataExchangeSession(contextProvider: contextProvider)
-#else
-                let session = DataExchangeSession()
-#endif
                 let result = try await session.requestDataExchange(permissions: [.highlights])
                 completeDataExchangeFlow(with: result)
             } catch {

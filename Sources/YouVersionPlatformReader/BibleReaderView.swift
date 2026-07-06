@@ -169,7 +169,9 @@ private struct ReaderContent: View {
         }
         .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
             if newValue {
-#if !os(tvOS)
+#if os(tvOS)
+                viewModel.startDataExchange()
+#else
                 viewModel.startDataExchange(contextProvider: contextProvider)
 #endif
             }
