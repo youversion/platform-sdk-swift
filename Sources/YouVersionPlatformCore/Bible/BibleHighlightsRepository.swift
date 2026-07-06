@@ -38,7 +38,7 @@ public struct BibleHighlightsAPI: BibleHighlightsAPIProtocol {
 public protocol BibleHighlightsRepositoryProtocol {
     @MainActor func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]]
     @MainActor func queueOperation(_ operation: PendingHighlightOperation)
-    @MainActor var pendingOperationCount: Int { get }
+    @MainActor var hasPendingOperations: Bool { get }
     @MainActor func clearPendingOperations()
 }
 
@@ -62,14 +62,22 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     // MARK: - Private Properties
     
     private let api: BibleHighlightsAPIProtocol
+    private let retryDelayNanoseconds: UInt64
     private var pendingServerOperations: [PendingHighlightOperation] = []
     private var operationResults: [UUID: OperationResult] = [:]
     private var processingQueue = false
+    private var operationGeneration = 0
     
     // MARK: - Initialization
     
     public init(api: BibleHighlightsAPIProtocol = BibleHighlightsAPI()) {
         self.api = api
+        self.retryDelayNanoseconds = 2_000_000_000
+    }
+
+    init(api: BibleHighlightsAPIProtocol, retryDelayNanoseconds: UInt64) {
+        self.api = api
+        self.retryDelayNanoseconds = retryDelayNanoseconds
     }
     
     // MARK: - Public Methods
@@ -271,14 +279,22 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
         }
         
         processingQueue = true
-        defer { processingQueue = false }
+        var nextProcessingDelayNanoseconds: UInt64?
+        defer {
+            processingQueue = false
+            if let nextProcessingDelayNanoseconds, !pendingServerOperations.isEmpty {
+                scheduleQueueProcessing(after: nextProcessingDelayNanoseconds)
+            }
+        }
         
         // Get current batch of operations
+        let operationGenerationAtStart = operationGeneration
         let operationsToProcess = pendingServerOperations
         pendingServerOperations.removeAll()
         
         do {
             let results = try await saveOperations(operationsToProcess)
+            var failedOperationCount = 0
             
             // Update operation results
             for operation in operationsToProcess {
@@ -291,23 +307,18 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                 )
                 operationResults[operation.id] = result
                 
-                if !success {
+                if !success && operationGeneration == operationGenerationAtStart {
                     // Re-queue failed operations
                     pendingServerOperations.append(operation)
+                    failedOperationCount += 1
                 }
             }
             
-            // If there are still pending operations (failed ones), try again
             if !pendingServerOperations.isEmpty {
-                // swiftlint:disable:next common_debug_statements
-                try await Task.sleep(nanoseconds: 2_000_000_000) // 2 second delay before retry
-                await processQueue()
+                nextProcessingDelayNanoseconds = failedOperationCount > 0 ? retryDelayNanoseconds : 0
             }
             
         } catch {
-            // Re-queue all operations on error
-            pendingServerOperations.insert(contentsOf: operationsToProcess, at: 0)
-            
             // Calculate the maximum retry count from all operations
             let maxRetryCount = operationsToProcess.compactMap { operation in
                 operationResults[operation.id]?.retryCount
@@ -326,12 +337,15 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
                 )
                 operationResults[operation.id] = result
             }
-            
-            // Retry after delay (with exponential backoff)
-            let delay = min(UInt64(pow(2.0, Double(min(newRetryCount, 5)))) * 1_000_000_000, 30_000_000_000) // Max 30 seconds
-            // swiftlint:disable:next common_debug_statements
-            try? await Task.sleep(nanoseconds: delay)
-            await processQueue()
+
+            if operationGeneration == operationGenerationAtStart {
+                // Re-queue all operations on error
+                pendingServerOperations.insert(contentsOf: operationsToProcess, at: 0)
+            }
+
+            if !pendingServerOperations.isEmpty {
+                nextProcessingDelayNanoseconds = retryDelay(forRetryCount: newRetryCount)
+            }
         }
     }
     
@@ -354,12 +368,13 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
         operationResults.removeAll()
     }
     
-    public var pendingOperationCount: Int {
-        pendingServerOperations.count
+    public var hasPendingOperations: Bool {
+        processingQueue || !pendingServerOperations.isEmpty
     }
     
     public func clearPendingOperations() {
         pendingServerOperations.removeAll()
+        operationGeneration += 1
     }
     
     public var failedOperationCount: Int {
@@ -367,5 +382,21 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
             let result = operationResults[operation.id]
             return result?.success == false
         }.count
+    }
+
+    private func scheduleQueueProcessing(after delayNanoseconds: UInt64) {
+        Task { [weak self] in
+            if delayNanoseconds > 0 {
+                // swiftlint:disable:next common_debug_statements
+                try? await Task.sleep(nanoseconds: delayNanoseconds)
+            }
+            await self?.processQueue()
+        }
+    }
+
+    private func retryDelay(forRetryCount retryCount: Int) -> UInt64 {
+        let cappedRetryCount = max(1, min(retryCount, 5))
+        let retryMultiplier = UInt64(pow(2.0, Double(cappedRetryCount - 1)))
+        return min(retryMultiplier * retryDelayNanoseconds, 30_000_000_000)
     }
 } 

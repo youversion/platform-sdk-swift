@@ -48,8 +48,8 @@ public class BibleHighlightsViewModel: ObservableObject {
         repository.clearPendingOperations()
     }
     
-    public var pendingOperationCount: Int {
-        repository.pendingOperationCount
+    public var hasPendingOperations: Bool {
+        repository.hasPendingOperations
     }
     
     // MARK: - Data Retrieval

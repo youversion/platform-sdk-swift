@@ -46,8 +46,8 @@ actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 final class MockBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     private(set) var queuedOperations: [PendingHighlightOperation] = []
 
-    var pendingOperationCount: Int {
-        queuedOperations.count
+    var hasPendingOperations: Bool {
+        !queuedOperations.isEmpty
     }
 
     func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {

@@ -358,7 +358,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func signOut() {
-        if highlightsViewModel.pendingOperationCount > 0 {
+        if highlightsViewModel.hasPendingOperations {
             showSignOutWithPendingHighlightsConfirmation = true
         } else {
             showSignOutConfirmation = true

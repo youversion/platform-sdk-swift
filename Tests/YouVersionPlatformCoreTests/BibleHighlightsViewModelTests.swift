@@ -120,12 +120,12 @@ struct BibleHighlightsViewModelTests {
 
         viewModel.addHighlights(references: [reference], color: "eefeef")
 
-        #expect(viewModel.pendingOperationCount == 1)
+        #expect(viewModel.hasPendingOperations)
 
         viewModel.reset()
 
         #expect(mockRepository.clearPendingOperationsCallCount == 1)
-        #expect(viewModel.pendingOperationCount == 0)
+        #expect(!viewModel.hasPendingOperations)
     }
     
     // Publisher-based APIs removed; tests adjusted accordingly
