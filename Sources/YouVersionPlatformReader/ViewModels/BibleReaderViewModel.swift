@@ -280,6 +280,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
         if authentication.hasPermission(.highlights) {
             applyPendingHighlight()
+            reloadCurrentChapterHighlights()
         } else {
             startDataExchangeFlow = true
         }
@@ -323,6 +324,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         showingDataExchangeConfirmation = false
         if result.isGranted && result.grantedPermissions.contains(.highlights) {
             applyPendingHighlight()
+            reloadCurrentChapterHighlights()
         } else {
             clearPendingHighlight()
         }
@@ -421,6 +423,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private func applyHighlight(references: Set<BibleReference>, color: String) {
         highlightsViewModel.addHighlights(references: Array(references), color: color)
         removeVerseSelection()
+    }
+
+    private func reloadCurrentChapterHighlights() {
+        highlightsViewModel.ensureHighlightsForChapterLoaded(reference, forceReload: true)
     }
 
     private func clearPendingHighlight() {

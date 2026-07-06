@@ -45,13 +45,16 @@ actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 @MainActor
 final class MockBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     private(set) var queuedOperations: [PendingHighlightOperation] = []
+    private(set) var requestedReferences: [[BibleReference]] = []
+    var serverHighlights: [String: [BibleHighlight]] = [:]
 
     var hasPendingOperations: Bool {
         !queuedOperations.isEmpty
     }
 
     func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
-        [:]
+        requestedReferences.append(references)
+        return serverHighlights
     }
 
     func queueOperation(_ operation: PendingHighlightOperation) {

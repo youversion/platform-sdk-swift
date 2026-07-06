@@ -94,6 +94,36 @@ import Testing
     }
 
     @Test
+    func signedInUserGrantingHighlightPermissionLoadsCurrentChapterHighlights() async {
+        let highlightsRepository = MockBibleHighlightsRepository()
+        let localReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let serverReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
+        let chapterReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3)
+        let viewModel = Support.makeViewModel(
+            reference: chapterReference,
+            highlightsRepository: highlightsRepository,
+            isSignedIn: true
+        )
+        let chapterKey = "\(Support.versionId)_JHN_3"
+        highlightsRepository.serverHighlights = [
+            chapterKey: [BibleHighlight(serverReference, color: "FFD700")]
+        ]
+        viewModel.selectedVerses = [localReference]
+        viewModel.showingVerseActionsDrawer = true
+        viewModel.addHighlightOrStartPermissionFlow(references: [localReference], color: "DDAAFF")
+        viewModel.confirmDataExchangePrompt()
+
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
+        for _ in 0..<100 where viewModel.highlightsViewModel.highlights(for: serverReference).isEmpty {
+            await Task.yield()
+        }
+
+        #expect(highlightsRepository.requestedReferences == [[chapterReference]])
+        #expect(viewModel.highlightsViewModel.highlights(for: localReference) == [BibleHighlight(localReference, color: "DDAAFF")])
+        #expect(viewModel.highlightsViewModel.highlights(for: serverReference) == [BibleHighlight(serverReference, color: "FFD700")])
+    }
+
+    @Test
     func cancelledDataExchangeFlowDoesNotApplyPendingHighlight() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
