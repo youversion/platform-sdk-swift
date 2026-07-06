@@ -80,6 +80,16 @@ class MockBibleHighlightsRepository: BibleHighlightsRepository {
     }
 }
 
+@MainActor
+final class MinimalBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
+    func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
+        [:]
+    }
+
+    func queueOperation(_ operation: PendingHighlightOperation) {
+    }
+}
+
 // MARK: - Tests
 
 @MainActor
@@ -125,6 +135,17 @@ struct BibleHighlightsViewModelTests {
         viewModel.reset()
 
         #expect(mockRepository.clearPendingOperationsCallCount == 1)
+        #expect(!viewModel.hasPendingOperations)
+    }
+
+    @Test
+    func testRepositoryProtocolDoesNotRequirePendingOperationsState() {
+        let cache = BibleHighlightsCache()
+        let repository = MinimalBibleHighlightsRepository()
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: repository)
+
+        viewModel.reset()
+
         #expect(!viewModel.hasPendingOperations)
     }
     

@@ -43,7 +43,7 @@ actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 }
 
 @MainActor
-final class MockBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
+final class MockBibleHighlightsRepository: BibleHighlightsPendingOperationsReporting, BibleHighlightsPendingOperationsClearing {
     private(set) var queuedOperations: [PendingHighlightOperation] = []
     private(set) var requestedReferences: [[BibleReference]] = []
     var serverHighlights: [String: [BibleHighlight]] = [:]

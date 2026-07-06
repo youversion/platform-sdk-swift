@@ -38,7 +38,13 @@ public struct BibleHighlightsAPI: BibleHighlightsAPIProtocol {
 public protocol BibleHighlightsRepositoryProtocol {
     @MainActor func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]]
     @MainActor func queueOperation(_ operation: PendingHighlightOperation)
+}
+
+public protocol BibleHighlightsPendingOperationsReporting: BibleHighlightsRepositoryProtocol {
     @MainActor var hasPendingOperations: Bool { get }
+}
+
+public protocol BibleHighlightsPendingOperationsClearing: BibleHighlightsRepositoryProtocol {
     @MainActor func clearPendingOperations()
 }
 
@@ -57,7 +63,7 @@ public struct OperationResult {
 }
 
 @MainActor
-public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
+public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReporting, BibleHighlightsPendingOperationsClearing {
     
     // MARK: - Private Properties
     
@@ -370,6 +376,10 @@ public class BibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
     
     public var hasPendingOperations: Bool {
         processingQueue || !pendingServerOperations.isEmpty
+    }
+
+    public var pendingOperationCount: Int {
+        pendingServerOperations.count
     }
     
     public func clearPendingOperations() {
