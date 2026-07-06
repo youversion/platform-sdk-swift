@@ -73,7 +73,7 @@ import Testing
     }
 
     @Test
-    func signOutShowsConfirmationAndConfirmSignOutClearsStateAndHighlights() {
+    func signOutShowsPendingHighlightsConfirmationAndConfirmClearsStateAndHighlights() {
         Support.clearReaderDefaults()
         let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: true)
         var didSignOut = false
@@ -92,7 +92,7 @@ import Testing
         viewModel.signOut()
         #expect(viewModel.showSignOutWithPendingHighlightsConfirmation)
 
-        viewModel.confirmSignOut()
+        viewModel.confirmPendingHighlightsSignOut()
 
         #expect(didSignOut)
         #expect(viewModel.isSignedIn == false)
