@@ -9,14 +9,10 @@ struct SampleApp: App {
     init() {
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
-            appKey: "zvpcDUhgrpapAfXkPpEcJs7stJY1SKOgO5CrzwSQuW8EVGGo",  // prod
-//            appKey: "nqAVz0UI8PezoWtcuHHqISAz26MkQIa5z4z3uOgZnGJB9pjv",  // staging 2
-//            apiHost: "api-staging.youversion.com",
+            appKey: <#Your App Key#>,
             appName: "Sample App",
-            //isSignInEnabled: false,
             signInPromptMessage: "Sign in to see your YouVersion highlights in this Sample App."
         )
-        YouVersionPlatformLogger.level = .debug
     }
 
     var body: some Scene {
