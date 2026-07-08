@@ -10,7 +10,7 @@ import Testing
 
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: "test-app",
-            permissions: [.profile, .email],
+            permissions: ["profile", "email"],
             redirectURL: redirectURL
         )
 
@@ -45,7 +45,7 @@ import Testing
 
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: "test-app",
-            permissions: [.profile, .highlights, .unknown("notes")],
+            permissions: ["profile", "highlights", "notes"],
             redirectURL: redirectURL
         )
 

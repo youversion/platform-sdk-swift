@@ -33,10 +33,16 @@ public struct SignInWithYouVersionPKCEAuthorizationRequest: Sendable {
 }
 
 public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
+    private static let openIDPermission = "openid"
+    private static let authorizationScopePermissions: Set<String> = [
+        openIDPermission,
+        "profile",
+        "email"
+    ]
 
     public static func make(
         appKey: String,
-        permissions: Set<SignInWithYouVersionPermission>,
+        permissions: Set<String>,
         redirectURL: URL
     ) throws -> SignInWithYouVersionPKCEAuthorizationRequest {
         let codeVerifier = try randomURLSafeString(byteCount: 32)
@@ -61,9 +67,22 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
         return SignInWithYouVersionPKCEAuthorizationRequest(url: url, parameters: parameters)
     }
 
-    private static func authorizeURL(
+    @available(*, deprecated, message: "Use make(appKey:permissions:redirectURL:) with raw String permission values instead.")
+    public static func make(
         appKey: String,
         permissions: Set<SignInWithYouVersionPermission>,
+        redirectURL: URL
+    ) throws -> SignInWithYouVersionPKCEAuthorizationRequest {
+        try make(
+            appKey: appKey,
+            permissions: Set(permissions.map(\.rawValue)),
+            redirectURL: redirectURL
+        )
+    }
+
+    private static func authorizeURL(
+        appKey: String,
+        permissions: Set<String>,
         redirectURL: URL,
         parameters: SignInWithYouVersionPKCEParameters
     ) throws -> URL {
@@ -92,6 +111,21 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             throw SignInWithYouVersionPKCEAuthorizationError.unableToConstructAuthorizeURL
         }
         return url
+    }
+
+    @available(*, deprecated, message: "Use authorizeURL(appKey:permissions:redirectURL:parameters:) with raw String permission values instead.")
+    private static func authorizeURL(
+        appKey: String,
+        permissions: Set<SignInWithYouVersionPermission>,
+        redirectURL: URL,
+        parameters: SignInWithYouVersionPKCEParameters
+    ) throws -> URL {
+        try authorizeURL(
+            appKey: appKey,
+            permissions: Set(permissions.map(\.rawValue)),
+            redirectURL: redirectURL,
+            parameters: parameters
+        )
     }
 
     public static func tokenURLRequest(
@@ -136,20 +170,22 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
     }
-    
+
     private static func scopeValue(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: Set<String>
     ) -> String {
         let fullScopes = permissions
-            .union(Set([SignInWithYouVersionPermission.openid]))
-            .filter(\.isAuthorizationScope)
-        return fullScopes.map(\.rawValue).sorted().joined(separator: " ")
+            .union(Set([openIDPermission]))
+            .filter { authorizationScopePermissions.contains($0) }
+        return fullScopes.sorted().joined(separator: " ")
     }
 
     private static func requestedPermissionsValue(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: Set<String>
     ) -> String {
-        let requestedPermissions = permissions.filter { !$0.isAuthorizationScope }
-        return requestedPermissions.map(\.rawValue).sorted().joined(separator: ",")
+        permissions
+            .filter { !authorizationScopePermissions.contains($0) }
+            .sorted()
+            .joined(separator: ",")
     }
 }

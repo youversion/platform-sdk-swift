@@ -31,7 +31,7 @@ public enum YouVersionAPI {
                 refreshToken: result.refreshToken,
                 idToken: result.idToken,
                 expiryDate: result.expiryDate,
-                permissions: result.permissions
+                permissions: result.permissionValues
             )
         }
         return true

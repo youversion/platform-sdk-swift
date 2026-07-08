@@ -12,7 +12,7 @@ import Testing
 
         #expect(result.status == .granted)
         #expect(result.isGranted)
-        #expect(result.grantedPermissions == [.highlights])
+        #expect(result.permissions == ["highlights"])
     }
 
     @Test func multipleGrantedPermissionsArePreserved() throws {
@@ -21,7 +21,7 @@ import Testing
         let result = DataExchangeSession.requestResult(from: url)
 
         #expect(result.status == .granted)
-        #expect(result.grantedPermissions == [.highlights, .unknown("notes")])
+        #expect(result.permissions == ["highlights", "notes"])
     }
 
     @Test func commaAndSpaceSeparatedGrantedPermissionsArePreserved() throws {
@@ -30,7 +30,7 @@ import Testing
         let result = DataExchangeSession.requestResult(from: url)
 
         #expect(result.status == .granted)
-        #expect(result.grantedPermissions == [.highlights, .unknown("notes"), .unknown("bookmarks")])
+        #expect(result.permissions == ["highlights", "notes", "bookmarks"])
     }
 
     @Test func missingStatusReturnsEmptyStatus() throws {
@@ -39,7 +39,7 @@ import Testing
         let result = DataExchangeSession.requestResult(from: url)
 
         #expect(result.status == .missing)
-        #expect(result.grantedPermissions.isEmpty)
+        #expect(result.permissions.isEmpty)
         #expect(!result.isGranted)
     }
 
@@ -49,7 +49,7 @@ import Testing
         let result = DataExchangeSession.requestResult(from: url)
 
         #expect(result.status == .unknown("needs_review"))
-        #expect(result.grantedPermissions == [.highlights])
+        #expect(result.permissions == ["highlights"])
         #expect(!result.isGranted)
     }
 

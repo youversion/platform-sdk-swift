@@ -8,14 +8,6 @@ import Testing
 extension ConfigurationStateTests {
     @Suite struct DataExchangeAPITests {
         
-        @Test func permissionRawValueAndDescription() throws {
-            #expect(SignInWithYouVersionPermission.highlights.rawValue == "highlights")
-            #expect(SignInWithYouVersionPermission.highlights.description == "highlights")
-            let permission = SignInWithYouVersionPermission(rawValue: "notes")
-            #expect(permission == .unknown("notes"))
-            #expect(permission.rawValue == "notes")
-        }
-        
         @MainActor
         @Test func tokenSuccessCreatesRequestAndReturnsToken() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
@@ -41,7 +33,7 @@ extension ConfigurationStateTests {
             }
             
             let result = try await YouVersionAPI.DataExchange.updateToken(
-                withPermissions: [.openid, .profile, .email, .highlights],
+                permissions: ["highlights"],
                 accessToken: "access-token",
                 session: session
             )
@@ -71,7 +63,7 @@ extension ConfigurationStateTests {
             
             await #expect(throws: YouVersionAPIError.missingAuthentication) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
-                    withPermissions: [.highlights],
+                    permissions: ["highlights"],
                     accessToken: "access-token"
                 )
             }
@@ -88,7 +80,9 @@ extension ConfigurationStateTests {
             }
             
             await #expect(throws: YouVersionAPIError.missingAuthentication) {
-                _ = try await YouVersionAPI.DataExchange.updateToken(withPermissions: [.highlights])
+                _ = try await YouVersionAPI.DataExchange.updateToken(
+                    permissions: ["highlights"]
+                )
             }
         }
         
@@ -110,7 +104,7 @@ extension ConfigurationStateTests {
             
             await #expect(throws: YouVersionAPIError.notPermitted) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
-                    withPermissions: [.highlights],
+                    permissions: ["highlights"],
                     accessToken: "access-token",
                     session: session
                 )
@@ -135,7 +129,7 @@ extension ConfigurationStateTests {
             
             await #expect(throws: YouVersionAPIError.cannotDownload) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
-                    withPermissions: [.highlights],
+                    permissions: ["highlights"],
                     accessToken: "access-token",
                     session: session
                 )
@@ -160,7 +154,7 @@ extension ConfigurationStateTests {
             
             await #expect(throws: YouVersionAPIError.invalidResponse) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
-                    withPermissions: [.highlights],
+                    permissions: ["highlights"],
                     accessToken: "access-token",
                     session: session
                 )
@@ -186,7 +180,7 @@ extension ConfigurationStateTests {
             
             await #expect(throws: DecodingError.self) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
-                    withPermissions: [.highlights],
+                    permissions: ["highlights"],
                     accessToken: "access-token",
                     session: session
                 )

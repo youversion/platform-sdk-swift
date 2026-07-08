@@ -5,9 +5,9 @@ import FoundationNetworking
 
 public extension YouVersionAPI {
 
-    /// Returns whether the user has granted a sign-in or data exchange permission.
-    static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
-        YouVersionPlatformConfiguration.permissions.contains(permission)
+    /// Returns whether the user has granted a raw sign-in or data exchange permission value.
+    static func hasPermission(_ permission: String) -> Bool {
+        YouVersionPlatformConfiguration.hasPermission(permission)
     }
 
     enum DataExchange {
@@ -25,7 +25,7 @@ public extension YouVersionAPI {
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
         public static func updateToken(
-            withPermissions permissions: Set<SignInWithYouVersionPermission>,
+            permissions: Set<String>,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> DataExchangeToken {
@@ -39,8 +39,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let requestedPermissions = permissions.filter { !$0.isAuthorizationScope }
-            let requestBody = DataExchangeTokenRequest(permissions: requestedPermissions.map(\.rawValue))
+            let requestBody = DataExchangeTokenRequest(permissions: permissions.sorted())
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"

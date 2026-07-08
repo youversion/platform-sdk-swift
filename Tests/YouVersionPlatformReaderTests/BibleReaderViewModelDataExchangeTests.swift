@@ -13,7 +13,7 @@ import Testing
         let viewModel = Support.makeViewModel(
             highlightsRepository: highlightsRepository,
             isSignedIn: true,
-            hasPermission: { $0 == .highlights }
+            hasPermission: { $0 == "highlights" }
         )
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
@@ -53,7 +53,9 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
         viewModel.cancelDataExchangePrompt()
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
+        viewModel.completeDataExchangeFlow(
+            with: DataExchangeRequestResult(status: .granted, permissions: ["highlights"])
+        )
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
@@ -84,7 +86,9 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
+        viewModel.completeDataExchangeFlow(
+            with: DataExchangeRequestResult(status: .granted, permissions: ["highlights"])
+        )
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference) == [BibleHighlight(reference, color: "DDAAFF")])
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
@@ -113,7 +117,9 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [localReference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.highlights]))
+        viewModel.completeDataExchangeFlow(
+            with: DataExchangeRequestResult(status: .granted, permissions: ["highlights"])
+        )
         for _ in 0..<100 where viewModel.highlightsViewModel.highlights(for: serverReference).isEmpty {
             await Task.yield()
         }
@@ -132,7 +138,7 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
+        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, permissions: []))
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
@@ -149,7 +155,9 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .unknown("needs_review"), grantedPermissions: [.highlights]))
+        viewModel.completeDataExchangeFlow(
+            with: DataExchangeRequestResult(status: .unknown("needs_review"), permissions: ["highlights"])
+        )
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
@@ -166,7 +174,9 @@ import Testing
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
 
-        viewModel.completeDataExchangeFlow(with: DataExchangeRequestResult(status: .granted, grantedPermissions: [.unknown("notes")]))
+        viewModel.completeDataExchangeFlow(
+            with: DataExchangeRequestResult(status: .granted, permissions: ["notes"])
+        )
 
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)

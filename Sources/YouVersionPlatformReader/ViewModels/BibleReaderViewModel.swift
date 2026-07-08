@@ -10,6 +10,8 @@ import YouVersionPlatformUI
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
+    private static let highlightsPermission = "highlights"
+
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
@@ -301,7 +303,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard pendingHighlight != nil && isSignedIn else {
             return
         }
-        if authentication.hasPermission(.highlights) {
+        if authentication.hasPermission(Self.highlightsPermission) {
             applyPendingHighlight()
             reloadCurrentChapterHighlights()
         } else {
@@ -323,10 +325,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         Task {
             do {
                 startDataExchangeFlow = false
-                let result = try await session.requestDataExchange(permissions: [.highlights])
+                let result = try await session.requestDataExchange(
+                    permissions: [Self.highlightsPermission]
+                )
                 completeDataExchangeFlow(with: result)
             } catch {
-                completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, grantedPermissions: []))
+                completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, permissions: []))
                 YouVersionPlatformLogger.error("startDataExchange failed: \(error)", category: "BibleReader")
             }
         }
@@ -350,7 +354,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     func completeDataExchangeFlow(with result: DataExchangeRequestResult) {
         startDataExchangeFlow = false
         showingDataExchangeConfirmation = false
-        if result.isGranted && result.grantedPermissions.contains(.highlights) {
+        if result.isGranted && result.permissions.contains(Self.highlightsPermission) {
             applyPendingHighlight()
             reloadCurrentChapterHighlights()
         } else {
@@ -364,11 +368,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             do {
                 startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .highlights],
+                    permissions: ["profile", Self.highlightsPermission],
                     contextProvider: contextProvider
                 )
                 await updateSignInState()
-                if let permissions = result.permissions, permissions.contains(.highlights) {
+                if result.permissionValues.contains(Self.highlightsPermission) {
                     continuePendingHighlightAfterSignIn()
                 } else {
                     clearPendingHighlight()
@@ -383,9 +387,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         Task {
             do {
                 startSignInFlow = false
-                let result = try await YouVersionAPI.Users.signIn(permissions: [.profile, .highlights])
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: ["profile", Self.highlightsPermission]
+                )
                 await updateSignInState()
-                if let permissions = result.permissions, permissions.contains(.highlights) {
+                if result.permissionValues.contains(Self.highlightsPermission) {
                     continuePendingHighlightAfterSignIn()
                 } else {
                     clearPendingHighlight()
@@ -449,7 +455,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             return
         }
         
-        if authentication.hasPermission(.highlights) {
+        if authentication.hasPermission(Self.highlightsPermission) {
             applyHighlight(references: references, color: color)
         } else {
             pendingHighlight = PendingHighlight(references: references, color: color)

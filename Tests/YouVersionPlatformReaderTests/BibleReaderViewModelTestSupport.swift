@@ -93,7 +93,7 @@ enum BibleReaderViewModelTestSupport {
         hasValidToken: Bool? = nil,
         validateToken: (@MainActor () async -> Bool)? = nil,
         signOut: @escaping @MainActor () -> Void = {},
-        hasPermission: @escaping @MainActor (SignInWithYouVersionPermission) -> Bool = { _ in false }
+        hasPermission: @escaping @MainActor (String) -> Bool = { _ in false }
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),

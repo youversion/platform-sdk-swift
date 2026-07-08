@@ -53,7 +53,7 @@ extension ConfigurationStateTests {
             #expect(result.accessToken == "access-token")
             #expect(result.refreshToken == "refresh-token")
             #expect(result.idToken == token)
-            #expect(result.permissions == [.openid, .email, .profile])
+            #expect(result.permissionValues == ["openid", "email", "profile"])
             #expect(result.yvpUserId == "user-123")
             #expect(result.name == "Test User")
             #expect(result.profilePicture == "https://example.com/avatar.png")
@@ -71,7 +71,7 @@ extension ConfigurationStateTests {
                 callbackURL: callbackURL
             )
 
-            #expect(Set(result.permissions ?? []) == Set([.openid, .email, .highlights]))
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights"]))
         }
 
         @Test func extractResultUsesTokenScopePermissionsWhenCallbackDoesNotIncludeGrantedPermissions() throws {
@@ -85,7 +85,7 @@ extension ConfigurationStateTests {
                 callbackURL: callbackURL
             )
 
-            #expect(result.permissions == [.openid, .email])
+            #expect(result.permissionValues == ["openid", "email"])
         }
 
         @Test func extractResultPreservesUnknownGrantedPermissionsFromCallbackURL() throws {
@@ -99,7 +99,7 @@ extension ConfigurationStateTests {
                 callbackURL: callbackURL
             )
 
-            #expect(Set(result.permissions ?? []) == Set([.openid, .email, .highlights, .unknown("unknown")]))
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights", "unknown"]))
         }
 
         @Test func extractResultFailsBadNonce() throws {
@@ -171,7 +171,7 @@ extension ConfigurationStateTests {
             #expect(result.accessToken == "new-access")
             #expect(result.refreshToken == "new-refresh")
             #expect(result.idToken == "id-token")
-            #expect(result.permissions == [.openid, .email])
+            #expect(result.permissionValues == ["openid", "email"])
             #expect(result.yvpUserId == nil)
 
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
@@ -228,4 +228,3 @@ private func base64URLEncodedString(_ data: Data) -> String {
         .replacingOccurrences(of: "/", with: "_")
         .replacingOccurrences(of: "=", with: "")
 }
-

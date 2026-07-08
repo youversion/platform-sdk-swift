@@ -40,11 +40,14 @@ public struct DataExchangeRequestResult: Equatable, Sendable {
     }
 
     public let status: Status
-    public let grantedPermissions: [SignInWithYouVersionPermission]
+    public let permissions: [String]
 
-    public init(status: Status, grantedPermissions: [SignInWithYouVersionPermission]) {
+    public init(
+        status: Status,
+        permissions: [String]
+    ) {
         self.status = status
-        self.grantedPermissions = grantedPermissions
+        self.permissions = permissions
     }
 
     public var isGranted: Bool {
@@ -71,7 +74,7 @@ public struct DataExchangeSession {
     /// - Throws: An error if the token request or browser session fails.
     @MainActor
     public func requestDataExchange(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: Set<String>
     ) async throws -> DataExchangeRequestResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
@@ -79,7 +82,9 @@ public struct DataExchangeSession {
         
         let token: DataExchangeToken
         do {
-            token = try await YouVersionAPI.DataExchange.updateToken(withPermissions: permissions)
+            token = try await YouVersionAPI.DataExchange.updateToken(
+                permissions: permissions
+            )
         } catch {
             YouVersionPlatformLogger.error("DataExchange.updateToken failed: \(error)", category: "DataExchange")
             throw URLError(.badServerResponse)
@@ -104,7 +109,7 @@ public struct DataExchangeSession {
                 refreshToken: authdata.refreshToken,
                 idToken: authdata.idToken,
                 expiryDate: authdata.expiryDate,
-                permissions: result.grantedPermissions
+                permissions: result.permissions
             )
         }
 
@@ -116,17 +121,17 @@ public struct DataExchangeSession {
         return DataExchangeRequestResult(
             status: queryItems.first { $0.name == "data_exchange_status" }?.value
                 .map { DataExchangeRequestResult.Status(rawValue: $0) } ?? .missing,
-            grantedPermissions: queryItems
+            permissions: queryItems
                 .filter { $0.name == "granted_permissions" }
                 .compactMap(\.value)
                 .flatMap { permissions(from: $0) }
         )
     }
 
-    private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+    private static func permissions(from value: String) -> [String] {
         value
             .split { $0 == "," || $0 == " " }
-            .map { SignInWithYouVersionPermission(rawValue: String($0)) }
+            .map(String.init)
     }
 
     private func dataExchangeSession(
