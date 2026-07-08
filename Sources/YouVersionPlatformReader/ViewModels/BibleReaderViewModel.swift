@@ -14,6 +14,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
+    private let userDefaultsKeyForShowsFullChapter = "bible-reader-view--showsfullchapter"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
         didSet {
@@ -39,7 +40,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var lastScrollOffset: CGFloat = 0
     var scrollToTop = false
     var isChangingChapter = false
-    var showsFullChapter: Bool
+    var showsFullChapter: Bool {
+        didSet {
+            UserDefaults.standard.set(showsFullChapter, forKey: userDefaultsKeyForShowsFullChapter)
+        }
+    }
     private(set) var scrollTargetReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
@@ -108,20 +113,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         if let reference {
             self.reference = reference
             self.showBookIntro = false
+            self.showsFullChapter = showsFullChapter
         } else {
             if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
                let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
                 self.reference = savedValue
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
+                self.showsFullChapter = UserDefaults.standard.bool(forKey: userDefaultsKeyForShowsFullChapter)
             } else {
                 // no specified or saved version, so, pick a downloaded one, else a safe default.
                 let versionId = reference?.versionId ?? BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false
+                self.showsFullChapter = showsFullChapter
             }
         }
-
-        self.showsFullChapter = showsFullChapter
         self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
         self.authentication = authentication
