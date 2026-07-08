@@ -15,14 +15,14 @@ import Testing
     func chapterOnlyReferenceArmsNoScroll() {
         let viewModel = makeViewModel(verse: nil)
 
-        #expect(viewModel.scrollTarget == nil)
+        #expect(viewModel.scrollTargetReference == nil)
     }
 
     @Test
     func verseOneArmsNoScroll() {
         let viewModel = makeViewModel(verse: 1)
 
-        #expect(viewModel.scrollTarget == nil)
+        #expect(viewModel.scrollTargetReference == nil)
     }
 
     @Test
@@ -32,14 +32,14 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: nil, showsFullChapter: true)
 
-        #expect(viewModel.scrollTarget == nil)
+        #expect(viewModel.scrollTargetReference == nil)
     }
 
     @Test
     func verseRangeModeArmsNoScroll() {
         let viewModel = makeViewModel(verse: 14, showsFullChapter: false)
 
-        #expect(viewModel.scrollTarget == nil)
+        #expect(viewModel.scrollTargetReference == nil)
     }
 
     // A reader constructed fresh at a verse (the path loop-ios uses for VOTD and
@@ -50,7 +50,7 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: true)
 
-        #expect(viewModel.scrollTarget?.verseStart == 16)
+        #expect(viewModel.scrollTargetReference?.verseStart == 16)
     }
 
     @Test
@@ -59,6 +59,6 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: false)
 
-        #expect(viewModel.scrollTarget == nil)
+        #expect(viewModel.scrollTargetReference == nil)
     }
 }

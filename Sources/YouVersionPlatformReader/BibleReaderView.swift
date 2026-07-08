@@ -333,7 +333,7 @@ private struct ReaderContent: View {
             .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
                 verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
             }
-            .onChange(of: viewModel.scrollTarget, initial: true) { _, target in
+            .onChange(of: viewModel.scrollTargetReference, initial: true) { _, target in
                 if target != nil {
                     verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
                 }

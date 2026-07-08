@@ -60,8 +60,11 @@ public struct BibleTextBlock: Identifiable {
     }
 
     private static func firstVerse(in text: BibleAttributedString) -> Int? {
-        text.asAttributedString.runs[\.bibleTextCategory, \.bibleReference]
-            .first { category, _, _ in category == .scripture || category == .verseLabel }?
-            .1?.verseStart
+        let runs = text.asAttributedString.runs[\.bibleTextCategory, \.bibleReference]
+        let firstScriptureRun = runs.first { category, _, _ in
+            category == .scripture || category == .verseLabel
+        }
+        let reference = firstScriptureRun?.1
+        return reference?.verseStart
     }
 }

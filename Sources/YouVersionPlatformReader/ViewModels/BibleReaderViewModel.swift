@@ -35,7 +35,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var scrollToTop = false
     var isChangingChapter = false
     private(set) var showsFullChapter: Bool
-    private(set) var scrollTarget: BibleReference?
+    private(set) var scrollTargetReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
@@ -206,13 +206,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
             return
         }
-        scrollTarget = reference
+        scrollTargetReference = reference
         scrollToTop = false
     }
 
     /// Clears the scroll target once the reader has brought it into view.
     func clearScrollTarget() {
-        scrollTarget = nil
+        scrollTargetReference = nil
     }
 
     func loadUserSettingsFromStorage() {
