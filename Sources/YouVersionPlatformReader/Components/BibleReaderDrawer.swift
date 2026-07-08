@@ -51,7 +51,7 @@ struct BibleReaderDrawer: View {
                 Button(action: { viewModel.removeVerseColor(color) }) {
                     coloredCircle(with: color)
                         .overlay(
-                            Image(systemName: "xmark")
+                            Image("highlight_checkmark", bundle: .YouVersionUIBundle)
                         )
                 }
             }
