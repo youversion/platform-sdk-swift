@@ -89,6 +89,23 @@ import Testing
     }
 
     @Test
+    func goToReferenceArmsNoScrollWhenVersionLoadFails() async {
+        let repository = MockBibleVersionRepository()
+        let viewModel = Support.makeViewModel(versionRepository: repository)
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+        await repository.setThrownError(TestError())
+
+        // A different version forces the cross-version load path, which throws.
+        let target = BibleReference(versionId: Support.versionId + 1, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true)
+
+        #expect(viewModel.reference.chapter != 3)
+        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.showsFullChapter == false)
+        #expect(viewModel.isChangingChapter == false)
+    }
+
+    @Test
     func goToChapterReferenceArmsNoScroll() async {
         let viewModel = Support.makeViewModel()
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))

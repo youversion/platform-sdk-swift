@@ -66,8 +66,12 @@ extension BibleReaderViewModel {
     }
 
     func goToReference(_ reference: BibleReference, showsFullChapter: Bool) async {
-        self.showsFullChapter = showsFullChapter
         await onHeaderSelectionChange(reference, showIntro: false)
+        guard reference == self.reference else {
+            isChangingChapter = false
+            return
+        }
+        self.showsFullChapter = showsFullChapter
         setScrollTarget()
     }
 
