@@ -120,6 +120,7 @@ public struct BibleTextView: View {
                 }
             }
         }
+        .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
         .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
@@ -142,6 +143,17 @@ public struct BibleTextView: View {
         .task(id: reference) {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
         }
+    }
+
+    /// The scroll anchors for the rendered chapter, or nil until blocks exist.
+    private var chapterScrollAnchors: ChapterScrollAnchors? {
+        guard let firstBlock = blocks.first else {
+            return nil
+        }
+        return ChapterScrollAnchors(
+            chapter: firstBlock.chapter,
+            blockFirstVerses: blocks.compactMap(\.firstVerse)
+        )
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {

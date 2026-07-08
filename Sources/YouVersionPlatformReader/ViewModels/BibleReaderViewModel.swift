@@ -34,6 +34,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var lastScrollOffset: CGFloat = 0
     var scrollToTop = false
     var isChangingChapter = false
+    private(set) var showsFullChapter: Bool
+    private(set) var scrollTargetReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
@@ -83,6 +85,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     init(
         reference: BibleReference? = nil,
+        showsFullChapter: Bool = false,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
         versionsViewModel: BibleVersionsViewModel? = nil,
@@ -106,6 +109,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             }
         }
 
+        self.showsFullChapter = showsFullChapter
         self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
         self.authentication = authentication
@@ -130,6 +134,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
 
         observeCurrentVersion()
+
+        if reference != nil {
+            setScrollTarget()
+        }
     }
 
     // Reacts to BibleVersionsViewModel.currentVersion changes by updating
@@ -190,6 +198,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     func onSignInRequired() {
         startSignInFlow = true
+    }
+
+    /// Sets the current ``reference``'s verse as the target the reader should scroll to
+    /// once its chapter lays out.
+    private func setScrollTarget() {
+        guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
+            return
+        }
+        scrollTargetReference = reference
+        scrollToTop = false
+    }
+
+    /// Clears the scroll target once the reader has brought it into view.
+    func clearScrollTarget() {
+        scrollTargetReference = nil
     }
 
     func loadUserSettingsFromStorage() {

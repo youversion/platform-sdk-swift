@@ -7,6 +7,7 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
 
@@ -25,15 +26,21 @@ public struct BibleReaderView: View {
     ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
     ///     or opens the verse actions drawer for authenticated users. Footnote taps
     ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
     public init(reference: BibleReference? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil
+                onVerseTap: ((BibleReference) -> Void)? = nil,
+                showsFullChapter: Bool = false
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
         self.initialReference = reference
+        self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
     }
@@ -68,6 +75,7 @@ public struct BibleReaderView: View {
             if viewModel == nil {
                 viewModel = BibleReaderViewModel(
                     reference: initialReference,
+                    showsFullChapter: showsFullChapter,
                     verseSelectionStyle: verseSelectionStyle,
                     onVerseTap: onVerseTap
                 )
@@ -90,6 +98,12 @@ private struct ReaderContent: View {
     private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+    @State private var verseScrollCoordinator: VerseScrollCoordinator
+
+    init(viewModel: BibleReaderViewModel) {
+        self.viewModel = viewModel
+        self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -159,6 +173,12 @@ private struct ReaderContent: View {
     }
 
     // MARK: - Helper views
+    private var progressView: some View {
+        ProgressView()
+            .tint(viewModel.readerTextMutedColor)
+            .padding(.vertical, 48)
+    }
+
     private var header: some View {
         HStack {
             if viewModel.version != nil {
@@ -263,7 +283,7 @@ private struct ReaderContent: View {
                             BibleReaderIntroView()
                         } else {
                             BibleTextView(
-                                viewModel.reference,
+                                viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
                                 textOptions: viewModel.textOptions,
                                 selectedVerses: $viewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
@@ -280,15 +300,21 @@ private struct ReaderContent: View {
                     .padding(.vertical)
                     .padding(.horizontal, 30)
                     .id("topOfContent")
+                    // Hide the content until the verse scroll lands
+                    // to avoid flashing.
+                    .opacity(verseScrollCoordinator.isScrollPending ? 0 : 1)
+                    .overlay(alignment: .top) {
+                        if verseScrollCoordinator.isScrollPending {
+                            progressView
+                        }
+                    }
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.frame(in: .named("scrollView")).minY
                     } action: { newOffset in
                         viewModel.handleScroll(offset: newOffset)
                     }
                 } else {
-                    ProgressView()
-                        .tint(viewModel.readerTextMutedColor)
-                        .padding(.vertical, 48)
+                    progressView
                 }
             }
             .coordinateSpace(.named("scrollView"))
@@ -302,6 +328,14 @@ private struct ReaderContent: View {
                         try? await Task.sleep(for: .seconds(0.5))
                         viewModel.isChangingChapter = false
                     }
+                }
+            }
+            .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
+                verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
+            }
+            .onChange(of: viewModel.scrollTargetReference, initial: true) { _, target in
+                if target != nil {
+                    verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
                 }
             }
         }

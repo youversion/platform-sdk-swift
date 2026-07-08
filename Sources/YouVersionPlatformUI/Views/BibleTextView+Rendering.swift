@@ -5,20 +5,30 @@ extension BibleTextView {
     @ViewBuilder
     func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
         if block.rows.isEmpty {
-            let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
-            if block.alignment == .leading {
-                theView
+            let textBlockView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
+            let alignedView = aligned(textBlockView, for: block.alignment)
+            if let firstVerse = block.firstVerse {
+                alignedView.id(firstVerse)
             } else {
-                HStack {
-                    Spacer()
-                    theView
-                    if block.alignment == .center {
-                        Spacer()
-                    }
-                }
+                alignedView
             }
         } else {
             emitTableRows(block.rows, textOptions: textOptions)
+        }
+    }
+
+    @ViewBuilder
+    private func aligned(_ view: some View, for alignment: TextAlignment) -> some View {
+        if alignment == .leading {
+            view
+        } else {
+            HStack {
+                Spacer()
+                view
+                if alignment == .center {
+                    Spacer()
+                }
+            }
         }
     }
 
