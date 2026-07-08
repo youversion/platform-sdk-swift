@@ -73,6 +73,7 @@ import Testing
         #expect(viewModel.reference.bookUSFM == "JHN")
         #expect(viewModel.reference.chapter == 3)
         #expect(viewModel.scrollTargetReference?.verseStart == 16)
+        #expect(viewModel.isChangingChapter)
     }
 
     @Test
