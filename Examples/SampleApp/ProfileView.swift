@@ -2,7 +2,9 @@ import SwiftUI
 import YouVersionPlatform
 
 struct ProfileView: View {
+#if !os(tvOS)
     @State private var contextProvider = ContextProvider()
+#endif
     @State private var isSignedIn = false
     @State private var dataExchangeStatusText: String?
     @State private var hasHighlightsPermission = false
@@ -46,10 +48,14 @@ struct ProfileView: View {
     func doSignIn() {
         Task {
             do {
+#if os(tvOS)
+                _ = try await YouVersionAPI.Users.signIn(permissions: [.profile, .email])
+#else
                 _ = try await YouVersionAPI.Users.signIn(
                     permissions: [.profile, .email],
                     contextProvider: contextProvider
                 )
+#endif
                 // The user is signed in! Their accessToken will automatically be saved
                 // to UserDefaults on this device, so they don't have to log in again next time.
                 // Now you may use accessors like YouVersionAPI.Users.currentUserName.
@@ -71,7 +77,11 @@ struct ProfileView: View {
         dataExchangeStatusText = nil
         Task {
             do {
+#if os(tvOS)
+                let session = DataExchangeSession()
+#else
                 let session = DataExchangeSession(contextProvider: contextProvider)
+#endif
                 let result = try await session.requestDataExchange(permissions: [.highlights])
                 if !result.isGranted {
                     dataExchangeStatusText = "Highlights permission status: \(result.status)"

@@ -178,7 +178,11 @@ private struct ReaderContent: View {
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             // TODO: move this to the viewModel
             if newValue {
+#if os(tvOS)
+                viewModel.startSignIn()
+#else
                 viewModel.startSignIn(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
