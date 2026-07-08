@@ -156,6 +156,15 @@ BibleReaderView(
 )
 ```
 
+When the reference names a verse, the reader shows only that verse range by default. Pass `showsFullChapter: true` to show the whole chapter scrolled to the verse instead:
+
+```swift
+BibleReaderView(
+    reference: BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16),
+    showsFullChapter: true
+)
+```
+
 To intercept verse taps instead of using the built-in sign-in flow:
 
 ```swift

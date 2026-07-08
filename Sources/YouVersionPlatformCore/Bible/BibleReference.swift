@@ -62,7 +62,12 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
     public var isRange: Bool {
         verseEnd != nil && verseStart != verseEnd
     }
-    
+
+    /// The same reference with any verse dropped — the whole chapter.
+    public var chapterReference: BibleReference {
+        BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter)
+    }
+
     public static func compare(a: BibleReference, b: BibleReference) -> Int {
         // returns -1, 0, or 1
         if a.bookUSFM != b.bookUSFM {
