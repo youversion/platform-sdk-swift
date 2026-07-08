@@ -5,52 +5,44 @@ import Testing
 
 @Suite struct DataExchangeSessionTests {
 
-    @Test func grantedStatusReturnsGrantedResult() throws {
+    @Test func grantedStatusReturnsGrantedPermissions() throws {
         let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights"))
 
-        let result = DataExchangeSession.requestResult(from: url)
+        let permissions = DataExchangeSession.grantedPermissions(from: url)
 
-        #expect(result.status == .granted)
-        #expect(result.isGranted)
-        #expect(result.permissions == ["highlights"])
+        #expect(permissions == ["highlights"])
     }
 
     @Test func multipleGrantedPermissionsArePreserved() throws {
         let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights&granted_permissions=notes"))
 
-        let result = DataExchangeSession.requestResult(from: url)
+        let permissions = DataExchangeSession.grantedPermissions(from: url)
 
-        #expect(result.status == .granted)
-        #expect(result.permissions == ["highlights", "notes"])
+        #expect(permissions == ["highlights", "notes"])
     }
 
     @Test func commaAndSpaceSeparatedGrantedPermissionsArePreserved() throws {
         let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=granted&granted_permissions=highlights,notes%20bookmarks"))
 
-        let result = DataExchangeSession.requestResult(from: url)
+        let permissions = DataExchangeSession.grantedPermissions(from: url)
 
-        #expect(result.status == .granted)
-        #expect(result.permissions == ["highlights", "notes", "bookmarks"])
+        #expect(permissions == ["highlights", "notes", "bookmarks"])
     }
 
-    @Test func missingStatusReturnsEmptyStatus() throws {
+    @Test func missingStatusReturnsNoGrantedPermissions() throws {
         let url = try #require(URL(string: "youversionauth://callback"))
 
-        let result = DataExchangeSession.requestResult(from: url)
+        let permissions = DataExchangeSession.grantedPermissions(from: url)
 
-        #expect(result.status == .missing)
-        #expect(result.permissions.isEmpty)
-        #expect(!result.isGranted)
+        #expect(permissions.isEmpty)
     }
 
-    @Test func unknownStatusIsPreserved() throws {
+    @Test func unknownStatusReturnsNoGrantedPermissions() throws {
         let url = try #require(URL(string: "youversionauth://callback?data_exchange_status=needs_review&granted_permissions=highlights"))
 
-        let result = DataExchangeSession.requestResult(from: url)
+        let permissions = DataExchangeSession.grantedPermissions(from: url)
 
-        #expect(result.status == .unknown("needs_review"))
-        #expect(result.permissions == ["highlights"])
-        #expect(!result.isGranted)
+        #expect(permissions.isEmpty)
     }
 
 }

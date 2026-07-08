@@ -325,12 +325,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         Task {
             do {
                 startDataExchangeFlow = false
-                let result = try await session.requestDataExchange(
+                let permissions = try await session.requestDataExchange(
                     permissions: [Self.highlightsPermission]
                 )
-                completeDataExchangeFlow(with: result)
+                completeDataExchangeFlow(with: permissions)
             } catch {
-                completeDataExchangeFlow(with: DataExchangeRequestResult(status: .cancel, permissions: []))
+                completeDataExchangeFlow(with: [])
                 YouVersionPlatformLogger.error("startDataExchange failed: \(error)", category: "BibleReader")
             }
         }
@@ -351,10 +351,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     /// Completes the just-in-time data exchange browser flow.
-    func completeDataExchangeFlow(with result: DataExchangeRequestResult) {
+    func completeDataExchangeFlow(with grantedPermissions: [String]) {
         startDataExchangeFlow = false
         showingDataExchangeConfirmation = false
-        if result.isGranted && result.permissions.contains(Self.highlightsPermission) {
+        if grantedPermissions.contains(Self.highlightsPermission) {
             applyPendingHighlight()
             reloadCurrentChapterHighlights()
         } else {
