@@ -74,6 +74,22 @@ extension ConfigurationStateTests {
             #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights"]))
         }
 
+        @Test func extractResultMergesRepeatedGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(
+                string: "youversionauth://callback?granted_permissions=highlights&granted_permissions=notes"
+            )!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights", "notes"]))
+        }
+
         @Test func extractResultUsesTokenScopePermissionsWhenCallbackDoesNotIncludeGrantedPermissions() throws {
             let callbackURL = URL(string: "youversionauth://callback?code=abc123")!
             let token = try makeTestJWT(claims: ["nonce": "xyz"])

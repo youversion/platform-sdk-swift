@@ -12,10 +12,12 @@ import Testing
         #expect(SignInWithYouVersionPermission.allCases == [.openid, .profile, .email])
     }
 
-    @Test func decodingUnknownPermissionValueDoesNotThrow() throws {
+    @Test func decodingUnknownPermissionValueThrows() throws {
         let data = Data(#""future-permission""#.utf8)
 
-        _ = try JSONDecoder().decode(SignInWithYouVersionPermission.self, from: data)
+        #expect(throws: DecodingError.self) {
+            _ = try JSONDecoder().decode(SignInWithYouVersionPermission.self, from: data)
+        }
     }
 
     @Test func userInfoAvatarUrlFormatting() {

@@ -41,7 +41,13 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(String.self)
-        self = SignInWithYouVersionPermission(rawValue: rawValue) ?? .openid
+        guard let permission = SignInWithYouVersionPermission(rawValue: rawValue) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unknown permission value: \(rawValue)"
+            )
+        }
+        self = permission
     }
 
     public func encode(to encoder: any Encoder) throws {

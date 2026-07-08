@@ -43,7 +43,7 @@ extension ConfigurationStateTests {
             let queryItems = components.queryItems ?? []
             let body = try JSONDecoder().decode(Body.self, from: Data(requestBodyString(request).utf8))
             
-            #expect(result.token == "data-exchange-token")
+            #expect(result == "data-exchange-token")
             #expect(request.httpMethod == "POST")
             #expect(components.path == "/data-exchange/token")
             #expect(queryItems.first { $0.name == "app-key" }?.value == "test-app-key")

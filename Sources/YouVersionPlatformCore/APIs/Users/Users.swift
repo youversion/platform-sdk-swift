@@ -127,8 +127,11 @@ public extension YouVersionAPI {
             }
             var resultPermissions = permissions(from: tokens.scope)
             let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
-            if let grantedPermissions = components?.queryItems?.first(where: { $0.name == "granted_permissions" })?.value {
-                let grantedValues = permissions(from: grantedPermissions)
+            let grantedValues = (components?.queryItems ?? [])
+                .filter { $0.name == "granted_permissions" }
+                .compactMap(\.value)
+                .flatMap { permissions(from: $0) }
+            if !grantedValues.isEmpty {
                 resultPermissions = Array(Set(resultPermissions).union(Set(grantedValues))).sorted()
             }
             return SignInWithYouVersionResult(
