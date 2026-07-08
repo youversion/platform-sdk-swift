@@ -182,7 +182,7 @@ var body: some View {
         .tabItem { Label("Home", systemImage: "house") }
         .tag(Tab.home)
 
-        BibleReaderView(navigation: readerNavigation)
+        BibleReaderView(readerNavigation: readerNavigation)
             .tabItem { Label("Bible", systemImage: "book.closed") }
             .tag(Tab.bible)
     }
