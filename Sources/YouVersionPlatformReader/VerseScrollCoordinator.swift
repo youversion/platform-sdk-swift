@@ -49,8 +49,7 @@ final class VerseScrollCoordinator {
             guard let self, !Task.isCancelled else {
                 return
             }
-            viewModel.clearScrollTarget()
-            isScrollPending = false
+            clearScrollState()
         }
 
         if isTargetChapterRendered {
@@ -63,7 +62,8 @@ final class VerseScrollCoordinator {
         anchors = newAnchors
         if isScrollPending, let newAnchors,
            newAnchors.chapter != viewModel.scrollTargetReference?.chapter {
-            cancelPendingScroll()
+            scrollTask?.cancel()
+            clearScrollState()
             return
         }
         scrollToTargetBlock(proxy: proxy)
@@ -86,16 +86,14 @@ final class VerseScrollCoordinator {
                 return
             }
             proxy.scrollTo(blockID, anchor: .top)
-            self?.viewModel.clearScrollTarget()
-            self?.isScrollPending = false
+            self?.clearScrollState()
         }
     }
 
-    /// Abandons the pending scroll and reveals the content, cancelling the fallback timeout.
-    private func cancelPendingScroll() {
+    private func clearScrollState() {
         fallbackTask?.cancel()
-        scrollTask?.cancel()
         viewModel.clearScrollTarget()
+        viewModel.isChangingChapter = false
         isScrollPending = false
     }
 }
