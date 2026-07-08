@@ -378,6 +378,23 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             }
         }
     }
+#else
+    func startSignIn() {
+        Task {
+            do {
+                startSignInFlow = false
+                let result = try await YouVersionAPI.Users.signIn(permissions: [.profile, .highlights])
+                await updateSignInState()
+                if let permissions = result.permissions, permissions.contains(.highlights) {
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
 #endif
 
     func signIn() {
