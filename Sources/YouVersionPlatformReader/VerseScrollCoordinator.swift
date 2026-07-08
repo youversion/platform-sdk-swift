@@ -20,11 +20,6 @@ final class VerseScrollCoordinator {
     /// How long a scroll stays pending before it's abandoned, in case the requested
     /// chapter never lays out and the scroll would otherwise never complete.
     private let safetyTimeout: Duration = .seconds(2)
-    /// Roughly one 60Hz frame. The blocks are laid out in a single pass (the reader isn't
-    /// lazy), but a `scrollTo` issued in the same runloop tick the anchors arrive lands at
-    /// the chapter top — the layout isn't committed yet. Waiting one frame is enough for the
-    /// target block's position to resolve, for both short and long chapters.
-    private let settleDelay: Duration = .milliseconds(16)
 
     /// True while a verse is requested but not yet scrolled to.
     private(set) var isScrollPending = false
@@ -93,10 +88,12 @@ final class VerseScrollCoordinator {
         scrollToResolvedTarget(proxy: proxy)
     }
 
-    /// Scrolls to the resolved target, if there is one, after a one-frame settle so the
-    /// target block's position is committed (see ``settleDelay``). The scroll target and
-    /// pending state are held until the scroll completes — cleared together at the end — so a
-    /// repeat ``handleAnchors(_:proxy:)`` mid-scroll still sees the chapter it's scrolling to.
+    /// Scrolls to the resolved target, if there is one, on the next display frame — the
+    /// anchors arrive before SwiftUI commits the layout, so a `scrollTo` in the same
+    /// runloop tick lands at the chapter top; waiting one frame lets the target block's
+    /// position resolve. The scroll target and pending state are held
+    /// until the scroll completes — cleared together at the end — so a repeat
+    /// ``handleAnchors(_:proxy:)`` mid-scroll still sees the chapter it's scrolling to.
     /// Single-flight: a new scroll cancels any pending one.
     private func scrollToResolvedTarget(proxy: ScrollViewProxy) {
         guard let verseID = resolvedScrollTarget else {
@@ -105,9 +102,8 @@ final class VerseScrollCoordinator {
 
         safetyTask?.cancel()
         scrollTask?.cancel()
-        scrollTask = Task { @MainActor [weak self, settleDelay] in
-            // swiftlint:disable:next common_debug_statements
-            try? await Task.sleep(for: settleDelay)
+        scrollTask = Task { @MainActor [weak self] in
+            await DisplayFrame().nextFrame()
             if Task.isCancelled {
                 return
             }
@@ -123,5 +119,33 @@ final class VerseScrollCoordinator {
         scrollTask?.cancel()
         viewModel.clearScrollTarget()
         isScrollPending = false
+    }
+}
+
+/// Suspends until the next display frame (v-sync), so a scroll runs after SwiftUI has
+/// committed the current layout.
+@MainActor
+private final class DisplayFrame: NSObject {
+    private var displayLink: CADisplayLink?
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    func nextFrame() async {
+        await withCheckedContinuation { continuation in
+#if os(macOS)
+            continuation.resume()
+#else
+            self.continuation = continuation
+            let displayLink = CADisplayLink(target: self, selector: #selector(fire))
+            displayLink.add(to: .main, forMode: .common)
+            self.displayLink = displayLink
+#endif
+        }
+    }
+
+    @objc private func fire() {
+        displayLink?.invalidate()
+        displayLink = nil
+        continuation?.resume()
+        continuation = nil
     }
 }
