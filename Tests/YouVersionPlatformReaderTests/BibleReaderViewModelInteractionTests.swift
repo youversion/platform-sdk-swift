@@ -109,7 +109,7 @@ import Testing
         let viewModel = Support.makeViewModel(
             highlightsRepository: highlightsRepository,
             isSignedIn: true,
-            hasPermission: { $0 == .highlights }
+            hasPermission: { $0 == "highlights" }
         )
         let firstReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)

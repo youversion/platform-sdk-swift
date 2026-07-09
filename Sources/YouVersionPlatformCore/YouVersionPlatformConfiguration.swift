@@ -36,10 +36,13 @@ public struct YouVersionPlatformConfiguration {
 
     public static let authStateDidChangeNotification = Notification.Name("YouVersionPlatformAuthStateDidChange")
 
-    static var permissions: [SignInWithYouVersionPermission] {
+    static var permissionEnums: [SignInWithYouVersionPermission] {
+        storedPermissions.compactMap { SignInWithYouVersionPermission(rawValue: $0) }
+    }
+
+    static var storedPermissions: [String] {
         UserDefaults.standard
-            .stringArray(forKey: permissionsKey)?
-            .map { SignInWithYouVersionPermission(rawValue: $0) } ?? []
+            .stringArray(forKey: permissionsKey) ?? []
     }
 
     @MainActor
@@ -85,7 +88,13 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?, permissions: [SignInWithYouVersionPermission]? = nil) {
+    public static func saveAuthData(
+        accessToken: String?,
+        refreshToken: String?,
+        idToken: String?,
+        expiryDate: Date?,
+        permissions: [String]? = nil
+    ) {
         let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
@@ -123,19 +132,22 @@ public struct YouVersionPlatformConfiguration {
             refreshToken: refreshToken,
             idToken: idToken,
             expiryDate: expiryDate,
-            permissions: permissions
+            permissionValues: storedPermissions
         )
     }
 
-    private static func savePermissions(_ permissions: [SignInWithYouVersionPermission]) {
-        let rawValues = Set(Self.permissions + permissions)
-            .map(\.rawValue)
+    private static func savePermissions(_ permissions: [String]) {
+        let rawValues = Set(storedPermissions + permissions)
             .sorted()
         UserDefaults.standard.set(rawValues, forKey: permissionsKey)
     }
     
     public static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
-        permissions.contains(permission)
+        permissionEnums.contains(permission)
+    }
+
+    public static func hasPermission(_ permission: String) -> Bool {
+        storedPermissions.contains(permission)
     }
 
     private static func postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: Bool) {

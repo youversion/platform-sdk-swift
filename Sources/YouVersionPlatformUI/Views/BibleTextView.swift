@@ -140,12 +140,12 @@ public struct BibleTextView: View {
             await loadBlocks()
         }
         .task(id: reference) {
-            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission(.highlights) {
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
-            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission(.highlights) {
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
             }
         }

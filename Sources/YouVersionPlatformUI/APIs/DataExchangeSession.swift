@@ -3,14 +3,14 @@ import AuthenticationServices
 import Foundation
 import YouVersionPlatformCore
 
-public struct DataExchangeRequestResult: Equatable, Sendable {
-    public enum Status: RawRepresentable, Hashable, CustomStringConvertible, Sendable {
+private struct DataExchangeRequestResult: Equatable, Sendable {
+    enum Status: RawRepresentable, Hashable, CustomStringConvertible, Sendable {
         case granted
         case cancel
         case missing
         case unknown(String)
 
-        public init(rawValue: String) {
+        init(rawValue: String) {
             switch rawValue {
             case "granted":
                 self = .granted
@@ -23,7 +23,7 @@ public struct DataExchangeRequestResult: Equatable, Sendable {
             }
         }
 
-        public var rawValue: String {
+        var rawValue: String {
             switch self {
             case .granted:
                 return "granted"
@@ -36,18 +36,21 @@ public struct DataExchangeRequestResult: Equatable, Sendable {
             }
         }
 
-        public var description: String { rawValue }
+        var description: String { rawValue }
     }
 
-    public let status: Status
-    public let grantedPermissions: [SignInWithYouVersionPermission]
+    let status: Status
+    let permissions: [String]
 
-    public init(status: Status, grantedPermissions: [SignInWithYouVersionPermission]) {
+    init(
+        status: Status,
+        permissions: [String]
+    ) {
         self.status = status
-        self.grantedPermissions = grantedPermissions
+        self.permissions = permissions
     }
 
-    public var isGranted: Bool {
+    var isGranted: Bool {
         status == .granted
     }
 }
@@ -64,28 +67,30 @@ public struct DataExchangeSession {
     public init() {}
 #endif
 
-    /// Presents the YouVersion data exchange permission flow to the user and returns the selected result.
+    /// Presents the YouVersion data exchange permission flow to the user and returns the granted permissions.
     ///
     /// - Parameter permissions: The set of permissions to request from the user.
-    /// - Returns: A ``DataExchangeRequestResult`` containing the callback status and granted permission values.
+    /// - Returns: The granted permission values, or an empty array when permissions are not granted.
     /// - Throws: An error if the token request or browser session fails.
     @MainActor
     public func requestDataExchange(
-        permissions: Set<SignInWithYouVersionPermission>
-    ) async throws -> DataExchangeRequestResult {
+        permissions: Set<String>
+    ) async throws -> [String] {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
         }
         
-        let token: DataExchangeToken
+        let token: String
         do {
-            token = try await YouVersionAPI.DataExchange.updateToken(withPermissions: permissions)
+            token = try await YouVersionAPI.DataExchange.updateToken(
+                permissions: permissions
+            )
         } catch {
             YouVersionPlatformLogger.error("DataExchange.updateToken failed: \(error)", category: "DataExchange")
             throw URLError(.badServerResponse)
         }
 
-        guard let url = URLBuilder.dataExchangeURL(token: token.token, appKey: appKey) else {
+        guard let url = URLBuilder.dataExchangeURL(token: token, appKey: appKey) else {
             throw URLError(.badURL)
         }
 
@@ -98,35 +103,47 @@ public struct DataExchangeSession {
             session.start()
         }
 
-        if result.isGranted, let authdata = YouVersionPlatformConfiguration.authData {
+        guard result.isGranted else {
+            return []
+        }
+
+        if let authdata = YouVersionPlatformConfiguration.authData {
             YouVersionPlatformConfiguration.saveAuthData(
                 accessToken: authdata.accessToken,
                 refreshToken: authdata.refreshToken,
                 idToken: authdata.idToken,
                 expiryDate: authdata.expiryDate,
-                permissions: result.grantedPermissions
+                permissions: result.permissions
             )
         }
 
-        return result
+        return result.permissions
     }
 
-    static func requestResult(from callbackURL: URL) -> DataExchangeRequestResult {
+    static func grantedPermissions(from callbackURL: URL) -> [String] {
+        let result = requestResult(from: callbackURL)
+        guard result.isGranted else {
+            return []
+        }
+        return result.permissions
+    }
+
+    private static func requestResult(from callbackURL: URL) -> DataExchangeRequestResult {
         let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems ?? []
         return DataExchangeRequestResult(
             status: queryItems.first { $0.name == "data_exchange_status" }?.value
                 .map { DataExchangeRequestResult.Status(rawValue: $0) } ?? .missing,
-            grantedPermissions: queryItems
+            permissions: queryItems
                 .filter { $0.name == "granted_permissions" }
                 .compactMap(\.value)
                 .flatMap { permissions(from: $0) }
         )
     }
 
-    private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+    private static func permissions(from value: String) -> [String] {
         value
             .split { $0 == "," || $0 == " " }
-            .map { SignInWithYouVersionPermission(rawValue: String($0)) }
+            .map(String.init)
     }
 
     private func dataExchangeSession(

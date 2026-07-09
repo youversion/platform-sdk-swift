@@ -230,10 +230,10 @@ extension ConfigurationStateTests {
                 refreshToken: "refresh-1",
                 idToken: nil,
                 expiryDate: expiry,
-                permissions: [.highlights]
+                permissions: ["highlights"]
             )
 
-            #expect(YouVersionAPI.hasPermission(.highlights))
+            #expect(YouVersionAPI.hasPermission("highlights"))
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
@@ -245,26 +245,26 @@ extension ConfigurationStateTests {
                 refreshToken: "refresh-1",
                 idToken: nil,
                 expiryDate: expiry,
-                permissions: [.profile, .highlights, .unknown("notes")]
+                permissions: ["profile", "highlights", "notes"]
             )
 
             let authData = try #require(YouVersionPlatformConfiguration.authData)
-            #expect(authData.permissions == [.highlights, .unknown("notes"), .profile])
+            #expect(authData.permissionValues == ["highlights", "notes", "profile"])
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
         @Test func hasPermissionReturnsFalseWhenPermissionAbsent() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
-            #expect(!YouVersionAPI.hasPermission(.highlights))
+            #expect(!YouVersionAPI.hasPermission("highlights"))
         }
 
         @Test func hasPermissionReturnsFalseForUnknownStoredPermission() async {
             await YouVersionPlatformConfiguration.clearAuthTokens()
             UserDefaults.standard.set(["future-permission"], forKey: permissionsKey)
 
-            #expect(!YouVersionAPI.hasPermission(.highlights))
-            #expect(YouVersionAPI.hasPermission(.unknown("future-permission")))
+            #expect(!YouVersionAPI.hasPermission("highlights"))
+            #expect(YouVersionAPI.hasPermission("future-permission"))
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
@@ -275,12 +275,12 @@ extension ConfigurationStateTests {
                 refreshToken: "refresh-1",
                 idToken: nil,
                 expiryDate: expiry,
-                permissions: [.highlights]
+                permissions: ["highlights"]
             )
 
             await YouVersionPlatformConfiguration.clearAuthTokens()
 
-            #expect(!YouVersionAPI.hasPermission(.highlights))
+            #expect(!YouVersionAPI.hasPermission("highlights"))
         }
         
         // MARK: - Top-level configure function

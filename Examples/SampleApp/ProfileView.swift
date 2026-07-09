@@ -41,7 +41,7 @@ struct ProfileView: View {
         }
         .onAppear {
             isSignedIn = YouVersionAPI.isSignedIn
-            hasHighlightsPermission = YouVersionAPI.hasPermission(.highlights)
+            hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
         }
     }
     
@@ -49,10 +49,10 @@ struct ProfileView: View {
         Task {
             do {
 #if os(tvOS)
-                _ = try await YouVersionAPI.Users.signIn(permissions: [.profile, .email])
+                _ = try await YouVersionAPI.Users.signIn(permissions: ["profile", "email"])
 #else
                 _ = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
+                    permissions: ["profile", "email"],
                     contextProvider: contextProvider
                 )
 #endif
@@ -82,11 +82,8 @@ struct ProfileView: View {
 #else
                 let session = DataExchangeSession(contextProvider: contextProvider)
 #endif
-                let result = try await session.requestDataExchange(permissions: [.highlights])
-                if !result.isGranted {
-                    dataExchangeStatusText = "Highlights permission status: \(result.status)"
-                }
-                hasHighlightsPermission = YouVersionAPI.hasPermission(.highlights)
+                _ = try await session.requestDataExchange(permissions: ["highlights"])
+                hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
             } catch {
                 dataExchangeStatusText = "Highlights permission failed: \(error.localizedDescription)"
             }

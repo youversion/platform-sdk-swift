@@ -5,9 +5,9 @@ import FoundationNetworking
 
 public extension YouVersionAPI {
 
-    /// Returns whether the user has granted a sign-in or data exchange permission.
-    static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
-        YouVersionPlatformConfiguration.permissions.contains(permission)
+    /// Returns whether the user has granted a raw sign-in or data exchange permission value.
+    static func hasPermission(_ permission: String) -> Bool {
+        YouVersionPlatformConfiguration.hasPermission(permission)
     }
 
     enum DataExchange {
@@ -18,17 +18,17 @@ public extension YouVersionAPI {
         ///   - permissions: The permissions to request from the signed-in user.
         ///   - accessToken: An access token to use instead of the stored access token.
         ///   - session: The URL session used to perform the request.
-        /// - Returns: A data exchange token response.
+        /// - Returns: A data exchange token.
         /// - Throws:
         ///   - `YouVersionAPIError.missingAuthentication` when the access token or app key is missing.
         ///   - `YouVersionAPIError.notPermitted` when the server returns `401`.
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
         public static func updateToken(
-            withPermissions permissions: Set<SignInWithYouVersionPermission>,
+            permissions: Set<String>,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
-        ) async throws -> DataExchangeToken {
+        ) async throws -> String {
             guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
                 throw YouVersionAPIError.missingAuthentication
             }
@@ -39,8 +39,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let requestedPermissions = permissions.filter { !$0.isAuthorizationScope }
-            let requestBody = DataExchangeTokenRequest(permissions: requestedPermissions.map(\.rawValue))
+            let requestBody = DataExchangeTokenRequest(permissions: permissions.sorted())
 
             var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "POST"
@@ -58,13 +57,9 @@ public extension YouVersionAPI {
                 throw YouVersionAPIError.cannotDownload
             }
 
-            return try JSONDecoder().decode(DataExchangeToken.self, from: data)
+            return try JSONDecoder().decode(DataExchangeTokenResponse.self, from: data).token
         }
     }
-}
-
-public struct DataExchangeToken: Codable, Sendable, Equatable {
-    public let token: String
 }
 
 private struct DataExchangeTokenRequest: Codable {
@@ -73,4 +68,8 @@ private struct DataExchangeTokenRequest: Codable {
     enum CodingKeys: String, CodingKey {
         case permissions = "requested_permissions"
     }
+}
+
+private struct DataExchangeTokenResponse: Decodable {
+    let token: String
 }

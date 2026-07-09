@@ -1,21 +1,18 @@
 import Foundation
 
+@available(*, deprecated, message: "Use raw String permission values instead.")
 public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hashable, Codable, CustomStringConvertible, Sendable {
     case openid
     case profile
     case email
-    case highlights
-    case unknown(String)
 
     public static let allCases: [SignInWithYouVersionPermission] = [
         .openid,
         .profile,
-        .email,
-        .highlights
+        .email
     ]
 
-    /// Creates a permission from a raw permission value, preserving unrecognized values as ``unknown(_:)``.
-    public init(rawValue: String) {
+    public init?(rawValue: String) {
         switch rawValue {
         case "openid":
             self = .openid
@@ -23,10 +20,8 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
             self = .profile
         case "email":
             self = .email
-        case "highlights":
-            self = .highlights
         default:
-            self = .unknown(rawValue)
+            return nil
         }
     }
 
@@ -38,10 +33,6 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
             return "profile"
         case .email:
             return "email"
-        case .highlights:
-            return "highlights"
-        case .unknown(let rawValue):
-            return rawValue
         }
     }
 
@@ -49,22 +40,18 @@ public enum SignInWithYouVersionPermission: RawRepresentable, CaseIterable, Hash
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = SignInWithYouVersionPermission(rawValue: try container.decode(String.self))
+        let rawValue = try container.decode(String.self)
+        guard let permission = SignInWithYouVersionPermission(rawValue: rawValue) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unknown permission value: \(rawValue)"
+            )
+        }
+        self = permission
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
-    }
-}
-
-extension SignInWithYouVersionPermission {
-    var isAuthorizationScope: Bool {
-        switch self {
-        case .openid, .profile, .email:
-            return true
-        case .highlights, .unknown:
-            return false
-        }
     }
 }

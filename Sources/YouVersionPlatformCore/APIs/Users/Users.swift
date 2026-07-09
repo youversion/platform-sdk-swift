@@ -127,22 +127,23 @@ public extension YouVersionAPI {
             }
             var resultPermissions = permissions(from: tokens.scope)
             let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
-            if let grantedPermissions = components?.queryItems?.first(where: { $0.name == "granted_permissions" })?.value {
-                let granted = permissions(from: grantedPermissions)
-                resultPermissions = Array(Set(resultPermissions).union(Set(granted))).sorted {
-                    $0.rawValue < $1.rawValue
-                }
+            let grantedValues = (components?.queryItems ?? [])
+                .filter { $0.name == "granted_permissions" }
+                .compactMap(\.value)
+                .flatMap { permissions(from: $0) }
+            if !grantedValues.isEmpty {
+                resultPermissions = Array(Set(resultPermissions).union(Set(grantedValues))).sorted()
             }
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
                 expiresIn: tokens.expiresIn,
                 refreshToken: tokens.refreshToken,
                 idToken: tokens.idToken,
-                permissions: resultPermissions,
+                permissionValues: resultPermissions,
                 yvpUserId: idClaims["sub"] as? String,
                 name: idClaims["name"] as? String,
                 profilePicture: idClaims["profile_picture"] as? String,
-                email: idClaims["email"] as? String,
+                email: idClaims["email"] as? String
             )
         }
 
@@ -238,7 +239,7 @@ public extension YouVersionAPI {
                 expiresIn: decodedResponse.expiresIn,
                 refreshToken: decodedResponse.refreshToken,
                 idToken: idToken,
-                permissions: permissions(from: decodedResponse.scope),
+                permissionValues: permissions(from: decodedResponse.scope),
                 yvpUserId: nil
             )
         }
@@ -266,10 +267,10 @@ public extension YouVersionAPI {
             }
         }
 
-        private static func permissions(from value: String) -> [SignInWithYouVersionPermission] {
+        private static func permissions(from value: String) -> [String] {
             value
                 .split { $0 == "," || $0 == " " }
-                .map { SignInWithYouVersionPermission(rawValue: String($0)) }
+                .map(String.init)
         }
 
         // MARK: - Public Accessors
