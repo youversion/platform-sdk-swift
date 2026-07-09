@@ -144,6 +144,13 @@ import Testing
 #endif
     }
 
+    @Test
+    func hexColorValueForComparisonRemovesLeadingHash() {
+        #expect(hexColorValueForComparison("#") == "")
+        #expect(hexColorValueForComparison("#DDAAFF") == "DDAAFF")
+        #expect(hexColorValueForComparison("DDAAFF") == "DDAAFF")
+    }
+
 #if !canImport(UIKit)
     @Test
     func highlightColorActionsNoOpWhenColorCannotBeConverted() {

@@ -2,6 +2,13 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+func hexColorValueForComparison(_ color: String) -> String {
+    guard color.starts(with: "#") else {
+        return color
+    }
+    return String(color.dropFirst())
+}
+
 extension BibleReaderViewModel {
     func goToPreviousChapter() {
         guard let version else {
@@ -135,8 +142,8 @@ extension BibleReaderViewModel {
     }
 
     private func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = a.starts(with: "#") ? String(a.split(separator: "#").last!) : a
-        let cleanB = b.starts(with: "#") ? String(b.split(separator: "#").last!) : b
+        let cleanA = hexColorValueForComparison(a)
+        let cleanB = hexColorValueForComparison(b)
         return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
     }
 
