@@ -6,6 +6,7 @@
 # Usage:
 #   scripts/check-api-stability.sh update   # overwrite baselines in .api-baseline/
 #   scripts/check-api-stability.sh check    # diff current API against baselines; non-zero exit on breakage
+#   scripts/check-api-stability.sh additions # list new public API grouped by source folder
 #
 # If no mode is given, defaults to `check`.
 
@@ -13,8 +14,8 @@ set -euo pipefail
 
 MODE="${1:-check}"
 
-if [[ "$MODE" != "update" && "$MODE" != "check" ]]; then
-  echo "usage: $0 [update|check]" >&2
+if [[ "$MODE" != "update" && "$MODE" != "check" && "$MODE" != "additions" ]]; then
+  echo "usage: $0 [update|check|additions]" >&2
   exit 2
 fi
 
@@ -60,9 +61,34 @@ if [[ "$MODE" == "update" ]]; then
   exit 0
 fi
 
-# check mode
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
+
+if [[ "$MODE" == "additions" ]]; then
+  for module in "${MODULES[@]}"; do
+    baseline="$BASELINE_DIR/$module.json"
+    current="$WORK_DIR/$module.json"
+
+    if [[ ! -f "$baseline" ]]; then
+      echo "Missing baseline for $module at $baseline" >&2
+      echo "Run: scripts/check-api-stability.sh update" >&2
+      exit 1
+    fi
+
+    echo "Dumping $module..."
+    dump_module "$module" "$current"
+  done
+
+  echo
+  python3 "$REPO_ROOT/scripts/report-api-additions.py" \
+    "$BASELINE_DIR" \
+    "$WORK_DIR" \
+    "$REPO_ROOT/Sources" \
+    "${MODULES[@]}"
+  exit 0
+fi
+
+# check mode
 
 FAILED_MODULES=()
 TOTAL_BREAKAGES=0
