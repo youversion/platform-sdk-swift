@@ -43,15 +43,35 @@ actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 }
 
 @MainActor
-final class MockBibleHighlightsRepository: BibleHighlightsRepositoryProtocol {
+final class MockBibleHighlightsRepository: BibleHighlightsPendingOperationsReporting, BibleHighlightsPendingOperationsClearing {
     private(set) var queuedOperations: [PendingHighlightOperation] = []
+    private(set) var requestedReferences: [[BibleReference]] = []
+    var serverHighlights: [String: [BibleHighlight]] = [:]
+
+    var hasPendingOperations: Bool {
+        !queuedOperations.isEmpty
+    }
 
     func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
-        [:]
+        requestedReferences.append(references)
+        return serverHighlights
     }
 
     func queueOperation(_ operation: PendingHighlightOperation) {
         queuedOperations.append(operation)
+    }
+
+    func clearPendingOperations() {
+        queuedOperations.removeAll()
+    }
+}
+
+@MainActor
+final class MockBibleReaderAuthenticationState {
+    var isSignedIn: Bool
+
+    init(isSignedIn: Bool) {
+        self.isSignedIn = isSignedIn
     }
 }
 
@@ -69,8 +89,11 @@ enum BibleReaderViewModelTestSupport {
         versionRepository: any BibleVersionRepositoryProtocol = MockBibleVersionRepository(),
         onVerseTap: ((BibleReference) -> Void)? = nil,
         isSignedIn: Bool = false,
+        readIsSignedIn: (@MainActor () -> Bool)? = nil,
         hasValidToken: Bool? = nil,
-        signOut: @escaping @MainActor () -> Void = {}
+        validateToken: (@MainActor () async -> Bool)? = nil,
+        signOut: @escaping @MainActor () -> Void = {},
+        hasPermission: @escaping @MainActor (String) -> Bool = { _ in false }
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),
@@ -78,9 +101,15 @@ enum BibleReaderViewModelTestSupport {
         )
         let versionsViewModel = BibleVersionsViewModel(versionRepository: versionRepository)
         let authentication = BibleReaderAuthentication(
-            isSignedIn: { isSignedIn },
-            hasValidToken: { hasValidToken ?? isSignedIn },
-            signOut: signOut
+            isSignedIn: { readIsSignedIn?() ?? isSignedIn },
+            hasValidToken: {
+                if let validateToken {
+                    return await validateToken()
+                }
+                return hasValidToken ?? readIsSignedIn?() ?? isSignedIn
+            },
+            signOut: signOut,
+            hasPermission: hasPermission
         )
         return BibleReaderViewModel(
             reference: reference,

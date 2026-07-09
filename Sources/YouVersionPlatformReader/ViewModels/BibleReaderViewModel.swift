@@ -1,3 +1,6 @@
+#if canImport(AuthenticationServices)
+import AuthenticationServices
+#endif
 import CoreText
 import Foundation
 import SwiftUI
@@ -7,6 +10,8 @@ import YouVersionPlatformUI
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
+    private static let highlightsPermission = "highlights"
+
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
@@ -80,8 +85,15 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
-    private(set) var isSignedIn: Bool
+    var showingDataExchangeConfirmation = false
+    var startDataExchangeFlow = false
     var showSignOutConfirmation = false
+    var showSignOutWithPendingHighlightsConfirmation = false
+    private var pendingHighlight: PendingHighlight?
+
+    var isSignedIn: Bool {
+        authentication.isSignedIn
+    }
 
     init(
         reference: BibleReference? = nil,
@@ -113,7 +125,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         self.onVerseTap = onVerseTap
         self.verseSelectionStyle = verseSelectionStyle
         self.authentication = authentication
-        self.isSignedIn = authentication.isSignedIn
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         let shouldLoadVersionsViewModel = versionsViewModel == nil
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
@@ -284,8 +295,113 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func updateSignInState() async {
-        isSignedIn = await authentication.hasValidToken()
+        _ = await authentication.hasValidToken()
     }
+
+    /// Continues a pending highlight action after the user has completed sign-in.
+    func continuePendingHighlightAfterSignIn() {
+        guard pendingHighlight != nil && isSignedIn else {
+            return
+        }
+        if authentication.hasPermission(Self.highlightsPermission) {
+            applyPendingHighlight()
+            reloadCurrentChapterHighlights()
+        } else {
+            startDataExchangeFlow = true
+        }
+    }
+
+#if !os(tvOS)
+    func startDataExchange(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        startDataExchange(with: DataExchangeSession(contextProvider: contextProvider))
+    }
+#else
+    func startDataExchange() {
+        startDataExchange(with: DataExchangeSession())
+    }
+#endif
+
+    private func startDataExchange(with session: DataExchangeSession) {
+        Task {
+            do {
+                startDataExchangeFlow = false
+                let permissions = try await session.requestDataExchange(
+                    permissions: [Self.highlightsPermission]
+                )
+                completeDataExchangeFlow(with: permissions)
+            } catch {
+                completeDataExchangeFlow(with: [])
+                YouVersionPlatformLogger.error("startDataExchange failed: \(error)", category: "BibleReader")
+            }
+        }
+    }
+
+    /// Confirms the just-in-time data exchange prompt and starts the browser flow.
+    func confirmDataExchangePrompt() {
+        guard pendingHighlight != nil, isSignedIn else {
+            return
+        }
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = true
+    }
+
+    /// Cancels the just-in-time data exchange prompt without changing highlights.
+    func cancelDataExchangePrompt() {
+        clearPendingHighlight()
+    }
+
+    /// Completes the just-in-time data exchange browser flow.
+    func completeDataExchangeFlow(with grantedPermissions: [String]) {
+        startDataExchangeFlow = false
+        showingDataExchangeConfirmation = false
+        if grantedPermissions.contains(Self.highlightsPermission) {
+            applyPendingHighlight()
+            reloadCurrentChapterHighlights()
+        } else {
+            clearPendingHighlight()
+        }
+    }
+
+#if !os(tvOS)
+    func startSignIn(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        Task {
+            do {
+                startSignInFlow = false
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: ["profile", Self.highlightsPermission],
+                    contextProvider: contextProvider
+                )
+                await updateSignInState()
+                if result.permissionValues.contains(Self.highlightsPermission) {
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+#else
+    func startSignIn() {
+        Task {
+            do {
+                startSignInFlow = false
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: ["profile", Self.highlightsPermission]
+                )
+                await updateSignInState()
+                if result.permissionValues.contains(Self.highlightsPermission) {
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+#endif
 
     func signIn() {
         if isSignedIn {
@@ -295,13 +411,22 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func signOut() {
-        showSignOutConfirmation = true
+        if highlightsViewModel.hasPendingOperations {
+            showSignOutWithPendingHighlightsConfirmation = true
+        } else {
+            showSignOutConfirmation = true
+        }
     }
 
     func confirmSignOut() {
         authentication.signOut()
         highlightsViewModel.reset()
-        isSignedIn = false
+        clearPendingHighlight()
+    }
+
+    func confirmPendingHighlightsSignOut() {
+        highlightsViewModel.reset()
+        confirmSignOut()
     }
 
     private struct ReaderSettings: Codable {
@@ -309,5 +434,55 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         let fontSize: CGFloat?
         let lineSpacing: CGFloat?
         let colorTheme: Int?
+    }
+
+    private struct PendingHighlight {
+        let references: Set<BibleReference>
+        let color: String
+    }
+
+    /// Adds a highlight immediately or starts the just-in-time permission flow when needed.
+    func addHighlightOrStartPermissionFlow(references: Set<BibleReference>, color: String) {
+        guard !references.isEmpty else {
+            return
+        }
+        if !isSignedIn {
+            guard YouVersionPlatformConfiguration.isSignInEnabled else {
+                return
+            }
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            showingSignInSheet = true
+            return
+        }
+        
+        if authentication.hasPermission(Self.highlightsPermission) {
+            applyHighlight(references: references, color: color)
+        } else {
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            showingDataExchangeConfirmation = true
+        }
+    }
+
+    private func applyPendingHighlight() {
+        guard let pendingHighlight else {
+            return
+        }
+        applyHighlight(references: pendingHighlight.references, color: pendingHighlight.color)
+        self.pendingHighlight = nil
+    }
+
+    private func applyHighlight(references: Set<BibleReference>, color: String) {
+        highlightsViewModel.addHighlights(references: Array(references), color: color)
+        removeVerseSelection()
+    }
+
+    private func reloadCurrentChapterHighlights() {
+        highlightsViewModel.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+    }
+
+    private func clearPendingHighlight() {
+        pendingHighlight = nil
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = false
     }
 }

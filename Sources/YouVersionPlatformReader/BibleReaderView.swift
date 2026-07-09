@@ -137,6 +137,24 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("signOut.explanation"))
         }
+        .alert(
+            String.localized("signOut.pendinghighlights.question"),
+            isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
+        ) {
+            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("generic.cancel"), role: .cancel) { }
+        } message: {
+            Text(String.localized("signOut.pendinghighlights.explanation"))
+        }
+        .alert(
+            String.localized("dataExchange.highlights.question"),
+            isPresented: $viewModel.showingDataExchangeConfirmation
+        ) {
+            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+        } message: {
+            Text(String.localized("dataExchange.highlights.explanation"))
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -158,8 +176,22 @@ private struct ReaderContent: View {
             signInView
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
+            // TODO: move this to the viewModel
             if newValue {
-                startSignIn()
+#if os(tvOS)
+                viewModel.startSignIn()
+#else
+                viewModel.startSignIn(contextProvider: contextProvider)
+#endif
+            }
+        }
+        .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
+            if newValue {
+#if os(tvOS)
+                viewModel.startDataExchange()
+#else
+                viewModel.startDataExchange(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: reduceMotion, initial: true) { _, newValue in
@@ -357,28 +389,6 @@ private struct ReaderContent: View {
         }
     }
 #endif
-
-    // MARK: - Action handlers
-
-    private func startSignIn() {
-        // TODO: move this code into BibleReaderViewModel
-        Task {
-            do {
-                viewModel.startSignInFlow = false
-#if !os(tvOS)
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                dump(result)
-#endif
-                
-                await viewModel.updateSignInState()
-            } catch {
-                YouVersionPlatformLogger.error("\(error)", category: "Reader")
-            }
-        }
-    }
 
 }
 

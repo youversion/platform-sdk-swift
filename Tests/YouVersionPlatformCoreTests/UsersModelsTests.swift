@@ -4,10 +4,20 @@ import Testing
 
 @Suite struct UsersModelsTests {
 
-    @Test func permissionRawValuesAndDescription() {
+    @Test func permissionRawValuesAndDescription() throws {
         #expect(SignInWithYouVersionPermission.openid.rawValue == "openid")
         #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
         #expect(SignInWithYouVersionPermission.email.rawValue == "email")
+        #expect(SignInWithYouVersionPermission(rawValue: "notes") == nil)
+        #expect(SignInWithYouVersionPermission.allCases == [.openid, .profile, .email])
+    }
+
+    @Test func decodingUnknownPermissionValueThrows() throws {
+        let data = Data(#""future-permission""#.utf8)
+
+        #expect(throws: DecodingError.self) {
+            _ = try JSONDecoder().decode(SignInWithYouVersionPermission.self, from: data)
+        }
     }
 
     @Test func userInfoAvatarUrlFormatting() {

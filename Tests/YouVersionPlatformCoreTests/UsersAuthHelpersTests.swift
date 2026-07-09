@@ -25,6 +25,7 @@ extension ConfigurationStateTests {
         }
 
         @Test func extractResultParsesClaimsAndPermissions() throws {
+            let callbackURL = URL(string: "youversionauth://callback")!
             let payload: [String: Any] = [
                 "sub": "user-123",
                 "name": "Test User",
@@ -43,19 +44,82 @@ extension ConfigurationStateTests {
                 tokenType: "Bearer"
             )
 
-            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(from: tokens, nonce: "xyz")
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
 
             #expect(result.accessToken == "access-token")
             #expect(result.refreshToken == "refresh-token")
             #expect(result.idToken == token)
-            #expect(result.permissions == [.openid, .email, .profile])
+            #expect(result.permissionValues == ["openid", "email", "profile"])
             #expect(result.yvpUserId == "user-123")
             #expect(result.name == "Test User")
             #expect(result.profilePicture == "https://example.com/avatar.png")
             #expect(result.email == "user@example.com")
         }
 
+        @Test func extractResultMergesGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(string: "youversionauth://callback?granted_permissions=highlights")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights"]))
+        }
+
+        @Test func extractResultMergesRepeatedGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(
+                string: "youversionauth://callback?granted_permissions=highlights&granted_permissions=notes"
+            )!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights", "notes"]))
+        }
+
+        @Test func extractResultUsesTokenScopePermissionsWhenCallbackDoesNotIncludeGrantedPermissions() throws {
+            let callbackURL = URL(string: "youversionauth://callback?code=abc123")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+
+            #expect(result.permissionValues == ["openid", "email"])
+        }
+
+        @Test func extractResultPreservesUnknownGrantedPermissionsFromCallbackURL() throws {
+            let callbackURL = URL(string: "youversionauth://callback?granted_permissions=unknown,highlights")!
+            let token = try makeTestJWT(claims: ["nonce": "xyz"])
+            let tokens = makeTokenResponse(idToken: token, scope: "openid,email")
+
+            let result = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                from: tokens,
+                nonce: "xyz",
+                callbackURL: callbackURL
+            )
+
+            #expect(Set(result.permissionValues) == Set(["openid", "email", "highlights", "unknown"]))
+        }
+
         @Test func extractResultFailsBadNonce() throws {
+            let callbackURL = URL(string: "youversionauth://callback")!
             let payload: [String: Any] = [
                 "sub": "user-123",
                 "name": "Test User",
@@ -75,7 +139,11 @@ extension ConfigurationStateTests {
             )
 
             #expect(throws: URLError.self) {
-                _ = try YouVersionAPI.Users.extractSignInWithYouVersionResult(from: tokens, nonce: "xyz")
+                _ = try YouVersionAPI.Users.extractSignInWithYouVersionResult(
+                    from: tokens,
+                    nonce: "xyz",
+                    callbackURL: callbackURL
+                )
             }
         }
     }
@@ -93,7 +161,7 @@ extension ConfigurationStateTests {
                 "access_token": "new-access",
                 "expires_in": "7200",
                 "refresh_token": "new-refresh",
-                "scope": "ignored"
+                "scope": "openid,email"
             ]
             let responseData = try JSONEncoder().encode(responsePayload)
 
@@ -119,7 +187,7 @@ extension ConfigurationStateTests {
             #expect(result.accessToken == "new-access")
             #expect(result.refreshToken == "new-refresh")
             #expect(result.idToken == "id-token")
-            #expect(result.permissions.isEmpty)
+            #expect(result.permissionValues == ["openid", "email"])
             #expect(result.yvpUserId == nil)
 
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
@@ -150,6 +218,17 @@ extension ConfigurationStateTests {
     }
 }
 
+private func makeTokenResponse(idToken: String, scope: String) -> YouVersionAPI.Users.TokenResponse {
+    YouVersionAPI.Users.TokenResponse(
+        accessToken: "access-token",
+        expiresIn: "3600",
+        idToken: idToken,
+        refreshToken: "refresh-token",
+        scope: scope,
+        tokenType: "Bearer"
+    )
+}
+
 private func makeTestJWT(claims: [String: Any]) throws -> String {
     let header = ["alg": "RS256", "typ": "JWT"]
     let headerData = try JSONSerialization.data(withJSONObject: header)
@@ -165,4 +244,3 @@ private func base64URLEncodedString(_ data: Data) -> String {
         .replacingOccurrences(of: "/", with: "_")
         .replacingOccurrences(of: "=", with: "")
 }
-

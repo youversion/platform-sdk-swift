@@ -177,7 +177,8 @@ BibleReaderView(
 
 #### Disabling Sign-In
 
-By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. To disable all sign-in UI — including the verse-tap prompt, the header menu sign-in option, and the version-download auth check — set `isSignInEnabled` to `false` during configuration:
+By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. 
+To disable all sign-in UI, including the verse-tap prompt and the header menu sign-in option, set `isSignInEnabled` to `false` during configuration:
 
 ```swift
 YouVersionPlatformConfiguration.configure(
@@ -187,6 +188,20 @@ YouVersionPlatformConfiguration.configure(
 ```
 
 When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
+
+#### Highlight Permissions
+
+When BibleReaderView needs permission to save highlights to YouVersion, 
+it requests that permission either by starting the sign in process with that permission included, 
+or by requesting an additional permission via `requestDataExchange()`. 
+
+Apps that need to start the same permission flow themselves can do it like this:
+
+```swift
+let session = DataExchangeSession(contextProvider: contextProvider)
+_ = try await session.requestDataExchange(permissions: ["highlights"])
+let hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
+```
 
 #### Filtering Available Languages
 
@@ -221,7 +236,8 @@ The SDK provides two levels of sign-in integration:
 
 #### Built-in Sign-In (via BibleReaderView)
 
-When `isSignInEnabled` is `true` (the default), the `BibleReaderView` handles sign-in automatically. Set `appName` and an optional `signInPromptMessage` during configuration to customize the sign-in sheet:
+When `isSignInEnabled` is `true` (the default), the `BibleReaderView` handles sign-in automatically. 
+Set `appName` and an optional `signInPromptMessage` during configuration to customize the sign-in sheet:
 
 ```swift
 YouVersionPlatformConfiguration.configure(
