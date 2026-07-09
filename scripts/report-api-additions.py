@@ -39,6 +39,9 @@ TYPE_DECL_KINDS = {
     "Struct": "struct",
 }
 
+SWIFT_ATTRIBUTE_PATTERN = r"@[A-Za-z_][A-Za-z0-9_]*(?:\([^)]*\))?\s+"
+SWIFT_DECLARATION_PREFIX_PATTERN = rf"(?:(?:public|open|final)\s+|{SWIFT_ATTRIBUTE_PATTERN})*"
+
 
 @dataclass(frozen=True)
 class Scope:
@@ -140,7 +143,7 @@ def matching_brace_index(text: str, open_brace: int) -> int:
 
 def source_scopes(text: str) -> list[Scope]:
     pattern = re.compile(
-        r"\b(?:public\s+)?(?:final\s+)?"
+        rf"\b{SWIFT_DECLARATION_PREFIX_PATTERN}"
         r"(?:extension|struct|class|enum|protocol|actor)\s+"
         r"([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)"
         r"[^{}]*\{"
@@ -176,7 +179,7 @@ def regex_for_addition(addition: Addition) -> re.Pattern[str]:
     escaped_name = re.escape(addition.name)
     if addition.kind == "TypeDecl":
         return re.compile(
-            rf"\b(?:public\s+)?(?:final\s+)?"
+            rf"\b{SWIFT_DECLARATION_PREFIX_PATTERN}"
             rf"(?:struct|class|enum|protocol|actor)\s+{escaped_name}\b"
         )
     if addition.kind == "Constructor":
@@ -240,14 +243,15 @@ def find_source_match(addition: Addition, source_files: list[Path]) -> SourceMat
 
         if addition.context and addition.context[-1] in text:
             owner = addition.context[-1]
-            index = text.find(owner)
             owner_pattern = re.compile(
-                rf"\b(?:public\s+)?(?:final\s+)?"
-                rf"(?:struct|class|enum|protocol|actor)\s+{re.escape(owner)}\b"
+                rf"\b{SWIFT_DECLARATION_PREFIX_PATTERN}"
+                rf"(?:extension|struct|class|enum|protocol|actor)\s+{re.escape(owner)}\b"
             )
             owner_match = owner_pattern.search(text)
-            score = 45 if owner_match else 20
-            index = owner_match.start() if owner_match else index
+            if owner_match is None:
+                continue
+            score = 45
+            index = owner_match.start()
             candidate = SourceMatch(path=path, index=index, owner=owner, score=score)
             if best is None or candidate.score > best.score:
                 best = candidate
