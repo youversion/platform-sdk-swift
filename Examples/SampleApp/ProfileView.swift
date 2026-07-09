@@ -82,10 +82,7 @@ struct ProfileView: View {
 #else
                 let session = DataExchangeSession(contextProvider: contextProvider)
 #endif
-                let result = try await session.requestDataExchange(permissions: ["highlights"])
-                if !result.isGranted {
-                    dataExchangeStatusText = "Highlights permission status: \(result.status)"
-                }
+                let _ = try await session.requestDataExchange(permissions: ["highlights"])
                 hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
             } catch {
                 dataExchangeStatusText = "Highlights permission failed: \(error.localizedDescription)"
