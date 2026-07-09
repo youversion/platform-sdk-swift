@@ -365,6 +365,39 @@
         }
       }
     },
+    "dataExchange.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "dataExchange.highlights.explanation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouVersion will ask you to grant access before highlights can be saved."
+          }
+        }
+      }
+    },
+    "dataExchange.highlights.question": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow this app to save highlights with YouVersion?"
+          }
+        }
+      }
+    },
     "generic.back": {
       "extractionState": "manual",
       "localizations": {
@@ -1521,6 +1554,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Es-tu sûr de vouloir te déconnecter de YouVersion ?"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out anyway"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.explanation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some of your highlights haven’t been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.question" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save your highlights?"
           }
         }
       }

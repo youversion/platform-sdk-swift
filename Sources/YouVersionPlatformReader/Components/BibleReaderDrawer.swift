@@ -15,9 +15,7 @@ struct BibleReaderDrawer: View {
                 .padding(.bottom, 8)
             ScrollView([.horizontal], showsIndicators: false) {
                 HStack {
-                    if viewModel.isSignedIn {
-                        highlightColorButtons
-                    }
+                    highlightColorButtons
 #if !os(tvOS)
                     copyButton
                     if let (url, title) = viewModel.shareableURLAndTitleForSelection {
@@ -53,7 +51,7 @@ struct BibleReaderDrawer: View {
                 Button(action: { viewModel.removeVerseColor(color) }) {
                     coloredCircle(with: color)
                         .overlay(
-                            Image(systemName: "xmark")
+                            Image("highlight_checkmark", bundle: .YouVersionUIBundle)
                         )
                 }
             }

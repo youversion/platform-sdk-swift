@@ -20,7 +20,7 @@ public extension YouVersionAPI.Users {
 #if !os(tvOS)
     @MainActor
     static func signIn(
-        permissions: Set<SignInWithYouVersionPermission>,
+        permissions: [String],
         contextProvider: ASWebAuthenticationPresentationContextProviding
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
@@ -30,7 +30,7 @@ public extension YouVersionAPI.Users {
         let redirectURL = URL(string: "youversionauth://callback")!
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
-            permissions: permissions,
+            permissions: Set(permissions),
             redirectURL: redirectURL
         )
 
@@ -40,10 +40,22 @@ public extension YouVersionAPI.Users {
             session.start()
         }
     }
+
+    @available(*, deprecated, message: "Use signIn(permissions:contextProvider:) with raw String permission values instead.")
+    @MainActor
+    static func signIn(
+        permissions: Set<SignInWithYouVersionPermission>,
+        contextProvider: ASWebAuthenticationPresentationContextProviding
+    ) async throws -> SignInWithYouVersionResult {
+        try await signIn(
+            permissions: permissions.map(\.rawValue),
+            contextProvider: contextProvider
+        )
+    }
 #else
     @MainActor
     static func signIn(
-        permissions: Set<SignInWithYouVersionPermission>
+        permissions: [String]
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
             throw YouVersionAPIError.missingAuthentication
@@ -52,7 +64,7 @@ public extension YouVersionAPI.Users {
         let redirectURL = URL(string: "youversionauth://callback")!
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
-            permissions: permissions,
+            permissions: Set(permissions),
             redirectURL: redirectURL
         )
 
@@ -60,6 +72,14 @@ public extension YouVersionAPI.Users {
             let session = signInSession(authorizationRequest: authorizationRequest, redirectURL: redirectURL, continuation)
             session.start()
         }
+    }
+
+    @available(*, deprecated, message: "Use signIn(permissions:) with raw String permission values instead.")
+    @MainActor
+    static func signIn(
+        permissions: Set<SignInWithYouVersionPermission>
+    ) async throws -> SignInWithYouVersionResult {
+        try await signIn(permissions: permissions.map(\.rawValue))
     }
 #endif
 
@@ -88,7 +108,8 @@ public extension YouVersionAPI.Users {
                             accessToken: result.accessToken,
                             refreshToken: result.refreshToken,
                             idToken: result.idToken,
-                            expiryDate: result.expiryDate
+                            expiryDate: result.expiryDate,
+                            permissions: result.permissionValues
                         )
                         continuation.resume(returning: result)
                     } catch {
