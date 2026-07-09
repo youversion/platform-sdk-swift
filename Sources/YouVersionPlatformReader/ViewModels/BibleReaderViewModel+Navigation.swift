@@ -134,9 +134,16 @@ extension BibleReaderViewModel {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }
 
-    private func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = a.starts(with: "#") ? String(a.split(separator: "#").last!) : a
-        let cleanB = b.starts(with: "#") ? String(b.split(separator: "#").last!) : b
+    func hexColorValueForComparison(_ color: String) -> String {
+        guard color.starts(with: "#") else {
+            return color
+        }
+        return String(color.dropFirst())
+    }
+
+    func isSameHexColor(_ a: String, _ b: String) -> Bool {
+        let cleanA = hexColorValueForComparison(a)
+        let cleanB = hexColorValueForComparison(b)
         return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
     }
 
