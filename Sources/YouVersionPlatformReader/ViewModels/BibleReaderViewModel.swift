@@ -8,17 +8,11 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 /// The single scroll intent a navigation produces. The reader observes this and
-/// performs exactly one of: nothing, scroll to the top, or scroll to a verse.
-///
-/// Modeling the two outcomes as one value (rather than a `scrollToTop` flag plus a
-/// `scrollTargetReference`) means a navigation can't arm both or neither, and there's
-/// no window where a `scrollToTop = true` write is immediately overwritten by a
-/// verse-scroll arm in the same run-loop tick — which SwiftUI would coalesce, dropping
-/// the intermediate value and the reset that depends on observing it.
+/// performs exactly one of: nothing, scroll to the top, or scroll to a reference.
 enum ScrollAction: Equatable {
     case none
     case top
-    case toVerse(BibleReference)
+    case reference(BibleReference)
 }
 
 @MainActor
@@ -59,9 +53,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             UserDefaults.standard.set(showsFullChapter, forKey: userDefaultsKeyForShowsFullChapter)
         }
     }
-    /// The verse the reader should scroll to, if the current ``scrollAction`` is a verse scroll.
+    /// The reference the reader should scroll to, if the current ``scrollAction`` is a verse scroll.
     var scrollTargetReference: BibleReference? {
-        if case .toVerse(let reference) = scrollAction {
+        if case .reference(let reference) = scrollAction {
             reference
         } else {
             nil
@@ -244,7 +238,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
             return
         }
-        scrollAction = .toVerse(reference)
+        scrollAction = .reference(reference)
     }
 
     /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,

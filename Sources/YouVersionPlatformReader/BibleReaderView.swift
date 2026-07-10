@@ -380,7 +380,7 @@ private struct ReaderContent: View {
                         // Scroll already consumed above; only end the chapter change.
                         viewModel.finishChapterChange(clearingScroll: false)
                     }
-                case .toVerse:
+                case .reference:
                     verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
                 case .none:
                     break
