@@ -28,7 +28,7 @@ import Testing
         #expect(viewModel.showingVerseActionsDrawer == false)
         #expect(viewModel.showChrome)
         #expect(viewModel.lastScrollOffset == 0)
-        #expect(viewModel.scrollToTop)
+        #expect(viewModel.scrollAction == .top)
         #expect(await repository.requestedIds() == [111])
     }
 

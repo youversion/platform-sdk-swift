@@ -92,8 +92,7 @@ final class VerseScrollCoordinator {
 
     private func clearScrollState() {
         fallbackTask?.cancel()
-        viewModel.clearScrollTarget()
-        viewModel.isChangingChapter = false
+        viewModel.finishChapterChange()
         isScrollPending = false
     }
 }
