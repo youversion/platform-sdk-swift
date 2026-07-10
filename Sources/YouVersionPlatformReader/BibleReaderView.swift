@@ -364,24 +364,26 @@ private struct ReaderContent: View {
                 }
             }
             .coordinateSpace(.named("scrollView"))
-            .onChange(of: viewModel.scrollToTop) { _, shouldScroll in
-                if shouldScroll {
-                    scrollProxy.scrollTo("topOfContent", anchor: .top)
-                    viewModel.scrollToTop = false
-                    // Wait for scroll animation before clearing the flag.
-                    Task { @MainActor in
-                        // swiftlint:disable:next common_debug_statements
-                        try? await Task.sleep(for: .seconds(0.5))
-                        viewModel.isChangingChapter = false
-                    }
-                }
-            }
             .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
                 verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
             }
-            .onChange(of: viewModel.scrollTargetReference, initial: true) { _, target in
-                if target != nil {
+            .onChange(of: viewModel.scrollAction, initial: true) { _, action in
+                switch action {
+                case .top:
+                    scrollProxy.scrollTo("topOfContent", anchor: .top)
+                    // Mark the scroll consumed so a later navigation can re-arm it, but keep
+                    // chrome suppressed until the scroll animation settles before finishing.
+                    viewModel.clearScrollAction()
+                    Task { @MainActor in
+                        // swiftlint:disable:next common_debug_statements
+                        try? await Task.sleep(for: .seconds(0.5))
+                        // Scroll already consumed above; only end the chapter change.
+                        viewModel.finishChapterChange(clearingScroll: false)
+                    }
+                case .toVerse:
                     verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
+                case .none:
+                    break
                 }
             }
         }

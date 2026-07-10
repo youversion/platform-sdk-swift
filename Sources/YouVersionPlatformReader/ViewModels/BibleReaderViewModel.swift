@@ -7,6 +7,20 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+/// The single scroll intent a navigation produces. The reader observes this and
+/// performs exactly one of: nothing, scroll to the top, or scroll to a verse.
+///
+/// Modeling the two outcomes as one value (rather than a `scrollToTop` flag plus a
+/// `scrollTargetReference`) means a navigation can't arm both or neither, and there's
+/// no window where a `scrollToTop = true` write is immediately overwritten by a
+/// verse-scroll arm in the same run-loop tick — which SwiftUI would coalesce, dropping
+/// the intermediate value and the reset that depends on observing it.
+enum ScrollAction: Equatable {
+    case none
+    case top
+    case toVerse(BibleReference)
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -38,14 +52,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - UI state of the Reader itself
     var showChrome = true
     var lastScrollOffset: CGFloat = 0
-    var scrollToTop = false
     var isChangingChapter = false
+    var scrollAction: ScrollAction = .none
     var showsFullChapter: Bool {
         didSet {
             UserDefaults.standard.set(showsFullChapter, forKey: userDefaultsKeyForShowsFullChapter)
         }
     }
-    private(set) var scrollTargetReference: BibleReference?
+    /// The verse the reader should scroll to, if the current ``scrollAction`` is a verse scroll.
+    var scrollTargetReference: BibleReference? {
+        if case .toVerse(let reference) = scrollAction {
+            reference
+        } else {
+            nil
+        }
+    }
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
@@ -223,13 +244,26 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
             return
         }
-        scrollTargetReference = reference
-        scrollToTop = false
+        scrollAction = .toVerse(reference)
     }
 
-    /// Clears the scroll target once the reader has brought it into view.
-    func clearScrollTarget() {
-        scrollTargetReference = nil
+    /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
+    /// without ending the chapter change (chrome stays suppressed until the scroll settles).
+    func clearScrollAction() {
+        scrollAction = .none
+    }
+
+    /// Ends an in-flight chapter change by re-enabling scroll-driven chrome, and — unless the
+    /// scroll was already consumed via ``clearScrollAction()`` — clearing any armed scroll. This
+    /// is the single place a navigation returns the reader to its resting state.
+    ///
+    /// Pass `clearingScroll: false` from a delayed settle where the scroll has already been
+    /// consumed, so a navigation that re-armed a scroll during the delay isn't clobbered.
+    func finishChapterChange(clearingScroll: Bool = true) {
+        if clearingScroll {
+            scrollAction = .none
+        }
+        isChangingChapter = false
     }
 
     func loadUserSettingsFromStorage() {

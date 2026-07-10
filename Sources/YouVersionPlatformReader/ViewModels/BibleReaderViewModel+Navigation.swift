@@ -30,7 +30,7 @@ extension BibleReaderViewModel {
         // back to minY = 0, since onGeometryChange won't fire again.
         lastScrollOffset = 0
         showChrome = true
-        scrollToTop = true
+        scrollAction = .top
     }
 
     func goToNextChapter() {
@@ -62,13 +62,13 @@ extension BibleReaderViewModel {
         // back to minY = 0, since onGeometryChange won't fire again.
         lastScrollOffset = 0
         showChrome = true
-        scrollToTop = true
+        scrollAction = .top
     }
 
     func goToReference(_ reference: BibleReference, showsFullChapter: Bool) async {
         await onHeaderSelectionChange(reference, showIntro: false)
         guard reference == self.reference else {
-            isChangingChapter = false
+            finishChapterChange()
             return
         }
         self.showsFullChapter = showsFullChapter
@@ -251,7 +251,7 @@ extension BibleReaderViewModel {
             // back to minY = 0, since onGeometryChange won't fire again.
             lastScrollOffset = 0
             showChrome = true
-            scrollToTop = true
+            scrollAction = .top
         } catch {
             YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "Reader")
         }
