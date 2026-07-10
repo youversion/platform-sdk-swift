@@ -253,10 +253,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         scrollAction = .none
     }
 
-    /// Ends an in-flight chapter change: clears any armed scroll and re-enables scroll-driven
-    /// chrome. This is the single place a navigation returns the reader to its resting state.
-    func finishChapterChange() {
-        scrollAction = .none
+    /// Ends an in-flight chapter change by re-enabling scroll-driven chrome, and — unless the
+    /// scroll was already consumed via ``clearScrollAction()`` — clearing any armed scroll. This
+    /// is the single place a navigation returns the reader to its resting state.
+    ///
+    /// Pass `clearingScroll: false` from a delayed settle where the scroll has already been
+    /// consumed, so a navigation that re-armed a scroll during the delay isn't clobbered.
+    func finishChapterChange(clearingScroll: Bool = true) {
+        if clearingScroll {
+            scrollAction = .none
+        }
         isChangingChapter = false
     }
 

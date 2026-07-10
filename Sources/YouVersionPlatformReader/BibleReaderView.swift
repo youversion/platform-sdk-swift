@@ -377,7 +377,8 @@ private struct ReaderContent: View {
                     Task { @MainActor in
                         // swiftlint:disable:next common_debug_statements
                         try? await Task.sleep(for: .seconds(0.5))
-                        viewModel.isChangingChapter = false
+                        // Scroll already consumed above; only end the chapter change.
+                        viewModel.finishChapterChange(clearingScroll: false)
                     }
                 case .toVerse:
                     verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
