@@ -128,32 +128,23 @@ extension BibleTextView {
     }
 
     // Build a per-block accessibility summary of which verses are highlighted
-    // and in which color, e.g. "verse 6 highlighted yellow". Empty string when
+    // and in which color, e.g. "verse 6 highlighted orange". Empty string when
     // no verse in the block is highlighted so VoiceOver / automation only
-    // sees the value when it's meaningful.
+    // sees the value when it's meaningful. Color name comes from UIKit's
+    // localized accessibilityName so it works for any authored hex and speaks
+    // in the user's language.
     private func highlightSummary(for string: AttributedString) -> String {
         var parts: [String] = []
         var seen = Set<Int>()
         for run in string.runs[\.bibleTextCategory, \.bibleReference] {
             guard run.0 == .scripture, let ref = run.1, let verse = ref.verseStart else { continue }
             if seen.contains(verse) { continue }
-            guard let hex = highlightHexFor(reference: ref) else { continue }
+            let color = highlightFor(reference: ref)
+            if color == .clear { continue }
             seen.insert(verse)
-            parts.append("verse \(verse) highlighted \(HighlightColorNaming.name(for: hex).lowercased())")
+            parts.append("verse \(verse) highlighted \(UIColor(color).accessibilityName)")
         }
         return parts.joined(separator: ", ")
-    }
-
-    // Returns the *source* hex for a highlight on this reference (before
-    // conversion to Color), so accessibility labels look the color up by
-    // the authored value instead of a round-tripped RGB approximation.
-    private func highlightHexFor(reference: BibleReference) -> String? {
-        for highlight in ourHighlights {
-            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
-                return highlight.color
-            }
-        }
-        return nil
     }
 
     private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {

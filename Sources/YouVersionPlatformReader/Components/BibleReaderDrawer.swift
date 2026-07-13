@@ -33,24 +33,22 @@ struct BibleReaderDrawer: View {
         .background(viewModel.readerCanvasPrimaryColor)
     }
     
-    // Keep hex + Color together so accessibility lookups use the
-    // *authored* hex, not one reconstructed from Color's runtime
-    // components (which can drift by ±1 per channel through Display P3
-    // → sRGB and cause palette misses, e.g. FFC66F → "Custom").
-    private var highlightPalette: [(hex: String, color: Color)] {
+    private var highlightColors: [Color] {
         [
-            ("fffe00", Color(hex: "fffe00")),
-            ("5DFF79", Color(hex: "5DFF79")),
-            ("00D6FF", Color(hex: "00D6FF")),
-            ("FFC66F", Color(hex: "FFC66F")),
-            ("FF95EF", Color(hex: "FF95EF"))
+            Color(hex: "fffe00"),
+            Color(hex: "5DFF79"),
+            Color(hex: "00D6FF"),
+            Color(hex: "FFC66F"),
+            Color(hex: "FF95EF")
         ]
     }
 
-    private var highlightColors: [Color] { highlightPalette.map(\.color) }
-
-    private func hex(for color: Color) -> String {
-        return highlightPalette.first(where: { $0.color == color })?.hex ?? ""
+    // Localized natural-language color name from Apple, e.g. "orange" in
+    // English, "naranja" in Spanish. Handles any RGB value (approximates
+    // to the nearest known color) so this scales beyond the fixed palette
+    // if the SDK ever exposes a custom color picker.
+    private func accessibilityColorName(for color: Color) -> String {
+        return UIColor(color).accessibilityName
     }
 
     private var highlightColorButtons: some View {
@@ -64,13 +62,13 @@ struct BibleReaderDrawer: View {
                             Image(systemName: "xmark")
                         )
                 }
-                .accessibilityLabel("Remove \(HighlightColorNaming.name(for: hex(for: color))) highlight")
+                .accessibilityLabel("Remove \(accessibilityColorName(for: color)) highlight")
             }
             ForEach(colorsToAdd, id: \.self) { color in
                 Button(action: { viewModel.addVerseColor(color) }) {
                     coloredCircle(with: color)
                 }
-                .accessibilityLabel("\(HighlightColorNaming.name(for: hex(for: color))) highlight")
+                .accessibilityLabel("\(accessibilityColorName(for: color)) highlight")
             }
         }
         .padding(.horizontal)
