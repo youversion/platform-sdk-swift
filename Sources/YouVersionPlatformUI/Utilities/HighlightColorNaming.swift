@@ -8,7 +8,9 @@ import SwiftUI
 public enum HighlightColorNaming {
 
     public static func name(for hex: String) -> String {
-        switch hex.lowercased() {
+        // Strip a leading '#' before matching so a server-stored value
+        // like "#ffc66f" resolves the same as the authored "ffc66f".
+        switch hex.trimmingCharacters(in: CharacterSet(charactersIn: "#")).lowercased() {
         case "fffe00": return "Yellow"
         case "5dff79": return "Green"
         case "00d6ff": return "Blue"
