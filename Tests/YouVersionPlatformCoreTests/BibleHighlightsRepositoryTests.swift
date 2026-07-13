@@ -10,6 +10,9 @@ class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
     var getHighlightsCallCount = 0
     var updateHighlightCallCount = 0
     var deleteHighlightCallCount = 0
+    var createHighlightCalls: [(bibleId: Int, passageId: String, color: String)] = []
+    var updateHighlightCalls: [(bibleId: Int, passageId: String, color: String)] = []
+    var deleteHighlightCalls: [(bibleId: Int, passageId: String)] = []
     
     var shouldThrowError = false
     var shouldSuspendCreateHighlight = false
@@ -24,6 +27,9 @@ class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
         getHighlightsCallCount = 0
         updateHighlightCallCount = 0
         deleteHighlightCallCount = 0
+        createHighlightCalls = []
+        updateHighlightCalls = []
+        deleteHighlightCalls = []
         shouldThrowError = false
         shouldSuspendCreateHighlight = false
         mockCreateHighlightResult = true
@@ -56,6 +62,7 @@ class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
     
     func createHighlight(bibleId: Int, passageId: String, color: String) async throws -> Bool {
         createHighlightCallCount += 1
+        createHighlightCalls.append((bibleId, passageId, color))
 
         if shouldSuspendCreateHighlight {
             await withCheckedContinuation { continuation in
@@ -72,6 +79,7 @@ class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
     
     func updateHighlight(bibleId: Int, passageId: String, color: String) async throws -> Bool {
         updateHighlightCallCount += 1
+        updateHighlightCalls.append((bibleId, passageId, color))
         
         if shouldThrowError {
             throw NSError(domain: "TestError", code: 1, userInfo: nil)
@@ -82,12 +90,20 @@ class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
     
     func deleteHighlight(bibleId: Int, passageId: String) async throws -> Bool {
         deleteHighlightCallCount += 1
+        deleteHighlightCalls.append((bibleId, passageId))
         
         if shouldThrowError {
             throw NSError(domain: "TestError", code: 1, userInfo: nil)
         }
         
         return mockDeleteHighlightResult
+    }
+}
+
+@MainActor
+final class ThrowingBibleHighlightsRepository: BibleHighlightsRepository {
+    override func saveOperations(_ operations: [PendingHighlightOperation]) async throws -> [UUID: Bool] {
+        throw NSError(domain: "TestError", code: 1)
     }
 }
 
@@ -186,6 +202,25 @@ struct BibleHighlightsRepositoryTests {
         #expect(result.count == 1)
         #expect(result["1_GEN_1"]?.isEmpty == true)
     }
+
+    @Test
+    func testHighlightsIgnoresInvalidPassageIDs() async throws {
+        let mockAPI = setUp()
+        let repository = BibleHighlightsRepository(api: mockAPI)
+        mockAPI.mockGetHighlightsResult = [
+            HighlightResponse(bibleId: 1, passageId: "GEN.1", color: "FF0000"),
+            HighlightResponse(bibleId: 1, passageId: "GEN.chapter.1", color: "00FF00"),
+            HighlightResponse(bibleId: 1, passageId: "GEN.1.verse", color: "0000FF"),
+            HighlightResponse(bibleId: 1, passageId: "GEN.1.2", color: "FFFF00")
+        ]
+
+        let references = [BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)]
+        let result = try await repository.highlights(for: references)
+
+        #expect(result["1_GEN_1"]?.count == 1)
+        #expect(result["1_GEN_1"]?.first?.reference.verseStart == 2)
+        #expect(result["1_GEN_1"]?.first?.color == "#FFFF00")
+    }
     
     // MARK: - Test Operation Processing
     
@@ -200,7 +235,25 @@ struct BibleHighlightsRepositoryTests {
         let result = try await repository.saveOperations([operation])
         
         #expect(mockAPI.createHighlightCallCount == 1)
+        #expect(mockAPI.createHighlightCalls.first?.bibleId == 1)
+        #expect(mockAPI.createHighlightCalls.first?.passageId == "GEN.1.1")
+        #expect(mockAPI.createHighlightCalls.first?.color == "FF0000")
         #expect(result.count == 1)
+        #expect(result[operation.id] == true)
+    }
+
+    @Test
+    func testSaveOperationsAddDefaultsToFirstVerse() async throws {
+        let mockAPI = setUp()
+        let repository = BibleHighlightsRepository(api: mockAPI)
+        let reference = BibleReference(versionId: 42, bookUSFM: "JHN", chapter: 3)
+        let operation = PendingHighlightOperation(references: [reference], color: "00FF00", operationType: .add)
+
+        let result = try await repository.saveOperations([operation])
+
+        #expect(mockAPI.createHighlightCalls.first?.bibleId == 42)
+        #expect(mockAPI.createHighlightCalls.first?.passageId == "JHN.3.1")
+        #expect(mockAPI.createHighlightCalls.first?.color == "00FF00")
         #expect(result[operation.id] == true)
     }
     
@@ -215,8 +268,24 @@ struct BibleHighlightsRepositoryTests {
         let result = try await repository.saveOperations([operation])
         
         #expect(mockAPI.deleteHighlightCallCount == 1)
+        #expect(mockAPI.deleteHighlightCalls.first?.bibleId == 1)
+        #expect(mockAPI.deleteHighlightCalls.first?.passageId == "GEN.1.1")
         #expect(result.count == 1)
         #expect(result[operation.id] == true)
+    }
+
+    @Test
+    func testSaveOperationsRemoveHandlesFailure() async throws {
+        let mockAPI = setUp()
+        mockAPI.mockDeleteHighlightResult = false
+        let repository = BibleHighlightsRepository(api: mockAPI)
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let operation = PendingHighlightOperation(references: [reference], color: nil, operationType: .remove)
+
+        let result = try await repository.saveOperations([operation])
+
+        #expect(mockAPI.deleteHighlightCallCount == 1)
+        #expect(result[operation.id] == false)
     }
     
     @Test
@@ -230,8 +299,25 @@ struct BibleHighlightsRepositoryTests {
         let result = try await repository.saveOperations([operation])
         
         #expect(mockAPI.updateHighlightCallCount == 1)
+        #expect(mockAPI.updateHighlightCalls.first?.bibleId == 1)
+        #expect(mockAPI.updateHighlightCalls.first?.passageId == "GEN.1.1")
+        #expect(mockAPI.updateHighlightCalls.first?.color == "00FF00")
         #expect(result.count == 1)
         #expect(result[operation.id] == true)
+    }
+
+    @Test
+    func testSaveOperationsUpdateHandlesThrownError() async throws {
+        let mockAPI = setUp()
+        mockAPI.shouldThrowError = true
+        let repository = BibleHighlightsRepository(api: mockAPI)
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let operation = PendingHighlightOperation(references: [reference], color: "#00FF00", operationType: .update)
+
+        let result = try await repository.saveOperations([operation])
+
+        #expect(mockAPI.updateHighlightCallCount == 1)
+        #expect(result[operation.id] == false)
     }
     
     @Test
@@ -338,6 +424,35 @@ struct BibleHighlightsRepositoryTests {
         repository.queueOperation(operation1)
         
         #expect(repository.hasPendingOperations)
+    }
+
+    @Test
+    func testPendingOperationCountExcludesProcessingOperation() async {
+        let mockAPI = setUp()
+        mockAPI.shouldSuspendCreateHighlight = true
+        let repository = BibleHighlightsRepository(api: mockAPI)
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let processingOperation = PendingHighlightOperation(
+            references: [reference],
+            color: "#FF0000",
+            operationType: .add
+        )
+        let pendingOperation = PendingHighlightOperation(
+            references: [reference],
+            color: "#00FF00",
+            operationType: .update
+        )
+
+        repository.queueOperation(processingOperation)
+        await mockAPI.waitForCreateHighlightToStart()
+        repository.queueOperation(pendingOperation)
+
+        #expect(repository.pendingOperationCount == 1)
+
+        mockAPI.resumeCreateHighlight()
+        while repository.hasPendingOperations {
+            await Task.yield()
+        }
     }
 
     @Test
@@ -479,6 +594,27 @@ struct BibleHighlightsRepositoryTests {
     }
 
     @Test
+    func testProcessQueueHandlesUnexpectedSaveOperationsError() async {
+        let mockAPI = setUp()
+        let repository = ThrowingBibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 60_000_000_000)
+        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
+
+        repository.queueOperation(operation)
+        while repository.getOperationResult(for: operation.id) == nil {
+            await Task.yield()
+        }
+
+        let result = repository.getOperationResult(for: operation.id)
+        #expect(result?.success == false)
+        #expect(result?.error != nil)
+        #expect(result?.retryCount == 1)
+        #expect(repository.pendingOperationCount == 1)
+
+        repository.clearPendingOperations()
+    }
+
+    @Test
     func testFailedOperationsAreRetriedWithDelayedProcessing() async {
         let mockAPI = setUp()
         mockAPI.mockCreateHighlightResult = false
@@ -568,4 +704,4 @@ struct BibleHighlightsRepositoryTests {
         #expect(mockAPI.createHighlightCallCount >= 2)
         #expect(!repository.hasPendingOperations)
     }
-} 
+}

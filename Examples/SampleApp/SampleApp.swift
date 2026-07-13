@@ -9,7 +9,7 @@ struct SampleApp: App {
     init() {
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
-            appKey: <#Your App Key#>,
+            appKey: "0l11yjhHCGe1vmAGoceT7yFhXdDu4O7UZTxToqOAfiqjsIA9", // prod SampleApp
             appName: "Sample App",
             signInPromptMessage: "Sign in to see your YouVersion highlights in this Sample App."
         )
