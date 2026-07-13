@@ -20,6 +20,13 @@
       },
       {
         "kind": "Import",
+        "name": "Observation",
+        "printedName": "Observation",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
         "name": "SwiftUI",
         "printedName": "SwiftUI",
         "declKind": "Import",
@@ -75,7 +82,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(reference:verseSelectionStyle:onVerseTap:)",
+            "printedName": "init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -138,11 +145,18 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAIcSgtcfc",
-            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAIcSgtcfc",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapterAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAJcSgSbtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapterAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAJcSgSbtcfc",
             "moduleName": "YouVersionPlatformReader",
             "declAttributes": [
               "Preconcurrency",
