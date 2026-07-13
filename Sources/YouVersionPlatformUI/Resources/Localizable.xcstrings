@@ -22,7 +22,8 @@
             "value": "This passage is unavailable in the selected Bible version."
           }
         }
-      }
+      },
+      "comment": "Error message on Bible card when passage is unavailable."
     },
     "bibleText.connectionIssue": {
       "extractionState": "manual",
@@ -33,7 +34,8 @@
             "value": "We’re having difficulties with your connection. Please download a Bible version when you’re online."
           }
         }
-      }
+      },
+      "comment": "Connection error message in Bible text view."
     },
     "bibleText.unavailableVersion": {
       "extractionState": "manual",
@@ -42,6 +44,19 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your previously selected Bible version is unavailable. Please switch to another one."
+          }
+        }
+      },
+      "comment": "Message when selected Bible version is unavailable in Swift reader."
+    },
+    "bibleVersionsHeading": {
+      "comment": "Heading for Bible versions selection screen.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bible Versions"
           }
         }
       }
@@ -73,6 +88,19 @@
             "value": "Livres"
           }
         }
+      },
+      "comment": "Title for book/chapter picker in Swift reader."
+    },
+    "booksHeading": {
+      "comment": "Heading for Bible books list in picker.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Books"
+          }
+        }
       }
     },
     "button.moreVersions": {
@@ -102,7 +130,8 @@
             "value": "Plus de versions"
           }
         }
-      }
+      },
+      "comment": "Button to browse additional Bible versions."
     },
     "button.signOut": {
       "extractionState": "manual",
@@ -131,239 +160,8 @@
             "value": "Se déconnecter"
           }
         }
-      }
-    },
-    "download.agreeButton": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Akzeptieren und herunterladen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agree and Download"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aceptar y descargar"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accepter et télécharger"
-          }
-        }
-      }
-    },
-    "download.agreementParagraph": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unsere Vereinbarung mit dem Herausgeber dieser Bibelversion erfordert, dass wir bestimmte Informationen mit ihnen teilen, um diese Version offline anzubieten. Mit dem Fortfahren stimmst du zu, deine Informationen zu teilen und zu erlauben, dass der Herausgeber dir E-Mails sendet."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Our agreement with the publisher of this Bible version requires us to share certain information with them in order to offer this version for offline use. By proceeding you agree to share your information and to allow the publisher to email you."
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nuestro acuerdo con el editor de esta versión de la Biblia requiere que compartamos cierta información con ellos para ofrecer esta versión sin conexión. Al continuar, aceptas compartir tu información y permitir que el editor te envíe correos electrónicos."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notre accord avec l'éditeur de cette version de la Bible nous oblige à partager certaines informations avec lui afin de proposer cette version hors ligne. En continuant, tu acceptes de partager tes informations et de permettre à l'éditeur de t'envoyer des e-mails."
-          }
-        }
-      }
-    },
-    "download.callToAction": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lies sie jederzeit, überall – sogar offline"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Read it anytime, anywhere—even offline"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Léela cuando quieras, donde quieras, incluso sin conexión"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lis-la à tout moment, n'importe où, même hors ligne"
-          }
-        }
-      }
-    },
-    "download.disagreeButton": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nur online lesen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Read Online Only"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leer solo en línea"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lire en ligne uniquement"
-          }
-        }
-      }
-    },
-    "fontList.others": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Andere"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Others"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Otras"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Autres"
-          }
-        }
-      }
-    },
-    "fontList.suggested": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empfohlen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suggested"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sugeridas"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suggérées"
-          }
-        }
-      }
-    },
-    "fontList.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schriftarten für die Bibellektüre"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bible Reading Fonts"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fuentes de lectura bíblica"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Polices de lecture biblique"
-          }
-        }
-      }
-    },
-    "fontSettings.label": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schriftart"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Font"
-          }
-        },
-        "es-MX": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fuente"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Police"
-          }
-        }
-      }
+      },
+      "comment": "Sign-out button label in Swift UI."
     },
     "dataExchange.continue": {
       "extractionState": "manual",
@@ -398,6 +196,246 @@
         }
       }
     },
+    "download.agreeButton": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Akzeptieren und herunterladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and Download"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar y descargar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepter et télécharger"
+          }
+        }
+      },
+      "comment": "Primary button to accept publisher agreement and download."
+    },
+    "download.agreementParagraph": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsere Vereinbarung mit dem Herausgeber dieser Bibelversion erfordert, dass wir bestimmte Informationen mit ihnen teilen, um diese Version offline anzubieten. Mit dem Fortfahren stimmst du zu, deine Informationen zu teilen und zu erlauben, dass der Herausgeber dir E-Mails sendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Our agreement with the publisher of this Bible version requires us to share certain information with them in order to offer this version for offline use. By proceeding you agree to share your information and to allow the publisher to email you."
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuestro acuerdo con el editor de esta versión de la Biblia requiere que compartamos cierta información con ellos para ofrecer esta versión sin conexión. Al continuar, aceptas compartir tu información y permitir que el editor te envíe correos electrónicos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notre accord avec l'éditeur de cette version de la Bible nous oblige à partager certaines informations avec lui afin de proposer cette version hors ligne. En continuant, tu acceptes de partager tes informations et de permettre à l'éditeur de t'envoyer des e-mails."
+          }
+        }
+      },
+      "comment": "Publisher consent paragraph for offline Bible download."
+    },
+    "download.callToAction": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lies sie jederzeit, überall – sogar offline"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read it anytime, anywhere—even offline"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Léela cuando quieras, donde quieras, incluso sin conexión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lis-la à tout moment, n'importe où, même hors ligne"
+          }
+        }
+      },
+      "comment": "Promotional tagline for offline download prompt."
+    },
+    "download.disagreeButton": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur online lesen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read Online Only"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer solo en línea"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire en ligne uniquement"
+          }
+        }
+      },
+      "comment": "Button to decline offline download and read online only."
+    },
+    "fontList.others": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otras"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres"
+          }
+        }
+      },
+      "comment": "Section heading for non-suggested fonts in font list."
+    },
+    "fontList.suggested": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empfohlen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggested"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugeridas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggérées"
+          }
+        }
+      },
+      "comment": "Section heading for suggested fonts in font list."
+    },
+    "fontList.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schriftarten für die Bibellektüre"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bible Reading Fonts"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuentes de lectura bíblica"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polices de lecture biblique"
+          }
+        }
+      },
+      "comment": "Screen title for Bible reading font selection."
+    },
+    "fontSettings.label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schriftart"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Font"
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fuente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Police"
+          }
+        }
+      },
+      "comment": "Font option label in Swift reader settings."
+    },
     "generic.back": {
       "extractionState": "manual",
       "localizations": {
@@ -425,7 +463,8 @@
             "value": "Retour"
           }
         }
-      }
+      },
+      "comment": "Back navigation button label in Swift UI."
     },
     "generic.cancel": {
       "extractionState": "manual",
@@ -454,7 +493,8 @@
             "value": "Annuler"
           }
         }
-      }
+      },
+      "comment": "Cancel button label in Swift dialogs."
     },
     "generic.done": {
       "extractionState": "manual",
@@ -483,7 +523,8 @@
             "value": "Terminé"
           }
         }
-      }
+      },
+      "comment": "Done button label to dismiss or confirm a sheet."
     },
     "generic.error": {
       "extractionState": "manual",
@@ -512,7 +553,8 @@
             "value": "Erreur"
           }
         }
-      }
+      },
+      "comment": "Generic error title or heading in Swift UI."
     },
     "generic.ok": {
       "extractionState": "manual",
@@ -523,7 +565,8 @@
             "value": "OK"
           }
         }
-      }
+      },
+      "comment": "OK button label in Swift dialogs."
     },
     "generic.search": {
       "extractionState": "manual",
@@ -552,7 +595,8 @@
             "value": "Rechercher"
           }
         }
-      }
+      },
+      "comment": "Search field placeholder or button label in Swift UI."
     },
     "languageList.all": {
       "extractionState": "manual",
@@ -581,7 +625,8 @@
             "value": "Toutes"
           }
         }
-      }
+      },
+      "comment": "Tab or filter label for all languages."
     },
     "languageList.allWithCount": {
       "extractionState": "manual",
@@ -610,7 +655,8 @@
             "value": "%2$@ (%1$d)"
           }
         }
-      }
+      },
+      "comment": "Language tab with count; %1$d is count, %2$@ is section name (e.g. All)."
     },
     "languageList.regional": {
       "extractionState": "manual",
@@ -639,7 +685,8 @@
             "value": "Régionales"
           }
         }
-      }
+      },
+      "comment": "Tab or section label for regional languages."
     },
     "languageList.suggested": {
       "extractionState": "manual",
@@ -668,7 +715,8 @@
             "value": "Suggérées"
           }
         }
-      }
+      },
+      "comment": "Tab or section label for suggested languages."
     },
     "languageList.title": {
       "extractionState": "manual",
@@ -697,7 +745,8 @@
             "value": "Langues bibliques"
           }
         }
-      }
+      },
+      "comment": "Screen title for Bible language selection."
     },
     "menu.download": {
       "extractionState": "manual",
@@ -726,7 +775,8 @@
             "value": "Télécharger"
           }
         }
-      }
+      },
+      "comment": "Menu action to download a Bible version for offline use."
     },
     "menu.fontSettings": {
       "extractionState": "manual",
@@ -755,7 +805,8 @@
             "value": "Réglages de police"
           }
         }
-      }
+      },
+      "comment": "Menu item to open font settings."
     },
     "menu.moreInfo": {
       "extractionState": "manual",
@@ -784,7 +835,8 @@
             "value": "Plus d'infos"
           }
         }
-      }
+      },
+      "comment": "Menu item to view more Bible version information."
     },
     "menu.removeDownload": {
       "extractionState": "manual",
@@ -813,7 +865,8 @@
             "value": "Supprimer le téléchargement"
           }
         }
-      }
+      },
+      "comment": "Menu action to delete downloaded offline Bible version."
     },
     "menu.removeFromList": {
       "extractionState": "manual",
@@ -842,7 +895,8 @@
             "value": "Retirer de la liste"
           }
         }
-      }
+      },
+      "comment": "Menu action to remove version from user's list."
     },
     "menu.signIn": {
       "extractionState": "manual",
@@ -871,7 +925,8 @@
             "value": "Se connecter"
           }
         }
-      }
+      },
+      "comment": "Menu item to sign in to YouVersion account."
     },
     "menu.signOut": {
       "extractionState": "manual",
@@ -900,7 +955,8 @@
             "value": "Se déconnecter"
           }
         }
-      }
+      },
+      "comment": "Menu item to sign out of YouVersion account."
     },
     "myVersions.defaultVersionName": {
       "extractionState": "manual",
@@ -929,7 +985,8 @@
             "value": "cette version"
           }
         }
-      }
+      },
+      "comment": "Fallback name when Bible version title is unknown; lowercase phrase."
     },
     "myVersions.downloadCompleteBodyFormat": {
       "extractionState": "manual",
@@ -958,7 +1015,8 @@
             "value": "Téléchargement réussi de %@."
           }
         }
-      }
+      },
+      "comment": "Download success body; %@ is the Bible version name."
     },
     "myVersions.downloadCompleteTitle": {
       "extractionState": "manual",
@@ -987,7 +1045,8 @@
             "value": "Téléchargement terminé"
           }
         }
-      }
+      },
+      "comment": "Title of download success alert."
     },
     "myVersions.downloadErrorBody": {
       "extractionState": "manual",
@@ -1016,7 +1075,8 @@
             "value": "Il n'a pas été possible de télécharger cette version pour le moment."
           }
         }
-      }
+      },
+      "comment": "Generic download failure body message."
     },
     "myVersions.downloadFailedBodyFormat": {
       "extractionState": "manual",
@@ -1045,7 +1105,8 @@
             "value": "Impossible de télécharger %@.\n\n%@"
           }
         }
-      }
+      },
+      "comment": "Download failure body; first %@ is version name, second %@ is error detail."
     },
     "myVersions.downloadFailedTitle": {
       "extractionState": "manual",
@@ -1074,7 +1135,8 @@
             "value": "Échec du téléchargement"
           }
         }
-      }
+      },
+      "comment": "Title of download failure alert."
     },
     "myVersions.title": {
       "extractionState": "manual",
@@ -1103,7 +1165,8 @@
             "value": "Mes versions"
           }
         }
-      }
+      },
+      "comment": "Screen title for user's downloaded Bible versions."
     },
     "myVersions.versionInfoComingSoon": {
       "extractionState": "manual",
@@ -1132,7 +1195,8 @@
             "value": "INFOS À VENIR"
           }
         }
-      }
+      },
+      "comment": "Placeholder text for version info not yet available; all caps intentional."
     },
     "reader.availableLanguagesErrorBody": {
       "extractionState": "manual",
@@ -1143,7 +1207,8 @@
             "value": "It was not possible to get the list of available languages. Please try again later."
           }
         }
-      }
+      },
+      "comment": "Error body when language list fails to load."
     },
     "reader.footnoteTitle": {
       "extractionState": "manual",
@@ -1154,7 +1219,8 @@
             "value": "Footnote"
           }
         }
-      }
+      },
+      "comment": "Title for footnote detail view in Swift reader."
     },
     "reader.introLoadError": {
       "extractionState": "manual",
@@ -1165,7 +1231,8 @@
             "value": "The Introductory material could not be loaded."
           }
         }
-      }
+      },
+      "comment": "Error when book introductory chapter content fails to load."
     },
     "reader.learnMore": {
       "extractionState": "manual",
@@ -1194,7 +1261,8 @@
             "value": "En savoir plus"
           }
         }
-      }
+      },
+      "comment": "Link label for additional information in reader."
     },
     "reader.noVersionsAvailable": {
       "extractionState": "manual",
@@ -1223,7 +1291,8 @@
             "value": "Aucune version de la Bible n'est disponible. Reconnecte-toi et télécharge une version de la Bible pour continuer hors ligne."
           }
         }
-      }
+      },
+      "comment": "Empty state when no Bible versions are available offline."
     },
     "reader.versionAccessErrorBody": {
       "extractionState": "manual",
@@ -1234,7 +1303,8 @@
             "value": "It was not possible to access this Bible version. Please try again later."
           }
         }
-      }
+      },
+      "comment": "Error body when selected Bible version cannot be accessed."
     },
     "shareableVerse.referencesSeparator": {
       "extractionState": "manual",
@@ -1263,7 +1333,8 @@
             "value": ", "
           }
         }
-      }
+      },
+      "comment": "Separator between multiple Bible references in shared verse text."
     },
     "shareableVerse.unavailable": {
       "extractionState": "manual",
@@ -1292,10 +1363,12 @@
             "value": "(Texte biblique indisponible)"
           }
         }
-      }
+      },
+      "comment": "Placeholder when Bible verse text cannot be loaded for sharing."
     },
     "signIn.appMessage": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "comment": ""
     },
     "signIn.button.accessibility": {
       "extractionState": "manual",
@@ -1324,7 +1397,8 @@
             "value": "Se connecter avec YouVersion"
           }
         }
-      }
+      },
+      "comment": "VoiceOver label for sign-in button; YouVersion is brand name."
     },
     "signIn.button.compact": {
       "extractionState": "manual",
@@ -1353,7 +1427,8 @@
             "value": "Se connecter"
           }
         }
-      }
+      },
+      "comment": "Compact sign-in button label in Swift UI."
     },
     "signIn.button.full": {
       "extractionState": "manual",
@@ -1382,7 +1457,8 @@
             "value": "Se connecter avec %@"
           }
         }
-      }
+      },
+      "comment": "Full sign-in button format; %@ is provider or brand name."
     },
     "signIn.introducing": {
       "extractionState": "manual",
@@ -1411,7 +1487,8 @@
             "value": "NOUS PRÉSENTONS"
           }
         }
-      }
+      },
+      "comment": "Eyebrow label above third-party app sign-in prompt; all caps intentional."
     },
     "signIn.noButton": {
       "extractionState": "manual",
@@ -1440,7 +1517,8 @@
             "value": "Non merci"
           }
         }
-      }
+      },
+      "comment": "Decline button in third-party app sign-in permission prompt."
     },
     "signIn.paragraph": {
       "extractionState": "manual",
@@ -1469,7 +1547,8 @@
             "value": "%@ souhaite se connecter à ton compte YouVersion Bible App. Cela lui permettra de voir et d'interagir avec ton activité dans l'application. Souhaites-tu continuer ?"
           }
         }
-      }
+      },
+      "comment": "Sign-in permission body; %@ is third-party app name; YouVersion/Bible App are brands."
     },
     "signIn.yesButton": {
       "extractionState": "manual",
@@ -1498,7 +1577,8 @@
             "value": "Oui"
           }
         }
-      }
+      },
+      "comment": "Accept button in third-party app sign-in permission prompt."
     },
     "signOut.explanation": {
       "extractionState": "manual",
@@ -1525,6 +1605,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tu devras te reconnecter pour accéder à tes surlignages."
+          }
+        }
+      },
+      "comment": "Supplementary sign-out explanation about highlights access."
+    },
+    "signOut.pendinghighlights.confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out anyway"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.explanation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some of your highlights haven’t been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
+          }
+        }
+      }
+    },
+    "signOut.pendinghighlights.question": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save your highlights?"
           }
         }
       }
@@ -1556,40 +1670,8 @@
             "value": "Es-tu sûr de vouloir te déconnecter de YouVersion ?"
           }
         }
-      }
-    },
-    "signOut.pendinghighlights.confirm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out anyway"
-          }
-        }
-      }
-    },
-    "signOut.pendinghighlights.explanation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Some of your highlights haven’t been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
-          }
-        }
-      }
-    },
-    "signOut.pendinghighlights.question" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save your highlights?"
-          }
-        }
-      }
+      },
+      "comment": "Sign-out confirmation question; YouVersion is brand name."
     },
     "tab.bible": {
       "extractionState": "manual",
@@ -1618,7 +1700,8 @@
             "value": "Bible"
           }
         }
-      }
+      },
+      "comment": "Bible tab label in Swift tab bar."
     },
     "tab.profile": {
       "extractionState": "manual",
@@ -1647,7 +1730,8 @@
             "value": "Profil"
           }
         }
-      }
+      },
+      "comment": "Profile tab label in Swift tab bar."
     },
     "tab.votd": {
       "extractionState": "manual",
@@ -1676,7 +1760,8 @@
             "value": "Verset du jour"
           }
         }
-      }
+      },
+      "comment": "Verse of the Day tab label in Swift tab bar."
     },
     "tab.widget": {
       "extractionState": "manual",
@@ -1705,7 +1790,8 @@
             "value": "Widget"
           }
         }
-      }
+      },
+      "comment": "Widget tab or section label in Swift UI."
     },
     "verseActions.copy": {
       "extractionState": "manual",
@@ -1734,7 +1820,8 @@
             "value": "Copier"
           }
         }
-      }
+      },
+      "comment": "Copy action in verse action sheet."
     },
     "verseActions.share": {
       "extractionState": "manual",
@@ -1763,7 +1850,8 @@
             "value": "Partager"
           }
         }
-      }
+      },
+      "comment": "Share action in verse action sheet."
     },
     "verseActions.swipeUpLabel": {
       "extractionState": "manual",
@@ -1792,7 +1880,8 @@
             "value": "Balaye vers le haut pour plus"
           }
         }
-      }
+      },
+      "comment": "Hint label for swipe-up gesture to reveal more verse actions."
     },
     "versionInfo.addButton": {
       "extractionState": "manual",
@@ -1821,7 +1910,8 @@
             "value": "Ajouter"
           }
         }
-      }
+      },
+      "comment": "Button to add Bible version to user's list."
     },
     "versionInfo.addedButton": {
       "extractionState": "manual",
@@ -1850,7 +1940,8 @@
             "value": "Ajoutée"
           }
         }
-      }
+      },
+      "comment": "Disabled state label after version is added to list."
     },
     "versionInfo.detailsLabel": {
       "extractionState": "manual",
@@ -1879,7 +1970,8 @@
             "value": "Détails"
           }
         }
-      }
+      },
+      "comment": "Section label for Bible version details."
     },
     "versionInfo.downloadButton": {
       "extractionState": "manual",
@@ -1908,7 +2000,8 @@
             "value": "Télécharger"
           }
         }
-      }
+      },
+      "comment": "Button to download Bible version for offline reading."
     },
     "versionInfo.publisherWithSizeFormat": {
       "extractionState": "manual",
@@ -1937,7 +2030,8 @@
             "value": "%1$@  •  %2$@"
           }
         }
-      }
+      },
+      "comment": "Publisher and file size line; %1$@ is publisher, %2$@ is download size."
     },
     "versionInfo.readButton": {
       "extractionState": "manual",
@@ -1966,7 +2060,8 @@
             "value": "Lire"
           }
         }
-      }
+      },
+      "comment": "Button to open and read this Bible version."
     },
     "versionInfo.sampleButton": {
       "extractionState": "manual",
@@ -1995,7 +2090,8 @@
             "value": "Échantillon"
           }
         }
-      }
+      },
+      "comment": "Button to preview a sample of the Bible version."
     },
     "versionInfo.sharingOKButton": {
       "extractionState": "manual",
@@ -2024,7 +2120,8 @@
             "value": "OK"
           }
         }
-      }
+      },
+      "comment": "OK button on publisher data-sharing consent dialog."
     },
     "versionInfo.sharingPrivacyButton": {
       "extractionState": "manual",
@@ -2053,7 +2150,8 @@
             "value": "Politique de confidentialité"
           }
         }
-      }
+      },
+      "comment": "Link button to privacy policy on sharing consent dialog."
     },
     "versionInfo.sharingTitle": {
       "extractionState": "manual",
@@ -2082,7 +2180,8 @@
             "value": "Tu vas partager"
           }
         }
-      }
+      },
+      "comment": "Title of dialog explaining data shared with publisher."
     },
     "versionList.searchPlaceholder": {
       "extractionState": "manual",
@@ -2111,7 +2210,8 @@
             "value": "Rechercher des versions"
           }
         }
-      }
+      },
+      "comment": "Search placeholder in Bible version list."
     },
     "versionList.statisticsFormat": {
       "extractionState": "manual",
@@ -2308,7 +2408,8 @@
             }
           }
         }
-      }
+      },
+      "comment": "Pluralized stats line; versions_string and languages_string are plural rule keys."
     },
     "widget.poweredBy": {
       "extractionState": "manual",
@@ -2337,7 +2438,8 @@
             "value": "Propulsé par"
           }
         }
-      }
+      },
+      "comment": "Attribution prefix in widget; YouVersion/Bible App branding follows."
     }
   }
 }
