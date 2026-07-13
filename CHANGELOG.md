@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.3.0](https://github.com/youversion/platform-sdk-swift/compare/5.2.3...5.3.0) (2026-07-10)
+
+
+### Features
+
+* add "scripts/check-api-stability.sh additions" ([b78d76a](https://github.com/youversion/platform-sdk-swift/commit/b78d76ab8877ccaa6ef64560d7012141e3bf8d56))
+* highlights ([804b0c1](https://github.com/youversion/platform-sdk-swift/commit/804b0c1a9572756ebb20139468e5be9ae6eb410b))
+* **reader:** follow system appearance until the user picks a theme ([#138](https://github.com/youversion/platform-sdk-swift/issues/138)) ([5e7fd4f](https://github.com/youversion/platform-sdk-swift/commit/5e7fd4fd95554309dc541f68590ce4b7945a36b6))
+* **reader:** scroll to a verse within its chapter BL-1901 ([#173](https://github.com/youversion/platform-sdk-swift/issues/173)) ([70a423d](https://github.com/youversion/platform-sdk-swift/commit/70a423d43de73be979bc21d53554f54490cb77a4))
+* update typography ([61d393c](https://github.com/youversion/platform-sdk-swift/commit/61d393c058fc884e475117246e746819dd129eba))
+
+
+### Bug Fixes
+
+* add .serialized to child suites that mutate YouVersionPlatformConfiguration ([11c8336](https://github.com/youversion/platform-sdk-swift/commit/11c833644860a555a25b98f44690e9e7697dee4a))
+* display footnotes with correct internal formatting as well as size ([ae75831](https://github.com/youversion/platform-sdk-swift/commit/ae7583167a43b9bf357023ac47e101c2c4f745e8))
+* harden isSameHexColor ([eded35e](https://github.com/youversion/platform-sdk-swift/commit/eded35e892d49bf00f111dce11f7adfe70e0cdbd))
+* ignore unsupported HTML nodes in BibleTextNodeParser ([5dd17c7](https://github.com/youversion/platform-sdk-swift/commit/5dd17c7ad5e99d6b43325b1836b2d0f84a5d606f))
+* localization tests now also run locally ([b6b062c](https://github.com/youversion/platform-sdk-swift/commit/b6b062cd23b68639cb9f92eb6827aee4dc5ba084))
+* **reader:** adjust reader copyright and footnotes spacing ([41e5f24](https://github.com/youversion/platform-sdk-swift/commit/41e5f24621eb67ecacf0a7c825750b569147686f))
+* render small caps using the current font ([0c837c9](https://github.com/youversion/platform-sdk-swift/commit/0c837c95293f42a6d5efb5ab842749258dec0d5b))
+* swap values for the muted text color between dark and light ([46d1d07](https://github.com/youversion/platform-sdk-swift/commit/46d1d075bb3e07090840d7e682936cbb2ebc496e))
+
 ## [5.2.3](https://github.com/youversion/platform-sdk-swift/compare/5.2.2...5.2.3) (2026-05-27)
 
 
