@@ -115,8 +115,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.isSignedIn
     }
 
-    init(
-        reference: BibleReference? = nil,
+    /// Creates a view model displaying `reference`.
+    convenience init(
+        reference: BibleReference,
         showsFullChapter: Bool = false,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
@@ -124,9 +125,51 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         onVerseTap: ((BibleReference) -> Void)? = nil,
         authentication: BibleReaderAuthentication? = nil
     ) {
+        self.init(
+            initialReference: reference,
+            showsFullChapter: showsFullChapter,
+            highlightsViewModel: highlightsViewModel,
+            verseSelectionStyle: verseSelectionStyle,
+            versionsViewModel: versionsViewModel,
+            onVerseTap: onVerseTap,
+            authentication: authentication
+        )
+    }
+
+    /// Creates a view model that restores the last-viewed passage — the reference,
+    /// intro visibility, and full-chapter display mode — or falls back to John 1
+    /// when nothing has been saved. No verse scroll is armed on restore, so a user
+    /// who had scrolled within the chapter isn't pulled back to the saved verse.
+    convenience init(
+        highlightsViewModel: BibleHighlightsViewModel? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        versionsViewModel: BibleVersionsViewModel? = nil,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        authentication: BibleReaderAuthentication? = nil
+    ) {
+        self.init(
+            initialReference: nil,
+            showsFullChapter: false,
+            highlightsViewModel: highlightsViewModel,
+            verseSelectionStyle: verseSelectionStyle,
+            versionsViewModel: versionsViewModel,
+            onVerseTap: onVerseTap,
+            authentication: authentication
+        )
+    }
+
+    private init(
+        initialReference: BibleReference?,
+        showsFullChapter: Bool,
+        highlightsViewModel: BibleHighlightsViewModel?,
+        verseSelectionStyle: VerseSelectionStyle,
+        versionsViewModel: BibleVersionsViewModel?,
+        onVerseTap: ((BibleReference) -> Void)?,
+        authentication: BibleReaderAuthentication?
+    ) {
         let authentication = authentication ?? .default
-        if let reference {
-            self.reference = reference
+        if let initialReference {
+            self.reference = initialReference
             self.showBookIntro = false
             self.showsFullChapter = showsFullChapter
         } else {
@@ -136,8 +179,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
                 self.showsFullChapter = UserDefaults.standard.bool(forKey: userDefaultsKeyForShowsFullChapter)
             } else {
-                // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let versionId = reference?.versionId ?? BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
+                // no saved reference, so, pick a downloaded version, else a safe default.
+                let versionId = BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false
                 self.showsFullChapter = showsFullChapter
@@ -167,7 +210,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
         observeCurrentVersion()
 
-        if reference != nil {
+        if initialReference != nil {
             setScrollTarget()
         }
     }

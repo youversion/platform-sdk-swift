@@ -12,11 +12,13 @@ public struct BibleReaderView: View {
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
 
-    /// Creates a Bible reader view.
+    /// Creates a Bible reader view displaying `reference`.
+    ///
+    /// To restore the passage the user was last viewing instead, use
+    /// ``restoringLastPassage(verseSelectionStyle:onVerseTap:readerNavigation:)``.
     ///
     /// - Parameters:
-    ///   - reference: The Bible reference to display initially. When `nil`, the reader
-    ///     restores the last-viewed reference or defaults to John 1.
+    ///   - reference: The Bible reference to display initially.
     ///   - verseSelectionStyle: Controls the visual style of the underline drawn
     ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
@@ -34,17 +36,58 @@ public struct BibleReaderView: View {
     ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
     ///     to a new passage from elsewhere in the app (for example, a "Read" button in
     ///     another tab).
-    public init(reference: BibleReference? = nil,
+    public init(reference: BibleReference,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> Void)? = nil,
                 showsFullChapter: Bool = false,
                 readerNavigation: BibleReaderNavigation? = nil
     ) {
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            readerNavigation: readerNavigation
+        )
+    }
+
+    /// Creates a Bible reader view that restores the passage the user was last
+    /// viewing — the reference and its display mode — or shows John 1 when
+    /// nothing has been saved yet.
+    ///
+    /// - Parameters:
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     See ``init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:)``.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
+    public static func restoringLastPassage(
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        readerNavigation: BibleReaderNavigation? = nil
+    ) -> BibleReaderView {
+        BibleReaderView(
+            initialReference: nil,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            readerNavigation: readerNavigation
+        )
+    }
+
+    private init(initialReference: BibleReference?,
+                 verseSelectionStyle: VerseSelectionStyle,
+                 onVerseTap: ((BibleReference) -> Void)?,
+                 showsFullChapter: Bool,
+                 readerNavigation: BibleReaderNavigation?
+    ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        self.initialReference = reference
+        self.initialReference = initialReference
         self.readerNavigation = readerNavigation
         self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
@@ -66,7 +109,13 @@ public struct BibleReaderView: View {
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
         YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            readerNavigation: nil
+        )
     }
 
     public var body: some View {
@@ -79,12 +128,19 @@ public struct BibleReaderView: View {
         }
         .task {
             if viewModel == nil {
-                viewModel = BibleReaderViewModel(
-                    reference: initialReference,
-                    showsFullChapter: showsFullChapter,
-                    verseSelectionStyle: verseSelectionStyle,
-                    onVerseTap: onVerseTap
-                )
+                viewModel = if let initialReference {
+                    BibleReaderViewModel(
+                        reference: initialReference,
+                        showsFullChapter: showsFullChapter,
+                        verseSelectionStyle: verseSelectionStyle,
+                        onVerseTap: onVerseTap
+                    )
+                } else {
+                    BibleReaderViewModel(
+                        verseSelectionStyle: verseSelectionStyle,
+                        onVerseTap: onVerseTap
+                    )
+                }
             }
         }
     }

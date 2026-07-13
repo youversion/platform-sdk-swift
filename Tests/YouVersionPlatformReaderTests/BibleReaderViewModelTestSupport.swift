@@ -112,14 +112,23 @@ enum BibleReaderViewModelTestSupport {
             signOut: signOut,
             hasPermission: hasPermission
         )
-        return BibleReaderViewModel(
-            reference: reference,
-            showsFullChapter: showsFullChapter,
-            highlightsViewModel: highlightsViewModel,
-            versionsViewModel: versionsViewModel,
-            onVerseTap: onVerseTap,
-            authentication: authentication
-        )
+        return if let reference {
+            BibleReaderViewModel(
+                reference: reference,
+                showsFullChapter: showsFullChapter,
+                highlightsViewModel: highlightsViewModel,
+                versionsViewModel: versionsViewModel,
+                onVerseTap: onVerseTap,
+                authentication: authentication
+            )
+        } else {
+            BibleReaderViewModel(
+                highlightsViewModel: highlightsViewModel,
+                versionsViewModel: versionsViewModel,
+                onVerseTap: onVerseTap,
+                authentication: authentication
+            )
+        }
     }
 
     static func makeBibleVersion(id: Int) -> BibleVersion {

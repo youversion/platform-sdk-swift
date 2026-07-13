@@ -19,7 +19,7 @@ struct SampleApp: App {
     var body: some Scene {
         WindowGroup {
             TabView(selection: $selectedTab) {
-                BibleReaderView(readerNavigation: readerNavigation)
+                BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
                 .tabItem {
                     Label("Bible", systemImage: "book.closed.fill")
                 }
