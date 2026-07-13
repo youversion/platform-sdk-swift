@@ -127,12 +127,6 @@ extension BibleTextView {
         }
     }
 
-    // Build a per-block accessibility summary of which verses are highlighted
-    // and in which color, e.g. "verse 6 highlighted orange". Empty string when
-    // no verse in the block is highlighted so VoiceOver / automation only
-    // sees the value when it's meaningful. Color name comes from UIKit's
-    // localized accessibilityName so it works for any authored hex and speaks
-    // in the user's language.
     private func highlightSummary(for string: AttributedString) -> String {
         var parts: [String] = []
         var seen = Set<Int>()

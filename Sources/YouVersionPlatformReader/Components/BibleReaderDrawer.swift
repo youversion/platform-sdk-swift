@@ -43,10 +43,6 @@ struct BibleReaderDrawer: View {
         ]
     }
 
-    // Localized natural-language color name from Apple, e.g. "orange" in
-    // English, "naranja" in Spanish. Handles any RGB value (approximates
-    // to the nearest known color) so this scales beyond the fixed palette
-    // if the SDK ever exposes a custom color picker.
     private func accessibilityColorName(for color: Color) -> String {
         return UIColor(color).accessibilityName
     }
