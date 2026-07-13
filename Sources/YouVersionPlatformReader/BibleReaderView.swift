@@ -209,10 +209,14 @@ private struct ReaderContent: View {
             viewModel.colorScheme = newValue
         }
         .onChange(of: readerNavigation?.pendingRequest) { _, _ in
-            handleNavigationRequest()
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
         }
         .onAppear {
-            handleNavigationRequest()
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -405,16 +409,6 @@ private struct ReaderContent: View {
         }
     }
 #endif
-
-    private func handleNavigationRequest() {
-        guard let readerNavigation, let request = readerNavigation.pendingRequest else {
-            return
-        }
-        readerNavigation.consumePendingRequest()
-        Task {
-            await viewModel.goToReference(request.reference, showsFullChapter: request.showsFullChapter)
-        }
-    }
 
 }
 

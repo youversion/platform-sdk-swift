@@ -143,11 +143,11 @@ import Testing
     }
 
     @Test
-    func consumeClearsPendingRequest() {
+    func clearsPendingRequest() {
         let navigation = BibleReaderNavigation()
         navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
 
-        navigation.consumePendingRequest()
+        navigation.clearPendingRequest()
 
         #expect(navigation.pendingRequest == nil)
     }

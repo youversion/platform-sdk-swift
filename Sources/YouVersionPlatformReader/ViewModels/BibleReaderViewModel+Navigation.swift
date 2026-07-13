@@ -24,13 +24,7 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking and restore chrome so the new chapter lands
-        // in the same initial state as a fresh open. Without this, chrome
-        // stays hidden after a navigation tap that scrolls cached content
-        // back to minY = 0, since onGeometryChange won't fire again.
-        lastScrollOffset = 0
-        showChrome = true
-        scrollAction = .top
+        resetScrollStateForNewChapter()
     }
 
     func goToNextChapter() {
@@ -56,23 +50,29 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking and restore chrome so the new chapter lands
-        // in the same initial state as a fresh open. Without this, chrome
-        // stays hidden after a navigation tap that scrolls cached content
-        // back to minY = 0, since onGeometryChange won't fire again.
-        lastScrollOffset = 0
-        showChrome = true
-        scrollAction = .top
+        resetScrollStateForNewChapter()
     }
 
-    func goToReference(_ reference: BibleReference, showsFullChapter: Bool) async {
-        await onHeaderSelectionChange(reference, showIntro: false)
-        guard reference == self.reference else {
-            finishChapterChange()
+    /// Acts on any pending request from `readerNavigation`, moving the reader to the
+    /// requested passage.
+    func handleNavigationRequest(from readerNavigation: BibleReaderNavigation) {
+        guard let request = readerNavigation.pendingRequest else {
             return
         }
-        self.showsFullChapter = showsFullChapter
-        setScrollTarget()
+        readerNavigation.clearPendingRequest()
+        Task {
+            await goToReference(request.reference, showsFullChapter: request.showsFullChapter)
+        }
+    }
+
+    func goToReference(_ reference: BibleReference, showsFullChapter: Bool = false) async {
+        await onHeaderSelectionChange(reference, showIntro: false)
+        if reference == self.reference {
+            self.showsFullChapter = showsFullChapter
+            setScrollTarget()
+        } else {
+            finishChapterChange()
+        }
     }
 
     func removeVerseSelection() {
@@ -244,14 +244,7 @@ extension BibleReaderViewModel {
             }
             self.reference = reference
             self.showBookIntro = showIntro
-
-            // Reset scroll tracking and restore chrome so the new chapter lands
-            // in the same initial state as a fresh open. Without this, chrome
-            // stays hidden after a navigation tap that scrolls cached content
-            // back to minY = 0, since onGeometryChange won't fire again.
-            lastScrollOffset = 0
-            showChrome = true
-            scrollAction = .top
+            resetScrollStateForNewChapter()
         } catch {
             YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "Reader")
         }

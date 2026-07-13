@@ -4,7 +4,7 @@ import YouVersionPlatform
 /// Demonstrates driving the Bible reader from another tab via
 /// ``BibleReaderNavigation``: each button requests a passage and switches to the
 /// Bible tab, where the shared reader moves to it in place.
-struct NavigationDemoView: View {
+struct NavigateView: View {
     let navigation: BibleReaderNavigation
     let onNavigate: () -> Void
 

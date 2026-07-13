@@ -25,7 +25,7 @@ struct SampleApp: App {
                 }
                 .tag(0)
 
-                NavigationDemoView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
+                NavigateView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
                     .tabItem {
                         Label("Navigate", systemImage: "arrow.uturn.right")
                     }

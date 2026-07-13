@@ -24,7 +24,7 @@ public final class BibleReaderNavigation {
     }
 
     /// Called by the reader once it has begun acting on the request.
-    func consumePendingRequest() {
+    func clearPendingRequest() {
         pendingRequest = nil
     }
 }
