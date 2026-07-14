@@ -44,7 +44,7 @@ struct BibleReaderDrawer: View {
     }
 
     private func accessibilityColorName(for color: Color) -> String {
-        return UIColor(color).accessibilityName
+        UIColor(color).accessibilityName
     }
 
     private var highlightColorButtons: some View {
