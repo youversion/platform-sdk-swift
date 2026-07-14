@@ -128,11 +128,26 @@ extension BibleTextView {
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
             .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
+            .accessibilityValue(highlightSummary(for: string))
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
         } else {
             return retValue
         }
+    }
+
+    private func highlightSummary(for string: AttributedString) -> String {
+        var parts: [String] = []
+        var seen = Set<Int>()
+        for run in string.runs[\.bibleTextCategory, \.bibleReference] {
+            guard run.0 == .scripture, let ref = run.1, let verse = ref.verseStart else { continue }
+            if seen.contains(verse) { continue }
+            let color = highlightFor(reference: ref)
+            if color == .clear { continue }
+            seen.insert(verse)
+            parts.append("verse \(verse) highlighted \(UIColor(color).accessibilityName)")
+        }
+        return parts.joined(separator: ", ")
     }
     
     private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {

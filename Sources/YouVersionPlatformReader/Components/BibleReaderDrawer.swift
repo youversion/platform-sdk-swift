@@ -43,6 +43,10 @@ struct BibleReaderDrawer: View {
         ]
     }
 
+    private func accessibilityColorName(for color: Color) -> String {
+        return UIColor(color).accessibilityName
+    }
+
     private var highlightColorButtons: some View {
         let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
@@ -54,11 +58,13 @@ struct BibleReaderDrawer: View {
                             Image("highlight_checkmark", bundle: .YouVersionUIBundle)
                         )
                 }
+                .accessibilityLabel("Remove \(accessibilityColorName(for: color)) highlight")
             }
             ForEach(colorsToAdd, id: \.self) { color in
                 Button(action: { viewModel.addVerseColor(color) }) {
                     coloredCircle(with: color)
                 }
+                .accessibilityLabel("\(accessibilityColorName(for: color)) highlight")
             }
         }
         .padding(.horizontal)
