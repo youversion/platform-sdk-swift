@@ -77,6 +77,40 @@ public struct BibleReaderView: View {
         )
     }
 
+    /// Creates a Bible reader view.
+    ///
+    /// - Parameters:
+    ///   - reference: The Bible reference to display initially. When `nil`, the reader
+    ///     restores the last-viewed reference or defaults to John 1.
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
+    @available(*, deprecated, message: "Pass a non-optional reference, or use BibleReaderView.restoringLastPassage() to restore the last-viewed passage.")
+    public init(reference: BibleReference? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid,
+                onVerseTap: ((BibleReference) -> Void)? = nil,
+                showsFullChapter: Bool = false
+    ) {
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            readerNavigation: nil
+        )
+    }
+
     private init(initialReference: BibleReference?,
                  verseSelectionStyle: VerseSelectionStyle,
                  onVerseTap: ((BibleReference) -> Void)?,

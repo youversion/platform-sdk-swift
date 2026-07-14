@@ -144,8 +144,10 @@ The SDK automatically fetches Scripture from YouVersion servers and maintains a 
 
 Displays a full Bible reading experience, very similar to the YouVersion Bible app, ready to be added as a tab in your app.
 
+To restore the passage the user was last viewing (or open to John 1 the first time):
+
 ```swift
-BibleReaderView()
+BibleReaderView.restoringLastPassage()
 ```
 
 To open to a specific passage:
@@ -182,7 +184,7 @@ var body: some View {
         .tabItem { Label("Home", systemImage: "house") }
         .tag(Tab.home)
 
-        BibleReaderView(readerNavigation: readerNavigation)
+        BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
             .tabItem { Label("Bible", systemImage: "book.closed") }
             .tag(Tab.bible)
     }
@@ -192,7 +194,7 @@ var body: some View {
 To intercept verse taps instead of using the built-in sign-in flow:
 
 ```swift
-BibleReaderView(
+BibleReaderView.restoringLastPassage(
     onVerseTap: { reference in
         // Handle the tapped verse reference
     }
