@@ -191,6 +191,12 @@ var body: some View {
 }
 ```
 
+To focus a verse — moving to its full chapter and dimming the other verses — call `focus(_:)`. The focus clears when the user scrolls, taps a verse, or navigates away.
+
+```swift
+readerNavigation.focus(reference)
+```
+
 To intercept verse taps instead of using the built-in sign-in flow:
 
 ```swift

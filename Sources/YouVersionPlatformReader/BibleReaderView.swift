@@ -428,7 +428,8 @@ private struct ReaderContent: View {
                                 selectedVerses: $viewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                                }
+                                },
+                                focusedReference: viewModel.focusedReference
                             )
                         }
                         VStack(alignment: .center) {
@@ -453,6 +454,12 @@ private struct ReaderContent: View {
                     } action: { newOffset in
                         viewModel.handleScroll(offset: newOffset)
                     }
+                    // Tap anywhere in the reader to clear a focused reference.
+                    .simultaneousGesture(
+                        viewModel.focusedReference != nil
+                            ? TapGesture().onEnded { viewModel.clearFocus() }
+                            : nil
+                    )
                 } else {
                     progressView
                 }

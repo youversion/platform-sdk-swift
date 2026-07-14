@@ -15,14 +15,14 @@ import Testing
     func chapterOnlyReferenceArmsNoScroll() {
         let viewModel = makeViewModel(verse: nil)
 
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
     }
 
     @Test
     func verseOneArmsNoScroll() {
         let viewModel = makeViewModel(verse: 1)
 
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
     }
 
     @Test
@@ -32,14 +32,14 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: nil, showsFullChapter: true)
 
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
     }
 
     @Test
     func verseRangeModeArmsNoScroll() {
         let viewModel = makeViewModel(verse: 14, showsFullChapter: false)
 
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
     }
 
     // A reader constructed fresh at a verse (the path loop-ios uses for VOTD and
@@ -50,7 +50,7 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: true)
 
-        #expect(viewModel.scrollTargetReference?.verseStart == 16)
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: reference, focused: false)))
     }
 
     @Test
@@ -59,7 +59,7 @@ import Testing
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: false)
 
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
     }
 
     @Test
@@ -72,7 +72,7 @@ import Testing
 
         #expect(viewModel.reference.bookUSFM == "JHN")
         #expect(viewModel.reference.chapter == 3)
-        #expect(viewModel.scrollTargetReference?.verseStart == 16)
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, focused: false)))
         #expect(viewModel.isChangingChapter)
     }
 
@@ -85,7 +85,7 @@ import Testing
         await viewModel.goToReference(target, showsFullChapter: false)
 
         #expect(viewModel.reference.chapter == 3)
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .top)
     }
 
     @Test
@@ -100,7 +100,7 @@ import Testing
         await viewModel.goToReference(target, showsFullChapter: true)
 
         #expect(viewModel.reference.chapter != 3)
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .none)
         #expect(viewModel.showsFullChapter == false)
         #expect(viewModel.isChangingChapter == false)
     }
@@ -116,7 +116,148 @@ import Testing
         )
 
         #expect(viewModel.reference.chapter == 3)
-        #expect(viewModel.scrollTargetReference == nil)
+        #expect(viewModel.scrollAction == .top)
+    }
+
+    // MARK: - Focus
+
+    private func makeFocusedViewModel() -> BibleReaderViewModel {
+        let viewModel = Support.makeViewModel()
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+        return viewModel
+    }
+
+    // A focused navigation arms the scroll to focus its target once it lands.
+    // The dim itself isn't set until the coordinator scrolls the verse into view,
+    // so it fades in on landing rather than during the scroll.
+    @Test
+    func goToReferenceFocusedArmsFocusScrollTarget() async {
+        let viewModel = makeFocusedViewModel()
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true, focused: true)
+
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, focused: true)))
+        #expect(viewModel.focusedReference == nil)  // not focused until the scroll lands
+    }
+
+    // The coordinator calls focus once it has scrolled the verse into view.
+    @Test
+    func setFocusedFocusesTheVerse() async {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true, focused: true)
+
+        viewModel.focus(target)
+
+        #expect(viewModel.focusedReference == target)
+    }
+
+    @Test
+    func goToReferenceWithoutFocusDoesNotArmFocus() async {
+        let viewModel = makeFocusedViewModel()
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true)
+
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, focused: false)))  // scroll only, no focus
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    // A chapter-only reference has no verse to scroll to, so nothing is armed and the
+    // coordinator never reaches its focus step.
+    @Test
+    func focusingChapterOnlyReferenceArmsNothing() async {
+        let viewModel = makeFocusedViewModel()
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3)
+        await viewModel.goToReference(target, showsFullChapter: true, focused: true)
+
+        #expect(viewModel.scrollAction == .top)
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    // Focusing in place dims the verse immediately, with no scroll armed — there's no
+    // scroll to observe, so it sets focusedReference directly.
+    @Test
+    func focusFocusesWithoutScrolling() {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+
+        viewModel.focus(target)
+
+        #expect(viewModel.focusedReference == target)
+        #expect(viewModel.scrollAction == .none)  // nothing to scroll
+    }
+
+    @Test
+    func focusIgnoresChapterOnlyReference() {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
+
+        viewModel.focus(target)
+
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    @Test
+    func focusIgnoresReferenceInAnotherChapter() {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+
+        viewModel.focus(target)
+
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    @Test
+    func userScrollAwayClearsFocus() {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+        viewModel.lastScrollOffset = -400
+        viewModel.focus(target)
+
+        viewModel.handleScroll(offset: -600)
+
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    // The reveal scroll's settling stays within the threshold of its landing, so it
+    // doesn't dismiss the focus.
+    @Test
+    func smallScrollKeepsFocus() {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+        viewModel.lastScrollOffset = -400   // the settled landing position
+        viewModel.focus(target)
+
+        viewModel.handleScroll(offset: -400.5)   // within the threshold
+
+        #expect(viewModel.focusedReference == target)
+    }
+
+    @Test
+    func verseTapClearsFocus() async {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true, focused: true)
+        viewModel.focus(target)
+
+        viewModel.handleVerseTap(reference: target, actionType: "", footnotes: [])
+
+        #expect(viewModel.focusedReference == nil)
+    }
+
+    @Test
+    func chapterNavigationClearsFocus() async {
+        let viewModel = makeFocusedViewModel()
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true, focused: true)
+        viewModel.focus(target)
+
+        viewModel.goToNextChapter()
+
+        #expect(viewModel.focusedReference == nil)
     }
 }
 
@@ -150,5 +291,41 @@ import Testing
         navigation.clearPendingRequest()
 
         #expect(navigation.pendingRequest == nil)
+    }
+
+    @Test
+    func focusRequestScrollsToVerseAndShowsFullChapter() {
+        let navigation = BibleReaderNavigation()
+        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+
+        navigation.focus(reference)
+
+        #expect(navigation.pendingRequest?.reference == reference)
+        #expect(navigation.pendingRequest?.focused == true)
+        #expect(navigation.pendingRequest?.scrollsToVerse == true)
+        // Focus always shows the full chapter — there's nothing to dim around a
+        // lone verse range.
+        #expect(navigation.pendingRequest?.showsFullChapter == true)
+    }
+
+    @Test
+    func focusInPlaceRequestFocusesWithoutScrolling() {
+        let navigation = BibleReaderNavigation()
+        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+
+        navigation.focus(reference, scrollsToVerse: false)
+
+        #expect(navigation.pendingRequest?.reference == reference)
+        #expect(navigation.pendingRequest?.focused == true)
+        #expect(navigation.pendingRequest?.scrollsToVerse == false)
+    }
+
+    @Test
+    func requestIsNotFocused() {
+        let navigation = BibleReaderNavigation()
+
+        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+
+        #expect(navigation.pendingRequest?.focused == false)
     }
 }
