@@ -40,6 +40,9 @@ public enum BibleTextFontOption {
     case font100emSmallCaps
 }
 
+// This protocol exists only to provide compability while also
+// avoiding us getting compilation warnings for our test cases etc.
+// When we remove the enum values such as .textFont, it should be removed.
 private protocol LegacyBibleTextFontOptions {
     static var textFont: BibleTextFontOption { get }
     static var textFontBold: BibleTextFontOption { get }
@@ -98,7 +101,7 @@ public struct BibleTextFonts {
             .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
             .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
             
-            // below are deprecated:
+            // below are deprecated, and will be removed when .textFont etc. are removed:
             legacyOptions.textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
             legacyOptions.textFontBold: Self.font(familyName: familyName, size: baseSize).bold(),
             legacyOptions.smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
