@@ -511,8 +511,20 @@ custom_rules:
     name: "SwiftUI Localization" # rule name. optional.
     regex: "\\W(Text|TextField|SecureField|Button|Label|Toggle|Picker|Menu|confirmationDialog|navigationTitle|navigationBarTitle|alert)\\((NSLocalizedString)" # matching pattern
     capture_group: 2
-    message: "SwiftUI can localize strings using only the key." # violation message. optional.
+    message: "Use String.localized(\"dotted.key\") instead of NSLocalizedString; see docs/localization-guardrails.md." # violation message. optional.
     severity: warning # violation severity. optional.
+
+  hardcoded_ui_string: # rule identifier
+    included: # quoted so YAML collapses \\ to \ like every other rule in this file
+      - "Sources/YouVersionPlatformUI/.*\\.swift"
+      - "Sources/YouVersionPlatformReader/.*\\.swift"
+    excluded: ".*Tests?\\.swift"
+    name: "Hardcoded UI String"
+    # "[^\"]{2} exempts single-character glyph literals (e.g. Text("A")), mirroring scripts/check-no-hardcoded-ui-strings.sh.
+    # For intentionally unlocalized text (e.g. in #Preview bodies), use Text(verbatim:).
+    regex: "(\\b(Text|Button|Label)\\(\\s*\"[^\"]{2}|\\.((navigationTitle|navigationBarTitle|accessibilityLabel|accessibilityHint))\\(\\s*\"[^\"]{2}|(\\bconfirmationDialog|\\balert)\\(\\s*\"[^\"]{2})"
+    message: "User-facing UI copy must use String.localized(...) rather than raw string literals. See docs/localization-guardrails.md."
+    severity: error
 
   ambiguous_dateformatter: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
