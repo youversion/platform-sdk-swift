@@ -34,7 +34,7 @@ fi
 
 # Three-dot diff (merge-base) so catalog changes that landed on the base branch
 # after this PR branched are not misattributed to the PR.
-changed_files="$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" -- "$LOCALE_PATH" || true)"
+changed_files="$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" -- "$LOCALE_PATH")"
 
 if [[ -z "$changed_files" ]]; then
   echo "Locale ownership check passed: no catalog changes"
