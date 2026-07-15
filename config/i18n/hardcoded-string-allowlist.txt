@@ -1,0 +1,15 @@
+# Intentional hardcoded UI string exceptions for scripts/check-no-hardcoded-ui-strings.sh.
+# (The SwiftLint hardcoded_ui_string rule does not read this file; use Text(verbatim:)
+# or a swiftlint:disable comment for lines that must also pass SwiftLint.)
+#
+# Entry formats (path is a substring of the repo-relative path; pattern is a
+# substring of the code on the matched line):
+#   path
+#   path:pattern
+#   path:line:pattern
+#
+# Example:
+#   Sources/YouVersionPlatformUI/Views/SomeView.swift:Text("QR")
+#
+# Note: single-character glyphs (e.g. Text("A")) are always exempt and need no entry.
+# Prefer fixing call sites over growing this list.
