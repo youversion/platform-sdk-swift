@@ -7,6 +7,7 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     private let onNoteIndicatorTap: ((BibleReference) -> Void)?
@@ -29,16 +30,17 @@ public struct BibleReaderView: View {
     ///   - verseSelectionStyle: Controls the visual style of the underline drawn
     ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
-    ///     The closure receives the tapped ``BibleReference`` and returns a
-    ///     ``VerseTapResponse`` telling the SDK what to do next. Return
-    ///     ``VerseTapResponse/toggleSelection`` to have the SDK toggle the verse
-    ///     in `selectedVerses` (the underline appears), or ``VerseTapResponse/handled``
-    ///     if the host app handled everything and the SDK should take no action.
-    ///     When `nil` (the default), tapping a verse triggers the built-in sign-in
-    ///     prompt for unauthenticated users (unless sign-in is disabled via
-    ///     ``YouVersionPlatformConfiguration/isSignInEnabled``) or opens the verse
-    ///     actions drawer for authenticated users. Footnote taps are always handled
-    ///     by the reader regardless of this closure.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
     ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
     ///     that has a note indicator (pencil icon) and is not already selected. When
     ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
@@ -64,6 +66,7 @@ public struct BibleReaderView: View {
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+                showsFullChapter: Bool = false,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
                 onCollectibleTap: ((String) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
@@ -77,6 +80,7 @@ public struct BibleReaderView: View {
         )
         self.initialReference = reference
         self.externalSelectedVerses = selectedVerses
+        self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
@@ -122,6 +126,7 @@ public struct BibleReaderView: View {
             if viewModel == nil {
                 viewModel = BibleReaderViewModel(
                     reference: initialReference,
+                    showsFullChapter: showsFullChapter,
                     verseSelectionStyle: verseSelectionStyle,
                     audioActiveIndicatorColor: audioActiveIndicatorColor,
                     onVerseTap: onVerseTap,
@@ -152,6 +157,18 @@ private struct ReaderContent: View {
     private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+    @State private var verseScrollCoordinator: VerseScrollCoordinator
+
+    init(
+        viewModel: BibleReaderViewModel,
+        externalSelectedVerses: Binding<Set<BibleReference>>?,
+        audioActiveReference: BibleReference?
+    ) {
+        self.viewModel = viewModel
+        self.externalSelectedVerses = externalSelectedVerses
+        self.audioActiveReference = audioActiveReference
+        self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -164,6 +181,7 @@ private struct ReaderContent: View {
                 VStack {
                     ReaderMainScroller(
                         viewModel: viewModel,
+                        verseScrollCoordinator: verseScrollCoordinator,
                         audioActiveReference: audioActiveReference
                     ) {
                         bibleCopyrightBlock
@@ -198,6 +216,24 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("signOut.explanation"))
         }
+        .alert(
+            String.localized("signOut.pendinghighlights.question"),
+            isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
+        ) {
+            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("generic.cancel"), role: .cancel) { }
+        } message: {
+            Text(String.localized("signOut.pendinghighlights.explanation"))
+        }
+        .alert(
+            String.localized("dataExchange.highlights.question"),
+            isPresented: $viewModel.showingDataExchangeConfirmation
+        ) {
+            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+        } message: {
+            Text(String.localized("dataExchange.highlights.explanation"))
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -225,8 +261,22 @@ private struct ReaderContent: View {
                 .presentationDetents([.large])
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
+            // TODO: move this to the viewModel
             if newValue {
-                startSignIn()
+#if os(tvOS)
+                viewModel.startSignIn()
+#else
+                viewModel.startSignIn(contextProvider: contextProvider)
+#endif
+            }
+        }
+        .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
+            if newValue {
+#if os(tvOS)
+                viewModel.startDataExchange()
+#else
+                viewModel.startDataExchange(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: viewModel.selectedVerses) { _, newValue in
@@ -367,26 +417,6 @@ private struct ReaderContent: View {
     }
 #endif
 
-    // MARK: - Action handlers
-
-    private func startSignIn() {
-        Task {
-            do {
-                viewModel.startSignInFlow = false
-#if !os(tvOS)
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                dump(result)
-#endif
-
-                await viewModel.updateSignInState()
-            } catch {
-                YouVersionPlatformLogger.error("Sign-in error: \(error)", category: "BibleReader")
-            }
-        }
-    }
 }
 
 #Preview {

@@ -153,37 +153,13 @@ extension BibleReaderViewModel {
             onNoteIndicatorTap?(reference)
             return
         }
-
-        if let onVerseTap {
-            let response = onVerseTap(reference)
-            switch response {
-            case .handled:
-                return
-            case .toggleSelection:
-                if selectedVerses.contains(reference) {
-                    selectedVerses.remove(reference)
-                } else {
-                    selectedVerses.insert(reference)
-                }
-                return
-            }
-        }
-
-        if isSignedIn {
-            if selectedVerses.contains(reference) {
-                selectedVerses.remove(reference)
-            } else {
-                selectedVerses.insert(reference)
-            }
-        } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
-            showingSignInSheet = true
-            return
+        
+        if selectedVerses.contains(reference) {
+            selectedVerses.remove(reference)
         } else {
-            return
+            selectedVerses.insert(reference)
         }
-
-        let animation: Animation? = isReduceMotionEnabled ? nil : .interpolatingSpring(stiffness: 300, damping: 25)
-        withAnimation(animation) {
+        withAnimation(verseActionsDrawerAnimation) {
             showingVerseActionsDrawer = !selectedVerses.isEmpty
         }
     }
@@ -207,9 +183,16 @@ extension BibleReaderViewModel {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }
 
-    private func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = a.starts(with: "#") ? String(a.split(separator: "#").last!) : a
-        let cleanB = b.starts(with: "#") ? String(b.split(separator: "#").last!) : b
+    func hexColorValueForComparison(_ color: String) -> String {
+        guard color.starts(with: "#") else {
+            return color
+        }
+        return String(color.dropFirst())
+    }
+
+    func isSameHexColor(_ a: String, _ b: String) -> Bool {
+        let cleanA = hexColorValueForComparison(a)
+        let cleanB = hexColorValueForComparison(b)
         return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
     }
 
@@ -218,8 +201,7 @@ extension BibleReaderViewModel {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "BibleReader")
             return
         }
-        highlightsViewModel.addHighlights(references: Array(selectedVerses), color: hex)
-        removeVerseSelection()
+        addHighlightOrStartPermissionFlow(references: selectedVerses, color: hex)
     }
 
     func removeVerseColor(_ color: Color) {

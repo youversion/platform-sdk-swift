@@ -4,6 +4,7 @@ import YouVersionPlatformUI
 
 struct ReaderMainScroller<Footer: View>: View {
     @Bindable var viewModel: BibleReaderViewModel
+    let verseScrollCoordinator: VerseScrollCoordinator
     let audioActiveReference: BibleReference?
     let bibleCopyrightBlock: Footer
 
@@ -13,10 +14,12 @@ struct ReaderMainScroller<Footer: View>: View {
 
     init(
         viewModel: BibleReaderViewModel,
+        verseScrollCoordinator: VerseScrollCoordinator,
         audioActiveReference: BibleReference?,
         @ViewBuilder bibleCopyrightBlock: () -> Footer
     ) {
         self.viewModel = viewModel
+        self.verseScrollCoordinator = verseScrollCoordinator
         self.audioActiveReference = audioActiveReference
         self.bibleCopyrightBlock = bibleCopyrightBlock()
     }
@@ -25,41 +28,26 @@ struct ReaderMainScroller<Footer: View>: View {
         ScrollViewReader { scrollProxy in
             ScrollView {
                 if viewModel.version != nil {
-                    VStack(alignment: .leading) {
-                        if viewModel.showBookIntro {
-                            BibleReaderIntroView()
-                        } else {
-                            BibleTextView(
-                                viewModel.reference,
-                                textOptions: viewModel.textOptions,
-                                selectedVerses: $viewModel.selectedVerses,
-                                onVerseTap: { reference, actionType, footnotes, footnoteId in
-                                    viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                                },
-                                onCollectibleTap: { id in
-                                    viewModel.onCollectibleTap?(id)
-                                },
-                                onAnchorsChanged: { anchors in
-                                    verseAnchors = anchors
-                                },
-                                audioActiveVerse: audioActiveReference?.verseStart
-                            )
+                    chapterContent
+                        .frame(maxWidth: viewModel.readerMaxWidth)
+                        .padding(.vertical)
+                        .padding(.horizontal, 30)
+                        .id("topOfContent")
+                        // Hide the content until the verse scroll lands
+                        // to avoid flashing.
+                        .opacity(verseScrollCoordinator.isScrollPending ? 0 : 1)
+                        .overlay(alignment: .top) {
+                            if verseScrollCoordinator.isScrollPending {
+                                progressView
+                            }
                         }
-                        bibleCopyrightBlock
-                    }
-                    .frame(maxWidth: viewModel.readerMaxWidth)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .id("topOfContent")
-                    .onGeometryChange(for: CGRect.self) { proxy in
-                        proxy.frame(in: .named("scrollView"))
-                    } action: { newFrame in
-                        viewModel.handleScroll(offset: newFrame.minY, contentHeight: newFrame.height)
-                    }
+                        .onGeometryChange(for: CGRect.self) { proxy in
+                            proxy.frame(in: .named("scrollView"))
+                        } action: { newFrame in
+                            viewModel.handleScroll(offset: newFrame.minY, contentHeight: newFrame.height)
+                        }
                 } else {
-                    ProgressView()
-                        .tint(viewModel.readerTextMutedColor)
-                        .padding(.vertical, 48)
+                    progressView
                 }
             }
             .coordinateSpace(.named("scrollView"))
@@ -96,7 +84,49 @@ struct ReaderMainScroller<Footer: View>: View {
             .onChange(of: verseAnchors) { _, _ in
                 applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
             }
+            .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
+                verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
+            }
+            .onChange(of: viewModel.scrollTargetReference, initial: true) { _, target in
+                if target != nil {
+                    verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
+                }
+            }
         }
+    }
+
+    private var chapterContent: some View {
+        VStack(alignment: .leading) {
+            if viewModel.showBookIntro {
+                BibleReaderIntroView()
+            } else {
+                BibleTextView(
+                    viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
+                    textOptions: viewModel.textOptions,
+                    selectedVerses: $viewModel.selectedVerses,
+                    onVerseTap: { reference, actionType, footnotes, footnoteId in
+                        viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
+                    },
+                    onCollectibleTap: { id in
+                        viewModel.onCollectibleTap?(id)
+                    },
+                    onAnchorsChanged: { anchors in
+                        verseAnchors = anchors
+                    },
+                    audioActiveVerse: audioActiveReference?.verseStart
+                )
+            }
+            VStack(alignment: .center) {
+                bibleCopyrightBlock
+                    .frame(maxWidth: viewModel.readerMaxWidth)
+            }
+        }
+    }
+
+    private var progressView: some View {
+        ProgressView()
+            .tint(viewModel.readerTextMutedColor)
+            .padding(.vertical, 48)
     }
 
     private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {

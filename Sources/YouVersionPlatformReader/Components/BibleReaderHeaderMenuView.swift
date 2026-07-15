@@ -4,21 +4,34 @@ import YouVersionPlatformUI
 
 struct BibleReaderHeaderMenuView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @State private var observedIsSignedIn: Bool?
 
     var body: some View {
         Group {
             if YouVersionPlatformConfiguration.isSignInEnabled {
-                HStack(spacing: 0) {
-                    fontSettingsButton
-                    accountMenu
+                if isSignedIn {
+                    Button(String.localized("menu.signOut"), role: .destructive, action: signOut)
+                } else {
+                    Button(String.localized("menu.signIn"), action: signIn)
                 }
             } else {
                 fontSettingsButton
             }
         }
         .task {
-            await viewModel.updateSignInState()
+            await updateSignInState()
         }
+        .onReceive(
+            NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)
+        ) { _ in
+            Task {
+                await updateSignInState()
+            }
+        }
+    }
+
+    private var isSignedIn: Bool {
+        observedIsSignedIn ?? viewModel.isSignedIn
     }
 
     private var fontSettingsButton: some View {
@@ -49,6 +62,12 @@ struct BibleReaderHeaderMenuView: View {
 
     private func openFontSettings() {
         viewModel.openFontSettings()
+    }
+
+    @MainActor
+    private func updateSignInState() async {
+        await viewModel.updateSignInState()
+        observedIsSignedIn = viewModel.isSignedIn
     }
 
     private func signOut() {

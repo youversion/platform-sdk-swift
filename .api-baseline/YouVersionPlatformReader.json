@@ -20,6 +20,13 @@
       },
       {
         "kind": "Import",
+        "name": "Observation",
+        "printedName": "Observation",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
         "name": "SwiftUI",
         "printedName": "SwiftUI",
         "declKind": "Import",
@@ -75,7 +82,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(reference:selectedVerses:verseSelectionStyle:onVerseTap:onNoteIndicatorTap:onCollectibleTap:onReferenceChange:onChapterComplete:audioActiveReference:audioActiveIndicatorColor:)",
+            "printedName": "init(reference:selectedVerses:verseSelectionStyle:onVerseTap:showsFullChapter:onNoteIndicatorTap:onCollectibleTap:onReferenceChange:onChapterComplete:audioActiveReference:audioActiveIndicatorColor:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -163,6 +170,13 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               },
               {
                 "kind": "TypeNominal",
@@ -332,8 +346,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap0m13NoteIndicatorO00m11CollectibleO00M15ReferenceChange0M15ChapterComplete011audioActiveS00wxQ5ColorAC0abC4Core0eS0VSg_7SwiftUI7BindingVyShyAPGGSg0abC2UI0nkL0VAA0nO8ResponseOAPcSgyAPcSgySScSgA2_A2_AqR0Y0VSgtcfc",
-            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap0m13NoteIndicatorO00m11CollectibleO00M15ReferenceChange0M15ChapterComplete011audioActiveS00wxQ5ColorAC0abC4Core0eS0VSg_7SwiftUI7BindingVyShyAPGGSg0abC2UI0nkL0VAA0nO8ResponseOAPcSgyAPcSgySScSgA2_A2_AqR0Y0VSgtcfc",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap16showsFullChapter0m13NoteIndicatorO00m11CollectibleO00M15ReferenceChange0mR8Complete011audioActiveV00yzT5ColorAC0abC4Core0eV0VSg_7SwiftUI7BindingVyShyAQGGSg0abC2UI0nkL0VAA0nO8ResponseOAQcSgSbyAQcSgySScSgA3_A3_ArS5ColorVSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference14selectedVerses19verseSelectionStyle10onVerseTap16showsFullChapter0m13NoteIndicatorO00m11CollectibleO00M15ReferenceChange0mR8Complete011audioActiveV00yzT5ColorAC0abC4Core0eV0VSg_7SwiftUI7BindingVyShyAQGGSg0abC2UI0nkL0VAA0nO8ResponseOAQcSgSbyAQcSgySScSgA3_A3_ArS5ColorVSgtcfc",
             "moduleName": "YouVersionPlatformReader",
             "declAttributes": [
               "Preconcurrency",

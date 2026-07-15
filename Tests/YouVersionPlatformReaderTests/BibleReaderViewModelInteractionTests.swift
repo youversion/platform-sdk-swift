@@ -225,7 +225,11 @@ import Testing
     func addAndRemoveVerseColorUpdateHighlightsForSelectedVerses() {
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
-        let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
+        let viewModel = Support.makeViewModel(
+            highlightsRepository: highlightsRepository,
+            isSignedIn: true,
+            hasPermission: { $0 == "highlights" }
+        )
         let firstReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
         let color = Color(hex: "#DDAAFF")
@@ -257,6 +261,25 @@ import Testing
         #expect(viewModel.highlightsViewModel.highlights(for: secondReference).isEmpty)
         #expect(highlightsRepository.queuedOperations.isEmpty)
 #endif
+    }
+
+    @Test
+    func hexColorValueForComparisonRemovesLeadingHash() {
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.hexColorValueForComparison("#") == "")
+        #expect(viewModel.hexColorValueForComparison("#DDAAFF") == "DDAAFF")
+        #expect(viewModel.hexColorValueForComparison("DDAAFF") == "DDAAFF")
+    }
+
+    @Test
+    func isSameHexColorComparesColorsWithoutLeadingHashes() {
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.isSameHexColor("#DDAAFF", "DDAAFF"))
+        #expect(viewModel.isSameHexColor("ddaaff", "#DDAAFF"))
+        #expect(viewModel.isSameHexColor("#", "DDAAFF") == false)
+        #expect(viewModel.isSameHexColor("#DDAAFF", "#AABBCC") == false)
     }
 
 #if !canImport(UIKit)

@@ -3,22 +3,38 @@ import YouVersionPlatformCore
 
 extension BibleTextView {
     @ViewBuilder
-    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
+    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
         if block.rows.isEmpty {
-            let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
-            if block.alignment == .leading {
-                theView
+            let textBlockView = emitTextBlock(
+                block,
+                textOptions: textOptions,
+                ignoreMarginTop: ignoreMarginTop,
+                previousMarginBottom: previousMarginBottom,
+                darkMode: darkMode
+            )
+            let alignedView = aligned(textBlockView, for: block.alignment)
+            if let firstVerse = block.firstVerse {
+                alignedView.id(firstVerse)
             } else {
-                HStack {
-                    Spacer()
-                    theView
-                    if block.alignment == .center {
-                        Spacer()
-                    }
-                }
+                alignedView
             }
         } else {
-            emitTableRows(block.rows, textOptions: textOptions)
+            emitTableRows(block.rows, textOptions: textOptions, darkMode: darkMode)
+        }
+    }
+
+    @ViewBuilder
+    private func aligned(_ view: some View, for alignment: TextAlignment) -> some View {
+        if alignment == .leading {
+            view
+        } else {
+            HStack {
+                Spacer()
+                view
+                if alignment == .center {
+                    Spacer()
+                }
+            }
         }
     }
 
@@ -191,7 +207,7 @@ extension BibleTextView {
         var termTextColor: Color?
     }
 
-    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -203,12 +219,12 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            if category == .scripture || category == .verseLabel {
+            if category == .scripture || category == .verseLabel, let reference {
                 t.backgroundColor = highlightFor(reference: reference)
                 // better, we could have our TextRenderer add the color to some portions
             }
             if category == .scripture {
-                applyTermHighlights(to: &t, reference: reference)
+                applyTermHighlights(to: &t, reference: reference, darkMode: darkMode)
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
@@ -258,7 +274,19 @@ extension BibleTextView {
                 textCombo = textCombo + Text(" ")
                 continue
             }
-            let isUnderlined = (reference.map(isSelected) ?? false) && category == .scripture
+            var isUnderlined = false
+            if let reference {
+                if let highlightColor = highlightFor(reference: reference) {
+                    if darkMode && category == .verseLabel {
+                        t.foregroundColor = .white
+                    }
+                    if category == .scripture || category == .verseLabel {
+                        t.backgroundColor = highlightColor
+                            .opacity(darkMode ? 0.3 : 1.0)
+                    }
+                }
+                isUnderlined = isSelected(reference) && category == .scripture
+            }
             let isActive = isAudioActive(reference) && (category == .scripture || category == .verseLabel)
             let verse = reference?.verseStart
             if isUnderlined {
@@ -314,12 +342,13 @@ extension BibleTextView {
 
     /// ignoreMarginTop is used so that the topmost block won't have a top margin applied.
     /// previousMarginBottom is provided so that it and the current marginTop can be merged together, mirroring how CSS works.
-    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
+    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
         textView(
             for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
-            textOptions: textOptions
+            textOptions: textOptions,
+            darkMode: darkMode
         )
         .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
@@ -327,7 +356,7 @@ extension BibleTextView {
         .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions) + (textOptions.paragraphSpacing ?? 0.0))
     }
 
-    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {
+    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         // First, make sure each row has the same number of cells
         let numCols = doubleRows.map({ $0.count }).max() ?? 0
         let theRows = doubleRows.map { cells in
@@ -349,7 +378,8 @@ extension BibleTextView {
                             for: string,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
-                            textOptions: textOptions
+                            textOptions: textOptions,
+                            darkMode: darkMode
                         )
                         .fixedSize(horizontal: isTrailingCell, vertical: true)
                         .frame(
@@ -408,7 +438,7 @@ extension BibleTextView {
         }
     }
 
-    private func applyTermHighlights(to t: inout AttributedString, reference: BibleReference?) {
+    private func applyTermHighlights(to t: inout AttributedString, reference: BibleReference?, darkMode: Bool) {
         guard let reference else {
             return
         }
@@ -431,7 +461,7 @@ extension BibleTextView {
             t[start..<end].backgroundColor = Color(hex: highlight.color)
             // Resolve the term text color for the current reader theme so it recolors
             // live when the theme changes (dark variant falls back to `textColor`).
-            let resolvedTextColor = readerColorScheme == .dark
+            let resolvedTextColor = darkMode
                 ? (highlight.textColorDark ?? highlight.textColor)
                 : highlight.textColor
             if let resolvedTextColor {
@@ -441,16 +471,13 @@ extension BibleTextView {
         }
     }
 
-    private func highlightFor(reference: BibleReference?) -> Color {
-        guard let reference else {
-            return .clear
-        }
+    private func highlightFor(reference: BibleReference) -> Color? {
         for highlight in ourHighlights {
             if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
                 return Color(hex: highlight.color).opacity(0.35)
             }
         }
-        return .clear
+        return nil
     }
 
     // so that the Grid has a Hashable, Identifiable list to work with

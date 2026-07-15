@@ -20,8 +20,8 @@ public struct BibleTextView: View {
     // swiftlint:disable:next private_swiftui_state
     @State var noteIndicatedUSFMs: Set<String> = []
     @Binding var selectedVerses: Set<BibleReference>
-    @Environment(\.colorScheme) var readerColorScheme
-
+    @Environment(\.colorScheme) private var colorScheme
+    
     var ourHighlights: [BibleHighlight] {
         BibleHighlightsCache.shared.highlights(overlapping: reference)
     }
@@ -138,7 +138,7 @@ public struct BibleTextView: View {
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom)
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
                         .overlay(alignment: .leading) {
                             if #available(iOS 18, *) {
                                 EmptyView()
@@ -154,6 +154,7 @@ public struct BibleTextView: View {
                 }
             }
         }
+        .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
         .preference(key: VerseAnchorsPreferenceKey.self, value: blocks.compactMap(\.startVerse).sorted())
         .onChange(of: blocks.count) {
             let anchors = blocks.compactMap(\.startVerse).sorted()
@@ -187,14 +188,31 @@ public struct BibleTextView: View {
         )) {
             await loadBlocks()
         }
-        .coordinateSpace(.named("BibleTextView"))
         .task(id: reference) {
+            // if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
             BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
             noteIndicatedUSFMs = BibleNoteIndicatorsCache.shared.indicatedUSFMs
+            // }
         }
         .onChange(of: BibleNoteIndicatorsCache.shared.indicatedUSFMs) { _, newValue in
             noteIndicatedUSFMs = newValue
         }
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+            }
+        }
+    }
+
+    /// The scroll anchors for the rendered chapter, or nil until blocks exist.
+    private var chapterScrollAnchors: ChapterScrollAnchors? {
+        guard let firstBlock = blocks.first else {
+            return nil
+        }
+        return ChapterScrollAnchors(
+            chapter: firstBlock.chapter,
+            blockFirstVerses: blocks.compactMap(\.firstVerse)
+        )
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {

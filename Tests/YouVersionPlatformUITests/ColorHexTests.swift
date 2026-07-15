@@ -12,10 +12,10 @@ import UIKit
             return
         }
 
-        #expect(true == components.red.isApproximatelyEqual(to: 1.0))
-        #expect(true == components.green.isApproximatelyEqual(to: 170.0 / 255.0))
-        #expect(true == components.blue.isApproximatelyEqual(to: 51.0 / 255.0))
-        #expect(true == components.alpha.isApproximatelyEqual(to: 1.0))
+        #expect(components.red.isApproximatelyEqual(to: 1.0) == true)
+        #expect(components.green.isApproximatelyEqual(to: 170.0 / 255.0) == true)
+        #expect(components.blue.isApproximatelyEqual(to: 51.0 / 255.0) == true)
+        #expect(components.alpha.isApproximatelyEqual(to: 1.0) == true)
     }
 
     @Test
@@ -24,10 +24,10 @@ import UIKit
             return
         }
 
-        #expect(true == components.red.isApproximatelyEqual(to: 221.0 / 255.0))
-        #expect(true == components.green.isApproximatelyEqual(to: 170.0 / 255.0))
-        #expect(true == components.blue.isApproximatelyEqual(to: 255.0 / 255.0))
-        #expect(true == components.alpha.isApproximatelyEqual(to: 128.0 / 255.0))
+        #expect(components.red.isApproximatelyEqual(to: 221.0 / 255.0) == true)
+        #expect(components.green.isApproximatelyEqual(to: 170.0 / 255.0) == true)
+        #expect(components.blue.isApproximatelyEqual(to: 255.0 / 255.0) == true)
+        #expect(components.alpha.isApproximatelyEqual(to: 128.0 / 255.0) == true)
     }
 
     private func colorComponents(for color: Color) throws -> ColorComponents? {

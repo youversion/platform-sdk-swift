@@ -294,4 +294,117 @@ import Testing
         #expect(!hasHeaderContaining(blocks, text: "Visible Header"))
         #expect(hasScriptureContaining(blocks, text: "First verse text."))
     }
+
+    // MARK: - firstVerse (scroll-to-verse support)
+
+    private func block(_ blocks: [BibleTextBlock], containingText text: String) throws -> BibleTextBlock {
+        try #require(blocks.first { $0.text.characters.contains(text) })
+    }
+
+    @Test func testFirstVerseReflectsBlockVerses() async throws {
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="5"></span>
+                <span class="yv-vlbl">5</span>
+                Fifth verse text.
+            </div>
+            <div class="p">
+                <span class="yv-v" v="6"></span>
+                <span class="yv-vlbl">6</span>
+                Sixth verse text.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(try block(blocks, containingText: "Fifth verse text.").firstVerse == 5)
+        #expect(try block(blocks, containingText: "Sixth verse text.").firstVerse == 6)
+    }
+
+    @Test func testFirstVerseIsNilForHeaderOnlyBlock() async throws {
+        let html = """
+        <div>
+            <div class="yv-h s1"><span>The List</span></div>
+            <div class="p">
+                <span class="yv-v" v="1"></span>
+                <span class="yv-vlbl">1</span>
+                First verse text.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let headerBlock = try #require(blocks.first { block in
+            block.text.asAttributedString.runs[\.bibleTextCategory].contains { $0.0 == .header }
+                && block.text.characters.contains("The List")
+        })
+        #expect(headerBlock.firstVerse == nil)
+    }
+
+    @Test func testFirstVerseOfBlockSpanningMultipleVerses() async throws {
+        // A single paragraph carrying two verses reports the first, so a scroll
+        // request for either verse resolves to this block's start.
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="1"></span>
+                <span class="yv-vlbl">1</span>
+                First verse text.
+                <span class="yv-v" v="2"></span>
+                <span class="yv-vlbl">2</span>
+                Second verse text.
+            </div>
+        </div>
+        """
+
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let combined = try block(blocks, containingText: "Second verse text.")
+        #expect(combined.firstVerse == 1)
+
+        let firstVerses = blocks.compactMap { $0.firstVerse }
+        let layout = ChapterScrollAnchors(chapter: 1, blockFirstVerses: firstVerses)
+        #expect(layout.blockFirstVerse(forTargetVerse: 1) == 1)
+        #expect(layout.blockFirstVerse(forTargetVerse: 2) == 1)
+    }
+
+    @Test func testAcrosticChapterResolvesTargetVerseToOwningBlock() async throws {
+        // Mirrors Psalm 119's shape: stanzas of verses separated by letter
+        // headings, rendered as a full chapter. Verse 105 must resolve to its own
+        // block, not an earlier one — a regression where headings desynced the
+        // recorded verses from block identity landed scrolls on the wrong verse.
+        var html = "<div>"
+        let stanzas = [(letter: "MEM", start: 97), (letter: "NUN", start: 105), (letter: "SAMEKH", start: 113)]
+        for stanza in stanzas {
+            html += #"<div class="yv-h s1"><span>\#(stanza.letter)</span></div>"#
+            for verse in stanza.start..<(stanza.start + 8) {
+                html += #"""
+                <div class="p">
+                    <span class="yv-v" v="\#(verse)"></span>
+                    <span class="yv-vlbl">\#(verse)</span>
+                    Verse \#(verse) text.
+                </div>
+                """#
+            }
+        }
+        html += "</div>"
+
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "PSA", chapter: 119)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+
+        let block105 = try block(blocks, containingText: "Verse 105 text.")
+        #expect(block105.firstVerse == 105)
+
+        let firstVerses = blocks.compactMap { $0.firstVerse }
+        let layout = ChapterScrollAnchors(chapter: 119, blockFirstVerses: firstVerses)
+        #expect(layout.blockFirstVerse(forTargetVerse: 105) == 105)
+        #expect(layout.blockFirstVerse(forTargetVerse: 100) == 100)
+        #expect(layout.blockFirstVerse(forTargetVerse: 113) == 113)
+    }
 }

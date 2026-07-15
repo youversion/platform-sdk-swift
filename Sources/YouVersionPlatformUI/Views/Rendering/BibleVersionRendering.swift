@@ -293,7 +293,6 @@ public enum BibleVersionRendering {
                 chapter: stateUp.chapter,
                 verse: stateUp.verse
             )
-            stateDown.currentFont = .footnote
             for child in node.children {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }
@@ -383,7 +382,7 @@ public enum BibleVersionRendering {
                 BibleTextBlock(
                     text: BibleAttributedString(),
                     chapter: stateUp.chapter,
-                    firstLineHeadIndent: 0, headIndent: 0, marginTop: 10, marginBottom: 0,
+                    firstLineHeadIndent: 0, headIndent: 0, marginTop: 10,
                     alignment: .leading,
                     footnotes: stateUp.footnotes,
                     rows: rows
@@ -494,7 +493,6 @@ public enum BibleVersionRendering {
             firstLineHeadIndent: stateUp.firstLineHeadIndent,
             headIndent: stateUp.headIndent,
             marginTop: stateDown.marginTop,
-            marginBottom: stateDown.marginBottom,
             alignment: stateDown.alignment,
             footnotes: stateUp.footnotes
         )

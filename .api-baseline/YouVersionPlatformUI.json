@@ -62,6 +62,101 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "DataExchangeSession",
+        "printedName": "DataExchangeSession",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(contextProvider:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "DataExchangeSession",
+                "printedName": "YouVersionPlatformUI.DataExchangeSession",
+                "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ASWebAuthenticationPresentationContextProviding",
+                "printedName": "any AuthenticationServices.ASWebAuthenticationPresentationContextProviding",
+                "usr": "c:objc(pl)ASWebAuthenticationPresentationContextProviding"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV15contextProviderACSo47ASWebAuthenticationPresentationContextProviding_p_tcfc",
+            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV15contextProviderACSo47ASWebAuthenticationPresentationContextProviding_p_tcfc",
+            "moduleName": "YouVersionPlatformUI",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "requestDataExchange",
+            "printedName": "requestDataExchange(permissions:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsSaySSGShySSG_tYaKF",
+            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsSaySSGShySSG_tYaKF",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "Custom"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV",
+        "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "BibleTextFontOption",
         "printedName": "BibleTextFontOption",
         "children": [
@@ -6274,9 +6369,71 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "firstVerse",
+            "printedName": "firstVerse",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvp",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvg",
+                "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:marginBottom:alignment:footnotes:rows:)",
+            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:alignment:footnotes:rows:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -6331,12 +6488,6 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "CGFloat",
-                "printedName": "CoreGraphics.CGFloat",
-                "usr": "s:14CoreFoundation7CGFloatV"
-              },
-              {
-                "kind": "TypeNominal",
                 "name": "TextAlignment",
                 "printedName": "SwiftUI.TextAlignment",
                 "usr": "s:7SwiftUI13TextAlignmentO"
@@ -6380,8 +6531,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
-            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
             "moduleName": "YouVersionPlatformUI",
             "init_kind": "Designated"
           },
@@ -8044,6 +8195,453 @@
             "printedName": "Hashable",
             "usr": "s:SH",
             "mangledName": "$sSH"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterScrollAnchors",
+        "printedName": "ChapterScrollAnchors",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "chapter",
+            "printedName": "chapter",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivp",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivg",
+                "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "blockFirstVerses",
+            "printedName": "blockFirstVerses",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvp",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.Int]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvg",
+                "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(chapter:blockFirstVerses:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapter16blockFirstVersesACSi_SaySiGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapter16blockFirstVersesACSi_SaySiGtcfc",
+            "moduleName": "YouVersionPlatformUI",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "blockFirstVerse",
+            "printedName": "blockFirstVerse(forTargetVerse:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV15blockFirstVerse09forTargetJ0SiSgSi_tF",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV15blockFirstVerse09forTargetJ0SiSgSi_tF",
+            "moduleName": "YouVersionPlatformUI",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV",
+        "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterScrollAnchorsKey",
+        "printedName": "ChapterScrollAnchorsKey",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "defaultValue",
+            "printedName": "defaultValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvpZ",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvgZ",
+                "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "reduce",
+            "printedName": "reduce(value:nextValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "paramValueOwnership": "InOut",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "typeAttributes": [
+                  "noescape"
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV6reduce5value9nextValueyAA0efG0VSgz_AIyXEtFZ",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV6reduce5value9nextValueyAA0efG0VSgz_AIyXEtFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Value",
+            "printedName": "Value",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV5Valuea",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV5Valuea",
+            "moduleName": "YouVersionPlatformUI",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV",
+        "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "PreferenceKey",
+            "printedName": "PreferenceKey",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Value",
+                "printedName": "Value",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI13PreferenceKeyP",
+            "mangledName": "$s7SwiftUI13PreferenceKeyP"
           }
         ]
       },
@@ -13370,6 +13968,50 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ASWebAuthenticationPresentationContextProviding",
+                "printedName": "any AuthenticationServices.ASWebAuthenticationPresentationContextProviding",
+                "usr": "c:objc(pl)ASWebAuthenticationPresentationContextProviding"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSaySSG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSaySSG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "signIn",
+            "printedName": "signIn(permissions:contextProvider:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignInWithYouVersionResult",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionResult",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Set",
                 "printedName": "Swift.Set<YouVersionPlatformCore.SignInWithYouVersionPermission>",
                 "children": [
@@ -13394,7 +14036,9 @@
             "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVShyAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
             "moduleName": "YouVersionPlatformUI",
             "static": true,
+            "deprecated": true,
             "declAttributes": [
+              "Available",
               "Custom"
             ],
             "isFromExtension": true,

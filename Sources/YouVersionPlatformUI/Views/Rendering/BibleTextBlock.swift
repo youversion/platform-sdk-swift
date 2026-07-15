@@ -13,6 +13,7 @@ public struct BibleTextBlock: Identifiable {
     public let marginBottom: CGFloat
     public let alignment: TextAlignment
     public let footnotes: [BibleFootnote]
+    public let firstVerse: Int? // The first verse this block displays, or nil when it shows none.
 
     public init(
         text: BibleAttributedString,
@@ -21,7 +22,6 @@ public struct BibleTextBlock: Identifiable {
         firstLineHeadIndent: Int,
         headIndent: Int,
         marginTop: CGFloat,
-        marginBottom: CGFloat,
         alignment: TextAlignment,
         footnotes: [BibleFootnote],
         rows: [[BibleAttributedString]] = []
@@ -32,10 +32,20 @@ public struct BibleTextBlock: Identifiable {
         self.firstLineHeadIndent = firstLineHeadIndent
         self.headIndent = headIndent
         self.marginTop = marginTop
-        self.marginBottom = marginBottom
+        self.marginBottom = 0
         self.alignment = alignment
         self.footnotes = footnotes
         self.rows = rows
+        self.firstVerse = Self.firstVerse(in: text)
+    }
+
+    private static func firstVerse(in text: BibleAttributedString) -> Int? {
+        let runs = text.asAttributedString.runs[\.bibleTextCategory, \.bibleReference]
+        let firstScriptureRun = runs.first { category, _, _ in
+            category == .scripture || category == .verseLabel
+        }
+        let reference = firstScriptureRun?.1
+        return reference?.verseStart
     }
 
     /// Stable identifier combining chapter and verse for use with `ScrollViewReader`.

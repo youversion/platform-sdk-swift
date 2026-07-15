@@ -38,6 +38,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font117em500
                 stateDown.textCategory = .header
 
+            case "is":
+                stateDown.currentFont = .font100em500
+                stateDown.alignment = .center
+                stateDown.marginTop = fontSize / 2
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
+
             case "li1", "ili", "ili1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
@@ -241,15 +248,19 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
 
-            case "is", "is1":
+            case "is1":
                 stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
 
             case "is2":
                 stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
 
             case "io", "io1":
                 stateUp.headIndent = 2
@@ -325,6 +336,9 @@ final class BibleVersionRenderingStyles {
             case "tl", "it", "add", "fq", "fqa", "qs", "qt", "bk":
                 stateDown.currentFont = .font100emItalic
 
+            case "bdit":
+                stateDown.currentFont = .font100em500Italic
+            
             case "ord", "fv", "sup":
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
