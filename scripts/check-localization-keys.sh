@@ -48,14 +48,57 @@ def catalog_keys_with_english(catalog: dict) -> set[str]:
     }
 
 
+# Keep in sync with strip_comments in scripts/check-no-hardcoded-ui-strings.sh
+def strip_comments(line: str, in_block_comment: bool) -> tuple[str, bool]:
+    """Return (code with strings kept, block-comment state)."""
+    kept: list[str] = []
+    in_string = False
+    i = 0
+    n = len(line)
+    while i < n:
+        ch = line[i]
+        if in_block_comment:
+            if line.startswith("*/", i):
+                in_block_comment = False
+                i += 2
+            else:
+                i += 1
+            continue
+        if in_string:
+            if ch == "\\" and i + 1 < n:
+                kept.append(line[i : i + 2])
+                i += 2
+                continue
+            kept.append(ch)
+            if ch == '"':
+                in_string = False
+            i += 1
+            continue
+        if line.startswith("//", i):
+            break
+        if line.startswith("/*", i):
+            in_block_comment = True
+            i += 2
+            continue
+        kept.append(ch)
+        if ch == '"':
+            in_string = True
+        i += 1
+    return "".join(kept), in_block_comment
+
+
 def extract_keys_from_sources() -> set[str]:
     keys: set[str] = set()
     for scan_dir in scan_dirs:
         if not scan_dir.is_dir():
             continue
         for path in scan_dir.rglob("*.swift"):
-            text = path.read_text(encoding="utf-8")
-            keys.update(KEY_PATTERN.findall(text))
+            in_block_comment = False
+            code_lines: list[str] = []
+            for line in path.read_text(encoding="utf-8").splitlines():
+                code, in_block_comment = strip_comments(line, in_block_comment)
+                code_lines.append(code)
+            keys.update(KEY_PATTERN.findall("\n".join(code_lines)))
     return keys
 
 
