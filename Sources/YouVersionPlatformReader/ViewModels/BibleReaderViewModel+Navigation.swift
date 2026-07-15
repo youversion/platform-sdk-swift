@@ -153,12 +153,35 @@ extension BibleReaderViewModel {
             onNoteIndicatorTap?(reference)
             return
         }
-        
-        if selectedVerses.contains(reference) {
-            selectedVerses.remove(reference)
-        } else {
-            selectedVerses.insert(reference)
+
+        if let onVerseTap {
+            let response = onVerseTap(reference)
+            switch response {
+            case .handled:
+                return
+            case .toggleSelection:
+                if selectedVerses.contains(reference) {
+                    selectedVerses.remove(reference)
+                } else {
+                    selectedVerses.insert(reference)
+                }
+                return
+            }
         }
+
+        if isSignedIn {
+            if selectedVerses.contains(reference) {
+                selectedVerses.remove(reference)
+            } else {
+                selectedVerses.insert(reference)
+            }
+        } else if !YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.isSignInEnabled {
+            showingSignInSheet = true
+            return
+        } else {
+            return
+        }
+
         withAnimation(verseActionsDrawerAnimation) {
             showingVerseActionsDrawer = !selectedVerses.isEmpty
         }
