@@ -3,9 +3,15 @@ import YouVersionPlatformCore
 
 extension BibleTextView {
     @ViewBuilder
-    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
+    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
         if block.rows.isEmpty {
-            let textBlockView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop, previousMarginBottom: previousMarginBottom)
+            let textBlockView = emitTextBlock(
+                block,
+                textOptions: textOptions,
+                ignoreMarginTop: ignoreMarginTop,
+                previousMarginBottom: previousMarginBottom,
+                darkMode: darkMode
+            )
             let alignedView = aligned(textBlockView, for: block.alignment)
             if let firstVerse = block.firstVerse {
                 alignedView.id(firstVerse)
@@ -13,7 +19,7 @@ extension BibleTextView {
                 alignedView
             }
         } else {
-            emitTableRows(block.rows, textOptions: textOptions)
+            emitTableRows(block.rows, textOptions: textOptions, darkMode: darkMode)
         }
     }
 
@@ -98,7 +104,7 @@ extension BibleTextView {
         var footnoteImage = false
     }
 
-    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -112,9 +118,14 @@ extension BibleTextView {
             var t = AttributedString(string[range])
             var isUnderlined = false
             if let reference {
-                if category == .scripture || category == .verseLabel {
-                    t.backgroundColor = highlightFor(reference: reference)
-                    // better, we could have our TextRenderer add the color to some portions
+                if let highlightColor = highlightFor(reference: reference) {
+                    if darkMode && category == .verseLabel {
+                        t.foregroundColor = .white
+                    }
+                    if category == .scripture || category == .verseLabel {
+                        t.backgroundColor = highlightColor
+                            .opacity(darkMode ? 0.3 : 1.0)
+                    }
                 }
                 isUnderlined = isSelected(reference) && category == .scripture
             }
@@ -141,12 +152,13 @@ extension BibleTextView {
 
     /// ignoreMarginTop is used so that the topmost block won't have a top margin applied.
     /// previousMarginBottom is provided so that it and the current marginTop can be merged together, mirroring how CSS works.
-    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat) -> some View {
+    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
         textView(
             for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
-            textOptions: textOptions
+            textOptions: textOptions,
+            darkMode: darkMode
         )
         .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
@@ -154,7 +166,7 @@ extension BibleTextView {
         .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions) + (textOptions.paragraphSpacing ?? 0.0))
     }
 
-    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {
+    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         // First, make sure each row has the same number of cells
         let numCols = doubleRows.map({ $0.count }).max() ?? 0
         let theRows = doubleRows.map { cells in
@@ -176,7 +188,8 @@ extension BibleTextView {
                             for: string,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
-                            textOptions: textOptions
+                            textOptions: textOptions,
+                            darkMode: darkMode
                         )
                         .fixedSize(horizontal: isTrailingCell, vertical: true)
                         .frame(
@@ -201,13 +214,13 @@ extension BibleTextView {
         return false
     }
 
-    private func highlightFor(reference: BibleReference) -> Color {
+    private func highlightFor(reference: BibleReference) -> Color? {
         for highlight in ourHighlights {
             if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
                 return Color(hex: highlight.color)
             }
         }
-        return .clear
+        return nil
     }
 
     // so that the Grid has a Hashable, Identifiable list to work with
