@@ -1,5 +1,10 @@
 import SwiftUI
 import YouVersionPlatformCore
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 extension BibleTextView {
     @ViewBuilder
@@ -128,12 +133,35 @@ extension BibleTextView {
             .tint(textOptions.textColor ?? .primary)
             .fixedSize(horizontal: false, vertical: true)
             .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
-            .accessibilityValue(highlightSummary(for: string))
+            // Highlight state goes into `.accessibilityIdentifier`, NOT
+            // `.accessibilityValue`. Rationale: VoiceOver reads value but
+            // never identifier — real assistive-tech users hear scripture
+            // only (matches the Bible iOS app's model where highlights are
+            // visual affordances, not narrated inline). UI automation
+            // queries the identifier via Appium's `@name` fallback on
+            // XCUIElementTypeStaticText.
+            .accessibilityIdentifier(highlightSummary(for: string))
         if #available(iOS 18.0, *) {
             return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
         } else {
             return retValue
         }
+    }
+
+    /// Cross-platform color-name lookup. See BibleReaderDrawer for the
+    /// same guard rationale — UIColor is UIKit-only, so macOS builds
+    /// use NSColor. The output funnels into `.accessibilityIdentifier`
+    /// (never spoken by VoiceOver), so the localized string Apple
+    /// returns here is acceptable — it's data for automation, not
+    /// narration.
+    private func accessibilityColorName(for color: Color) -> String {
+        #if canImport(UIKit)
+        return UIColor(color).accessibilityName
+        #elseif canImport(AppKit)
+        return NSColor(color).accessibilityName
+        #else
+        return ""
+        #endif
     }
 
     private func highlightSummary(for string: AttributedString) -> String {
@@ -145,7 +173,7 @@ extension BibleTextView {
             let color = highlightFor(reference: ref)
             if color == .clear { continue }
             seen.insert(verse)
-            parts.append("verse \(verse) highlighted \(UIColor(color).accessibilityName)")
+            parts.append("verse \(verse) highlighted \(accessibilityColorName(for: color))")
         }
         return parts.joined(separator: ", ")
     }
@@ -217,8 +245,16 @@ extension BibleTextView {
     }
 
     private func highlightFor(reference: BibleReference) -> Color {
+        // Rendered runs carry a single-verse reference. A STORED highlight
+        // may cover a range (e.g. v1–v5), so match by inclusion in
+        // [verseStart, verseEnd] — not verseStart equality, which would
+        // announce only the first verse of every range and drop the rest.
+        guard let refVerse = reference.verseStart else { return .clear }
         for highlight in ourHighlights {
-            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
+            guard highlight.reference.chapter == reference.chapter,
+                  let start = highlight.reference.verseStart else { continue }
+            let end = highlight.reference.verseEnd ?? start
+            if refVerse >= start && refVerse <= end {
                 return Color(hex: highlight.color)
             }
         }
