@@ -317,6 +317,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Focuses `reference`'s verse, dimming the rest of the chapter.
     func focusReference(_ reference: BibleReference) {
+        // The `.textRenderer(_:)` modifier is iOS 18+
+        guard #available(iOS 18.0, *) else {
+            return
+        }
         guard reference.verseStart != nil
               && reference.chapterReference == self.reference.chapterReference else {
             return
