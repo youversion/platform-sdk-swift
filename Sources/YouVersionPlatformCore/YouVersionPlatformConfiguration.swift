@@ -36,6 +36,7 @@ public struct YouVersionPlatformConfiguration {
 
     public static let authStateDidChangeNotification = Notification.Name("YouVersionPlatformAuthStateDidChange")
 
+    @available(*, deprecated, message: "Use hasPermission(_:) instead.")
     static var permissionEnums: [SignInWithYouVersionPermission] {
         storedPermissions.compactMap { SignInWithYouVersionPermission(rawValue: $0) }
     }
@@ -142,6 +143,7 @@ public struct YouVersionPlatformConfiguration {
         UserDefaults.standard.set(rawValues, forKey: permissionsKey)
     }
     
+    @available(*, deprecated, message: "Use hasPermission(_:) with a raw String permission value instead.")
     public static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
         permissionEnums.contains(permission)
     }

@@ -15,7 +15,8 @@ public struct BibleTextView: View {
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
     @Binding var selectedVerses: Set<BibleReference>
-
+    @Environment(\.colorScheme) private var colorScheme
+    
     var ourHighlights: [BibleHighlight] {
         BibleHighlightsCache.shared.highlights(overlapping: reference)
     }
@@ -116,7 +117,7 @@ public struct BibleTextView: View {
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                     let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom)
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
                 }
             }
         }

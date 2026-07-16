@@ -29,7 +29,7 @@ public struct YouVersionBigButtonStyle: ButtonStyle {
 
 #Preview {
     Button(action: { }) {
-        Text("Test")
+        Text(verbatim: "Test")
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
     }
