@@ -286,7 +286,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     /// Sets the current ``reference``'s verse as the target the reader should scroll to
     /// once its chapter lays out.
     func setScrollTarget(shouldFocus: Bool = false) {
-        guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
+        guard showsFullChapter && reference.verseStart != nil else {
             return
         }
         scrollAction = .reference(ScrollTarget(reference: reference, shouldFocus: shouldFocus))

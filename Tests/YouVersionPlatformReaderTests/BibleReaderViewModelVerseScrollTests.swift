@@ -18,11 +18,14 @@ import Testing
         #expect(viewModel.scrollAction == .none)
     }
 
+    // Verse 1 arms a scroll like any other verse: it's a no-op when the chapter is
+    // fresh (already at the top), but lands correctly if the reader was scrolled away.
     @Test
-    func verseOneArmsNoScroll() {
+    func verseOneArmsScroll() {
+        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 1)
         let viewModel = makeViewModel(verse: 1)
 
-        #expect(viewModel.scrollAction == .none)
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: reference, shouldFocus: false)))
     }
 
     @Test
@@ -135,6 +138,20 @@ import Testing
         let viewModel = makeFocusedViewModel()
 
         let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
+
+        #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: true)))
+        #expect(viewModel.focusedReference == nil)  // not focused until the scroll lands
+    }
+
+    // Verse 1 arms a focus scroll like any other verse, so the focus lands via the
+    // coordinator once the verse is confirmed at the top — the reader may have been
+    // scrolled away before the request arrived.
+    @Test
+    func goToReferenceFocusedVerseOneArmsFocusScrollTarget() async {
+        let viewModel = makeFocusedViewModel()
+
+        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 1)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
 
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: true)))
