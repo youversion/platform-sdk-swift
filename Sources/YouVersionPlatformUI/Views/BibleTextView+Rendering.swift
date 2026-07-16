@@ -261,7 +261,9 @@ extension BibleTextView {
         // may cover a range (e.g. v1–v5), so match by inclusion in
         // [verseStart, verseEnd] — not verseStart equality, which would
         // announce only the first verse of every range and drop the rest.
-        guard let refVerse = reference.verseStart else { return nil }
+        guard let refVerse = reference.verseStart else {
+            return nil
+        }
         for highlight in ourHighlights {
             guard highlight.reference.chapter == reference.chapter,
                   let start = highlight.reference.verseStart else { continue }
