@@ -8,7 +8,7 @@ struct NavigateView: View {
     let navigation: BibleReaderNavigation
     let onNavigate: () -> Void
 
-    private let examples: [(title: String, reference: BibleReference, showsFullChapter: Bool, focused: Bool)] = [
+    private let examples: [(title: String, reference: BibleReference, showsFullChapter: Bool, shouldFocus: Bool)] = [
         (
             "John 3:16 — full chapter, scrolled to the verse",
             BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16),
@@ -47,8 +47,8 @@ struct NavigateView: View {
                 Section {
                     ForEach(examples, id: \.title) { example in
                         Button(example.title) {
-                            if example.focused {
-                                navigation.focus(example.reference)
+                            if example.shouldFocus {
+                                navigation.focusReference(example.reference)
                             } else {
                                 navigation.request(example.reference, showsFullChapter: example.showsFullChapter)
                             }

@@ -62,21 +62,21 @@ extension BibleReaderViewModel {
             return
         }
         readerNavigation.clearPendingRequest()
-        if request.focused, !request.scrollsToVerse {
+        if request.shouldFocus && !request.scrollsToVerse {
             removeVerseSelection()
-            focus(request.reference)
+            focusReference(request.reference)
         } else {
             Task {
-                await goToReference(request.reference, showsFullChapter: request.showsFullChapter, focused: request.focused)
+                await goToReference(request.reference, showsFullChapter: request.showsFullChapter, shouldFocus: request.shouldFocus)
             }
         }
     }
 
-    func goToReference(_ reference: BibleReference, showsFullChapter: Bool = false, focused: Bool = false) async {
+    func goToReference(_ reference: BibleReference, showsFullChapter: Bool = false, shouldFocus: Bool = false) async {
         await onHeaderSelectionChange(reference, showIntro: false)
         if reference == self.reference {
             self.showsFullChapter = showsFullChapter
-            setScrollTarget(focused: focused)
+            setScrollTarget(shouldFocus: shouldFocus)
         } else {
             finishChapterChange()
         }

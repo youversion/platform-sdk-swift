@@ -11,7 +11,7 @@ import YouVersionPlatformUI
 /// the rest of the chapter) once it lands.
 struct ScrollTarget: Equatable {
     let reference: BibleReference
-    let focused: Bool
+    let shouldFocus: Bool
 }
 
 /// The single scroll intent a navigation produces. The reader observes this and
@@ -285,11 +285,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Sets the current ``reference``'s verse as the target the reader should scroll to
     /// once its chapter lays out.
-    func setScrollTarget(focused: Bool = false) {
+    func setScrollTarget(shouldFocus: Bool = false) {
         guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
             return
         }
-        scrollAction = .reference(ScrollTarget(reference: reference, focused: focused))
+        scrollAction = .reference(ScrollTarget(reference: reference, shouldFocus: shouldFocus))
     }
 
     /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
@@ -316,9 +316,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     /// Focuses `reference`'s verse, dimming the rest of the chapter.
-    func focus(_ reference: BibleReference) {
-        guard reference.verseStart != nil,
-              reference.chapterReference == self.reference.chapterReference else {
+    func focusReference(_ reference: BibleReference) {
+        guard reference.verseStart != nil
+              && reference.chapterReference == self.reference.chapterReference else {
             return
         }
         focusedReference = reference

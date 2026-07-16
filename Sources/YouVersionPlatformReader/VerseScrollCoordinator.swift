@@ -90,13 +90,13 @@ final class VerseScrollCoordinator {
                 return
             }
             proxy.scrollTo(blockID, anchor: .top)
-            if let target = self?.viewModel.scrollTarget, target.focused {
+            if let target = self?.viewModel.scrollTarget, target.shouldFocus {
                 // Focus `target.reference` a frame after the scroll.
                 await DisplayFrame().nextFrame()
                 if Task.isCancelled {
                     return
                 }
-                self?.viewModel.focus(target.reference)
+                self?.viewModel.focusReference(target.reference)
             }
             self?.clearScrollState()
         }

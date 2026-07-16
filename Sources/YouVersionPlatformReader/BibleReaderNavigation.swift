@@ -9,7 +9,7 @@ public final class BibleReaderNavigation {
         public let reference: BibleReference
         public let showsFullChapter: Bool
         public let scrollsToVerse: Bool
-        public let focused: Bool
+        public let shouldFocus: Bool
     }
 
     /// The request the reader should act on next.
@@ -25,18 +25,18 @@ public final class BibleReaderNavigation {
             reference: reference,
             showsFullChapter: showsFullChapter,
             scrollsToVerse: true,
-            focused: false
+            shouldFocus: false
         )
     }
 
     /// Requests that the connected reader focus `reference`'s verse, dimming the rest of
     /// the chapter around it.
-    public func focus(_ reference: BibleReference, scrollsToVerse: Bool = true) {
+    public func focusReference(_ reference: BibleReference, scrollsToVerse: Bool = true) {
         pendingRequest = Request(
             reference: reference,
             showsFullChapter: true,
             scrollsToVerse: scrollsToVerse,
-            focused: true
+            shouldFocus: true
         )
     }
 
