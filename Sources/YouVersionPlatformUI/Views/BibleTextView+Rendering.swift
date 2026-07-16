@@ -105,7 +105,7 @@ extension BibleTextView {
                             height: height
                         )
                         context.draw(footnoteImage, in: rect)
-                    } else if attrs?.dimmed == true, dimProgress > 0 {
+                    } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
                             var original = context
@@ -130,7 +130,7 @@ extension BibleTextView {
     struct RenderHowAttribute: TextAttribute {
         var underlined = false
         var footnoteImage = false
-        var dimmed = false
+        var isDimmed = false
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
@@ -158,14 +158,14 @@ extension BibleTextView {
                 }
                 isUnderlined = isSelected(reference) && category == .scripture
             }
-            let dimmed = isDimmed(reference: reference, category: category)
-            if dimmed {
+            let isDimmed = isReferenceDimmed(reference, category: category)
+            if isDimmed {
                 // Drop the link so SwiftUI's interactive text overlay
                 // doesn't repaint over the dimmed color.
                 t.link = nil
             }
             // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, dimmed: dimmed))
+            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, isDimmed: isDimmed))
         }
         
         let resolvedTextColor = textOptions.textColor ?? .primary
@@ -230,14 +230,14 @@ extension BibleTextView {
     /// Whether a run should be dimmed because a different verse is focused. Only
     /// scripture, verse-label, and heading runs dim; the focused verse and
     /// footnote glyphs keep full color.
-    private func isDimmed(reference: BibleReference?, category: BibleTextCategory?) -> Bool {
+    private func isReferenceDimmed(_ reference: BibleReference?, category: BibleTextCategory?) -> Bool {
         guard let focusedReference,
               category == .scripture || category == .verseLabel || category == .header else {
             return false
         }
         if let reference,
-           reference.chapter == focusedReference.chapter,
-           reference.verseStart == focusedReference.verseStart {
+           reference.chapter == focusedReference.chapter
+           && reference.verseStart == focusedReference.verseStart {
             return false
         }
         return true
