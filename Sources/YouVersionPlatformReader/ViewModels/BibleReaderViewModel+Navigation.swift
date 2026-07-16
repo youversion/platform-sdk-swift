@@ -2,8 +2,8 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-/// How far the user must scroll to clear the focus.
-private let focusScrollThreshold: CGFloat = 2
+/// Used to distinguish between an intentional user scroll and an automatic reader scroll.
+private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
     func goToPreviousChapter() {
@@ -96,8 +96,8 @@ extension BibleReaderViewModel {
             return
         }
 
-        // A user scroll clears the focus.
-        if focusedReference != nil, abs(offset - previousOffset) > focusScrollThreshold {
+        // An intentional user scroll clears the focus.
+        if focusedReference != nil && abs(offset - previousOffset) > userScrollThreshold {
             clearFocus()
         }
 
@@ -123,7 +123,6 @@ extension BibleReaderViewModel {
             return
         }
 
-        // Tapping a verse clears the focus.
         clearFocus()
 
         if let onVerseTap {
