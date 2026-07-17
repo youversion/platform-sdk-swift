@@ -47,7 +47,7 @@ struct NavigateView: View {
                 Section {
                     ForEach(examples, id: \.title) { example in
                         Button(example.title) {
-                            if example.shouldFocus {
+                            if example.shouldFocus, #available(iOS 18.0, *) {
                                 navigation.focusReference(example.reference)
                             } else {
                                 navigation.request(example.reference, showsFullChapter: example.showsFullChapter)

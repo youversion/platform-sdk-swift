@@ -31,6 +31,7 @@ public final class BibleReaderNavigation {
 
     /// Requests that the connected reader focus `reference`'s verse, dimming the rest of
     /// the chapter around it.
+    @available(iOS 18.0, *)
     public func focusReference(_ reference: BibleReference, scrollsToVerse: Bool = true) {
         pendingRequest = Request(
             reference: reference,

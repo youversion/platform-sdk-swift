@@ -191,10 +191,12 @@ var body: some View {
 }
 ```
 
-To focus a verse — moving to its full chapter and dimming the other verses — call `focusReference(_:)`. The focus clears when the user scrolls, taps a verse, or navigates away.
+To focus a verse — moving to its full chapter and dimming the other verses — call `focusReference(_:)`. The focus clears when the user scrolls, taps a verse, or navigates away. This is available on iOS 18 and later.
 
 ```swift
-readerNavigation.focusReference(reference)
+if #available(iOS 18.0, *) {
+    readerNavigation.focusReference(reference)
+}
 ```
 
 To intercept verse taps instead of using the built-in sign-in flow:
