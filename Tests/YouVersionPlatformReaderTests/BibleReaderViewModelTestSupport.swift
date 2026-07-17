@@ -79,6 +79,7 @@ enum BibleReaderViewModelTestSupport {
     static let versionId = 3034
     static let referenceKey = "bible-reader-view--reference"
     static let displayIntroKey = "bible-reader-view--displayintro"
+    static let showsFullChapterKey = "bible-reader-view--showsfullchapter"
     static let readerSettingsKey = "bible-reader-view--readersettings"
 
     @MainActor
@@ -111,14 +112,23 @@ enum BibleReaderViewModelTestSupport {
             signOut: signOut,
             hasPermission: hasPermission
         )
-        return BibleReaderViewModel(
-            reference: reference,
-            showsFullChapter: showsFullChapter,
-            highlightsViewModel: highlightsViewModel,
-            versionsViewModel: versionsViewModel,
-            onVerseTap: onVerseTap,
-            authentication: authentication
-        )
+        return if let reference {
+            BibleReaderViewModel(
+                reference: reference,
+                showsFullChapter: showsFullChapter,
+                highlightsViewModel: highlightsViewModel,
+                versionsViewModel: versionsViewModel,
+                onVerseTap: onVerseTap,
+                authentication: authentication
+            )
+        } else {
+            BibleReaderViewModel(
+                highlightsViewModel: highlightsViewModel,
+                versionsViewModel: versionsViewModel,
+                onVerseTap: onVerseTap,
+                authentication: authentication
+            )
+        }
     }
 
     static func makeBibleVersion(id: Int) -> BibleVersion {
@@ -155,6 +165,7 @@ enum BibleReaderViewModelTestSupport {
     static func clearReaderDefaults() {
         UserDefaults.standard.removeObject(forKey: referenceKey)
         UserDefaults.standard.removeObject(forKey: displayIntroKey)
+        UserDefaults.standard.removeObject(forKey: showsFullChapterKey)
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
     }
 
