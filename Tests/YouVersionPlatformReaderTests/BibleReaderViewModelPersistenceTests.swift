@@ -37,6 +37,44 @@ import Testing
     }
 
     @Test
+    func initWithoutExplicitReferenceRestoresSavedShowsFullChapter() {
+        Support.clearReaderDefaults()
+        let savedReference = BibleReference(versionId: 111, bookUSFM: "JHN", chapter: 3, verse: 16)
+        UserDefaults.standard.set(try? JSONEncoder().encode(savedReference), forKey: Support.referenceKey)
+        UserDefaults.standard.set(true, forKey: Support.showsFullChapterKey)
+
+        let viewModel = Support.makeViewModel(reference: nil)
+
+        #expect(viewModel.reference == savedReference)
+        #expect(viewModel.showsFullChapter)
+    }
+
+    @Test
+    func initWithExplicitReferenceIgnoresSavedShowsFullChapter() {
+        Support.clearReaderDefaults()
+        UserDefaults.standard.set(true, forKey: Support.showsFullChapterKey)
+
+        let viewModel = Support.makeViewModel(
+            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1),
+            showsFullChapter: false
+        )
+
+        #expect(viewModel.showsFullChapter == false)
+    }
+
+    @Test
+    func showsFullChapterPersistsWhenChanged() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel(
+            reference: BibleReference(versionId: Support.versionId, bookUSFM: "GEN", chapter: 1)
+        )
+
+        viewModel.showsFullChapter = true
+
+        #expect(UserDefaults.standard.bool(forKey: Support.showsFullChapterKey))
+    }
+
+    @Test
     func initWithoutSavedReferenceUsesDefaultJohnOneReference() {
         Support.clearReaderDefaults()
 
