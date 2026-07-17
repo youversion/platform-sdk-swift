@@ -310,6 +310,7 @@ import Testing
         #expect(navigation.pendingRequest == nil)
     }
 
+    @available(iOS 18.0, *)
     @Test
     func focusRequestScrollsToVerseAndShowsFullChapter() {
         let navigation = BibleReaderNavigation()
@@ -325,6 +326,7 @@ import Testing
         #expect(navigation.pendingRequest?.showsFullChapter == true)
     }
 
+    @available(iOS 18.0, *)
     @Test
     func focusInPlaceRequestFocusesWithoutScrolling() {
         let navigation = BibleReaderNavigation()
