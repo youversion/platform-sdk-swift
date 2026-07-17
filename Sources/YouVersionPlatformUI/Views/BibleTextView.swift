@@ -246,6 +246,7 @@ public struct BibleTextView: View {
     ) -> [BibleTextBlock] {
         guard blocks.count == 1,
               let block = blocks.first,
+              block.rows.isEmpty,
               block.text.asAttributedString.characters.count > longBlockCharacterThreshold else {
             return blocks
         }

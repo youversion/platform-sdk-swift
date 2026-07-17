@@ -29,6 +29,28 @@ import Testing
         return try #require(blocks)
     }
 
+    private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
+        let html = """
+        <div>
+            <div class="p">
+                \((1...verseCount).map { verse in
+                    "<span class=\"yv-v\" v=\"\(verse)\"></span><span class=\"yv-vlbl\">\(verse)</span> Verse \(verse) text."
+                }.joined())
+            </div>
+        </div>
+        """
+        let reference = BibleReference(
+            versionId: defaultVersionId,
+            bookUSFM: "GEN",
+            chapter: 1,
+            verseStart: 1,
+            verseEnd: verseCount
+        )
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.count == 1)
+        return try #require(blocks.first)
+    }
+
     private func hasHeaderContaining(_ blocks: [BibleTextBlock], text: String) -> Bool {
         blocks.contains { block in
             let runs = block.text.asAttributedString.runs[\.bibleTextCategory]
@@ -313,19 +335,7 @@ import Testing
     }
 
     @Test func testLongBlockSplitsAtMaximumVerseCount() async throws {
-        let html = """
-        <div>
-            <div class="p">
-                \((1...45).map { verse in
-                    "<span class=\"yv-v\" v=\"\(verse)\"></span><span class=\"yv-vlbl\">\(verse)</span> Verse \(verse) text."
-                }.joined())
-            </div>
-        </div>
-        """
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 45)
-        let blocks = try await renderBlocks(html: html, reference: reference)
-        let block = try #require(blocks.first)
-        #expect(blocks.count == 1)
+        let block = try await singleBlock(verseCount: 45)
         let footnote = BibleFootnote(
             text: BibleAttributedString("Verse 21 footnote."),
             reference: BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verse: 21),
@@ -361,6 +371,29 @@ import Testing
         #expect(splitBlocks[1].text.characters.contains("Verse 40 text."))
         #expect(!splitBlocks[1].text.characters.contains("Verse 41 text."))
         #expect(splitBlocks[2].text.characters.contains("Verse 45 text."))
+    }
+
+    @Test func testLongBlockWithRowsRemainsUnchanged() async throws {
+        let block = try await singleBlock(verseCount: 45)
+        let tableBlock = BibleTextBlock(
+            text: block.text,
+            chapter: block.chapter,
+            firstLineHeadIndent: block.firstLineHeadIndent,
+            headIndent: block.headIndent,
+            marginTop: block.marginTop,
+            marginBottom: block.marginBottom,
+            alignment: block.alignment,
+            footnotes: block.footnotes,
+            rows: [[BibleAttributedString("Cell")]]
+        )
+
+        let displayBlocks = BibleTextView.blocksForDisplay(
+            [tableBlock],
+            longBlockCharacterThreshold: 1,
+            maximumVerseCount: 20
+        )
+
+        #expect(displayBlocks.map(\.id) == [tableBlock.id])
     }
 
     @Test func testShortAndAlreadyFormattedBlocksRemainUnchanged() async throws {
