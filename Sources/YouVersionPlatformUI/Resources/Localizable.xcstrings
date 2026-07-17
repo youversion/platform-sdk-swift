@@ -164,6 +164,7 @@
       "comment": "Standard text for Sign Out; used in menus and dialogs."
     },
     "dataExchange.continue": {
+      "comment": "Confirm button in alert requesting permission to save highlights with YouVersion.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -175,6 +176,7 @@
       }
     },
     "dataExchange.highlights.explanation": {
+      "comment": "Alert body explaining that YouVersion will request access before highlights can be saved.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -186,6 +188,7 @@
       }
     },
     "dataExchange.highlights.question": {
+      "comment": "Alert title asking permission to save highlights with YouVersion; preserve YouVersion brand.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1611,6 +1614,7 @@
       "comment": "Supplementary sign-out explanation about highlights access."
     },
     "signOut.pendinghighlights.confirm": {
+      "comment": "Destructive confirm button to sign out despite unsaved highlights.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -1622,17 +1626,19 @@
       }
     },
     "signOut.pendinghighlights.explanation": {
+      "comment": "Alert body warning unsaved highlights will be lost if user signs out while offline changes are pending.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Some of your highlights haven’t been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
+            "value": "Some of your highlights haven't been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
           }
         }
       }
     },
     "signOut.pendinghighlights.question": {
+      "comment": "Alert title when signing out with unsaved offline highlight changes.",
       "extractionState": "manual",
       "localizations": {
         "en": {
