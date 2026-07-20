@@ -279,7 +279,11 @@ public final class BibleVersionsViewModel {
     
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
-        let preferredLanguage = Locale.current.language.languageCode?.identifier
+        let maximalIdentifier = Locale.current.language.maximalIdentifier
+        let minimalIdentifier = Locale.current.language.minimalIdentifier
+        let preferredLanguage = maximalIdentifier == minimalIdentifier
+            ? maximalIdentifier
+            : "\(maximalIdentifier), \(minimalIdentifier);q=0.9"
         do {
             suggestedLanguages = try await YouVersionAPI.Languages.languages(
                 country: region,

@@ -121,13 +121,13 @@ import Testing
         }
 
         _ = try await YouVersionAPI.Languages.languages(
-            preferredLanguage: "es",
+            preferredLanguage: "zh-Hant-TW, zh-TW;q=0.9",
             accessToken: "swift-test-suite",
             session: session
         )
 
         let request = try #require(capturedRequest)
-        #expect(request.value(forHTTPHeaderField: "Accept-Language") == "es")
+        #expect(request.value(forHTTPHeaderField: "Accept-Language") == "zh-Hant-TW, zh-TW;q=0.9")
     }
 
     @MainActor
