@@ -30,8 +30,11 @@ public class BibleHighlightsViewModel: ObservableObject {
             object: nil,
             queue: nil
         ) { [weak self] _ in
+            let isSignedIn = YouVersionAPI.isSignedIn
             Task { @MainActor in
-                self?.reset()
+                if !isSignedIn {
+                    self?.reset()
+                }
             }
         }
     }

@@ -5,6 +5,24 @@ import FoundationNetworking
 import Testing
 @testable import YouVersionPlatformCore
 
+@MainActor
+private final class AuthStateHighlightsRepository: BibleHighlightsPendingOperationsReporting, BibleHighlightsPendingOperationsClearing {
+    private(set) var hasPendingOperations = true
+    private(set) var clearPendingOperationsCallCount = 0
+
+    func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
+        [:]
+    }
+
+    func queueOperation(_ operation: PendingHighlightOperation) {
+    }
+
+    func clearPendingOperations() {
+        hasPendingOperations = false
+        clearPendingOperationsCallCount += 1
+    }
+}
+
 extension ConfigurationStateTests {
     @Suite(.serialized) struct YouVersionPlatformConfigurationTests {
         
@@ -177,7 +195,7 @@ extension ConfigurationStateTests {
             #expect(YouVersionPlatformConfiguration.accessToken == nil)
         }
 
-        @Test @MainActor func authStateDidChangeNotificationPostsWhenSignInStateChanges() async {
+        @Test @MainActor func authStateDidChangeNotificationPostsWhenAccessTokenChanges() async {
             @MainActor final class NotificationCounter {
                 private(set) var count = 0
 
@@ -216,7 +234,43 @@ extension ConfigurationStateTests {
             )
             YouVersionPlatformConfiguration.clearAuthTokens()
 
-            #expect(counter.count == 2)
+            #expect(counter.count == 3)
+        }
+
+        @Test @MainActor func tokenRefreshDoesNotClearPendingHighlightOperations() async {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: Date(timeIntervalSinceNow: 60)
+            )
+            let repository = AuthStateHighlightsRepository()
+            let viewModel = BibleHighlightsViewModel(
+                cache: BibleHighlightsCache(),
+                repository: repository
+            )
+
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-2",
+                refreshToken: "refresh-2",
+                idToken: nil,
+                expiryDate: Date(timeIntervalSinceNow: 3600)
+            )
+            for _ in 0..<10 {
+                await Task.yield()
+            }
+
+            #expect(viewModel.hasPendingOperations)
+            #expect(repository.clearPendingOperationsCallCount == 0)
+
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            for _ in 0..<10 where repository.clearPendingOperationsCallCount == 0 {
+                await Task.yield()
+            }
+
+            #expect(!viewModel.hasPendingOperations)
+            #expect(repository.clearPendingOperationsCallCount == 1)
         }
 
         // MARK: - Permissions

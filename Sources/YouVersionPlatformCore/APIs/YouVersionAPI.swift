@@ -5,6 +5,8 @@ import FoundationNetworking
 
 public enum YouVersionAPI {
 
+    private static let accessTokenProvider = AccessTokenProvider()
+
     /// This doesn't refresh the token when required, and therefore doesn't have to be async.
     public static var isSignedIn: Bool {
         YouVersionPlatformConfiguration.accessToken != nil
@@ -12,29 +14,14 @@ public enum YouVersionAPI {
 
     /// This can cause a token refresh if an access token is present but is old.
     public static func hasValidToken(session: URLSession = .shared) async -> Bool {
-        guard let data = YouVersionPlatformConfiguration.authData,
-              let expiry = data.expiryDate
-        else {
-            return false
+        await accessTokenProvider.accessToken(session: session) != nil
+    }
+
+    static func accessToken(providedToken: String?, session: URLSession) async -> String? {
+        if let providedToken {
+            return providedToken
         }
-        guard expiry.timeIntervalSinceNow < 30 else {
-            return true
-        }
-        guard let refreshToken = data.refreshToken,
-              let result = try? await Users.refreshSignIn(withToken: refreshToken, idToken: data.idToken, session: session) else {
-            YouVersionPlatformLogger.error("token refresh failed", category: "Auth")
-            return false
-        }
-        await MainActor.run {
-            YouVersionPlatformConfiguration.saveAuthData(
-                accessToken: result.accessToken,
-                refreshToken: result.refreshToken,
-                idToken: result.idToken,
-                expiryDate: result.expiryDate,
-                permissions: result.permissionValues
-            )
-        }
-        return true
+        return await accessTokenProvider.accessToken(session: session)
     }
 
     static func data(at url: URL, accessToken: String?, session: URLSession) async throws -> Data {
@@ -90,6 +77,64 @@ public enum YouVersionAPI {
         }
 
         return request
+    }
+}
+
+private actor AccessTokenProvider {
+    private var refreshTask: Task<String?, Never>?
+
+    func accessToken(session: URLSession) async -> String? {
+        guard let authData = YouVersionPlatformConfiguration.authData,
+              let accessToken = authData.accessToken,
+              let expiryDate = authData.expiryDate else {
+            return nil
+        }
+        guard expiryDate.timeIntervalSinceNow < 30 else {
+            return accessToken
+        }
+        if let refreshTask {
+            return await refreshTask.value
+        }
+        guard let refreshToken = authData.refreshToken else {
+            return nil
+        }
+
+        let task = Task {
+            await Self.refreshAccessToken(
+                refreshToken: refreshToken,
+                idToken: authData.idToken,
+                session: session
+            )
+        }
+        refreshTask = task
+        let refreshedAccessToken = await task.value
+        refreshTask = nil
+        return refreshedAccessToken
+    }
+
+    private static func refreshAccessToken(
+        refreshToken: String,
+        idToken: String?,
+        session: URLSession
+    ) async -> String? {
+        guard let result = try? await YouVersionAPI.Users.refreshSignIn(
+            withToken: refreshToken,
+            idToken: idToken,
+            session: session
+        ) else {
+            YouVersionPlatformLogger.error("token refresh failed", category: "Auth")
+            return nil
+        }
+        await MainActor.run {
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken,
+                idToken: result.idToken,
+                expiryDate: result.expiryDate,
+                permissions: result.permissionValues
+            )
+        }
+        return result.accessToken
     }
 }
 

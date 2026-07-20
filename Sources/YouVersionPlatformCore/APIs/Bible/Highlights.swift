@@ -59,7 +59,7 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> [HighlightResponse] {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
 
@@ -154,7 +154,7 @@ public extension YouVersionAPI {
             accessToken providedToken: String?,
             session: URLSession
         ) async throws -> Bool {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
             guard let url = URLBuilder.highlightsURL else {
@@ -208,7 +208,7 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
             guard let url = URLBuilder.highlightsDeleteURL(bibleId: bibleId, passageId: passageId) else {
