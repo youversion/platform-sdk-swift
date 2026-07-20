@@ -139,6 +139,15 @@ extension ConfigurationStateTests {
             #expect(refreshRequestCount == 1)
             #expect(highlightsAuthorizationHeader == "Bearer new-access-token")
 
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.2",
+                session: session
+            )
+
+            #expect(refreshRequestCount == 1)
+            #expect(highlightsAuthorizationHeader == "Bearer new-access-token")
+
             await YouVersionPlatformConfiguration.clearAuthTokens()
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
         }
