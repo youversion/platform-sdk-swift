@@ -39,6 +39,66 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
+        @Test func authenticatedRequestUsesAccessTokenWithoutRefreshTokenWhenUnexpired() async throws {
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-token",
+                refreshToken: nil,
+                idToken: nil,
+                expiryDate: Date(timeIntervalSinceNow: 3600)
+            )
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            var authorizationHeader: String?
+
+            HTTPMocking.setHandler(token: token) { request in
+                #expect(request.url?.path == "/v1/highlights")
+                authorizationHeader = request.value(forHTTPHeaderField: "Authorization")
+                let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
+                return (Data(), response)
+            }
+
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.1",
+                session: session
+            )
+
+            #expect(authorizationHeader == "Bearer access-token")
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func authenticatedRequestUsesAccessTokenWhenExpiryIsUnknown() async throws {
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-token",
+                refreshToken: nil,
+                idToken: nil,
+                expiryDate: nil
+            )
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            var authorizationHeader: String?
+
+            HTTPMocking.setHandler(token: token) { request in
+                #expect(request.url?.path == "/v1/highlights")
+                authorizationHeader = request.value(forHTTPHeaderField: "Authorization")
+                let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
+                return (Data(), response)
+            }
+
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.1",
+                session: session
+            )
+
+            #expect(authorizationHeader == "Bearer access-token")
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
         @Test func hasValidTokenRefreshesExpiringTokenAndStoresResponse() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
             let responsePayload: [String: String] = [
@@ -81,6 +141,72 @@ extension ConfigurationStateTests {
             #expect(authData?.refreshToken == "new-refresh-token")
             #expect(authData?.idToken == "id-token")
             #expect((authData?.expiryDate?.timeIntervalSinceNow ?? 0) > 7100)
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+        }
+
+        @Test func authenticatedRequestWaitsForSharedTokenRefresh() async throws {
+            let originalAppKey = YouVersionPlatformConfiguration.appKey
+            let responsePayload: [String: String] = [
+                "access_token": "new-access-token",
+                "expires_in": "7200",
+                "refresh_token": "new-refresh-token",
+                "scope": "highlights"
+            ]
+            let responseData = try JSONEncoder().encode(responsePayload)
+
+            await YouVersionPlatformConfiguration.configure(appKey: "test-app")
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "expired-access-token",
+                refreshToken: "old-refresh-token",
+                idToken: "id-token",
+                expiryDate: Date(timeIntervalSinceNow: -60),
+                permissions: ["highlights"]
+            )
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            var refreshRequestCount = 0
+            var highlightsAuthorizationHeader: String?
+
+            HTTPMocking.setHandler(token: token) { request in
+                switch request.url?.path {
+                case "/auth/token":
+                    refreshRequestCount += 1
+                    Thread.sleep(forTimeInterval: 0.1)
+                    let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                    return (responseData, response)
+                case "/v1/highlights":
+                    highlightsAuthorizationHeader = request.value(forHTTPHeaderField: "Authorization")
+                    let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
+                    return (Data(), response)
+                default:
+                    throw URLError(.badURL)
+                }
+            }
+
+            async let tokenIsValid = YouVersionAPI.hasValidToken(session: session)
+            async let highlights = YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.1",
+                session: session
+            )
+            let (isValid, loadedHighlights) = try await (tokenIsValid, highlights)
+
+            #expect(isValid)
+            #expect(loadedHighlights.isEmpty)
+            #expect(refreshRequestCount == 1)
+            #expect(highlightsAuthorizationHeader == "Bearer new-access-token")
+
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.2",
+                session: session
+            )
+
+            #expect(refreshRequestCount == 1)
+            #expect(highlightsAuthorizationHeader == "Bearer new-access-token")
 
             await YouVersionPlatformConfiguration.clearAuthTokens()
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
