@@ -118,15 +118,13 @@ public struct YouVersionPlatformConfiguration {
     }
 
     public static var authData: SignInWithYouVersionResult? {
-        guard
-            let accessToken = UserDefaults.standard.string(forKey: accessTokenKey),
-            let refreshToken = UserDefaults.standard.string(forKey: refreshTokenKey),
-            let expiryDate = UserDefaults.standard.object(forKey: expiryDateKey) as? Date
-        else {
+        guard let accessToken = UserDefaults.standard.string(forKey: accessTokenKey) else {
             return nil
         }
 
+        let refreshToken = UserDefaults.standard.string(forKey: refreshTokenKey)
         let idToken = UserDefaults.standard.string(forKey: idTokenKey)
+        let expiryDate = UserDefaults.standard.object(forKey: expiryDateKey) as? Date
 
         return SignInWithYouVersionResult(
             accessToken: accessToken,

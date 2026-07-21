@@ -85,9 +85,11 @@ private actor AccessTokenProvider {
 
     func accessToken(session: URLSession) async -> String? {
         guard let authData = YouVersionPlatformConfiguration.authData,
-              let accessToken = authData.accessToken,
-              let expiryDate = authData.expiryDate else {
+              let accessToken = authData.accessToken else {
             return nil
+        }
+        guard let expiryDate = authData.expiryDate else {
+            return accessToken
         }
         guard expiryDate.timeIntervalSinceNow < 30 else {
             return accessToken

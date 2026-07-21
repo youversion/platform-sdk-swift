@@ -39,6 +39,66 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
 
+        @Test func authenticatedRequestUsesAccessTokenWithoutRefreshTokenWhenUnexpired() async throws {
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-token",
+                refreshToken: nil,
+                idToken: nil,
+                expiryDate: Date(timeIntervalSinceNow: 3600)
+            )
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            var authorizationHeader: String?
+
+            HTTPMocking.setHandler(token: token) { request in
+                #expect(request.url?.path == "/v1/highlights")
+                authorizationHeader = request.value(forHTTPHeaderField: "Authorization")
+                let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
+                return (Data(), response)
+            }
+
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.1",
+                session: session
+            )
+
+            #expect(authorizationHeader == "Bearer access-token")
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func authenticatedRequestUsesAccessTokenWhenExpiryIsUnknown() async throws {
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-token",
+                refreshToken: nil,
+                idToken: nil,
+                expiryDate: nil
+            )
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            var authorizationHeader: String?
+
+            HTTPMocking.setHandler(token: token) { request in
+                #expect(request.url?.path == "/v1/highlights")
+                authorizationHeader = request.value(forHTTPHeaderField: "Authorization")
+                let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
+                return (Data(), response)
+            }
+
+            _ = try await YouVersionAPI.Highlights.highlights(
+                bibleId: 1,
+                passageId: "GEN.1",
+                session: session
+            )
+
+            #expect(authorizationHeader == "Bearer access-token")
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
         @Test func hasValidTokenRefreshesExpiringTokenAndStoresResponse() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
             let responsePayload: [String: String] = [
