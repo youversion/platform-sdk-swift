@@ -96,7 +96,7 @@ public struct YouVersionPlatformConfiguration {
         expiryDate: Date?,
         permissions: [String]? = nil
     ) {
-        let previousAccessToken = Self.accessToken
+        let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
         UserDefaults.standard.set(idToken, forKey: idTokenKey)
@@ -104,7 +104,7 @@ public struct YouVersionPlatformConfiguration {
         if let permissions {
             savePermissions(permissions)
         }
-        postAuthStateDidChangeNotificationIfNeeded(previousAccessToken: previousAccessToken)
+        postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
     }
 
     @MainActor
@@ -150,8 +150,8 @@ public struct YouVersionPlatformConfiguration {
         storedPermissions.contains(permission)
     }
 
-    private static func postAuthStateDidChangeNotificationIfNeeded(previousAccessToken: String?) {
-        guard previousAccessToken != accessToken else {
+    private static func postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: Bool) {
+        guard wasSignedIn != (accessToken != nil) else {
             return
         }
         NotificationCenter.default.post(name: authStateDidChangeNotification, object: nil)
