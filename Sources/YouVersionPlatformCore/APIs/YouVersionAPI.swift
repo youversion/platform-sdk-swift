@@ -80,7 +80,60 @@ public enum YouVersionAPI {
     }
 }
 
+struct AccessTokenRefreshBackoff {
+    private struct RefreshFailure {
+        let accessToken: String
+        let count: Int
+        let refreshToken: String
+        let retryInstant: ContinuousClock.Instant
+    }
+
+    private var refreshFailure: RefreshFailure?
+
+    /// Returns whether the credentials can make a refresh attempt at the given instant.
+    func shouldAttemptRefresh(
+        accessToken: String,
+        refreshToken: String,
+        at currentInstant: ContinuousClock.Instant
+    ) -> Bool {
+        guard let refreshFailure else {
+            return true
+        }
+        guard refreshFailure.accessToken == accessToken && refreshFailure.refreshToken == refreshToken else {
+            return true
+        }
+        return currentInstant >= refreshFailure.retryInstant
+    }
+
+    /// Records a failed refresh attempt and advances the retry delay.
+    mutating func recordFailure(
+        accessToken: String,
+        refreshToken: String,
+        at currentInstant: ContinuousClock.Instant
+    ) {
+        let matchesPreviousCredentials = refreshFailure?.accessToken == accessToken
+            && refreshFailure?.refreshToken == refreshToken
+        let previousFailureCount = matchesPreviousCredentials ? refreshFailure?.count ?? 0 : 0
+        let failureCount = previousFailureCount + 1
+        let exponent = min(failureCount - 1, 6)
+        let backoffSeconds = min(5 * (1 << exponent), 300)
+        refreshFailure = RefreshFailure(
+            accessToken: accessToken,
+            count: failureCount,
+            refreshToken: refreshToken,
+            retryInstant: currentInstant.advanced(by: .seconds(backoffSeconds))
+        )
+    }
+
+    /// Clears the refresh failure history.
+    mutating func reset() {
+        refreshFailure = nil
+    }
+}
+
 private actor AccessTokenProvider {
+    private let clock = ContinuousClock()
+    private var refreshBackoff = AccessTokenRefreshBackoff()
     private var refreshTask: Task<String?, Never>?
 
     func accessToken(session: URLSession) async -> String? {
@@ -100,6 +153,13 @@ private actor AccessTokenProvider {
         guard let refreshToken = authData.refreshToken else {
             return nil
         }
+        guard refreshBackoff.shouldAttemptRefresh(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            at: clock.now
+        ) else {
+            return nil
+        }
 
         let task = Task {
             await Self.refreshAccessToken(
@@ -111,6 +171,15 @@ private actor AccessTokenProvider {
         refreshTask = task
         let refreshedAccessToken = await task.value
         refreshTask = nil
+        if refreshedAccessToken == nil {
+            refreshBackoff.recordFailure(
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                at: clock.now
+            )
+        } else {
+            refreshBackoff.reset()
+        }
         return refreshedAccessToken
     }
 
