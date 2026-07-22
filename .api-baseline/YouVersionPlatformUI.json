@@ -6,6 +6,13 @@
     "children": [
       {
         "kind": "Import",
+        "name": "AppKit",
+        "printedName": "AppKit",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformUI"
+      },
+      {
+        "kind": "Import",
         "name": "AuthenticationServices",
         "printedName": "AuthenticationServices",
         "declKind": "Import",
@@ -2540,7 +2547,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:placeholder:)",
+            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:placeholder:focusedReference:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2700,11 +2707,26 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap11placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyAJGGyAJ_SSSayAA0E8FootnoteVGSSSgtcSgAN03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
-            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap11placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyAJGGyAJ_SSSayAA0E8FootnoteVGSSSgtcSgAN03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
+            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap11placeholder16focusedReferenceAC0abC4Core0eQ0V_AA0efI0VSg05SwiftD07BindingVyShyAKGGyAK_SSSayAA0E8FootnoteVGSSSgtcSgAO03AnyG0VAA0eF12LoadingPhaseOcSgAKSgtcfc",
+            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap11placeholder16focusedReferenceAC0abC4Core0eQ0V_AA0efI0VSg05SwiftD07BindingVyShyAKGGyAK_SSSayAA0E8FootnoteVGSSSgtcSgAO03AnyG0VAA0eF12LoadingPhaseOcSgAKSgtcfc",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "Preconcurrency",
@@ -4821,6 +4843,7 @@
         "declAttributes": [
           "Final"
         ],
+        "hasMissingDesignatedInitializers": true,
         "conformances": [
           {
             "kind": "Conformance",
