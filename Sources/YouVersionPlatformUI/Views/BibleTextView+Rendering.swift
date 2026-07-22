@@ -160,8 +160,8 @@ extension BibleTextView {
             }
             let isDimmed = isReferenceDimmed(reference, category: category)
             if isDimmed {
-                // Drop the link so SwiftUI's interactive text overlay
-                // doesn't repaint over the dimmed color.
+                // Drop the link so its `.tint` color doesn't
+                // repaint over the dimmed color the renderer draws.
                 t.link = nil
             }
             // swiftlint:disable:next shorthand_operator
@@ -227,20 +227,18 @@ extension BibleTextView {
         return parts.joined(separator: ", ")
     }
     
-    /// Whether a run should be dimmed because a different verse is focused. Only
-    /// scripture, verse-label, and heading runs dim; the focused verse and
+    /// Whether a run should be dimmed because a different reference is focused. Only
+    /// scripture, verse-label, and heading runs dim; the focused reference and
     /// footnote glyphs keep full color.
     private func isReferenceDimmed(_ reference: BibleReference?, category: BibleTextCategory?) -> Bool {
         guard let focusedReference,
               category == .scripture || category == .verseLabel || category == .header else {
             return false
         }
-        if let reference,
-           reference.chapter == focusedReference.chapter
-           && reference.verseStart == focusedReference.verseStart {
-            return false
+        guard let reference else {
+            return true
         }
-        return true
+        return !focusedReference.contains(with: reference)
     }
     
     private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {

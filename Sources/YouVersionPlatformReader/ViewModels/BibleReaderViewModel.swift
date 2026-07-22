@@ -315,7 +315,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         isChangingChapter = false
     }
 
-    /// Focuses `reference`'s verse, dimming the rest of the chapter.
+    /// Focuses `reference`'s verse (or verse range), dimming the rest of the chapter.
     func focusReference(_ reference: BibleReference) {
         guard reference.verseStart != nil
               && reference.chapterReference == self.reference.chapterReference else {
