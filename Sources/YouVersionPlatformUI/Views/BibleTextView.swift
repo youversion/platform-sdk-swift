@@ -5,6 +5,10 @@ public struct BibleTextView: View {
 
     public typealias VerseTapAction = (BibleReference, String, [BibleFootnote], String?) -> Void
 
+    static let dimmedTextOpacity: CGFloat = 0.35
+    static let focusAnimation: Animation = .easeInOut(duration: 0.5)
+
+    let focusedReference: BibleReference?
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
@@ -33,6 +37,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
+        self.focusedReference = nil
         self.placeholder = nil
         self.blocks = []
         self.providedBlocks = nil
@@ -44,11 +49,13 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
-        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
+        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil,
+        focusedReference: BibleReference? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
+        self.focusedReference = focusedReference
         self.onVerseTap = onVerseTap
         self.placeholder = placeholder
         self.blocks = []
@@ -81,6 +88,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
+        self.focusedReference = nil
         self.placeholder = nil
         self.blocks = blocks
         self.providedBlocks = blocks

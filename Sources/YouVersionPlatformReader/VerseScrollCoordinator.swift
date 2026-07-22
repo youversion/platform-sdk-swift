@@ -21,16 +21,20 @@ final class VerseScrollCoordinator {
     private var scrollTask: Task<Void, Never>?
     private var fallbackTask: Task<Void, Never>?
 
+    private var scrollTargetReference: BibleReference? {
+        viewModel.scrollTarget?.reference
+    }
+
     private var targetBlockID: Int? {
-        guard let target = viewModel.scrollTargetReference, let verse = target.verseStart,
-              let anchors, anchors.chapter == target.chapter else {
+        guard let reference = scrollTargetReference, let verse = reference.verseStart,
+              let anchors, anchors.chapter == reference.chapter else {
             return nil
         }
         return anchors.blockFirstVerse(forTargetVerse: verse)
     }
 
     private var isTargetChapterRendered: Bool {
-        viewModel.scrollTargetReference?.chapter == anchors?.chapter
+        scrollTargetReference?.chapter == anchors?.chapter
     }
 
     init(viewModel: BibleReaderViewModel) {
@@ -61,7 +65,7 @@ final class VerseScrollCoordinator {
     func handleAnchors(_ newAnchors: ChapterScrollAnchors?, proxy: ScrollViewProxy) {
         anchors = newAnchors
         if isScrollPending, let newAnchors,
-           newAnchors.chapter != viewModel.scrollTargetReference?.chapter {
+           newAnchors.chapter != scrollTargetReference?.chapter {
             scrollTask?.cancel()
             clearScrollState()
             return
@@ -86,6 +90,14 @@ final class VerseScrollCoordinator {
                 return
             }
             proxy.scrollTo(blockID, anchor: .top)
+            if let target = self?.viewModel.scrollTarget, target.shouldFocus {
+                // Focus `target.reference` a frame after the scroll.
+                await DisplayFrame().nextFrame()
+                if Task.isCancelled {
+                    return
+                }
+                self?.viewModel.focusReference(target.reference)
+            }
             self?.clearScrollState()
         }
     }
