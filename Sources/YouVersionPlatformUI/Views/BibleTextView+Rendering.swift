@@ -57,13 +57,22 @@ extension BibleTextView {
     // SwiftUI draws background colors for our verse numbers. Without having
     // this active, the area painted in the background color sometimes shifts
     // upwards according to the baseline offset. And/or partially shifts.
-    struct BibleRenderer: TextRenderer {
+    struct BibleRenderer: TextRenderer, Animatable {
         let footnoteIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
+        let dimmedTextColor: Color
+        var dimProgress: CGFloat // 0 = full color, 1 = fully dimmed.
 
-        init(verseSelectionStyle: VerseSelectionStyle = .solid) {
+        var animatableData: CGFloat {
+            get { dimProgress }
+            set { dimProgress = newValue }
+        }
+
+        init(verseSelectionStyle: VerseSelectionStyle = .solid, dimmedTextColor: Color = .primary, dimProgress: CGFloat = 0) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
+            self.dimmedTextColor = dimmedTextColor
+            self.dimProgress = dimProgress
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
@@ -96,6 +105,20 @@ extension BibleTextView {
                             height: height
                         )
                         context.draw(footnoteImage, in: rect)
+                    } else if attrs?.isDimmed == true && dimProgress > 0 {
+                        // Paint the muted color through a mask over the original glyph.
+                        if dimProgress < 1 {
+                            var original = context
+                            original.opacity = 1 - dimProgress
+                            original.draw(run)
+                        }
+                        context.drawLayer { layer in
+                            layer.opacity = dimProgress
+                            layer.clipToLayer { mask in
+                                mask.draw(run)
+                            }
+                            layer.fill(Path(lineRect), with: .color(dimmedTextColor))
+                        }
                     } else {
                         context.draw(run)
                     }
@@ -107,6 +130,7 @@ extension BibleTextView {
     struct RenderHowAttribute: TextAttribute {
         var underlined = false
         var footnoteImage = false
+        var isDimmed = false
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
@@ -134,14 +158,21 @@ extension BibleTextView {
                 }
                 isUnderlined = isSelected(reference) && category == .scripture
             }
+            let isDimmed = isReferenceDimmed(reference, category: category)
+            if isDimmed {
+                // Drop the link so its `.tint` color doesn't
+                // repaint over the dimmed color the renderer draws.
+                t.link = nil
+            }
             // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage))
+            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, isDimmed: isDimmed))
         }
-
+        
+        let resolvedTextColor = textOptions.textColor ?? .primary
         let retValue = textCombo
             // Verse runs carry link attributes (for OpenURLAction tap routing), so the
             // effective text color comes from .tint, not .foregroundStyle.
-            .tint(textOptions.textColor ?? .primary)
+            .tint(resolvedTextColor)
             .fixedSize(horizontal: false, vertical: true)
             .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
             // Highlight state goes into `.accessibilityIdentifier`, NOT
@@ -153,7 +184,15 @@ extension BibleTextView {
             // XCUIElementTypeStaticText.
             .accessibilityIdentifier(highlightSummary(for: string))
         if #available(iOS 18.0, *) {
-            return retValue.textRenderer(BibleRenderer(verseSelectionStyle: textOptions.verseSelectionStyle))
+            let dimmedTextColor = resolvedTextColor.opacity(Self.dimmedTextOpacity)
+            return retValue.textRenderer(
+                BibleRenderer(
+                    verseSelectionStyle: textOptions.verseSelectionStyle,
+                    dimmedTextColor: dimmedTextColor,
+                    dimProgress: focusedReference == nil ? 0 : 1
+                )
+            )
+            .animation(Self.focusAnimation, value: focusedReference)
         } else {
             return retValue
         }
@@ -186,6 +225,20 @@ extension BibleTextView {
             parts.append("verse \(verse) highlighted \(accessibilityColorName(for: color))")
         }
         return parts.joined(separator: ", ")
+    }
+    
+    /// Whether a run should be dimmed because a different reference is focused. Only
+    /// scripture, verse-label, and heading runs dim; the focused reference and
+    /// footnote glyphs keep full color.
+    private func isReferenceDimmed(_ reference: BibleReference?, category: BibleTextCategory?) -> Bool {
+        guard let focusedReference,
+              category == .scripture || category == .verseLabel || category == .header else {
+            return false
+        }
+        guard let reference else {
+            return true
+        }
+        return !focusedReference.contains(with: reference)
     }
     
     private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {

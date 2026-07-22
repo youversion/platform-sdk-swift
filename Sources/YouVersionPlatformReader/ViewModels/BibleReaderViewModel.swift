@@ -7,12 +7,19 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+/// A verse the reader should scroll to, and whether it should be focused (dimming
+/// the rest of the chapter) once it lands.
+struct ScrollTarget: Equatable {
+    let reference: BibleReference
+    let shouldFocus: Bool
+}
+
 /// The single scroll intent a navigation produces. The reader observes this and
 /// performs exactly one of: nothing, scroll to the top, or scroll to a reference.
 enum ScrollAction: Equatable {
     case none
     case top
-    case reference(BibleReference)
+    case reference(ScrollTarget)
 }
 
 @MainActor
@@ -53,14 +60,15 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             UserDefaults.standard.set(showsFullChapter, forKey: userDefaultsKeyForShowsFullChapter)
         }
     }
-    /// The reference the reader should scroll to, if the current ``scrollAction`` is a verse scroll.
-    var scrollTargetReference: BibleReference? {
-        if case .reference(let reference) = scrollAction {
-            reference
+    /// The target the reader should scroll to, if the current ``scrollAction`` is a reference.
+    var scrollTarget: ScrollTarget? {
+        if case .reference(let target) = scrollAction {
+            target
         } else {
             nil
         }
     }
+    private(set) var focusedReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
@@ -277,11 +285,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Sets the current ``reference``'s verse as the target the reader should scroll to
     /// once its chapter lays out.
-    func setScrollTarget() {
-        guard showsFullChapter, let verseStart = reference.verseStart, verseStart > 1 else {
+    func setScrollTarget(shouldFocus: Bool = false) {
+        guard showsFullChapter && reference.verseStart != nil else {
             return
         }
-        scrollAction = .reference(reference)
+        scrollAction = .reference(ScrollTarget(reference: reference, shouldFocus: shouldFocus))
     }
 
     /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
@@ -295,6 +303,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         lastScrollOffset = 0
         showChrome = true
         scrollAction = .top
+        clearFocus()
     }
 
     /// Ends an in-flight chapter change by optionally clearing any armed scroll
@@ -304,6 +313,19 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             scrollAction = .none
         }
         isChangingChapter = false
+    }
+
+    /// Focuses `reference`'s verse (or verse range), dimming the rest of the chapter.
+    func focusReference(_ reference: BibleReference) {
+        guard reference.verseStart != nil
+              && reference.chapterReference == self.reference.chapterReference else {
+            return
+        }
+        focusedReference = reference
+    }
+
+    func clearFocus() {
+        focusedReference = nil
     }
 
     func loadUserSettingsFromStorage() {
