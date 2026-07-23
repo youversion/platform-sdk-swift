@@ -6,6 +6,13 @@
     "children": [
       {
         "kind": "Import",
+        "name": "AppKit",
+        "printedName": "AppKit",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformUI"
+      },
+      {
+        "kind": "Import",
         "name": "AuthenticationServices",
         "printedName": "AuthenticationServices",
         "declKind": "Import",
@@ -2540,7 +2547,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:onCollectibleTap:onAnchorsChanged:audioActiveVerse:placeholder:)",
+            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:onCollectibleTap:onAnchorsChanged:audioActiveVerse:placeholder:focusedReference:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2791,11 +2798,26 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyAMGGyAM_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAQ03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
-            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyAMGGyAM_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAQ03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
+            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholder16focusedReferenceAC0abC4Core0eV0V_AA0efI0VSg05SwiftD07BindingVyShyANGGyAN_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAR03AnyG0VAA0eF12LoadingPhaseOcSgANSgtcfc",
+            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholder16focusedReferenceAC0abC4Core0eV0V_AA0efI0VSg05SwiftD07BindingVyShyANGGyAN_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAR03AnyG0VAA0eF12LoadingPhaseOcSgANSgtcfc",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "Preconcurrency",
@@ -5407,6 +5429,7 @@
         "declAttributes": [
           "Final"
         ],
+        "hasMissingDesignatedInitializers": true,
         "conformances": [
           {
             "kind": "Conformance",
@@ -6433,7 +6456,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:alignment:footnotes:rows:)",
+            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:marginBottom:alignment:footnotes:rows:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -6488,6 +6511,13 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "CGFloat",
+                "printedName": "CoreGraphics.CGFloat",
+                "hasDefaultArg": true,
+                "usr": "s:14CoreFoundation7CGFloatV"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "TextAlignment",
                 "printedName": "SwiftUI.TextAlignment",
                 "usr": "s:7SwiftUI13TextAlignmentO"
@@ -6531,8 +6561,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
-            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
             "moduleName": "YouVersionPlatformUI",
             "init_kind": "Designated"
           },

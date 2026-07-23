@@ -162,6 +162,18 @@ import Testing
     }
 
     @Test
+    func handleScrollTracksOffsetButLeavesChromeWhileChangingChapter() {
+        let viewModel = Support.makeViewModel()
+        viewModel.isChangingChapter = true
+        viewModel.showChrome = true
+
+        viewModel.handleScroll(offset: -100, contentHeight: 400)
+
+        #expect(viewModel.lastScrollOffset == -100)
+        #expect(viewModel.showChrome)
+    }
+
+    @Test
     func handleVerseTapWithFootnoteActionShowsFootnotes() {
         let viewModel = Support.makeViewModel()
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)

@@ -7,7 +7,7 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
 
     @Test
-    func handleVerseTapShowsDrawerWhenUnsignedOutAndSignInEnabled() {
+    func handleVerseTapShowsSignInSheetWhenUnsignedOutAndSignInEnabled() {
         Support.clearReaderDefaults()
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let viewModel = Support.makeViewModel(isSignedIn: false)
@@ -18,10 +18,10 @@ import Testing
             footnotes: []
         )
 
-        #expect(viewModel.showingSignInSheet == false)
-        #expect(viewModel.showingVerseActionsDrawer)
-        #expect(viewModel.selectedVerses.count == 1)
-        #expect(viewModel.selectedVerses.first?.asUSFM == "JHN.3.16")
+        // A signed-out tap prompts sign-in rather than selecting the verse.
+        #expect(viewModel.showingSignInSheet)
+        #expect(viewModel.showingVerseActionsDrawer == false)
+        #expect(viewModel.selectedVerses.isEmpty)
     }
 
     @Test
@@ -37,9 +37,8 @@ import Testing
         )
 
         #expect(viewModel.showingSignInSheet == false)
-        #expect(viewModel.showingVerseActionsDrawer)
-        #expect(viewModel.selectedVerses.count == 1)
-        #expect(viewModel.selectedVerses.first?.asUSFM == "JHN.3.16")
+        #expect(viewModel.showingVerseActionsDrawer == false)
+        #expect(viewModel.selectedVerses.isEmpty)
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
     }
 

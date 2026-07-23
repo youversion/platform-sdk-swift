@@ -22,6 +22,7 @@ public struct BibleTextBlock: Identifiable {
         firstLineHeadIndent: Int,
         headIndent: Int,
         marginTop: CGFloat,
+        marginBottom: CGFloat = 0,
         alignment: TextAlignment,
         footnotes: [BibleFootnote],
         rows: [[BibleAttributedString]] = []
@@ -32,7 +33,7 @@ public struct BibleTextBlock: Identifiable {
         self.firstLineHeadIndent = firstLineHeadIndent
         self.headIndent = headIndent
         self.marginTop = marginTop
-        self.marginBottom = 0
+        self.marginBottom = marginBottom
         self.alignment = alignment
         self.footnotes = footnotes
         self.rows = rows
@@ -54,5 +55,45 @@ public struct BibleTextBlock: Identifiable {
             return nil
         }
         return "ch\(chapter)v\(startVerse)"
+    }
+
+    /// Splits this block at Bible-reference run boundaries so each result contains no more than the requested verses.
+    /// Each result preserves the original layout metadata and receives only the footnotes referenced by its text.
+    func split(maximumVerseCount: Int) -> [BibleTextBlock] {
+        let attributedString = text.asAttributedString
+        var previousVerse: Int?
+        var verseCount = 0
+        let splitIndexes = attributedString.runs[\.bibleReference].compactMap { reference, range -> AttributedString.Index? in
+            guard let verse = reference?.verseStart, verse != previousVerse else {
+                return nil
+            }
+            previousVerse = verse
+            if verseCount == maximumVerseCount {
+                verseCount = 1
+                return range.lowerBound
+            }
+            verseCount += 1
+            return nil
+        }
+
+        guard !splitIndexes.isEmpty else {
+            return [self]
+        }
+
+        let boundaries = [attributedString.startIndex] + splitIndexes + [attributedString.endIndex]
+        return zip(boundaries, boundaries.dropFirst()).enumerated().map { index, bounds in
+            let slice = BibleAttributedString(AttributedString(attributedString[bounds.0..<bounds.1]))
+            let references = Set(slice.asAttributedString.runs[\.bibleReference].compactMap { reference, _ in reference })
+            return BibleTextBlock(
+                text: slice,
+                chapter: chapter,
+                firstLineHeadIndent: firstLineHeadIndent,
+                headIndent: headIndent,
+                marginTop: index == 0 ? marginTop : 0,
+                marginBottom: index == splitIndexes.count ? marginBottom : 0,
+                alignment: alignment,
+                footnotes: footnotes.filter { references.contains($0.reference) }
+            )
+        }
     }
 }

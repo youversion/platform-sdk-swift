@@ -7798,6 +7798,101 @@
                 "static": true,
                 "throwing": true,
                 "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "languages",
+                "printedName": "languages(country:preferredLanguage:fields:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.LanguageOverview]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "LanguageOverview",
+                        "printedName": "YouVersionPlatformCore.LanguageOverview",
+                        "usr": "s:22YouVersionPlatformCore16LanguageOverviewV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO9LanguagesO9languages7country17preferredLanguage6fields11accessToken7sessionSayAA0J8OverviewVGSSSg_AOSaySSGAOSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO9LanguagesO9languages7country17preferredLanguage6fields11accessToken7sessionSayAA0J8OverviewVGSSSg_AOSaySSGAOSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
               }
             ],
             "declKind": "Enum",
@@ -23678,6 +23773,10 @@
             "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV13hasPermissionySbAA010SignInWithabG0OFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "funcSelfKind": "NonMutating"
           },
           {
