@@ -153,7 +153,7 @@ extension BibleTextView {
                     }
                     if category == .scripture || category == .verseLabel {
                         t.backgroundColor = highlightColor
-                            .opacity(darkMode ? 0.3 : 1.0)
+                            .opacity(0.3)
                     }
                 }
                 isUnderlined = isSelected(reference) && category == .scripture
