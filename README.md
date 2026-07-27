@@ -144,8 +144,10 @@ The SDK automatically fetches Scripture from YouVersion servers and maintains a 
 
 Displays a full Bible reading experience, very similar to the YouVersion Bible app, ready to be added as a tab in your app.
 
+To restore the passage the user was last viewing (or open to John 1 the first time):
+
 ```swift
-BibleReaderView()
+BibleReaderView.restoringLastPassage()
 ```
 
 To open to a specific passage:
@@ -165,10 +167,42 @@ BibleReaderView(
 )
 ```
 
+#### Navigating the reader from elsewhere in your app
+
+To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.
+
+```swift
+@State private var readerNavigation = BibleReaderNavigation()
+@State private var selectedTab = Tab.home
+
+var body: some View {
+    TabView(selection: $selectedTab) {
+        HomeView(onReadTap: { reference in
+            readerNavigation.request(reference, showsFullChapter: true)
+            selectedTab = .bible            // bring the reader on screen
+        })
+        .tabItem { Label("Home", systemImage: "house") }
+        .tag(Tab.home)
+
+        BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
+            .tabItem { Label("Bible", systemImage: "book.closed") }
+            .tag(Tab.bible)
+    }
+}
+```
+
+To focus a verse — moving to its full chapter and dimming the other verses — call `focusReference(_:)`. The focus clears when the user scrolls, taps a verse, or navigates away. This is available on iOS 18 and later.
+
+```swift
+if #available(iOS 18.0, *) {
+    readerNavigation.focusReference(reference)
+}
+```
+
 To intercept verse taps instead of using the built-in sign-in flow:
 
 ```swift
-BibleReaderView(
+BibleReaderView.restoringLastPassage(
     onVerseTap: { reference in
         // Handle the tapped verse reference
     }

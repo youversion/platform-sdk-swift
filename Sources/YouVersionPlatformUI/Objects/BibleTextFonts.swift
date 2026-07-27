@@ -40,6 +40,26 @@ public enum BibleTextFontOption {
     case font100emSmallCaps
 }
 
+// This protocol exists only to provide compability while also
+// avoiding us getting compilation warnings for our test cases etc.
+// When we remove the enum values such as .textFont, it should be removed.
+private protocol LegacyBibleTextFontOptions {
+    static var textFont: BibleTextFontOption { get }
+    static var textFontBold: BibleTextFontOption { get }
+    static var textFontItalic: BibleTextFontOption { get }
+    static var smallCaps: BibleTextFontOption { get }
+    static var header: BibleTextFontOption { get }
+    static var headerItalic: BibleTextFontOption { get }
+    static var headerSmaller: BibleTextFontOption { get }
+    static var headerSmallerItalic: BibleTextFontOption { get }
+    static var header2: BibleTextFontOption { get }
+    static var header3: BibleTextFontOption { get }
+    static var header4: BibleTextFontOption { get }
+    static var font100emSmallCaps: BibleTextFontOption { get }
+}
+
+extension BibleTextFontOption: LegacyBibleTextFontOptions {}
+
 public struct BibleTextFonts {
     var fonts: [BibleTextFontOption: Font]
 
@@ -68,6 +88,8 @@ public struct BibleTextFonts {
             italicFamilyName = familyName
         }
 
+        let legacyOptions = BibleTextFontOption.self as LegacyBibleTextFontOptions.Type
+
         fonts = [
             .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
             .font100em: Self.font(familyName: familyName, size: baseSize),
@@ -79,19 +101,19 @@ public struct BibleTextFonts {
             .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
             .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
             
-            // below are deprecated:
-            .textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            .textFontBold: Self.font(familyName: familyName, size: baseSize).bold(),
-            .smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
-            .headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
-            .headerSmaller: Self.font(familyName: familyName, size: baseSize * 0.9).weight(.medium),
-            .header2: Self.font(familyName: familyName, size: baseSize * 1.1).weight(.bold),
-            .header3: Self.font(familyName: familyName, size: baseSize * 1.1),
-            .header4: Self.font(familyName: familyName, size: baseSize * 1.1),
-            .header: Self.font(familyName: familyName, size: baseSize).bold(),
-            .headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            .textFont: Self.font(familyName: familyName, size: baseSize),
-            .font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps()
+            // below are deprecated, and will be removed when .textFont etc. are removed:
+            legacyOptions.textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
+            legacyOptions.textFontBold: Self.font(familyName: familyName, size: baseSize).bold(),
+            legacyOptions.smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
+            legacyOptions.headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
+            legacyOptions.headerSmaller: Self.font(familyName: familyName, size: baseSize * 0.9).weight(.medium),
+            legacyOptions.header2: Self.font(familyName: familyName, size: baseSize * 1.1).weight(.bold),
+            legacyOptions.header3: Self.font(familyName: familyName, size: baseSize * 1.1),
+            legacyOptions.header4: Self.font(familyName: familyName, size: baseSize * 1.1),
+            legacyOptions.header: Self.font(familyName: familyName, size: baseSize).bold(),
+            legacyOptions.headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
+            legacyOptions.textFont: Self.font(familyName: familyName, size: baseSize),
+            legacyOptions.font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps()
         ]
     }
 

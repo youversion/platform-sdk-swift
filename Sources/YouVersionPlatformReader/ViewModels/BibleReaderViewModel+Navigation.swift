@@ -2,6 +2,9 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+/// Used to distinguish between an intentional user scroll and an automatic reader scroll.
+private let userScrollThreshold: CGFloat = 2
+
 extension BibleReaderViewModel {
     func goToPreviousChapter() {
         guard let version else {
@@ -24,13 +27,7 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking and restore chrome so the new chapter lands
-        // in the same initial state as a fresh open. Without this, chrome
-        // stays hidden after a navigation tap that scrolls cached content
-        // back to minY = 0, since onGeometryChange won't fire again.
-        lastScrollOffset = 0
-        showChrome = true
-        scrollToTop = true
+        resetScrollStateForNewChapter()
     }
 
     func goToNextChapter() {
@@ -56,13 +53,33 @@ extension BibleReaderViewModel {
             }
         }
 
-        // Reset scroll tracking and restore chrome so the new chapter lands
-        // in the same initial state as a fresh open. Without this, chrome
-        // stays hidden after a navigation tap that scrolls cached content
-        // back to minY = 0, since onGeometryChange won't fire again.
-        lastScrollOffset = 0
-        showChrome = true
-        scrollToTop = true
+        resetScrollStateForNewChapter()
+    }
+
+    /// Acts on any pending request from `readerNavigation`.
+    func handleNavigationRequest(from readerNavigation: BibleReaderNavigation) {
+        guard let request = readerNavigation.pendingRequest else {
+            return
+        }
+        readerNavigation.clearPendingRequest()
+        if request.shouldFocus && !request.scrollsToVerse {
+            removeVerseSelection()
+            focusReference(request.reference)
+        } else {
+            Task {
+                await goToReference(request.reference, showsFullChapter: request.showsFullChapter, shouldFocus: request.shouldFocus)
+            }
+        }
+    }
+
+    func goToReference(_ reference: BibleReference, showsFullChapter: Bool = false, shouldFocus: Bool = false) async {
+        await onHeaderSelectionChange(reference, showIntro: false)
+        if reference == self.reference {
+            self.showsFullChapter = showsFullChapter
+            setScrollTarget(shouldFocus: shouldFocus)
+        } else {
+            finishChapterChange()
+        }
     }
 
     func removeVerseSelection() {
@@ -73,8 +90,15 @@ extension BibleReaderViewModel {
     }
 
     func handleScroll(offset: CGFloat) {
+        let previousOffset = lastScrollOffset
+        lastScrollOffset = offset
         guard !isChangingChapter else {
             return
+        }
+
+        // An intentional user scroll clears the focus.
+        if focusedReference != nil && abs(offset - previousOffset) > userScrollThreshold {
+            clearFocus()
         }
 
         let threshold: CGFloat = 10
@@ -83,14 +107,13 @@ extension BibleReaderViewModel {
         // negative while scrolled down, positive when rubber-banding past top.
         if offset >= 0 {
             withAnimation(animation) { showChrome = true }
-        } else if abs(offset - lastScrollOffset) >= threshold {
-            if offset < lastScrollOffset - threshold {
+        } else if abs(offset - previousOffset) >= threshold {
+            if offset < previousOffset - threshold {
                 withAnimation(animation) { showChrome = false }
-            } else if offset > lastScrollOffset + threshold {
+            } else if offset > previousOffset + threshold {
                 withAnimation(animation) { showChrome = true }
             }
         }
-        lastScrollOffset = offset
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
@@ -99,7 +122,9 @@ extension BibleReaderViewModel {
             footnotesToDisplay = footnotes
             return
         }
-        
+
+        clearFocus()
+
         if let onVerseTap {
             onVerseTap(reference)
             return
@@ -226,6 +251,7 @@ extension BibleReaderViewModel {
     func onHeaderSelectionChange(_ reference: BibleReference, showIntro: Bool) async {
         isChangingChapter = true
         removeVerseSelection()
+        clearFocus()
         do {
             if version?.id != reference.versionId {
                 let newVersion = try await versionsViewModel.versionRepository.version(withId: reference.versionId)
@@ -234,14 +260,7 @@ extension BibleReaderViewModel {
             }
             self.reference = reference
             self.showBookIntro = showIntro
-
-            // Reset scroll tracking and restore chrome so the new chapter lands
-            // in the same initial state as a fresh open. Without this, chrome
-            // stays hidden after a navigation tap that scrolls cached content
-            // back to minY = 0, since onGeometryChange won't fire again.
-            lastScrollOffset = 0
-            showChrome = true
-            scrollToTop = true
+            resetScrollStateForNewChapter()
         } catch {
             YouVersionPlatformLogger.error("Error loading version/chapter: \(error)", category: "Reader")
         }

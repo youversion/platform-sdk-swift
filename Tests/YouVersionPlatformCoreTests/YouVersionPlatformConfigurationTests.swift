@@ -156,16 +156,22 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
         
-        @Test func authDataReturnsNilWhenRefreshTokenMissing() async {
+        @Test func authDataReturnsPartialResultWhenRefreshTokenMissing() async {
             let expiry = Date(timeIntervalSinceNow: 3600)
             await YouVersionPlatformConfiguration.saveAuthData(accessToken: "access-1", refreshToken: nil, idToken: nil, expiryDate: expiry)
-            #expect(YouVersionPlatformConfiguration.authData == nil)
+            let data = YouVersionPlatformConfiguration.authData
+            #expect(data?.accessToken == "access-1")
+            #expect(data?.refreshToken == nil)
+            #expect(data?.expiryDate == expiry)
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
-        
-        @Test func authDataReturnsNilWhenExpiryDateMissing() async {
+
+        @Test func authDataReturnsPartialResultWhenExpiryDateMissing() async {
             await YouVersionPlatformConfiguration.saveAuthData(accessToken: "access-1", refreshToken: "refresh-1", idToken: nil, expiryDate: nil)
-            #expect(YouVersionPlatformConfiguration.authData == nil)
+            let data = YouVersionPlatformConfiguration.authData
+            #expect(data?.accessToken == "access-1")
+            #expect(data?.refreshToken == "refresh-1")
+            #expect(data?.expiryDate == nil)
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
         

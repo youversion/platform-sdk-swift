@@ -82,7 +82,10 @@ Detailed naming guidance lives in the `naming` skill — load it for anything na
 
 ## Localization
 
-- Use existing localized strings if possible; prompt the user before adding new strings.
+- Never add or edit `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings` in this repo.
+- Add or change English copy upstream in [platform-localization](https://github.com/youversion/platform-localization) (`sources/common/en.json`, typically under `swift.*` keys), then reference keys with `String.localized("dotted.key")` after sync.
+- Use existing localized keys when possible; do not introduce hardcoded user-facing UI string literals in `YouVersionPlatformUI` or `YouVersionPlatformReader`.
+- See `docs/localization-guardrails.md` for CI rules and local checks.
 
 ## Testing
 
