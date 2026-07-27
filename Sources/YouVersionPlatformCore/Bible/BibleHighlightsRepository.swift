@@ -83,15 +83,13 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         self.shouldProcessQueueAutomatically = true
     }
 
-    init(api: BibleHighlightsAPIProtocol, retryDelayNanoseconds: UInt64) {
+    init(
+        api: BibleHighlightsAPIProtocol,
+        retryDelayNanoseconds: UInt64 = 2_000_000_000,
+        shouldProcessQueueAutomatically: Bool = true
+    ) {
         self.api = api
         self.retryDelayNanoseconds = retryDelayNanoseconds
-        self.shouldProcessQueueAutomatically = true
-    }
-
-    init(api: BibleHighlightsAPIProtocol, shouldProcessQueueAutomatically: Bool) {
-        self.api = api
-        self.retryDelayNanoseconds = 2_000_000_000
         self.shouldProcessQueueAutomatically = shouldProcessQueueAutomatically
     }
     
