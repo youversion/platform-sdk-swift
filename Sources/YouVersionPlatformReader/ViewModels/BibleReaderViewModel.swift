@@ -549,7 +549,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             return
         }
         if !isSignedIn {
-            guard YouVersionPlatformConfiguration.isSignInEnabled else {
+            guard authentication.isSignInEnabled else {
                 return
             }
             pendingHighlight = PendingHighlight(references: references, color: color)

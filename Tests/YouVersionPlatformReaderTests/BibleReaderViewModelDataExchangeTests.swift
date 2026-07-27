@@ -176,7 +176,6 @@ import Testing
 
     @Test
     func signedOutUserShowsSignInSheetBeforeShowingDataExchangeConfirmation() {
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: false)
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
@@ -193,7 +192,6 @@ import Testing
 
     @Test
     func pendingHighlightStartsDataExchangeFlowDirectlyAfterSignInSucceeds() async {
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: false)
         let viewModel = Support.makeViewModel(
