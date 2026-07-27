@@ -129,7 +129,7 @@ struct BibleHighlightsRepositoryTests {
         BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: verse)
     }
 
-    private func operation(
+    private func makeOperation(
         color: String? = "#FF0000",
         operationType: HighlightOperationType = .add,
         verse: Int = 1
@@ -410,7 +410,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         mockAPI.shouldThrowError = true
-        let operation = operation(color: nil, operationType: .remove)
+        let operation = makeOperation(color: nil, operationType: .remove)
 
         let result = try await repository.saveOperations([operation])
 
@@ -423,7 +423,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         mockAPI.mockUpdateHighlightResult = false
-        let operation = operation(operationType: .update)
+        let operation = makeOperation(operationType: .update)
 
         let result = try await repository.saveOperations([operation])
 
@@ -678,7 +678,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI, shouldProcessQueueAutomatically: false)
         mockAPI.mockDeleteHighlightResult = false
-        let operation = operation(color: nil, operationType: .remove)
+        let operation = makeOperation(color: nil, operationType: .remove)
 
         repository.queueOperation(operation)
         await repository.processQueue()
@@ -696,7 +696,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI, shouldProcessQueueAutomatically: false)
         mockAPI.mockUpdateHighlightResult = false
-        let operation = operation(operationType: .update)
+        let operation = makeOperation(operationType: .update)
 
         repository.queueOperation(operation)
         await repository.processQueue()
