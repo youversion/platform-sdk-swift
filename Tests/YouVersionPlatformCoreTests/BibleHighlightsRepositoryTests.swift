@@ -14,6 +14,7 @@ final class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
     var shouldThrowError = false
     var shouldSuspendCreateHighlight = false
     var mockCreateHighlightResult = true
+    var mockCreateHighlightResults: [Bool] = []
     var mockGetHighlightsResult: [HighlightResponse] = []
     var mockUpdateHighlightResult = true
     var mockDeleteHighlightResult = true
@@ -27,6 +28,7 @@ final class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
         shouldThrowError = false
         shouldSuspendCreateHighlight = false
         mockCreateHighlightResult = true
+        mockCreateHighlightResults = []
         mockGetHighlightsResult = []
         mockUpdateHighlightResult = true
         mockDeleteHighlightResult = true
@@ -67,6 +69,9 @@ final class MockBibleHighlightsAPI: BibleHighlightsAPIProtocol {
             throw NSError(domain: "TestError", code: 1, userInfo: nil)
         }
         
+        if !mockCreateHighlightResults.isEmpty {
+            return mockCreateHighlightResults.removeFirst()
+        }
         return mockCreateHighlightResult
     }
     
@@ -114,18 +119,6 @@ struct BibleHighlightsRepositoryTests {
         verse: Int = 1
     ) -> PendingHighlightOperation {
         PendingHighlightOperation(references: [reference(verse: verse)], color: color, operationType: operationType)
-    }
-
-    private func operationResult(
-        for operationID: UUID,
-        in repository: BibleHighlightsRepository
-    ) async -> OperationResult {
-        while true {
-            if let result = repository.getOperationResult(for: operationID) {
-                return result
-            }
-            await Task.yield()
-        }
     }
 
     // MARK: - Test Highlights Fetching
@@ -416,24 +409,19 @@ struct BibleHighlightsRepositoryTests {
     }
     
     @Test
-    func testMultipleQueueOperationsArePending() async {
+    func testMultipleQueueOperationsArePending() {
         let mockAPI = setUp()
-        let repository = BibleHighlightsRepository(api: mockAPI)
+        let repository = BibleHighlightsRepository(api: mockAPI, shouldProcessQueueAutomatically: false)
         
         let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
-        
-        // Create operations with different timestamps
         let operation1 = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
-        
-        // Simulate time passing
-        try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
-        
         let operation2 = PendingHighlightOperation(references: [reference], color: "#00FF00", operationType: .update)
         
         repository.queueOperation(operation2)
         repository.queueOperation(operation1)
         
         #expect(repository.hasPendingOperations)
+        #expect(repository.pendingOperationCount == 2)
     }
 
     @Test
@@ -575,63 +563,61 @@ struct BibleHighlightsRepositoryTests {
     }
 
     @Test
-    func testFailedOperationsAreRetriedWithDelayedProcessing() async {
+    func testFailedOperationsAreRetriedAutomatically() async {
         let mockAPI = setUp()
-        mockAPI.mockCreateHighlightResult = false
-        let repository = BibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 50_000_000)
+        mockAPI.mockCreateHighlightResults = [false, true]
+        let repository = BibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 0)
 
         let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
 
         repository.queueOperation(operation)
 
-        while mockAPI.createHighlightCallCount == 0 {
+        while mockAPI.createHighlightCallCount < 2 {
+            await Task.yield()
+        }
+        while repository.hasPendingOperations {
             await Task.yield()
         }
 
-        #expect(repository.hasPendingOperations)
-
-        mockAPI.mockCreateHighlightResult = true
-        try? await Task.sleep(nanoseconds: 100_000_000)
-
-        #expect(mockAPI.createHighlightCallCount >= 2)
+        #expect(mockAPI.createHighlightCallCount == 2)
         #expect(!repository.hasPendingOperations)
     }
     
     @Test
     func testProcessQueueRequeuesFailedRemoveOperation() async {
         let mockAPI = setUp()
-        let repository = BibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 30_000_000_000)
+        let repository = BibleHighlightsRepository(api: mockAPI, shouldProcessQueueAutomatically: false)
         mockAPI.mockDeleteHighlightResult = false
         let operation = operation(color: nil, operationType: .remove)
 
         repository.queueOperation(operation)
+        await repository.processQueue()
 
-        let result = await operationResult(for: operation.id, in: repository)
+        let result = repository.getOperationResult(for: operation.id)
         #expect(mockAPI.deleteHighlightCallCount == 1)
         #expect(repository.pendingOperationCount == 1)
         #expect(repository.failedOperationCount == 1)
-        #expect(result.success == false)
-        #expect(result.error != nil)
-        repository.clearPendingOperations()
+        #expect(result?.success == false)
+        #expect(result?.error != nil)
     }
 
     @Test
     func testProcessQueueRequeuesFailedUpdateOperation() async {
         let mockAPI = setUp()
-        let repository = BibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 30_000_000_000)
+        let repository = BibleHighlightsRepository(api: mockAPI, shouldProcessQueueAutomatically: false)
         mockAPI.mockUpdateHighlightResult = false
         let operation = operation(operationType: .update)
 
         repository.queueOperation(operation)
+        await repository.processQueue()
 
-        let result = await operationResult(for: operation.id, in: repository)
+        let result = repository.getOperationResult(for: operation.id)
         #expect(mockAPI.updateHighlightCallCount == 1)
         #expect(repository.pendingOperationCount == 1)
         #expect(repository.failedOperationCount == 1)
-        #expect(result.success == false)
-        #expect(result.error != nil)
-        repository.clearPendingOperations()
+        #expect(result?.success == false)
+        #expect(result?.error != nil)
     }
 
     // MARK: - Test Operation Results
