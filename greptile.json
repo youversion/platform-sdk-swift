@@ -1,5 +1,20 @@
 {
   "customContext": {
+    "rules": [
+      {
+        "scope": [
+          "Sources/YouVersionPlatformUI/**/*.swift",
+          "Sources/YouVersionPlatformReader/**/*.swift"
+        ],
+        "rule": "No hardcoded user-facing UI strings: use String.localized(\"dotted.key\") for Text, Button, Label, navigationTitle, alert, confirmationDialog, accessibilityLabel, and accessibilityHint. CI scripts/check-no-hardcoded-ui-strings.sh and SwiftLint hardcoded_ui_string enforce this. See docs/localization-guardrails.md."
+      },
+      {
+        "scope": [
+          "Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings"
+        ],
+        "rule": "Localizable.xcstrings is upstream-owned by platform-localization. Do not edit in feature PRs. Add English keys as swift.* (or shared unprefixed keys) in platform-localization sources/common/en.json; translations arrive via Crowdin and sync PRs on chore/localization-sync-swift-* branches authored by app/platform-localization-pr-bot. See docs/localization-guardrails.md."
+      }
+    ],
     "files": [
       {
         "scope": ["**/*.swift"],
@@ -19,6 +34,15 @@
         "scope": ["**/*.swift"],
         "path": ".claude/skills/naming/SKILL.md",
         "description": "Naming Swift entities (types, protocols, functions, parameters, properties, cases) per Apple guidelines and project conventions."
+      },
+      {
+        "scope": [
+          "Sources/YouVersionPlatformUI/**",
+          "Sources/YouVersionPlatformReader/**",
+          "Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings"
+        ],
+        "path": "docs/localization-guardrails.md",
+        "description": "Localization guardrails: upstream-owned catalog, String.localized usage, CI enforcement."
       }
     ]
   }

@@ -7,8 +7,75 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let readerNavigation: BibleReaderNavigation?
+    private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
+
+    /// Creates a Bible reader view displaying `reference`.
+    ///
+    /// To restore the passage the user was last viewing instead, use
+    /// ``restoringLastPassage(verseSelectionStyle:onVerseTap:readerNavigation:)``.
+    ///
+    /// - Parameters:
+    ///   - reference: The Bible reference to display initially.
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
+    public init(reference: BibleReference,
+                verseSelectionStyle: VerseSelectionStyle = .solid,
+                onVerseTap: ((BibleReference) -> Void)? = nil,
+                showsFullChapter: Bool = false,
+                readerNavigation: BibleReaderNavigation? = nil
+    ) {
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            readerNavigation: readerNavigation
+        )
+    }
+
+    /// Creates a Bible reader view that restores the passage the user was last
+    /// viewing — the reference and its display mode — or shows John 1 when
+    /// nothing has been saved yet.
+    ///
+    /// - Parameters:
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     See ``init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:)``.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
+    public static func restoringLastPassage(
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        readerNavigation: BibleReaderNavigation? = nil
+    ) -> BibleReaderView {
+        BibleReaderView(
+            initialReference: nil,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            readerNavigation: readerNavigation
+        )
+    }
 
     /// Creates a Bible reader view.
     ///
@@ -25,15 +92,38 @@ public struct BibleReaderView: View {
     ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
     ///     or opens the verse actions drawer for authenticated users. Footnote taps
     ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
+    @available(*, deprecated, message: "Pass a non-optional reference, or use BibleReaderView.restoringLastPassage() to restore the last-viewed passage.")
     public init(reference: BibleReference? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil
+                onVerseTap: ((BibleReference) -> Void)? = nil,
+                showsFullChapter: Bool = false
+    ) {
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            readerNavigation: nil
+        )
+    }
+
+    private init(initialReference: BibleReference?,
+                 verseSelectionStyle: VerseSelectionStyle,
+                 onVerseTap: ((BibleReference) -> Void)?,
+                 showsFullChapter: Bool,
+                 readerNavigation: BibleReaderNavigation?
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        self.initialReference = reference
+        self.initialReference = initialReference
+        self.readerNavigation = readerNavigation
+        self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
     }
@@ -53,24 +143,38 @@ public struct BibleReaderView: View {
                 onVerseTap: ((BibleReference) -> Void)? = nil
     ) {
         YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        self.init(
+            initialReference: reference,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            readerNavigation: nil
+        )
     }
 
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel)
+                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation)
             } else {
                 Color.clear
             }
         }
         .task {
             if viewModel == nil {
-                viewModel = BibleReaderViewModel(
-                    reference: initialReference,
-                    verseSelectionStyle: verseSelectionStyle,
-                    onVerseTap: onVerseTap
-                )
+                viewModel = if let initialReference {
+                    BibleReaderViewModel(
+                        reference: initialReference,
+                        showsFullChapter: showsFullChapter,
+                        verseSelectionStyle: verseSelectionStyle,
+                        onVerseTap: onVerseTap
+                    )
+                } else {
+                    BibleReaderViewModel(
+                        verseSelectionStyle: verseSelectionStyle,
+                        onVerseTap: onVerseTap
+                    )
+                }
             }
         }
     }
@@ -78,17 +182,26 @@ public struct BibleReaderView: View {
 
 private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
+    let readerNavigation: BibleReaderNavigation?
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
 
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     private let fontSettingsDetent = PresentationDetent.height(360)
     private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+    @State private var verseScrollCoordinator: VerseScrollCoordinator
+
+    init(viewModel: BibleReaderViewModel, readerNavigation: BibleReaderNavigation?) {
+        self.viewModel = viewModel
+        self.readerNavigation = readerNavigation
+        self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -122,6 +235,24 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("signOut.explanation"))
         }
+        .alert(
+            String.localized("signOut.pendinghighlights.question"),
+            isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
+        ) {
+            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("generic.cancel"), role: .cancel) { }
+        } message: {
+            Text(String.localized("signOut.pendinghighlights.explanation"))
+        }
+        .alert(
+            String.localized("dataExchange.highlights.question"),
+            isPresented: $viewModel.showingDataExchangeConfirmation
+        ) {
+            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+        } message: {
+            Text(String.localized("dataExchange.highlights.explanation"))
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -143,18 +274,51 @@ private struct ReaderContent: View {
             signInView
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
+            // TODO: move this to the viewModel
             if newValue {
-                startSignIn()
+#if os(tvOS)
+                viewModel.startSignIn()
+#else
+                viewModel.startSignIn(contextProvider: contextProvider)
+#endif
+            }
+        }
+        .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
+            if newValue {
+#if os(tvOS)
+                viewModel.startDataExchange()
+#else
+                viewModel.startDataExchange(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: reduceMotion, initial: true) { _, newValue in
             viewModel.isReduceMotionEnabled = newValue
+        }
+        .onChange(of: colorScheme, initial: true) { _, newValue in
+            viewModel.colorScheme = newValue
+        }
+        .onChange(of: readerNavigation?.pendingRequest) { _, _ in
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
+        }
+        .onAppear {
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }
 
     // MARK: - Helper views
+    private var progressView: some View {
+        ProgressView()
+            .tint(viewModel.readerTextMutedColor)
+            .padding(.vertical, 48)
+    }
+
     private var header: some View {
         HStack {
             if viewModel.version != nil {
@@ -259,42 +423,68 @@ private struct ReaderContent: View {
                             BibleReaderIntroView()
                         } else {
                             BibleTextView(
-                                viewModel.reference,
+                                viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
                                 textOptions: viewModel.textOptions,
                                 selectedVerses: $viewModel.selectedVerses,
                                 onVerseTap: { reference, actionType, footnotes, footnoteId in
                                     viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
-                                }
+                                },
+                                focusedReference: viewModel.focusedReference
                             )
                         }
-                        bibleCopyrightBlock
+                        VStack(alignment: .center) {
+                            bibleCopyrightBlock
+                                .frame(maxWidth: viewModel.readerMaxWidth)
+                        }
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)
                     .padding(.vertical)
                     .padding(.horizontal, 30)
                     .id("topOfContent")
+                    // Hide the content until the verse scroll lands
+                    // to avoid flashing.
+                    .opacity(verseScrollCoordinator.isScrollPending ? 0 : 1)
+                    .overlay(alignment: .top) {
+                        if verseScrollCoordinator.isScrollPending {
+                            progressView
+                        }
+                    }
                     .onGeometryChange(for: CGFloat.self) { proxy in
                         proxy.frame(in: .named("scrollView")).minY
                     } action: { newOffset in
                         viewModel.handleScroll(offset: newOffset)
                     }
+                    // Tap anywhere in the reader to clear a focused reference.
+                    .simultaneousGesture(
+                        viewModel.focusedReference != nil
+                            ? TapGesture().onEnded { viewModel.clearFocus() }
+                            : nil
+                    )
                 } else {
-                    ProgressView()
-                        .tint(viewModel.readerTextMutedColor)
-                        .padding(.vertical, 48)
+                    progressView
                 }
             }
             .coordinateSpace(.named("scrollView"))
-            .onChange(of: viewModel.scrollToTop) { _, shouldScroll in
-                if shouldScroll {
+            .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
+                verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
+            }
+            .onChange(of: viewModel.scrollAction, initial: true) { _, action in
+                switch action {
+                case .top:
                     scrollProxy.scrollTo("topOfContent", anchor: .top)
-                    viewModel.scrollToTop = false
-                    // Wait for scroll animation before clearing the flag.
+                    // Mark the scroll consumed so a later navigation can re-arm it, but keep
+                    // chrome suppressed until the scroll animation settles before finishing.
+                    viewModel.clearScrollAction()
                     Task { @MainActor in
                         // swiftlint:disable:next common_debug_statements
                         try? await Task.sleep(for: .seconds(0.5))
-                        viewModel.isChangingChapter = false
+                        // Scroll already consumed above; only end the chapter change.
+                        viewModel.finishChapterChange(clearingScroll: false)
                     }
+                case .reference:
+                    verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
+                case .none:
+                    break
                 }
             }
         }
@@ -316,28 +506,6 @@ private struct ReaderContent: View {
         }
     }
 #endif
-
-    // MARK: - Action handlers
-
-    private func startSignIn() {
-        // TODO: move this code into BibleReaderViewModel
-        Task {
-            do {
-                viewModel.startSignInFlow = false
-#if !os(tvOS)
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                dump(result)
-#endif
-                
-                await viewModel.updateSignInState()
-            } catch {
-                YouVersionPlatformLogger.error("\(error)", category: "Reader")
-            }
-        }
-    }
 
 }
 

@@ -3,7 +3,7 @@ import YouVersionPlatformUI
 
 struct BibleReaderIntroFootnoteView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {

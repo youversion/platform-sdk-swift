@@ -49,7 +49,7 @@ struct BibleReaderFontListView: View {
                 let isSelected = viewModel.textOptions.fontFamily == family
                 HStack {
                     Text(family)
-                        .font(.custom(family, size: 20))
+                        .font(ReaderFonts.displayFont(familyName: family, size: 20))
                     if isSelected {
                         Image(systemName: "checkmark")
                             .font(.system(size: 18, weight: .semibold))

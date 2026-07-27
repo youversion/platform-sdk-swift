@@ -1,3 +1,4 @@
+import Foundation
 @testable import YouVersionPlatformCore
 import Testing
 
@@ -23,6 +24,23 @@ func testInitVerseRange() {
     #expect(ref.chapter == 23)
     #expect(ref.verseStart == 1)
     #expect(ref.verseEnd == 2)
+}
+
+@Test
+func bibleReferenceConstructorsAlwaysSetVerseEndWhenVerseStartExists() throws {
+    let singleVerseReference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 3)
+    let rangeReference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let decodedReference = try JSONDecoder().decode(
+        BibleReference.self,
+        from: Data(#"{"versionId":111,"bookUSFM":"GEN","chapter":1,"verseStart":3}"#.utf8)
+    )
+
+    #expect(singleVerseReference.verseStart == 3)
+    #expect(singleVerseReference.verseEnd == 3)
+    #expect(rangeReference.verseStart == 3)
+    #expect(rangeReference.verseEnd == 5)
+    #expect(decodedReference.verseStart == 3)
+    #expect(decodedReference.verseEnd == 3)
 }
 
 // MARK: - Test isRange

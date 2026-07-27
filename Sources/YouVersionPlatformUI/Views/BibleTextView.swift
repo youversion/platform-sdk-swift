@@ -5,6 +5,10 @@ public struct BibleTextView: View {
 
     public typealias VerseTapAction = (BibleReference, String, [BibleFootnote], String?) -> Void
 
+    static let dimmedTextOpacity: CGFloat = 0.35
+    static let focusAnimation: Animation = .easeInOut(duration: 0.5)
+
+    let focusedReference: BibleReference?
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
@@ -15,6 +19,10 @@ public struct BibleTextView: View {
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
     @Binding var selectedVerses: Set<BibleReference>
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private static let longBlockCharacterThreshold = 2000
+    private static let maximumVersesPerBlock = 10
 
     var ourHighlights: [BibleHighlight] {
         BibleHighlightsCache.shared.highlights(overlapping: reference)
@@ -29,6 +37,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
+        self.focusedReference = nil
         self.placeholder = nil
         self.blocks = []
         self.providedBlocks = nil
@@ -40,11 +49,13 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
-        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
+        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil,
+        focusedReference: BibleReference? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
+        self.focusedReference = focusedReference
         self.onVerseTap = onVerseTap
         self.placeholder = placeholder
         self.blocks = []
@@ -77,6 +88,7 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
+        self.focusedReference = nil
         self.placeholder = nil
         self.blocks = blocks
         self.providedBlocks = blocks
@@ -106,7 +118,7 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             if let phase = loadingPhase {
                 if let placeholder {
                     placeholder(phase)
@@ -115,10 +127,12 @@ public struct BibleTextView: View {
                 }
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
+                    let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
                 }
             }
         }
+        .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
         .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
@@ -137,10 +151,27 @@ public struct BibleTextView: View {
         )) {
             await loadBlocks()
         }
-        .coordinateSpace(.named("BibleTextView"))
         .task(id: reference) {
-            BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
+            }
         }
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+            }
+        }
+    }
+
+    /// The scroll anchors for the rendered chapter, or nil until blocks exist.
+    private var chapterScrollAnchors: ChapterScrollAnchors? {
+        guard let firstBlock = blocks.first else {
+            return nil
+        }
+        return ChapterScrollAnchors(
+            chapter: firstBlock.chapter,
+            blockFirstVerses: blocks.compactMap(\.firstVerse)
+        )
     }
 
     private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
@@ -184,7 +215,7 @@ public struct BibleTextView: View {
         }
         do {
             if let providedBlocks {
-                self.blocks = providedBlocks
+                blocks = Self.blocksForDisplay(providedBlocks)
                 await updateVersionTextDirection()
                 loadingPhase = nil  // meaning, we've succeeded
             } else if let blocks = try await BibleVersionRendering.textBlocks(
@@ -198,7 +229,7 @@ public struct BibleTextView: View {
                 wocColor: textOptions.wordsOfChristColor,
                 fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
             ) {
-                self.blocks = blocks
+                self.blocks = Self.blocksForDisplay(blocks)
                 await updateVersionTextDirection()
                 loadingPhase = nil  // meaning, we've succeeded
             } else {
@@ -212,6 +243,22 @@ public struct BibleTextView: View {
             YouVersionPlatformLogger.error("loadBlocks unexpected error: \(err)", category: "BibleText")
             loadingPhase = .failed
         }
+    }
+
+    /// When blocks is a single overly-large block, splits it into multiple smaller blocks.
+    /// This works around an memory allocation bug in iOS's textRenderer() implementation.
+    static func blocksForDisplay(
+        _ blocks: [BibleTextBlock],
+        longBlockCharacterThreshold: Int = Self.longBlockCharacterThreshold,
+        maximumVerseCount: Int = Self.maximumVersesPerBlock
+    ) -> [BibleTextBlock] {
+        guard blocks.count == 1,
+              let block = blocks.first,
+              block.rows.isEmpty,
+              block.text.asAttributedString.characters.count > longBlockCharacterThreshold else {
+            return blocks
+        }
+        return block.split(maximumVerseCount: maximumVerseCount)
     }
 
     @available(*, deprecated, renamed: "init(html:reference:textOptions:onVerseTap:)")
@@ -306,8 +353,8 @@ public struct BibleTextOptions {
                 verseSelectionStyle: VerseSelectionStyle = .solid) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
-        self.lineSpacing = lineSpacing ?? fontSize / 2
-        self.paragraphSpacing = paragraphSpacing ?? fontSize / 2
+        self.lineSpacing = lineSpacing
+        self.paragraphSpacing = paragraphSpacing
         self.textColor = textColor
         self.verseNumberColor = verseNumberColor
         self.wordsOfChristColor = wordsOfChristColor

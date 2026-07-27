@@ -34,13 +34,13 @@ This SDK is organized as a Swift Package with multiple targets:
 
 This project follows idiomatic Swift conventions as outlined in [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/). Key points:
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages — they drive semantic-release's version bumps and the auto-generated CHANGELOG. Validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` (or `npx commitlint --from=origin/main --to=HEAD --verbose`).
+- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages — they drive the version-preview analyzer and the auto-generated CHANGELOG. Validated in CI by the `Commit Lint` workflow; check locally with `npm run commitlint` (or `npx commitlint --from=origin/main --to=HEAD --verbose`).
 
-  > **⚠️ Important: every commit subject on `main` is scanned to compute the next version.**
+  > **⚠️ Important: every commit subject on `main` is scanned by the analyzer to suggest the next version when a release is cut.**
   >
-  > This repo squash-merges PRs. The **squash commit subject becomes a single commit on `main`** — its `<type>` is what semantic-release reads, not the individual commits on your branch. GitHub seeds the squash subject from the PR title by default, so **make sure your PR title is itself a valid Conventional Commit** (e.g. `feat(reader): add highlight color picker`). If the squash subject is `chore:` you'll get no release even if every commit on your branch was a `feat`.
+  > This repo squash-merges PRs. The **squash commit subject becomes a single commit on `main`** — its `<type>` is what the analyzer reads, not the individual commits on your branch. GitHub seeds the squash subject from the PR title by default, so **make sure your PR title is itself a valid Conventional Commit** (e.g. `feat(reader): add highlight color picker`). If the squash subject is `chore:` it contributes no release signal even if every commit on your branch was a `feat`.
   >
-  > On each push to `main`, semantic-release walks the entire commit history back to the last release tag and picks the **highest** bump it finds — one `feat` among ten `chore`s still triggers a minor release; one `BREAKING CHANGE` anywhere triggers a major. The CI `Commit Lint` workflow on each PR previews the next version using the same logic.
+  > Releases are cut on demand with an explicit version input — see [RELEASING.md](./RELEASING.md). The analyzer walks every commit since the last release tag and picks the **highest** bump it finds across that window — one `feat` among ten `chore`s suggests a minor release; one `BREAKING CHANGE` footer (or `!` shorthand) anywhere suggests a major. The CI `Commit Lint` workflow on each PR shows that preview, and the Release workflow logs it side-by-side with the human's chosen version for audit. The human's input is what actually ships; the analyzer's value is informational.
 
   **Format:** `<type>(<optional scope>): <subject>`
 
@@ -51,6 +51,8 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
   - `fix:` and `perf:` → **patch** bump (e.g. `5.2.2` → `5.2.3`)
   - `docs`, `style`, `refactor`, `test`, `build`, `ci`, `chore`, `revert` → **no release**
   - Any commit with `!` after the type/scope, **or** a `BREAKING CHANGE:` footer → **major** bump (e.g. `5.2.2` → `6.0.0`)
+
+  > **PRs that introduce a breaking change require an explicit human signoff before merge.** When any commit on the PR carries a `BREAKING CHANGE:` footer or a `!` after the type/scope, the `major-release-signoff` status check blocks merging until a *different* write-access collaborator (not the PR author) posts a single comment containing the verbatim affirmation phrase from the bot's blocking comment, the precise next version (e.g. `v6.0.0`), and a 🚀. See [RELEASING.md → Major Release Signoff](./RELEASING.md#major-release-signoff) for the exact comment format.
 
   **Examples (annotated with the bump each one would trigger):**
 
