@@ -202,9 +202,9 @@ let previousChapterCases: [PreviousChapterCase] = [
     @Test(arguments: [false, true])
     func goToNextChapterWithoutLoadedVersionDoesNothing(_ showIntro: Bool) {
         let vm = BibleReaderViewModel(
-            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2)
+            reference: BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2)
         )
-        let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2, verse: 1)
+        let selectedReference = BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2, verse: 1)
         vm.showBookIntro = showIntro
         // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
@@ -214,7 +214,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
         vm.goToNextChapter()
 
-        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2))
+        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2))
         #expect(vm.showBookIntro == showIntro)
         #expect(vm.isChangingChapter == false)
         #expect(vm.lastScrollOffset == 123)
@@ -226,9 +226,9 @@ let previousChapterCases: [PreviousChapterCase] = [
     @Test(arguments: [false, true])
     func goToPreviousChapterWithoutLoadedVersionDoesNothing(_ showIntro: Bool) {
         let vm = BibleReaderViewModel(
-            reference: BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2)
+            reference: BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2)
         )
-        let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2, verse: 1)
+        let selectedReference = BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2, verse: 1)
         vm.showBookIntro = showIntro
         // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
@@ -238,7 +238,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
         vm.goToPreviousChapter()
 
-        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookUSFM: "GEN", chapter: 2))
+        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookId: "GEN", chapter: 2))
         #expect(vm.showBookIntro == showIntro)
         #expect(vm.isChangingChapter == false)
         #expect(vm.lastScrollOffset == 123)
@@ -267,7 +267,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
         vm.goToPreviousChapter()
 
-        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookUSFM: firstBook.id, chapter: 1))
+        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookId: firstBook.id, chapter: 1))
         #expect(vm.showBookIntro == expectedShowBookIntro)
         assertNavigationSideEffects(on: vm)
     }
@@ -286,7 +286,7 @@ let previousChapterCases: [PreviousChapterCase] = [
 
         vm.goToNextChapter()
 
-        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookUSFM: onlyBook.id, chapter: onlyBook.chapterCount))
+        #expect(vm.reference == BibleReference(versionId: Self.versionId, bookId: onlyBook.id, chapter: onlyBook.chapterCount))
         #expect(vm.showBookIntro == false)
         assertNavigationSideEffects(on: vm)
     }
@@ -302,7 +302,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         let expectedBookIds = testCase.books.map(\.id)
         let actualBookIds = vm.version?.books?.compactMap { $0.id } ?? []
         #expect(actualBookIds == expectedBookIds, Comment("Case: \(testCase.name)"))
-        #expect(vm.reference.bookUSFM == testCase.referenceBook, Comment("Case: \(testCase.name)"))
+        #expect(vm.reference.bookId == testCase.referenceBook, Comment("Case: \(testCase.name)"))
         #expect(vm.reference.chapter == testCase.referenceChapter, Comment("Case: \(testCase.name)"))
 
         vm.goToNextChapter()
@@ -310,7 +310,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(
             vm.reference == BibleReference(
                 versionId: Self.versionId,
-                bookUSFM: testCase.expectedBook,
+                bookId: testCase.expectedBook,
                 chapter: testCase.expectedChapter
             ),
             Comment("Case: \(testCase.name)")
@@ -330,7 +330,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         let expectedBookIds = testCase.books.map(\.id)
         let actualBookIds = vm.version?.books?.compactMap { $0.id } ?? []
         #expect(actualBookIds == expectedBookIds, Comment("Case: \(testCase.name)"))
-        #expect(vm.reference.bookUSFM == testCase.referenceBook, Comment("Case: \(testCase.name)"))
+        #expect(vm.reference.bookId == testCase.referenceBook, Comment("Case: \(testCase.name)"))
         #expect(vm.reference.chapter == testCase.referenceChapter, Comment("Case: \(testCase.name)"))
 
         vm.goToPreviousChapter()
@@ -338,7 +338,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(
             vm.reference == BibleReference(
                 versionId: Self.versionId,
-                bookUSFM: testCase.expectedBook,
+                bookId: testCase.expectedBook,
                 chapter: testCase.expectedChapter
             ),
             Comment("Case: \(testCase.name)")
@@ -353,9 +353,9 @@ let previousChapterCases: [PreviousChapterCase] = [
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             highlightsRepository: MockBibleHighlightsRepository()
         )
-        let firstReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
-        let secondReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
-        let unselectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 18)
+        let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
         let selectedColor = Color(hex: "#DDAAFF")
         viewModel.selectedVerses = [firstReference, secondReference]
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
@@ -375,9 +375,9 @@ let previousChapterCases: [PreviousChapterCase] = [
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             highlightsRepository: MockBibleHighlightsRepository()
         )
-        let matchingReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
-        let nonmatchingReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
-        let unselectedReference = BibleReference(versionId: Self.versionId, bookUSFM: "JHN", chapter: 3, verse: 18)
+        let matchingReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let nonmatchingReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
         let selectedColor = Color(hex: "#DDAAFF")
         viewModel.selectedVerses = [matchingReference, nonmatchingReference]
         viewModel.showingVerseActionsDrawer = true
@@ -402,8 +402,8 @@ let previousChapterCases: [PreviousChapterCase] = [
     @Test
     func shareableVerseTextRendersCachedChapterTextForReferences() async throws {
         let versionId = Self.generatedVersionId()
-        let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
-        let verseReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let chapterReference = BibleReference(versionId: versionId, bookId: "JHN", chapter: 3)
+        let verseReference = BibleReference(versionId: versionId, bookId: "JHN", chapter: 3, verse: 16)
         let html = """
         <div>
             <div class="p">
@@ -413,10 +413,10 @@ let previousChapterCases: [PreviousChapterCase] = [
         </div>
         """
         let storage = BibleContentStorage(storageKind: .cache)
-        let chapterUSFM = try #require(chapterReference.chapterUSFM)
+        let chapterPassageId = chapterReference.chapterPassageId
         try storage.writeString(
             html,
-            to: .chapter(versionId: versionId, usfm: chapterUSFM)
+            to: .chapter(versionId: versionId, chapterPassageId: chapterPassageId)
         )
         let viewModel = BibleReaderViewModel(reference: chapterReference)
 
@@ -429,10 +429,10 @@ let previousChapterCases: [PreviousChapterCase] = [
     @Test
     func handleVerseActionCopyWithSelectedVersesClearsSelectionAndHidesDrawer() async throws {
         let versionId = Self.generatedVersionId()
-        let chapterReference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3)
+        let chapterReference = BibleReference(versionId: versionId, bookId: "JHN", chapter: 3)
         let selectedReferences = [
-            BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
-            BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 3, verse: 17),
+            BibleReference(versionId: versionId, bookId: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: versionId, bookId: "JHN", chapter: 3, verse: 17),
         ]
         let html = """
         <div>
@@ -443,10 +443,10 @@ let previousChapterCases: [PreviousChapterCase] = [
         </div>
         """
         let storage = BibleContentStorage(storageKind: .cache)
-        let chapterUSFM = try #require(chapterReference.chapterUSFM)
+        let chapterPassageId = chapterReference.chapterPassageId
         try storage.writeString(
             html,
-            to: .chapter(versionId: versionId, usfm: chapterUSFM)
+            to: .chapter(versionId: versionId, chapterPassageId: chapterPassageId)
         )
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(reference: chapterReference)
         viewModel.versionsViewModel.switchToVersion(
@@ -482,9 +482,9 @@ let previousChapterCases: [PreviousChapterCase] = [
         referenceChapter: Int,
         showBookIntro: Bool
     ) -> BibleReaderViewModel {
-        let reference = BibleReference(versionId: Self.versionId, bookUSFM: referenceBook, chapter: referenceChapter)
+        let reference = BibleReference(versionId: Self.versionId, bookId: referenceBook, chapter: referenceChapter)
         let vm = BibleReaderViewModel(reference: reference)
-        let selectedReference = BibleReference(versionId: Self.versionId, bookUSFM: referenceBook, chapter: referenceChapter, verse: 1)
+        let selectedReference = BibleReference(versionId: Self.versionId, bookId: referenceBook, chapter: referenceChapter, verse: 1)
         vm.versionsViewModel.switchToVersion(makeVersion(with: books))
         vm.showBookIntro = showBookIntro
         vm.isChangingChapter = false
