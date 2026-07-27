@@ -30,7 +30,7 @@ import Testing
     }
 
     @Test
-    func handleScrollDoesNothingWhileChangingChapter() {
+    func handleScrollTracksOffsetButLeavesChromeWhileChangingChapter() {
         let viewModel = Support.makeViewModel()
         viewModel.isChangingChapter = true
         viewModel.lastScrollOffset = -30
@@ -38,7 +38,7 @@ import Testing
 
         viewModel.handleScroll(offset: -100)
 
-        #expect(viewModel.lastScrollOffset == -30)
+        #expect(viewModel.lastScrollOffset == -100)
         #expect(viewModel.showChrome)
     }
 

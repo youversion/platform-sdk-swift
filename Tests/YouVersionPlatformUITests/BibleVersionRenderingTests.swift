@@ -29,6 +29,28 @@ import Testing
         return try #require(blocks)
     }
 
+    private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
+        let html = """
+        <div>
+            <div class="p">
+                \((1...verseCount).map { verse in
+                    "<span class=\"yv-v\" v=\"\(verse)\"></span><span class=\"yv-vlbl\">\(verse)</span> Verse \(verse) text."
+                }.joined())
+            </div>
+        </div>
+        """
+        let reference = BibleReference(
+            versionId: defaultVersionId,
+            bookUSFM: "GEN",
+            chapter: 1,
+            verseStart: 1,
+            verseEnd: verseCount
+        )
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.count == 1)
+        return try #require(blocks.first)
+    }
+
     private func hasHeaderContaining(_ blocks: [BibleTextBlock], text: String) -> Bool {
         blocks.contains { block in
             let runs = block.text.asAttributedString.runs[\.bibleTextCategory]
@@ -310,6 +332,85 @@ import Testing
         let layout = ChapterScrollAnchors(chapter: 1, blockFirstVerses: firstVerses)
         #expect(layout.blockFirstVerse(forTargetVerse: 1) == 1)
         #expect(layout.blockFirstVerse(forTargetVerse: 2) == 1)
+    }
+
+    @Test func testLongBlockSplitsAtMaximumVerseCount() async throws {
+        let block = try await singleBlock(verseCount: 45)
+        let footnote = BibleFootnote(
+            text: BibleAttributedString("Verse 21 footnote."),
+            reference: BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verse: 21),
+            id: "1"
+        )
+        let configuredBlock = BibleTextBlock(
+            text: block.text,
+            chapter: block.chapter,
+            firstLineHeadIndent: 4,
+            headIndent: 8,
+            marginTop: 12,
+            marginBottom: 16,
+            alignment: .center,
+            footnotes: [footnote]
+        )
+
+        let splitBlocks = BibleTextView.blocksForDisplay(
+            [configuredBlock],
+            longBlockCharacterThreshold: 1,
+            maximumVerseCount: 20
+        )
+
+        #expect(splitBlocks.count == 3)
+        #expect(splitBlocks.compactMap(\.firstVerse) == [1, 21, 41])
+        #expect(splitBlocks.allSatisfy { $0.chapter == configuredBlock.chapter })
+        #expect(splitBlocks.allSatisfy { $0.firstLineHeadIndent == 4 && $0.headIndent == 8 })
+        #expect(splitBlocks.allSatisfy { $0.alignment == .center })
+        #expect(splitBlocks.map(\.marginTop) == [12, 0, 0])
+        #expect(splitBlocks.map(\.marginBottom) == [0, 0, 16])
+        #expect(splitBlocks.map(\.footnotes) == [[], [footnote], []])
+        #expect(splitBlocks[0].text.characters.contains("Verse 20 text."))
+        #expect(!splitBlocks[0].text.characters.contains("Verse 21 text."))
+        #expect(splitBlocks[1].text.characters.contains("Verse 40 text."))
+        #expect(!splitBlocks[1].text.characters.contains("Verse 41 text."))
+        #expect(splitBlocks[2].text.characters.contains("Verse 45 text."))
+    }
+
+    @Test func testLongBlockWithRowsRemainsUnchanged() async throws {
+        let block = try await singleBlock(verseCount: 45)
+        let tableBlock = BibleTextBlock(
+            text: block.text,
+            chapter: block.chapter,
+            firstLineHeadIndent: block.firstLineHeadIndent,
+            headIndent: block.headIndent,
+            marginTop: block.marginTop,
+            marginBottom: block.marginBottom,
+            alignment: block.alignment,
+            footnotes: block.footnotes,
+            rows: [[BibleAttributedString("Cell")]]
+        )
+
+        let displayBlocks = BibleTextView.blocksForDisplay(
+            [tableBlock],
+            longBlockCharacterThreshold: 1,
+            maximumVerseCount: 20
+        )
+
+        #expect(displayBlocks.map(\.id) == [tableBlock.id])
+    }
+
+    @Test func testShortAndAlreadyFormattedBlocksRemainUnchanged() async throws {
+        let html = """
+        <div>
+            <div class="p"><span class="yv-v" v="1"></span>First verse.</div>
+            <div class="p"><span class="yv-v" v="2"></span>Second verse.</div>
+        </div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+
+        let alreadyFormattedBlocks = BibleTextView.blocksForDisplay(blocks, longBlockCharacterThreshold: 1)
+        let shortSingleBlock = BibleTextView.blocksForDisplay([try #require(blocks.first)], longBlockCharacterThreshold: 1_000)
+
+        #expect(alreadyFormattedBlocks.map(\.id) == blocks.map(\.id))
+        #expect(shortSingleBlock.map(\.id) == [blocks[0].id])
     }
 
     @Test func testAcrosticChapterResolvesTargetVerseToOwningBlock() async throws {

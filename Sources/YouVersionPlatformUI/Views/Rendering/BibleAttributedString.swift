@@ -12,6 +12,10 @@ public final class BibleAttributedString: Equatable, Hashable {
         two = AttributedString(string)
     }
 
+    init(_ attributedString: AttributedString) {
+        two = attributedString
+    }
+
     static func +(lhs: BibleAttributedString, rhs: BibleAttributedString) -> BibleAttributedString { //swiftlint:disable:this function_name_whitespace
         let result = BibleAttributedString()
         result.two = lhs.two + rhs.two

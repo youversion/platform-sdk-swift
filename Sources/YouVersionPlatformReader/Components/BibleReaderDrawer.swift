@@ -1,5 +1,10 @@
 import SwiftUI
 import YouVersionPlatformUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -43,6 +48,24 @@ struct BibleReaderDrawer: View {
         ]
     }
 
+    /// Cross-platform color-name lookup. UIColor is UIKit-only, so guard
+    /// per platform: iOS/tvOS/watchOS get UIColor, macOS gets NSColor.
+    /// The output funnels into `.accessibilityIdentifier` — a
+    /// UI-automation-only attribute that VoiceOver never speaks. Real
+    /// assistive-tech users hear no highlight announcement on these
+    /// buttons (matching the Bible iOS app's model — highlights are
+    /// visual affordances, not narrated inline). Automation queries
+    /// the identifier via Appium's `@name` fallback.
+    private func accessibilityColorName(for color: Color) -> String {
+        #if canImport(UIKit)
+        return UIColor(color).accessibilityName
+        #elseif canImport(AppKit)
+        return NSColor(color).accessibilityName
+        #else
+        return ""
+        #endif
+    }
+
     private var highlightColorButtons: some View {
         let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
@@ -54,11 +77,13 @@ struct BibleReaderDrawer: View {
                             Image("highlight_checkmark", bundle: .YouVersionUIBundle)
                         )
                 }
+                .accessibilityIdentifier("Remove \(accessibilityColorName(for: color)) highlight")
             }
             ForEach(colorsToAdd, id: \.self) { color in
                 Button(action: { viewModel.addVerseColor(color) }) {
                     coloredCircle(with: color)
                 }
+                .accessibilityIdentifier("\(accessibilityColorName(for: color)) highlight")
             }
         }
         .padding(.horizontal)

@@ -60,9 +60,34 @@ public extension YouVersionAPI {
         /// - Parameters:
         ///   - country: An optional country code for filtering languages. If provided, only languages
         ///     used in that country will be returned.
+        ///   - fields: The fields to include in each language overview.
+        ///   - accessToken: An optional access token. Defaults to the configured access token.
         ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
         /// - Returns: An array of LanguageOverview objects.
         public static func languages(country: String? = nil, fields: [String] = [], accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
+            try await languages(
+                country: country,
+                preferredLanguage: nil,
+                fields: fields,
+                accessToken: providedToken,
+                session: session
+            )
+        }
+
+        /// Retrieves a list of languages supported in the Platform.
+        ///
+        /// This function fetches language overviews from the YouVersion Platform API.
+        /// A valid `YouVersionPlatformConfiguration.appKey` must be set for the request to succeed.
+        ///
+        /// - Parameters:
+        ///   - country: An optional country code for filtering languages. If provided, only languages
+        ///     used in that country will be returned.
+        ///   - preferredLanguage: An optional language code for localizing the response.
+        ///   - fields: The fields to include in each language overview.
+        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
+        /// - Returns: An array of LanguageOverview objects.
+        public static func languages(country: String? = nil, preferredLanguage: String? = nil, fields: [String] = [], accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
             let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
             var allResults: [LanguageOverview] = []
@@ -79,7 +104,10 @@ public extension YouVersionAPI {
                     throw URLError(.badURL)
                 }
 
-                let request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
+                var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
+                if let preferredLanguage {
+                    request.setValue(preferredLanguage, forHTTPHeaderField: "Accept-Language")
+                }
                 let (data, response) = try await session.data(for: request)
 
                 guard let httpResponse = response as? HTTPURLResponse else {

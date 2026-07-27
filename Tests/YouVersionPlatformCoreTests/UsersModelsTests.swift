@@ -4,6 +4,7 @@ import Testing
 
 @Suite struct UsersModelsTests {
 
+    @available(*, deprecated, message: "Exercises deprecated permission values for backwards compatibility.")
     @Test func permissionRawValuesAndDescription() throws {
         #expect(SignInWithYouVersionPermission.openid.rawValue == "openid")
         #expect(SignInWithYouVersionPermission.profile.rawValue == "profile")
@@ -12,6 +13,7 @@ import Testing
         #expect(SignInWithYouVersionPermission.allCases == [.openid, .profile, .email])
     }
 
+    @available(*, deprecated, message: "Exercises deprecated permission decoding for backwards compatibility.")
     @Test func decodingUnknownPermissionValueThrows() throws {
         let data = Data(#""future-permission""#.utf8)
 
