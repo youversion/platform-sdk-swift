@@ -119,28 +119,28 @@ struct BibleVersionTests {
     }
 
     @Test
-    func bookUSFMsFallsBackToBibleBooksWhenBookCodesAreMissing() {
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreMissing() {
         let version = Self.versionWithBookCodes(nil)
-        #expect(version.bookUSFMs == ["GEN", "EXO"])
+        #expect(version.bookIds == ["GEN", "EXO"])
     }
 
     @Test
-    func bookUSFMsFallsBackToBibleBooksWhenBookCodesAreEmpty() {
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreEmpty() {
         let version = Self.versionWithBookCodes([])
-        #expect(version.bookUSFMs == ["GEN", "EXO"])
+        #expect(version.bookIds == ["GEN", "EXO"])
     }
 
     @Test
     func emptyBookMetadataReturnsEmptyLookups() {
         let version = Self.versionWithoutBookMetadata
-        #expect(version.bookUSFMs.isEmpty)
+        #expect(version.bookIds.isEmpty)
         #expect(version.book(with: "GEN") == nil)
         #expect(version.reference(with: "GEN.1.1") == nil)
         #expect(version.chapterLabels("GEN").isEmpty)
     }
 
     @Test
-    func referenceRejectsTooShortUSFM() {
+    func referenceRejectsTooShortPassageId() {
         #expect(Self.version.reference(with: "JN") == nil)
     }
 
