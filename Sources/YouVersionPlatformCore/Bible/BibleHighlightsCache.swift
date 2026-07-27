@@ -132,7 +132,7 @@ public final class BibleHighlightsCache {
 
         // Remove existing remote-synced highlights for this chapter
         cachedHighlights.removeAll { ch in
-            ch.state == .remoteSynced && ch.highlight.reference.bookUSFM == chapterRef.bookUSFM && ch.highlight.reference.chapter == chapterRef.chapter && ch.highlight.reference.versionId == chapterRef.versionId
+            ch.state == .remoteSynced && ch.highlight.reference.bookId == chapterRef.bookId && ch.highlight.reference.chapter == chapterRef.chapter && ch.highlight.reference.versionId == chapterRef.versionId
         }
 
         // Append server highlights as remoteSynced
@@ -143,7 +143,7 @@ public final class BibleHighlightsCache {
 
     // MARK: Utilities
     private func normalizeToChapter(_ reference: BibleReference) -> BibleReference {
-        BibleReference(versionId: reference.versionId, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+        BibleReference(versionId: reference.versionId, bookId: reference.bookId, chapter: reference.chapter)
     }
 
     // Called e.g. when the user signs out

@@ -41,7 +41,7 @@ import Testing
         """
         let reference = BibleReference(
             versionId: defaultVersionId,
-            bookUSFM: "GEN",
+            bookId: "GEN",
             chapter: 1,
             verseStart: 1,
             verseEnd: verseCount
@@ -82,7 +82,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "The List"))
@@ -104,7 +104,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "Mid-Verse Header"))
@@ -125,7 +125,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "MAT", chapter: 5, verseStart: 2, verseEnd: 2)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "MAT", chapter: 5, verseStart: 2, verseEnd: 2)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "The Beatitudes"))
@@ -150,7 +150,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "MAT", chapter: 5, verseStart: 1, verseEnd: 2)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "MAT", chapter: 5, verseStart: 1, verseEnd: 2)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasHeaderContaining(blocks, text: "Introduction to the Sermon on the Mount"))
@@ -176,7 +176,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasScriptureContaining(blocks, text: "Fifth verse text."))
@@ -203,7 +203,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 2, verseStart: 1, verseEnd: 3)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 2, verseStart: 1, verseEnd: 3)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(hasScriptureContaining(blocks, text: "Thus the heavens and the earth were completed"))
@@ -228,7 +228,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(!hasHeaderContaining(blocks, text: "Early Section"))
@@ -248,7 +248,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference, renderHeadlines: false)
         #expect(!hasHeaderContaining(blocks, text: "Visible Header"))
@@ -277,7 +277,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 5, verseEnd: 10)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         #expect(try block(blocks, containingText: "Fifth verse text.").firstVerse == 5)
@@ -296,7 +296,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         let headerBlock = try #require(blocks.first { block in
@@ -322,7 +322,7 @@ import Testing
         </div>
         """
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
 
         let blocks = try await renderBlocks(html: html, reference: reference)
         let combined = try block(blocks, containingText: "Second verse text.")
@@ -338,7 +338,7 @@ import Testing
         let block = try await singleBlock(verseCount: 45)
         let footnote = BibleFootnote(
             text: BibleAttributedString("Verse 21 footnote."),
-            reference: BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verse: 21),
+            reference: BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verse: 21),
             id: "1"
         )
         let configuredBlock = BibleTextBlock(
@@ -403,7 +403,7 @@ import Testing
             <div class="p"><span class="yv-v" v="2"></span>Second verse.</div>
         </div>
         """
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
         let blocks = try await renderBlocks(html: html, reference: reference)
 
         let alreadyFormattedBlocks = BibleTextView.blocksForDisplay(blocks, longBlockCharacterThreshold: 1)
@@ -434,7 +434,7 @@ import Testing
         }
         html += "</div>"
 
-        let reference = BibleReference(versionId: defaultVersionId, bookUSFM: "PSA", chapter: 119)
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "PSA", chapter: 119)
         let blocks = try await renderBlocks(html: html, reference: reference)
 
         let block105 = try block(blocks, containingText: "Verse 105 text.")

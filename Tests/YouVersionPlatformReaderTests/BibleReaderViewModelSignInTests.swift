@@ -13,7 +13,7 @@ import Testing
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            reference: BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
             actionType: "",
             footnotes: []
         )
@@ -21,7 +21,7 @@ import Testing
         #expect(viewModel.showingSignInSheet == false)
         #expect(viewModel.showingVerseActionsDrawer)
         #expect(viewModel.selectedVerses.count == 1)
-        #expect(viewModel.selectedVerses.first?.asUSFM == "JHN.3.16")
+        #expect(viewModel.selectedVerses.first?.passageId == "JHN.3.16")
     }
 
     @Test
@@ -31,7 +31,7 @@ import Testing
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            reference: BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
             actionType: "",
             footnotes: []
         )
@@ -39,7 +39,7 @@ import Testing
         #expect(viewModel.showingSignInSheet == false)
         #expect(viewModel.showingVerseActionsDrawer)
         #expect(viewModel.selectedVerses.count == 1)
-        #expect(viewModel.selectedVerses.first?.asUSFM == "JHN.3.16")
+        #expect(viewModel.selectedVerses.first?.passageId == "JHN.3.16")
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
     }
 
@@ -84,7 +84,7 @@ import Testing
                 authenticationState.isSignedIn = false
             }
         )
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
         #expect(viewModel.isSignedIn)
