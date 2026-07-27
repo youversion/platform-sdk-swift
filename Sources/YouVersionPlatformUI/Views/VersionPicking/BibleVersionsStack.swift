@@ -28,7 +28,7 @@ public struct BibleVersionsStack: View {
 
     @ViewBuilder
     private var rootView: some View {
-        if viewModel.myVersions.count > 1 {
+        if !viewModel.myVersions.isEmpty {
             BibleVersionsMyVersionsView()
         } else {
             ZStack {

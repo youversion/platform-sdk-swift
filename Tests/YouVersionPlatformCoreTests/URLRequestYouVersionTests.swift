@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct URLRequestYouVersionTests {
+    @Suite(.serialized) struct URLRequestYouVersionTests {
         
         @Test func sdkVersionHeaderIsSetWhenAppKeyConfigured() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey

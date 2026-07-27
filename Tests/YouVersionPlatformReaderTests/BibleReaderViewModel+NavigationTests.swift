@@ -209,7 +209,6 @@ let previousChapterCases: [PreviousChapterCase] = [
         // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
         vm.lastScrollOffset = 123
-        vm.scrollToTop = false
         vm.selectedVerses = [selectedReference]
         vm.showingVerseActionsDrawer = true
 
@@ -219,7 +218,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(vm.showBookIntro == showIntro)
         #expect(vm.isChangingChapter == false)
         #expect(vm.lastScrollOffset == 123)
-        #expect(vm.scrollToTop == false)
+        #expect(vm.scrollAction == .none)
         #expect(vm.selectedVerses == [selectedReference])
         #expect(vm.showingVerseActionsDrawer == true)
     }
@@ -234,7 +233,6 @@ let previousChapterCases: [PreviousChapterCase] = [
         // currentVersion is nil by default — the "no loaded version" state.
         vm.isChangingChapter = false
         vm.lastScrollOffset = 123
-        vm.scrollToTop = false
         vm.selectedVerses = [selectedReference]
         vm.showingVerseActionsDrawer = true
 
@@ -244,7 +242,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(vm.showBookIntro == showIntro)
         #expect(vm.isChangingChapter == false)
         #expect(vm.lastScrollOffset == 123)
-        #expect(vm.scrollToTop == false)
+        #expect(vm.scrollAction == .none)
         #expect(vm.selectedVerses == [selectedReference])
         #expect(vm.showingVerseActionsDrawer == true)
     }
@@ -468,7 +466,7 @@ let previousChapterCases: [PreviousChapterCase] = [
     private func assertNavigationSideEffects(on vm: BibleReaderViewModel) {
         #expect(vm.isChangingChapter == true)
         #expect(vm.lastScrollOffset == 0)
-        #expect(vm.scrollToTop == true)
+        #expect(vm.scrollAction == .top)
         #expect(vm.selectedVerses.isEmpty)
         #expect(vm.showingVerseActionsDrawer == false)
     }
@@ -491,7 +489,6 @@ let previousChapterCases: [PreviousChapterCase] = [
         vm.showBookIntro = showBookIntro
         vm.isChangingChapter = false
         vm.lastScrollOffset = 321
-        vm.scrollToTop = false
         vm.selectedVerses = [selectedReference]
         vm.showingVerseActionsDrawer = true
         return vm

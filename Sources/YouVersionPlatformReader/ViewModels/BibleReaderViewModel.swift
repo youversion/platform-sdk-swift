@@ -1,14 +1,35 @@
+#if canImport(AuthenticationServices)
+import AuthenticationServices
+#endif
 import CoreText
 import Foundation
 import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+/// A verse the reader should scroll to, and whether it should be focused (dimming
+/// the rest of the chapter) once it lands.
+struct ScrollTarget: Equatable {
+    let reference: BibleReference
+    let shouldFocus: Bool
+}
+
+/// The single scroll intent a navigation produces. The reader observes this and
+/// performs exactly one of: nothing, scroll to the top, or scroll to a reference.
+enum ScrollAction: Equatable {
+    case none
+    case top
+    case reference(ScrollTarget)
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
+    private static let highlightsPermission = "highlights"
+
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
+    private let userDefaultsKeyForShowsFullChapter = "bible-reader-view--showsfullchapter"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
         didSet {
@@ -27,6 +48,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var version: BibleVersion? { versionsViewModel.currentVersion }
     let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     let onNoteIndicatorTap: ((BibleReference) -> Void)?
+    let onCollectibleTap: ((String) -> Void)?
     let onReferenceChange: ((BibleReference) -> Void)?
     let onChapterComplete: ((BibleReference) -> Void)?
     let verseSelectionStyle: VerseSelectionStyle
@@ -46,7 +68,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - UI state of the Reader itself
     var showChrome = true
     var lastScrollOffset: CGFloat = 0
-    var scrollToTop = false
     var isChangingChapter = false {
         didSet {
             // When a chapter-change finishes, re-evaluate using cached geometry
@@ -57,6 +78,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             }
         }
     }
+    var scrollAction: ScrollAction = .none
+    var showsFullChapter: Bool {
+        didSet {
+            UserDefaults.standard.set(showsFullChapter, forKey: userDefaultsKeyForShowsFullChapter)
+        }
+    }
+    /// The target the reader should scroll to, if the current ``scrollAction`` is a reference.
+    var scrollTarget: ScrollTarget? {
+        if case .reference(let target) = scrollAction {
+            target
+        } else {
+            nil
+        }
+    }
+    private(set) var focusedReference: BibleReference?
     var showingSignInSheet = false
     var showingFontSettings = false
     var showingFontList = false // swiftlint:disable:this collection_suffix_property
@@ -79,51 +115,142 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     // MARK: - Colors
 
-    private(set) var colorTheme: ReaderTheme? = ReaderTheme.theme()
+    var colorScheme: ColorScheme = .light {
+        didSet { syncVersionsViewModelTheme() }
+    }
+
+    private var userSelectedTheme: ReaderTheme? {
+        didSet { syncVersionsViewModelTheme() }
+    }
+
+    /// The theme currently in effect. Returns the user's selected theme when
+    /// they have one, otherwise a built-in theme matching the device's
+    /// appearance (``colorScheme``).
+    var colorTheme: ReaderTheme? {
+        userSelectedTheme ?? colorScheme.readerTheme
+    }
+
+    private func syncVersionsViewModelTheme() {
+        versionsViewModel.colorTheme = colorTheme
+    }
 
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
-    private(set) var isSignedIn: Bool
+    var showingDataExchangeConfirmation = false
+    var startDataExchangeFlow = false
     var showSignOutConfirmation = false
+    var showSignOutWithPendingHighlightsConfirmation = false
+    private var pendingHighlight: PendingHighlight?
 
-    init(
-        reference: BibleReference? = nil,
+    var isSignedIn: Bool {
+        authentication.isSignedIn
+    }
+
+    /// Creates a view model displaying `reference`.
+    convenience init(
+        reference: BibleReference,
+        showsFullChapter: Bool = false,
         highlightsViewModel: BibleHighlightsViewModel? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
         versionsViewModel: BibleVersionsViewModel? = nil,
         audioActiveIndicatorColor: Color? = nil,
         onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
         onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+        onCollectibleTap: ((String) -> Void)? = nil,
         onReferenceChange: ((BibleReference) -> Void)? = nil,
         onChapterComplete: ((BibleReference) -> Void)? = nil,
         authentication: BibleReaderAuthentication? = nil
     ) {
+        self.init(
+            initialReference: reference,
+            showsFullChapter: showsFullChapter,
+            highlightsViewModel: highlightsViewModel,
+            verseSelectionStyle: verseSelectionStyle,
+            versionsViewModel: versionsViewModel,
+            audioActiveIndicatorColor: audioActiveIndicatorColor,
+            onVerseTap: onVerseTap,
+            onNoteIndicatorTap: onNoteIndicatorTap,
+            onCollectibleTap: onCollectibleTap,
+            onReferenceChange: onReferenceChange,
+            onChapterComplete: onChapterComplete,
+            authentication: authentication
+        )
+    }
+
+    /// Creates a view model that restores the last-viewed passage — the reference,
+    /// intro visibility, and full-chapter display mode — or falls back to John 1
+    /// when nothing has been saved. No verse scroll is armed on restore, so a user
+    /// who had scrolled within the chapter isn't pulled back to the saved verse.
+    convenience init(
+        highlightsViewModel: BibleHighlightsViewModel? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        versionsViewModel: BibleVersionsViewModel? = nil,
+        audioActiveIndicatorColor: Color? = nil,
+        onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+        onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+        onCollectibleTap: ((String) -> Void)? = nil,
+        onReferenceChange: ((BibleReference) -> Void)? = nil,
+        onChapterComplete: ((BibleReference) -> Void)? = nil,
+        authentication: BibleReaderAuthentication? = nil
+    ) {
+        self.init(
+            initialReference: nil,
+            showsFullChapter: false,
+            highlightsViewModel: highlightsViewModel,
+            verseSelectionStyle: verseSelectionStyle,
+            versionsViewModel: versionsViewModel,
+            audioActiveIndicatorColor: audioActiveIndicatorColor,
+            onVerseTap: onVerseTap,
+            onNoteIndicatorTap: onNoteIndicatorTap,
+            onCollectibleTap: onCollectibleTap,
+            onReferenceChange: onReferenceChange,
+            onChapterComplete: onChapterComplete,
+            authentication: authentication
+        )
+    }
+
+    private init(
+        initialReference: BibleReference?,
+        showsFullChapter: Bool,
+        highlightsViewModel: BibleHighlightsViewModel?,
+        verseSelectionStyle: VerseSelectionStyle,
+        versionsViewModel: BibleVersionsViewModel?,
+        audioActiveIndicatorColor: Color?,
+        onVerseTap: ((BibleReference) -> VerseTapResponse)?,
+        onNoteIndicatorTap: ((BibleReference) -> Void)?,
+        onCollectibleTap: ((String) -> Void)?,
+        onReferenceChange: ((BibleReference) -> Void)?,
+        onChapterComplete: ((BibleReference) -> Void)?,
+        authentication: BibleReaderAuthentication?
+    ) {
         let authentication = authentication ?? .default
-        if let reference {
-            self.reference = reference
+        if let initialReference {
+            self.reference = initialReference
             self.showBookIntro = false
+            self.showsFullChapter = showsFullChapter
         } else {
             if let data = UserDefaults.standard.data(forKey: userDefaultsKeyForBibleReference),
                let savedValue = try? JSONDecoder().decode(BibleReference.self, from: data) {
                 self.reference = savedValue
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
+                self.showsFullChapter = UserDefaults.standard.bool(forKey: userDefaultsKeyForShowsFullChapter)
             } else {
-                // no specified or saved version, so, pick a downloaded one, else a safe default.
-                let versionId = reference?.versionId ?? BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
+                // no saved reference, so, pick a downloaded version, else a safe default.
+                let versionId = BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
                 self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
                 self.showBookIntro = false
+                self.showsFullChapter = showsFullChapter
             }
         }
-
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onCollectibleTap = onCollectibleTap
         self.onReferenceChange = onReferenceChange
         self.onChapterComplete = onChapterComplete
         self.verseSelectionStyle = verseSelectionStyle
         self.audioActiveIndicatorColor = audioActiveIndicatorColor
         self.authentication = authentication
-        self.isSignedIn = authentication.isSignedIn
         self.highlightsViewModel = highlightsViewModel ?? BibleHighlightsViewModel()
         let shouldLoadVersionsViewModel = versionsViewModel == nil
         self.versionsViewModel = versionsViewModel ?? BibleVersionsViewModel()
@@ -132,7 +259,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
 
         loadUserSettingsFromStorage()  // will overwrite colorTheme, fontFamily, etc.
-        self.versionsViewModel.colorTheme = colorTheme
+        syncVersionsViewModelTheme()
 
         ReaderFonts.installFontsIfNeeded()
 
@@ -144,6 +271,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
 
         observeCurrentVersion()
+
+        if initialReference != nil {
+            setScrollTarget()
+        }
     }
 
     // Reacts to BibleVersionsViewModel.currentVersion changes by updating
@@ -172,9 +303,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         return BibleTextOptions(
             fontFamily: fontFamily ?? "Georgia",
             fontSize: ourFontSize,
-            // TODO: maybe have one of these spacings be a delta added to the other:
             lineSpacing: lineSpacing,
-            paragraphSpacing: lineSpacing,
+            paragraphSpacing: nil,
             textColor: readerTextPrimaryColor,
             verseNumberColor: readerVerseNumColor,
             wordsOfChristColor: readerWordsOfChristColor,
@@ -210,6 +340,51 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         startSignInFlow = true
     }
 
+    /// Sets the current ``reference``'s verse as the target the reader should scroll to
+    /// once its chapter lays out.
+    func setScrollTarget(shouldFocus: Bool = false) {
+        guard showsFullChapter && reference.verseStart != nil else {
+            return
+        }
+        scrollAction = .reference(ScrollTarget(reference: reference, shouldFocus: shouldFocus))
+    }
+
+    /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
+    /// without ending the chapter change (chrome stays suppressed until the scroll settles).
+    func clearScrollAction() {
+        scrollAction = .none
+    }
+
+    /// Puts the reader into the same state a freshly opened chapter would be in.
+    func resetScrollStateForNewChapter() {
+        lastScrollOffset = 0
+        showChrome = true
+        scrollAction = .top
+        clearFocus()
+    }
+
+    /// Ends an in-flight chapter change by optionally clearing any armed scroll
+    /// and resetting the isChangingChapter flag.
+    func finishChapterChange(clearingScroll: Bool = true) {
+        if clearingScroll {
+            scrollAction = .none
+        }
+        isChangingChapter = false
+    }
+
+    /// Focuses `reference`'s verse (or verse range), dimming the rest of the chapter.
+    func focusReference(_ reference: BibleReference) {
+        guard reference.verseStart != nil
+              && reference.chapterReference == self.reference.chapterReference else {
+            return
+        }
+        focusedReference = reference
+    }
+
+    func clearFocus() {
+        focusedReference = nil
+    }
+
     func loadUserSettingsFromStorage() {
         guard let data = UserDefaults.standard.data(forKey: userDefaultsKeyForReaderSettings),
               let savedValue = try? JSONDecoder().decode(ReaderSettings.self, from: data) else {
@@ -221,9 +396,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         } else {
             ReaderFonts.defaultFontFamily
         }
-        fontSize = savedValue.fontSize ?? ReaderFonts.defaultFontSize
-        lineSpacing = savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing
-        colorTheme = ReaderTheme.theme(withId: savedValue.colorTheme)
+        fontSize = ReaderFonts.nextLargerSize(currentSize: (savedValue.fontSize ?? ReaderFonts.defaultFontSize) - 0.001)
+        lineSpacing = ReaderFonts.nextLineSpacing(currentSpacing: (savedValue.lineSpacing ?? ReaderFonts.defaultLineSpacing) - 0.001)
+        if let savedThemeId = savedValue.colorTheme {
+            userSelectedTheme = ReaderTheme.theme(withId: savedThemeId)
+        }
+        // else: no saved theme yet — userSelectedTheme stays nil and colorTheme
+        // tracks the device's system color scheme until the user picks one.
     }
 
     func saveUserSettingsToStorage() {
@@ -231,7 +410,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             fontFamily: fontFamily,
             fontSize: fontSize,
             lineSpacing: lineSpacing,
-            colorTheme: colorTheme?.id ?? ReaderTheme.theme().id
+            colorTheme: userSelectedTheme?.id
         )
         if let data = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(data, forKey: userDefaultsKeyForReaderSettings)
@@ -271,14 +450,118 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func setColorTheme(_ theme: ReaderTheme) {
-        colorTheme = theme
-        versionsViewModel.colorTheme = theme
+        userSelectedTheme = theme
         saveUserSettingsToStorage()
     }
 
     func updateSignInState() async {
-        isSignedIn = await authentication.hasValidToken()
+        _ = await authentication.hasValidToken()
     }
+
+    /// Continues a pending highlight action after the user has completed sign-in.
+    func continuePendingHighlightAfterSignIn() {
+        guard pendingHighlight != nil && isSignedIn else {
+            return
+        }
+        if authentication.hasPermission(Self.highlightsPermission) {
+            applyPendingHighlight()
+            reloadCurrentChapterHighlights()
+        } else {
+            startDataExchangeFlow = true
+        }
+    }
+
+#if !os(tvOS)
+    func startDataExchange(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        startDataExchange(with: DataExchangeSession(contextProvider: contextProvider))
+    }
+#else
+    func startDataExchange() {
+        startDataExchange(with: DataExchangeSession())
+    }
+#endif
+
+    private func startDataExchange(with session: DataExchangeSession) {
+        Task {
+            do {
+                startDataExchangeFlow = false
+                let permissions = try await session.requestDataExchange(
+                    permissions: [Self.highlightsPermission]
+                )
+                completeDataExchangeFlow(with: permissions)
+            } catch {
+                completeDataExchangeFlow(with: [])
+                YouVersionPlatformLogger.error("startDataExchange failed: \(error)", category: "BibleReader")
+            }
+        }
+    }
+
+    /// Confirms the just-in-time data exchange prompt and starts the browser flow.
+    func confirmDataExchangePrompt() {
+        guard pendingHighlight != nil, isSignedIn else {
+            return
+        }
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = true
+    }
+
+    /// Cancels the just-in-time data exchange prompt without changing highlights.
+    func cancelDataExchangePrompt() {
+        clearPendingHighlight()
+    }
+
+    /// Completes the just-in-time data exchange browser flow.
+    func completeDataExchangeFlow(with grantedPermissions: [String]) {
+        startDataExchangeFlow = false
+        showingDataExchangeConfirmation = false
+        if grantedPermissions.contains(Self.highlightsPermission) {
+            applyPendingHighlight()
+            reloadCurrentChapterHighlights()
+        } else {
+            clearPendingHighlight()
+        }
+    }
+
+#if !os(tvOS)
+    func startSignIn(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        Task {
+            do {
+                startSignInFlow = false
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: ["profile", Self.highlightsPermission],
+                    contextProvider: contextProvider
+                )
+                await updateSignInState()
+                if result.permissionValues.contains(Self.highlightsPermission) {
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+#else
+    func startSignIn() {
+        Task {
+            do {
+                startSignInFlow = false
+                let result = try await YouVersionAPI.Users.signIn(
+                    permissions: ["profile", Self.highlightsPermission]
+                )
+                await updateSignInState()
+                if result.permissionValues.contains(Self.highlightsPermission) {
+                    continuePendingHighlightAfterSignIn()
+                } else {
+                    clearPendingHighlight()
+                }
+            } catch {
+                YouVersionPlatformLogger.error("\(error)", category: "Reader")
+            }
+        }
+    }
+#endif
 
     func signIn() {
         if isSignedIn {
@@ -288,13 +571,22 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func signOut() {
-        showSignOutConfirmation = true
+        if highlightsViewModel.hasPendingOperations {
+            showSignOutWithPendingHighlightsConfirmation = true
+        } else {
+            showSignOutConfirmation = true
+        }
     }
 
     func confirmSignOut() {
         authentication.signOut()
         highlightsViewModel.reset()
-        isSignedIn = false
+        clearPendingHighlight()
+    }
+
+    func confirmPendingHighlightsSignOut() {
+        highlightsViewModel.reset()
+        confirmSignOut()
     }
 
     // MARK: - Versions list
@@ -443,5 +735,55 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         let fontSize: CGFloat?
         let lineSpacing: CGFloat?
         let colorTheme: Int?
+    }
+
+    private struct PendingHighlight {
+        let references: Set<BibleReference>
+        let color: String
+    }
+
+    /// Adds a highlight immediately or starts the just-in-time permission flow when needed.
+    func addHighlightOrStartPermissionFlow(references: Set<BibleReference>, color: String) {
+        guard !references.isEmpty else {
+            return
+        }
+        if !isSignedIn {
+            guard YouVersionPlatformConfiguration.isSignInEnabled else {
+                return
+            }
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            showingSignInSheet = true
+            return
+        }
+        
+        if authentication.hasPermission(Self.highlightsPermission) {
+            applyHighlight(references: references, color: color)
+        } else {
+            pendingHighlight = PendingHighlight(references: references, color: color)
+            showingDataExchangeConfirmation = true
+        }
+    }
+
+    private func applyPendingHighlight() {
+        guard let pendingHighlight else {
+            return
+        }
+        applyHighlight(references: pendingHighlight.references, color: pendingHighlight.color)
+        self.pendingHighlight = nil
+    }
+
+    private func applyHighlight(references: Set<BibleReference>, color: String) {
+        highlightsViewModel.addHighlights(references: Array(references), color: color)
+        removeVerseSelection()
+    }
+
+    private func reloadCurrentChapterHighlights() {
+        highlightsViewModel.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+    }
+
+    private func clearPendingHighlight() {
+        pendingHighlight = nil
+        showingDataExchangeConfirmation = false
+        startDataExchangeFlow = false
     }
 }

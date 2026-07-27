@@ -6,6 +6,13 @@
     "children": [
       {
         "kind": "Import",
+        "name": "AppKit",
+        "printedName": "AppKit",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformUI"
+      },
+      {
+        "kind": "Import",
         "name": "AuthenticationServices",
         "printedName": "AuthenticationServices",
         "declKind": "Import",
@@ -62,13 +69,108 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "DataExchangeSession",
+        "printedName": "DataExchangeSession",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(contextProvider:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "DataExchangeSession",
+                "printedName": "YouVersionPlatformUI.DataExchangeSession",
+                "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ASWebAuthenticationPresentationContextProviding",
+                "printedName": "any AuthenticationServices.ASWebAuthenticationPresentationContextProviding",
+                "usr": "c:objc(pl)ASWebAuthenticationPresentationContextProviding"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV15contextProviderACSo47ASWebAuthenticationPresentationContextProviding_p_tcfc",
+            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV15contextProviderACSo47ASWebAuthenticationPresentationContextProviding_p_tcfc",
+            "moduleName": "YouVersionPlatformUI",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "requestDataExchange",
+            "printedName": "requestDataExchange(permissions:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsSaySSGShySSG_tYaKF",
+            "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV07requesteF011permissionsSaySSGShySSG_tYaKF",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "Custom"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI19DataExchangeSessionV",
+        "mangledName": "$s20YouVersionPlatformUI19DataExchangeSessionV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "BibleTextFontOption",
         "printedName": "BibleTextFontOption",
         "children": [
           {
             "kind": "Var",
-            "name": "textFont",
-            "printedName": "textFont",
+            "name": "font076emItalic",
+            "printedName": "font076emItalic",
             "children": [
               {
                 "kind": "TypeFunc",
@@ -98,14 +200,14 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG0yA2CmF",
-            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG0yA2CmF",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO15font076emItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO15font076emItalicyA2CmF",
             "moduleName": "YouVersionPlatformUI"
           },
           {
             "kind": "Var",
-            "name": "textFontBold",
-            "printedName": "textFontBold",
+            "name": "font100em",
+            "printedName": "font100em",
             "children": [
               {
                 "kind": "TypeFunc",
@@ -135,14 +237,14 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG4BoldyA2CmF",
-            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG4BoldyA2CmF",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO9font100emyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO9font100emyA2CmF",
             "moduleName": "YouVersionPlatformUI"
           },
           {
             "kind": "Var",
-            "name": "textFontItalic",
-            "printedName": "textFontItalic",
+            "name": "font100emItalic",
+            "printedName": "font100emItalic",
             "children": [
               {
                 "kind": "TypeFunc",
@@ -172,8 +274,193 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG6ItalicyA2CmF",
-            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG6ItalicyA2CmF",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO15font100emItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO15font100emItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font100em500",
+            "printedName": "font100em500",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO12font100em500yA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO12font100em500yA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font100em500Italic",
+            "printedName": "font100em500Italic",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO18font100em500ItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO18font100em500ItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font117em500",
+            "printedName": "font117em500",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO12font117em500yA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO12font117em500yA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font117em500Italic",
+            "printedName": "font117em500Italic",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO18font117em500ItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO18font117em500ItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "footnote",
+            "printedName": "footnote",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO8footnoteyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO8footnoteyA2CmF",
             "moduleName": "YouVersionPlatformUI"
           },
           {
@@ -215,6 +502,129 @@
           },
           {
             "kind": "Var",
+            "name": "textFont",
+            "printedName": "textFont",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG0yA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG0yA2CmF",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "textFontBold",
+            "printedName": "textFontBold",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG4BoldyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG4BoldyA2CmF",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "textFontItalic",
+            "printedName": "textFontItalic",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO04textG6ItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO04textG6ItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "smallCaps",
             "printedName": "smallCaps",
             "children": [
@@ -248,7 +658,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO9smallCapsyA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO9smallCapsyA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -285,7 +699,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO6headeryA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO6headeryA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -322,7 +740,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO12headerItalicyA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO12headerItalicyA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -359,7 +781,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO13headerSmalleryA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO13headerSmalleryA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -396,7 +822,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO19headerSmallerItalicyA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO19headerSmallerItalicyA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -433,7 +863,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO7header2yA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO7header2yA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -470,7 +904,11 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO7header3yA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO7header3yA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
@@ -507,12 +945,16 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO7header4yA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO7header4yA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Var",
-            "name": "footnote",
-            "printedName": "footnote",
+            "name": "font100emSmallCaps",
+            "printedName": "font100emSmallCaps",
             "children": [
               {
                 "kind": "TypeFunc",
@@ -542,9 +984,13 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO8footnoteyA2CmF",
-            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO8footnoteyA2CmF",
-            "moduleName": "YouVersionPlatformUI"
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO18font100emSmallCapsyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO18font100emSmallCapsyA2CmF",
+            "moduleName": "YouVersionPlatformUI",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ]
           },
           {
             "kind": "Function",
@@ -2101,7 +2547,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:onAnchorsChanged:audioActiveVerse:placeholder:)",
+            "printedName": "init(_:textOptions:selectedVerses:onVerseTap:onCollectibleTap:onAnchorsChanged:audioActiveVerse:placeholder:focusedReference:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2237,6 +2683,40 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
+                "printedName": "((Swift.String) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
                 "printedName": "(([Swift.Int]) -> Swift.Void)?",
                 "children": [
                   {
@@ -2318,11 +2798,26 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0L14AnchorsChanged011audioActiveM011placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyALGGyAL_SSSayAA0E8FootnoteVGSSSgtcSgySaySiGcSgSiSgAP03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
-            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0L14AnchorsChanged011audioActiveM011placeholderAC0abC4Core0E9ReferenceV_AA0efI0VSg05SwiftD07BindingVyShyALGGyAL_SSSayAA0E8FootnoteVGSSSgtcSgySaySiGcSgSiSgAP03AnyG0VAA0eF12LoadingPhaseOcSgtcfc",
+            "usr": "s:20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholder16focusedReferenceAC0abC4Core0eV0V_AA0efI0VSg05SwiftD07BindingVyShyANGGyAN_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAR03AnyG0VAA0eF12LoadingPhaseOcSgANSgtcfc",
+            "mangledName": "$s20YouVersionPlatformUI13BibleTextViewV_11textOptions14selectedVerses10onVerseTap0l11CollectibleN00L14AnchorsChanged011audioActiveM011placeholder16focusedReferenceAC0abC4Core0eV0V_AA0efI0VSg05SwiftD07BindingVyShyANGGyAN_SSSayAA0E8FootnoteVGSSSgtcSgySScSgySaySiGcSgSiSgAR03AnyG0VAA0eF12LoadingPhaseOcSgANSgtcfc",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "Preconcurrency",
@@ -4787,7 +5282,7 @@
           {
             "kind": "Function",
             "name": "setFont",
-            "printedName": "setFont(_:from:)",
+            "printedName": "setFont(_:from:inSmallcaps:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -4806,11 +5301,18 @@
                 "name": "BibleTextFonts",
                 "printedName": "YouVersionPlatformUI.BibleTextFonts",
                 "usr": "s:20YouVersionPlatformUI14BibleTextFontsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Func",
-            "usr": "s:20YouVersionPlatformUI21BibleAttributedStringC7setFont_4fromAcA0e4TextI6OptionO_AA0eK5FontsVtF",
-            "mangledName": "$s20YouVersionPlatformUI21BibleAttributedStringC7setFont_4fromAcA0e4TextI6OptionO_AA0eK5FontsVtF",
+            "usr": "s:20YouVersionPlatformUI21BibleAttributedStringC7setFont_4from11inSmallcapsAcA0e4TextI6OptionO_AA0eM5FontsVSbtF",
+            "mangledName": "$s20YouVersionPlatformUI21BibleAttributedStringC7setFont_4from11inSmallcapsAcA0e4TextI6OptionO_AA0eM5FontsVSbtF",
             "moduleName": "YouVersionPlatformUI",
             "declAttributes": [
               "Final",
@@ -4927,6 +5429,7 @@
         "declAttributes": [
           "Final"
         ],
+        "hasMissingDesignatedInitializers": true,
         "conformances": [
           {
             "kind": "Conformance",
@@ -5736,6 +6239,52 @@
           },
           {
             "kind": "Var",
+            "name": "marginBottom",
+            "printedName": "marginBottom",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "CGFloat",
+                "printedName": "CoreGraphics.CGFloat",
+                "usr": "s:14CoreFoundation7CGFloatV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV12marginBottom14CoreFoundation7CGFloatVvp",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV12marginBottom12CoreGraphics7CGFloatVvp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CGFloat",
+                    "printedName": "CoreGraphics.CGFloat",
+                    "usr": "s:14CoreFoundation7CGFloatV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI14BibleTextBlockV12marginBottom14CoreFoundation7CGFloatVvg",
+                "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV12marginBottom12CoreGraphics7CGFloatVvg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "alignment",
             "printedName": "alignment",
             "children": [
@@ -5843,9 +6392,71 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "firstVerse",
+            "printedName": "firstVerse",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvp",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvg",
+                "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV10firstVerseSiSgvg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:alignment:footnotes:rows:)",
+            "printedName": "init(text:chapter:startVerse:firstLineHeadIndent:headIndent:marginTop:marginBottom:alignment:footnotes:rows:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -5900,6 +6511,13 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "CGFloat",
+                "printedName": "CoreGraphics.CGFloat",
+                "hasDefaultArg": true,
+                "usr": "s:14CoreFoundation7CGFloatV"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "TextAlignment",
                 "printedName": "SwiftUI.TextAlignment",
                 "usr": "s:7SwiftUI13TextAlignmentO"
@@ -5943,8 +6561,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
-            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatV05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayANGGtcfc",
+            "usr": "s:20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i14CoreFoundation7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI14BibleTextBlockV4text7chapter10startVerse19firstLineHeadIndent04headO09marginTop0Q6Bottom9alignment9footnotes4rowsAcA0E16AttributedStringC_S2iSgS2i12CoreGraphics7CGFloatVAS05SwiftD00F9AlignmentOSayAA0E8FootnoteVGSaySayAOGGtcfc",
             "moduleName": "YouVersionPlatformUI",
             "init_kind": "Designated"
           },
@@ -6289,6 +6907,43 @@
                 "declKind": "EnumElement",
                 "usr": "s:20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO13noteIndicatoryA2EmF",
                 "mangledName": "$s20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO13noteIndicatoryA2EmF",
+                "moduleName": "YouVersionPlatformUI"
+              },
+              {
+                "kind": "Var",
+                "name": "collectible",
+                "printedName": "collectible",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformUI.BibleVersionRendering.LinkSchemes.Type) -> YouVersionPlatformUI.BibleVersionRendering.LinkSchemes",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "LinkSchemes",
+                        "printedName": "YouVersionPlatformUI.BibleVersionRendering.LinkSchemes",
+                        "usr": "s:20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "YouVersionPlatformUI.BibleVersionRendering.LinkSchemes.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "LinkSchemes",
+                            "printedName": "YouVersionPlatformUI.BibleVersionRendering.LinkSchemes",
+                            "usr": "s:20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO11collectibleyA2EmF",
+                "mangledName": "$s20YouVersionPlatformUI05BibleB9RenderingO11LinkSchemesO11collectibleyA2EmF",
                 "moduleName": "YouVersionPlatformUI"
               },
               {
@@ -7570,6 +8225,453 @@
             "printedName": "Hashable",
             "usr": "s:SH",
             "mangledName": "$sSH"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterScrollAnchors",
+        "printedName": "ChapterScrollAnchors",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "chapter",
+            "printedName": "chapter",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivp",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivg",
+                "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapterSivg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "blockFirstVerses",
+            "printedName": "blockFirstVerses",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvp",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvp",
+            "moduleName": "YouVersionPlatformUI",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.Int]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvg",
+                "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV16blockFirstVersesSaySiGvg",
+                "moduleName": "YouVersionPlatformUI",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(chapter:blockFirstVerses:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV7chapter16blockFirstVersesACSi_SaySiGtcfc",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV7chapter16blockFirstVersesACSi_SaySiGtcfc",
+            "moduleName": "YouVersionPlatformUI",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "blockFirstVerse",
+            "printedName": "blockFirstVerse(forTargetVerse:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV15blockFirstVerse09forTargetJ0SiSgSi_tF",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV15blockFirstVerse09forTargetJ0SiSgSi_tF",
+            "moduleName": "YouVersionPlatformUI",
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ChapterScrollAnchors",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV",
+        "mangledName": "$s20YouVersionPlatformUI20ChapterScrollAnchorsV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ChapterScrollAnchorsKey",
+        "printedName": "ChapterScrollAnchorsKey",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "defaultValue",
+            "printedName": "defaultValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvpZ",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvgZ",
+                "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV12defaultValueAA0efG0VSgvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "reduce",
+            "printedName": "reduce(value:nextValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "paramValueOwnership": "InOut",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "typeAttributes": [
+                  "noescape"
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV6reduce5value9nextValueyAA0efG0VSgz_AIyXEtFZ",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV6reduce5value9nextValueyAA0efG0VSgz_AIyXEtFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Value",
+            "printedName": "Value",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ChapterScrollAnchors",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                    "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV5Valuea",
+            "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV5Valuea",
+            "moduleName": "YouVersionPlatformUI",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20YouVersionPlatformUI23ChapterScrollAnchorsKeyV",
+        "mangledName": "$s20YouVersionPlatformUI23ChapterScrollAnchorsKeyV",
+        "moduleName": "YouVersionPlatformUI",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "PreferenceKey",
+            "printedName": "PreferenceKey",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Value",
+                "printedName": "Value",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformUI.ChapterScrollAnchors?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ChapterScrollAnchors",
+                        "printedName": "YouVersionPlatformUI.ChapterScrollAnchors",
+                        "usr": "s:20YouVersionPlatformUI20ChapterScrollAnchorsV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI13PreferenceKeyP",
+            "mangledName": "$s7SwiftUI13PreferenceKeyP"
           }
         ]
       },
@@ -12896,6 +13998,50 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ASWebAuthenticationPresentationContextProviding",
+                "printedName": "any AuthenticationServices.ASWebAuthenticationPresentationContextProviding",
+                "usr": "c:objc(pl)ASWebAuthenticationPresentationContextProviding"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSaySSG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVSaySSG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "signIn",
+            "printedName": "signIn(permissions:contextProvider:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignInWithYouVersionResult",
+                "printedName": "YouVersionPlatformCore.SignInWithYouVersionResult",
+                "usr": "s:22YouVersionPlatformCore010SignInWithaB6ResultV"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Set",
                 "printedName": "Swift.Set<YouVersionPlatformCore.SignInWithYouVersionPermission>",
                 "children": [
@@ -12920,7 +14066,9 @@
             "mangledName": "$s22YouVersionPlatformCore0aB3APIO5UsersO0abC2UIE6signIn11permissions15contextProviderAA04Signi4WithaB6ResultVShyAA0minaB10PermissionOG_So47ASWebAuthenticationPresentationContextProviding_ptYaKFZ",
             "moduleName": "YouVersionPlatformUI",
             "static": true,
+            "deprecated": true,
             "declAttributes": [
+              "Available",
               "Custom"
             ],
             "isFromExtension": true,
@@ -14405,6 +15553,152 @@
             "printedName": "Escapable",
             "usr": "s:s9EscapableP",
             "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ColorScheme",
+        "printedName": "ColorScheme",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "readerTheme",
+            "printedName": "readerTheme",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ReaderTheme",
+                "printedName": "YouVersionPlatformUI.ReaderTheme",
+                "usr": "s:20YouVersionPlatformUI11ReaderThemeV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:7SwiftUI11ColorSchemeO018YouVersionPlatformB0E11readerThemeAD06ReaderI0Vvp",
+            "mangledName": "$s7SwiftUI11ColorSchemeO018YouVersionPlatformB0E11readerThemeAD06ReaderI0Vvp",
+            "moduleName": "YouVersionPlatformUI",
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ReaderTheme",
+                    "printedName": "YouVersionPlatformUI.ReaderTheme",
+                    "usr": "s:20YouVersionPlatformUI11ReaderThemeV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI11ColorSchemeO018YouVersionPlatformB0E11readerThemeAD06ReaderI0Vvg",
+                "mangledName": "$s7SwiftUI11ColorSchemeO018YouVersionPlatformB0E11readerThemeAD06ReaderI0Vvg",
+                "moduleName": "YouVersionPlatformUI",
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:7SwiftUI11ColorSchemeO",
+        "mangledName": "$s7SwiftUI11ColorSchemeO",
+        "moduleName": "SwiftUICore",
+        "intro_Macosx": "10.15",
+        "intro_iOS": "13.0",
+        "intro_tvOS": "13.0",
+        "intro_watchOS": "6.0",
+        "declAttributes": [
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "Available",
+          "Available",
+          "Available",
+          "Available"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "CaseIterable",
+            "printedName": "CaseIterable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "AllCases",
+                "printedName": "AllCases",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "AllCases",
+                    "printedName": "SwiftUI.ColorScheme.AllCases",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[SwiftUI.ColorScheme]",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ColorScheme",
+                            "printedName": "SwiftUI.ColorScheme",
+                            "usr": "s:7SwiftUI11ColorSchemeO"
+                          }
+                        ],
+                        "usr": "s:Sa"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s12CaseIterableP",
+            "mangledName": "$ss12CaseIterableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
           },
           {
             "kind": "Conformance",

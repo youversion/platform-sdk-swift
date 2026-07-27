@@ -101,7 +101,7 @@ public enum BibleVersionRendering {
             woc: false,
             smallcaps: false,
             alignment: .leading,
-            currentFont: .textFont,
+            currentFont: .font100em,
             baselineOffset: 0,
             textCategory: .scripture,
             nodeDepth: 0
@@ -222,7 +222,7 @@ public enum BibleVersionRendering {
                 // The concept is/was HTML, which does this collapsing internally.
                 txt = BibleAttributedString(" ")
             }
-            txt.setFont(stateDown.currentFont, from: stateIn.fonts)
+            txt.setFont(stateDown.currentFont, from: stateIn.fonts, inSmallcaps: stateDown.smallcaps)
             if stateDown.woc {
                 txt.setColor(stateIn.wocColor)
             }
@@ -293,7 +293,6 @@ public enum BibleVersionRendering {
                 chapter: stateUp.chapter,
                 verse: stateUp.verse
             )
-            stateDown.currentFont = .footnote
             for child in node.children {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &footState)
             }
@@ -318,7 +317,7 @@ public enum BibleVersionRendering {
         traceLog(node, stateDown: stateDown)
         for child in node.children {
             if child.type == .span || child.type == .text {
-                stateDown.currentFont = .textFont
+                stateDown.currentFont = .font100em
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                 // handleBlockChild puts its result into stateUp.text
             } else {
@@ -401,8 +400,7 @@ public enum BibleVersionRendering {
     ) {
         var stateDown = parentStateDown
         stateDown.nodeDepth += 1
-        var marginTop: CGFloat = 0
-        stateDown.currentFont = .textFont
+        stateDown.currentFont = .font100em
 
         if node.type != .block {
             assertionFailed("unexpected: handleNodeBlock was given: ", type: node.type)
@@ -419,8 +417,7 @@ public enum BibleVersionRendering {
             node.classes,
             stateIn: stateIn,
             stateDown: &stateDown,
-            stateUp: &stateUp,
-            marginTop: &marginTop
+            stateUp: &stateUp
         )
 
         for (index, child) in node.children.enumerated() {
@@ -428,7 +425,7 @@ public enum BibleVersionRendering {
                 let hadPendingText = !stateUp.isTextEmpty
                 if hadPendingText {
                     if stateUp.rendering {
-                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                     }
                     stateUp.clearText()
                 }
@@ -465,13 +462,12 @@ public enum BibleVersionRendering {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
                     if !stateUp.isTextEmpty {
                         if stateUp.rendering {
-                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                             stateUp.clearText()
-                            //stateDown.marginTop = marginTop  // TODO
                             handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                             var tmpStateDown = stateDown
                             tmpStateDown.alignment = .trailing
-                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp, marginTop: marginTop))
+                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))
                         }
                         stateUp.clearText()
                     }
@@ -481,15 +477,14 @@ public enum BibleVersionRendering {
             }
         }
         if !stateUp.isTextEmpty {
-            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp, marginTop: marginTop))
+            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
             stateUp.clearText()
         }
     }
 
     private static func createBlock(
         stateDown: StateDown,
-        stateUp: inout StateUp,
-        marginTop: CGFloat
+        stateUp: inout StateUp
     ) -> BibleTextBlock {
         let block = BibleTextBlock(
             text: stateUp.text,
@@ -497,7 +492,7 @@ public enum BibleVersionRendering {
             startVerse: stateUp.blockStartVerse,
             firstLineHeadIndent: stateUp.firstLineHeadIndent,
             headIndent: stateUp.headIndent,
-            marginTop: marginTop,
+            marginTop: stateDown.marginTop,
             alignment: stateDown.alignment,
             footnotes: stateUp.footnotes
         )
@@ -562,6 +557,8 @@ public enum BibleVersionRendering {
         var baselineOffset: CGFloat = 0
         var textCategory: BibleTextCategory
         var nodeDepth: Int  // for debugging purposes mostly
+        var marginTop: CGFloat = 0
+        var marginBottom: CGFloat = 0
     }
 
     // As we walk the node structure, these are attributes which
@@ -632,6 +629,30 @@ public enum BibleVersionRendering {
         case footnote
         case reference
         case noteIndicator
+        case collectible
+    }
+
+    /// Builds the tap link for a collectible term. The opaque `id` is carried as a
+    /// percent-encoded query item so any value — including ids with spaces, slashes,
+    /// or mixed case — round-trips intact (unlike embedding it in the URL host).
+    static func collectibleLink(id: String) -> URL? {
+        var components = URLComponents()
+        components.scheme = LinkSchemes.collectible.rawValue
+        components.host = "tap"
+        components.queryItems = [URLQueryItem(name: "id", value: id)]
+        return components.url
+    }
+
+    /// Extracts the opaque collectible id from a collectible tap link, or `nil` if the
+    /// URL is not a collectible link.
+    static func collectibleID(from url: URL) -> String? {
+        guard url.scheme == LinkSchemes.collectible.rawValue else {
+            return nil
+        }
+        return URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?
+            .first { $0.name == "id" }?
+            .value
     }
 }
 

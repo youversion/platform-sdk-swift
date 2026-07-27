@@ -7,20 +7,25 @@ public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
+    private let readerNavigation: BibleReaderNavigation?
+    private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> VerseTapResponse)?
     private let onNoteIndicatorTap: ((BibleReference) -> Void)?
+    private let onCollectibleTap: ((String) -> Void)?
     private let onReferenceChange: ((BibleReference) -> Void)?
     private let onChapterComplete: ((BibleReference) -> Void)?
     private let audioActiveIndicatorColor: Color?
     private let externalSelectedVerses: Binding<Set<BibleReference>>?
     private let audioActiveReference: BibleReference?
 
-    /// Creates a Bible reader view.
+    /// Creates a Bible reader view displaying `reference`.
+    ///
+    /// To restore the passage the user was last viewing instead, use
+    /// ``restoringLastPassage(selectedVerses:verseSelectionStyle:onVerseTap:onNoteIndicatorTap:onCollectibleTap:onReferenceChange:onChapterComplete:audioActiveReference:audioActiveIndicatorColor:readerNavigation:)``.
     ///
     /// - Parameters:
-    ///   - reference: The Bible reference to display initially. When `nil`, the reader
-    ///     restores the last-viewed reference or defaults to John 1.
+    ///   - reference: The Bible reference to display initially.
     ///   - selectedVerses: An optional binding to the set of selected verses. When
     ///     provided, the client can read which verses are selected and clear the
     ///     selection programmatically (e.g. on sheet dismiss). The SDK updates this
@@ -28,19 +33,24 @@ public struct BibleReaderView: View {
     ///   - verseSelectionStyle: Controls the visual style of the underline drawn
     ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
-    ///     The closure receives the tapped ``BibleReference`` and returns a
-    ///     ``VerseTapResponse`` telling the SDK what to do next. Return
-    ///     ``VerseTapResponse/toggleSelection`` to have the SDK toggle the verse
-    ///     in `selectedVerses` (the underline appears), or ``VerseTapResponse/handled``
-    ///     if the host app handled everything and the SDK should take no action.
-    ///     When `nil` (the default), tapping a verse triggers the built-in sign-in
-    ///     prompt for unauthenticated users (unless sign-in is disabled via
-    ///     ``YouVersionPlatformConfiguration/isSignInEnabled``) or opens the verse
-    ///     actions drawer for authenticated users. Footnote taps are always handled
-    ///     by the reader regardless of this closure.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
     ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
     ///     that has a note indicator (pencil icon) and is not already selected. When
     ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
+    ///   - onCollectibleTap: An optional closure called when the user taps a highlighted
+    ///     collectible term (see ``BibleTermHighlightsCache``). The closure receives the
+    ///     opaque `id` supplied with the ``BibleTermHighlight``. Collectible term taps are
+    ///     routed separately from verse, footnote, and cross-reference taps.
     ///   - onReferenceChange: An optional closure called whenever the displayed
     ///     chapter reference changes — for example when the user taps the
     ///     next/previous chapter buttons or picks a new book/chapter from the header.
@@ -55,25 +65,201 @@ public struct BibleReaderView: View {
     ///     the active verse visible. Pass `nil` when audio is not playing.
     ///   - audioActiveIndicatorColor: The color of the vertical bar drawn next
     ///     to the verse being narrated. Pass `nil` to hide the indicator.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
+    public init(reference: BibleReference,
+                selectedVerses: Binding<Set<BibleReference>>? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid,
+                onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+                showsFullChapter: Bool = false,
+                onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+                onCollectibleTap: ((String) -> Void)? = nil,
+                onReferenceChange: ((BibleReference) -> Void)? = nil,
+                onChapterComplete: ((BibleReference) -> Void)? = nil,
+                audioActiveReference: BibleReference? = nil,
+                audioActiveIndicatorColor: Color? = nil,
+                readerNavigation: BibleReaderNavigation? = nil
+    ) {
+        self.init(
+            initialReference: reference,
+            selectedVerses: selectedVerses,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            onNoteIndicatorTap: onNoteIndicatorTap,
+            onCollectibleTap: onCollectibleTap,
+            onReferenceChange: onReferenceChange,
+            onChapterComplete: onChapterComplete,
+            audioActiveReference: audioActiveReference,
+            audioActiveIndicatorColor: audioActiveIndicatorColor,
+            readerNavigation: readerNavigation
+        )
+    }
+
+    /// Creates a Bible reader view that restores the passage the user was last
+    /// viewing — the reference and its display mode — or shows John 1 when
+    /// nothing has been saved yet.
+    ///
+    /// - Parameters:
+    ///   - selectedVerses: An optional binding to the set of selected verses. When
+    ///     provided, the client can read which verses are selected and clear the
+    ///     selection programmatically (e.g. on sheet dismiss). The SDK updates this
+    ///     binding whenever the internal selection changes.
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     See ``init(reference:selectedVerses:verseSelectionStyle:onVerseTap:showsFullChapter:onNoteIndicatorTap:onCollectibleTap:onReferenceChange:onChapterComplete:audioActiveReference:audioActiveIndicatorColor:readerNavigation:)``.
+    ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
+    ///     that has a note indicator (pencil icon) and is not already selected. When
+    ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
+    ///   - onCollectibleTap: An optional closure called when the user taps a highlighted
+    ///     collectible term (see ``BibleTermHighlightsCache``). The closure receives the
+    ///     opaque `id` supplied with the ``BibleTermHighlight``. Collectible term taps are
+    ///     routed separately from verse, footnote, and cross-reference taps.
+    ///   - onReferenceChange: An optional closure called whenever the displayed
+    ///     chapter reference changes — for example when the user taps the
+    ///     next/previous chapter buttons or picks a new book/chapter from the header.
+    ///   - onChapterComplete: An optional closure called once when the bottom of
+    ///     the chapter content scrolls into the viewport — i.e. the reader has
+    ///     reached the end of the chapter. For chapters shorter than the
+    ///     viewport, this fires as soon as the chapter is displayed. Fires at
+    ///     most once per chapter; resets when the reader navigates to a
+    ///     different chapter.
+    ///   - audioActiveReference: The verse currently being narrated by audio
+    ///     playback. When this value changes, the reader auto-scrolls to keep
+    ///     the active verse visible. Pass `nil` when audio is not playing.
+    ///   - audioActiveIndicatorColor: The color of the vertical bar drawn next
+    ///     to the verse being narrated. Pass `nil` to hide the indicator.
+    ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
+    ///     to a new passage from elsewhere in the app (for example, a "Read" button in
+    ///     another tab).
+    public static func restoringLastPassage(
+        selectedVerses: Binding<Set<BibleReference>>? = nil,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+        onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+        onCollectibleTap: ((String) -> Void)? = nil,
+        onReferenceChange: ((BibleReference) -> Void)? = nil,
+        onChapterComplete: ((BibleReference) -> Void)? = nil,
+        audioActiveReference: BibleReference? = nil,
+        audioActiveIndicatorColor: Color? = nil,
+        readerNavigation: BibleReaderNavigation? = nil
+    ) -> BibleReaderView {
+        BibleReaderView(
+            initialReference: nil,
+            selectedVerses: selectedVerses,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            onNoteIndicatorTap: onNoteIndicatorTap,
+            onCollectibleTap: onCollectibleTap,
+            onReferenceChange: onReferenceChange,
+            onChapterComplete: onChapterComplete,
+            audioActiveReference: audioActiveReference,
+            audioActiveIndicatorColor: audioActiveIndicatorColor,
+            readerNavigation: readerNavigation
+        )
+    }
+
+    /// Creates a Bible reader view.
+    ///
+    /// - Parameters:
+    ///   - reference: The Bible reference to display initially. When `nil`, the reader
+    ///     restores the last-viewed reference or defaults to John 1.
+    ///   - selectedVerses: An optional binding to the set of selected verses. When
+    ///     provided, the client can read which verses are selected and clear the
+    ///     selection programmatically (e.g. on sheet dismiss). The SDK updates this
+    ///     binding whenever the internal selection changes.
+    ///   - verseSelectionStyle: Controls the visual style of the underline drawn
+    ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
+    ///   - onVerseTap: An optional closure called when the user taps a verse.
+    ///     When provided, the closure receives the tapped ``BibleReference`` and
+    ///     the reader takes no further action — the host app is responsible for
+    ///     handling the interaction. When `nil` (the default), tapping a verse
+    ///     triggers the built-in sign-in prompt for unauthenticated users (unless
+    ///     sign-in is disabled via ``YouVersionPlatformConfiguration/isSignInEnabled``)
+    ///     or opens the verse actions drawer for authenticated users. Footnote taps
+    ///     are always handled by the reader regardless of this closure.
+    ///   - showsFullChapter: When `true`, the reader shows the full chapter and
+    ///     scrolls to `reference`'s verse. When `false` (the default), it shows only
+    ///     `reference`'s verse range — use this for passages that are just a
+    ///     few verses, such as a plan day.
+    ///   - onNoteIndicatorTap: An optional closure called when the user taps a verse
+    ///     that has a note indicator (pencil icon) and is not already selected. When
+    ///     provided, the SDK calls this instead of `onVerseTap` for those taps.
+    ///   - onCollectibleTap: An optional closure called when the user taps a highlighted
+    ///     collectible term (see ``BibleTermHighlightsCache``). The closure receives the
+    ///     opaque `id` supplied with the ``BibleTermHighlight``. Collectible term taps are
+    ///     routed separately from verse, footnote, and cross-reference taps.
+    ///   - onReferenceChange: An optional closure called whenever the displayed
+    ///     chapter reference changes — for example when the user taps the
+    ///     next/previous chapter buttons or picks a new book/chapter from the header.
+    ///   - onChapterComplete: An optional closure called once when the bottom of
+    ///     the chapter content scrolls into the viewport — i.e. the reader has
+    ///     reached the end of the chapter. For chapters shorter than the
+    ///     viewport, this fires as soon as the chapter is displayed. Fires at
+    ///     most once per chapter; resets when the reader navigates to a
+    ///     different chapter.
+    ///   - audioActiveReference: The verse currently being narrated by audio
+    ///     playback. When this value changes, the reader auto-scrolls to keep
+    ///     the active verse visible. Pass `nil` when audio is not playing.
+    ///   - audioActiveIndicatorColor: The color of the vertical bar drawn next
+    ///     to the verse being narrated. Pass `nil` to hide the indicator.
+    @available(*, deprecated, message: "Pass a non-optional reference, or use BibleReaderView.restoringLastPassage() to restore the last-viewed passage.")
     public init(reference: BibleReference? = nil,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
+                showsFullChapter: Bool = false,
                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+                onCollectibleTap: ((String) -> Void)? = nil,
                 onReferenceChange: ((BibleReference) -> Void)? = nil,
                 onChapterComplete: ((BibleReference) -> Void)? = nil,
                 audioActiveReference: BibleReference? = nil,
                 audioActiveIndicatorColor: Color? = nil
     ) {
+        self.init(
+            initialReference: reference,
+            selectedVerses: selectedVerses,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter,
+            onNoteIndicatorTap: onNoteIndicatorTap,
+            onCollectibleTap: onCollectibleTap,
+            onReferenceChange: onReferenceChange,
+            onChapterComplete: onChapterComplete,
+            audioActiveReference: audioActiveReference,
+            audioActiveIndicatorColor: audioActiveIndicatorColor,
+            readerNavigation: nil
+        )
+    }
+
+    private init(initialReference: BibleReference?,
+                 selectedVerses: Binding<Set<BibleReference>>? = nil,
+                 verseSelectionStyle: VerseSelectionStyle,
+                 onVerseTap: ((BibleReference) -> VerseTapResponse)?,
+                 showsFullChapter: Bool,
+                 onNoteIndicatorTap: ((BibleReference) -> Void)? = nil,
+                 onCollectibleTap: ((String) -> Void)? = nil,
+                 onReferenceChange: ((BibleReference) -> Void)? = nil,
+                 onChapterComplete: ((BibleReference) -> Void)? = nil,
+                 audioActiveReference: BibleReference? = nil,
+                 audioActiveIndicatorColor: Color? = nil,
+                 readerNavigation: BibleReaderNavigation?
+    ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
             "onVerseTap must be provided OR YouVersion sign-in must be enabled"
         )
-        self.initialReference = reference
+        self.initialReference = initialReference
         self.externalSelectedVerses = selectedVerses
+        self.readerNavigation = readerNavigation
+        self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
         self.onNoteIndicatorTap = onNoteIndicatorTap
+        self.onCollectibleTap = onCollectibleTap
         self.onReferenceChange = onReferenceChange
         self.onChapterComplete = onChapterComplete
         self.audioActiveReference = audioActiveReference
@@ -96,7 +282,14 @@ public struct BibleReaderView: View {
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil
     ) {
         YouVersionPlatformConfiguration.configureSignIn(appName: appName, signInPromptMessage: signInMessage)
-        self.init(reference: reference, selectedVerses: selectedVerses, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap)
+        self.init(
+            initialReference: reference,
+            selectedVerses: selectedVerses,
+            verseSelectionStyle: verseSelectionStyle,
+            onVerseTap: onVerseTap,
+            showsFullChapter: false,
+            readerNavigation: nil
+        )
     }
 
     public var body: some View {
@@ -105,7 +298,8 @@ public struct BibleReaderView: View {
                 ReaderContent(
                     viewModel: viewModel,
                     externalSelectedVerses: externalSelectedVerses,
-                    audioActiveReference: audioActiveReference
+                    audioActiveReference: audioActiveReference,
+                    readerNavigation: readerNavigation
                 )
             } else {
                 Color.clear
@@ -113,15 +307,29 @@ public struct BibleReaderView: View {
         }
         .task {
             if viewModel == nil {
-                viewModel = BibleReaderViewModel(
-                    reference: initialReference,
-                    verseSelectionStyle: verseSelectionStyle,
-                    audioActiveIndicatorColor: audioActiveIndicatorColor,
-                    onVerseTap: onVerseTap,
-                    onNoteIndicatorTap: onNoteIndicatorTap,
-                    onReferenceChange: onReferenceChange,
-                    onChapterComplete: onChapterComplete
-                )
+                viewModel = if let initialReference {
+                    BibleReaderViewModel(
+                        reference: initialReference,
+                        showsFullChapter: showsFullChapter,
+                        verseSelectionStyle: verseSelectionStyle,
+                        audioActiveIndicatorColor: audioActiveIndicatorColor,
+                        onVerseTap: onVerseTap,
+                        onNoteIndicatorTap: onNoteIndicatorTap,
+                        onCollectibleTap: onCollectibleTap,
+                        onReferenceChange: onReferenceChange,
+                        onChapterComplete: onChapterComplete
+                    )
+                } else {
+                    BibleReaderViewModel(
+                        verseSelectionStyle: verseSelectionStyle,
+                        audioActiveIndicatorColor: audioActiveIndicatorColor,
+                        onVerseTap: onVerseTap,
+                        onNoteIndicatorTap: onNoteIndicatorTap,
+                        onCollectibleTap: onCollectibleTap,
+                        onReferenceChange: onReferenceChange,
+                        onChapterComplete: onChapterComplete
+                    )
+                }
             }
         }
     }
@@ -131,18 +339,35 @@ private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let externalSelectedVerses: Binding<Set<BibleReference>>?
     let audioActiveReference: BibleReference?
-
+    let readerNavigation: BibleReaderNavigation?
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
 
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     private let fontSettingsDetent = PresentationDetent.height(360)
     private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
+    @State private var verseScrollCoordinator: VerseScrollCoordinator
+    @State private var verseAnchors: [Int] = []
+    @State private var lastScrolledVerse: Int?
+
+    init(
+        viewModel: BibleReaderViewModel,
+        externalSelectedVerses: Binding<Set<BibleReference>>?,
+        audioActiveReference: BibleReference?,
+        readerNavigation: BibleReaderNavigation?
+    ) {
+        self.viewModel = viewModel
+        self.externalSelectedVerses = externalSelectedVerses
+        self.audioActiveReference = audioActiveReference
+        self.readerNavigation = readerNavigation
+        self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -153,12 +378,7 @@ private struct ReaderContent: View {
                 .frame(height: 1)
             ZStack {
                 VStack {
-                    ReaderMainScroller(
-                        viewModel: viewModel,
-                        audioActiveReference: audioActiveReference
-                    ) {
-                        bibleCopyrightBlock
-                    }
+                    mainScroller
                     Spacer(minLength: 0)
                 }
                 BibleReaderNavButtons()
@@ -189,6 +409,24 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("signOut.explanation"))
         }
+        .alert(
+            String.localized("signOut.pendinghighlights.question"),
+            isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
+        ) {
+            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("generic.cancel"), role: .cancel) { }
+        } message: {
+            Text(String.localized("signOut.pendinghighlights.explanation"))
+        }
+        .alert(
+            String.localized("dataExchange.highlights.question"),
+            isPresented: $viewModel.showingDataExchangeConfirmation
+        ) {
+            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+        } message: {
+            Text(String.localized("dataExchange.highlights.explanation"))
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -216,8 +454,22 @@ private struct ReaderContent: View {
                 .presentationDetents([.large])
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
+            // TODO: move this to the viewModel
             if newValue {
-                startSignIn()
+#if os(tvOS)
+                viewModel.startSignIn()
+#else
+                viewModel.startSignIn(contextProvider: contextProvider)
+#endif
+            }
+        }
+        .onChange(of: viewModel.startDataExchangeFlow) { _, newValue in
+            if newValue {
+#if os(tvOS)
+                viewModel.startDataExchange()
+#else
+                viewModel.startDataExchange(contextProvider: contextProvider)
+#endif
             }
         }
         .onChange(of: viewModel.selectedVerses) { _, newValue in
@@ -237,6 +489,19 @@ private struct ReaderContent: View {
         .onChange(of: viewModel.reference) { _, newReference in
             viewModel.resetChapterCompleteTracking()
             viewModel.onReferenceChange?(newReference)
+        }
+        .onChange(of: colorScheme, initial: true) { _, newValue in
+            viewModel.colorScheme = newValue
+        }
+        .onChange(of: readerNavigation?.pendingRequest) { _, _ in
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
+        }
+        .onAppear {
+            if let readerNavigation {
+                viewModel.handleNavigationRequest(from: readerNavigation)
+            }
         }
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
@@ -338,6 +603,140 @@ private struct ReaderContent: View {
         }
     }
 
+    private var progressView: some View {
+        ProgressView()
+            .tint(viewModel.readerTextMutedColor)
+            .padding(.vertical, 48)
+    }
+
+    private var mainScroller: some View {
+        ScrollViewReader { scrollProxy in
+            ScrollView {
+                if viewModel.version != nil {
+                    VStack(alignment: .leading) {
+                        if viewModel.showBookIntro {
+                            BibleReaderIntroView()
+                        } else {
+                            BibleTextView(
+                                viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
+                                textOptions: viewModel.textOptions,
+                                selectedVerses: $viewModel.selectedVerses,
+                                onVerseTap: { reference, actionType, footnotes, footnoteId in
+                                    viewModel.handleVerseTap(reference: reference, actionType: actionType, footnotes: footnotes)
+                                },
+                                onCollectibleTap: { id in
+                                    viewModel.onCollectibleTap?(id)
+                                },
+                                onAnchorsChanged: { anchors in
+                                    verseAnchors = anchors
+                                },
+                                audioActiveVerse: audioActiveReference?.verseStart,
+                                focusedReference: viewModel.focusedReference
+                            )
+                        }
+                        VStack(alignment: .center) {
+                            bibleCopyrightBlock
+                                .frame(maxWidth: viewModel.readerMaxWidth)
+                        }
+                    }
+                    .frame(maxWidth: viewModel.readerMaxWidth)
+                    .padding(.vertical)
+                    .padding(.horizontal, 30)
+                    .id("topOfContent")
+                    // Hide the content until the verse scroll lands
+                    // to avoid flashing.
+                    .opacity(verseScrollCoordinator.isScrollPending ? 0 : 1)
+                    .overlay(alignment: .top) {
+                        if verseScrollCoordinator.isScrollPending {
+                            progressView
+                        }
+                    }
+                    .onGeometryChange(for: CGRect.self) { proxy in
+                        proxy.frame(in: .named("scrollView"))
+                    } action: { newFrame in
+                        viewModel.handleScroll(offset: newFrame.minY, contentHeight: newFrame.height)
+                    }
+                    // Tap anywhere in the reader to clear a focused reference.
+                    .simultaneousGesture(
+                        viewModel.focusedReference != nil
+                            ? TapGesture().onEnded { viewModel.clearFocus() }
+                            : nil
+                    )
+                } else {
+                    progressView
+                }
+            }
+            .coordinateSpace(.named("scrollView"))
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { viewModel.scrollViewHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, newHeight in
+                            viewModel.scrollViewHeight = newHeight
+                        }
+                }
+            )
+            .onPreferenceChange(VerseAnchorsPreferenceKey.self) { verseAnchors = $0 }
+            .onChange(of: viewModel.reference) {
+                verseAnchors = []
+                lastScrolledVerse = nil
+            }
+            .onChange(of: audioActiveReference) { _, _ in
+                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
+            }
+            .onChange(of: verseAnchors) { _, _ in
+                applyAudioScrollIfNeeded(scrollProxy: scrollProxy)
+            }
+            .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
+                verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
+            }
+            .onChange(of: viewModel.scrollAction, initial: true) { _, action in
+                switch action {
+                case .top:
+                    scrollProxy.scrollTo("topOfContent", anchor: .top)
+                    lastScrolledVerse = nil
+                    // Mark the scroll consumed so a later navigation can re-arm it, but keep
+                    // chrome suppressed until the scroll animation settles before finishing.
+                    viewModel.clearScrollAction()
+                    Task { @MainActor in
+                        // swiftlint:disable:next common_debug_statements
+                        try? await Task.sleep(for: .seconds(0.5))
+                        // Scroll already consumed above; only end the chapter change.
+                        viewModel.finishChapterChange(clearingScroll: false)
+                    }
+                case .reference:
+                    verseScrollCoordinator.handleScrollTarget(proxy: scrollProxy)
+                case .none:
+                    break
+                }
+            }
+        }
+    }
+
+    private func applyAudioScrollIfNeeded(scrollProxy: ScrollViewProxy) {
+        guard let audioRef = audioActiveReference,
+              let verse = audioRef.verseStart,
+              audioRef.chapter == viewModel.reference.chapter,
+              audioRef.bookUSFM.uppercased() == viewModel.reference.bookUSFM.uppercased(),
+              !viewModel.isChangingChapter else {
+            return
+        }
+        guard let anchorVerse = verseAnchors.last(where: { $0 <= verse }) else {
+            return
+        }
+        guard anchorVerse != lastScrolledVerse else {
+            return
+        }
+        lastScrolledVerse = anchorVerse
+        let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
+        Task { @MainActor in
+            let animation: Animation? = reduceMotion ? nil : .easeInOut(duration: 0.3)
+            withAnimation(animation) {
+                scrollProxy.scrollTo(anchorId, anchor: .center)
+            }
+        }
+    }
+
 #if !os(tvOS)
     class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
@@ -355,26 +754,6 @@ private struct ReaderContent: View {
     }
 #endif
 
-    // MARK: - Action handlers
-
-    private func startSignIn() {
-        Task {
-            do {
-                viewModel.startSignInFlow = false
-#if !os(tvOS)
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                dump(result)
-#endif
-
-                await viewModel.updateSignInState()
-            } catch {
-                YouVersionPlatformLogger.error("Sign-in error: \(error)", category: "BibleReader")
-            }
-        }
-    }
 }
 
 #Preview {

@@ -117,13 +117,15 @@ When writing or reviewing code in this repo, load the relevant skill:
 
 Releases are **manually triggered with an explicit version input** via `workflow_dispatch`. There is no auto-release on merges to `main`. Merging to `main` only lands code; a human decides when to cut a release and which version to ship.
 
-The release pipeline does not invoke `semantic-release` as an orchestrator. We use `@semantic-release/commit-analyzer` and `@semantic-release/release-notes-generator` as ESM libraries (via `scripts/preview-release.mjs` and `scripts/generate-release-notes.mjs`), and `scripts/release.sh` orchestrates the rest. See [RELEASING.md](./RELEASING.md) for the full operator guide.
+The release pipeline does not invoke `semantic-release` as an orchestrator. We use `@semantic-release/commit-analyzer` and `@semantic-release/release-notes-generator` as ESM libraries (via `scripts/preview-release.mjs` and `scripts/generate-release-notes.mjs`), and `scripts/release.sh` orchestrates the rest. See [RELEASING.md](./RELEASING.md) for the full operator guide and [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md) for failure recovery.
 
 To dispatch a release:
 ```bash
 gh workflow run release.yml -f version=5.3.0
 # add -f dry-run=true to validate the workflow without shipping
 ```
+
+If a dispatched release fails partway, **re-dispatch with the same version**. `release.sh` detects the existing tag on origin and resumes — push, GitHub release create, pod publish, and Dev-restore each skip already-completed work. Per-pod `pod trunk push` also retries once on transient trunk failures (e.g. trunk's "Calling the GitHub commit API timed out") before giving up. See [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md) for the symptom catalogue.
 
 Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They live in the same commit X but the SDKVersion handling has a twist.
 
@@ -147,10 +149,14 @@ Why: `main` HEAD reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR
 
 ## Localization
 
-### SPM Resource Bundle Localization Workaround
-When adding new localizations to the SDK, the Sample App requires dummy localization files to ensure iOS recognizes the supported languages:
+User-facing strings are owned by [platform-localization](https://github.com/youversion/platform-localization) and synced into `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings`. Do **not** edit the catalog in feature PRs — add or change English keys upstream (typically under `swift.*` in `sources/common/en.json`), then consume them via `String.localized("dotted.key")` after the sync PR lands.
 
-1. Add translations to `Sources/YouVersionPlatformReader/Resources/Localizable.xcstrings`
+See [docs/localization-guardrails.md](docs/localization-guardrails.md) for CI gates, bot exemption rules, and local verification commands.
+
+### SPM Resource Bundle Localization Workaround
+When platform-localization adds new locale support, the Sample App requires dummy localization files so iOS recognizes the supported languages. The sync PR only rewrites the string catalog — steps 2–5 below remain manual SDK-developer tasks and need a follow-up PR whenever a new locale lands:
+
+1. Wait for the localization sync PR to update `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings` (do not edit the catalog locally).
 2. Create a corresponding `.lproj` directory in `Examples/SampleApp/` (e.g., `de.lproj/`, `fr.lproj/`)
 3. Add a dummy `Localizable.strings` file to each directory with content: `/* Dummy file to ensure [Language] localization is recognized */`
 4. Add the language code to `knownRegions` in `Examples/SampleApp.xcodeproj/project.pbxproj`

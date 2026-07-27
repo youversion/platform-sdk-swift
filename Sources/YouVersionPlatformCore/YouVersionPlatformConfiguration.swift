@@ -32,6 +32,19 @@ public struct YouVersionPlatformConfiguration {
     private static let refreshTokenKey = "YouVersionPlatformRefreshToken"
     private static let idTokenKey = "YouVersionPlatformIDToken"
     private static let expiryDateKey = "YouVersionPlatformExpiryDate"
+    private static let permissionsKey = "YouVersionPlatformDataExchangePermissions"
+
+    public static let authStateDidChangeNotification = Notification.Name("YouVersionPlatformAuthStateDidChange")
+
+    @available(*, deprecated, message: "Use hasPermission(_:) instead.")
+    static var permissionEnums: [SignInWithYouVersionPermission] {
+        storedPermissions.compactMap { SignInWithYouVersionPermission(rawValue: $0) }
+    }
+
+    static var storedPermissions: [String] {
+        UserDefaults.standard
+            .stringArray(forKey: permissionsKey) ?? []
+    }
 
     @MainActor
     public static func configure(
@@ -76,16 +89,28 @@ public struct YouVersionPlatformConfiguration {
     }
 
     @MainActor
-    public static func saveAuthData(accessToken: String?, refreshToken: String?, idToken: String?, expiryDate: Date?) {
+    public static func saveAuthData(
+        accessToken: String?,
+        refreshToken: String?,
+        idToken: String?,
+        expiryDate: Date?,
+        permissions: [String]? = nil
+    ) {
+        let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
         UserDefaults.standard.set(idToken, forKey: idTokenKey)
         UserDefaults.standard.set(expiryDate, forKey: expiryDateKey)
+        if let permissions {
+            savePermissions(permissions)
+        }
+        postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
     }
 
     @MainActor
     public static func clearAuthTokens() {
         saveAuthData(accessToken: nil, refreshToken: nil, idToken: nil, expiryDate: nil)
+        UserDefaults.standard.removeObject(forKey: permissionsKey)
     }
 
     public static var accessToken: String? {
@@ -93,22 +118,43 @@ public struct YouVersionPlatformConfiguration {
     }
 
     public static var authData: SignInWithYouVersionResult? {
-        guard
-            let accessToken = UserDefaults.standard.string(forKey: accessTokenKey),
-            let refreshToken = UserDefaults.standard.string(forKey: refreshTokenKey),
-            let expiryDate = UserDefaults.standard.object(forKey: expiryDateKey) as? Date
-        else {
+        guard let accessToken = UserDefaults.standard.string(forKey: accessTokenKey) else {
             return nil
         }
 
+        let refreshToken = UserDefaults.standard.string(forKey: refreshTokenKey)
         let idToken = UserDefaults.standard.string(forKey: idTokenKey)
+        let expiryDate = UserDefaults.standard.object(forKey: expiryDateKey) as? Date
 
         return SignInWithYouVersionResult(
             accessToken: accessToken,
             refreshToken: refreshToken,
             idToken: idToken,
-            expiryDate: expiryDate
+            expiryDate: expiryDate,
+            permissionValues: storedPermissions
         )
+    }
+
+    private static func savePermissions(_ permissions: [String]) {
+        let rawValues = Set(storedPermissions + permissions)
+            .sorted()
+        UserDefaults.standard.set(rawValues, forKey: permissionsKey)
+    }
+    
+    @available(*, deprecated, message: "Use hasPermission(_:) with a raw String permission value instead.")
+    public static func hasPermission(_ permission: SignInWithYouVersionPermission) -> Bool {
+        permissionEnums.contains(permission)
+    }
+
+    public static func hasPermission(_ permission: String) -> Bool {
+        storedPermissions.contains(permission)
+    }
+
+    private static func postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: Bool) {
+        guard wasSignedIn != (accessToken != nil) else {
+            return
+        }
+        NotificationCenter.default.post(name: authStateDidChangeNotification, object: nil)
     }
 
 }

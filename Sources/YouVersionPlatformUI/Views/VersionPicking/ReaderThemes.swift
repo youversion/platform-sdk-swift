@@ -50,7 +50,7 @@ extension ReaderThemeProviding {
     }
 
     public var readerTextMutedColor: Color {
-        readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#636161") : Color(hex: "#bfbdbd")
+        readerTextPrimaryColor == readerWhiteColor ? Color(hex: "#bfbdbd") : Color(hex: "#636161")
     }
 
     public var readerSurfacePrimaryColor: Color {

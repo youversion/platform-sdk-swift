@@ -279,8 +279,17 @@ public final class BibleVersionsViewModel {
     
     private func loadSuggestedLanguages() async {
         let region = Locale.current.region?.identifier ?? "US"
+        let maximalIdentifier = Locale.current.language.maximalIdentifier
+        let minimalIdentifier = Locale.current.language.minimalIdentifier
+        let preferredLanguage = maximalIdentifier == minimalIdentifier
+            ? maximalIdentifier
+            : "\(maximalIdentifier), \(minimalIdentifier);q=0.9"
         do {
-            suggestedLanguages = try await YouVersionAPI.Languages.languages(country: region, fields: ["language", "display_names"])
+            suggestedLanguages = try await YouVersionAPI.Languages.languages(
+                country: region,
+                preferredLanguage: preferredLanguage,
+                fields: ["language", "display_names"]
+            )
         } catch {
             YouVersionPlatformLogger.error("Error fetching languages: \(error.localizedDescription)", category: "Reader")
         }
@@ -302,7 +311,7 @@ public final class BibleVersionsViewModel {
     }
 
     func languageName(_ lang: String) -> String {
-        languageNames[lang] ?? Locale.current.localizedString(forLanguageCode: lang) ?? lang
+        Locale.current.localizedString(forLanguageCode: lang) ?? languageNames[lang] ?? lang
     }
 
     /// Returns deduplicated language tags from the list, preserving order.

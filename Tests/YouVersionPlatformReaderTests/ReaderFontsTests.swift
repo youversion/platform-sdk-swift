@@ -57,10 +57,10 @@ struct ReaderFontsTests {
 
     @Test
     func nextLineSpacingCyclesThroughAvailableSpacing() {
-        #expect(ReaderFonts.nextLineSpacing(currentSpacing: 6) == 12)
-        #expect(ReaderFonts.nextLineSpacing(currentSpacing: 12) == 18)
-        #expect(ReaderFonts.nextLineSpacing(currentSpacing: 18) == 6)
-        #expect(ReaderFonts.nextLineSpacing(currentSpacing: 100) == 6)
+        #expect(ReaderFonts.nextLineSpacing(currentSpacing: ReaderFonts.lineSpacingOptions[0]) == ReaderFonts.lineSpacingOptions[1])
+        #expect(ReaderFonts.nextLineSpacing(currentSpacing: ReaderFonts.lineSpacingOptions[1]) == ReaderFonts.lineSpacingOptions[2])
+        #expect(ReaderFonts.nextLineSpacing(currentSpacing: ReaderFonts.lineSpacingOptions.last!) == ReaderFonts.lineSpacingOptions[0])
+        #expect(ReaderFonts.nextLineSpacing(currentSpacing: 999) == ReaderFonts.lineSpacingOptions.first)
     }
 }
 

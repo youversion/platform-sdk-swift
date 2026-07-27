@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct YouVersionPlatformConfigurationTests {
+    @Suite(.serialized) struct YouVersionPlatformConfigurationTests {
         
         // MARK: - configure
         
@@ -156,16 +156,22 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
         
-        @Test func authDataReturnsNilWhenRefreshTokenMissing() async {
+        @Test func authDataReturnsPartialResultWhenRefreshTokenMissing() async {
             let expiry = Date(timeIntervalSinceNow: 3600)
             await YouVersionPlatformConfiguration.saveAuthData(accessToken: "access-1", refreshToken: nil, idToken: nil, expiryDate: expiry)
-            #expect(YouVersionPlatformConfiguration.authData == nil)
+            let data = YouVersionPlatformConfiguration.authData
+            #expect(data?.accessToken == "access-1")
+            #expect(data?.refreshToken == nil)
+            #expect(data?.expiryDate == expiry)
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
-        
-        @Test func authDataReturnsNilWhenExpiryDateMissing() async {
+
+        @Test func authDataReturnsPartialResultWhenExpiryDateMissing() async {
             await YouVersionPlatformConfiguration.saveAuthData(accessToken: "access-1", refreshToken: "refresh-1", idToken: nil, expiryDate: nil)
-            #expect(YouVersionPlatformConfiguration.authData == nil)
+            let data = YouVersionPlatformConfiguration.authData
+            #expect(data?.accessToken == "access-1")
+            #expect(data?.refreshToken == "refresh-1")
+            #expect(data?.expiryDate == nil)
             await YouVersionPlatformConfiguration.clearAuthTokens()
         }
         
@@ -175,6 +181,112 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.clearAuthTokens()
             #expect(YouVersionPlatformConfiguration.authData == nil)
             #expect(YouVersionPlatformConfiguration.accessToken == nil)
+        }
+
+        @Test @MainActor func authStateDidChangeNotificationPostsWhenSignInStateChanges() async {
+            @MainActor final class NotificationCounter {
+                private(set) var count = 0
+
+                func increment() {
+                    count += 1
+                }
+            }
+
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            let counter = NotificationCounter()
+            let observer = NotificationCenter.default.addObserver(
+                forName: YouVersionPlatformConfiguration.authStateDidChangeNotification,
+                object: nil,
+                queue: nil
+            ) { _ in
+                MainActor.assumeIsolated {
+                    counter.increment()
+                }
+            }
+            defer {
+                NotificationCenter.default.removeObserver(observer)
+            }
+
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry
+            )
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-2",
+                refreshToken: "refresh-2",
+                idToken: nil,
+                expiryDate: expiry
+            )
+            YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(counter.count == 2)
+        }
+
+        // MARK: - Permissions
+
+        @Test func savePermissionsPersistsPermission() async {
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry,
+                permissions: ["highlights"]
+            )
+
+            #expect(YouVersionAPI.hasPermission("highlights"))
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func authDataReturnsSavedPermissions() async throws {
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry,
+                permissions: ["profile", "highlights", "notes"]
+            )
+
+            let authData = try #require(YouVersionPlatformConfiguration.authData)
+            #expect(authData.permissionValues == ["highlights", "notes", "profile"])
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func hasPermissionReturnsFalseWhenPermissionAbsent() async {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(!YouVersionAPI.hasPermission("highlights"))
+        }
+
+        @Test func hasPermissionReturnsFalseForUnknownStoredPermission() async {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            UserDefaults.standard.set(["future-permission"], forKey: permissionsKey)
+
+            #expect(!YouVersionAPI.hasPermission("highlights"))
+            #expect(YouVersionAPI.hasPermission("future-permission"))
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+        }
+
+        @Test func clearAuthTokensClearsPermissions() async {
+            let expiry = Date(timeIntervalSinceNow: 3600)
+            await YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "access-1",
+                refreshToken: "refresh-1",
+                idToken: nil,
+                expiryDate: expiry,
+                permissions: ["highlights"]
+            )
+
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+
+            #expect(!YouVersionAPI.hasPermission("highlights"))
         }
         
         // MARK: - Top-level configure function
@@ -187,3 +299,5 @@ extension ConfigurationStateTests {
         }
     }
 }
+
+private let permissionsKey = "YouVersionPlatformDataExchangePermissions"

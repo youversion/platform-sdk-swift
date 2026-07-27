@@ -7,7 +7,7 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
 
     @Test
-    func handleVerseTapPromptsForSignInWhenUnsignedOutAndSignInEnabled() {
+    func handleVerseTapShowsSignInSheetWhenUnsignedOutAndSignInEnabled() {
         Support.clearReaderDefaults()
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let viewModel = Support.makeViewModel(isSignedIn: false)
@@ -18,7 +18,9 @@ import Testing
             footnotes: []
         )
 
+        // A signed-out tap prompts sign-in rather than selecting the verse.
         #expect(viewModel.showingSignInSheet)
+        #expect(viewModel.showingVerseActionsDrawer == false)
         #expect(viewModel.selectedVerses.isEmpty)
     }
 
@@ -35,6 +37,7 @@ import Testing
         )
 
         #expect(viewModel.showingSignInSheet == false)
+        #expect(viewModel.showingVerseActionsDrawer == false)
         #expect(viewModel.selectedVerses.isEmpty)
         YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
     }
@@ -56,21 +59,39 @@ import Testing
     }
 
     @Test
-    func signOutShowsConfirmationAndConfirmSignOutClearsStateAndHighlights() {
+    func signInReadsCurrentAuthenticationState() {
         Support.clearReaderDefaults()
+        let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: false)
+        let viewModel = Support.makeViewModel(readIsSignedIn: { authenticationState.isSignedIn })
+        authenticationState.isSignedIn = true
+
+        viewModel.signIn()
+
+        #expect(viewModel.startSignInFlow == false)
+        #expect(viewModel.isSignedIn)
+    }
+
+    @Test
+    func signOutShowsPendingHighlightsConfirmationAndConfirmClearsStateAndHighlights() {
+        Support.clearReaderDefaults()
+        let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: true)
         var didSignOut = false
-        let viewModel = Support.makeViewModel(isSignedIn: true) {
-            didSignOut = true
-        }
+        let viewModel = Support.makeViewModel(
+            readIsSignedIn: { authenticationState.isSignedIn },
+            signOut: {
+                didSignOut = true
+                authenticationState.isSignedIn = false
+            }
+        )
         let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
         #expect(viewModel.isSignedIn)
 
         viewModel.signOut()
-        #expect(viewModel.showSignOutConfirmation)
+        #expect(viewModel.showSignOutWithPendingHighlightsConfirmation)
 
-        viewModel.confirmSignOut()
+        viewModel.confirmPendingHighlightsSignOut()
 
         #expect(didSignOut)
         #expect(viewModel.isSignedIn == false)
@@ -80,10 +101,14 @@ import Testing
     @Test
     func updateSignInStateUsesAuthenticationState() async {
         Support.clearReaderDefaults()
-        let viewModel = Support.makeViewModel(hasValidToken: true)
+        var didValidateToken = false
+        let viewModel = Support.makeViewModel(validateToken: {
+            didValidateToken = true
+            return true
+        })
 
         await viewModel.updateSignInState()
 
-        #expect(viewModel.isSignedIn)
+        #expect(didValidateToken)
     }
 }

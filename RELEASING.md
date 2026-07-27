@@ -36,6 +36,35 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
    - Publishes all four pods to CocoaPods trunk in dependency order.
    - Creates a follow-up commit **Y** that restores `SDKVersion.swift` to `"Dev"` on `main`, so subsequent dev/CI builds don't report a stale released version. The tag stays at **X** (which is reachable from `main` via Y → X).
 
+## Major Release Signoff
+
+PRs that **introduce a breaking change** are gated by a required PR status check named `major-release-signoff`. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
+
+A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission (and who is **not** the PR author) posts a single comment containing **all three (3) of the following:**
+
+1. The verbatim affirmation phrase:
+
+   > I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
+
+2. The precise next version string (e.g. `v6.0.0` or `6.0.0`), and
+3. A 🚀 (`:rocket:`) emoji.
+
+A copy-paste-ready example (assuming the next version is `6.0.0`):
+
+```
+I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
+
+v6.0.0 🚀
+```
+
+The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply. The PR author is excluded — signoff has to come from a *different* write-access collaborator, so the gate guarantees a second pair of eyes.
+
+The check re-runs automatically when a qualifying comment is posted or edited; once it sees a comment from a write-access collaborator containing both tokens, it flips to `success` and merging is unblocked. The approver's comment lives in PR history as the audit record — no extra log is required.
+
+Permission is verified via `GET /repos/{owner}/{repo}/collaborators/{username}/permission` against the workflow-default `GITHUB_TOKEN`, so signoff authorization piggybacks on the same access list GitHub already uses for merge permissions — no separate allowlist file or org-scoped token to keep in sync.
+
+If the PR doesn't actually contain a breaking change (e.g. the trigger is prose accidentally matching the `BREAKING CHANGE` token), the fix is in the commit messages, not the signoff: reword the offending commit subject/body so the analyzer no longer detects a breaking change (see the `Commit Lint` PR comment for which commit triggered it), force-push, and the gate will go green on its own.
+
 ## Required GitHub Configuration
 
 ### GitHub Secrets
@@ -84,6 +113,7 @@ The `main` branch ruleset requires pull requests, but the release workflow needs
 1. Go to `https://github.com/youversion/platform-sdk-swift/settings/rules`
 2. Edit the ruleset for `main`
 3. Under "Bypass list", ensure "Deploy keys" is enabled
+4. Under "Require status checks to pass", add `major-release-signoff` to the required checks list so the gate actually blocks merges on major PRs (without this the workflow runs but the failure won't block the merge button).
 
 ## Local Testing
 
@@ -163,6 +193,8 @@ Pods are published in dependency order by `scripts/publish-pods.sh`:
 
 ## Troubleshooting
 
+For failure-by-failure recovery (trunk-API timeout, partial pod publish, post-push abort, diverged Dev-restore, rogue tag, expired trunk session, rejected SSH key) see [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md). The short version: **for almost every partial failure, re-dispatch `release.yml` with the same version**. `release.sh` detects when the tag already exists on origin and enters resume mode, replaying only the steps that didn't complete.
+
 ### The Commit Lint preview shows a major bump on a "patch" PR
 
 `conventional-commits-parser` treats `BREAKING CHANGE` at the start of any commit body line as a breaking-change footer, regardless of surrounding markdown or quotes. The most common cause: a long commit body wraps and a paragraph happens to start with that token. Reword the offending line on your branch.
@@ -171,32 +203,7 @@ The analyzer log in the PR comment's `<details>` block shows which commit trigge
 
 ### The release dispatch is rejected with "is not strictly greater than current tag"
 
-`release.sh` refuses to ship a version less than or equal to the latest tag. If you genuinely need to re-tag (e.g., recovering from a partial release), delete the old tag from origin first, then dispatch again.
-
-### CocoaPods publish failed midway
-
-The script is idempotent via `pod trunk info`. Re-dispatch with the same version; the already-published pods will be skipped and the missing ones retried. If `pod trunk info` itself is unreliable, check `pod trunk me` to confirm authentication.
-
-### The release script aborted after pushing the tag — main is stamped with the released version
-
-If `release.sh` dies in any of the post-push steps (`gh release create`, `publish-pods.sh`, `restore-dev-sdk-on-main.sh`), `main` HEAD is commit **X** with `SDKVersion.swift` reading the released version, and commit **Y** was never created. Re-running `release.sh` won't recover — its pre-flight requires `SDKVersion.swift` to read `"Dev"` and will refuse to proceed.
-
-Finish the release by running the remaining steps manually:
-
-```bash
-VERSION=<the version that was being released>
-
-# If the GitHub release wasn't created (check the Releases page):
-gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
-
-# Idempotent via `pod trunk info` — safe regardless of how far the script got:
-bash scripts/publish-pods.sh "$VERSION"
-
-# Creates commit Y and restores SDKVersion to "Dev":
-bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
-```
-
-`notes.md` is left in place when the script aborts (the success-path `rm` doesn't fire), so it's available for the `gh release create` call. Verify with `git log -2 --oneline` (Y on top of X) and `pod trunk info YouVersionPlatformCore` (latest matches `$VERSION`).
+`release.sh` refuses to ship a version less than or equal to the latest tag — except when you're dispatching the **same** version that's already tagged on origin, which is the resume gesture and is allowed. If you typed the wrong version, dispatch with a corrected one.
 
 ### Need an emergency release without the workflow
 

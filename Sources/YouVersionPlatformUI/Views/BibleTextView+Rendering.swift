@@ -1,24 +1,45 @@
 import SwiftUI
 import YouVersionPlatformCore
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 extension BibleTextView {
     @ViewBuilder
-    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
+    func view(for block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
         if block.rows.isEmpty {
-            let theView = emitTextBlock(block, textOptions: textOptions, ignoreMarginTop: ignoreMarginTop)
-            if block.alignment == .leading {
-                theView
+            let textBlockView = emitTextBlock(
+                block,
+                textOptions: textOptions,
+                ignoreMarginTop: ignoreMarginTop,
+                previousMarginBottom: previousMarginBottom,
+                darkMode: darkMode
+            )
+            let alignedView = aligned(textBlockView, for: block.alignment)
+            if let firstVerse = block.firstVerse {
+                alignedView.id(firstVerse)
             } else {
-                HStack {
-                    Spacer()
-                    theView
-                    if block.alignment == .center {
-                        Spacer()
-                    }
-                }
+                alignedView
             }
         } else {
-            emitTableRows(block.rows, textOptions: textOptions)
+            emitTableRows(block.rows, textOptions: textOptions, darkMode: darkMode)
+        }
+    }
+
+    @ViewBuilder
+    private func aligned(_ view: some View, for alignment: TextAlignment) -> some View {
+        if alignment == .leading {
+            view
+        } else {
+            HStack {
+                Spacer()
+                view
+                if alignment == .center {
+                    Spacer()
+                }
+            }
         }
     }
 
@@ -26,8 +47,8 @@ extension BibleTextView {
     // ParagraphStyle or any other way to specify .firstLineHeadIndent.
     // NSAttributedString has paragraphStyle.firstLineHeadIndent which would be ideal.
     private func indentString(_ indent: Int) -> AttributedString {
-        let nbsp = "\u{00a0}\u{00a0}"
-        return AttributedString(String(repeating: nbsp, count: min(max(indent, 0), 4)))
+        let nbsp = "\u{00a0}"
+        return AttributedString(String(repeating: nbsp, count: min(max(indent * 3, 0), 24)))
     }
 
     // Custom text renderer which implements the custom way we want to underline
@@ -36,19 +57,34 @@ extension BibleTextView {
     // SwiftUI draws background colors for our verse numbers. Without having
     // this active, the area painted in the background color sometimes shifts
     // upwards according to the baseline offset. And/or partially shifts.
-    struct BibleRenderer: TextRenderer {
+    struct BibleRenderer: TextRenderer, Animatable {
         let footnoteIcon: Image
         let noteIndicatorIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
         let audioActiveIndicatorColor: Color?
         let audioActiveVerse: Int?
+        let dimmedTextColor: Color
+        var dimProgress: CGFloat // 0 = full color, 1 = fully dimmed.
 
-        init(verseSelectionStyle: VerseSelectionStyle = .solid, audioActiveIndicatorColor: Color? = nil, audioActiveVerse: Int? = nil) {
+        var animatableData: CGFloat {
+            get { dimProgress }
+            set { dimProgress = newValue }
+        }
+
+        init(
+            verseSelectionStyle: VerseSelectionStyle = .solid,
+            audioActiveIndicatorColor: Color? = nil,
+            audioActiveVerse: Int? = nil,
+            dimmedTextColor: Color = .primary,
+            dimProgress: CGFloat = 0
+        ) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             noteIndicatorIcon = Image("noteIndicatorIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
             self.audioActiveIndicatorColor = audioActiveIndicatorColor
             self.audioActiveVerse = audioActiveVerse
+            self.dimmedTextColor = dimmedTextColor
+            self.dimProgress = dimProgress
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
@@ -160,6 +196,29 @@ extension BibleTextView {
                             height: height
                         )
                         context.draw(footnoteImage, in: rect)
+                    } else if let termColor = attrs?.termTextColor {
+                        // The term carries a `.link` (for tap routing), so SwiftUI would
+                        // color it with the global `.tint`. Recolor its glyphs by masking a
+                        // fill to the drawn text (`.sourceAtop`).
+                        context.drawLayer { layer in
+                            layer.draw(run)
+                            layer.blendMode = .sourceAtop
+                            layer.fill(Path(run.typographicBounds.rect), with: .color(termColor))
+                        }
+                    } else if attrs?.isDimmed == true && dimProgress > 0 {
+                        // Paint the muted color through a mask over the original glyph.
+                        if dimProgress < 1 {
+                            var original = context
+                            original.opacity = 1 - dimProgress
+                            original.draw(run)
+                        }
+                        context.drawLayer { layer in
+                            layer.opacity = dimProgress
+                            layer.clipToLayer { mask in
+                                mask.draw(run)
+                            }
+                            layer.fill(Path(lineRect), with: .color(dimmedTextColor))
+                        }
                     } else {
                         context.draw(run)
                     }
@@ -177,9 +236,13 @@ extension BibleTextView {
         var noteIndicatorImage = false
         var noteIndicatorBox = false
         var noteIndicatorBoxColor: Color?
+        /// Text color for a collectible term. Set on the term's run so the renderer can
+        /// paint its glyphs in this color, overriding the global `.tint` that links use.
+        var termTextColor: Color?
+        var isDimmed = false
     }
 
-    private func textViewFor(double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions) -> some View {
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         let string = double.asAttributedString
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
@@ -191,9 +254,12 @@ extension BibleTextView {
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
             var t = AttributedString(string[range])
-            if category == .scripture || category == .verseLabel {
+            if category == .scripture || category == .verseLabel, let reference {
                 t.backgroundColor = highlightFor(reference: reference)
                 // better, we could have our TextRenderer add the color to some portions
+            }
+            if category == .scripture {
+                applyTermHighlights(to: &t, reference: reference, darkMode: darkMode)
             }
             if category == .verseLabel, let reference,
                noteIndicatedUSFMs.contains("\(reference.versionId):\(reference.asUSFM)") {
@@ -206,7 +272,7 @@ extension BibleTextView {
 
                 var pencilAttr = AttributedString("\u{2003}")
                 pencilAttr.link = noteURL
-                pencilAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                pencilAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 pencilAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
@@ -219,7 +285,7 @@ extension BibleTextView {
 
                 var spacerAttr = AttributedString("\u{2009}")
                 spacerAttr.link = noteURL
-                spacerAttr.foregroundColor = textOptions.verseNumColor ?? .secondary
+                spacerAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 spacerAttr.backgroundColor = highlightColor
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(spacerAttr).customAttribute(
@@ -243,61 +309,153 @@ extension BibleTextView {
                 textCombo = textCombo + Text(" ")
                 continue
             }
-            let isUnderlined = (reference.map(isSelected) ?? false) && category == .scripture
+            var isUnderlined = false
+            if let reference {
+                if let highlightColor = highlightFor(reference: reference) {
+                    if darkMode && category == .verseLabel {
+                        t.foregroundColor = .white
+                    }
+                    if category == .scripture || category == .verseLabel {
+                        t.backgroundColor = highlightColor
+                            .opacity(darkMode ? 0.3 : 1.0)
+                    }
+                }
+                isUnderlined = isSelected(reference) && category == .scripture
+            }
             let isActive = isAudioActive(reference) && (category == .scripture || category == .verseLabel)
             let verse = reference?.verseStart
+            let isDimmed = isReferenceDimmed(reference, category: category)
+            if isDimmed {
+                // Drop the link so its `.tint` color doesn't
+                // repaint over the dimmed color the renderer draws.
+                t.link = nil
+            }
             if isUnderlined {
                 for (fgColor, subRange) in t.runs[\.foregroundColor] {
                     let subStr = AttributedString(t[subRange])
                     // swiftlint:disable:next shorthand_operator
                     textCombo = textCombo + Text(subStr).customAttribute(
-                        RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive, verseNumber: verse)
+                        RenderHowAttribute(underlined: true, underlineColor: fgColor, audioActive: isActive, verseNumber: verse, isDimmed: isDimmed)
                     )
                 }
+            } else if category == .scripture {
+                // Emit scripture run-by-run so a collectible term carries its own text
+                // color for the renderer to apply (its `.link` would otherwise force the
+                // global `.tint` color).
+                appendTermAwareRuns(
+                    t,
+                    base: RenderHowAttribute(audioActive: isActive, verseNumber: verse, isDimmed: isDimmed),
+                    to: &textCombo
+                )
             } else if isActive {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
-                    RenderHowAttribute(audioActive: true, verseNumber: verse, footnoteImage: category == .footnoteImage)
+                    RenderHowAttribute(audioActive: true, verseNumber: verse, footnoteImage: category == .footnoteImage, isDimmed: isDimmed)
                 )
             } else {
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(t).customAttribute(
-                    RenderHowAttribute(verseNumber: verse, footnoteImage: category == .footnoteImage)
+                    RenderHowAttribute(verseNumber: verse, footnoteImage: category == .footnoteImage, isDimmed: isDimmed)
                 )
             }
         }
-
+        
+        let resolvedTextColor = textOptions.textColor ?? .primary
         let retValue = textCombo
             // Verse runs carry link attributes (for OpenURLAction tap routing), so the
             // effective text color comes from .tint, not .foregroundStyle.
-            .tint(textOptions.textColor ?? .primary)
+            .tint(resolvedTextColor)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(.bottom, (textOptions.paragraphSpacing ?? 0) / 2)
-            .lineSpacing(textOptions.lineSpacing ?? 0)
+            .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
+            // Highlight state goes into `.accessibilityIdentifier`, NOT
+            // `.accessibilityValue`. Rationale: VoiceOver reads value but
+            // never identifier — real assistive-tech users hear scripture
+            // only (matches the Bible iOS app's model where highlights are
+            // visual affordances, not narrated inline). UI automation
+            // queries the identifier via Appium's `@name` fallback on
+            // XCUIElementTypeStaticText.
+            .accessibilityIdentifier(highlightSummary(for: string))
         if #available(iOS 18.0, *) {
-            return retValue.textRenderer(BibleRenderer(
-                verseSelectionStyle: textOptions.verseSelectionStyle,
-                audioActiveIndicatorColor: textOptions.audioActiveIndicatorColor,
-                audioActiveVerse: audioActiveVerse
-            ))
+            let dimmedTextColor = resolvedTextColor.opacity(Self.dimmedTextOpacity)
+            return retValue.textRenderer(
+                BibleRenderer(
+                    verseSelectionStyle: textOptions.verseSelectionStyle,
+                    audioActiveIndicatorColor: textOptions.audioActiveIndicatorColor,
+                    audioActiveVerse: audioActiveVerse,
+                    dimmedTextColor: dimmedTextColor,
+                    dimProgress: focusedReference == nil ? 0 : 1
+                )
+            )
+            .animation(Self.focusAnimation, value: focusedReference)
         } else {
-            return retValue  // TODO: can we support earlier iOS versions by using the generic underline?
+            return retValue
         }
     }
 
-    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool) -> some View {
-        textViewFor(
-            double: block.text,
+    /// Cross-platform color-name lookup. See BibleReaderDrawer for the
+    /// same guard rationale — UIColor is UIKit-only, so macOS builds
+    /// use NSColor. The output funnels into `.accessibilityIdentifier`
+    /// (never spoken by VoiceOver), so the localized string Apple
+    /// returns here is acceptable — it's data for automation, not
+    /// narration.
+    private func accessibilityColorName(for color: Color) -> String {
+        #if canImport(UIKit)
+        return UIColor(color).accessibilityName
+        #elseif canImport(AppKit)
+        return NSColor(color).accessibilityName
+        #else
+        return ""
+        #endif
+    }
+
+    private func highlightSummary(for string: AttributedString) -> String {
+        var parts: [String] = []
+        var seen = Set<Int>()
+        for run in string.runs[\.bibleTextCategory, \.bibleReference] {
+            guard run.0 == .scripture, let ref = run.1, let verse = ref.verseStart else { continue }
+            if seen.contains(verse) { continue }
+            guard let color = highlightFor(reference: ref) else { continue }
+            seen.insert(verse)
+            parts.append("verse \(verse) highlighted \(accessibilityColorName(for: color))")
+        }
+        return parts.joined(separator: ", ")
+    }
+    
+    /// Whether a run should be dimmed because a different reference is focused. Only
+    /// scripture, verse-label, and heading runs dim; the focused reference and
+    /// footnote glyphs keep full color.
+    private func isReferenceDimmed(_ reference: BibleReference?, category: BibleTextCategory?) -> Bool {
+        guard let focusedReference,
+              category == .scripture || category == .verseLabel || category == .header else {
+            return false
+        }
+        guard let reference else {
+            return true
+        }
+        return !focusedReference.contains(with: reference)
+    }
+    
+    private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {
+        textOptions.fontSize * (textOptions.lineSpacing ?? 0.4)
+    }
+
+    /// ignoreMarginTop is used so that the topmost block won't have a top margin applied.
+    /// previousMarginBottom is provided so that it and the current marginTop can be merged together, mirroring how CSS works.
+    private func emitTextBlock(_ block: BibleTextBlock, textOptions: BibleTextOptions, ignoreMarginTop: Bool, previousMarginBottom: CGFloat, darkMode: Bool) -> some View {
+        textView(
+            for: block.text,
             firstLineHeadIndent: block.firstLineHeadIndent,
             blockId: block.id,
-            textOptions: textOptions
+            textOptions: textOptions,
+            darkMode: darkMode
         )
         .multilineTextAlignment(block.alignment)
         .padding(.leading, CGFloat(8 * block.headIndent))
-        .padding(.top, ignoreMarginTop ? 0 : block.marginTop + ((textOptions.paragraphSpacing ?? 0) / 2))
+        .padding(.top, ignoreMarginTop ? 0 : max(0, block.marginTop - previousMarginBottom))
+        .padding(.bottom, block.marginBottom + fontRelativeLineSpacing(textOptions: textOptions) + (textOptions.paragraphSpacing ?? 0.0))
     }
 
-    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions) -> some View {
+    private func emitTableRows(_ doubleRows: [[BibleAttributedString]], textOptions: BibleTextOptions, darkMode: Bool) -> some View {
         // First, make sure each row has the same number of cells
         let numCols = doubleRows.map({ $0.count }).max() ?? 0
         let theRows = doubleRows.map { cells in
@@ -311,19 +469,28 @@ extension BibleTextView {
         return Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 15, verticalSpacing: 10) {
             ForEach(theRows, id: \.self) { row in
                 GridRow {
-                    ForEach(row.doubles, id: \.self) { cell in
-                        textViewFor(
-                            double: cell.double,
+                    ForEach(Array(row.doubles.enumerated()), id: \.element) { index, cell in
+                        let isTrailingCell = index == row.doubles.count - 1 && index > 0
+                        // below works around a Grid weirdness where it would add extra space
+                        let string = cell.double.characters.isEmpty ? BibleAttributedString(" ") : cell.double
+                        textView(
+                            for: string,
                             firstLineHeadIndent: 0,
                             blockId: cell.id,
-                            textOptions: textOptions
+                            textOptions: textOptions,
+                            darkMode: darkMode
                         )
-                        .fixedSize(horizontal: false, vertical: true)
-                        .gridColumnAlignment(.leading)
+                        .fixedSize(horizontal: isTrailingCell, vertical: true)
+                        .frame(
+                            maxWidth: index == 0 ? .infinity : nil,
+                            alignment: isTrailingCell ? .trailing : .leading
+                        )
+                        .gridColumnAlignment(isTrailingCell ? .trailing : .leading)
                     }
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
     }
 
@@ -346,16 +513,80 @@ extension BibleTextView {
         return reference.verseStart == audioActiveVerse
     }
 
-    private func highlightFor(reference: BibleReference?) -> Color {
+    /// Applies a distinct background and a tappable `collectible://<id>` link to the
+    /// first case-insensitive occurrence of each matching term within this scripture run.
+    /// The link overrides the verse-level tap link only on the term's character range, so
+    /// footnote and cross-reference tap targets (separate runs) are unaffected.
+    /// Concatenates a scripture run's sub-runs onto `textCombo`, tagging any collectible
+    /// term run with its text color via ``RenderHowAttribute/termTextColor`` so the
+    /// renderer can paint it (a term's `.link` otherwise forces the global `.tint`).
+    private func appendTermAwareRuns(
+        _ t: AttributedString,
+        base: RenderHowAttribute,
+        to textCombo: inout Text
+    ) {
+        let collectibleScheme = BibleVersionRendering.LinkSchemes.collectible.rawValue
+        for (link, foregroundColor, range) in t.runs[\.link, \.foregroundColor] {
+            let subStr = AttributedString(t[range])
+            var attr = base
+            if link?.scheme == collectibleScheme {
+                attr.termTextColor = foregroundColor
+            }
+            // swiftlint:disable:next shorthand_operator
+            textCombo = textCombo + Text(subStr).customAttribute(attr)
+        }
+    }
+
+    private func applyTermHighlights(to t: inout AttributedString, reference: BibleReference?, darkMode: Bool) {
         guard let reference else {
-            return .clear
+            return
+        }
+        let plain = String(t.characters)
+        guard !plain.isEmpty else {
+            return
+        }
+        for highlight in ourTermHighlights {
+            guard highlight.appliesTo(verse: reference),
+                  let matched = highlight.firstMatchRange(in: plain) else {
+                continue
+            }
+            let lower = plain.distance(from: plain.startIndex, to: matched.lowerBound)
+            let upper = plain.distance(from: plain.startIndex, to: matched.upperBound)
+            let chars = t.characters
+            guard let start = chars.index(chars.startIndex, offsetBy: lower, limitedBy: chars.endIndex),
+                  let end = chars.index(chars.startIndex, offsetBy: upper, limitedBy: chars.endIndex) else {
+                continue
+            }
+            t[start..<end].backgroundColor = Color(hex: highlight.color)
+            // Resolve the term text color for the current reader theme so it recolors
+            // live when the theme changes (dark variant falls back to `textColor`).
+            let resolvedTextColor = darkMode
+                ? (highlight.textColorDark ?? highlight.textColor)
+                : highlight.textColor
+            if let resolvedTextColor {
+                t[start..<end].foregroundColor = Color(hex: resolvedTextColor)
+            }
+            t[start..<end].link = BibleVersionRendering.collectibleLink(id: highlight.id)
+        }
+    }
+
+    private func highlightFor(reference: BibleReference) -> Color? {
+        // Rendered runs carry a single-verse reference. A STORED highlight
+        // may cover a range (e.g. v1–v5), so match by inclusion in
+        // [verseStart, verseEnd] — not verseStart equality, which would
+        // announce only the first verse of every range and drop the rest.
+        guard let refVerse = reference.verseStart else {
+            return nil
         }
         for highlight in ourHighlights {
-            if highlight.reference.chapter == reference.chapter && highlight.reference.verseStart == reference.verseStart {
-                return Color(hex: highlight.color).opacity(0.35)
+            guard highlight.reference.chapter == reference.chapter,
+                  let start = highlight.reference.verseStart else { continue }
+            let end = highlight.reference.verseEnd ?? start
+            if refVerse >= start && refVerse <= end {
+                return Color(hex: highlight.color)
             }
         }
-        return .clear
+        return nil
     }
 
     // so that the Grid has a Hashable, Identifiable list to work with
