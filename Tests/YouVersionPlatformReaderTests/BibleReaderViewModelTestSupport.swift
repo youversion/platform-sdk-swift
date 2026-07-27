@@ -90,7 +90,6 @@ enum BibleReaderViewModelTestSupport {
         versionRepository: any BibleVersionRepositoryProtocol = MockBibleVersionRepository(),
         onVerseTap: ((BibleReference) -> Void)? = nil,
         isSignedIn: Bool = false,
-        isSignInEnabled: Bool = true,
         readIsSignedIn: (@MainActor () -> Bool)? = nil,
         hasValidToken: Bool? = nil,
         validateToken: (@MainActor () async -> Bool)? = nil,
@@ -104,7 +103,6 @@ enum BibleReaderViewModelTestSupport {
         let versionsViewModel = BibleVersionsViewModel(versionRepository: versionRepository)
         let authentication = BibleReaderAuthentication(
             isSignedIn: { readIsSignedIn?() ?? isSignedIn },
-            isSignInEnabled: { isSignInEnabled },
             hasValidToken: {
                 if let validateToken {
                     return await validateToken()

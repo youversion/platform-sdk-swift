@@ -9,14 +9,12 @@ import YouVersionPlatformCore
 struct BibleReaderAuthentication {
     static let `default` = BibleReaderAuthentication(
         isSignedIn: { YouVersionAPI.isSignedIn },
-        isSignInEnabled: { YouVersionPlatformConfiguration.isSignInEnabled },
         hasValidToken: { await YouVersionAPI.hasValidToken() },
         signOut: { YouVersionAPI.Users.signOut() },
         hasPermission: { YouVersionAPI.hasPermission($0) }
     )
 
     private let readIsSignedIn: @MainActor () -> Bool
-    private let readIsSignInEnabled: @MainActor () -> Bool
     private let validateToken: @MainActor () async -> Bool
     private let performSignOut: @MainActor () -> Void
     private let readPermission: @MainActor (String) -> Bool
@@ -24,13 +22,11 @@ struct BibleReaderAuthentication {
     /// Creates an authentication dependency for the reader.
     init(
         isSignedIn: @escaping @MainActor () -> Bool,
-        isSignInEnabled: @escaping @MainActor () -> Bool,
         hasValidToken: @escaping @MainActor () async -> Bool,
         signOut: @escaping @MainActor () -> Void,
         hasPermission: @escaping @MainActor (String) -> Bool
     ) {
         self.readIsSignedIn = isSignedIn
-        self.readIsSignInEnabled = isSignInEnabled
         self.validateToken = hasValidToken
         self.performSignOut = signOut
         self.readPermission = hasPermission
@@ -40,12 +36,6 @@ struct BibleReaderAuthentication {
     @MainActor
     var isSignedIn: Bool {
         readIsSignedIn()
-    }
-
-    /// Whether reader sign-in prompts and actions are enabled.
-    @MainActor
-    var isSignInEnabled: Bool {
-        readIsSignInEnabled()
     }
 
     /// Validates the current authentication state, refreshing tokens when needed.

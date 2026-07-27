@@ -26,7 +26,7 @@ import Testing
     @Test
     func handleVerseTapDoesNothingWhenUnsignedOutAndSignInDisabled() {
         Support.clearReaderDefaults()
-        let viewModel = Support.makeViewModel(isSignedIn: false, isSignInEnabled: false)
+        let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
             reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
