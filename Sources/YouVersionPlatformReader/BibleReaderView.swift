@@ -11,11 +11,12 @@ public struct BibleReaderView: View {
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
+    private let chapterHeader: (BibleChapterDescriptor) -> AnyView
 
     /// Creates a Bible reader view displaying `reference`.
     ///
     /// To restore the passage the user was last viewing instead, use
-    /// ``restoringLastPassage(verseSelectionStyle:onVerseTap:readerNavigation:)``.
+    /// ``restoringLastPassage(verseSelectionStyle:onVerseTap:readerNavigation:chapterHeader:)``.
     ///
     /// - Parameters:
     ///   - reference: The Bible reference to display initially.
@@ -36,18 +37,27 @@ public struct BibleReaderView: View {
     ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
     ///     to a new passage from elsewhere in the app (for example, a "Read" button in
     ///     another tab).
-    public init(reference: BibleReference,
-                verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil,
-                showsFullChapter: Bool = false,
-                readerNavigation: BibleReaderNavigation? = nil
+    ///   - chapterHeader: A view builder the reader renders at the top of each
+    ///     chapter, above the verse text. It receives a ``BibleChapterDescriptor``
+    ///     (the chapter reference, book name, and chapter label) and is rebuilt
+    ///     whenever the reader navigates to a different chapter. Use it to supply
+    ///     an app-specific heading (fonts, colors, layout are entirely the host's).
+    ///     The reader controls placement and width; it shows no header by default.
+    public init<ChapterHeader: View>(
+        reference: BibleReference,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        showsFullChapter: Bool = false,
+        readerNavigation: BibleReaderNavigation? = nil,
+        @ViewBuilder chapterHeader: @escaping (BibleChapterDescriptor) -> ChapterHeader = { _ in EmptyView() }
     ) {
         self.init(
             initialReference: reference,
             verseSelectionStyle: verseSelectionStyle,
             onVerseTap: onVerseTap,
             showsFullChapter: showsFullChapter,
-            readerNavigation: readerNavigation
+            readerNavigation: readerNavigation,
+            chapterHeader: { AnyView(chapterHeader($0)) }
         )
     }
 
@@ -59,21 +69,24 @@ public struct BibleReaderView: View {
     ///   - verseSelectionStyle: Controls the visual style of the underline drawn
     ///     beneath selected verses. Defaults to ``VerseSelectionStyle/solid``.
     ///   - onVerseTap: An optional closure called when the user taps a verse.
-    ///     See ``init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:)``.
+    ///     See ``init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:chapterHeader:)``.
     ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
     ///     to a new passage from elsewhere in the app (for example, a "Read" button in
     ///     another tab).
-    public static func restoringLastPassage(
+    ///   - chapterHeader: See ``init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:chapterHeader:)``.
+    public static func restoringLastPassage<ChapterHeader: View>(
         verseSelectionStyle: VerseSelectionStyle = .solid,
         onVerseTap: ((BibleReference) -> Void)? = nil,
-        readerNavigation: BibleReaderNavigation? = nil
+        readerNavigation: BibleReaderNavigation? = nil,
+        @ViewBuilder chapterHeader: @escaping (BibleChapterDescriptor) -> ChapterHeader = { _ in EmptyView() }
     ) -> BibleReaderView {
         BibleReaderView(
             initialReference: nil,
             verseSelectionStyle: verseSelectionStyle,
             onVerseTap: onVerseTap,
             showsFullChapter: false,
-            readerNavigation: readerNavigation
+            readerNavigation: readerNavigation,
+            chapterHeader: { AnyView(chapterHeader($0)) }
         )
     }
 
@@ -107,7 +120,8 @@ public struct BibleReaderView: View {
             verseSelectionStyle: verseSelectionStyle,
             onVerseTap: onVerseTap,
             showsFullChapter: showsFullChapter,
-            readerNavigation: nil
+            readerNavigation: nil,
+            chapterHeader: { _ in AnyView(EmptyView()) }
         )
     }
 
@@ -115,7 +129,8 @@ public struct BibleReaderView: View {
                  verseSelectionStyle: VerseSelectionStyle,
                  onVerseTap: ((BibleReference) -> Void)?,
                  showsFullChapter: Bool,
-                 readerNavigation: BibleReaderNavigation?
+                 readerNavigation: BibleReaderNavigation?,
+                 chapterHeader: @escaping (BibleChapterDescriptor) -> AnyView
     ) {
         assert(
             onVerseTap != nil || YouVersionPlatformConfiguration.isSignInEnabled,
@@ -126,6 +141,7 @@ public struct BibleReaderView: View {
         self.showsFullChapter = showsFullChapter
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
+        self.chapterHeader = chapterHeader
     }
 
     /// Creates a Bible reader view with sign-in configuration.
@@ -148,14 +164,15 @@ public struct BibleReaderView: View {
             verseSelectionStyle: verseSelectionStyle,
             onVerseTap: onVerseTap,
             showsFullChapter: false,
-            readerNavigation: nil
+            readerNavigation: nil,
+            chapterHeader: { _ in AnyView(EmptyView()) }
         )
     }
 
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation)
+                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation, chapterHeader: chapterHeader)
             } else {
                 Color.clear
             }
@@ -183,6 +200,7 @@ public struct BibleReaderView: View {
 private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
+    let chapterHeader: (BibleChapterDescriptor) -> AnyView
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -197,9 +215,14 @@ private struct ReaderContent: View {
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
 
-    init(viewModel: BibleReaderViewModel, readerNavigation: BibleReaderNavigation?) {
+    init(
+        viewModel: BibleReaderViewModel,
+        readerNavigation: BibleReaderNavigation?,
+        chapterHeader: @escaping (BibleChapterDescriptor) -> AnyView
+    ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
+        self.chapterHeader = chapterHeader
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
@@ -422,6 +445,14 @@ private struct ReaderContent: View {
                         if viewModel.showBookIntro {
                             BibleReaderIntroView()
                         } else {
+                            chapterHeader(
+                                BibleChapterDescriptor(
+                                    reference: viewModel.reference,
+                                    bookName: viewModel.version?.bookName(viewModel.reference.bookId)
+                                        ?? viewModel.reference.bookId,
+                                    chapterLabel: String(viewModel.reference.chapter)
+                                )
+                            )
                             BibleTextView(
                                 viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
                                 textOptions: viewModel.textOptions,
