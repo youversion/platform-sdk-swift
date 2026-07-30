@@ -34,8 +34,8 @@ public enum YouVersionFonts {
     @available(*, deprecated, renamed: "captionsSmall")
     public static var fontCaptionsS: Font { captionsSmall }
 
-    /// For YouVersion uses of the Untitled font, use Baskerville as a fallback.
+    /// The preferred font for Bible version abbreviations.
     public static func preferredBibleTextFont(size: CGFloat) -> Font {
-        Font.custom("Baskerville", size: size)
+        Font.custom("Untitled Serif", size: size, relativeTo: .body)
     }
 }
