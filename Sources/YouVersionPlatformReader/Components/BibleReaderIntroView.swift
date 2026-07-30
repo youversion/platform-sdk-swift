@@ -26,7 +26,7 @@ public struct BibleReaderIntroView: View {
         .onChange(of: viewModel.reference, initial: true) { _, reference in
             self.html = nil
             Task {
-                if let book = viewModel.version?.book(with: reference.bookUSFM),
+                if let book = viewModel.version?.book(with: reference.bookId),
                    let passageId = book.intro?.passageId,
                    let html = try? await YouVersionAPI.Bible.introMaterial(versionId: reference.versionId, passageId: passageId) {
                     self.html = html

@@ -149,7 +149,7 @@ public struct BibleCardView: View {
             if verseStart == verseEnd {
                 return BibleReference(
                     versionId: versionId,
-                    bookUSFM: reference.bookUSFM,
+                    bookId: reference.bookId,
                     chapter: reference.chapter,
                     verse: verseStart
                 )
@@ -157,7 +157,7 @@ public struct BibleCardView: View {
 
             return BibleReference(
                 versionId: versionId,
-                bookUSFM: reference.bookUSFM,
+                bookId: reference.bookId,
                 chapter: reference.chapter,
                 verseStart: verseStart,
                 verseEnd: verseEnd
@@ -166,7 +166,7 @@ public struct BibleCardView: View {
 
         return BibleReference(
             versionId: versionId,
-            bookUSFM: reference.bookUSFM,
+            bookId: reference.bookId,
             chapter: reference.chapter
         )
     }
@@ -177,14 +177,14 @@ public struct BibleCardView: View {
     VStack(spacing: 16) {
         BibleCardView(
             reference: BibleReference(
-                versionId: BibleVersion.preview.id, bookUSFM: "JHN", chapter: 1, verseStart: 1, verseEnd: 1
+                versionId: BibleVersion.preview.id, bookId: "JHN", chapter: 1, verseStart: 1, verseEnd: 1
             )
         )
         .environment(\.colorScheme, .dark)
         
         BibleCardView(
             reference: BibleReference(
-                versionId: BibleVersion.preview.id, bookUSFM: "JHN", chapter: 1, verseStart: 2, verseEnd: 2
+                versionId: BibleVersion.preview.id, bookId: "JHN", chapter: 1, verseStart: 2, verseEnd: 2
             )
         )
         .environment(\.colorScheme, .light)

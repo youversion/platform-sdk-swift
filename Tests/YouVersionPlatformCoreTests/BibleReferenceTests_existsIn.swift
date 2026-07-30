@@ -18,42 +18,42 @@ struct BibleReferenceExistsInTests {
 
     @Test
     func existsInReturnsTrueWhenBookAndChapterArePresent() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 1, verse: 1)
 
         #expect(reference.existsIn(version: Self.fixtureVersion))
     }
 
     @Test
     func existsInReturnsTrueForChapterOnlyReferenceWhenChapterIsPresent() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 1)
 
         #expect(reference.existsIn(version: Self.fixtureVersion))
     }
 
     @Test
     func existsInReturnsFalseForChapterOnlyReferenceWhenBookIsMissing() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "ABC", chapter: 1)
+        let reference = BibleReference(versionId: 206, bookId: "ABC", chapter: 1)
 
         #expect(!reference.existsIn(version: Self.fixtureVersion))
     }
 
     @Test
     func existsInReturnsFalseForChapterOnlyReferenceWhenChapterIsMissing() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 51)
+        let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 51)
 
         #expect(!reference.existsIn(version: Self.fixtureVersion))
     }
 
     @Test
     func existsInReturnsFalseWhenBookIsMissing() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "ABC", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 206, bookId: "ABC", chapter: 1, verse: 1)
 
         #expect(!reference.existsIn(version: Self.fixtureVersion))
     }
 
     @Test
     func existsInReturnsFalseWhenChapterIsMissing() {
-        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 51, verse: 1)
+        let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 51, verse: 1)
 
         #expect(!reference.existsIn(version: Self.fixtureVersion))
     }
@@ -76,7 +76,7 @@ struct BibleReferenceExistsInTests {
             books: nil,
             textDirection: "ltr"
         )
-        let reference = BibleReference(versionId: 206, bookUSFM: "GEN", chapter: 99, verse: 1)
+        let reference = BibleReference(versionId: 206, bookId: "GEN", chapter: 99, verse: 1)
 
         #expect(reference.existsIn(version: version))
     }

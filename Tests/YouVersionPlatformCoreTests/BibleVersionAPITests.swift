@@ -86,7 +86,7 @@ import Testing
             return (json, resp)
         }
 
-        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         let html = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         #expect(html == "<div>ok</div>")
 
@@ -108,7 +108,7 @@ import Testing
             return (Data(), resp)
         }
 
-        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
@@ -124,7 +124,7 @@ import Testing
             return (Data(), resp)
         }
 
-        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         await #expect(throws: YouVersionAPIError.cannotDownload) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
@@ -140,7 +140,7 @@ import Testing
             return (Data(), resp)
         }
 
-        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         await #expect(throws: YouVersionAPIError.invalidResponse) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }
@@ -161,7 +161,7 @@ import Testing
             return (json, resp)
         }
 
-        let ref = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         await #expect(throws: YouVersionAPIError.invalidDownload) {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
         }

@@ -104,7 +104,7 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
         // This should work with our injected dependencies
-        let highlights = viewModel.highlights(for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
+        let highlights = viewModel.highlights(for: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         #expect(highlights.isEmpty)
     }
     
@@ -116,7 +116,7 @@ struct BibleHighlightsViewModelTests {
         let mockRepository = MockBibleHighlightsRepository()
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
-        let highlights = viewModel.highlights(for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
+        let highlights = viewModel.highlights(for: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         
         #expect(highlights.isEmpty)
     }
@@ -126,7 +126,7 @@ struct BibleHighlightsViewModelTests {
         let cache = BibleHighlightsCache()
         let mockRepository = MockBibleHighlightsRepository()
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
 
         viewModel.addHighlights(references: [reference], color: "eefeef")
 
@@ -160,8 +160,8 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         let color = "eefeef"
         
@@ -178,8 +178,8 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         let color = "eefeef"
         
@@ -187,7 +187,7 @@ struct BibleHighlightsViewModelTests {
         
         // Verify highlights were added to cache
         let highlights = viewModel.highlights(
-            for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
+            for: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
         )
         
         #expect(highlights.count == 2)
@@ -205,8 +205,8 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         
         viewModel.removeHighlights(references: references)
@@ -223,8 +223,8 @@ struct BibleHighlightsViewModelTests {
         
         // First add some highlights
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         viewModel.addHighlights(references: references, color: "eefeef")
         
@@ -233,7 +233,7 @@ struct BibleHighlightsViewModelTests {
         
         // Verify they're gone
         let highlights = viewModel.highlights(
-            for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
+            for: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
         )
         
         #expect(highlights.isEmpty)
@@ -248,8 +248,8 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
         
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         let newColor = "0000ff"
         
@@ -266,8 +266,8 @@ struct BibleHighlightsViewModelTests {
         
         // First add some highlights
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         ]
         viewModel.addHighlights(references: references, color: "eefeef")
         
@@ -277,7 +277,7 @@ struct BibleHighlightsViewModelTests {
         
         // Verify colors were updated
         let highlights = viewModel.highlights(
-            for: BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
+            for: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 2)
         )
         
         #expect(highlights.count == 2)
@@ -293,7 +293,7 @@ struct BibleHighlightsViewModelTests {
         let viewModel = BibleHighlightsViewModel(cache: cache, repository: mockRepository)
 
         // This should trigger chapter loading
-        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
+        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         // give the async task a moment
         try? await Task.sleep(nanoseconds: 50_000_000)
         #expect(mockRepository.highlightsCallCount > 0)
@@ -308,7 +308,7 @@ struct BibleHighlightsViewModelTests {
         // Simulate loading a chapter
         
         // This should trigger server load
-        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
+        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         
         // Wait a bit for async operations
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
@@ -326,7 +326,7 @@ struct BibleHighlightsViewModelTests {
         // Simulate loading a chapter that will fail
         
         // This should trigger server load that fails
-        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
+        viewModel.ensureHighlightsForChapterLoaded(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 10))
         
         // Wait a bit for async operations
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
