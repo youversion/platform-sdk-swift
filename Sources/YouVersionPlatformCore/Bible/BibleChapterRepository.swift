@@ -25,7 +25,7 @@ actor ChapterMemoryCache {
     }
 
     private static func cacheKey(reference: BibleReference) -> String {
-        "\(reference.versionId)_\(reference.chapterUSFM ?? "unknown")"
+        "\(reference.versionId)_\(reference.chapterPassageId)"
     }
 }
 
@@ -38,18 +38,17 @@ actor BibleChapterDiskCache {
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return nil
-        }
-        return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
+        storage.string(
+            for: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+        )
     }
 
     func addChapterContent(_ content: String, reference: BibleReference) {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return
-        }
         do {
-            try storage.writeString(content, to: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
+            try storage.writeString(
+                content,
+                to: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+            )
         } catch {
             YouVersionPlatformLogger.notice(
                 "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
@@ -79,10 +78,9 @@ actor BibleChapterDownloadCache {
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return nil
-        }
-        return storage.string(for: .chapter(versionId: reference.versionId, usfm: chapterUSFM))
+        storage.string(
+            for: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+        )
     }
 
     nonisolated func chaptersArePresent(versionId: Int) -> Bool {

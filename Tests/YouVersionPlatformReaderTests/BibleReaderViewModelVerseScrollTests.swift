@@ -7,7 +7,7 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
 
     private func makeViewModel(verse: Int?, showsFullChapter: Bool = true) -> BibleReaderViewModel {
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: verse)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: verse)
         return Support.makeViewModel(reference: reference, showsFullChapter: showsFullChapter)
     }
 
@@ -22,7 +22,7 @@ import Testing
     // fresh (already at the top), but lands correctly if the reader was scrolled away.
     @Test
     func verseOneArmsScroll() {
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)
         let viewModel = makeViewModel(verse: 1)
 
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: reference, shouldFocus: false)))
@@ -49,7 +49,7 @@ import Testing
     // bible stories) arms the scroll only when it opens in full-chapter mode.
     @Test
     func constructingFullChapterAtVerseArmsScroll() {
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: true)
 
@@ -58,7 +58,7 @@ import Testing
 
     @Test
     func constructingVerseRangeAtVerseArmsNoScroll() {
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
 
         let viewModel = Support.makeViewModel(reference: reference, showsFullChapter: false)
 
@@ -70,10 +70,10 @@ import Testing
         let viewModel = Support.makeViewModel()
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true)
 
-        #expect(viewModel.reference.bookUSFM == "JHN")
+        #expect(viewModel.reference.bookId == "JHN")
         #expect(viewModel.reference.chapter == 3)
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: false)))
         #expect(viewModel.isChangingChapter)
@@ -84,7 +84,7 @@ import Testing
         let viewModel = Support.makeViewModel()
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: false)
 
         #expect(viewModel.reference.chapter == 3)
@@ -99,7 +99,7 @@ import Testing
         await repository.setThrownError(TestError())
 
         // A different version forces the cross-version load path, which throws.
-        let target = BibleReference(versionId: Support.versionId + 1, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId + 1, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true)
 
         #expect(viewModel.reference.chapter != 3)
@@ -114,7 +114,7 @@ import Testing
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
 
         await viewModel.goToReference(
-            BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3),
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3),
             showsFullChapter: true
         )
 
@@ -137,7 +137,7 @@ import Testing
     func goToReferenceFocusedArmsFocusScrollTarget() async {
         let viewModel = makeFocusedViewModel()
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
 
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: true)))
@@ -151,7 +151,7 @@ import Testing
     func goToReferenceFocusedVerseOneArmsFocusScrollTarget() async {
         let viewModel = makeFocusedViewModel()
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 1)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
 
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: true)))
@@ -162,7 +162,7 @@ import Testing
     @Test
     func setFocusedFocusesTheVerse() async {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
 
         viewModel.focusReference(target)
@@ -174,7 +174,7 @@ import Testing
     func goToReferenceWithoutFocusDoesNotArmFocus() async {
         let viewModel = makeFocusedViewModel()
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true)
 
         #expect(viewModel.scrollAction == .reference(ScrollTarget(reference: target, shouldFocus: false)))  // scroll only, no focus
@@ -187,7 +187,7 @@ import Testing
     func focusingChapterOnlyReferenceArmsNothing() async {
         let viewModel = makeFocusedViewModel()
 
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
 
         #expect(viewModel.scrollAction == .top)
@@ -199,7 +199,7 @@ import Testing
     @Test
     func focusFocusesWithoutScrolling() {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 5)
 
         viewModel.focusReference(target)
 
@@ -210,7 +210,7 @@ import Testing
     @Test
     func focusIgnoresChapterOnlyReference() {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1)
 
         viewModel.focusReference(target)
 
@@ -220,7 +220,7 @@ import Testing
     @Test
     func focusIgnoresReferenceInAnotherChapter() {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
 
         viewModel.focusReference(target)
 
@@ -230,7 +230,7 @@ import Testing
     @Test
     func userScrollAwayClearsFocus() {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 5)
         viewModel.lastScrollOffset = -400
         viewModel.focusReference(target)
 
@@ -244,7 +244,7 @@ import Testing
     @Test
     func smallScrollKeepsFocus() {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 1, verse: 5)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 5)
         viewModel.lastScrollOffset = -400   // the settled landing position
         viewModel.focusReference(target)
 
@@ -256,7 +256,7 @@ import Testing
     @Test
     func verseTapClearsFocus() async {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
         viewModel.focusReference(target)
 
@@ -268,7 +268,7 @@ import Testing
     @Test
     func chapterNavigationClearsFocus() async {
         let viewModel = makeFocusedViewModel()
-        let target = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let target = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         await viewModel.goToReference(target, showsFullChapter: true, shouldFocus: true)
         viewModel.focusReference(target)
 
@@ -283,7 +283,7 @@ import Testing
     @Test
     func requestSetsPendingRequest() {
         let navigation = BibleReaderNavigation()
-        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
 
         navigation.request(reference, showsFullChapter: true)
 
@@ -295,7 +295,7 @@ import Testing
     func requestDefaultsToVerseRange() {
         let navigation = BibleReaderNavigation()
 
-        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+        navigation.request(BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16))
 
         #expect(navigation.pendingRequest?.showsFullChapter == false)
     }
@@ -303,7 +303,7 @@ import Testing
     @Test
     func clearPendingRequestSetsItToNil() {
         let navigation = BibleReaderNavigation()
-        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+        navigation.request(BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16))
 
         navigation.clearPendingRequest()
 
@@ -314,7 +314,7 @@ import Testing
     @Test
     func focusRequestScrollsToVerseAndShowsFullChapter() {
         let navigation = BibleReaderNavigation()
-        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
 
         navigation.focusReference(reference)
 
@@ -330,7 +330,7 @@ import Testing
     @Test
     func focusInPlaceRequestFocusesWithoutScrolling() {
         let navigation = BibleReaderNavigation()
-        let reference = BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
 
         navigation.focusReference(reference, scrollsToVerse: false)
 
@@ -343,7 +343,7 @@ import Testing
     func requestIsNotFocused() {
         let navigation = BibleReaderNavigation()
 
-        navigation.request(BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16))
+        navigation.request(BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16))
 
         #expect(navigation.pendingRequest?.shouldFocus == false)
     }

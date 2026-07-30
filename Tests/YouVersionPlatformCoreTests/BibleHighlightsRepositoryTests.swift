@@ -134,14 +134,14 @@ struct BibleHighlightsRepositoryTests {
         ]
         mockAPI.mockGetHighlightsResult = mockResponse
         
-        let references = [BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)]
+        let references = [BibleReference(versionId: 1, bookId: "GEN", chapter: 1)]
         let result = try await repository.highlights(for: references)
         
         #expect(mockAPI.getHighlightsCallCount == 1)
         #expect(result.count == 1)
         #expect(result["1_GEN_1"]?.count == 2)
         #expect(result["1_GEN_1"]?.first?.reference.versionId == 1)
-        #expect(result["1_GEN_1"]?.first?.reference.bookUSFM == "GEN")
+        #expect(result["1_GEN_1"]?.first?.reference.bookId == "GEN")
         #expect(result["1_GEN_1"]?.first?.reference.chapter == 1)
         #expect(result["1_GEN_1"]?.first?.reference.verseStart == 1)
         #expect(result["1_GEN_1"]?.first?.color == "#FF0000")
@@ -160,8 +160,8 @@ struct BibleHighlightsRepositoryTests {
         mockAPI.mockGetHighlightsResult = mockResponse
         
         let references = [
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1),
-            BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 2)
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 1),
+            BibleReference(versionId: 1, bookId: "GEN", chapter: 2)
         ]
         let result = try await repository.highlights(for: references)
         
@@ -179,7 +179,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock empty API response
         mockAPI.mockGetHighlightsResult = []
         
-        let references = [BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)]
+        let references = [BibleReference(versionId: 1, bookId: "GEN", chapter: 1)]
         let result = try await repository.highlights(for: references)
         
         #expect(mockAPI.getHighlightsCallCount == 1)
@@ -195,7 +195,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock API error
         mockAPI.shouldThrowError = true
         
-        let references = [BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)]
+        let references = [BibleReference(versionId: 1, bookId: "GEN", chapter: 1)]
         let result = try await repository.highlights(for: references)
         
         #expect(mockAPI.getHighlightsCallCount == 1)
@@ -229,7 +229,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         let result = try await repository.saveOperations([operation])
@@ -262,7 +262,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: nil, operationType: .remove)
         
         let result = try await repository.saveOperations([operation])
@@ -293,7 +293,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#00FF00", operationType: .update)
         
         let result = try await repository.saveOperations([operation])
@@ -325,8 +325,8 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference1 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
-        let reference2 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 2)
+        let reference1 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
+        let reference2 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2)
         
         let operation1 = PendingHighlightOperation(references: [reference1], color: "#FF0000", operationType: .add)
         let operation2 = PendingHighlightOperation(references: [reference2], color: nil, operationType: .remove)
@@ -348,7 +348,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock API error
         mockAPI.shouldThrowError = true
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         let result = try await repository.saveOperations([operation])
@@ -363,7 +363,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: nil, operationType: .add)
         
         let result = try await repository.saveOperations([operation])
@@ -378,7 +378,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: nil, operationType: .update)
         
         let result = try await repository.saveOperations([operation])
@@ -395,7 +395,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         #expect(!repository.hasPendingOperations)
@@ -410,7 +410,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         
         // Create operations with different timestamps
         let operation1 = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
@@ -460,7 +460,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
 
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let firstOperation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         let secondOperation = PendingHighlightOperation(references: [reference], color: nil, operationType: .remove)
 
@@ -481,7 +481,7 @@ struct BibleHighlightsRepositoryTests {
         mockAPI.mockCreateHighlightResult = false
         let repository = BibleHighlightsRepository(api: mockAPI)
 
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
 
         repository.queueOperation(operation)
@@ -506,7 +506,7 @@ struct BibleHighlightsRepositoryTests {
         mockAPI.shouldSuspendCreateHighlight = true
         let repository = BibleHighlightsRepository(api: mockAPI)
 
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
 
         repository.queueOperation(operation)
@@ -528,7 +528,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)
@@ -549,7 +549,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock API failure
         mockAPI.mockCreateHighlightResult = false
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)
@@ -575,7 +575,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock API error
         mockAPI.shouldThrowError = true
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)
@@ -620,7 +620,7 @@ struct BibleHighlightsRepositoryTests {
         mockAPI.mockCreateHighlightResult = false
         let repository = BibleHighlightsRepository(api: mockAPI, retryDelayNanoseconds: 50_000_000)
 
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
 
         repository.queueOperation(operation)
@@ -645,7 +645,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)
@@ -664,7 +664,7 @@ struct BibleHighlightsRepositoryTests {
         let mockAPI = setUp()
         let repository = BibleHighlightsRepository(api: mockAPI)
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)
@@ -687,7 +687,7 @@ struct BibleHighlightsRepositoryTests {
         // Mock API failure
         mockAPI.mockCreateHighlightResult = false
         
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
         let operation = PendingHighlightOperation(references: [reference], color: "#FF0000", operationType: .add)
         
         repository.queueOperation(operation)

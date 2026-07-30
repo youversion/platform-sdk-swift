@@ -16,7 +16,7 @@ struct BibleVersionTests {
         }
     }()
 
-    private static let canonicalUSFMs = Set(version.books?.filter { $0.isCanonical }.map(\.id) ?? [])
+    private static let canonicalBookIds = Set(version.books?.filter { $0.isCanonical }.map(\.id) ?? [])
 
     @Test
     func decodesCoreMetadata() throws {
@@ -27,9 +27,9 @@ struct BibleVersionTests {
         #expect(version.title == "World English Bible, American English Edition, without Strong's Numbers")
         #expect(version.localizedTitle == "World English Bible, American English Edition, without Strong's Numbers")
         #expect(version.languageTag == "en")
-        #expect(version.bookUSFMs.count == 80)
+        #expect(version.bookIds.count == 80)
         let bookCodes = try #require(version.bookCodes)
-        #expect(bookCodes == version.bookUSFMs)
+        #expect(bookCodes == version.bookIds)
         #expect(bookCodes.first == "GEN")
         #expect(bookCodes.last == "REV")
         #expect(version.copyright == "PUBLIC DOMAIN (not copyrighted)")
@@ -46,9 +46,9 @@ struct BibleVersionTests {
         ("REEV", false),
         ("R", false)
     ])
-    func bookUSFMValidation(usfm: String, isValid: Bool) {
-        let normalized = usfm.uppercased()
-        #expect(Self.canonicalUSFMs.contains(normalized) == isValid)
+    func bookIdValidation(bookId: String, isValid: Bool) {
+        let normalizedBookId = bookId.uppercased()
+        #expect(Self.canonicalBookIds.contains(normalizedBookId) == isValid)
     }
 
     @Test
@@ -69,19 +69,19 @@ struct BibleVersionTests {
         ("REV", "Revelation", "Rev", 22, "REV.1")
     ])
     func bookMetadata(
-        bookUSFM: String,
+        bookId: String,
         expectedTitle: String,
         expectedAbbreviation: String,
         expectedChapterCount: Int,
         expectedFirstChapterId: String
     ) throws {
-        let book = try #require(Self.version.book(with: bookUSFM))
+        let book = try #require(Self.version.book(with: bookId))
         #expect(book.title == expectedTitle)
         #expect(book.abbreviation == expectedAbbreviation)
         let chapters = try #require(book.chapters)
         #expect(chapters.count == expectedChapterCount)
         #expect(chapters.first?.passageId == expectedFirstChapterId)
-        let labels = Self.version.chapterLabels(bookUSFM)
+        let labels = Self.version.chapterLabels(bookId)
         #expect(labels.count == expectedChapterCount)
         #expect(labels.first == "1")
         #expect(labels.last == String(expectedChapterCount))
@@ -90,7 +90,7 @@ struct BibleVersionTests {
     @Test
     func referenceTrimsWhitespace() throws {
         let reference = try #require(Self.version.reference(with: "  GEN.1.5  "))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 1)
         #expect(reference.verseStart == 5)
     }
@@ -98,7 +98,7 @@ struct BibleVersionTests {
     @Test
     func referenceMergesAdjacentVersesSeparatedByPlus() throws {
         let reference = try #require(Self.version.reference(with: "GEN.1.1+GEN.1.2"))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 1)
         #expect(reference.verseStart == 1)
         #expect(reference.verseEnd == 2)
@@ -107,7 +107,7 @@ struct BibleVersionTests {
     @Test
     func referenceSkipsInvalidSegments() throws {
         let reference = try #require(Self.version.reference(with: "GEN.3.7+GAN.3.8+GEN.3.8"))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 3)
         #expect(reference.verseStart == 7)
         #expect(reference.verseEnd == 8)

@@ -192,7 +192,7 @@ public struct BibleTextView: View {
         let book = String(parts[0])
         if let chapter = Int(parts[1]),
            let verse = Int(parts[2]) {
-            return BibleReference(versionId: versionId, bookUSFM: book, chapter: chapter, verse: verse)
+            return BibleReference(versionId: versionId, bookId: book, chapter: chapter, verse: verse)
         }
         return nil
     }

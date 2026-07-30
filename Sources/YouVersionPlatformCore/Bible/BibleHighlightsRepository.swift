@@ -92,8 +92,8 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         var result: [String: [BibleHighlight]] = [:]
 
         for reference in references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter)"
-            let chapterKey = "\(reference.versionId)_\(reference.bookUSFM)_\(reference.chapter)"
+            let passageId = "\(reference.bookId).\(reference.chapter)"
+            let chapterKey = "\(reference.versionId)_\(reference.bookId)_\(reference.chapter)"
             do {
                 let apiHighlights = try await api.highlights(bibleId: reference.versionId, passageId: passageId)
 
@@ -154,7 +154,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         return BibleHighlight(
             BibleReference(
                 versionId: apiHighlight.bibleId,
-                bookUSFM: book,
+                bookId: book,
                 chapter: chapter,
                 verse: verse
             ),
@@ -182,7 +182,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             let hexColor = color.hasPrefix("#") ? String(color.dropFirst()) : color
             
             do {
@@ -209,7 +209,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     private func processRemoveOperation(_ operation: PendingHighlightOperation) async throws -> Bool {
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             
             do {
                 let result = try await api.deleteHighlight(
@@ -240,7 +240,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             let hexColor = color.hasPrefix("#") ? String(color.dropFirst()) : color
             
             do {
