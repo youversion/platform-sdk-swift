@@ -34,7 +34,7 @@ public enum YouVersionFonts {
     @available(*, deprecated, renamed: "captionsSmall")
     public static var fontCaptionsS: Font { captionsSmall }
 
-    /// The preferred font for Bible version abbreviations.
+    /// The preferred font for Bible version text and abbreviations.
     public static func preferredBibleTextFont(size: CGFloat) -> Font {
         Font.custom("Untitled Serif", size: size, relativeTo: .body)
     }
