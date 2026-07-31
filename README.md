@@ -263,6 +263,17 @@ YouVersionPlatformConfiguration.configure(
 
 IDs are the YouVersion Bible version IDs (e.g. `111` for NIV, `1588` for AMP). Combines with `permittedLanguageTags` — a version must satisfy both filters to be shown.
 
+To make every otherwise available version selectable except for specific versions, pass `excludedVersionIds`:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    excludedVersionIds: [4212]
+)
+```
+
+Excluded IDs are omitted from SDK-managed version selection, restored selections, and automatic fallbacks. Exclusion takes precedence when an ID appears in both `permittedVersionIds` and `excludedVersionIds`.
+
 
 ### Implementing Sign In
 

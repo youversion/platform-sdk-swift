@@ -84,7 +84,7 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
             #expect(YouVersionPlatformConfiguration.installId == firstId)
         }
-        
+
         // MARK: - configureSignIn
         
         @Test func configureSignInSetsAppName() async {
