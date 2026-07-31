@@ -8,6 +8,14 @@ public enum ReaderFonts {
     // MARK: - Font Installation
 
     private nonisolated(unsafe) static var fontsNeedInstallation = true
+    private static let fontResourceNames = [
+        "UntitledSerifApp-Medium",
+        "UntitledSerifApp-MediumItalic",
+        "UntitledSerifApp-Regular",
+        "UntitledSerifApp-RegularItalic",
+        "UntitledSerifApp-Bold",
+        "UntitledSerifApp-BoldItalic"
+    ]
 
     public static func installFontsIfNeeded() {
         guard fontsNeedInstallation else {
@@ -15,16 +23,12 @@ public enum ReaderFonts {
         }
         fontsNeedInstallation = false
 
-        let fontNames = [
-            "UntitledSerifApp-Medium",
-            "UntitledSerifApp-MediumItalic",
-            "UntitledSerifApp-Regular",
-            "UntitledSerifApp-RegularItalic",
-            "UntitledSerifApp-Bold",
-            "UntitledSerifApp-BoldItalic"
-        ]
+        installFonts()
+    }
+
+    static func installFonts() {
         let bundle = Bundle.YouVersionReaderBundle
-        for name in fontNames {
+        for name in fontResourceNames {
             if let cfURL = bundle.url(forResource: name, withExtension: "ttf") as CFURL? {
                 CTFontManagerRegisterFontsForURL(cfURL, CTFontManagerScope.process, nil)
             } else {

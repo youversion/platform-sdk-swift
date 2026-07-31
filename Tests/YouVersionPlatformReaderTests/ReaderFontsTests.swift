@@ -1,8 +1,32 @@
+import CoreText
+import Foundation
 import SwiftUI
 import Testing
 @testable import YouVersionPlatformReader
+@testable import YouVersionPlatformUI
 
+@MainActor
+@Suite(.serialized)
 struct ReaderFontsTests {
+    @Test
+    func preferredBibleTextFontChangesAfterReaderFontsAreInstalled() throws {
+        let fontURLs = try #require(
+            Bundle.YouVersionReaderBundle.urls(forResourcesWithExtension: "ttf", subdirectory: nil)
+        )
+
+        for fontURL in fontURLs {
+            CTFontManagerUnregisterFontsForURL(fontURL as CFURL, .process, nil)
+        }
+
+        let fallbackFontDescription = debugDescription(of: YouVersionFonts.preferredBibleTextFont(size: 20))
+        #expect(fallbackFontDescription.contains("Baskerville"))
+
+        ReaderFonts.installFonts()
+
+        let readerFontDescription = debugDescription(of: YouVersionFonts.preferredBibleTextFont(size: 20))
+        #expect(readerFontDescription.contains("Untitled Serif"))
+    }
+
     @Test
     func isPermittedFontAcceptsSuggestedAndOtherFamilies() {
         #expect(ReaderFonts.isPermittedFont("Untitled Serif"))
