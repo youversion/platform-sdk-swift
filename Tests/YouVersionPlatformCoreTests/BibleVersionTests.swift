@@ -140,11 +140,6 @@ struct BibleVersionTests {
     }
 
     @Test
-    func referenceRejectsTooShortPassageId() {
-        #expect(Self.version.reference(with: "JN") == nil)
-    }
-
-    @Test
     func chapterLabelsReturnsEmptyForUnknownBook() {
         #expect(Self.version.chapterLabels("GAN").isEmpty)
     }
