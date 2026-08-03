@@ -118,4 +118,139 @@ struct BibleVersionTests {
         #expect(Self.version.reference(with: "GAN.1.1+GAN.1.2") == nil)
     }
 
+    @Test
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreMissing() {
+        let version = Self.versionWithBookCodes(nil)
+        #expect(version.bookIds == ["GEN", "EXO"])
+    }
+
+    @Test
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreEmpty() {
+        let version = Self.versionWithBookCodes([])
+        #expect(version.bookIds == ["GEN", "EXO"])
+    }
+
+    @Test
+    func emptyBookMetadataReturnsEmptyLookups() {
+        let version = Self.versionWithoutBookMetadata
+        #expect(version.bookIds.isEmpty)
+        #expect(version.book(with: "GEN") == nil)
+        #expect(version.reference(with: "GEN.1.1") == nil)
+        #expect(version.chapterLabels("GEN").isEmpty)
+    }
+
+    @Test
+    func chapterLabelsReturnsEmptyForUnknownBook() {
+        #expect(Self.version.chapterLabels("GAN").isEmpty)
+    }
+
+    @Test
+    func textDirectionDeterminesRightToLeftLayout() {
+        #expect(Self.versionWithTextDirection("rtl").isRightToLeft)
+        #expect(!Self.versionWithTextDirection("ltr").isRightToLeft)
+        #expect(!Self.versionWithTextDirection(nil).isRightToLeft)
+    }
+
+    @Test
+    func equalityAndHashingUseVersionId() {
+        let original = Self.versionWithId(206, title: "Original")
+        let renamed = Self.versionWithId(206, title: "Renamed")
+        let different = Self.versionWithId(111, title: "Original")
+
+        #expect(original == renamed)
+        #expect(original != different)
+        #expect(Set([original, renamed, different]).count == 2)
+    }
+
+    private static var versionWithoutBookMetadata: BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: nil,
+            books: nil,
+            textDirection: "ltr"
+        )
+    }
+
+    private static func versionWithBookCodes(_ bookCodes: [String]?) -> BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: bookCodes,
+            books: [
+                Self.book(id: "GEN", title: "Genesis", abbreviation: "Gen"),
+                Self.book(id: "EXO", title: "Exodus", abbreviation: "Exo")
+            ],
+            textDirection: "ltr"
+        )
+    }
+
+    private static func book(id: String, title: String, abbreviation: String) -> BibleBook {
+        BibleBook(
+            id: id,
+            title: title,
+            fullTitle: nil,
+            abbreviation: abbreviation,
+            canon: "ot",
+            chapters: [BibleChapter(id: "1", passageId: "\(id).1", title: "1", verses: nil)],
+            intro: nil
+        )
+    }
+
+    private static func versionWithTextDirection(_ textDirection: String?) -> BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: ["GEN"],
+            books: nil,
+            textDirection: textDirection
+        )
+    }
+
+    private static func versionWithId(_ id: Int, title: String) -> BibleVersion {
+        BibleVersion(
+            id: id,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: title,
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: title,
+            organizationId: nil,
+            bookCodes: ["GEN"],
+            books: nil,
+            textDirection: "ltr"
+        )
+    }
+
 }
