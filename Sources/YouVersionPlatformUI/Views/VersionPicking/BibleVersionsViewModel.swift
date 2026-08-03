@@ -145,10 +145,13 @@ public final class BibleVersionsViewModel {
         myVersions.insert(version)
     }
     
-    /// Returns true when a version satisfies the configured `permittedLanguageTags`
-    /// and `permittedVersionIds` filters. A `nil` filter means "no restriction" on
-    /// that dimension.
-    private func isPermitted(versionId: Int, languageTag: String?) -> Bool {
+    /// Returns true when a version satisfies the configured `permittedLanguageTags`,
+    /// `permittedVersionIds`, and `excludedVersionIds` filters. A `nil` permitted
+    /// filter means "no restriction" on that dimension.
+    func isPermitted(versionId: Int, languageTag: String?) -> Bool {
+        guard !YouVersionPlatformConfiguration.excludedVersionIds.contains(versionId) else {
+            return false
+        }
         if let permittedTags = YouVersionPlatformConfiguration.permittedLanguageTags {
             guard let languageTag, permittedTags.contains(languageTag) else {
                 return false
@@ -176,7 +179,8 @@ public final class BibleVersionsViewModel {
     private func fallbackVersion(savedIds: Set<Int>) async -> Int? {
         let downloadedVersionIds = BibleVersionRepository.defaultDownloadedVersionIds
         if let downloadedVersionId = downloadedVersionIds.first(where: {
-            YouVersionPlatformConfiguration.permittedVersionIds?.contains($0) ?? true
+            !YouVersionPlatformConfiguration.excludedVersionIds.contains($0)
+                && (YouVersionPlatformConfiguration.permittedVersionIds?.contains($0) ?? true)
         }) {
             return downloadedVersionId
         }
