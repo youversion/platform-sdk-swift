@@ -9,7 +9,6 @@ import Testing
     @Test
     func handleVerseTapShowsDrawerWhenUnsignedOutAndSignInEnabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
@@ -27,7 +26,6 @@ import Testing
     @Test
     func handleVerseTapDoesNothingWhenUnsignedOutAndSignInDisabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: false)
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
@@ -40,7 +38,6 @@ import Testing
         #expect(viewModel.showingVerseActionsDrawer)
         #expect(viewModel.selectedVerses.count == 1)
         #expect(viewModel.selectedVerses.first?.passageId == "JHN.3.16")
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
     }
 
     @Test

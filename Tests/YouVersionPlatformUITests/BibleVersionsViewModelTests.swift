@@ -59,7 +59,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 }
 
 @MainActor
-@Suite struct BibleVersionsViewModelTests {
+@Suite(.serialized) struct BibleVersionsViewModelTests {
     @Test
     func initUsesSharedRepositoryByDefault() {
         let viewModel = BibleVersionsViewModel()
@@ -108,6 +108,23 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         #expect(viewModel.showGenericAlert)
         #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
         #expect(viewModel.textForGenericAlertBody == .localized("reader.versionAccessErrorBody"))
+    }
+
+    @Test
+    func excludedVersionIsNotPermitted() {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(
+            appKey: originalAppKey,
+            permittedVersionIds: [4212, 4213],
+            excludedVersionIds: [4212]
+        )
+        defer {
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+        }
+        let viewModel = BibleVersionsViewModel()
+
+        #expect(!viewModel.isPermitted(versionId: 4212, languageTag: "en"))
+        #expect(viewModel.isPermitted(versionId: 4213, languageTag: "en"))
     }
 
     @Test

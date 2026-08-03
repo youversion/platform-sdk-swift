@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.4.0](https://github.com/youversion/platform-sdk-swift/compare/5.3.0...5.4.0) (2026-07-27)
+
+
+### Features
+
+* add backoff to refresh token process ([fbed37a](https://github.com/youversion/platform-sdk-swift/commit/fbed37a3e4896a29b46b31f0c7e40cddf5034988))
+* adjust highlight colors when in dark mode ([1f0e6b6](https://github.com/youversion/platform-sdk-swift/commit/1f0e6b6a9670523ab7646d0d89c21d466137ae72))
+* **reader:** drive the reader to a passage via BibleReaderNavigation ([#174](https://github.com/youversion/platform-sdk-swift/issues/174)) ([8b6382a](https://github.com/youversion/platform-sdk-swift/commit/8b6382a451739e1691ff3cb9eb386a11ee06f513)), closes [#190](https://github.com/youversion/platform-sdk-swift/issues/190)
+* **reader:** focus a verse in the Bible reader BL-1901 ([#200](https://github.com/youversion/platform-sdk-swift/issues/200)) ([21caa5a](https://github.com/youversion/platform-sdk-swift/commit/21caa5a8836c50a0388a50a77d8cdbc2ee471b45))
+
+
+### Bug Fixes
+
+* avoid data race while refreshing tokens ([b771cdc](https://github.com/youversion/platform-sdk-swift/commit/b771cdc1f7c9c7cb1df0304d424bed6cca16c6f7))
+* language names list prefers the iOS name, but also sends Accept-Language ([193f47f](https://github.com/youversion/platform-sdk-swift/commit/193f47f700ba476fbcb8cafc3d765a7ab600afc7))
+* split wall-of-text chapters into 10-verse chunks when necessary ([57053ff](https://github.com/youversion/platform-sdk-swift/commit/57053fff40d4a4b8e7b1c6ee96bbce327b8585a3))
+
 ## [5.3.0](https://github.com/youversion/platform-sdk-swift/compare/5.2.3...5.3.0) (2026-07-10)
 
 

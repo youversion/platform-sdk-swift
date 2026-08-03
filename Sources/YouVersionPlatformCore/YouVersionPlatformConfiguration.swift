@@ -25,6 +25,11 @@ public struct YouVersionPlatformConfiguration {
     /// filters to be available.
     nonisolated(unsafe) public private(set) static var permittedVersionIds: Set<Int>?
 
+    /// Bible version IDs that should not be made available in the version picker UI,
+    /// restored selections, or automatic fallbacks. When empty, no versions are excluded.
+    /// Exclusion takes precedence over ``permittedVersionIds``.
+    nonisolated(unsafe) public private(set) static var excludedVersionIds: Set<Int> = []
+
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
 
@@ -54,7 +59,8 @@ public struct YouVersionPlatformConfiguration {
         isSignInEnabled: Bool = true,
         signInPromptMessage: String? = nil,
         permittedLanguageTags: Set<String>? = nil,
-        permittedVersionIds: Set<Int>? = nil
+        permittedVersionIds: Set<Int>? = nil,
+        excludedVersionIds: Set<Int> = []
     ) {
         let defaults = UserDefaults.standard
 
@@ -70,6 +76,7 @@ public struct YouVersionPlatformConfiguration {
         Self.signInPromptMessage = signInPromptMessage
         Self.permittedLanguageTags = permittedLanguageTags
         Self.permittedVersionIds = permittedVersionIds
+        Self.excludedVersionIds = excludedVersionIds
 
         // Create and save an Install ID if it's not present
         if let existing = defaults.string(forKey: installIdKey) {

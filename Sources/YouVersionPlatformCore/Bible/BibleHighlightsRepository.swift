@@ -69,6 +69,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     
     private let api: BibleHighlightsAPIProtocol
     private let retryDelayNanoseconds: UInt64
+    private let shouldProcessQueueAutomatically: Bool
     private var pendingServerOperations: [PendingHighlightOperation] = []
     private var operationResults: [UUID: OperationResult] = [:]
     private var processingQueue = false
@@ -79,11 +80,19 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     public init(api: BibleHighlightsAPIProtocol = BibleHighlightsAPI()) {
         self.api = api
         self.retryDelayNanoseconds = 2_000_000_000
+        self.shouldProcessQueueAutomatically = true
     }
 
     init(api: BibleHighlightsAPIProtocol, retryDelayNanoseconds: UInt64) {
         self.api = api
         self.retryDelayNanoseconds = retryDelayNanoseconds
+        self.shouldProcessQueueAutomatically = true
+    }
+
+    init(api: BibleHighlightsAPIProtocol, shouldProcessQueueAutomatically: Bool) {
+        self.api = api
+        self.retryDelayNanoseconds = 2_000_000_000
+        self.shouldProcessQueueAutomatically = shouldProcessQueueAutomatically
     }
     
     // MARK: - Public Methods
@@ -272,7 +281,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         pendingServerOperations.sort { $0.timestamp < $1.timestamp }
         
         // Start processing if not already running
-        if !processingQueue {
+        if shouldProcessQueueAutomatically && !processingQueue {
             Task {
                 await processQueue()
             }
@@ -288,7 +297,9 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         var nextProcessingDelayNanoseconds: UInt64?
         defer {
             processingQueue = false
-            if let nextProcessingDelayNanoseconds, !pendingServerOperations.isEmpty {
+            if shouldProcessQueueAutomatically,
+               let nextProcessingDelayNanoseconds,
+               !pendingServerOperations.isEmpty {
                 scheduleQueueProcessing(after: nextProcessingDelayNanoseconds)
             }
         }
