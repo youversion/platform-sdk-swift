@@ -264,6 +264,26 @@ struct BibleContentStorageTests {
     }
 
     @Test
+    func cleanupDuringCacheWritePreservesContentWrittenAfterExpirationMetadata() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let chapterResource = BibleContentStorageResource.chapter(
+            versionId: 206,
+            chapterPassageId: "GEN.1"
+        )
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+        let expirationDate = currentDate.addingTimeInterval(60)
+
+        try storage.writeExpirationDate(expirationDate, for: chapterResource)
+        storage.removeExpiredCachedResources(currentDate: currentDate)
+        try storage.writeString("fresh chapter content", to: chapterResource)
+
+        #expect(storage.string(for: chapterResource) == "fresh chapter content")
+        #expect(storage.expirationDate(for: chapterResource) == expirationDate)
+    }
+
+    @Test
     func removeDeletesResourceDirectory() throws {
         let temporaryStorage = try TemporaryStorage()
         defer { temporaryStorage.remove() }

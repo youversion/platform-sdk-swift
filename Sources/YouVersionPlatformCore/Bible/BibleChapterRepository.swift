@@ -79,11 +79,11 @@ actor BibleChapterDiskCache {
             chapterPassageId: reference.chapterPassageId
         )
         do {
+            try storage.writeExpirationDate(expirationDate, for: resource)
             try storage.writeString(
                 content,
                 to: resource
             )
-            try storage.writeExpirationDate(expirationDate, for: resource)
         } catch {
             storage.removeCachedResource(resource)
             YouVersionPlatformLogger.notice(

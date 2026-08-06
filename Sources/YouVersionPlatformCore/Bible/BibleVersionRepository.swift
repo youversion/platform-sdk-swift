@@ -89,8 +89,8 @@ actor BibleVersionDiskCache {
     func addVersion(_ version: BibleVersion, expirationDate: Date) {
         let resource = BibleContentStorageResource.versionMetadata(versionId: version.id)
         do {
-            try storage.writeEncoded(version, to: resource)
             try storage.writeExpirationDate(expirationDate, for: resource)
+            try storage.writeEncoded(version, to: resource)
         } catch {
             storage.removeCachedResource(resource)
             YouVersionPlatformLogger.notice(
