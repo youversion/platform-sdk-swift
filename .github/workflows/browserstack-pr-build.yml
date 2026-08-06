@@ -1,14 +1,14 @@
 name: BrowserStack App Live PR Build
 
 # First increment of YPE-3011: when an approved automation-repository
-# collaborator opens a same-repository PR, dispatch the existing SDK build for
-# the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
-# Live. Test automation and App Automate execution are deliberately out of
-# scope.
+# collaborator opens or updates a same-repository PR, dispatch the existing SDK
+# build for the PR's exact head SHA and upload the resulting .ipa to
+# BrowserStack App Live. Test automation and App Automate execution are
+# deliberately out of scope.
 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
@@ -16,6 +16,10 @@ permissions:
 env:
   AUTOMATION_REPO: youversion/platform_swift_sdk_automation
   WORKFLOW_FILE: build-sdk-app.yml
+
+concurrency:
+  group: app-live-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
 
 jobs:
   app-live-build:
@@ -52,14 +56,38 @@ jobs:
         if: steps.authorization.outputs.allowed == 'true'
         id: build
         env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
-          BUILD_NAME="swift-pr-$PR_NUMBER-$SHA7-src-$GITHUB_RUN_ID"
-          echo "name=$BUILD_NAME" >> "$GITHUB_OUTPUT"
-          echo "sha7=$SHA7" >> "$GITHUB_OUTPUT"
+
+          TICKET=$(printf '%s' "$HEAD_REF" | grep -Eio 'YPE-[0-9]+' | head -1 | tr '[:lower:]' '[:upper:]' || true)
+          if [ -n "$TICKET" ]; then
+            BUILD_KEY="$TICKET"
+          else
+            BRANCH_KEY=$(printf '%s' "$HEAD_REF" |
+              tr '[:upper:]' '[:lower:]' |
+              sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' |
+              cut -c1-40)
+            BUILD_KEY=${BRANCH_KEY:-pr-$PR_NUMBER}
+          fi
+
+          BUILD_PREFIX="swift-$BUILD_KEY-"
+          PRIOR_BUILDS=$(gh api \
+            "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=100" \
+            --jq "[.workflow_runs[] | select(.display_title | startswith(\"$BUILD_PREFIX\"))] | length")
+          BUILD_NUMBER=$((PRIOR_BUILDS + 1))
+          BUILD_NAME="$BUILD_PREFIX$BUILD_NUMBER"
+
+          {
+            echo "name=$BUILD_NAME"
+            echo "key=$BUILD_KEY"
+            echo "number=$BUILD_NUMBER"
+            echo "sha7=$SHA7"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Dispatch exact PR head to App Live
         if: steps.authorization.outputs.allowed == 'true'
