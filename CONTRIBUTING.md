@@ -143,22 +143,14 @@ The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK u
 
 #### Device builds on BrowserStack
 
-Device builds run in the `platform_swift_sdk_automation` repo, which builds
-and signs the SampleApp `.ipa` and uploads it to BrowserStack; its run
-summary contains the `bs://...` app id. This repo only dispatches that
-pipeline, two ways:
+When an approved collaborator on `platform_swift_sdk_automation` opens a PR
+from a branch in this repository, **BrowserStack App Live PR Build** dispatches
+the existing automation build for the PR's exact head commit. The automation
+repository builds and signs the SampleApp `.ipa`, uploads it to BrowserStack
+App Live, and returns the `bs://...` app id in the SDK workflow summary.
 
-- **BrowserStack PR Build** runs automatically on non-draft PRs from branches
-  in this repo, pinned to the PR's exact head commit. The check passes only
-  if the remote build and upload succeed, and its summary links the remote
-  run and the `bs://...` id.
-- **BrowserStack Build** (Actions tab) is the manual version: run it on any
-  branch to build and upload on demand, including to App Live.
-
-Builds are named `swift-<TICKET>-<N>`, with the ticket key taken from the
-branch name and `<N>` incrementing per build. Write access to this
-repository is the only requirement; no access to the automation repo is
-needed.
+This initial bridge produces an App Live build only. It does not run the Hinqa
+corpus or upload to App Automate.
 
 ## License
 

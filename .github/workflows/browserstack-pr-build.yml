@@ -1,190 +1,167 @@
-name: BrowserStack PR Build
+name: BrowserStack App Live PR Build
 
-# Cross-repository PR bridge (YPE-3011). For eligible PRs, dispatches the
-# 'Build SDK App → BrowserStack Upload' workflow in
-# youversion/platform_swift_sdk_automation against the PR's exact head SHA,
-# waits for the remote result, and passes only if the remote build and
-# BrowserStack upload succeed. No build, signing, or upload logic lives here.
-#
-# Trust model:
-#   - plain pull_request event; PR code is never checked out or executed
-#   - job runs only for non-draft PRs whose head branch lives in this repo
-#     (fork PRs never see the secret and are skipped outright)
-#   - the PR actor's write access is verified explicitly before dispatch
-#
-# Builds are named "swift-<TICKET>-<N> (PR #<num>, <sha7>, src-run <id>)":
-# the ticket comes from the head branch name, N increments per build of that
-# ticket, and the rest correlates the remote run back to this PR and run.
+# First increment of YPE-3011: when an approved automation-repository
+# collaborator opens a same-repository PR, dispatch the existing SDK build for
+# the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
+# Live. Test automation and App Automate execution are deliberately out of
+# scope.
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened]
 
 permissions:
   contents: read
-
-concurrency:
-  group: browserstack-pr-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 
 env:
   AUTOMATION_REPO: youversion/platform_swift_sdk_automation
   WORKFLOW_FILE: build-sdk-app.yml
 
 jobs:
-  build-on-browserstack:
-    name: Remote build & BrowserStack upload
+  app-live-build:
+    name: Build SampleApp for App Live
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.draft == false
+    timeout-minutes: 55
+    # Fork pull_request workflows cannot receive the cross-repository secret.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
     steps:
-      - name: Verify PR actor has write access
+      - name: Verify PR author is an approved automation collaborator
+        id: authorization
         env:
-          GH_TOKEN: ${{ github.token }}
-          ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           set -euo pipefail
-          PERM=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$ACTOR/permission" --jq '.permission' || echo "unknown")
-          case "$PERM" in
-            admin|maintain|write) echo "Actor '$ACTOR' has '$PERM' access." ;;
+          PERMISSION=$(gh api \
+            "repos/$AUTOMATION_REPO/collaborators/$PR_AUTHOR/permission" \
+            --jq '.permission')
+
+          case "$PERMISSION" in
+            admin|maintain|write)
+              echo "allowed=true" >> "$GITHUB_OUTPUT"
+              echo "PR author '$PR_AUTHOR' is approved with '$PERMISSION' access to $AUTOMATION_REPO."
+              ;;
             *)
-              echo "::error::Actor '$ACTOR' does not have write access to $GITHUB_REPOSITORY (got '$PERM'). Refusing to dispatch."
-              exit 1
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::PR author '$PR_AUTHOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
               ;;
           esac
 
-      - name: Compute build name
-        id: name
+      - name: Define remote build
+        if: steps.authorization.outputs.allowed == 'true'
+        id: build
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          HEAD_BRANCH: ${{ github.head_ref }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          TICKET=$(printf '%s' "$HEAD_BRANCH" | grep -oiE '^[a-z]+-[0-9]+' | tr '[:lower:]' '[:upper:]' || true)
-          test -n "$TICKET" || {
-            echo "::error::Head branch '$HEAD_BRANCH' does not start with a ticket key (e.g. YPE-1234)."
-            exit 1
-          }
-          # Remote run names look like "swift-YPE-1234-2 (...) #7"; find the
-          # highest existing N for this ticket and use N+1.
-          MAX=$(gh api "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?per_page=100" \
-            --jq '.workflow_runs[].display_title' |
-            grep -oE "^swift-$TICKET-[0-9]+" | grep -oE '[0-9]+$' | sort -n | tail -1 || true)
-          N=$(( ${MAX:-0} + 1 ))
           SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
-          echo "build_name=swift-$TICKET-$N (PR #$PR_NUMBER, $SHA7, src-run $GITHUB_RUN_ID)" >> "$GITHUB_OUTPUT"
-          echo "pr_marker=(PR #$PR_NUMBER," >> "$GITHUB_OUTPUT"
+          BUILD_NAME="swift-pr-$PR_NUMBER-$SHA7-src-$GITHUB_RUN_ID"
+          echo "name=$BUILD_NAME" >> "$GITHUB_OUTPUT"
+          echo "sha7=$SHA7" >> "$GITHUB_OUTPUT"
 
-      - name: Cancel superseded remote builds for this PR
+      - name: Dispatch exact PR head to App Live
+        if: steps.authorization.outputs.allowed == 'true'
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          PR_MARKER: ${{ steps.name.outputs.pr_marker }}
-        run: |
-          set -euo pipefail
-          for STATUS in queued in_progress; do
-            gh api "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?status=$STATUS&per_page=50" \
-              --jq ".workflow_runs[] | select(.display_title | contains(\"$PR_MARKER\")) | .id" |
-            while read -r OLD_ID; do
-              echo "Cancelling superseded remote run $OLD_ID"
-              gh api -X POST "repos/$AUTOMATION_REPO/actions/runs/$OLD_ID/cancel" || true
-            done
-          done
-
-      - name: Dispatch remote build (exact head SHA)
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          BUILD_NAME: ${{ steps.name.outputs.build_name }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           gh workflow run "$WORKFLOW_FILE" -R "$AUTOMATION_REPO" \
             -f sdk_ref="$HEAD_SHA" \
-            -f target="app-automate" \
+            -f target="app-live" \
             -f build_name="$BUILD_NAME"
-          echo "Dispatched '$BUILD_NAME' for $HEAD_SHA"
+          echo "Dispatched '$BUILD_NAME' for exact SDK SHA $HEAD_SHA."
 
-      - name: Locate remote run
-        id: locate
+      - name: Locate remote build
+        if: steps.authorization.outputs.allowed == 'true'
+        id: remote
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          BUILD_NAME: ${{ steps.name.outputs.build_name }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
         run: |
           set -euo pipefail
           RUN_ID=""
           for _ in $(seq 1 20); do
-            RUN_ID=$(gh api "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=20" \
-              --jq ".workflow_runs[] | select(.display_title | startswith(\"$BUILD_NAME \")) | .id" | head -1)
+            RUN_ID=$(gh api \
+              "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=20" \
+              --jq ".workflow_runs[] | select(.display_title | startswith(\"$BUILD_NAME \")) | .id" |
+              head -1)
             [ -n "$RUN_ID" ] && break
             sleep 3
           done
+
           test -n "$RUN_ID" || {
-            echo "::error::Dispatched build '$BUILD_NAME' but could not locate the remote run."
+            echo "::error::Dispatched '$BUILD_NAME' but could not locate its automation run."
             exit 1
           }
-          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "run_url=https://github.com/$AUTOMATION_REPO/actions/runs/$RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "Remote run: https://github.com/$AUTOMATION_REPO/actions/runs/$RUN_ID"
 
-      - name: Wait for remote result
+          echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "url=https://github.com/$AUTOMATION_REPO/actions/runs/$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for App Live upload
+        if: steps.authorization.outputs.allowed == 'true'
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          RUN_ID: ${{ steps.locate.outputs.run_id }}
+          RUN_ID: ${{ steps.remote.outputs.id }}
         run: |
           set -euo pipefail
           while :; do
             STATUS=$(gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID" --jq '.status')
             [ "$STATUS" = "completed" ] && break
-            echo "Remote run $RUN_ID: $STATUS"
+            echo "Remote build $RUN_ID: $STATUS"
             sleep 30
           done
+
           CONCLUSION=$(gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID" --jq '.conclusion')
-          echo "Remote run $RUN_ID concluded: $CONCLUSION"
+          echo "Remote build $RUN_ID concluded: $CONCLUSION"
           if [ "$CONCLUSION" != "success" ]; then
-            echo "::error::Remote build/upload failed ($CONCLUSION). See ${{ steps.locate.outputs.run_url }}"
+            echo "::error::SampleApp build or App Live upload failed ($CONCLUSION)."
             exit 1
           fi
 
-      - name: Extract BrowserStack app id from remote logs
-        id: appid
+      - name: Read App Live id
+        if: steps.authorization.outputs.allowed == 'true'
+        id: app_live
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          RUN_ID: ${{ steps.locate.outputs.run_id }}
+          RUN_ID: ${{ steps.remote.outputs.id }}
         run: |
           set -euo pipefail
-          # Dispatch-mode runs expose no outputs; the bs:// id is parsed from
-          # the remote run's logs (the upload step prints a ::notice:: line).
           gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID/logs" > /tmp/remote-logs.zip
           unzip -oq /tmp/remote-logs.zip -d /tmp/remote-logs
-          APP_ID=$(grep -rhoE 'Uploaded to App Automate: bs://[A-Za-z0-9]+' /tmp/remote-logs | head -1 | grep -oE 'bs://[A-Za-z0-9]+' || true)
-          if [ -z "$APP_ID" ]; then
-            echo "::warning::Remote build succeeded but no bs:// id was found in its logs; check the remote run summary."
-          fi
-          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
+          APP_ID=$(grep -rhoE 'Uploaded to App Live: bs://[A-Za-z0-9]+' /tmp/remote-logs |
+            head -1 | grep -oE 'bs://[A-Za-z0-9]+' || true)
+          test -n "$APP_ID" || {
+            echo "::error::Remote build succeeded but its App Live bs:// id was not found."
+            exit 1
+          }
+          echo "id=$APP_ID" >> "$GITHUB_OUTPUT"
 
       - name: Write summary
         if: always()
         env:
-          BUILD_NAME: ${{ steps.name.outputs.build_name }}
-          RUN_URL: ${{ steps.locate.outputs.run_url }}
-          APP_ID: ${{ steps.appid.outputs.app_id }}
+          ALLOWED: ${{ steps.authorization.outputs.allowed }}
+          APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ steps.remote.outputs.url }}
         run: |
           {
-            echo "## BrowserStack build"
+            echo "## BrowserStack App Live build"
             echo ""
+            if [ "$ALLOWED" != "true" ]; then
+              echo "No build was dispatched because PR author $PR_AUTHOR is not an approved collaborator on $AUTOMATION_REPO."
+              exit 0
+            fi
             echo "| Item | Value |"
             echo "|---|---|"
-            echo "| Build name | \`$BUILD_NAME\` |"
-            echo "| PR / SHA | #$PR_NUMBER @ \`$HEAD_SHA\` |"
-            [ -n "$RUN_URL" ] && echo "| Remote run | $RUN_URL |"
-            if [ -n "$APP_ID" ]; then
-              echo "| App Automate id | \`$APP_ID\` |"
-            elif [ -n "$RUN_URL" ]; then
-              echo "| App Automate id | not found in logs; see the remote run summary |"
-            fi
+            echo "| PR / SHA | #$PR_NUMBER @ $HEAD_SHA |"
+            echo "| Build name | $BUILD_NAME |"
+            echo "| Automation run | $RUN_URL |"
+            echo "| App Live id | $APP_LIVE_ID |"
           } >> "$GITHUB_STEP_SUMMARY"
