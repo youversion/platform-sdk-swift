@@ -86,7 +86,7 @@ actor BibleVersionDiskCache {
         storage.hasResource(.versionMetadata(versionId: id))
     }
 
-    func addVersion(_ version: BibleVersion, expirationDate: Date? = nil) {
+    func addVersion(_ version: BibleVersion, expirationDate: Date) {
         let resource = BibleContentStorageResource.versionMetadata(versionId: version.id)
         do {
             try storage.writeEncoded(version, to: resource)
@@ -285,9 +285,13 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
         // Otherwise, create a new fetch task
         let task = Task { [provider, memoryCache, diskCache] in
             let response = try await provider.version(withId: id)
-            async let memory: Void = memoryCache.addVersion(response.value, expirationDate: response.expirationDate)
-            async let disk: Void = diskCache.addVersion(response.value, expirationDate: response.expirationDate)
-            _ = await (memory, disk)
+            if response.isCacheable {
+                let expirationDate = response.expirationDate
+                    ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
+                async let memory: Void = memoryCache.addVersion(response.value, expirationDate: expirationDate)
+                async let disk: Void = diskCache.addVersion(response.value, expirationDate: expirationDate)
+                _ = await (memory, disk)
+            }
             return response.value
         }
 

@@ -8,11 +8,18 @@ final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sen
     private(set) var requestedIds: [Int] = []
     var result: BibleVersion
     var expirationDate: Date?
+    var isCacheable: Bool
     var error: Error?
 
-    init(result: BibleVersion, expirationDate: Date? = nil, error: Error? = nil) {
+    init(
+        result: BibleVersion,
+        expirationDate: Date? = .distantFuture,
+        isCacheable: Bool = true,
+        error: Error? = nil
+    ) {
         self.result = result
         self.expirationDate = expirationDate
+        self.isCacheable = isCacheable
         self.error = error
     }
 
@@ -21,7 +28,11 @@ final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sen
         if let error {
             throw error
         }
-        return CachedBibleContent(value: result, expirationDate: expirationDate)
+        return CachedBibleContent(
+            value: result,
+            expirationDate: expirationDate,
+            isCacheable: isCacheable
+        )
     }
 
     var callCount: Int { requestedIds.count }
@@ -71,7 +82,7 @@ struct BibleVersionRepositoryTests {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
-        await diskCache.addVersion(Self.fixture)
+        await diskCache.addVersion(Self.fixture, expirationDate: .distantFuture)
 
         let cached = try await repository.versionIfCached(Self.fixture.id)
         await diskCache.removeVersion(withId: Self.fixture.id)
@@ -133,6 +144,45 @@ struct BibleVersionRepositoryTests {
         #expect(second.id == Self.fixture.id)
         #expect(second.readerFooter == Self.fixture.readerFooter)
         #expect(api.callCount == 1)
+    }
+
+    @Test
+    func versionCachesResponseWithoutExpirationForDefaultDuration() async throws {
+        let currentDate = Date(timeIntervalSince1970: 1_000)
+        let api = BibleVersionAPIRequestCounter(
+            result: Self.fixture,
+            expirationDate: nil
+        )
+        let (repository, _, storage) = try makeRepository(apiRequestCounter: api)
+        defer { storage.remove() }
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+
+        _ = try await repository.version(withId: Self.fixture.id, currentDate: currentDate)
+        _ = try await repository.version(
+            withId: Self.fixture.id,
+            currentDate: currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration - 1)
+        )
+
+        #expect(api.callCount == 1)
+        #expect(await diskCache.version(withId: Self.fixture.id, currentDate: currentDate)?.id == Self.fixture.id)
+    }
+
+    @Test
+    func versionDoesNotCacheResponseThatForbidsCaching() async throws {
+        let api = BibleVersionAPIRequestCounter(
+            result: Self.fixture,
+            expirationDate: .distantFuture,
+            isCacheable: false
+        )
+        let (repository, _, storage) = try makeRepository(apiRequestCounter: api)
+        defer { storage.remove() }
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+
+        _ = try await repository.version(withId: Self.fixture.id)
+        _ = try await repository.version(withId: Self.fixture.id)
+
+        #expect(api.callCount == 2)
+        #expect(await diskCache.version(withId: Self.fixture.id) == nil)
     }
 
     @Test
@@ -214,7 +264,7 @@ struct BibleVersionRepositoryTests {
 
         #expect(diskCache.containsVersion(withId: Self.fixture.id) == false)
 
-        await diskCache.addVersion(Self.fixture)
+        await diskCache.addVersion(Self.fixture, expirationDate: .distantFuture)
 
         #expect(diskCache.containsVersion(withId: Self.fixture.id))
     }

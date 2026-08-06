@@ -7,6 +7,62 @@ import Testing
 
 @Suite(.serialized) struct BibleVersionAPITests {
 
+    @Test func cacheExpirationSubtractsResponseAge() throws {
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+        let response = try #require(HTTPURLResponse(
+            url: URL(string: "https://example.com")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: [
+                "Cache-Control": "public, max-age=86400",
+                "Age": "3600"
+            ]
+        ))
+
+        #expect(response.cacheExpirationDate(currentDate: currentDate) == currentDate.addingTimeInterval(82_800))
+    }
+
+    @Test func cacheExpirationUsesDefaultDurationWithoutUsableMaxAge() throws {
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+        let url = URL(string: "https://example.com")!
+        let headers = [
+            [:],
+            ["Cache-Control": "public"],
+            ["Cache-Control": "public, max-age=invalid"]
+        ]
+
+        for headerFields in headers {
+            let response = try #require(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: headerFields
+            ))
+            #expect(
+                response.cacheExpirationDate(currentDate: currentDate)
+                    == currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
+            )
+        }
+    }
+
+    @Test func explicitNoCacheDirectivesDisableCaching() throws {
+        let url = URL(string: "https://example.com")!
+        let headers = [
+            ["Cache-Control": "public, max-age=60, no-store"],
+            ["Cache-Control": "public, max-age=60, no-cache=\"Set-Cookie\""]
+        ]
+
+        for headerFields in headers {
+            let response = try #require(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: headerFields
+            ))
+            #expect(response.allowsCaching == false)
+        }
+    }
+
     @MainActor
     @Test func metadataForVersionDecodes() async throws {
         let (session, token) = HTTPMocking.makeSession()
@@ -99,6 +155,35 @@ import Testing
 
         #expect(expirationDate >= beforeRequestDate.addingTimeInterval(60))
         #expect(expirationDate <= Date().addingTimeInterval(60))
+    }
+
+    @MainActor
+    @Test func versionResponseIsNotCacheableWhenEitherResponseForbidsCaching() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let basic = Data(#"{"id":1,"title":"Test","language_tag":"en"}"#.utf8)
+        let index = Data(#"{"text_direction":"ltr","books":[]}"#.utf8)
+
+        HTTPMocking.setHandler(token: token) { request in
+            let isIndex = request.url?.path.contains("/index") == true
+            let headers = isIndex ? ["Cache-Control": "no-store"] : ["Cache-Control": "public, max-age=120"]
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: headers
+            )!
+            return (isIndex ? index : basic, response)
+        }
+
+        let response = try await YouVersionAPI.Bible.versionResponse(
+            withId: 1,
+            accessToken: "swift-test-suite",
+            session: session
+        )
+
+        #expect(response.isCacheable == false)
+        #expect(response.expirationDate != nil)
     }
 
     @MainActor

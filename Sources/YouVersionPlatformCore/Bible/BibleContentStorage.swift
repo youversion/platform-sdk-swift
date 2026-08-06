@@ -32,7 +32,7 @@ enum BibleContentStorageResource: Sendable {
 }
 
 private struct BibleContentCacheExpiration: Codable {
-    let expirationDate: Date?
+    let expirationDate: Date
 }
 
 struct BibleContentStorage: Sendable {
@@ -158,13 +158,10 @@ struct BibleContentStorage: Sendable {
         ) else {
             return true
         }
-        if let expirationDate = cacheExpiration.expirationDate {
-            return expirationDate <= currentDate
-        }
-        return false
+        return cacheExpiration.expirationDate <= currentDate
     }
 
-    func writeExpirationDate(_ expirationDate: Date?, for resource: BibleContentStorageResource) throws {
+    func writeExpirationDate(_ expirationDate: Date, for resource: BibleContentStorageResource) throws {
         try writeEncoded(
             BibleContentCacheExpiration(expirationDate: expirationDate),
             to: expirationResource(for: resource)
@@ -196,10 +193,7 @@ struct BibleContentStorage: Sendable {
                 try? FileManager.default.removeItem(at: expirationURL)
                 continue
             }
-            guard let expirationDate = cacheExpiration.expirationDate else {
-                continue
-            }
-            guard expirationDate <= currentDate else {
+            guard cacheExpiration.expirationDate <= currentDate else {
                 continue
             }
             try? FileManager.default.removeItem(at: expirationURL.deletingPathExtension())

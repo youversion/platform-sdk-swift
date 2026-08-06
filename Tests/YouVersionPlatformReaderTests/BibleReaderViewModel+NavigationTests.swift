@@ -418,7 +418,7 @@ let previousChapterCases: [PreviousChapterCase] = [
             chapterPassageId: chapterReference.chapterPassageId
         )
         try storage.writeString(html, to: resource)
-        try storage.writeExpirationDate(nil, for: resource)
+        try storage.writeExpirationDate(.distantFuture, for: resource)
         let viewModel = BibleReaderViewModel(reference: chapterReference)
 
         let text = await viewModel.shareableVerseText(references: [verseReference])
@@ -449,7 +449,7 @@ let previousChapterCases: [PreviousChapterCase] = [
             chapterPassageId: chapterReference.chapterPassageId
         )
         try storage.writeString(html, to: resource)
-        try storage.writeExpirationDate(nil, for: resource)
+        try storage.writeExpirationDate(.distantFuture, for: resource)
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(reference: chapterReference)
         viewModel.versionsViewModel.switchToVersion(
             BibleReaderViewModelTestSupport.makeBibleVersion(id: versionId)

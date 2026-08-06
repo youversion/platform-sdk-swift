@@ -8,11 +8,18 @@ final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchec
     private(set) var requestedReferences: [BibleReference] = []
     var result: String
     var expirationDate: Date?
+    var isCacheable: Bool
     var error: Error?
 
-    init(result: String, expirationDate: Date? = nil, error: Error? = nil) {
+    init(
+        result: String,
+        expirationDate: Date? = .distantFuture,
+        isCacheable: Bool = true,
+        error: Error? = nil
+    ) {
         self.result = result
         self.expirationDate = expirationDate
+        self.isCacheable = isCacheable
         self.error = error
     }
 
@@ -21,7 +28,11 @@ final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchec
         if let error {
             throw error
         }
-        return CachedBibleContent(value: result, expirationDate: expirationDate)
+        return CachedBibleContent(
+            value: result,
+            expirationDate: expirationDate,
+            isCacheable: isCacheable
+        )
     }
 
     var callCount: Int { requestedReferences.count }
@@ -58,7 +69,11 @@ struct BibleChapterRepositoryTests {
         let (repository, api, storage) = try makeRepository()
         defer { storage.remove() }
         let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
-        await diskCache.addChapterContent("<div>disk</div>", reference: reference)
+        await diskCache.addChapterContent(
+            "<div>disk</div>",
+            reference: reference,
+            expirationDate: .distantFuture
+        )
 
         let content = try await repository.chapter(withReference: reference)
         await diskCache.removeVersion(withId: reference.versionId)
@@ -112,6 +127,54 @@ struct BibleChapterRepositoryTests {
         #expect(first == "<div>server</div>")
         #expect(second == "<div>server</div>")
         #expect(api.callCount == 1)
+    }
+
+    @Test
+    func chapterCachesResponseWithoutExpirationForDefaultDuration() async throws {
+        let currentDate = Date(timeIntervalSince1970: 1_000)
+        let api = BibleChapterAPIRequestCounter(
+            result: "<div>first</div>",
+            expirationDate: nil
+        )
+        let (repository, _, storage) = try makeRepository(apiCounter: api)
+        defer { storage.remove() }
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
+
+        let first = try await repository.chapter(withReference: reference, currentDate: currentDate)
+        api.result = "<div>second</div>"
+        let second = try await repository.chapter(
+            withReference: reference,
+            currentDate: currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration - 1)
+        )
+
+        #expect(first == "<div>first</div>")
+        #expect(second == "<div>first</div>")
+        #expect(api.callCount == 1)
+        #expect(
+            await diskCache.chapterContent(withReference: reference, currentDate: currentDate)
+                == "<div>first</div>"
+        )
+    }
+
+    @Test
+    func chapterDoesNotCacheResponseThatForbidsCaching() async throws {
+        let api = BibleChapterAPIRequestCounter(
+            result: "<div>first</div>",
+            expirationDate: .distantFuture,
+            isCacheable: false
+        )
+        let (repository, _, storage) = try makeRepository(apiCounter: api)
+        defer { storage.remove() }
+        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
+
+        let first = try await repository.chapter(withReference: reference)
+        api.result = "<div>second</div>"
+        let second = try await repository.chapter(withReference: reference)
+
+        #expect(first == "<div>first</div>")
+        #expect(second == "<div>second</div>")
+        #expect(api.callCount == 2)
+        #expect(await diskCache.chapterContent(withReference: reference) == nil)
     }
 
     @Test
@@ -169,7 +232,11 @@ struct BibleChapterRepositoryTests {
         defer { storage.remove() }
         let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
 
-        await diskCache.addChapterContent("<div>disk</div>", reference: reference)
+        await diskCache.addChapterContent(
+            "<div>disk</div>",
+            reference: reference,
+            expirationDate: .distantFuture
+        )
         try writeDownloadedChapterContent("<div>download</div>", reference: reference, storage: storage)
 
         let diskContent = try await repository.chapter(withReference: reference)

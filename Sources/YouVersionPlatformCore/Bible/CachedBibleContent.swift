@@ -6,25 +6,50 @@ import FoundationNetworking
 struct CachedBibleContent<Value: Sendable>: Sendable {
     let value: Value
     let expirationDate: Date?
+    let isCacheable: Bool
+
+    init(value: Value, expirationDate: Date?, isCacheable: Bool = true) {
+        self.value = value
+        self.expirationDate = expirationDate
+        self.isCacheable = isCacheable
+    }
+}
+
+enum BibleContentCachePolicy {
+    static let defaultDuration: TimeInterval = 7 * 24 * 60 * 60
 }
 
 extension HTTPURLResponse {
-    func cacheExpirationDate(currentDate: Date = Date()) -> Date? {
-        guard let cacheControl = value(forHTTPHeaderField: "Cache-Control") else {
-            return nil
-        }
+    var allowsCaching: Bool {
+        !cacheControlDirectives.contains(where: {
+            let directiveName = $0.split(separator: "=", maxSplits: 1).first?.lowercased()
+            return directiveName == "no-cache" || directiveName == "no-store"
+        })
+    }
 
-        let maxAge = cacheControl
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+    func cacheExpirationDate(currentDate: Date = Date()) -> Date? {
+        let maxAge = cacheControlDirectives
             .first { $0.lowercased().hasPrefix("max-age=") }?
             .split(separator: "=", maxSplits: 1)
             .last?
             .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
 
-        guard let maxAge, let seconds = TimeInterval(maxAge), seconds >= 0 else {
-            return nil
+        let maximumAge: TimeInterval
+        if let maxAge, let parsedMaximumAge = TimeInterval(maxAge), parsedMaximumAge >= 0 {
+            maximumAge = parsedMaximumAge
+        } else {
+            maximumAge = BibleContentCachePolicy.defaultDuration
         }
-        return currentDate.addingTimeInterval(seconds)
+
+        let responseAge = value(forHTTPHeaderField: "Age")
+            .flatMap(TimeInterval.init) ?? 0
+        let remainingLifetime = max(0, maximumAge - max(0, responseAge))
+        return currentDate.addingTimeInterval(remainingLifetime)
+    }
+
+    private var cacheControlDirectives: [String] {
+        value(forHTTPHeaderField: "Cache-Control")?
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } ?? []
     }
 }

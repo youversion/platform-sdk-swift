@@ -52,7 +52,8 @@ public enum YouVersionAPI {
         }
         return CachedBibleContent(
             value: data,
-            expirationDate: httpResponse.cacheExpirationDate()
+            expirationDate: httpResponse.cacheExpirationDate(),
+            isCacheable: httpResponse.allowsCaching
         )
     }
 

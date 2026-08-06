@@ -52,10 +52,16 @@ extension YouVersionAPI.Bible {
                 books: index.books,
                 textDirection: index.textDirection,
             ),
-            expirationDate: [metadataResponse.expirationDate, indexResponse.expirationDate]
-                .compactMap { $0 }
-                .min()
+            expirationDate: combinedExpirationDate(
+                metadataResponse.expirationDate,
+                indexResponse.expirationDate
+            ),
+            isCacheable: metadataResponse.isCacheable && indexResponse.isCacheable
         )
+    }
+
+    private static func combinedExpirationDate(_ first: Date?, _ second: Date?) -> Date? {
+        [first, second].compactMap { $0 }.min()
     }
 
     @available(*, deprecated, renamed: "version(withId:accessToken:session:)")
@@ -93,7 +99,8 @@ extension YouVersionAPI.Bible {
         let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
         return CachedBibleContent(
             value: try JSONDecoder().decode(BibleVersion.self, from: response.value),
-            expirationDate: response.expirationDate
+            expirationDate: response.expirationDate,
+            isCacheable: response.isCacheable
         )
     }
 
@@ -117,7 +124,8 @@ extension YouVersionAPI.Bible {
         let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
         return CachedBibleContent(
             value: try JSONDecoder().decode(BibleVersionIndex.self, from: response.value),
-            expirationDate: response.expirationDate
+            expirationDate: response.expirationDate,
+            isCacheable: response.isCacheable
         )
     }
 
@@ -164,7 +172,8 @@ extension YouVersionAPI.Bible {
 
         return CachedBibleContent(
             value: content,
-            expirationDate: httpResponse.cacheExpirationDate()
+            expirationDate: httpResponse.cacheExpirationDate(),
+            isCacheable: httpResponse.allowsCaching
         )
     }
     

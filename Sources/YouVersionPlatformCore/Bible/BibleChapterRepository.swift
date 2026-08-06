@@ -73,7 +73,7 @@ actor BibleChapterDiskCache {
         )
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date? = nil) {
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date) {
         let resource = BibleContentStorageResource.chapter(
             versionId: reference.versionId,
             chapterPassageId: reference.chapterPassageId
@@ -204,16 +204,20 @@ public actor BibleChapterRepository: ObservableObject {
 
         let response = try await provider.chapterContent(for: reference)
 
-        await memoryCache.addChapterContent(
-            response.value,
-            reference: reference,
-            expirationDate: response.expirationDate
-        )
-        await diskCache.addChapterContent(
-            response.value,
-            reference: reference,
-            expirationDate: response.expirationDate
-        )
+        if response.isCacheable {
+            let expirationDate = response.expirationDate
+                ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
+            await memoryCache.addChapterContent(
+                response.value,
+                reference: reference,
+                expirationDate: expirationDate
+            )
+            await diskCache.addChapterContent(
+                response.value,
+                reference: reference,
+                expirationDate: expirationDate
+            )
+        }
 
         return response.value
     }
