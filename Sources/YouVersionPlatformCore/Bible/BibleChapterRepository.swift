@@ -42,65 +42,76 @@ actor ChapterMemoryCache {
 
 /// Manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
 actor BibleChapterDiskCache {
+    private let coordinator: BibleContentCacheCoordinator
     private let storage: BibleContentStorage
 
-    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+    init(
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider(),
+        coordinator: BibleContentCacheCoordinator = .shared
+    ) {
+        self.coordinator = coordinator
         storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
-    func chapterContent(withReference reference: BibleReference, currentDate: Date = Date()) -> String? {
-        cachedChapterContent(withReference: reference, currentDate: currentDate)?.value
+    func chapterContent(withReference reference: BibleReference, currentDate: Date = Date()) async -> String? {
+        await cachedChapterContent(withReference: reference, currentDate: currentDate)?.value
     }
 
     func cachedChapterContent(
         withReference reference: BibleReference,
         currentDate: Date
-    ) -> CachedBibleContent<String>? {
+    ) async -> CachedBibleContent<String>? {
         let resource = BibleContentStorageResource.chapter(
             versionId: reference.versionId,
             chapterPassageId: reference.chapterPassageId
         )
-        guard !storage.isExpired(resource, currentDate: currentDate) else {
-            storage.removeCachedResource(resource)
-            return nil
+        return await coordinator.perform {
+            guard !storage.isExpired(resource, currentDate: currentDate) else {
+                storage.removeCacheEntry(resource)
+                return nil
+            }
+            guard let content = storage.string(for: resource) else {
+                return nil
+            }
+            return CachedBibleContent(
+                value: content,
+                expirationDate: storage.expirationDate(for: resource)
+            )
         }
-        guard let content = storage.string(for: resource) else {
-            return nil
-        }
-        return CachedBibleContent(
-            value: content,
-            expirationDate: storage.expirationDate(for: resource)
-        )
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date) {
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date) async {
         let resource = BibleContentStorageResource.chapter(
             versionId: reference.versionId,
             chapterPassageId: reference.chapterPassageId
         )
-        do {
-            try storage.writeExpirationDate(expirationDate, for: resource)
-            try storage.writeString(
-                content,
-                to: resource
-            )
-        } catch {
-            storage.removeCachedResource(resource)
-            YouVersionPlatformLogger.notice(
-                "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
-                category: "ChapterCache"
-            )
+        await coordinator.perform {
+            do {
+                try storage.writeExpirationDate(expirationDate, for: resource)
+                try storage.writeString(
+                    content,
+                    to: resource
+                )
+            } catch {
+                storage.removeCacheEntry(resource)
+                YouVersionPlatformLogger.notice(
+                    "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
+                    category: "ChapterCache"
+                )
+            }
         }
     }
 
-    func removeVersion(withId id: Int) {
-        do {
-            try storage.remove(.chaptersDirectory(versionId: id))
-        } catch {
-            YouVersionPlatformLogger.notice(
-                "BibleChapterDiskCache got error while removing: \(error.localizedDescription)",
-                category: "ChapterCache"
-            )
+    func removeVersion(withId id: Int) async {
+        await coordinator.perform {
+            do {
+                try storage.remove(.chaptersDirectory(versionId: id))
+            } catch {
+                YouVersionPlatformLogger.notice(
+                    "BibleChapterDiskCache got error while removing: \(error.localizedDescription)",
+                    category: "ChapterCache"
+                )
+            }
         }
     }
 }
@@ -203,15 +214,16 @@ public actor BibleChapterRepository: ObservableObject {
         }
 
         let response = try await provider.chapterContent(for: reference)
+        let expirationDate = response.expirationDate
+            ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
+
+        await memoryCache.addChapterContent(
+            response.value,
+            reference: reference,
+            expirationDate: expirationDate
+        )
 
         if response.isCacheable {
-            let expirationDate = response.expirationDate
-                ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
-            await memoryCache.addChapterContent(
-                response.value,
-                reference: reference,
-                expirationDate: expirationDate
-            )
             await diskCache.addChapterContent(
                 response.value,
                 reference: reference,

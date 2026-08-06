@@ -57,50 +57,81 @@ actor BibleVersionMemoryCache {
 
 /// Manages a medium-duration cache of Bible version metadata; it's not in-memory therefore will survive the app being terminated.
 actor BibleVersionDiskCache {
+    private let coordinator: BibleContentCacheCoordinator
     private let storage: BibleContentStorage
 
-    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+    init(
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider(),
+        coordinator: BibleContentCacheCoordinator = .shared
+    ) {
+        self.coordinator = coordinator
         self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
-    func version(withId id: Int, currentDate: Date = Date()) -> BibleVersion? {
-        cachedVersion(withId: id, currentDate: currentDate)?.value
+    func version(withId id: Int, currentDate: Date = Date()) async -> BibleVersion? {
+        await cachedVersion(withId: id, currentDate: currentDate)?.value
     }
 
-    func cachedVersion(withId id: Int, currentDate: Date) -> CachedBibleContent<BibleVersion>? {
+    func cachedVersion(withId id: Int, currentDate: Date) async -> CachedBibleContent<BibleVersion>? {
         let resource = BibleContentStorageResource.versionMetadata(versionId: id)
-        guard !storage.isExpired(resource, currentDate: currentDate) else {
-            storage.removeCachedResource(resource)
-            return nil
+        return await coordinator.perform {
+            guard !storage.isExpired(resource, currentDate: currentDate) else {
+                storage.removeCacheEntry(resource)
+                return nil
+            }
+            guard let version = storage.decoded(BibleVersion.self, for: resource) else {
+                return nil
+            }
+            return CachedBibleContent(
+                value: version,
+                expirationDate: storage.expirationDate(for: resource)
+            )
         }
-        guard let version = storage.decoded(BibleVersion.self, for: resource) else {
-            return nil
-        }
-        return CachedBibleContent(
-            value: version,
-            expirationDate: storage.expirationDate(for: resource)
-        )
     }
 
     nonisolated func containsVersion(withId id: Int) -> Bool {
         storage.hasResource(.versionMetadata(versionId: id))
     }
 
-    func addVersion(_ version: BibleVersion, expirationDate: Date) {
+    func addVersion(_ version: BibleVersion, expirationDate: Date) async {
         let resource = BibleContentStorageResource.versionMetadata(versionId: version.id)
-        do {
-            try storage.writeExpirationDate(expirationDate, for: resource)
-            try storage.writeEncoded(version, to: resource)
-        } catch {
-            storage.removeCachedResource(resource)
-            YouVersionPlatformLogger.notice(
-                "BibleVersionDiskCache failed to write metadata for \(version.id): \(error.localizedDescription)",
-                category: "VersionCache"
-            )
+        await coordinator.perform {
+            do {
+                try storage.writeExpirationDate(expirationDate, for: resource)
+                try storage.writeEncoded(version, to: resource)
+            } catch {
+                storage.removeCacheEntry(resource)
+                YouVersionPlatformLogger.notice(
+                    "BibleVersionDiskCache failed to write metadata for \(version.id): \(error.localizedDescription)",
+                    category: "VersionCache"
+                )
+            }
         }
     }
 
-    func removeVersion(withId id: Int) {
+    func removeVersion(withId id: Int) async {
+        let storage = storage
+        await coordinator.perform {
+            Self.removeVersionFromStorage(withId: id, storage: storage)
+        }
+    }
+
+    func removeUnpermittedVersions(permittedIds: Set<Int>, currentDate: Date = Date()) async {
+        let storage = storage
+        await coordinator.perform {
+            storage.removeExpiredCachedResources(currentDate: currentDate)
+            let cached = storage.versionDirectoryIds
+            for id in cached where !permittedIds.contains(id) {
+                YouVersionPlatformLogger.notice(
+                    "Removing cached Bible version \(id) because it is no longer permitted",
+                    category: "VersionCache"
+                )
+                Self.removeVersionFromStorage(withId: id, storage: storage)
+            }
+        }
+    }
+
+    private static func removeVersionFromStorage(withId id: Int, storage: BibleContentStorage) {
         do {
             try storage.remove(.versionDirectory(versionId: id))
         } catch {
@@ -108,18 +139,6 @@ actor BibleVersionDiskCache {
                 "BibleVersionDiskCache got error while removing: \(error.localizedDescription)",
                 category: "VersionCache"
             )
-        }
-    }
-
-    func removeUnpermittedVersions(permittedIds: Set<Int>, currentDate: Date = Date()) {
-        storage.removeExpiredCachedResources(currentDate: currentDate)
-        let cached = storage.versionDirectoryIds
-        for id in cached where !permittedIds.contains(id) {
-            YouVersionPlatformLogger.notice(
-                "Removing cached Bible version \(id) because it is no longer permitted",
-                category: "VersionCache"
-            )
-            removeVersion(withId: id)
         }
     }
 }
@@ -285,12 +304,13 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
         // Otherwise, create a new fetch task
         let task = Task { [provider, memoryCache, diskCache] in
             let response = try await provider.version(withId: id)
+            let expirationDate = response.expirationDate
+                ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
+
+            await memoryCache.addVersion(response.value, expirationDate: expirationDate)
+
             if response.isCacheable {
-                let expirationDate = response.expirationDate
-                    ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
-                async let memory: Void = memoryCache.addVersion(response.value, expirationDate: expirationDate)
-                async let disk: Void = diskCache.addVersion(response.value, expirationDate: expirationDate)
-                _ = await (memory, disk)
+                await diskCache.addVersion(response.value, expirationDate: expirationDate)
             }
             return response.value
         }

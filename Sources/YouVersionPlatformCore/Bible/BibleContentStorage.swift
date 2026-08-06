@@ -35,6 +35,21 @@ private struct BibleContentCacheExpiration: Codable {
     let expirationDate: Date
 }
 
+private enum BibleContentStoragePath {
+    static let versionDirectoryPrefix = "bible_"
+    static let versionMetadataFileName = "BibleVersionMetadata_v1"
+    static let chaptersDirectoryName = "Chapters"
+    static let expirationFileExtension = "expiration"
+}
+
+actor BibleContentCacheCoordinator {
+    static let shared = BibleContentCacheCoordinator()
+
+    func perform<Value: Sendable>(_ operation: @Sendable () throws -> Value) rethrows -> Value {
+        try operation()
+    }
+}
+
 struct BibleContentStorage: Sendable {
     private let storageKind: BibleContentStorageKind
     private let directoryProvider: BibleContentDirectoryProviding
@@ -56,7 +71,7 @@ struct BibleContentStorage: Sendable {
         )) ?? []
 
         var ids: [Int] = []
-        let prefix = "bible_"
+        let prefix = BibleContentStoragePath.versionDirectoryPrefix
 
         for url in urls {
             if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
@@ -78,22 +93,28 @@ struct BibleContentStorage: Sendable {
         switch resource {
         case let .versionDirectory(versionId):
             directoryProvider.rootURL(for: storageKind)
-                .appending(path: "bible_\(versionId)", directoryHint: .isDirectory)
+                .appending(
+                    path: BibleContentStoragePath.versionDirectoryPrefix + String(versionId),
+                    directoryHint: .isDirectory
+                )
         case let .versionMetadata(versionId):
             url(for: .versionDirectory(versionId: versionId))
-                .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
+                .appending(
+                    path: BibleContentStoragePath.versionMetadataFileName,
+                    directoryHint: .notDirectory
+                )
         case let .versionMetadataExpiration(versionId):
             url(for: .versionMetadata(versionId: versionId))
-                .appendingPathExtension("expiration")
+                .appendingPathExtension(BibleContentStoragePath.expirationFileExtension)
         case let .chaptersDirectory(versionId):
             url(for: .versionDirectory(versionId: versionId))
-                .appending(path: "Chapters", directoryHint: .isDirectory)
+                .appending(path: BibleContentStoragePath.chaptersDirectoryName, directoryHint: .isDirectory)
         case let .chapter(versionId, chapterPassageId):
             url(for: .chaptersDirectory(versionId: versionId))
                 .appending(path: chapterPassageId, directoryHint: .notDirectory)
         case let .chapterExpiration(versionId, chapterPassageId):
             url(for: .chapter(versionId: versionId, chapterPassageId: chapterPassageId))
-                .appendingPathExtension("expiration")
+                .appendingPathExtension(BibleContentStoragePath.expirationFileExtension)
         }
     }
 
@@ -168,9 +189,8 @@ struct BibleContentStorage: Sendable {
         )
     }
 
-    func removeCachedResource(_ resource: BibleContentStorageResource) {
-        try? remove(resource)
-        try? remove(expirationResource(for: resource))
+    func removeCacheEntry(_ contentResource: BibleContentStorageResource) {
+        removeCacheEntry(at: url(for: contentResource))
     }
 
     func removeExpiredCachedResources(currentDate: Date) {
@@ -184,33 +204,34 @@ struct BibleContentStorage: Sendable {
         }
 
         let urls = enumerator.compactMap { $0 as? URL }
-        let expirationURLs = urls.filter { $0.pathExtension == "expiration" }
+        let expirationURLs = urls.filter {
+            $0.pathExtension == BibleContentStoragePath.expirationFileExtension
+        }
         for expirationURL in expirationURLs {
             guard let cacheExpiration = data(at: expirationURL).flatMap({
                 try? JSONDecoder().decode(BibleContentCacheExpiration.self, from: $0)
             }) else {
-                try? FileManager.default.removeItem(at: expirationURL.deletingPathExtension())
-                try? FileManager.default.removeItem(at: expirationURL)
+                removeCacheEntry(at: expirationURL.deletingPathExtension())
                 continue
             }
             guard cacheExpiration.expirationDate <= currentDate else {
                 continue
             }
-            try? FileManager.default.removeItem(at: expirationURL.deletingPathExtension())
-            try? FileManager.default.removeItem(at: expirationURL)
+            removeCacheEntry(at: expirationURL.deletingPathExtension())
         }
 
         let contentURLs = urls.filter { url in
             guard (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else {
                 return false
             }
-            return url.lastPathComponent == "BibleVersionMetadata_v1"
-                || (url.pathComponents.contains("Chapters") && url.pathExtension != "expiration")
+            return url.lastPathComponent == BibleContentStoragePath.versionMetadataFileName
+                || (url.pathComponents.contains(BibleContentStoragePath.chaptersDirectoryName)
+                    && url.pathExtension != BibleContentStoragePath.expirationFileExtension)
         }
         for contentURL in contentURLs where !FileManager.default.fileExists(
-            atPath: contentURL.appendingPathExtension("expiration").path
+            atPath: contentURL.appendingPathExtension(BibleContentStoragePath.expirationFileExtension).path
         ) {
-            try? FileManager.default.removeItem(at: contentURL)
+            removeCacheEntry(at: contentURL)
         }
     }
 
@@ -227,7 +248,7 @@ struct BibleContentStorage: Sendable {
     }
 
     func remove(_ resource: BibleContentStorageResource) throws {
-        try FileManager.default.removeItem(at: url(for: resource))
+        try removeItem(at: url(for: resource))
     }
 
     private func expirationResource(for resource: BibleContentStorageResource) -> BibleContentStorageResource {
@@ -247,5 +268,16 @@ struct BibleContentStorage: Sendable {
 
     private func data(at url: URL) -> Data? {
         try? Data(contentsOf: url)
+    }
+
+    private func removeCacheEntry(at contentURL: URL) {
+        try? removeItem(at: contentURL)
+        try? removeItem(
+            at: contentURL.appendingPathExtension(BibleContentStoragePath.expirationFileExtension)
+        )
+    }
+
+    private func removeItem(at url: URL) throws {
+        try FileManager.default.removeItem(at: url)
     }
 }

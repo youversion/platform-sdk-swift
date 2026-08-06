@@ -168,7 +168,7 @@ struct BibleVersionRepositoryTests {
     }
 
     @Test
-    func versionDoesNotCacheResponseThatForbidsCaching() async throws {
+    func versionCachesResponseThatForbidsPersistentCachingInMemoryOnly() async throws {
         let api = BibleVersionAPIRequestCounter(
             result: Self.fixture,
             expirationDate: .distantFuture,
@@ -181,7 +181,7 @@ struct BibleVersionRepositoryTests {
         _ = try await repository.version(withId: Self.fixture.id)
         _ = try await repository.version(withId: Self.fixture.id)
 
-        #expect(api.callCount == 2)
+        #expect(api.callCount == 1)
         #expect(await diskCache.version(withId: Self.fixture.id) == nil)
     }
 
@@ -376,5 +376,44 @@ struct BibleVersionRepositoryTests {
 
         #expect(await versionCache.version(withId: Self.fixture.id, currentDate: currentDate) == nil)
         #expect(await chapterCache.chapterContent(withReference: reference, currentDate: currentDate) == nil)
+    }
+
+    @Test
+    func cleanupAndChapterReplacementLeaveTheFreshEntryCached() async throws {
+        let currentDate = Date(timeIntervalSince1970: 2_000)
+        let storage = try RepositoryTemporaryStorage()
+        defer { storage.remove() }
+        let coordinator = BibleContentCacheCoordinator()
+        let versionCache = BibleVersionDiskCache(
+            directoryProvider: storage.provider,
+            coordinator: coordinator
+        )
+        let chapterCache = BibleChapterDiskCache(
+            directoryProvider: storage.provider,
+            coordinator: coordinator
+        )
+        let reference = BibleReference(versionId: Self.fixture.id, bookId: "GEN", chapter: 1)
+
+        await chapterCache.addChapterContent(
+            "<div>expired</div>",
+            reference: reference,
+            expirationDate: currentDate.addingTimeInterval(-1)
+        )
+
+        async let cleanup: Void = versionCache.removeUnpermittedVersions(
+            permittedIds: [Self.fixture.id],
+            currentDate: currentDate
+        )
+        async let replacement: Void = chapterCache.addChapterContent(
+            "<div>fresh</div>",
+            reference: reference,
+            expirationDate: currentDate.addingTimeInterval(60)
+        )
+        _ = await (cleanup, replacement)
+
+        #expect(
+            await chapterCache.chapterContent(withReference: reference, currentDate: currentDate)
+                == "<div>fresh</div>"
+        )
     }
 }

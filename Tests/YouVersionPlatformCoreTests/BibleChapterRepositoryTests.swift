@@ -157,7 +157,7 @@ struct BibleChapterRepositoryTests {
     }
 
     @Test
-    func chapterDoesNotCacheResponseThatForbidsCaching() async throws {
+    func chapterCachesResponseThatForbidsPersistentCachingInMemoryOnly() async throws {
         let api = BibleChapterAPIRequestCounter(
             result: "<div>first</div>",
             expirationDate: .distantFuture,
@@ -172,8 +172,8 @@ struct BibleChapterRepositoryTests {
         let second = try await repository.chapter(withReference: reference)
 
         #expect(first == "<div>first</div>")
-        #expect(second == "<div>second</div>")
-        #expect(api.callCount == 2)
+        #expect(second == "<div>first</div>")
+        #expect(api.callCount == 1)
         #expect(await diskCache.chapterContent(withReference: reference) == nil)
     }
 

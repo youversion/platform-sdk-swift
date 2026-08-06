@@ -212,7 +212,7 @@ struct BibleContentStorageTests {
         #expect(storage.isExpired(resource, currentDate: expirationDate.addingTimeInterval(-1)) == false)
         #expect(storage.isExpired(resource, currentDate: expirationDate))
 
-        storage.removeCachedResource(resource)
+        storage.removeCacheEntry(resource)
 
         #expect(storage.hasResource(resource) == false)
         #expect(storage.expirationDate(for: resource) == nil)
