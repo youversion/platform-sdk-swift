@@ -159,7 +159,10 @@ jobs:
           # the remote run's logs (the upload step prints a ::notice:: line).
           gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID/logs" > /tmp/remote-logs.zip
           unzip -oq /tmp/remote-logs.zip -d /tmp/remote-logs
-          APP_ID=$(grep -rhoE 'Uploaded to App Automate: bs://[a-f0-9]+' /tmp/remote-logs | head -1 | grep -oE 'bs://[a-f0-9]+' || true)
+          APP_ID=$(grep -rhoE 'Uploaded to App Automate: bs://[A-Za-z0-9]+' /tmp/remote-logs | head -1 | grep -oE 'bs://[A-Za-z0-9]+' || true)
+          if [ -z "$APP_ID" ]; then
+            echo "::warning::Remote build succeeded but no bs:// id was found in its logs; check the remote run summary."
+          fi
           echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
 
       - name: Write summary
@@ -179,5 +182,9 @@ jobs:
             echo "| Build name | \`$BUILD_NAME\` |"
             echo "| PR / SHA | #$PR_NUMBER @ \`$HEAD_SHA\` |"
             [ -n "$RUN_URL" ] && echo "| Remote run | $RUN_URL |"
-            [ -n "$APP_ID" ] && echo "| App Automate id | \`$APP_ID\` |"
+            if [ -n "$APP_ID" ]; then
+              echo "| App Automate id | \`$APP_ID\` |"
+            elif [ -n "$RUN_URL" ]; then
+              echo "| App Automate id | not found in logs; see the remote run summary |"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

@@ -71,7 +71,10 @@ jobs:
             --jq '.workflow_runs[].display_title' |
             grep -oE "^swift-$TICKET-[0-9]+" | grep -oE '[0-9]+$' | sort -n | tail -1 || true)
           N=$(( ${MAX:-0} + 1 ))
-          echo "build_name=swift-$TICKET-$N" >> "$GITHUB_OUTPUT"
+          # src-run suffix keeps the name unique even if a concurrent build
+          # of the same ticket allocates the same N, so the locate step below
+          # can never latch onto another dispatch's run.
+          echo "build_name=swift-$TICKET-$N (manual, src-run $GITHUB_RUN_ID)" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch
         env:
