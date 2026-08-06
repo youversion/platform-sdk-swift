@@ -8,7 +8,7 @@ name: BrowserStack App Live PR Build
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, reopened]
 
 permissions:
   contents: read
@@ -69,10 +69,21 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          gh workflow run "$WORKFLOW_FILE" -R "$AUTOMATION_REPO" \
-            -f sdk_ref="$HEAD_SHA" \
-            -f target="app-live" \
-            -f build_name="$BUILD_NAME"
+          jq -n \
+            --arg sdk_ref "$HEAD_SHA" \
+            --arg build_name "$BUILD_NAME" \
+            '{
+              ref: "main",
+              inputs: {
+                sdk_ref: $sdk_ref,
+                target: "app-live",
+                build_name: $build_name
+              }
+            }' |
+            gh api \
+              --method POST \
+              "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
+              --input -
           echo "Dispatched '$BUILD_NAME' for exact SDK SHA $HEAD_SHA."
 
       - name: Locate remote build
