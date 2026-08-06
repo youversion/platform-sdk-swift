@@ -65,6 +65,15 @@ targets.append(
     )
 )
 targets.append(
+    .testTarget(
+        name: "YouVersionPlatformReaderTests",
+        dependencies: [
+            "YouVersionPlatformCore",
+            "YouVersionPlatformReader",
+        ]
+    )
+)
+targets.append(
     .target(
         name: "YouVersionPlatform",
         dependencies: [
@@ -92,7 +101,7 @@ products.append(
 
 let package = Package(
     name: "YouVersionPlatform",
-    platforms: [.macOS(.v15), .iOS(.v17)],
+    platforms: [.macOS(.v15), .iOS(.v17), .tvOS(.v18)],
     products: products,
     dependencies: packageDependencies,
     targets: targets

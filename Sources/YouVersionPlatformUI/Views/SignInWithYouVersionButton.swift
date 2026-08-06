@@ -13,7 +13,7 @@ public struct SignInWithYouVersionButton: View {
         case rectangle
     }
     
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     private let shape: ButtonShape
     private let mode: Mode
     private let isStroked: Bool
@@ -33,9 +33,9 @@ public struct SignInWithYouVersionButton: View {
     }
     
     private var strokeColor: Color {
-        let colorGray25 = Color(red: 0x82 / 255.0, green: 0x80 / 255.0, blue: 0x80 / 255.0)
+        let colorGray15 = Color(red: 0xdd / 255.0, green: 0xdb / 255.0, blue: 0xdb / 255.0)
         let colorGray35 = Color(red: 0x47 / 255.0, green: 0x45 / 255.0, blue: 0x45 / 255.0)
-        return colorScheme == .dark ? colorGray35 : colorGray25
+        return colorScheme == .dark ? colorGray35 : colorGray15
     }
     
     private var bibleAppLogo: some View {
@@ -133,7 +133,7 @@ private struct SignInWithYouVersionButtonStyle: ButtonStyle {
                 )
         } else {
             content
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .clipShape(.rect(cornerRadius: 4))
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
                         .stroke(strokeColor, lineWidth: strokeWidth)

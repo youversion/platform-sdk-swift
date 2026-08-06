@@ -3,12 +3,11 @@ import YouVersionPlatformCore
 
 struct BibleReaderNavButtons: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack {
-            Button(action: {
-                viewModel.goToPreviousChapter()
-            }) {
+            Button(action: viewModel.goToPreviousChapter) {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)
@@ -20,9 +19,7 @@ struct BibleReaderNavButtons: View {
                 }
             }
             Spacer()
-            Button(action: {
-                viewModel.goToNextChapter()
-            }) {
+            Button(action: viewModel.goToNextChapter) {
                 ZStack {
                     Circle()
                         .fill(viewModel.readerCanvasPrimaryColor)
@@ -38,9 +35,24 @@ struct BibleReaderNavButtons: View {
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .allowsHitTesting(viewModel.version != nil && viewModel.showChrome)
-        .opacity(viewModel.version != nil ? 1 : 0.5)
-        .offset(y: viewModel.showChrome ? 0 : 200)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.showChrome)
+        .opacity(opacityForVisibility)
+        .offset(y: offsetForVisibility)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: viewModel.showChrome)
+    }
+
+    private var opacityForVisibility: Double {
+        let baseOpacity = viewModel.version != nil ? 1.0 : 0.5
+        if reduceMotion {
+            return viewModel.showChrome ? baseOpacity : 0
+        }
+        return baseOpacity
+    }
+
+    private var offsetForVisibility: CGFloat {
+        if reduceMotion {
+            return 0
+        }
+        return viewModel.showChrome ? 0 : 200
     }
 }
 

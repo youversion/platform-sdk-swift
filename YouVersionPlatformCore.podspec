@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'YouVersionPlatformCore'
   s.module_name  = 'YouVersionPlatformCore'
-  s.version      = '2.0.4'
+  s.version      = '5.4.0'
   s.summary      = 'Core layer for YouVersion Platform'
   s.homepage     = 'https://github.com/youversion/platform-sdk-swift'
   s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }
@@ -16,6 +16,11 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'SWIFT_COMPILATION_MODE' => 'wholemodule'
+    'SWIFT_COMPILATION_MODE' => 'wholemodule',
+    # SPM passes -package-name automatically based on Package.swift's `name`.
+    # CocoaPods does not, so any `package`-access-level symbol fails to build
+    # without this flag. Must match Package.swift's package name and be
+    # identical across all sibling pods that share `package` symbols.
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name YouVersionPlatform'
   }
 end

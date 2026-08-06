@@ -31,7 +31,7 @@ struct URLBuilderTests {
         #expect(versions.absoluteString == "https://api.youversion.com/v1/bibles?language_ranges%5B%5D=en&page_size=99")
 
         // Test /v1/bibles/{versionId}/passages endpoints
-        let reference = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
         let passage = try #require(URLBuilder.passageURL(reference: reference))
         #expect(passage.absoluteString == "https://api.youversion.com/v1/bibles/1/passages/GEN.1?format=text&include_notes=true&include_headings=true")
 
@@ -59,6 +59,38 @@ struct URLBuilderTests {
 
         let highlightsDelete = try #require(URLBuilder.highlightsDeleteURL(bibleId: 1, passageId: "GEN.1"))
         #expect(highlightsDelete.absoluteString == "https://api.youversion.com/v1/highlights/GEN.1?bible_id=1")
+    }
+
+    @Test
+    func testHighlightsDeleteURLWithHyphenatedPassageId() throws {
+        // Hyphens are valid URL path characters (RFC 3986), so a verse-range passageId like
+        // "GEN.1.3-GEN.1.5" is safe to interpolate directly into the path.
+        // Note: only URL-path-safe passageIds are supported; the source does not percent-encode
+        // the passageId before embedding it in the path segment.
+        let url = try #require(URLBuilder.highlightsDeleteURL(bibleId: 1, passageId: "GEN.1.3-GEN.1.5"))
+        #expect(url.absoluteString == "https://api.youversion.com/v1/highlights/GEN.1.3-GEN.1.5?bible_id=1")
+        #expect(url.path.contains("GEN.1.3-GEN.1.5"))
+    }
+
+    @Test
+    func testDataExchangeTokenURL() throws {
+        let url = try #require(URLBuilder.dataExchangeTokenURL(appKey: "app-key"))
+        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        let items = components.queryItems ?? []
+
+        #expect(components.path == "/data-exchange/token")
+        #expect(items.first { $0.name == "app-key" }?.value == "app-key")
+    }
+
+    @Test
+    func testDataExchangeURL() throws {
+        let url = try #require(URLBuilder.dataExchangeURL(token: "exchange-token", appKey: "app-key"))
+        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        let items = components.queryItems ?? []
+
+        #expect(components.path == "/data-exchange")
+        #expect(items.first { $0.name == "token" }?.value == "exchange-token")
+        #expect(items.first { $0.name == "app_key" }?.value == "app-key")
     }
 
     @Test

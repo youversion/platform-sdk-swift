@@ -27,30 +27,14 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
-                throw YouVersionAPIError.missingAuthentication
-            }
-            guard let url = URLBuilder.highlightsURL else {
-                throw URLError(.badURL)
-            }
-
-            let requestBody = HighlightRequest(
+            try await performHighlightRequest(
+                method: "POST",
                 bibleId: bibleId,
                 passageId: passageId,
-                color: color.lowercased()
+                color: color,
+                accessToken: providedToken,
+                session: session
             )
-
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONEncoder().encode(requestBody)
-
-            let (_, response) = try await session.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badServerResponse)
-            }
-
-            return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
         }
 
         // MARK: - Read (GET)
@@ -69,13 +53,13 @@ public extension YouVersionAPI {
         /// - Throws:
         ///   - `URLError.badURL` if the URL could not be constructed.
         ///   - `URLError.badServerResponse` if the server response could not be decoded.
-        public static func getHighlights(
+        public static func highlights(
             bibleId: Int,
             passageId: String,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> [HighlightResponse] {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
 
@@ -83,8 +67,8 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
 
-            let request = YouVersionAPI.buildRequest(
-                url: url,
+            let request = YouVersionAPI.urlRequest(
+                with: url,
                 accessToken: accessToken,
                 session: session,
                 cachePolicy: .reloadIgnoringLocalCacheData
@@ -96,7 +80,7 @@ public extension YouVersionAPI {
             }
 
             if httpResponse.statusCode == 401 {
-                print("getHighlights: error 401: unauthorized. Check your access token")
+                YouVersionPlatformLogger.error("highlights: error 401: unauthorized. Check your access token", category: "Highlights")
                 return []
             }
 
@@ -105,7 +89,7 @@ public extension YouVersionAPI {
             }
 
             guard httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
-                print("getHighlights: unexpected status code \(httpResponse.statusCode)")
+                YouVersionPlatformLogger.error("highlights: unexpected status code \(httpResponse.statusCode)", category: "Highlights")
                 return []
             }
 
@@ -114,6 +98,21 @@ public extension YouVersionAPI {
             }
 
             return decodedResponse.data
+        }
+
+        @available(*, deprecated, renamed: "highlights(bibleId:passageId:accessToken:session:)")
+        public static func getHighlights(
+            bibleId: Int,
+            passageId: String,
+            accessToken providedToken: String? = nil,
+            session: URLSession = .shared
+        ) async throws -> [HighlightResponse] {
+            try await highlights(
+                bibleId: bibleId,
+                passageId: passageId,
+                accessToken: providedToken,
+                session: session
+            )
         }
 
         // MARK: - Update (PUT)
@@ -137,27 +136,53 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            try await performHighlightRequest(
+                method: "PUT",
+                bibleId: bibleId,
+                passageId: passageId,
+                color: color,
+                accessToken: providedToken,
+                session: session
+            )
+        }
+
+        private static func performHighlightRequest(
+            method: String,
+            bibleId: Int,
+            passageId: String,
+            color: String,
+            accessToken providedToken: String?,
+            session: URLSession
+        ) async throws -> Bool {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
             guard let url = URLBuilder.highlightsURL else {
                 throw URLError(.badURL)
             }
-
-            let requestBody = HighlightRequest(
-                bibleId: bibleId,
-                passageId: passageId,
-                color: color.lowercased()
+            
+            let highlightRequest = HighlightRequest(
+                requestId: UUID().uuidString,
+                highlight: HighlightRequestBody(
+                    bibleId: bibleId,
+                    passageId: passageId,
+                    color: color.lowercased()
+                )
             )
-
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
-            request.httpMethod = "PUT"
+            
+            var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
+            request.httpMethod = method
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONEncoder().encode(requestBody)
+            request.httpBody = try JSONEncoder().encode(highlightRequest)
 
             let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
+            }
+            if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
+                YouVersionPlatformLogger.error("Highlights: error \(httpResponse.statusCode) on \(method) for bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
+            } else {
+                YouVersionPlatformLogger.debug("Highlights: successful \(method) for bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
             }
 
             return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
@@ -183,19 +208,25 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> Bool {
-            guard let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken else {
+            guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
             guard let url = URLBuilder.highlightsDeleteURL(bibleId: bibleId, passageId: passageId) else {
                 throw URLError(.badURL)
             }
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+            var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
             request.httpMethod = "DELETE"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
             let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
+            }
+
+            if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
+                YouVersionPlatformLogger.error("highlights: unexpected status code deleting: \(httpResponse.statusCode)", category: "Highlights")
+            } else {
+                YouVersionPlatformLogger.debug("Highlights: deleted at bibleId: \(bibleId), passageId: \(passageId)", category: "Highlights")
             }
 
             return httpResponse.statusCode >= 200 && httpResponse.statusCode < 300
@@ -205,7 +236,17 @@ public extension YouVersionAPI {
 
 // MARK: - Request/Response Models
 
-private struct HighlightRequest: Codable, CustomDebugStringConvertible {
+private struct HighlightRequest: Codable {
+    let requestId: String
+    let highlight: HighlightRequestBody
+    
+    enum CodingKeys: String, CodingKey {
+        case requestId = "request_id"
+        case highlight
+    }
+}
+
+private struct HighlightRequestBody: Codable, CustomDebugStringConvertible {
     let bibleId: Int
     let passageId: String
     let color: String

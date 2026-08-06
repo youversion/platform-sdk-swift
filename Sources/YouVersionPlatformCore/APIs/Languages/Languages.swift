@@ -60,9 +60,34 @@ public extension YouVersionAPI {
         /// - Parameters:
         ///   - country: An optional country code for filtering languages. If provided, only languages
         ///     used in that country will be returned.
+        ///   - fields: The fields to include in each language overview.
+        ///   - accessToken: An optional access token. Defaults to the configured access token.
         ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
         /// - Returns: An array of LanguageOverview objects.
         public static func languages(country: String? = nil, fields: [String] = [], accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
+            try await languages(
+                country: country,
+                preferredLanguage: nil,
+                fields: fields,
+                accessToken: providedToken,
+                session: session
+            )
+        }
+
+        /// Retrieves a list of languages supported in the Platform.
+        ///
+        /// This function fetches language overviews from the YouVersion Platform API.
+        /// A valid `YouVersionPlatformConfiguration.appKey` must be set for the request to succeed.
+        ///
+        /// - Parameters:
+        ///   - country: An optional country code for filtering languages. If provided, only languages
+        ///     used in that country will be returned.
+        ///   - preferredLanguage: An optional language code for localizing the response.
+        ///   - fields: The fields to include in each language overview.
+        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - session: The URLSession used to perform the request. Defaults to `URLSession.shared`.
+        /// - Returns: An array of LanguageOverview objects.
+        public static func languages(country: String? = nil, preferredLanguage: String? = nil, fields: [String] = [], accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [LanguageOverview] {
             let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
             var allResults: [LanguageOverview] = []
@@ -72,34 +97,37 @@ public extension YouVersionAPI {
                 guard let url = URLBuilder.languagesURL(
                     country: country,
                     fields: fields,
-                    pageSize: (1...5).contains(fields.count) ? nil : 99,
+                    pageSize: (1...3).contains(fields.count) ? nil : 99,
                     pageToken: pageToken
                 )
                 else {
                     throw URLError(.badURL)
                 }
 
-                let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+                var request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
+                if let preferredLanguage {
+                    request.setValue(preferredLanguage, forHTTPHeaderField: "Accept-Language")
+                }
                 let (data, response) = try await session.data(for: request)
 
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    print("unexpected response type")
+                    YouVersionPlatformLogger.error("unexpected response type", category: "Languages")
                     throw YouVersionAPIError.invalidResponse
                 }
 
                 if httpResponse.statusCode == 401 {
-                    print("error 401: unauthorized. Check your appKey")
+                    YouVersionPlatformLogger.error("error 401: unauthorized. Check your appKey", category: "Languages")
                     throw YouVersionAPIError.notPermitted
                 }
 
                 guard httpResponse.statusCode == 200 else {
-                    print("error in languages: \(httpResponse.statusCode)")
+                    YouVersionPlatformLogger.error("error in languages: \(httpResponse.statusCode)", category: "Languages")
                     throw YouVersionAPIError.cannotDownload
                 }
 
                 let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
                 allResults.append(contentsOf: responseObject.data)
-                pageToken = responseObject.next_page_token
+                pageToken = responseObject.nextPageToken
             } while pageToken != nil
 
             return allResults
@@ -107,8 +135,14 @@ public extension YouVersionAPI {
 
         private struct LanguagesResponse: Decodable {
             let data: [LanguageOverview]
-            let next_page_token: String?
-            let total_size: Int?
+            let nextPageToken: String?
+            let totalSize: Int?
+
+            enum CodingKeys: String, CodingKey {
+                case data
+                case nextPageToken = "next_page_token"
+                case totalSize = "total_size"
+            }
         }
     }
 }

@@ -1,0 +1,221 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: commit-lint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint-commits:
+    name: Lint commits & preview release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test release scripts
+        # Exercises scripts/release-validate.mjs and
+        # scripts/release-warn-version-jump.mjs — the version-validation
+        # paths called by scripts/release.sh at release time. Running
+        # here on every PR catches Node / OS / shell regressions before
+        # they reach a live release dispatch. This job runs Node 20 on
+        # ubuntu-latest; release.yml runs Node lts/* on macos-26 — the
+        # cross-environment coverage guards against env-dependent drift.
+        run: bash scripts/test-release-scripts.sh
+
+      - name: Lint commit messages
+        id: commitlint
+        run: |
+          set +e
+          # Use `origin/<base ref>` as the lint range's lower bound, not
+          # `pull_request.base.sha`. `base.sha` is a snapshot of the base
+          # ref at PR-event time and goes stale: if commits land on the
+          # base branch after the PR's last sync (e.g. a release), they
+          # appear inside `base.sha..head.sha` when the PR pulls them in
+          # via merge, and the lint then flags commits that already
+          # passed on the base. `origin/<base ref>` is always current
+          # main on the runner (`fetch-depth: 0` above), so the range
+          # `origin/main..head.sha` is exactly "commits in this PR that
+          # are not yet on main" — what we actually want to lint.
+          npx commitlint \
+            --from "origin/${{ github.event.pull_request.base.ref }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose > commitlint.log 2>&1
+          STATUS=$?
+          cat commitlint.log
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Compute release preview
+        id: preview
+        if: steps.commitlint.outputs.status == '0'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -e
+          # Direct call to `@semantic-release/commit-analyzer` via
+          # scripts/preview-release.mjs. Skips the full
+          # `semantic-release --dry-run` lifecycle entirely.
+          #
+          # Why this exists: the previous dry-run approach silently
+          # failed on PR events because semantic-release's core
+          # `verifyAuth` step runs `git push --dry-run` to test push
+          # permission — and the `pull_request`-event `GITHUB_TOKEN`
+          # has `contents: read` only. That auth check aborts the
+          # whole lifecycle BEFORE `analyzeCommits` runs, producing a
+          # silent false-negative "no bump" preview (the exact
+          # fail-open class that hid the major bump on the squash of
+          # PR #117). `--no-ci` skips the CI env check, not the auth
+          # verification — there is no flag to disable it.
+          #
+          # The analyzer module has no auth concerns, no env-ci, no
+          # branch-detection, no `verifyConditions`. Given a list of
+          # commits and the same plugin config production uses on
+          # `main` (read from `.releaserc.json`), it deterministically
+          # returns the release type.
+          #
+          # If the analyzer errors, this step fails (set -e). That is
+          # intentional: a broken preview should be loud, not silent.
+          node scripts/preview-release.mjs \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            > preview.json 2> analyzer.log
+          cat analyzer.log
+          cat preview.json
+
+          CURRENT=$(jq -r .current preview.json)
+          NEXT=$(jq -r .next preview.json)
+          RELEASE_TYPE=$(jq -r .release_type preview.json)
+          # Derive NO_BUMP / IS_MAJOR from RELEASE_TYPE rather than reading
+          # the script's `is_major` JSON field. `jq -r .is_major` would
+          # stringify the boolean as "true"/"false", but the comment-body
+          # step compares against "1"/"0" — depending on jq's output
+          # format here is a footgun. RELEASE_TYPE is canonical.
+          case "$RELEASE_TYPE" in
+            null)  NO_BUMP=1; IS_MAJOR=0 ;;
+            major) NO_BUMP=0; IS_MAJOR=1 ;;
+            *)     NO_BUMP=0; IS_MAJOR=0 ;;
+          esac
+
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+          echo "is_major=$IS_MAJOR" >> "$GITHUB_OUTPUT"
+          echo "no_bump=$NO_BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Build PR comment body
+        id: body
+        if: always()
+        run: |
+          set -e
+          MARKER='<!-- commit-lint-bot -->'
+          STATUS="${{ steps.commitlint.outputs.status }}"
+          CURRENT="${{ steps.preview.outputs.current }}"
+          NEXT="${{ steps.preview.outputs.next }}"
+          RELEASE_TYPE="${{ steps.preview.outputs.release_type }}"
+          NO_BUMP="${{ steps.preview.outputs.no_bump }}"
+          IS_MAJOR="${{ steps.preview.outputs.is_major }}"
+
+          {
+            echo "$MARKER"
+            if [ "$STATUS" = "0" ]; then
+              echo '## ✅ Commit Lint: passed'
+              echo
+              echo 'All commit messages in this PR conform to [Conventional Commits](https://www.conventionalcommits.org/).'
+              echo
+              if [ "${NO_BUMP:-0}" = "1" ]; then
+                echo "### 📦 Release preview: \`v$CURRENT\` (no bump)"
+                echo
+                echo 'These commits do not trigger a version bump. The published version on `main` would remain `v'"$CURRENT"'`.'
+              elif [ "${IS_MAJOR:-0}" = "1" ]; then
+                echo "### 🚨🚨🚨 Major version bump detected — \`v$CURRENT\` → \`v$NEXT\` (MAJOR)"
+                echo
+                echo 'The analyzer classified one or more commits as a major bump (a footer at start-of-line with the breaking-change token, or a `feat!:` / `fix!:` shorthand). If this is intentional, proceed. If this is prose accidentally tripping the parser, reword the offending commit body before merging — see the analyzer log below to identify which commit triggered the classification.'
+                echo
+                echo 'Because this PR introduces a breaking change, merging is **blocked by the `major-release-signoff` check** until a write-access collaborator comments with the precise version and a 🚀. See [RELEASING.md](./RELEASING.md#major-release-signoff) for the signoff format.'
+              else
+                BUMP_LABEL="${RELEASE_TYPE:-release}"
+                echo "### 📦 Release preview: \`v$CURRENT\` → \`v$NEXT\` ($BUMP_LABEL)"
+                echo
+                echo 'Merging this PR will, on the next manual release dispatch, ship as the version above.'
+              fi
+              echo
+              echo '<details><summary>Release analyzer output</summary>'
+              echo
+              echo '```'
+              tail -c 6000 analyzer.log 2>/dev/null || true
+              echo
+              echo '```'
+              echo '</details>'
+            else
+              echo '## ❌ Commit Lint: failed'
+              echo
+              echo 'One or more commit messages in this PR do not conform to [Conventional Commits](https://www.conventionalcommits.org/).'
+              echo 'This must be fixed before this PR can be merged.'
+              echo
+              echo '### commitlint output'
+              echo
+              echo '```'
+              cat commitlint.log
+              echo '```'
+              echo
+              echo '### How to fix'
+              echo
+              echo '1. Reword the offending commit(s) so the subject matches `type(scope): description`.'
+              echo '   - Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.'
+              echo '   - Breaking changes: append `!` after the type/scope, or add a `BREAKING CHANGE:` footer.'
+              echo '2. Rewrite history on your branch:'
+              echo
+              echo '   ```bash'
+              echo '   # most recent commit'
+              echo '   git commit --amend'
+              echo '   # earlier commits'
+              echo '   git rebase -i origin/${{ github.event.pull_request.base.ref }}'
+              echo '   git push --force-with-lease'
+              echo '   ```'
+              echo
+              echo 'See `commitlint.config.js` for the full ruleset.'
+            fi
+          } > comment.md
+          echo "path=$PWD/comment.md" >> "$GITHUB_OUTPUT"
+
+      - name: Find existing bot comment
+        if: always()
+        id: find_comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- commit-lint-bot -->'
+
+      - name: Upsert PR comment
+        if: always()
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: ${{ steps.body.outputs.path }}
+          edit-mode: replace
+
+      - name: Fail job if commitlint failed
+        if: steps.commitlint.outputs.status != '0'
+        run: |
+          echo "Commit lint failed — see PR comment for details."
+          exit 1

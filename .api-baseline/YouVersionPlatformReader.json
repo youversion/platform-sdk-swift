@@ -1,0 +1,1961 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "YouVersionPlatformReader",
+    "printedName": "YouVersionPlatformReader",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "AppKit",
+        "printedName": "AppKit",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "CoreText",
+        "printedName": "CoreText",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "Observation",
+        "printedName": "Observation",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "SwiftUI",
+        "printedName": "SwiftUI",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "YouVersionPlatformCore",
+        "printedName": "YouVersionPlatformCore",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "YouVersionPlatformUI",
+        "printedName": "YouVersionPlatformUI",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "_AuthenticationServices_SwiftUI",
+        "printedName": "_AuthenticationServices_SwiftUI",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "_Concurrency",
+        "printedName": "_Concurrency",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "_StringProcessing",
+        "printedName": "_StringProcessing",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "Import",
+        "name": "_SwiftConcurrencyShims",
+        "printedName": "_SwiftConcurrencyShims",
+        "declKind": "Import",
+        "moduleName": "YouVersionPlatformReader"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderNavigation",
+        "printedName": "BibleReaderNavigation",
+        "children": [
+          {
+            "kind": "TypeDecl",
+            "name": "Request",
+            "printedName": "Request",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "reference",
+                "printedName": "reference",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV9reference0abC4Core0E9ReferenceVvp",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV9reference0abC4Core0E9ReferenceVvp",
+                "moduleName": "YouVersionPlatformReader",
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV9reference0abC4Core0E9ReferenceVvg",
+                    "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV9reference0abC4Core0E9ReferenceVvg",
+                    "moduleName": "YouVersionPlatformReader",
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "showsFullChapter",
+                "printedName": "showsFullChapter",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV16showsFullChapterSbvp",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV16showsFullChapterSbvp",
+                "moduleName": "YouVersionPlatformReader",
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV16showsFullChapterSbvg",
+                    "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV16showsFullChapterSbvg",
+                    "moduleName": "YouVersionPlatformReader",
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "scrollsToVerse",
+                "printedName": "scrollsToVerse",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV14scrollsToVerseSbvp",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV14scrollsToVerseSbvp",
+                "moduleName": "YouVersionPlatformReader",
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV14scrollsToVerseSbvg",
+                    "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV14scrollsToVerseSbvg",
+                    "moduleName": "YouVersionPlatformReader",
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "shouldFocus",
+                "printedName": "shouldFocus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV11shouldFocusSbvp",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV11shouldFocusSbvp",
+                "moduleName": "YouVersionPlatformReader",
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV11shouldFocusSbvg",
+                    "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV11shouldFocusSbvg",
+                    "moduleName": "YouVersionPlatformReader",
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Function",
+                "name": "__derived_struct_equals",
+                "printedName": "__derived_struct_equals(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Request",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Request",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV23__derived_struct_equalsySbAE_AEtFZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV23__derived_struct_equalsySbAE_AEtFZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Implements"
+                ],
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7RequestV",
+            "moduleName": "YouVersionPlatformReader",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP",
+                "mangledName": "$ss8SendableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "SendableMetatype",
+                "printedName": "SendableMetatype",
+                "usr": "s:s16SendableMetatypeP",
+                "mangledName": "$ss16SendableMetatypeP"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "pendingRequest",
+            "printedName": "pendingRequest",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Request",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC14pendingRequestAC0H0VSgvp",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC14pendingRequestAC0H0VSgvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "SetterAccess",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Request",
+                        "printedName": "YouVersionPlatformReader.BibleReaderNavigation.Request",
+                        "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7RequestV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC14pendingRequestAC0H0VSgvg",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC14pendingRequestAC0H0VSgvg",
+                "moduleName": "YouVersionPlatformReader",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigation",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigation",
+                "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD10NavigationCACycfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationCACycfc",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "request",
+            "printedName": "request(_:showsFullChapter:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC7request_16showsFullChaptery0abC4Core0E9ReferenceV_SbtF",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC7request_16showsFullChaptery0abC4Core0E9ReferenceV_SbtF",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "focusReference",
+            "printedName": "focusReference(_:scrollsToVerse:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC14focusReference_14scrollsToVersey0abC4Core0eH0V_SbtF",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC14focusReference_14scrollsToVersey0abC4Core0eH0V_SbtF",
+            "moduleName": "YouVersionPlatformReader",
+            "intro_iOS": "18.0",
+            "declAttributes": [
+              "Final",
+              "Available",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD10NavigationC",
+        "moduleName": "YouVersionPlatformReader",
+        "declAttributes": [
+          "Final",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Observable",
+            "printedName": "Observable",
+            "usr": "s:11Observation10ObservableP",
+            "mangledName": "$s11Observation10ObservableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderView",
+        "printedName": "BibleReaderView",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:readerNavigation:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigation?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigation",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapter16readerNavigationAC0abC4Core0E9ReferenceV_0abC2UI0liJ0VyAKcSgSbAA0edR0CSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapter16readerNavigationAC0abC4Core0E9ReferenceV_0abC2UI0liJ0VyAKcSgSbAA0edR0CSgtcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "restoringLastPassage",
+            "printedName": "restoringLastPassage(verseSelectionStyle:onVerseTap:readerNavigation:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigation?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigation",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigation",
+                    "usr": "s:24YouVersionPlatformReader05BibleD10NavigationC"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV20restoringLastPassage19verseSelectionStyle10onVerseTap16readerNavigationAC0abC2UI0nkL0V_y0abC4Core0E9ReferenceVcSgAA0edQ0CSgtFZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV20restoringLastPassage19verseSelectionStyle10onVerseTap16readerNavigationAC0abC2UI0nkL0V_y0abC4Core0E9ReferenceVcSgAA0edQ0CSgtFZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(reference:verseSelectionStyle:onVerseTap:showsFullChapter:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapterAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAJcSgSbtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference19verseSelectionStyle10onVerseTap16showsFullChapterAC0abC4Core0E9ReferenceVSg_0abC2UI0liJ0VyAJcSgSbtcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "deprecated": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Available",
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(reference:appName:signInMessage:verseSelectionStyle:onVerseTap:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.BibleReference?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "VerseSelectionStyle",
+                "printedName": "YouVersionPlatformUI.VerseSelectionStyle",
+                "hasDefaultArg": true,
+                "usr": "s:20YouVersionPlatformUI19VerseSelectionStyleV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((YouVersionPlatformCore.BibleReference) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(YouVersionPlatformCore.BibleReference) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV9reference7appName13signInMessage19verseSelectionStyle10onVerseTapAC0abC4Core0E9ReferenceVSg_S2S0abC2UI0qnO0VyAKcSgtcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "deprecated": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Available",
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV4bodyQrvp",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV4bodyQrvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV4bodyQrvg",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV4bodyQrvg",
+                "moduleName": "YouVersionPlatformReader",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Body",
+            "printedName": "Body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV4Bodya",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV4Bodya",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD4ViewV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV",
+        "moduleName": "YouVersionPlatformReader",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderBookAndChapterPickerView",
+        "printedName": "BibleReaderBookAndChapterPickerView",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(expandedBookCode:isPresented:bookCodes:versionId:bookNameProvider:chapterLabelsProvider:introPassageId:onSelectionChange:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderBookAndChapterPickerView",
+                "printedName": "YouVersionPlatformReader.BibleReaderBookAndChapterPickerView",
+                "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Binding",
+                "printedName": "SwiftUI.Binding<Swift.String?>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "usr": "s:7SwiftUI7BindingV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Binding",
+                "printedName": "SwiftUI.Binding<Swift.Bool>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "usr": "s:7SwiftUI7BindingV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.String) -> Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.String) -> [Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.String) -> Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Swift.Int, Swift.String, Swift.Int?, Swift.String?) -> Swift.Void)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Int, Swift.String, Swift.Int?, Swift.String?) -> Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Swift.Int, Swift.String, Swift.Int?, Swift.String?)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Swift.Int?",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Int",
+                                "printedName": "Swift.Int",
+                                "usr": "s:Si"
+                              }
+                            ],
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Swift.String?",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "String",
+                                "printedName": "Swift.String",
+                                "usr": "s:SS"
+                              }
+                            ],
+                            "usr": "s:Sq"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV08expandedF4Code11isPresented9bookCodes9versionId0O12NameProvider013chapterLabelsT0012introPassageR017onSelectionChangeAC7SwiftUI7BindingVySSSgG_ANySbGSaySSGSiAOSScARSScAOSScySi_SSSiSgAOtcSgtcfc",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV08expandedF4Code11isPresented9bookCodes9versionId0O12NameProvider013chapterLabelsT0012introPassageR017onSelectionChangeAC7SwiftUI7BindingVySSSgG_ANySbGSaySSGSiAOSScARSScAOSScySi_SSSiSgAOtcSgtcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4bodyQrvp",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4bodyQrvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4bodyQrvg",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4bodyQrvg",
+                "moduleName": "YouVersionPlatformReader",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Body",
+            "printedName": "Body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4Bodya",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV4Bodya",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD24BookAndChapterPickerViewV",
+        "moduleName": "YouVersionPlatformReader",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderHeaderView",
+        "printedName": "BibleReaderHeaderView",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV4bodyQrvp",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV4bodyQrvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV4bodyQrvg",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV4bodyQrvg",
+                "moduleName": "YouVersionPlatformReader",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Body",
+            "printedName": "Body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV4Bodya",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV4Bodya",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV",
+        "moduleName": "YouVersionPlatformReader",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderIntroView",
+        "printedName": "BibleReaderIntroView",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD9IntroViewV4bodyQrvp",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD9IntroViewV4bodyQrvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD9IntroViewV4bodyQrvg",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD9IntroViewV4bodyQrvg",
+                "moduleName": "YouVersionPlatformReader",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "Body",
+            "printedName": "Body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ]
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:24YouVersionPlatformReader05BibleD9IntroViewV4Bodya",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD9IntroViewV4Bodya",
+            "moduleName": "YouVersionPlatformReader",
+            "implicit": true
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD9IntroViewV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD9IntroViewV",
+        "moduleName": "YouVersionPlatformReader",
+        "declAttributes": [
+          "Preconcurrency",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "ReaderFonts",
+        "printedName": "ReaderFonts",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "installFontsIfNeeded",
+            "printedName": "installFontsIfNeeded()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader0D5FontsO07installE8IfNeededyyFZ",
+            "mangledName": "$s24YouVersionPlatformReader0D5FontsO07installE8IfNeededyyFZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:24YouVersionPlatformReader0D5FontsO",
+        "mangledName": "$s24YouVersionPlatformReader0D5FontsO",
+        "moduleName": "YouVersionPlatformReader",
+        "isEnumExhaustive": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "Bundle",
+        "printedName": "Bundle",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "YouVersionReaderBundle",
+            "printedName": "YouVersionReaderBundle",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bundle",
+                "printedName": "Foundation.Bundle",
+                "usr": "c:objc(cs)NSBundle"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:So8NSBundleC24YouVersionPlatformReaderE0bcE6BundleABvpZ",
+            "mangledName": "$sSo8NSBundleC24YouVersionPlatformReaderE0bcE6BundleABvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "Final"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bundle",
+                    "printedName": "Foundation.Bundle",
+                    "usr": "c:objc(cs)NSBundle"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:So8NSBundleC24YouVersionPlatformReaderE0bcE6BundleABvgZ",
+                "mangledName": "$sSo8NSBundleC24YouVersionPlatformReaderE0bcE6BundleABvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:objc(cs)NSBundle",
+        "moduleName": "Foundation",
+        "isOpen": true,
+        "objc_name": "NSBundle",
+        "declAttributes": [
+          "ObjC",
+          "SynthesizedProtocol",
+          "NonSendable",
+          "Sendable",
+          "Dynamic"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "isExternal": true,
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  }
+}

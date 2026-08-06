@@ -2,7 +2,6 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct VotdView: View {
-    @State private var backgroundUrl: String?
     @State private var reference: BibleReference?
     @State private var title: String?
     @Environment(\.colorScheme) private var colorScheme
@@ -18,16 +17,7 @@ public struct VotdView: View {
             if reference != nil {
                 textStack
                     .padding()
-                    .foregroundStyle(backgroundUrl == nil ? Color.primary : Color.white)  // background images are dark
-                    .background(
-                        GeometryReader { geo in
-                            if let backgroundUrl, let url = URL(string: backgroundUrl) {
-                                votdBackground(url: url)
-                                    .frame(width: geo.size.width, height: geo.size.height)
-                                    .clipped()
-                            }
-                        }
-                    )
+                    .foregroundStyle(Color.primary)
             } else {
                 ProgressView()
             }
@@ -45,27 +35,17 @@ public struct VotdView: View {
                     self.reference = reference
                     self.title = version.displayTitle(for: reference, includesVersionAbbreviation: true)
                 } else {
-                    print("VotdView: could not load version, or reference is invalid for this version")
+                    YouVersionPlatformLogger.error(
+                        "VotdView: could not load version, or reference is invalid for this version",
+                        category: "VOTD"
+                    )
                 }
             } catch {
-                print("VotdView: error loading votd: \(error)")
+                YouVersionPlatformLogger.error("VotdView: error loading votd: \(error)", category: "VOTD")
             }
         }
     }
-    
-    private func votdBackground(url: URL) -> some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeInOut)) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFill()
-            default:
-                EmptyView()
-            }
-        }
-    }
-    
+
     private var textStack: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .top) {
@@ -89,10 +69,16 @@ public struct VotdView: View {
                 }
             }
             if let reference {
-                let textOptions = BibleTextOptions(fontSize: 24, renderVerseNumbers: false)
+                let textOptions = BibleTextOptions(
+                    fontSize: 24,
+                    renderHeadlines: false,
+                    renderVerseNumbers: false
+                )
                 BibleTextView(reference, textOptions: textOptions)
                     .minimumScaleFactor(0.5)
+#if !os(tvOS)
                     .textSelection(.enabled)
+#endif
                     .padding(.bottom, 16)
             } else {
                 ProgressView()

@@ -38,6 +38,26 @@ public enum URLBuilder {
         return components.url
     }
 
+    public static func dataExchangeTokenURL(appKey: String) -> URL? {
+        var components = baseURLComponents
+        components.path = "/data-exchange/token"
+        components.queryItems = [
+            URLQueryItem(name: "app-key", value: appKey)
+        ]
+        return components.url
+    }
+
+    public static func dataExchangeURL(token: String, appKey: String) -> URL? {
+        var components = baseURLComponents
+        components.path = "/data-exchange"
+        components.queryItems = [
+            URLQueryItem(name: "token", value: token),
+            URLQueryItem(name: "app_key", value: appKey),
+            URLQueryItem(name: "x-yvp-app-key", value: appKey)
+        ]
+        return components.url
+    }
+
     public static func organizationsURL(id: String) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/organizations/\(id)"
@@ -77,7 +97,19 @@ public enum URLBuilder {
     /// URL to fetch text and metadata for a given BibleReference. "format" must be "text" or "html".
     public static func passageURL(reference: BibleReference, format: String = "text") -> URL? {
         var components = baseURLComponents
-        components.path = "/v1/bibles/\(reference.versionId)/passages/\(reference.asUSFM)"
+        components.path = "/v1/bibles/\(reference.versionId)/passages/\(reference.passageId)"
+        components.queryItems = [
+            URLQueryItem(name: "format", value: format),
+            URLQueryItem(name: "include_notes", value: "true"),
+            URLQueryItem(name: "include_headings", value: "true")
+        ]
+        return components.url
+    }
+
+    /// URL to fetch text and metadata for a given BibleReference. "format" must be "text" or "html".
+    public static func passageIntroURL(versionId: Int, passageId: String, format: String = "html") -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1/bibles/\(versionId)/passages/\(passageId)"
         components.queryItems = [
             URLQueryItem(name: "format", value: format),
             URLQueryItem(name: "include_notes", value: "true"),

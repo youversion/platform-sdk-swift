@@ -1,250 +1,245 @@
 import Foundation
-//import ZipArchive // TEMPORARY
-// #if canImport(ZipArchive)
-// import ZipArchive
-// #elseif canImport(SSZipArchive)
-// import SSZipArchive
-// #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
-func urlForBibleContentDirectory(versionId: Int, kind: FileManager.SearchPathDirectory) -> URL {
-    let cachesDirectory = FileManager.default.urls(for: kind, in: .userDomainMask).first!
-    return cachesDirectory
-        .appending(path: "bible_\(versionId)", directoryHint: .isDirectory)
-}
+actor ChapterMemoryCache {
+    private var cache: [String: CachedBibleContent<String>] = [:]
 
-public actor ChapterDiskCache {
-    static func urlForChaptersDirectory(versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .cachesDirectory)
-            .appending(path: "Chapters", directoryHint: .isDirectory)
-    }
+    init() {}
 
-    static func urlForCachedChapter(withUSFM usfm: String, versionId: Int) -> URL {
-        urlForChaptersDirectory(versionId: versionId)
-            .appending(path: usfm, directoryHint: .notDirectory)
-    }
-
-    func chapterContent(withReference reference: BibleReference) -> String? {
-        guard let chapterUSFM = reference.chapterUSFM else {
+    func chapterContent(withReference reference: BibleReference, currentDate: Date) -> String? {
+        let key = Self.cacheKey(reference: reference)
+        guard let cached = cache[key] else {
             return nil
         }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        guard let data = try? Data(contentsOf: url) else {
+        if let expirationDate = cached.expirationDate, expirationDate <= currentDate {
+            cache[key] = nil
             return nil
         }
-        return String(data: data, encoding: .utf8)
+        return cached.value
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference) {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return
-        }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        do {
-            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if let data = content.data(using: .utf8) {
-                try data.write(to: url, options: .atomic)
-            } else {
-                print("WARNING: Failed to convert content to UTF-8 data for \(url)")
-            }
-        } catch {
-            print("WARNING: ChapterDiskCache failed to write data to \(url): \(error)")
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date? = nil) {
+        cache[Self.cacheKey(reference: reference)] = CachedBibleContent(
+            value: content,
+            expirationDate: expirationDate
+        )
+    }
+
+    func removeVersion(withId id: Int) {
+        let prefix = "\(id)_"
+        let keysToRemove = cache.keys.filter { $0.hasPrefix(prefix) }
+        for key in keysToRemove {
+            cache.removeValue(forKey: key)
         }
     }
 
-    public func removeVersion(versionId: Int) async {
-        let cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
-        do {
-            try FileManager.default.removeItem(at: cacheURL)
-        } catch {
-            print("ChapterDiskCache got error while removing: \(error.localizedDescription)")
-        }
+    private static func cacheKey(reference: BibleReference) -> String {
+        "\(reference.versionId)_\(reference.chapterPassageId)"
     }
 }
 
-// TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
-// (Plus, both of these are nearly identical to the code of VersionDiskCache and VersionDownloadCache!)
-public actor ChapterDownloadCache {
-    static func urlForChaptersDirectory(versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .applicationSupportDirectory)
-            .appending(path: "Chapters", directoryHint: .isDirectory)
+/// Manages a medium-duration cache of Bible chapter data; it's not in-memory therefore will survive the app being terminated.
+actor BibleChapterDiskCache {
+    private let coordinator: BibleContentCacheCoordinator
+    private let storage: BibleContentStorage
+
+    init(
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider(),
+        coordinator: BibleContentCacheCoordinator = .shared
+    ) {
+        self.coordinator = coordinator
+        storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
-    static func urlForCachedChapter(withUSFM usfm: String, versionId: Int) -> URL {
-        urlForChaptersDirectory(versionId: versionId)
-            .appending(path: usfm, directoryHint: .notDirectory)
+    func chapterContent(withReference reference: BibleReference, currentDate: Date = Date()) async -> String? {
+        await cachedChapterContent(withReference: reference, currentDate: currentDate)?.value
+    }
+
+    func cachedChapterContent(
+        withReference reference: BibleReference,
+        currentDate: Date
+    ) async -> CachedBibleContent<String>? {
+        let resource = BibleContentStorageResource.chapter(
+            versionId: reference.versionId,
+            chapterPassageId: reference.chapterPassageId
+        )
+        return await coordinator.perform {
+            guard !storage.isExpired(resource, currentDate: currentDate) else {
+                storage.removeCacheEntry(resource)
+                return nil
+            }
+            guard let content = storage.string(for: resource) else {
+                return nil
+            }
+            return CachedBibleContent(
+                value: content,
+                expirationDate: storage.expirationDate(for: resource)
+            )
+        }
+    }
+
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date) async {
+        let resource = BibleContentStorageResource.chapter(
+            versionId: reference.versionId,
+            chapterPassageId: reference.chapterPassageId
+        )
+        await coordinator.perform {
+            do {
+                try storage.writeExpirationDate(expirationDate, for: resource)
+                try storage.writeString(
+                    content,
+                    to: resource
+                )
+            } catch {
+                storage.removeCacheEntry(resource)
+                YouVersionPlatformLogger.notice(
+                    "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
+                    category: "ChapterCache"
+                )
+            }
+        }
+    }
+
+    func removeVersion(withId id: Int) async {
+        await coordinator.perform {
+            do {
+                try storage.remove(.chaptersDirectory(versionId: id))
+            } catch {
+                YouVersionPlatformLogger.notice(
+                    "BibleChapterDiskCache got error while removing: \(error.localizedDescription)",
+                    category: "ChapterCache"
+                )
+            }
+        }
+    }
+}
+
+/// Manages the chapter files of Bible versions which the user chose to download, e.g. for offline usage.
+actor BibleChapterDownloadCache {
+    private let storage: BibleContentStorage
+
+    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+        storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
     func chapterContent(withReference reference: BibleReference) -> String? {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return nil
-        }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        return String(data: data, encoding: .utf8)
+        storage.string(
+            for: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+        )
     }
 
-    /* TEMPORARY
-    func addChapterContent(_ content: String, reference: BibleReference) {
-        guard let chapterUSFM = reference.chapterUSFM else {
-            return
-        }
-        let url = Self.urlForCachedChapter(withUSFM: chapterUSFM, versionId: reference.versionId)
+    nonisolated func chaptersArePresent(versionId: Int) -> Bool {
+        storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: versionId))
+    }
+
+    func removeVersion(withId id: Int) {
         do {
-            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if let data = content.data(using: .utf8) {
-                try data.write(to: url, options: .atomic)
-            } else {
-                print("WARNING: Failed to convert content to UTF-8 data for \(url)")
-            }
+            try storage.remove(.chaptersDirectory(versionId: id))
         } catch {
-            print("WARNING: ChapterDownloadCache failed to write data to \(url): \(error)")
+            YouVersionPlatformLogger.notice(
+                "BibleChapterDownloadCache got error while removing: \(error.localizedDescription)",
+                category: "ChapterCache"
+            )
         }
     }
+}
 
-    /// Downloads and installs a complete version bundle
-    func downloadVersionBundle(versionId: Int, build: Int, accessToken: String) async throws {
-        guard let appKey = YouVersionPlatformConfiguration.appKey else {
-            fatalError("YouVersionPlatformConfiguration.appKey must be set.")
-        }
+protocol BibleChapterContentProviding: Sendable {
+    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String>
+}
 
-        let host = YouVersionPlatformConfiguration.apiHost
-        let url = URL(string: "https://\(host)/bible/bundle?version=\(versionId)&build=\(build)")!
-        var request = URLRequest(url: url)
-        request.setValue(appKey, forHTTPHeaderField: "x-yvp-app-key")
-        request.setValue(YouVersionPlatformConfiguration.installId, forHTTPHeaderField: "x-yvp-installation-id")
-        request.setValue(accessToken, forHTTPHeaderField: "x-yv-lat")
+final class BibleChapterContentAPI: BibleChapterContentProviding {
+    init() {}
 
-        let (localURL, response) = try await URLSession.shared.download(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("downloadVersionBundle: unexpected response type")
-            throw YouVersionAPIError.invalidResponse
-        }
-
-        if httpResponse.statusCode == 401 {
-            print("downloadVersionBundle: 401 Unauthorized (possibly a bad appKey, or the user has not granted permission)")
-            throw YouVersionAPIError.notPermitted
-        }
-
-        guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while downloading a version")
-            throw YouVersionAPIError.cannotDownload
-        }
-
-        var cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
-        try FileManager.default.createDirectory(at: cacheURL, withIntermediateDirectories: true)
-
-        SSZipArchive.unzipFile(atPath: localURL.path(), toDestination: cacheURL.path(percentEncoded: false))
-
-        // exclude it from iCloud backup
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try? cacheURL.setResourceValues(values)
+    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String> {
+        try await YouVersionAPI.Bible.chapterResponse(reference: reference)
     }
-     */
-
-    nonisolated public func chaptersArePresent(versionId: Int) -> Bool {
-        let path = Self.urlForChaptersDirectory(versionId: versionId).path()
-        if let contents = FileManager.default.subpaths(atPath: path) {
-            return !contents.isEmpty
-        }
-        return false
-    }
-
-    public func removeVersion(versionId: Int) async {
-        let cacheURL = Self.urlForChaptersDirectory(versionId: versionId)
-        do {
-            try FileManager.default.removeItem(at: cacheURL)
-        } catch {
-            print("ChapterDownloadCache got error while removing: \(error.localizedDescription)")
-        }
-    }
-
 }
 
 public actor BibleChapterRepository: ObservableObject {
 
     public static let shared = BibleChapterRepository()
 
-    // TODO: add MRU functionality and a maximum number of entries to this memoryCache.
-    private var memoryCache: [String: String] = [:]
-    private var diskCache = ChapterDiskCache()
-    private var downloadCache = ChapterDownloadCache()
+    private let provider: BibleChapterContentProviding
+    private let memoryCache: ChapterMemoryCache
+    private let diskCache: BibleChapterDiskCache
+    private let downloadCache: BibleChapterDownloadCache
 
-    static func cacheKey(reference: BibleReference) -> String {
-        "\(reference.versionId)_\(reference.chapterUSFM ?? "unknown")"
+    public init() {
+        self.init(
+            provider: BibleChapterContentAPI(),
+            directoryProvider: DefaultBibleContentDirectoryProvider()
+        )
     }
 
-    func removeChaptersFromMemoryCache(withId versionId: Int) {
-        let prefix = "\(versionId)_"
-        let keysToRemove = memoryCache.keys.filter { $0.hasPrefix(prefix) }
-        for key in keysToRemove {
-            memoryCache.removeValue(forKey: key)
-        }
+    init(
+        provider: BibleChapterContentProviding,
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
+    ) {
+        self.provider = provider
+        self.memoryCache = ChapterMemoryCache()
+        self.diskCache = BibleChapterDiskCache(directoryProvider: directoryProvider)
+        self.downloadCache = BibleChapterDownloadCache(directoryProvider: directoryProvider)
     }
 
     public func chapter(withReference reference: BibleReference) async throws -> String {
-        let cacheKey = Self.cacheKey(reference: reference)
+        try await chapter(withReference: reference, currentDate: Date())
+    }
 
-        if let cachedContent = memoryCache[cacheKey] {
+    func chapter(withReference reference: BibleReference, currentDate: Date) async throws -> String {
+        if let cachedContent = await memoryCache.chapterContent(
+            withReference: reference,
+            currentDate: currentDate
+        ) {
             return cachedContent
         }
 
-        if let cachedContent = await diskCache.chapterContent(withReference: reference) {
-            memoryCache[cacheKey] = cachedContent
-            return cachedContent
+        if let cached = await diskCache.cachedChapterContent(
+            withReference: reference,
+            currentDate: currentDate
+        ) {
+            await memoryCache.addChapterContent(
+                cached.value,
+                reference: reference,
+                expirationDate: cached.expirationDate
+            )
+            return cached.value
         }
 
         if let cachedContent = await downloadCache.chapterContent(withReference: reference) {
-            memoryCache[cacheKey] = cachedContent
+            await memoryCache.addChapterContent(cachedContent, reference: reference)
             return cachedContent
         }
 
-        let content = try await YouVersionAPI.Bible.chapter(reference: reference)
+        let response = try await provider.chapterContent(for: reference)
 
-        memoryCache[cacheKey] = content
-        await diskCache.addChapterContent(content, reference: reference)
+        await memoryCache.addChapterContent(
+            response.value,
+            reference: reference,
+            expirationDate: response.expirationDate
+        )
 
-        return content
-    }
-
-    func cachedChapter(withReference reference: BibleReference) throws -> String? {
-        let cacheKey = Self.cacheKey(reference: reference)
-        return memoryCache[cacheKey]
-    }
-
-    /* TEMPORARY
-    public func download(version: BibleVersion) async throws {
-        guard let accessToken = YouVersionPlatformConfiguration.accessToken else {
-            throw YouVersionAPIError.notPermitted
-        }
-        guard let build = version.offline?.build?.max else {
-            print("no build info")
-            throw YouVersionAPIError.cannotDownload
-        }
-        do {
-            try await downloadCache.downloadVersionBundle(
-                versionId: version.id,
-                build: build,
-                accessToken: accessToken
+        if response.isCacheable {
+            await diskCache.addChapterContent(
+                response.value,
+                reference: reference,
+                expirationDate: response.expirationDate
             )
-        } catch {
-            print("download failed: \(error)")
-            throw error
         }
-        await diskCache.removeVersion(versionId: version.id)  // no need to keep 2 copies
-    }*/
+
+        return response.value
+    }
 
     func chaptersArePresent(versionId: Int) -> Bool {
         downloadCache.chaptersArePresent(versionId: versionId)
     }
 
-    @MainActor
-    public func removeVersion(withId versionId: Int) async {
-        await removeChaptersFromMemoryCache(withId: versionId)
-        await diskCache.removeVersion(versionId: versionId)
-        await downloadCache.removeVersion(versionId: versionId)
+    public func removeVersion(withId id: Int) async {
+        async let memory: Void = memoryCache.removeVersion(withId: id)
+        async let disk: Void = diskCache.removeVersion(withId: id)
+        async let download: Void = downloadCache.removeVersion(withId: id)
+        _ = await (memory, disk, download)
     }
 }

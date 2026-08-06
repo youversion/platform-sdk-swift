@@ -11,25 +11,25 @@ extension URLRequest {
             return try? JSONSerialization.jsonObject(with: bodyData, options: .allowFragments)
         }
         guard let bodyStream = self.httpBodyStream else { return nil }
-
+        
         bodyStream.open()
-
+        
         // Will read 16 chars per iteration. Can use bigger buffer if needed
         let bufferSize: Int = 16
-
+        
         let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-
+        
         var dat = Data()
-
+        
         while bodyStream.hasBytesAvailable {
             let readDat = bodyStream.read(buffer, maxLength: bufferSize)
             dat.append(buffer, count: readDat)
         }
-
+        
         buffer.deallocate()
-
+        
         bodyStream.close()
-
+        
         do {
             return try JSONSerialization.jsonObject(with: dat, options: JSONSerialization.ReadingOptions.allowFragments)
         } catch {
@@ -40,23 +40,43 @@ extension URLRequest {
 }
 
 @Suite(.serialized) struct HighlightsAPITests {
-
+    
     @MainActor
     @Test func testCreateHighlightSuccess() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
-        struct Body: Decodable { let bible_id: Int; let passage_id: String; let color: String }
+        
+        struct Body: Decodable {
+            let requestId: String
+            let highlight: Highlight
+            
+            enum CodingKeys: String, CodingKey {
+                case requestId = "request_id"
+                case highlight
+            }
+        }
+        
+        struct Highlight: Decodable {
+            let bibleId: Int
+            let passageId: String
+            let color: String
+            
+            enum CodingKeys: String, CodingKey {
+                case bibleId = "bible_id"
+                case passageId = "passage_id"
+                case color
+            }
+        }
         var captured: URLRequest?
         var capturedJSONBody: Any?
-
+        
         HTTPMocking.setHandler(token: token) { request in
             captured = request
             capturedJSONBody = request.bodyStreamAsJSON()
             let response = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
+        
         let result = try await YouVersionAPI.Highlights.createHighlight(
             bibleId: 1,
             passageId: "GEN.1.1",
@@ -64,7 +84,7 @@ extension URLRequest {
             accessToken: "swift-test-suite",
             session: session
         )
-
+        
         let request = try #require(captured)
         #expect(request.httpMethod == "POST")
         
@@ -72,35 +92,36 @@ extension URLRequest {
         let jsonBody = try #require(capturedJSONBody)
         let jsonData = try JSONSerialization.data(withJSONObject: jsonBody)
         let decoded = try JSONDecoder().decode(Body.self, from: jsonData)
-        #expect(decoded.bible_id == 1)
-        #expect(decoded.passage_id == "GEN.1.1")
-        #expect(decoded.color == "ff00ff")
+        #expect(UUID(uuidString: decoded.requestId) != nil)
+        #expect(decoded.highlight.bibleId == 1)
+        #expect(decoded.highlight.passageId == "GEN.1.1")
+        #expect(decoded.highlight.color == "ff00ff")
         #expect(result)
     }
-
+    
     @MainActor
     @Test func testGetHighlightsParsesResponse() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         let json = """
         {"data": [{"id": "1","bible_id": 1,"passage_id": "GEN.9.1","color": "ff00ff"}],"next_page_token": null}
         """.data(using: .utf8)!
         var captured: URLRequest?
-
+        
         HTTPMocking.setHandler(token: token) { request in
             captured = request
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (json, response)
         }
-
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.9",
             accessToken: "swift-test-suite",
             session: session
         )
-
+        
         let request = try #require(captured)
         #expect(request.httpMethod == "GET")
         let components = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
@@ -110,18 +131,18 @@ extension URLRequest {
         #expect(highlights.count == 1)
         #expect(highlights.first?.passageId == "GEN.9.1")
     }
-
+    
     @MainActor
     @Test func testGetHighlightsUnauthorizedReturnsEmpty() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",
@@ -129,30 +150,30 @@ extension URLRequest {
         )
         #expect(highlights.isEmpty)
     }
-
+    
     @MainActor
     @Test func testDeleteHighlightSuccess() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         var captured: URLRequest?
-
+        
         HTTPMocking.setHandler(token: token) { request in
             captured = request
             let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
+        
         let success = try await YouVersionAPI.Highlights.deleteHighlight(
             bibleId: 1,
             passageId: "GEN.5.7",
             accessToken: "swift-test-suite",
             session: session
         )
-
+        
         let request = try #require(captured)
         #expect(request.httpMethod == "DELETE")
-
+        
         // Validate the URL query parameters (DELETE requests use query params, not body)
         let components = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
         let items = components.queryItems ?? []
@@ -160,20 +181,20 @@ extension URLRequest {
         #expect(components.path.contains("GEN.5.7"))
         #expect(success)
     }
-
+    
     @MainActor
     @Test func testUpdateHighlightSuccess() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         var captured: URLRequest?
-
+        
         HTTPMocking.setHandler(token: token) { request in
             captured = request
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
+        
         let success = try await YouVersionAPI.Highlights.updateHighlight(
             bibleId: 1,
             passageId: "GEN.1.1",
@@ -181,23 +202,23 @@ extension URLRequest {
             accessToken: "swift-test-suite",
             session: session
         )
-
+        
         let request = try #require(captured)
         #expect(request.httpMethod == "PUT")
         #expect(success)
     }
-
+    
     @MainActor
     @Test func testGetHighlights204ReturnsEmpty() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",
@@ -205,18 +226,18 @@ extension URLRequest {
         )
         #expect(highlights.isEmpty)
     }
-
+    
     @MainActor
     @Test func testGetHighlightsUnexpectedStatusReturnsEmpty() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-
+        
         HTTPMocking.setHandler(token: token) { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
             return (Data(), response)
         }
-
-        let highlights = try await YouVersionAPI.Highlights.getHighlights(
+        
+        let highlights = try await YouVersionAPI.Highlights.highlights(
             bibleId: 1,
             passageId: "GEN.1",
             accessToken: "swift-test-suite",
@@ -225,4 +246,3 @@ extension URLRequest {
         #expect(highlights.isEmpty)
     }
 }
-

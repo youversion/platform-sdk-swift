@@ -5,7 +5,7 @@ import Testing
 func testParse_DivSpanStructure() throws {
     let html = "<div><div class=\"q1\"><span class=\"yv-v\" v=\"1\"></span><span class=\"yv-vlbl\">1</span>Praise the <span class=\"nd\">Lord</span>, all you nations;</div></div>"
 
-    let root = try #require(try BibleTextNode.parse(html))
+    let root = try BibleTextNode(html: html)
     #expect(root.type == .root)
     #expect(root.children.count == 1)
 
@@ -62,7 +62,7 @@ func testParse_GenesisIntroContainsText() throws {
     </div>
     """
 
-    let root = try #require(try BibleTextNode.parse(html))
+    let root = try BibleTextNode(html: html)
 
     func collectTexts(_ node: BibleTextNode) -> [String] {
         var texts: [String] = []
@@ -86,7 +86,7 @@ func testParse_GenesisIntroContainsText() throws {
 func testParse_SpacesBetweenInlineSpansArePreserved() throws {
     let html = "<div><span>One</span> <span>Two</span>   <span>Three three   three</span>.</div>"
 
-    let root = try #require(try BibleTextNode.parse(html))
+    let root = try BibleTextNode(html: html)
     let block = try #require(root.children.first)
 
     let renderedText = collectRenderedText(from: block)
@@ -97,7 +97,7 @@ func testParse_SpacesBetweenInlineSpansArePreserved() throws {
 func testParse_MixedWhitespaceAndInlineNodesCollapseToSingleSpaces() throws {
     let html = "<div>  Start <span>middle</span>\n\t <span>end</span>   done  </div>"
 
-    let root = try #require(try BibleTextNode.parse(html))
+    let root = try BibleTextNode(html: html)
     let block = try #require(root.children.first)
 
     let renderedText = collectRenderedText(from: block)
@@ -108,11 +108,55 @@ func testParse_MixedWhitespaceAndInlineNodesCollapseToSingleSpaces() throws {
 func testParse_LeadingWhitespaceBeforeFirstChildIsIgnored() throws {
     let html = "<div>   <span>One</span>   <span>Two</span></div>"
 
-    let root = try #require(try BibleTextNode.parse(html))
+    let root = try BibleTextNode(html: html)
     let block = try #require(root.children.first)
 
     let renderedText = collectRenderedText(from: block)
     #expect(renderedText == "One Two")
+}
+
+@Test
+func testParse_UnsupportedElementsAreIgnoredAndChildrenArePreserved() throws {
+    let html = "<div>Before <p>inside <em>emphasis</em></p> after <custom><span class=\"nd\">Lord</span></custom>.</div>"
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before inside emphasis after Lord.")
+}
+
+@Test
+func testParse_UnsupportedVoidElementsAreIgnored() throws {
+    let html = "<div>Before <br> after <br class=\"poetry\"> done <img alt=\"ignored\"> end</div>"
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before after done end")
+}
+
+@Test
+func testParse_UnclosedHTMLVoidElementsParseSuccessfully() throws {
+    let html = """
+    <div>Before
+    <area><base><BR><col><embed><hr><img alt="ignored"><input value="ignored">
+    <link><meta name="ignored" content="ignored"><param><source><track><wbr>
+    after</div>
+    """
+
+    let root = try BibleTextNode(html: html)
+    expectSupportedNodeTypes(in: root)
+
+    let block = try #require(root.children.first)
+    let renderedText = collectRenderedText(from: block)
+
+    #expect(renderedText == "Before after")
 }
 
 private func collectRenderedText(from node: BibleTextNode) -> String {
@@ -128,5 +172,13 @@ private func appendRenderedText(from node: BibleTextNode, into text: inout Strin
 
     for child in node.children {
         appendRenderedText(from: child, into: &text)
+    }
+}
+
+private func expectSupportedNodeTypes(in node: BibleTextNode) {
+    _ = node.type
+
+    for child in node.children {
+        expectSupportedNodeTypes(in: child)
     }
 }

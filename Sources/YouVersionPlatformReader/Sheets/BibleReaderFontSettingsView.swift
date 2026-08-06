@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderFontSettingsView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -26,7 +27,7 @@ struct BibleReaderFontSettingsView: View {
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 let family = viewModel.textOptions.fontFamily
                 Text(family)
-                    .font(.custom(family, size: 22))
+                    .font(ReaderFonts.displayFont(familyName: family, size: 22))
             }
             Spacer()
             Image(systemName: "chevron.right")
@@ -89,7 +90,7 @@ struct BibleReaderFontSettingsView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(viewModel.readerBorderSecondaryColor, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(.rect(cornerRadius: 8))
     }
 
     var fontSizeButtons: some View {
@@ -99,7 +100,7 @@ struct BibleReaderFontSettingsView: View {
 
             HStack(spacing: 0) {
                 Button {
-                    viewModel.handleSmallerFontTap()
+                    viewModel.decreaseFontSize()
                 } label: {
                     Text("A")
                         .font(.system(size: 14))
@@ -107,7 +108,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .left))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .left)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -119,7 +120,7 @@ struct BibleReaderFontSettingsView: View {
                     .overlay(viewModel.readerCanvasPrimaryColor)
 
                 Button {
-                    viewModel.handleBiggerFontTap()
+                    viewModel.increaseFontSize()
                 } label: {
                     Text("A")
                         .font(.system(size: 28))
@@ -127,7 +128,7 @@ struct BibleReaderFontSettingsView: View {
                         .frame(minWidth: minWidth, minHeight: minHeight)
                         .contentShape(HalfRoundedRectangleShape(side: .right))
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .background(
                     HalfRoundedRectangleShape(side: .right)
                         .fill(viewModel.readerButtonPrimaryColor)
@@ -137,12 +138,11 @@ struct BibleReaderFontSettingsView: View {
             Spacer()
 
             Button {
-                viewModel.selectNextLineSpacing()
+                viewModel.cycleLineSpacing()
             } label: {
-                let currentSpacing = viewModel.textOptions.lineSpacing ?? CGFloat(ReaderFonts.lineSpacingOptions.first!)
                 VStack(
                     alignment: .leading,
-                    spacing: currentSpacing / 3
+                    spacing: lineSpacingButtonSpacing
                 ) {
                     Rectangle().frame(width: 32, height: 2)
                     Rectangle().frame(width: 32, height: 2)
@@ -150,15 +150,23 @@ struct BibleReaderFontSettingsView: View {
                 }
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .frame(minWidth: 57, minHeight: minHeight)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: 8))
                 .background(
                     RoundedRectangle(cornerRadius: 8)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
 
         }
+    }
+
+    private var lineSpacingButtonSpacing: CGFloat {
+        let currentSpacing = viewModel.textOptions.lineSpacing ?? ReaderFonts.defaultLineSpacing
+        let closestOptionIndex = ReaderFonts.lineSpacingOptions.indices.min {
+            abs(ReaderFonts.lineSpacingOptions[$0] - currentSpacing) < abs(ReaderFonts.lineSpacingOptions[$1] - currentSpacing)
+        }
+        return CGFloat((closestOptionIndex ?? 0) * 2 + 1)
     }
 }
 

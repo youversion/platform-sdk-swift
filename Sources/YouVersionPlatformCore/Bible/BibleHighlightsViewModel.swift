@@ -14,21 +14,42 @@ public class BibleHighlightsViewModel: ObservableObject {
 
     private let cache: BibleHighlightsCache
     private let repository: any BibleHighlightsRepositoryProtocol
+    nonisolated(unsafe) private var authStateObserver: NSObjectProtocol?
     private var loadTasks: [BibleReference: Task<Void, Never>] = [:]
-    
+
     // MARK: - Initialization
-    
+
     public init(
         cache: BibleHighlightsCache = BibleHighlightsCache.shared,
         repository: any BibleHighlightsRepositoryProtocol = BibleHighlightsRepository()
     ) {
         self.cache = cache
         self.repository = repository
+        self.authStateObserver = NotificationCenter.default.addObserver(
+            forName: YouVersionPlatformConfiguration.authStateDidChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.reset()
+            }
+        }
+    }
+
+    deinit {
+        if let authStateObserver {
+            NotificationCenter.default.removeObserver(authStateObserver)
+        }
     }
 
     // Called e.g. when the user signs out
     public func reset() {
         cache.reset()
+        (repository as? any BibleHighlightsPendingOperationsClearing)?.clearPendingOperations()
+    }
+    
+    public var hasPendingOperations: Bool {
+        (repository as? any BibleHighlightsPendingOperationsReporting)?.hasPendingOperations ?? false
     }
     
     // MARK: - Data Retrieval
@@ -40,7 +61,7 @@ public class BibleHighlightsViewModel: ObservableObject {
     
     /// Ensure the chapter containing the range is loaded with throttling.
     public func ensureHighlightsForChapterLoaded(_ range: BibleReference, forceReload: Bool = false) {
-        let chapterRef = BibleReference(versionId: range.versionId, bookUSFM: range.bookUSFM, chapter: range.chapter)
+        let chapterRef = BibleReference(versionId: range.versionId, bookId: range.bookId, chapter: range.chapter)
         guard forceReload || !cache.hasRecentlyLoadedChapter(chapterRef) else {
             return
         }
@@ -68,7 +89,7 @@ public class BibleHighlightsViewModel: ObservableObject {
             BibleHighlight(
                 BibleReference(
                     versionId: reference.versionId,
-                    bookUSFM: reference.bookUSFM,
+                    bookId: reference.bookId,
                     chapter: reference.chapter,
                     verse: reference.verseStart ?? 1
                 ),
@@ -107,12 +128,15 @@ public class BibleHighlightsViewModel: ObservableObject {
     private func loadChapterFromServer(_ chapter: BibleReference) async {
         do {
             let serverHighlights = try await repository.highlights(for: [chapter])
-            let chapterKey = "\(chapter.versionId)_\(chapter.bookUSFM)_\(chapter.chapter)"
+            let chapterKey = "\(chapter.versionId)_\(chapter.bookId)_\(chapter.chapter)"
             let highlights = serverHighlights[chapterKey] ?? []
             cache.applyServerHighlights(for: chapter, highlights: highlights)
             cache.recordChapterFetch(chapter)
         } catch {
-            print("Failed to load highlights for chapter \(chapter): \(error)")
+            YouVersionPlatformLogger.error(
+                "Failed to load highlights for chapter \(chapter): \(error)",
+                category: "Highlights"
+            )
         }
 
         cache.unmarkChapterAsLoading(chapter)

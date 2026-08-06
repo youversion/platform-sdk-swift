@@ -13,8 +13,4 @@ public struct BibleChapter: Codable, Sendable {
         case verses
     }
 
-    public var isCanonical: Bool {
-        verses?.isEmpty == false
-    }
-
 }

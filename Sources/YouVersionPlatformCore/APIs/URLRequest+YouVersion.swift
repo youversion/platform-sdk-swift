@@ -11,17 +11,19 @@ public extension URLRequest {
     static func youVersion(
         _ url: URL,
         accessToken providedToken: String? = nil,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        omitAccessToken: Bool = false
     ) -> URLRequest {
         var request = URLRequest(url: url, cachePolicy: cachePolicy)
         if let appKey = YouVersionPlatformConfiguration.appKey {
             request.setValue(appKey, forHTTPHeaderField: "x-yvp-app-key")
+            request.setValue("SwiftSDK=\(SDKVersion.current)", forHTTPHeaderField: "x-yvp-sdk")
         }
         if let installId = YouVersionPlatformConfiguration.installId {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")
         }
-        if let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
-            request.setValue(accessToken, forHTTPHeaderField: "X-YV-LAT")
+        if !omitAccessToken, let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         return request
     }

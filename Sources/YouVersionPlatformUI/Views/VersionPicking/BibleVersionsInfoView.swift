@@ -1,0 +1,221 @@
+import SwiftUI
+import YouVersionPlatformCore
+
+struct BibleVersionsInfoView: View {
+    @Environment(BibleVersionsViewModel.self) private var viewModel
+    @Environment(\.openURL) private var openURL
+
+    @State private var isVersionDownloaded: Bool?
+
+    private let standardButtonWidth: CGFloat = 300
+    private let smallButtonWidth: CGFloat = 190
+    private let downloadButtonWidth: CGFloat = 90
+
+    var body: some View {
+        VStack {
+            if let version = viewModel.selectedVersion {
+                versionHeader
+                bibleVersionButtonStack
+                    .padding(.top, 16)
+                VStack(alignment: .leading) {
+                    if let urlstring = version.readerFooterUrl,
+                       let url = URL(string: urlstring) {
+                        Text(String.localized("versionInfo.detailsLabel"))
+                            .font(YouVersionFonts.headerSmall)
+                            .foregroundStyle(viewModel.readerTextMutedColor)
+                        HStack {
+                            Image(systemName: "globe")
+                            Button(action: { openURL(url) }) {
+                                Text(urlstring)
+                            }
+                            Spacer()
+                        }
+                    }
+                    ScrollView {
+                        Text(version.promotionalContent ?? version.copyright ?? "")
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                .padding(.horizontal)
+                HStack {
+                    Spacer()
+                }
+            }
+        }
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .customBackButton {
+            viewModel.versionInfoSheetBack()
+        }
+        .background(viewModel.readerCanvasPrimaryColor)
+        .foregroundStyle(viewModel.readerTextPrimaryColor)
+        .onAppear {
+            refreshDownloadStatus()
+        }
+        .onChange(of: viewModel.selectedVersion) {
+            refreshDownloadStatus()
+        }
+    }
+
+    private func refreshDownloadStatus() {
+        Task {
+            if let version = viewModel.selectedVersion {
+                isVersionDownloaded = await BibleVersionRepository.shared.containsVersion(
+                    withId: version.id
+                )
+            }
+        }
+    }
+
+    private var versionHeader: some View {
+        VStack {
+            if let version = viewModel.selectedVersion {
+                Text(version.localizedAbbreviation ?? version.abbreviation ?? "")
+                    .font(YouVersionFonts.preferredBibleTextFont(size: 64))
+                    .padding(.bottom, 8)
+                Text(version.localizedTitle ?? version.title ?? "")
+                    .font(YouVersionFonts.headerMedium)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
+                    .padding(.bottom, 4)
+                Text(publisherLine(for: version))
+                    .font(YouVersionFonts.labelMedium)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(viewModel.readerTextMutedColor)
+            }
+        }
+    }
+
+    private func publisherLine(for version: BibleVersion) -> String {
+        let publisherName: String?
+        if let id = version.organizationId {
+            publisherName = viewModel.organizationName(id: id)
+        } else {
+            publisherName = nil
+        }
+        let bundleSizeText = bundleSize
+
+        if let bundleSizeText, let publisherName {
+            return String(
+                format: .localized("versionInfo.publisherWithSizeFormat"),
+                publisherName,
+                bundleSizeText
+            )
+        } else if let publisherName {
+            return publisherName
+        } else {
+            return bundleSizeText ?? ""
+        }
+    }
+
+    private var bundleSize: String? {
+        nil
+        // TODO: make a network call to determine the bundle size.
+    }
+
+    private var bibleVersionButtonStack: some View {
+        VStack(spacing: 16) {
+            if let version = viewModel.selectedVersion {
+                let isVersionSaved = viewModel.myVersions.contains(where: { $0 == version })
+                // TODO: use .isDownloadable when that exists
+                let maxBuild = 0 // TEMPORARY: version.offline?.build?.max ?? 0
+                let isVersionDownloadable = maxBuild > 0
+                if isVersionSaved {
+                    HStack {
+                        if isVersionDownloadable && isVersionDownloaded == false {
+                            addedButtonSmall
+                            Spacer()
+                            downloadButton
+                        } else {
+                            addedButtonLarge
+                        }
+                    }
+                    .frame(width: standardButtonWidth)
+                    readButton
+                } else {
+                    addButton
+                    sampleButton
+                }
+            }
+        }
+    }
+
+    private var addButton: some View {
+        Button(action: viewModel.versionInfoSheetAdd) {
+            Text(String.localized("versionInfo.addButton"))
+                .padding()
+                .frame(width: standardButtonWidth)
+        }
+        .buttonStyle(bigButtonStylePrimary)
+    }
+
+    private var addedButtonSmall: some View {
+        addedButtonCore(width: smallButtonWidth)
+    }
+
+    private var addedButtonLarge: some View {
+        addedButtonCore(width: standardButtonWidth)
+    }
+
+    private func addedButtonCore(width: CGFloat) -> some View {
+        Button(action: viewModel.versionInfoSheetAdded) {
+            HStack {
+                Image(systemName: "checkmark")
+                Text(String.localized("versionInfo.addedButton"))
+            }
+            .padding()
+            .frame(width: width)
+        }
+        .buttonStyle(bigButtonStylePrimary)
+    }
+
+    private var downloadButton: some View {
+        Button(action: viewModel.versionInfoSheetDownload) {
+            Image(systemName: "arrow.down.to.line.compact")
+                .padding()
+                .frame(width: downloadButtonWidth)
+        }
+        .buttonStyle(bigButtonStyleSecondary)
+    }
+
+    private var readButton: some View {
+        Button(action: viewModel.versionInfoSheetRead) {
+            Text(String.localized("versionInfo.readButton"))
+                .padding()
+                .frame(width: standardButtonWidth)
+        }
+        .buttonStyle(bigButtonStyleSecondary)
+    }
+
+    private var sampleButton: some View {
+        Button(action: viewModel.versionInfoSheetSample) {
+            Text(String.localized("versionInfo.sampleButton"))
+                .padding()
+                .frame(width: standardButtonWidth)
+        }
+        .buttonStyle(bigButtonStyleSecondary)
+    }
+
+    private var bigButtonStylePrimary: some ButtonStyle {
+        YouVersionBigButtonStyle(
+            strokeColor: .clear,
+            backgroundColor: viewModel.readerButtonContrastColor,
+            foregroundColor: viewModel.readerTextInvertedColor
+        )
+    }
+
+    private var bigButtonStyleSecondary: some ButtonStyle {
+        YouVersionBigButtonStyle(
+            strokeColor: viewModel.readerTextMutedColor,
+            backgroundColor: viewModel.readerCanvasPrimaryColor,
+            foregroundColor: viewModel.readerTextPrimaryColor
+        )
+    }
+}
+
+#Preview {
+    BibleVersionsInfoView()
+        .environment(BibleVersionsViewModel.preview)
+}

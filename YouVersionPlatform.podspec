@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name         = 'YouVersionPlatform'
   s.module_name  = 'YouVersionPlatform'
-  s.version      = '2.0.4'
+  s.version      = '5.4.0'
   s.summary      = 'YouVersion Platform features'
   s.homepage     = 'https://github.com/youversion/platform-sdk-swift'
   s.license      = { :type => 'Apache-2.0', :file => 'LICENSE' }
@@ -26,6 +26,8 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
-    'SWIFT_COMPILATION_MODE' => 'wholemodule'
+    'SWIFT_COMPILATION_MODE' => 'wholemodule',
+    # See note in YouVersionPlatformCore.podspec — must match.
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name YouVersionPlatform'
   }
 end

@@ -2,7 +2,7 @@
 
 ![Platform](https://img.shields.io/badge/Platform-IOS-red)
 [![License](https://img.shields.io/badge/license-Apache-blue.svg)](LICENSE)
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/youversion/platform-sdk-swift/main/.github/badges/coverage.json)](./CONTRIBUTING.md#code-coverage)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/youversion/platform-sdk-swift/badges/coverage.json)](./CONTRIBUTING.md#code-coverage)
 
 # YouVersion Platform SDK for Swift
 
@@ -32,9 +32,9 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 
 ## Features
 
-- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleWidgetView`
+- 📖 **Scripture Display** - Easy-to-use SwiftUI components for displaying Bible verses with `BibleTextView` and `BibleCardView`
 - 📖 **Bible Reader** - A complete Bible reading experience inside your app with `BibleReaderView`
-- 🔐 **User Authentication** - Seamless "Sign In with YouVersion" integration using `SignInWithYouVersionButton`
+- 🔐 **User Authentication** - Optional "Sign In with YouVersion" integration using `SignInWithYouVersionButton` or the built-in `SignInWithYouVersionView`, with a top-level toggle to disable all sign-in UI
 - 🌅 **Verse of the Day** - Built-in `VotdView` component and API access to VOTD data
 
 ## Requirements
@@ -82,7 +82,12 @@ import YouVersionPlatform
 @main
 struct YourApp: App {
     init() {
-        YouVersionPlatform.configure(appKey: "YOUR_APP_KEY_HERE")
+        YouVersionPlatformConfiguration.configure(
+            appKey: "YOUR_APP_KEY_HERE",
+            appName: "Your App Name",
+            isSignInEnabled: true,                // set to false to suppress all sign-in UI
+            signInPromptMessage: "Sign in to see your YouVersion highlights."  // optional
+        )
     }
     var body: some Scene {...
 }
@@ -99,7 +104,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
         )
     }
 }
@@ -112,7 +117,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
         )
     }
 }
@@ -125,7 +130,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)
         )
     }
 }
@@ -139,15 +144,157 @@ The SDK automatically fetches Scripture from YouVersion servers and maintains a 
 
 Displays a full Bible reading experience, very similar to the YouVersion Bible app, ready to be added as a tab in your app.
 
+To restore the passage the user was last viewing (or open to John 1 the first time):
+
 ```swift
-    BibleReaderView(
-        appName: "Sample App",
-        signInMessage: "Sign in to see your YouVersion highlights in this Sample App."
-    )
+BibleReaderView.restoringLastPassage()
 ```
+
+To open to a specific passage:
+
+```swift
+BibleReaderView(
+    reference: BibleReference(versionId: 3034, bookId: "PSA", chapter: 23)
+)
+```
+
+When the reference names a verse, the reader shows only that verse range by default. Pass `showsFullChapter: true` to show the whole chapter scrolled to the verse instead:
+
+```swift
+BibleReaderView(
+    reference: BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
+    showsFullChapter: true
+)
+```
+
+#### Navigating the reader from elsewhere in your app
+
+To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.
+
+```swift
+@State private var readerNavigation = BibleReaderNavigation()
+@State private var selectedTab = Tab.home
+
+var body: some View {
+    TabView(selection: $selectedTab) {
+        HomeView(onReadTap: { reference in
+            readerNavigation.request(reference, showsFullChapter: true)
+            selectedTab = .bible            // bring the reader on screen
+        })
+        .tabItem { Label("Home", systemImage: "house") }
+        .tag(Tab.home)
+
+        BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
+            .tabItem { Label("Bible", systemImage: "book.closed") }
+            .tag(Tab.bible)
+    }
+}
+```
+
+To focus a verse — moving to its full chapter and dimming the other verses — call `focusReference(_:)`. The focus clears when the user scrolls, taps a verse, or navigates away. This is available on iOS 18 and later.
+
+```swift
+if #available(iOS 18.0, *) {
+    readerNavigation.focusReference(reference)
+}
+```
+
+To intercept verse taps instead of using the built-in sign-in flow:
+
+```swift
+BibleReaderView.restoringLastPassage(
+    onVerseTap: { reference in
+        // Handle the tapped verse reference
+    }
+)
+```
+
+#### Disabling Sign-In
+
+By default, tapping a verse prompts unauthenticated users to sign in with YouVersion. 
+To disable all sign-in UI, including the verse-tap prompt and the header menu sign-in option, set `isSignInEnabled` to `false` during configuration:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    isSignInEnabled: false
+)
+```
+
+When sign-in is disabled, provide an `onVerseTap` closure to handle verse interactions yourself.
+
+#### Highlight Permissions
+
+When BibleReaderView needs permission to save highlights to YouVersion, 
+it requests that permission either by starting the sign in process with that permission included, 
+or by requesting an additional permission via `requestDataExchange()`. 
+
+Apps that need to start the same permission flow themselves can do it like this:
+
+```swift
+let session = DataExchangeSession(contextProvider: contextProvider)
+_ = try await session.requestDataExchange(permissions: ["highlights"])
+let hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
+```
+
+#### Filtering Available Languages
+
+By default, the version picker offers Bible versions in every available language. To restrict it to a specific set of languages, pass `permittedLanguageTags` during configuration. For example, to make only English versions available:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    permittedLanguageTags: ["en"]
+)
+```
+
+Tags follow [BCP 47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) (e.g. `"en"` for English, `"es"` for Spanish). When the resulting list contains versions in only one language, the language button in the version picker is hidden automatically.
+
+#### Filtering Available Versions
+
+To restrict the version picker to a specific set of Bible versions, pass `permittedVersionIds` during configuration:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    permittedVersionIds: [12, 111, 1588]
+)
+```
+
+IDs are the YouVersion Bible version IDs (e.g. `111` for NIV, `1588` for AMP). Combines with `permittedLanguageTags` — a version must satisfy both filters to be shown.
+
+To make every otherwise available version selectable except for specific versions, pass `excludedVersionIds`:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    excludedVersionIds: [4212]
+)
+```
+
+Excluded IDs are omitted from SDK-managed version selection, restored selections, and automatic fallbacks. Exclusion takes precedence when an ID appears in both `permittedVersionIds` and `excludedVersionIds`.
 
 
 ### Implementing Sign In
+
+The SDK provides two levels of sign-in integration:
+
+#### Built-in Sign-In (via BibleReaderView)
+
+When `isSignInEnabled` is `true` (the default), the `BibleReaderView` handles sign-in automatically. 
+Set `appName` and an optional `signInPromptMessage` during configuration to customize the sign-in sheet:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    appName: "Your App Name",
+    signInPromptMessage: "Sign in to see your YouVersion highlights."
+)
+```
+
+#### Custom Sign-In Flow
+
+For full control, use `SignInWithYouVersionButton` or call the API directly.
 
 First, create a helper class for presentation context:
 
@@ -173,24 +320,32 @@ In the header of your SwiftUI view, store a strong reference to the `ContextProv
 Add the "Sign In" button to your SwiftUI view:
 
 ```swift
-    SignInWithYouVersionButton {
-        Task {
-            do {
-                let result = try await YouVersionAPI.Users.signIn(
-                    permissions: [.profile, .email],
-                    contextProvider: contextProvider
-                )
-                // The user is logged in and you have an access token at result.accessToken!
-                // You may now call the YouVersion Platform APIs which require authentication.
-            } catch {
-                print(error)
-            }
+SignInWithYouVersionButton {
+    Task {
+        do {
+            let result = try await YouVersionAPI.Users.signIn(
+                permissions: [.profile, .email],
+                contextProvider: contextProvider
+            )
+            // The user is logged in and you have an access token at result.accessToken!
+            // You may now call the YouVersion Platform APIs which require authentication.
+        } catch {
+            print(error)
         }
     }
 }
 ```
 
-> **Note**: The SDK stores the access token locally, and persists it across app launches. 
+You can also present the SDK's `SignInWithYouVersionView` directly in your own sheet or navigation flow:
+
+```swift
+SignInWithYouVersionView(
+    onSignIn: { /* trigger your sign-in logic */ },
+    onDismiss: { /* dismiss the sheet */ }
+)
+```
+
+> **Note**: The SDK stores the access token locally and persists it across app launches.
 Deleting or losing the access token is the equivalent of "logging out".
 
 ### Fetching User Data

@@ -3,19 +3,30 @@ import YouVersionPlatformCore
 
 public struct BibleTextView: View {
 
-    public typealias VerseTapAction = (BibleReference, String, [BibleFootnote]) -> Void
+    public typealias VerseTapAction = (BibleReference, String, [BibleFootnote], String?) -> Void
 
+    static let dimmedTextOpacity: CGFloat = 0.35
+    static let focusAnimation: Animation = .easeInOut(duration: 0.5)
+
+    let focusedReference: BibleReference?
     private let reference: BibleReference
     private let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
-    private let placeholder: (BibleTextLoadingPhase) -> AnyView
+    private let placeholder: ((BibleTextLoadingPhase) -> AnyView)?
+    private let providedBlocks: [BibleTextBlock]?
+    private let sourceHTML: String?
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
-    // swiftlint:disable:next private_swiftui_state
-    @State var ourHighlights: [BibleHighlight] = []
     @Binding var selectedVerses: Set<BibleReference>
-    @Environment(\.layoutDirection) private var systemLayoutDirection
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private static let longBlockCharacterThreshold = 2000
+    private static let maximumVersesPerBlock = 10
+
+    var ourHighlights: [BibleHighlight] {
+        BibleHighlightsCache.shared.highlights(overlapping: reference)
+    }
 
     public init(
         _ reference: BibleReference,
@@ -26,8 +37,11 @@ public struct BibleTextView: View {
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
-        self.placeholder = Self.standardPlaceholder
+        self.focusedReference = nil
+        self.placeholder = nil
         self.blocks = []
+        self.providedBlocks = nil
+        self.sourceHTML = nil
     }
 
     public init(
@@ -35,69 +49,133 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         selectedVerses: Binding<Set<BibleReference>>,
         onVerseTap: VerseTapAction? = nil,
-        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil
+        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil,
+        focusedReference: BibleReference? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
+        self.focusedReference = focusedReference
         self.onVerseTap = onVerseTap
-        self.placeholder = placeholder ?? Self.standardPlaceholder
+        self.placeholder = placeholder
         self.blocks = []
+        self.providedBlocks = nil
+        self.sourceHTML = nil
     }
 
-    // private init for use by Self.viewWithPrefetchedData()
+    /// Renders Bible text from a pre-parsed HTML string.
+    ///
+    /// The HTML is parsed synchronously at init time. The view re-parses and
+    /// re-renders when `html`, `reference`, or any text-style input changes.
+    public init(
+        html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions = BibleTextOptions(),
+        onVerseTap: VerseTapAction? = nil
+    ) {
+        let blocks = Self.blocks(parsedFrom: html, reference: reference, textOptions: textOptions)
+        self.init(reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap, sourceHTML: html)
+    }
+
     private init(
         _ reference: BibleReference,
-        blocks: [BibleTextBlock] = []
+        blocks: [BibleTextBlock] = [],
+        textOptions: BibleTextOptions? = nil,
+        onVerseTap: VerseTapAction? = nil,
+        sourceHTML: String? = nil
     ) {
         self.reference = reference
-        self.textOptions = BibleTextOptions()
-        self.onVerseTap = nil
+        self.textOptions = textOptions ?? BibleTextOptions()
+        self.onVerseTap = onVerseTap
         self._selectedVerses = .constant([])
-        self.placeholder = Self.standardPlaceholder
+        self.focusedReference = nil
+        self.placeholder = nil
         self.blocks = blocks
+        self.providedBlocks = blocks
+        self.sourceHTML = sourceHTML
+    }
+
+    private static func blocks(
+        parsedFrom html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions
+    ) -> [BibleTextBlock] {
+        guard let node = try? BibleTextNode(html: html), !node.children.isEmpty else {
+            return []
+        }
+        return BibleVersionRendering.textBlocks(
+            parsedFrom: node,
+            reference: reference,
+            renderHeadlines: false,
+            renderVerseNumbers: false,
+            footnotesMode: textOptions.footnoteMode,
+            footnoteMarker: textOptions.footnoteMarker,
+            textColor: textOptions.textColor ?? Color.primary,
+            verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
+            wocColor: textOptions.wordsOfChristColor,
+            fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
+        )
     }
 
     public var body: some View {
-        VStack(alignment: mainVStackAlignment) {
+        VStack(alignment: .leading, spacing: 0) {
             if let phase = loadingPhase {
-                placeholder(phase)
+                if let placeholder {
+                    placeholder(phase)
+                } else {
+                    standardPlaceholder(phase: phase)
+                }
             } else {
                 ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0)
+                    let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
                 }
             }
         }
+        .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
+        .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
+                let footnodeId = url.fragment()
                 let footnotes = footnotesFor(reference: reference)
-                onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue, footnotes)
+                onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue, footnotes, footnodeId)
             }
             return .handled
         }))
-        .task(id: "\(reference)\(textOptions.fontSize)\(textOptions.fontFamily)\(textOptions.textColor ?? .clear)") {
+        .task(id: LoadKey(
+            reference: reference,
+            fontSize: textOptions.fontSize,
+            fontFamily: textOptions.fontFamily,
+            textColor: textOptions.textColor,
+            sourceHTML: sourceHTML
+        )) {
             await loadBlocks()
         }
-        .coordinateSpace(name: "BibleTextView")
         .task(id: reference) {
-            BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
+            }
         }
-        .onChange(of: reference) {
-            ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
-        }
-        .onChange(of: BibleHighlightsCache.shared.cachedHighlights) { _, _ in
-            ourHighlights = BibleHighlightsCache.shared.highlights(overlapping: reference)
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+            if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+            }
         }
     }
 
-    private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
-        var footnotes: [BibleFootnote] = []
-        for block in blocks {
-            for footnote in block.footnotes where footnote.reference == reference {
-                footnotes.append(footnote)
-            }
+    /// The scroll anchors for the rendered chapter, or nil until blocks exist.
+    private var chapterScrollAnchors: ChapterScrollAnchors? {
+        guard let firstBlock = blocks.first else {
+            return nil
         }
-        return footnotes
+        return ChapterScrollAnchors(
+            chapter: firstBlock.chapter,
+            blockFirstVerses: blocks.compactMap(\.firstVerse)
+        )
+    }
+
+    private func footnotesFor(reference: BibleReference) -> [BibleFootnote] {
+        blocks.flatMap(\.footnotes).filter { $0.reference == reference }
     }
 
     private func parseReference(url: URL) -> BibleReference? {
@@ -114,19 +192,9 @@ public struct BibleTextView: View {
         let book = String(parts[0])
         if let chapter = Int(parts[1]),
            let verse = Int(parts[2]) {
-            return BibleReference(versionId: versionId, bookUSFM: book, chapter: chapter, verse: verse)
+            return BibleReference(versionId: versionId, bookId: book, chapter: chapter, verse: verse)
         }
         return nil
-    }
-
-    // Our main VStack's alignment needs to be flipped when the system's text direction
-    // isn't the same as our Bible version's text direction, otherwise multiline text
-    // views will be placed on the wrong side of the VStack.
-    private var mainVStackAlignment: HorizontalAlignment {
-        if systemLayoutDirection == .leftToRight {
-            return isVersionRightToLeft ? .trailing : .leading
-        }
-        return isVersionRightToLeft ? .leading : .trailing
     }
 
     private func updateVersionTextDirection() async {
@@ -138,19 +206,30 @@ public struct BibleTextView: View {
     }
 
     private func loadBlocks() async {
-        loadingPhase = .loading
+        // Only enter the loading phase for the network path. The html: init
+        // pre-parses blocks synchronously at init time, so rendering them
+        // immediately on first frame avoids a placeholder flash while
+        // updateVersionTextDirection() does its async lookup.
+        if providedBlocks == nil {
+            loadingPhase = .loading
+        }
         do {
-            if let blocks = try await BibleVersionRendering.textBlocks(
-                reference,
+            if let providedBlocks {
+                blocks = Self.blocksForDisplay(providedBlocks)
+                await updateVersionTextDirection()
+                loadingPhase = nil  // meaning, we've succeeded
+            } else if let blocks = try await BibleVersionRendering.textBlocks(
+                reference: reference,
                 renderHeadlines: textOptions.renderHeadlines,
                 renderVerseNumbers: textOptions.renderVerseNumbers,
                 footnotesMode: textOptions.footnoteMode,
                 footnoteMarker: textOptions.footnoteMarker,
                 textColor: textOptions.textColor ?? Color.primary,
-                wocColor: textOptions.wocColor,
+                verseNumColor: textOptions.verseNumberColor ?? Color.secondary,
+                wocColor: textOptions.wordsOfChristColor,
                 fonts: BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
             ) {
-                self.blocks = blocks
+                self.blocks = Self.blocksForDisplay(blocks)
                 await updateVersionTextDirection()
                 loadingPhase = nil  // meaning, we've succeeded
             } else {
@@ -161,42 +240,55 @@ public struct BibleTextView: View {
         } catch is CancellationError {
             loadingPhase = .inactive
         } catch let err {
-            print("loadBlocks unexpected error: \(err)")
+            YouVersionPlatformLogger.error("loadBlocks unexpected error: \(err)", category: "BibleText")
             loadingPhase = .failed
         }
     }
 
+    /// When blocks is a single overly-large block, splits it into multiple smaller blocks.
+    /// This works around an memory allocation bug in iOS's textRenderer() implementation.
+    static func blocksForDisplay(
+        _ blocks: [BibleTextBlock],
+        longBlockCharacterThreshold: Int = Self.longBlockCharacterThreshold,
+        maximumVerseCount: Int = Self.maximumVersesPerBlock
+    ) -> [BibleTextBlock] {
+        guard blocks.count == 1,
+              let block = blocks.first,
+              block.rows.isEmpty,
+              block.text.asAttributedString.characters.count > longBlockCharacterThreshold else {
+            return blocks
+        }
+        return block.split(maximumVerseCount: maximumVerseCount)
+    }
+
+    @available(*, deprecated, renamed: "init(html:reference:textOptions:onVerseTap:)")
+    public static func viewFromHtml(
+        html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions,
+        onVerseTap: VerseTapAction? = nil
+    ) -> (some View)? {
+        BibleTextView(html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap)
+    }
+
+    @available(*, deprecated, message: "Prefetch blocks with BibleVersionRendering.textBlocks(reference:fonts:) and construct BibleTextView directly. This API will be removed in a future major version.")
     public static func viewWithPrefetchedData(
         reference: BibleReference,
         fontFamily: String = "Times New Roman",
         fontSize: CGFloat = 16
     ) async -> (some View)? {
-        do {
-            guard let blocks = try? await BibleVersionRendering.textBlocks(
-                reference,
-                fonts: BibleTextFonts(familyName: fontFamily, baseSize: fontSize)
-            ) else {
-                return nil as BibleTextView?
-            }
-            return BibleTextView(reference, blocks: blocks)
+        guard let blocks = try? await BibleVersionRendering.textBlocks(
+            reference: reference,
+            fonts: BibleTextFonts(familyName: fontFamily, baseSize: fontSize)
+        ) else {
+            return nil as BibleTextView?
         }
+        return BibleTextView(reference, blocks: blocks)
     }
 
-    // TODO: debug why this is necessary. Text objects should get it right automatically.
-    func flipAlignmentIfNecessary(_ alignment: TextAlignment) -> TextAlignment {
-        if isVersionRightToLeft {
-            if alignment == .center {
-                return alignment
-            }
-            return alignment == .trailing ? .leading : .trailing
-        } else {
-            return alignment
-        }
-    }
-
-    private static func standardPlaceholder(phase: BibleTextLoadingPhase) -> AnyView {
-        let height = 80.0
-        let v = Group {
+    @ViewBuilder
+    private func standardPlaceholder(phase: BibleTextLoadingPhase) -> some View {
+        Group {
             switch phase {
             case .inactive:
                 EmptyView()
@@ -210,17 +302,25 @@ public struct BibleTextView: View {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
                         .padding()
-                    Text("Your previously selected Bible version is unavailable. Please switch to another one.")
+                    Text(String.localized("bibleText.unavailableVersion"))
                 }
             case .failed:
                 HStack {
                     Image(systemName: "wifi.slash")
                         .padding()
-                    Text("We’re having difficulties with your connection. Please download a Bible version when you’re online.")
+                    Text(String.localized("bibleText.connectionIssue"))
                 }
             }
         }
-        return AnyView(v.frame(height: height))
+        .frame(height: 80)
+    }
+
+    private struct LoadKey: Hashable {
+        let reference: BibleReference
+        let fontSize: CGFloat
+        let fontFamily: String
+        let textColor: Color?
+        let sourceHTML: String?
     }
 
 }
@@ -231,32 +331,74 @@ public struct BibleTextOptions {
     public let lineSpacing: CGFloat?
     public let paragraphSpacing: CGFloat?
     public let textColor: Color?
-    public let wocColor: Color
+    public let verseNumberColor: Color?
+    public let wordsOfChristColor: Color
     public let renderHeadlines: Bool
     public let renderVerseNumbers: Bool
     public let footnoteMode: BibleTextFootnoteMode
     public let footnoteMarker: BibleAttributedString?
+    public let verseSelectionStyle: VerseSelectionStyle
 
     public init(fontFamily: String = "Times New Roman",
                 fontSize: CGFloat = 16,
                 lineSpacing: CGFloat? = nil,
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
-                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
+                verseNumberColor: Color? = nil,
+                wordsOfChristColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
-                footnoteMarker: BibleAttributedString? = nil) {
+                footnoteMarker: BibleAttributedString? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
-        self.lineSpacing = lineSpacing ?? fontSize / 2
-        self.paragraphSpacing = paragraphSpacing ?? fontSize / 2
+        self.lineSpacing = lineSpacing
+        self.paragraphSpacing = paragraphSpacing
         self.textColor = textColor
-        self.wocColor = wocColor
+        self.verseNumberColor = verseNumberColor
+        self.wordsOfChristColor = wordsOfChristColor
         self.renderHeadlines = renderHeadlines
         self.renderVerseNumbers = renderVerseNumbers
         self.footnoteMode = footnoteMode
         self.footnoteMarker = footnoteMarker
+        self.verseSelectionStyle = verseSelectionStyle
+    }
+
+    @available(*, deprecated, renamed: "verseNumberColor")
+    public var verseNumColor: Color? { verseNumberColor }
+
+    @available(*, deprecated, renamed: "wordsOfChristColor")
+    public var wocColor: Color { wordsOfChristColor }
+
+    @available(*, deprecated, message: "Use init(... verseNumberColor: ..., wordsOfChristColor: ...) instead.")
+    @_disfavoredOverload
+    public init(fontFamily: String = "Times New Roman",
+                fontSize: CGFloat = 16,
+                lineSpacing: CGFloat? = nil,
+                paragraphSpacing: CGFloat? = nil,
+                textColor: Color? = nil,
+                verseNumColor: Color? = nil,
+                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),
+                renderHeadlines: Bool = true,
+                renderVerseNumbers: Bool = true,
+                footnoteMode: BibleTextFootnoteMode = .none,
+                footnoteMarker: BibleAttributedString? = nil,
+                verseSelectionStyle: VerseSelectionStyle = .solid) {
+        self.init(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            lineSpacing: lineSpacing,
+            paragraphSpacing: paragraphSpacing,
+            textColor: textColor,
+            verseNumberColor: verseNumColor,
+            wordsOfChristColor: wocColor,
+            renderHeadlines: renderHeadlines,
+            renderVerseNumbers: renderVerseNumbers,
+            footnoteMode: footnoteMode,
+            footnoteMarker: footnoteMarker,
+            verseSelectionStyle: verseSelectionStyle
+        )
     }
 }
 

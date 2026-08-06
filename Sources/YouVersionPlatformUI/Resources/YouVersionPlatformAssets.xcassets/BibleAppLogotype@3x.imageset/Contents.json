@@ -29,7 +29,7 @@
       "scale" : "2x"
     },
     {
-      "filename" : "Bible App Icon-Logo-LM@3x.png",
+      "filename" : "Icon-BibleApp-logotype-lm.png",
       "idiom" : "universal",
       "scale" : "3x"
     },
@@ -40,7 +40,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Bible App Icon-Logo-DM@3x.png",
+      "filename" : "Icon-BibleApp-logotype-dm.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -49,22 +49,22 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
         textDirection == "rtl"
     }
 
-    public func book(with usfm: String) -> BibleBook? {
+    public func book(with bookId: String) -> BibleBook? {
         guard let books else {
             return nil
         }
-        return books.first { $0.id == usfm }
+        return books.first { $0.id == bookId }
     }
 
-    private func isBookUSFMValid(_ usfm: String) -> Bool {
+    private func isBookIdValid(_ bookId: String) -> Bool {
         guard let books else {
             return false
         }
-        let usfmUpper = usfm.uppercased()
-        return books.contains(where: { $0.id == usfmUpper }) == true
+        let normalizedBookId = bookId.uppercased()
+        return books.contains(where: { $0.id == normalizedBookId }) == true
     }
 
-    public var bookUSFMs: [String] {
+    public var bookIds: [String] {
         if let bookCodes, !bookCodes.isEmpty {
             return bookCodes
         }
@@ -74,21 +74,24 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
         return books.compactMap { $0.id }
     }
 
-    public func reference(with usfm: String) -> BibleReference? {
-        let trimmedUSFM = usfm.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        guard trimmedUSFM.count >= 3 else {
+    @available(*, deprecated, renamed: "bookIds")
+    public var bookUSFMs: [String] { bookIds }
+
+    public func reference(with passageId: String) -> BibleReference? {
+        let trimmedPassageId = passageId.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        guard trimmedPassageId.count >= 3 else {
             return nil
         }
 
-        let subUSFMs = trimmedUSFM.split(separator: "+")
-        if subUSFMs.count > 1 {
-            let references = subUSFMs.compactMap { reference(with: String($0)) }
+        let passageIds = trimmedPassageId.split(separator: "+")
+        if passageIds.count > 1 {
+            let references = passageIds.compactMap { reference(with: String($0)) }
             let merged = BibleReference.referencesByMerging(references: references)
             return merged.first
         }
 
-        guard let reference = BibleReference.unvalidatedReference(with: trimmedUSFM, versionId: id),
-              isBookUSFMValid(reference.bookUSFM) else {
+        guard let reference = BibleReference.unvalidatedReference(with: trimmedPassageId, versionId: id),
+              isBookIdValid(reference.bookId) else {
             return nil
         }
         return reference
@@ -97,19 +100,11 @@ public struct BibleVersion: Codable, Sendable, Hashable, Equatable {
     /// Returns an array of displayable labels for chapters.
     /// In standard English books, this'll be like ["1", "2"...] but other cases exist.
     /// If metadata hasn't yet been loaded, or if the book code is bad, this will return []
-    public func chapterLabels(_ bookUSFM: String) -> [String] {
-        guard let book = book(with: bookUSFM) else {
+    public func chapterLabels(_ bookId: String) -> [String] {
+        guard let book = book(with: bookId), let chapters = book.chapters else {
             return []
         }
-        return book.chapters?.filter({ $0.isCanonical != false }).compactMap { $0.title } ?? []
-    }
-
-    /// If metadata hasn't yet been loaded, or if the book code is bad, this will return 0.
-    public func canonicalChapters(_ bookUSFM: String) -> [BibleChapter] {
-        guard let book = book(with: bookUSFM), let chapters = book.chapters else {
-            return []
-        }
-        return chapters.filter { $0.isCanonical == true }
+        return chapters.compactMap { $0.title }
     }
 
     public static var preview: BibleVersion {

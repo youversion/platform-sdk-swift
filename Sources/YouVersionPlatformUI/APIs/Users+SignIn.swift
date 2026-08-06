@@ -17,9 +17,10 @@ public extension YouVersionAPI.Users {
     /// - Returns: A ``YouVersionLoginResult`` containing the authorization code and granted permissions upon successful login.
     ///
     /// - Throws: An error if authentication fails or is cancelled by the user.
+#if !os(tvOS)
     @MainActor
     static func signIn(
-        permissions: Set<SignInWithYouVersionPermission>,
+        permissions: [String],
         contextProvider: ASWebAuthenticationPresentationContextProviding
     ) async throws -> SignInWithYouVersionResult {
         guard let appKey = YouVersionPlatformConfiguration.appKey else {
@@ -29,46 +30,98 @@ public extension YouVersionAPI.Users {
         let redirectURL = URL(string: "youversionauth://callback")!
         let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: appKey,
-            permissions: permissions,
+            permissions: Set(permissions),
             redirectURL: redirectURL
         )
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<SignInWithYouVersionResult, Error>) in
-            let session = ASWebAuthenticationSession(
-                url: authorizationRequest.url,
-                callbackURLScheme: redirectURL.scheme!
-            ) { callbackURL, error in
-                Task { @MainActor in
-                    if let error {
-                        continuation.resume(throwing: error)
-                    } else if let callbackURL {
-                        do {
-                            let result = try await YouVersionAPI.Users.getSignInResult(
-                                from: callbackURL,
-                                state: authorizationRequest.parameters.state,
-                                codeVerifier: authorizationRequest.parameters.codeVerifier,
-                                redirectUri: redirectURL.absoluteString,
-                                nonce: authorizationRequest.parameters.nonce
-                            )
-                            YouVersionPlatformConfiguration.saveAuthData(
-                                accessToken: result.accessToken,
-                                refreshToken: result.refreshToken,
-                                idToken: result.idToken,
-                                expiryDate: result.expiryDate
-                            )
-                            continuation.resume(returning: result)
-                        } catch {
-                            continuation.resume(throwing: error)
-                        }
-                    } else {
-                        continuation.resume(throwing: URLError(.badServerResponse))
-                    }
-                }
-            }
+            let session = signInSession(authorizationRequest: authorizationRequest, redirectURL: redirectURL, continuation)
             session.presentationContextProvider = contextProvider
             session.start()
         }
     }
+
+    @available(*, deprecated, message: "Use signIn(permissions:contextProvider:) with raw String permission values instead.")
+    @MainActor
+    static func signIn(
+        permissions: Set<SignInWithYouVersionPermission>,
+        contextProvider: ASWebAuthenticationPresentationContextProviding
+    ) async throws -> SignInWithYouVersionResult {
+        try await signIn(
+            permissions: permissions.map(\.rawValue),
+            contextProvider: contextProvider
+        )
+    }
+#else
+    @MainActor
+    static func signIn(
+        permissions: [String]
+    ) async throws -> SignInWithYouVersionResult {
+        guard let appKey = YouVersionPlatformConfiguration.appKey else {
+            throw YouVersionAPIError.missingAuthentication
+        }
+
+        let redirectURL = URL(string: "youversionauth://callback")!
+        let authorizationRequest = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
+            appKey: appKey,
+            permissions: Set(permissions),
+            redirectURL: redirectURL
+        )
+
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<SignInWithYouVersionResult, Error>) in
+            let session = signInSession(authorizationRequest: authorizationRequest, redirectURL: redirectURL, continuation)
+            session.start()
+        }
+    }
+
+    @available(*, deprecated, message: "Use signIn(permissions:) with raw String permission values instead.")
+    @MainActor
+    static func signIn(
+        permissions: Set<SignInWithYouVersionPermission>
+    ) async throws -> SignInWithYouVersionResult {
+        try await signIn(permissions: permissions.map(\.rawValue))
+    }
+#endif
+
+    fileprivate static func signInSession(
+        authorizationRequest: SignInWithYouVersionPKCEAuthorizationRequest,
+        redirectURL: URL,
+        _ continuation: CheckedContinuation<SignInWithYouVersionResult, any Error>
+    ) -> ASWebAuthenticationSession {
+        ASWebAuthenticationSession(
+            url: authorizationRequest.url,
+            callbackURLScheme: redirectURL.scheme!
+        ) { callbackURL, error in
+            Task { @MainActor in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let callbackURL {
+                    do {
+                        let result = try await YouVersionAPI.Users.signInResult(
+                            from: callbackURL,
+                            state: authorizationRequest.parameters.state,
+                            codeVerifier: authorizationRequest.parameters.codeVerifier,
+                            redirectUri: redirectURL.absoluteString,
+                            nonce: authorizationRequest.parameters.nonce
+                        )
+                        YouVersionPlatformConfiguration.saveAuthData(
+                            accessToken: result.accessToken,
+                            refreshToken: result.refreshToken,
+                            idToken: result.idToken,
+                            expiryDate: result.expiryDate,
+                            permissions: result.permissionValues
+                        )
+                        continuation.resume(returning: result)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                } else {
+                    continuation.resume(throwing: URLError(.badServerResponse))
+                }
+            }
+        }
+    }
+    
 }
 
 #endif

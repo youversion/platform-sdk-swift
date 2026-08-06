@@ -2,39 +2,74 @@ import Foundation
 
 public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDebugStringConvertible {
     public let versionId: Int
-    public let bookUSFM: String
+    public let bookId: String
     public let chapter: Int
     public let verseStart: Int?
     public let verseEnd: Int?
 
-    public init(versionId: Int, bookUSFM: String, chapter: Int, verse: Int? = nil) {
+    enum CodingKeys: String, CodingKey {
+        case versionId
+        case bookId = "bookUSFM"
+        case chapter
+        case verseStart
+        case verseEnd
+    }
+
+    public init(versionId: Int, bookId: String, chapter: Int, verse: Int? = nil) {
         assert(chapter >= 1, "Chapter must be greater than or equal to 1.")
         if let verse {
             assert(verse >= 1, "Verse must be greater than or equal to 1.")
         }
         
         self.versionId = versionId
-        self.bookUSFM = bookUSFM
+        self.bookId = bookId.uppercased()
         self.chapter = chapter
         self.verseStart = verse
         self.verseEnd = verse
     }
-    
-    public init(versionId: Int, bookUSFM: String, chapter: Int, verseStart: Int, verseEnd: Int) {
+
+    public init(versionId: Int, bookId: String, chapter: Int, verseStart: Int, verseEnd: Int) {
         assert(chapter >= 1, "Starting chapter must be greater than or equal to 1.")
         assert(verseStart >= 1, "Starting verse must be greater than or equal to 1.")
         assert(verseEnd >= 1, "Ending verse must be greater than or equal to 1.")
         assert(verseEnd >= verseStart, "Ending verse must be equal to or after starting verse.")
-        
+
         self.versionId = versionId
-        self.bookUSFM = bookUSFM
+        self.bookId = bookId.uppercased()
         self.chapter = chapter
         self.verseStart = verseStart
         self.verseEnd = verseEnd
     }
 
+    @available(*, deprecated, renamed: "init(versionId:bookId:chapter:verse:)")
+    public init(versionId: Int, bookUSFM: String, chapter: Int, verse: Int? = nil) {
+        self.init(versionId: versionId, bookId: bookUSFM, chapter: chapter, verse: verse)
+    }
+
+    @available(*, deprecated, renamed: "init(versionId:bookId:chapter:verseStart:verseEnd:)")
+    public init(versionId: Int, bookUSFM: String, chapter: Int, verseStart: Int, verseEnd: Int) {
+        self.init(versionId: versionId, bookId: bookUSFM, chapter: chapter, verseStart: verseStart, verseEnd: verseEnd)
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let versionId = try container.decode(Int.self, forKey: .versionId)
+        let bookId = try container.decode(String.self, forKey: .bookId)
+        let chapter = try container.decode(Int.self, forKey: .chapter)
+        let verseStart = try container.decodeIfPresent(Int.self, forKey: .verseStart)
+        let verseEnd = try container.decodeIfPresent(Int.self, forKey: .verseEnd)
+        if let verseStart, let verseEnd {
+            self.init(versionId: versionId, bookId: bookId, chapter: chapter, verseStart: verseStart, verseEnd: verseEnd)
+        } else {
+            self.init(versionId: versionId, bookId: bookId, chapter: chapter, verse: verseStart)
+        }
+    }
+
+    @available(*, deprecated, renamed: "bookId")
+    public var bookUSFM: String { bookId }
+
     public var debugDescription: String {
-        let prefix = "bible\(versionId)__\(bookUSFM).\(chapter)"
+        let prefix = "bible\(versionId)__\(bookId).\(chapter)"
         if let verseStart {
             if let verseEnd, verseStart != verseEnd {
                 return "\(prefix).\(verseStart)-\(verseEnd)"
@@ -48,11 +83,16 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
     public var isRange: Bool {
         verseEnd != nil && verseStart != verseEnd
     }
-    
+
+    /// The same reference with any verse dropped — the whole chapter.
+    public var chapterReference: BibleReference {
+        BibleReference(versionId: versionId, bookId: bookId, chapter: chapter)
+    }
+
     public static func compare(a: BibleReference, b: BibleReference) -> Int {
         // returns -1, 0, or 1
-        if a.bookUSFM != b.bookUSFM {
-            return a.bookUSFM < b.bookUSFM ? -1 : 1
+        if a.bookId != b.bookId {
+            return a.bookId < b.bookId ? -1 : 1
         }
         
         if a.chapter != b.chapter {
@@ -87,26 +127,53 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         compare(a: lhs, b: rhs) < 0
     }
 
-    public var chapterUSFM: String? {
-        "\(bookUSFM.uppercased()).\(chapter)"
+    public var chapterPassageId: String {
+        "\(bookId).\(chapter)"
     }
 
-    public var asUSFM: String {
-        let upperBookUSFM = bookUSFM.uppercased()
+    @available(*, deprecated, renamed: "chapterPassageId")
+    public var chapterUSFM: String? { chapterPassageId }
+
+    public var passageId: String {
         if let verseStart {
             if let verseEnd, verseStart != verseEnd {
-                return "\(upperBookUSFM).\(chapter).\(verseStart)-\(upperBookUSFM).\(chapter).\(verseEnd)"
+                return "\(bookId).\(chapter).\(verseStart)-\(bookId).\(chapter).\(verseEnd)"
             } else {
-                return "\(upperBookUSFM).\(chapter).\(verseStart)"
+                return "\(bookId).\(chapter).\(verseStart)"
             }
         } else {
-            return "\(upperBookUSFM).\(chapter)"
+            return "\(bookId).\(chapter)"
+        }
+    }
+
+    @available(*, deprecated, renamed: "passageId")
+    public var asUSFM: String { passageId }
+
+    /// Returns whether this reference is available in the provided Bible version metadata.
+    public func existsIn(version: BibleVersion) -> Bool {
+        guard version.bookIds.contains(where: { $0.uppercased() == bookId }) else {
+            return false
+        }
+
+        guard let book = version.book(with: bookId) else {
+            return true
+        }
+
+        guard let chapters = book.chapters else {
+            return true
+        }
+
+        let chapterText = String(chapter)
+        return chapters.contains { chapterMetadata in
+            chapterMetadata.id == chapterText ||
+            chapterMetadata.title == chapterText ||
+            chapterMetadata.passageId == chapterPassageId
         }
     }
 
     public func overlaps(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM else {
+                bookId == otherReference.bookId else {
             return false
         }
 
@@ -141,7 +208,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func contains(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM else {
+                bookId == otherReference.bookId else {
             return false
         }
 
@@ -176,7 +243,7 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
 
     public func isAdjacentOrOverlapping(with otherReference: BibleReference) -> Bool {
         guard versionId == otherReference.versionId &&
-                bookUSFM == otherReference.bookUSFM &&
+                bookId == otherReference.bookId &&
                 chapter == otherReference.chapter else {
             return false
         }
@@ -228,80 +295,80 @@ public struct BibleReference: Comparable, Codable, Hashable, Sendable, CustomDeb
         let lastVerse = max(lastVerseOfA!, lastVerseOfB!)
         return BibleReference(
             versionId: minReference.versionId,
-            bookUSFM: minReference.bookUSFM,
+            bookId: minReference.bookId,
             chapter: minReference.chapter,
             verseStart: firstVerse,
             verseEnd: lastVerse
         )
     }
     
-    public static func unvalidatedReference(with usfm: String, versionId: Int) -> BibleReference? {
-        func reference(bookUSFM: String, chapter: Int, verseStart: Int, verseEnd: Int) -> BibleReference? {
+    public static func unvalidatedReference(with passageId: String, versionId: Int) -> BibleReference? {
+        func reference(bookId: String, chapter: Int, verseStart: Int, verseEnd: Int) -> BibleReference? {
             if verseStart > verseEnd {
                 return nil
             }
-            return BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verseStart: verseStart, verseEnd: verseEnd)
+            return BibleReference(versionId: versionId, bookId: bookId, chapter: chapter, verseStart: verseStart, verseEnd: verseEnd)
         }
         
         // GEN.1.3-1.5
         let patBCVCV = /(\w\w\w)\.(\d+)\.(\d+)-(\d+)\.(\d+)/
-        if let match = usfm.wholeMatch(of: patBCVCV) {
+        if let match = passageId.wholeMatch(of: patBCVCV) {
             let (_, bText, cText, vText, _, v2Text) = match.output
             if let c = Int(cText), let v = Int(vText), let v2 = Int(v2Text) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookId: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
         
         // GEN.1.3-GEN.1.5
         let patBCVBCV = /(\w\w\w)\.(\d+)\.(\d+)-(\w\w\w)\.(\d+)\.(\d+)/
-        if let match = usfm.wholeMatch(of: patBCVBCV) {
+        if let match = passageId.wholeMatch(of: patBCVBCV) {
             let (_, bText, cText, vText, b2Text, _, v2Text) = match.output
             if let c = Int(cText), let v = Int(vText), let v2 = Int(v2Text) {
                 if String(bText) != String(b2Text) {
                     return nil
                 }
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookId: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
         
         // GEN.1.3-5
         let patBCVV = /(\w\w\w)\.(\d+)\.(\d+)-(\d+)/
-        if let match = usfm.wholeMatch(of: patBCVV) {
+        if let match = passageId.wholeMatch(of: patBCVV) {
             let (_, bText, cText, vText, v2Text) = match.output
             if let c = Int(cText), let v = Int(vText), let v2 = Int(v2Text) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v2)
+                return reference(bookId: String(bText), chapter: c, verseStart: v, verseEnd: v2)
             }
             return nil
         }
         
         // GEN.1.3
         let patBCV = /(\w\w\w)\.(\d+)\.(\d+)/
-        if let match = usfm.wholeMatch(of: patBCV) {
+        if let match = passageId.wholeMatch(of: patBCV) {
             let (_, bText, cText, vText) = match.output
             if let c = Int(cText), let v = Int(vText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: v, verseEnd: v)
+                return reference(bookId: String(bText), chapter: c, verseStart: v, verseEnd: v)
             }
             return nil
         }
         
         // GEN.1
         let patBC = /(\w\w\w)\.(\d+)/
-        if let match = usfm.wholeMatch(of: patBC) {
+        if let match = passageId.wholeMatch(of: patBC) {
             let (_, bText, cText) = match.output
             if let c = Int(cText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: 1, verseEnd: 1)
+                return BibleReference(versionId: versionId, bookId: String(bText), chapter: c)
             }
             return nil
         }
         
         // GEN.1-2
         let patBCC = /(\w\w\w)\.(\d+)-(\d+)/
-        if let match = usfm.wholeMatch(of: patBCC) {
+        if let match = passageId.wholeMatch(of: patBCC) {
             let (_, bText, cText, _) = match.output
             if let c = Int(cText) {
-                return reference(bookUSFM: bText.uppercased(), chapter: c, verseStart: 1, verseEnd: 1)
+                return reference(bookId: String(bText), chapter: c, verseStart: 1, verseEnd: 1)
             }
             return nil
         }

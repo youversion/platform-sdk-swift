@@ -1,5 +1,6 @@
 import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct BibleReaderFontListView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
@@ -25,12 +26,12 @@ struct BibleReaderFontListView: View {
             ScrollView {
                 VStack(alignment: .leading) {
                     Text(String.localized("fontList.suggested"))
-                        .font(ReaderFonts.fontHeaderM)
+                        .font(YouVersionFonts.headerMedium)
                     fontList(for: ReaderFonts.suggestedFamilies)
                     Divider()
                         .padding(.bottom, 8)
                     Text(String.localized("fontList.others"))
-                        .font(ReaderFonts.fontHeaderM)
+                        .font(YouVersionFonts.headerMedium)
                     fontList(for: ReaderFonts.otherFamilies)
                 }
                 .padding(.horizontal)
@@ -48,7 +49,7 @@ struct BibleReaderFontListView: View {
                 let isSelected = viewModel.textOptions.fontFamily == family
                 HStack {
                     Text(family)
-                        .font(.custom(family, size: 20))
+                        .font(ReaderFonts.displayFont(familyName: family, size: 20))
                     if isSelected {
                         Image(systemName: "checkmark")
                             .font(.system(size: 18, weight: .semibold))

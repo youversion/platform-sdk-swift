@@ -5,242 +5,274 @@ import Observation
 public protocol Observable {}
 #endif
 
-public protocol BibleVersionAPIClient: Sendable {
-    func version(withId id: Int) async throws -> BibleVersion
-}
+/// Abstraction over Bible version lookup and download operations.
+public protocol BibleVersionRepositoryProtocol: Sendable {
+    /// Returns a cached version when one is already available locally.
+    func versionIfCached(_ id: Int) async throws -> BibleVersion?
 
-public protocol BibleVersionCaching: Sendable {
-    func version(withId id: Int) async -> BibleVersion?
-    func addVersion(_ version: BibleVersion) async
-    func removeVersion(withId versionId: Int) async
-    func versionIsPresent(for id: Int) -> Bool
+    /// Returns a Bible version, loading it when needed.
+    func version(withId id: Int) async throws -> BibleVersion
+
+    /// Downloads a version for offline access.
+    func downloadVersion(withId id: Int) async throws
+
+    /// Returns the current download status for a version.
+    func downloadStatus(for id: Int) -> BibleVersionRepository.BibleVersionDownloadStatus
+
+    /// Removes a version from every local cache.
+    func removeVersion(withId id: Int) async
+
+    /// Removes every locally stored version that is no longer permitted.
     func removeUnpermittedVersions(permittedIds: Set<Int>) async
 }
 
-public final class VersionClient: BibleVersionAPIClient {
-    public init() {}
+actor BibleVersionMemoryCache {
+    init() {}
 
-    public func version(withId id: Int) async throws -> BibleVersion {
-        try await YouVersionAPI.Bible.version(versionId: id)
+    private var cache: [Int: CachedBibleContent<BibleVersion>] = [:]
+
+    func version(withId id: Int, currentDate: Date) -> BibleVersion? {
+        guard let cached = cache[id] else {
+            return nil
+        }
+        if let expirationDate = cached.expirationDate, expirationDate <= currentDate {
+            cache[id] = nil
+            return nil
+        }
+        return cached.value
+    }
+
+    func addVersion(_ version: BibleVersion, expirationDate: Date? = nil) {
+        cache[version.id] = CachedBibleContent(value: version, expirationDate: expirationDate)
+    }
+
+    func removeVersion(withId id: Int) {
+        cache.removeValue(forKey: id)
+    }
+
+    func removeUnpermittedVersions(permittedIds: Set<Int>) {
+        cache = cache.filter { permittedIds.contains($0.key) }
     }
 }
 
-func scanForVersionsIn(dir: URL) -> [Int] {
-    let urls = (try? FileManager.default.contentsOfDirectory(
-        at: dir,
-        includingPropertiesForKeys: [.isDirectoryKey],
-        options: [.skipsHiddenFiles]
-    )) ?? []
+/// Manages a medium-duration cache of Bible version metadata; it's not in-memory therefore will survive the app being terminated.
+actor BibleVersionDiskCache {
+    private let coordinator: BibleContentCacheCoordinator
+    private let storage: BibleContentStorage
 
-    var ids: [Int] = []
-    let prefix = "bible_"
+    init(
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider(),
+        coordinator: BibleContentCacheCoordinator = .shared
+    ) {
+        self.coordinator = coordinator
+        self.storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
+    }
 
-    for url in urls {
-        if let values = try? url.resourceValues(forKeys: [.isDirectoryKey]),
-            values.isDirectory == true {
-            let name = url.lastPathComponent
-            if name.hasPrefix(prefix) {
-                let suffix = String(name.dropFirst(prefix.count))
-                let isAllDigits = suffix.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
-                if isAllDigits, suffix.count < 7, let id = Int(suffix) {
-                    ids.append(id)
-                }
+    func version(withId id: Int, currentDate: Date = Date()) async -> BibleVersion? {
+        await cachedVersion(withId: id, currentDate: currentDate)?.value
+    }
+
+    func cachedVersion(withId id: Int, currentDate: Date) async -> CachedBibleContent<BibleVersion>? {
+        let resource = BibleContentStorageResource.versionMetadata(versionId: id)
+        return await coordinator.perform {
+            guard !storage.isExpired(resource, currentDate: currentDate) else {
+                storage.removeCacheEntry(resource)
+                return nil
+            }
+            guard let version = storage.decoded(BibleVersion.self, for: resource) else {
+                return nil
+            }
+            return CachedBibleContent(
+                value: version,
+                expirationDate: storage.expirationDate(for: resource)
+            )
+        }
+    }
+
+    nonisolated func containsVersion(withId id: Int) -> Bool {
+        storage.hasResource(.versionMetadata(versionId: id))
+    }
+
+    func addVersion(_ version: BibleVersion, expirationDate: Date) async {
+        let resource = BibleContentStorageResource.versionMetadata(versionId: version.id)
+        await coordinator.perform {
+            do {
+                try storage.writeExpirationDate(expirationDate, for: resource)
+                try storage.writeEncoded(version, to: resource)
+            } catch {
+                storage.removeCacheEntry(resource)
+                YouVersionPlatformLogger.notice(
+                    "BibleVersionDiskCache failed to write metadata for \(version.id): \(error.localizedDescription)",
+                    category: "VersionCache"
+                )
             }
         }
     }
-    return ids
-}
 
-public actor VersionMemoryCache: BibleVersionCaching {
-    public init() {}
-
-    private var cache: [Int: BibleVersion] = [:]
-
-    public func version(withId id: Int) async -> BibleVersion? {
-        cache[id]
-    }
-
-    nonisolated public func versionIsPresent(for id: Int) -> Bool {
-        false
-    }
-
-    public func addVersion(_ version: BibleVersion) async {
-        cache[version.id] = version
-    }
-
-    public func removeVersion(withId versionId: Int) async {
-        cache.removeValue(forKey: versionId)
-    }
-
-    public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        let ids = cache.keys
-        let idsToRemove = ids.filter { !permittedIds.contains($0) }
-        for idToRemove in idsToRemove {
-            cache.removeValue(forKey: idToRemove)
-        }
-    }
-}
-
-public actor VersionDiskCache: BibleVersionCaching {
-    public init() {}
-
-    static func urlForCachedVersionMetadata(_ versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .cachesDirectory)
-            .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
-    }
-
-    public func version(withId id: Int) -> BibleVersion? {
-        let url = Self.urlForCachedVersionMetadata(id)
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        return try? JSONDecoder().decode(BibleVersion.self, from: data)
-    }
-
-    nonisolated public func versionIsPresent(for id: Int) -> Bool {
-        false
-    }
-
-    public func addVersion(_ version: BibleVersion) async {
-        let url = Self.urlForCachedVersionMetadata(version.id)
-        try? FileManager.default.createDirectory(
-            at: url.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        if let data = try? JSONEncoder().encode(version) {
-            try? data.write(to: url, options: .atomic)
+    func removeVersion(withId id: Int) async {
+        let storage = storage
+        await coordinator.perform {
+            Self.removeVersionFromStorage(withId: id, storage: storage)
         }
     }
 
-    public func removeVersion(withId versionId: Int) async {
-        let url = urlForBibleContentDirectory(versionId: versionId, kind: .cachesDirectory)
+    func removeUnpermittedVersions(permittedIds: Set<Int>, currentDate: Date = Date()) async {
+        let storage = storage
+        await coordinator.perform {
+            storage.removeExpiredCachedResources(currentDate: currentDate)
+            let cached = storage.versionDirectoryIds
+            for id in cached where !permittedIds.contains(id) {
+                YouVersionPlatformLogger.notice(
+                    "Removing cached Bible version \(id) because it is no longer permitted",
+                    category: "VersionCache"
+                )
+                Self.removeVersionFromStorage(withId: id, storage: storage)
+            }
+        }
+    }
+
+    private static func removeVersionFromStorage(withId id: Int, storage: BibleContentStorage) {
         do {
-            try FileManager.default.removeItem(at: url)
+            try storage.remove(.versionDirectory(versionId: id))
         } catch {
-            print("VersionDiskCache got error while removing: \(error.localizedDescription)")
-        }
-    }
-
-    static func cachedVersions() async -> [Int] {
-        guard let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
-            return []
-        }
-        return scanForVersionsIn(dir: dir)
-    }
-
-    public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        let cached: [Int] = Array(await Self.cachedVersions().compactMap(\.self) )
-        for id in cached where !permittedIds.contains(id) {
-            print("Removing cached Bible version \(id) because it is no longer permitted")
-            await removeVersion(withId: id)
+            YouVersionPlatformLogger.notice(
+                "BibleVersionDiskCache got error while removing: \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 }
 
-// TODO: this code is nearly identical to VersionDiskCache, but we can't inherit from an actor. DRY this.
-// (Plus, both of these are nearly identical to the code of ChapterDownloadCache and ChapterDiskCache!)
-public actor VersionDownloadCache: BibleVersionCaching {
-    public init() {}
+/// Manages the Bible versions which the user chose to download, e.g. for offline usage.
+actor BibleVersionDownloadCache {
+    private let storage: BibleContentStorage
 
-    static func urlForDownloadedVersion(_ versionId: Int) -> URL {
-        urlForBibleContentDirectory(versionId: versionId, kind: .applicationSupportDirectory)
-            .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
+    init(directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()) {
+        self.storage = BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider)
     }
 
-    nonisolated public func versionIsPresent(for id: Int) -> Bool {
-        let url = Self.urlForDownloadedVersion(id)
-        let ret = FileManager.default.fileExists(atPath: url.path)
-        return ret
+    nonisolated func containsVersion(withId id: Int) -> Bool {
+        storage.hasResource(.versionMetadata(versionId: id))
     }
 
-    public func version(withId id: Int) -> BibleVersion? {
-        let url = Self.urlForDownloadedVersion(id)
-        guard let data = try? Data(contentsOf: url) else {
-            return nil
-        }
-        return try? JSONDecoder().decode(BibleVersion.self, from: data)
+    func version(withId id: Int) -> BibleVersion? {
+        storage.decoded(BibleVersion.self, for: .versionMetadata(versionId: id))
     }
 
-    public func addVersion(_ version: BibleVersion) async {
-        var directoryURL = urlForBibleContentDirectory(versionId: version.id, kind: .applicationSupportDirectory)
-        let metadataUrl = Self.urlForDownloadedVersion(version.id)
-
-        try? FileManager.default.createDirectory(
-            at: directoryURL,
-            withIntermediateDirectories: true
-        )
-        // exclude it from iCloud backup
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try? directoryURL.setResourceValues(values)
-
-        // save the metadata file inside there
-        if let data = try? JSONEncoder().encode(version) {
-            try? data.write(to: metadataUrl, options: .atomic)
-        }
-    }
-
-    public func removeVersion(withId id: Int) {
-        removeDownloadedVersionDirectory(id: id)
-    }
-
-    private func removeDownloadedVersionDirectory(id: Int) {
-        let url = urlForBibleContentDirectory(versionId: id, kind: .applicationSupportDirectory)
+    func addVersion(_ version: BibleVersion) {
         do {
-            try FileManager.default.removeItem(at: url)
+            try storage.writeEncoded(
+                version,
+                to: .versionMetadata(versionId: version.id),
+                isExcludedFromBackup: true
+            )
         } catch {
-            print("VersionDownloadCache got error while removing: \(error.localizedDescription)")
+            YouVersionPlatformLogger.notice(
+                "BibleVersionDownloadCache failed to write metadata for \(version.id): \(error.localizedDescription)",
+                category: "VersionCache"
+            )
         }
     }
 
-    public func removeUnpermittedVersions(permittedIds: Set<Int>) {
-        let downloads = Self.downloadedVersions
+    func removeVersion(withId id: Int) {
+        do {
+            try storage.remove(.versionDirectory(versionId: id))
+        } catch {
+            YouVersionPlatformLogger.notice(
+                "BibleVersionDownloadCache got error while removing: \(error.localizedDescription)",
+                category: "VersionCache"
+            )
+        }
+    }
+
+    func removeUnpermittedVersions(permittedIds: Set<Int>) {
+        let downloads = storage.versionDirectoryIds
         for downloadedId in downloads where !permittedIds.contains(downloadedId) {
-            print("Removing downloaded Bible version \(downloadedId) because it is no longer permitted")
+            YouVersionPlatformLogger.notice(
+                "Removing downloaded Bible version \(downloadedId) because it is no longer permitted",
+                category: "VersionCache"
+            )
             removeVersion(withId: downloadedId)
         }
     }
 
-    public static var downloadedVersions: [Int] {
-        guard let downloadsDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return []
-        }
-        return scanForVersionsIn(dir: downloadsDirectory)
+    static func downloadedVersionIds(directoryProvider: BibleContentDirectoryProviding) -> [Int] {
+        BibleContentStorage(storageKind: .download, directoryProvider: directoryProvider).versionDirectoryIds
     }
 
+    /// Returns the IDs of Bible versions that have been downloaded for offline use, scanning the default app-support directory.
+    static var downloadedVersions: [Int] {
+        downloadedVersionIds(directoryProvider: DefaultBibleContentDirectoryProvider())
+    }
 }
 
-public actor BibleVersionRepository: Observable {
+protocol BibleVersionProviding: Sendable {
+    func version(withId id: Int) async throws -> BibleContentResponse<BibleVersion>
+}
+
+final class BibleVersionAPI: BibleVersionProviding {
+    init() {}
+
+    func version(withId id: Int) async throws -> BibleContentResponse<BibleVersion> {
+        try await YouVersionAPI.Bible.versionResponse(withId: id)
+    }
+}
+
+public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol {
 
     public static let shared = BibleVersionRepository()
 
-    private let apiClient: BibleVersionAPIClient
-    private let memoryCache: BibleVersionCaching
-    private let diskCache: BibleVersionCaching
-    private let downloadCache: BibleVersionCaching
+    private let provider: BibleVersionProviding
+    private let directoryProvider: BibleContentDirectoryProviding
+    private let memoryCache: BibleVersionMemoryCache
+    private let diskCache: BibleVersionDiskCache
+    private let downloadCache: BibleVersionDownloadCache
 
     private var inFlightTasks: [Int: Task<BibleVersion, Error>] = [:]
 
+    public init() {
+        self.init(
+            provider: BibleVersionAPI(),
+            directoryProvider: DefaultBibleContentDirectoryProvider()
+        )
+    }
+
+    init(
+        provider: BibleVersionProviding,
+        directoryProvider: BibleContentDirectoryProviding = DefaultBibleContentDirectoryProvider()
+    ) {
+        self.provider = provider
+        self.directoryProvider = directoryProvider
+        self.memoryCache = BibleVersionMemoryCache()
+        self.diskCache = BibleVersionDiskCache(directoryProvider: directoryProvider)
+        self.downloadCache = BibleVersionDownloadCache(directoryProvider: directoryProvider)
+    }
+
+    @available(*, deprecated, message: "The apiClient/memoryCache/diskCache/downloadCache parameters are no longer honored. Use init() instead; this initializer will be removed in a future major version.")
     public init(
         apiClient: BibleVersionAPIClient = VersionClient(),
         memoryCache: BibleVersionCaching = VersionMemoryCache(),
         diskCache: BibleVersionCaching = VersionDiskCache(),
         downloadCache: BibleVersionCaching = VersionDownloadCache()
     ) {
-        self.apiClient = apiClient
-        self.memoryCache = memoryCache
-        self.diskCache = diskCache
-        self.downloadCache = downloadCache
+        self.init(
+            provider: BibleVersionAPI(),
+            directoryProvider: DefaultBibleContentDirectoryProvider()
+        )
     }
 
     public func versionIfCached(_ id: Int) async throws -> BibleVersion? {
-        if let cached = await memoryCache.version(withId: id) {
+        try await versionIfCached(id, currentDate: Date())
+    }
+
+    func versionIfCached(_ id: Int, currentDate: Date) async throws -> BibleVersion? {
+        if let cached = await memoryCache.version(withId: id, currentDate: currentDate) {
             return cached
         }
 
-        if let cached = await diskCache.version(withId: id) {
-            await memoryCache.addVersion(cached)
-            return cached
+        if let cached = await diskCache.cachedVersion(withId: id, currentDate: currentDate) {
+            await memoryCache.addVersion(cached.value, expirationDate: cached.expirationDate)
+            return cached.value
         }
 
         if let downloaded = await downloadCache.version(withId: id) {
@@ -252,12 +284,16 @@ public actor BibleVersionRepository: Observable {
     }
 
     public func version(withId id: Int) async throws -> BibleVersion {
+        try await version(withId: id, currentDate: Date())
+    }
+
+    func version(withId id: Int, currentDate: Date) async throws -> BibleVersion {
         do {
-            if let version = try await versionIfCached(id) {
+            if let version = try await versionIfCached(id, currentDate: currentDate) {
                 return version
             }
         } catch {
-            print("BibleVersionRepository.version: \(error)")
+            YouVersionPlatformLogger.error("BibleVersionRepository.version: \(error)", category: "VersionCache")
         }
 
         // If a fetch is already in-flight, await its result
@@ -266,10 +302,15 @@ public actor BibleVersionRepository: Observable {
         }
 
         // Otherwise, create a new fetch task
-        let task = Task { [apiClient, diskCache] in
-            let version = try await apiClient.version(withId: id)
-            await diskCache.addVersion(version)
-            return version
+        let task = Task { [provider, memoryCache, diskCache] in
+            let response = try await provider.version(withId: id)
+
+            await memoryCache.addVersion(response.value, expirationDate: response.expirationDate)
+
+            if response.isCacheable {
+                await diskCache.addVersion(response.value, expirationDate: response.expirationDate)
+            }
+            return response.value
         }
 
         inFlightTasks[id] = task
@@ -278,18 +319,20 @@ public actor BibleVersionRepository: Observable {
             inFlightTasks[id] = nil
         }
 
-        let version = try await task.value
-        await memoryCache.addVersion(version)
-        await diskCache.addVersion(version)
-        return version
+        return try await task.value
     }
 
+    public func containsVersion(withId id: Int) -> Bool {
+        downloadCache.containsVersion(withId: id)
+    }
+
+    @available(*, deprecated, renamed: "containsVersion(withId:)")
     public func versionIsPresent(for id: Int) -> Bool {
-        downloadCache.versionIsPresent(for: id)
+        containsVersion(withId: id)
     }
 
     public func downloadVersion(withId id: Int) async throws {
-        if downloadCache.versionIsPresent(for: id) {
+        if downloadCache.containsVersion(withId: id) {
             return
         }
 
@@ -305,22 +348,41 @@ public actor BibleVersionRepository: Observable {
     }
 
     nonisolated public func downloadStatus(for id: Int) -> BibleVersionDownloadStatus {
-        if downloadCache.versionIsPresent(for: id) {
+        if downloadCache.containsVersion(withId: id) {
             return .downloaded
         }
         // TODO: look at the BibleVersion to see if it's downloadable or not.
         return .notDownloadable
     }
 
-    public func removeVersion(withId versionId: Int) async {
-        await memoryCache.removeVersion(withId: versionId)
-        await diskCache.removeVersion(withId: versionId)
-        await downloadCache.removeVersion(withId: versionId)
+    /// Returns the IDs for versions currently downloaded for offline use.
+    nonisolated public var downloadedVersionIds: [Int] {
+        BibleVersionDownloadCache.downloadedVersionIds(directoryProvider: directoryProvider)
+    }
+
+    /// Returns the IDs of Bible versions that have been downloaded for offline use, scanning the default app-support directory.
+    package static var defaultDownloadedVersionIds: [Int] {
+        BibleVersionDownloadCache.downloadedVersions
+    }
+
+    public func removeVersion(withId id: Int) async {
+        async let memory: Void = memoryCache.removeVersion(withId: id)
+        async let disk: Void = diskCache.removeVersion(withId: id)
+        async let download: Void = downloadCache.removeVersion(withId: id)
+        _ = await (memory, disk, download)
     }
 
     public func removeUnpermittedVersions(permittedIds: Set<Int>) async {
-        await memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await diskCache.removeUnpermittedVersions(permittedIds: permittedIds)
-        await downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        await removeUnpermittedVersions(permittedIds: permittedIds, currentDate: Date())
+    }
+
+    func removeUnpermittedVersions(permittedIds: Set<Int>, currentDate: Date) async {
+        async let memory: Void = memoryCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        async let disk: Void = diskCache.removeUnpermittedVersions(
+            permittedIds: permittedIds,
+            currentDate: currentDate
+        )
+        async let download: Void = downloadCache.removeUnpermittedVersions(permittedIds: permittedIds)
+        _ = await (memory, disk, download)
     }
 }

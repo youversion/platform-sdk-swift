@@ -7,37 +7,59 @@ public extension YouVersionAPI {
     enum Bible {}
 }
 
-public extension YouVersionAPI.Bible {
+extension YouVersionAPI.Bible {
 
-    static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
+    public static func version(withId versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
+        try await versionResponse(withId: versionId, accessToken: providedToken, session: session).value
+    }
+
+    static func versionResponse(
+        withId versionId: Int,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> BibleContentResponse<BibleVersion> {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
-        let time1 = Date()
-        let basic = try await basicVersion(versionId: versionId, accessToken: accessToken, session: session)
-        let time2 = Date()
-        let index = try await versionIndex(versionId: versionId, accessToken: accessToken, session: session)
-        let time3 = Date()
-
-        let elapsed1 = time2.timeIntervalSince(time1)
-        let elapsed2 = time3.timeIntervalSince(time2)
-        print("Version \(versionId) fetched in \(String(format: "%.1f", elapsed1)) and \(String(format: "%.1f", elapsed2)) seconds.")
-
-        return BibleVersion(
-            id: basic.id,
-            abbreviation: basic.abbreviation,
-            promotionalContent: basic.promotionalContent,
-            copyright: basic.copyright,
-            languageTag: basic.languageTag,
-            localizedAbbreviation: basic.localizedAbbreviation,
-            localizedTitle: basic.localizedTitle,
-            readerFooter: basic.readerFooter,
-            readerFooterUrl: basic.readerFooterUrl,
-            title: basic.title,
-            organizationId: basic.organizationId,
-            bookCodes: basic.bookCodes,
-            books: index.books,
-            textDirection: index.text_direction,
+        async let metadataTask = metadataResponseForVersion(
+            withId: versionId,
+            accessToken: accessToken,
+            session: session
         )
+        async let indexTask = indexResponseForVersion(
+            withId: versionId,
+            accessToken: accessToken,
+            session: session
+        )
+
+        let (metadataResponse, indexResponse) = try await (metadataTask, indexTask)
+        let metadata = metadataResponse.value
+        let index = indexResponse.value
+
+        return BibleContentResponse(
+            value: BibleVersion(
+                id: metadata.id,
+                abbreviation: metadata.abbreviation,
+                promotionalContent: metadata.promotionalContent,
+                copyright: metadata.copyright,
+                languageTag: metadata.languageTag,
+                localizedAbbreviation: metadata.localizedAbbreviation,
+                localizedTitle: metadata.localizedTitle,
+                readerFooter: metadata.readerFooter,
+                readerFooterUrl: metadata.readerFooterUrl,
+                title: metadata.title,
+                organizationId: metadata.organizationId,
+                bookCodes: metadata.bookCodes,
+                books: index.books,
+                textDirection: index.textDirection,
+            ),
+            expirationDate: min(metadataResponse.expirationDate, indexResponse.expirationDate),
+            isCacheable: metadataResponse.isCacheable && indexResponse.isCacheable
+        )
+    }
+
+    @available(*, deprecated, renamed: "version(withId:accessToken:session:)")
+    public static func version(versionId: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> BibleVersion {
+        try await version(withId: versionId, accessToken: providedToken, session: session)
     }
 
     /// Retrieves metadata for a specific Bible version from the server.
@@ -55,85 +77,107 @@ public extension YouVersionAPI.Bible {
     ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
-    static func basicVersion(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
-        )
-        let responseObject = try JSONDecoder().decode(BibleVersion.self, from: data)
-        return responseObject
+    public static func metadataForVersion(withId versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
+        try await metadataResponseForVersion(withId: versionId, accessToken: accessToken, session: session).value
     }
 
-    private static func versionBooks(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> [BibleBook] {
-        struct BibleVersionBooksResponse: Codable {
-            let data: [BibleBook]
+    private static func metadataResponseForVersion(
+        withId versionId: Int,
+        accessToken: String?,
+        session: URLSession
+    ) async throws -> BibleContentResponse<BibleVersion> {
+        guard let url = URLBuilder.versionURL(versionId: versionId) else {
+            throw URLError(.badURL)
         }
-
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionBooksURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
+        let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
+        return BibleContentResponse(
+            value: try JSONDecoder().decode(BibleVersion.self, from: response.value),
+            expirationDate: response.expirationDate,
+            isCacheable: response.isCacheable
         )
-        let response = try JSONDecoder().decode(BibleVersionBooksResponse.self, from: data)
-        return response.data
     }
 
-    private static func versionChapters(versionId: Int, book: String, accessToken: String?, session: URLSession = .shared) async throws -> [BibleChapter] {
+    @available(*, deprecated, renamed: "metadataForVersion(withId:accessToken:session:)")
+    public static func basicVersion(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
+        try await metadataForVersion(withId: versionId, accessToken: accessToken, session: session)
+    }
+
+    private static func indexResponseForVersion(
+        withId versionId: Int,
+        accessToken: String?,
+        session: URLSession
+    ) async throws -> BibleContentResponse<BibleVersionIndex> {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
 
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionBookChaptersURL(versionId: versionId, book: book),
-            accessToken: accessToken,
-            session: session
-        )
-        let response = try JSONDecoder().decode(BibleVersionChaptersResponse.self, from: data)
-        return response.data
-    }
-
-    private static func versionIndex(versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersionIndex {
-        struct BibleVersionChaptersResponse: Codable {
-            let data: [BibleChapter]
+        guard let url = URLBuilder.versionIndexURL(versionId: versionId) else {
+            throw URLError(.badURL)
         }
-
-        let data = try await YouVersionAPI.commonFetch(
-            url: URLBuilder.versionIndexURL(versionId: versionId),
-            accessToken: accessToken,
-            session: session
+        let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
+        return BibleContentResponse(
+            value: try JSONDecoder().decode(BibleVersionIndex.self, from: response.value),
+            expirationDate: response.expirationDate,
+            isCacheable: response.isCacheable
         )
-        let response = try JSONDecoder().decode(BibleVersionIndex.self, from: data)
-        return response
     }
 
     // MARK: - Chapter Content
 
     /// Fetches the content of a single Bible chapter from the server.
-    static func chapter(reference: BibleReference, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+    public static func chapter(reference: BibleReference, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+        try await chapterResponse(reference: reference, accessToken: providedToken, session: session).value
+    }
+
+    static func chapterResponse(
+        reference: BibleReference,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> BibleContentResponse<String> {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         guard let url = URLBuilder.passageURL(reference: reference, format: "html") else {
             throw URLError(.badURL)
         }
 
-        let request = YouVersionAPI.buildRequest(url: url, accessToken: accessToken, session: session)
+        let request = YouVersionAPI.urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("unexpected response type")
+            YouVersionPlatformLogger.error("unexpected response type", category: "BibleVersion")
             throw YouVersionAPIError.invalidResponse
         }
 
         if httpResponse.statusCode == 403 {
-            print("Not permitted; check your appKey and its entitlements.")
+            YouVersionPlatformLogger.error("Not permitted; check your appKey and its entitlements.", category: "BibleVersion")
             throw YouVersionAPIError.notPermitted
         }
 
         guard httpResponse.statusCode == 200 else {
-            print("error \(httpResponse.statusCode) while fetching an html chapter")
+            YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while fetching an html chapter", category: "BibleVersion")
             throw YouVersionAPIError.cannotDownload
         }
 
+        let object = try JSONSerialization.jsonObject(with: data, options: [])
+        guard let json = object as? [String: Any],
+              let content = json["content"] as? String else {
+            throw YouVersionAPIError.invalidDownload
+        }
+
+        return BibleContentResponse(
+            value: content,
+            expirationDate: httpResponse.cacheExpirationDate(),
+            isCacheable: httpResponse.allowsCaching
+        )
+    }
+    
+    /// Fetches the html content of the "intro" (introductory material) for a book from the server.
+    public static func introMaterial(versionId: Int, passageId: String, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> String {
+        guard let url = URLBuilder.passageIntroURL(versionId: versionId, passageId: passageId) else {
+            throw URLError(.badURL)
+        }
+        
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let object = try JSONSerialization.jsonObject(with: data, options: [])
         guard let json = object as? [String: Any],
               let content = json["content"] as? String else {
@@ -146,7 +190,12 @@ public extension YouVersionAPI.Bible {
     // MARK: - utility structs
 
     private struct BibleVersionIndex: Codable {
-        let text_direction: String?
+        let textDirection: String?
         let books: [BibleBook]?
+
+        enum CodingKeys: String, CodingKey {
+            case textDirection = "text_direction"
+            case books
+        }
     }
 }

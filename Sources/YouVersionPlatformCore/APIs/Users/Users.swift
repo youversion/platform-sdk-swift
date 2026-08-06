@@ -6,7 +6,7 @@ import FoundationNetworking
 public extension YouVersionAPI {
     enum Users {
 
-        public static func getSignInResult(
+        public static func signInResult(
             from callbackURL: URL,
             state: String,
             codeVerifier: String,
@@ -17,7 +17,26 @@ public extension YouVersionAPI {
             let location = try await obtainLocation(from: callbackURL, state: state, session: session)
             let code = try obtainCode(from: location)
             let tokens = try await obtainTokens(from: code, codeVerifier: codeVerifier, redirectUri: redirectUri, session: session)
-            return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce)
+            return try extractSignInWithYouVersionResult(from: tokens, nonce: nonce, callbackURL: callbackURL)
+        }
+
+        @available(*, deprecated, renamed: "signInResult(from:state:codeVerifier:redirectUri:nonce:session:)")
+        public static func getSignInResult(
+            from callbackURL: URL,
+            state: String,
+            codeVerifier: String,
+            redirectUri: String,
+            nonce: String,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await signInResult(
+                from: callbackURL,
+                state: state,
+                codeVerifier: codeVerifier,
+                redirectUri: redirectUri,
+                nonce: nonce,
+                session: session
+            )
         }
 
         private static func applySessionHeaders(from session: URLSession, to request: inout URLRequest) {
@@ -93,32 +112,38 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
             if httpResponse.statusCode != 200 {
-                print("obtainToken got status: \(httpResponse.statusCode)")
+                YouVersionPlatformLogger.error("obtainToken got status: \(httpResponse.statusCode)", category: "Auth")
                 throw URLError(.badServerResponse)
             }
 
             return try JSONDecoder().decode(TokenResponse.self, from: data)
         }
 
-        static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String) throws -> SignInWithYouVersionResult {
+        static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String, callbackURL: URL) throws -> SignInWithYouVersionResult {
             let idClaims = try decodeJWT(tokens.idToken)
             guard idClaims["nonce"] as? String == nonce else {
-                print("Nonce mismatch")
+                YouVersionPlatformLogger.error("Nonce mismatch", category: "Auth")
                 throw URLError(.badServerResponse)
             }
-            let permissions = tokens.scope
-                .split(separator: ",")
-                .compactMap { SignInWithYouVersionPermission(rawValue: String($0)) }
+            var resultPermissions = permissions(from: tokens.scope)
+            let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
+            let grantedValues = (components?.queryItems ?? [])
+                .filter { $0.name == "granted_permissions" }
+                .compactMap(\.value)
+                .flatMap { permissions(from: $0) }
+            if !grantedValues.isEmpty {
+                resultPermissions = Array(Set(resultPermissions).union(Set(grantedValues))).sorted()
+            }
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
                 expiresIn: tokens.expiresIn,
                 refreshToken: tokens.refreshToken,
                 idToken: tokens.idToken,
-                permissions: permissions,
+                permissionValues: resultPermissions,
                 yvpUserId: idClaims["sub"] as? String,
                 name: idClaims["name"] as? String,
                 profilePicture: idClaims["profile_picture"] as? String,
-                email: idClaims["email"] as? String,
+                email: idClaims["email"] as? String
             )
         }
 
@@ -174,8 +199,8 @@ public extension YouVersionAPI {
 
         // MARK: - Refresh Token
 
-        public static func performRefresh(
-            with refreshToken: String,
+        public static func refreshSignIn(
+            withToken refreshToken: String,
             idToken: String?,
             session: URLSession = .shared
         ) async throws -> SignInWithYouVersionResult {
@@ -192,7 +217,7 @@ public extension YouVersionAPI {
                 "refresh_token": refreshToken
             ])
 
-            var request = YouVersionAPI.buildRequest(url: url, accessToken: nil, session: session)
+            var request = YouVersionAPI.urlRequest(with: url, accessToken: nil, session: session, omitAccessToken: true)
             request.httpMethod = "POST"
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpBody = bodyData
@@ -208,14 +233,24 @@ public extension YouVersionAPI {
             guard let decodedResponse = try? JSONDecoder().decode(RefreshResponse.self, from: data) else {
                 throw URLError(.badServerResponse)
             }
+            
             return SignInWithYouVersionResult(
                 accessToken: decodedResponse.accessToken,
                 expiresIn: decodedResponse.expiresIn,
                 refreshToken: decodedResponse.refreshToken,
                 idToken: idToken,
-                permissions: [],
+                permissionValues: permissions(from: decodedResponse.scope),
                 yvpUserId: nil
             )
+        }
+
+        @available(*, deprecated, renamed: "refreshSignIn(withToken:idToken:session:)")
+        public static func performRefresh(
+            with refreshToken: String,
+            idToken: String?,
+            session: URLSession = .shared
+        ) async throws -> SignInWithYouVersionResult {
+            try await refreshSignIn(withToken: refreshToken, idToken: idToken, session: session)
         }
 
         private struct RefreshResponse: Codable {
@@ -230,6 +265,12 @@ public extension YouVersionAPI {
                 case refreshToken = "refresh_token"
                 case scope
             }
+        }
+
+        private static func permissions(from value: String) -> [String] {
+            value
+                .split { $0 == "," || $0 == " " }
+                .map(String.init)
         }
 
         // MARK: - Public Accessors

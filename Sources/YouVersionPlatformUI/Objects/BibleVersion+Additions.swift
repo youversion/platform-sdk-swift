@@ -2,8 +2,8 @@ import Foundation
 import YouVersionPlatformCore
 
 public extension BibleVersion {
-    func bookName(_ bookUSFM: String) -> String? {
-        guard let book = book(with: bookUSFM) else {
+    func bookName(_ bookId: String) -> String? {
+        guard let book = book(with: bookId) else {
             return nil
         }
         return book.title ?? book.fullTitle
@@ -11,7 +11,7 @@ public extension BibleVersion {
     // Example: "https://www.bible.com/bible/3034/1SA.3.10.BSB"
     func shareUrl(reference: BibleReference) -> URL? {
         let prefix = "https://www.bible.com/bible/\(id)/"
-        let book = reference.bookUSFM
+        let book = reference.bookId
         let version = (localizedAbbreviation?.isEmpty == false ? localizedAbbreviation : nil) ?? 
                      (abbreviation?.isEmpty == false ? abbreviation : nil) ?? 
                      String(id)
@@ -47,35 +47,35 @@ public extension BibleVersion {
     }
 
     private func titleChunks(for reference: BibleReference) -> [String] {
-        let bookUSFM = reference.bookUSFM
-        let bookName = bookName(bookUSFM) ?? ""
+        let bookId = reference.bookId
+        let bookName = bookName(bookId) ?? bookId
 
-        let hasOneChapter = canonicalChapters(bookUSFM).count == 1
+        let hasOneChapter = chapterLabels(bookId).count == 1
         let chapterSeparator = hasOneChapter ? " " : ":"
         let bookAndChapterSeparator = hasOneChapter ? "" : " "
         let chapter = hasOneChapter ? "" : String(reference.chapter)
 
-        switch (reference.verseStart, reference.verseEnd) {
-        case (_, let verseEnd?) where verseEnd == 999:
+        if reference.verseEnd == 999 {
             // Whole chapter
             return [bookName, bookAndChapterSeparator, chapter]
-            
-        case (nil, _):
+        }
+
+        guard let verseStart = reference.verseStart else {
             // Whole chapter
             return [bookName, bookAndChapterSeparator, chapter]
-            
-        case let (verseStart?, verseEnd?):
-            if verseStart == verseEnd {
-                // Single verse
-                return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart)]
-            } else {
-                // Verse range
-                return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart), "-", String(verseEnd)]
-            }
-            
-        case let (verseStart?, nil):
-            // Single verse with no verseEnd
+        }
+
+        guard let verseEnd = reference.verseEnd else {
+            assertionFailure("BibleReference verseEnd should be set when verseStart is set.")
+            return [bookName, bookAndChapterSeparator, chapter]
+        }
+
+        if verseStart == verseEnd {
+            // Single verse
             return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart)]
+        } else {
+            // Verse range
+            return [bookName, bookAndChapterSeparator, chapter, chapterSeparator, String(verseStart), "-", String(verseEnd)]
         }
     }
 }

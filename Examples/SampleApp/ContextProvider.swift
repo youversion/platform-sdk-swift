@@ -1,5 +1,6 @@
 import AuthenticationServices
 
+#if !os(tvOS)
 class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -9,3 +10,4 @@ class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding
         return window
     }
 }
+#endif
