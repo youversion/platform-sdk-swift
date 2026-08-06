@@ -413,11 +413,12 @@ let previousChapterCases: [PreviousChapterCase] = [
         </div>
         """
         let storage = BibleContentStorage(storageKind: .cache)
-        let chapterPassageId = chapterReference.chapterPassageId
-        try storage.writeString(
-            html,
-            to: .chapter(versionId: versionId, chapterPassageId: chapterPassageId)
+        let resource = BibleContentStorageResource.chapter(
+            versionId: versionId,
+            chapterPassageId: chapterReference.chapterPassageId
         )
+        try storage.writeString(html, to: resource)
+        try storage.writeExpirationDate(nil, for: resource)
         let viewModel = BibleReaderViewModel(reference: chapterReference)
 
         let text = await viewModel.shareableVerseText(references: [verseReference])
@@ -443,11 +444,12 @@ let previousChapterCases: [PreviousChapterCase] = [
         </div>
         """
         let storage = BibleContentStorage(storageKind: .cache)
-        let chapterPassageId = chapterReference.chapterPassageId
-        try storage.writeString(
-            html,
-            to: .chapter(versionId: versionId, chapterPassageId: chapterPassageId)
+        let resource = BibleContentStorageResource.chapter(
+            versionId: versionId,
+            chapterPassageId: chapterReference.chapterPassageId
         )
+        try storage.writeString(html, to: resource)
+        try storage.writeExpirationDate(nil, for: resource)
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(reference: chapterReference)
         viewModel.versionsViewModel.switchToVersion(
             BibleReaderViewModelTestSupport.makeBibleVersion(id: versionId)

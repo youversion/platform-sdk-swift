@@ -4,16 +4,27 @@ import SwiftUI
 #endif
 
 actor ChapterMemoryCache {
-    private var cache: [String: String] = [:]
+    private var cache: [String: CachedBibleContent<String>] = [:]
 
     init() {}
 
-    func chapterContent(withReference reference: BibleReference) -> String? {
-        cache[Self.cacheKey(reference: reference)]
+    func chapterContent(withReference reference: BibleReference, currentDate: Date) -> String? {
+        let key = Self.cacheKey(reference: reference)
+        guard let cached = cache[key] else {
+            return nil
+        }
+        if let expirationDate = cached.expirationDate, expirationDate <= currentDate {
+            cache[key] = nil
+            return nil
+        }
+        return cached.value
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference) {
-        cache[Self.cacheKey(reference: reference)] = content
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date? = nil) {
+        cache[Self.cacheKey(reference: reference)] = CachedBibleContent(
+            value: content,
+            expirationDate: expirationDate
+        )
     }
 
     func removeVersion(withId id: Int) {
@@ -37,19 +48,44 @@ actor BibleChapterDiskCache {
         storage = BibleContentStorage(storageKind: .cache, directoryProvider: directoryProvider)
     }
 
-    func chapterContent(withReference reference: BibleReference) -> String? {
-        storage.string(
-            for: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+    func chapterContent(withReference reference: BibleReference, currentDate: Date = Date()) -> String? {
+        cachedChapterContent(withReference: reference, currentDate: currentDate)?.value
+    }
+
+    func cachedChapterContent(
+        withReference reference: BibleReference,
+        currentDate: Date
+    ) -> CachedBibleContent<String>? {
+        let resource = BibleContentStorageResource.chapter(
+            versionId: reference.versionId,
+            chapterPassageId: reference.chapterPassageId
+        )
+        guard !storage.isExpired(resource, currentDate: currentDate) else {
+            storage.removeCachedResource(resource)
+            return nil
+        }
+        guard let content = storage.string(for: resource) else {
+            return nil
+        }
+        return CachedBibleContent(
+            value: content,
+            expirationDate: storage.expirationDate(for: resource)
         )
     }
 
-    func addChapterContent(_ content: String, reference: BibleReference) {
+    func addChapterContent(_ content: String, reference: BibleReference, expirationDate: Date? = nil) {
+        let resource = BibleContentStorageResource.chapter(
+            versionId: reference.versionId,
+            chapterPassageId: reference.chapterPassageId
+        )
         do {
             try storage.writeString(
                 content,
-                to: .chapter(versionId: reference.versionId, chapterPassageId: reference.chapterPassageId)
+                to: resource
             )
+            try storage.writeExpirationDate(expirationDate, for: resource)
         } catch {
+            storage.removeCachedResource(resource)
             YouVersionPlatformLogger.notice(
                 "BibleChapterDiskCache failed to write data: \(error.localizedDescription)",
                 category: "ChapterCache"
@@ -100,14 +136,14 @@ actor BibleChapterDownloadCache {
 }
 
 protocol BibleChapterContentProviding: Sendable {
-    func chapterContent(for reference: BibleReference) async throws -> String
+    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String>
 }
 
 final class BibleChapterContentAPI: BibleChapterContentProviding {
     init() {}
 
-    func chapterContent(for reference: BibleReference) async throws -> String {
-        try await YouVersionAPI.Bible.chapter(reference: reference)
+    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String> {
+        try await YouVersionAPI.Bible.chapterResponse(reference: reference)
     }
 }
 
@@ -138,13 +174,27 @@ public actor BibleChapterRepository: ObservableObject {
     }
 
     public func chapter(withReference reference: BibleReference) async throws -> String {
-        if let cachedContent = await memoryCache.chapterContent(withReference: reference) {
+        try await chapter(withReference: reference, currentDate: Date())
+    }
+
+    func chapter(withReference reference: BibleReference, currentDate: Date) async throws -> String {
+        if let cachedContent = await memoryCache.chapterContent(
+            withReference: reference,
+            currentDate: currentDate
+        ) {
             return cachedContent
         }
 
-        if let cachedContent = await diskCache.chapterContent(withReference: reference) {
-            await memoryCache.addChapterContent(cachedContent, reference: reference)
-            return cachedContent
+        if let cached = await diskCache.cachedChapterContent(
+            withReference: reference,
+            currentDate: currentDate
+        ) {
+            await memoryCache.addChapterContent(
+                cached.value,
+                reference: reference,
+                expirationDate: cached.expirationDate
+            )
+            return cached.value
         }
 
         if let cachedContent = await downloadCache.chapterContent(withReference: reference) {
@@ -152,12 +202,20 @@ public actor BibleChapterRepository: ObservableObject {
             return cachedContent
         }
 
-        let content = try await provider.chapterContent(for: reference)
+        let response = try await provider.chapterContent(for: reference)
 
-        await memoryCache.addChapterContent(content, reference: reference)
-        await diskCache.addChapterContent(content, reference: reference)
+        await memoryCache.addChapterContent(
+            response.value,
+            reference: reference,
+            expirationDate: response.expirationDate
+        )
+        await diskCache.addChapterContent(
+            response.value,
+            reference: reference,
+            expirationDate: response.expirationDate
+        )
 
-        return content
+        return response.value
     }
 
     func chaptersArePresent(versionId: Int) -> Bool {

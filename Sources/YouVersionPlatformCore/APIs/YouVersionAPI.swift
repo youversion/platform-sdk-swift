@@ -25,6 +25,14 @@ public enum YouVersionAPI {
     }
 
     static func data(at url: URL, accessToken: String?, session: URLSession) async throws -> Data {
+        try await responseData(at: url, accessToken: accessToken, session: session).value
+    }
+
+    static func responseData(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession
+    ) async throws -> CachedBibleContent<Data> {
         let request = urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
@@ -42,7 +50,10 @@ public enum YouVersionAPI {
             YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
             throw YouVersionAPIError.cannotDownload
         }
-        return data
+        return CachedBibleContent(
+            value: data,
+            expirationDate: httpResponse.cacheExpirationDate()
+        )
     }
 
     static func urlRequest(

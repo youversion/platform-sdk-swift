@@ -7,19 +7,21 @@ import Testing
 final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchecked Sendable {
     private(set) var requestedReferences: [BibleReference] = []
     var result: String
+    var expirationDate: Date?
     var error: Error?
 
-    init(result: String, error: Error? = nil) {
+    init(result: String, expirationDate: Date? = nil, error: Error? = nil) {
         self.result = result
+        self.expirationDate = expirationDate
         self.error = error
     }
 
-    func chapterContent(for reference: BibleReference) async throws -> String {
+    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String> {
         requestedReferences.append(reference)
         if let error {
             throw error
         }
-        return result
+        return CachedBibleContent(value: result, expirationDate: expirationDate)
     }
 
     var callCount: Int { requestedReferences.count }
@@ -110,6 +112,27 @@ struct BibleChapterRepositoryTests {
         #expect(first == "<div>server</div>")
         #expect(second == "<div>server</div>")
         #expect(api.callCount == 1)
+    }
+
+    @Test
+    func chapterRefetchesAfterCachedResponseExpires() async throws {
+        let initialDate = Date(timeIntervalSince1970: 1_000)
+        let expiredDate = initialDate.addingTimeInterval(61)
+        let api = BibleChapterAPIRequestCounter(
+            result: "<div>first</div>",
+            expirationDate: initialDate.addingTimeInterval(60)
+        )
+        let (repository, _, storage) = try makeRepository(apiCounter: api)
+        defer { storage.remove() }
+
+        let first = try await repository.chapter(withReference: reference, currentDate: initialDate)
+        api.result = "<div>second</div>"
+        api.expirationDate = expiredDate.addingTimeInterval(120)
+        let second = try await repository.chapter(withReference: reference, currentDate: expiredDate)
+
+        #expect(first == "<div>first</div>")
+        #expect(second == "<div>second</div>")
+        #expect(api.callCount == 2)
     }
 
     @Test

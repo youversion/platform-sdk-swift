@@ -7,19 +7,21 @@ import Testing
 final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sendable {
     private(set) var requestedIds: [Int] = []
     var result: BibleVersion
+    var expirationDate: Date?
     var error: Error?
 
-    init(result: BibleVersion, error: Error? = nil) {
+    init(result: BibleVersion, expirationDate: Date? = nil, error: Error? = nil) {
         self.result = result
+        self.expirationDate = expirationDate
         self.error = error
     }
 
-    func version(withId id: Int) async throws -> BibleVersion {
+    func version(withId id: Int) async throws -> CachedBibleContent<BibleVersion> {
         requestedIds.append(id)
         if let error {
             throw error
         }
-        return result
+        return CachedBibleContent(value: result, expirationDate: expirationDate)
     }
 
     var callCount: Int { requestedIds.count }
@@ -131,6 +133,26 @@ struct BibleVersionRepositoryTests {
         #expect(second.id == Self.fixture.id)
         #expect(second.readerFooter == Self.fixture.readerFooter)
         #expect(api.callCount == 1)
+    }
+
+    @Test
+    func versionRefetchesAfterCachedResponseExpires() async throws {
+        let initialDate = Date(timeIntervalSince1970: 1_000)
+        let expiredDate = initialDate.addingTimeInterval(61)
+        let api = BibleVersionAPIRequestCounter(
+            result: Self.fixture,
+            expirationDate: initialDate.addingTimeInterval(60)
+        )
+        let (repository, _, storage) = try makeRepository(apiRequestCounter: api)
+        defer { storage.remove() }
+        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+
+        _ = try await repository.version(withId: Self.fixture.id, currentDate: initialDate)
+        api.expirationDate = expiredDate.addingTimeInterval(60)
+        _ = try await repository.version(withId: Self.fixture.id, currentDate: expiredDate)
+
+        #expect(api.callCount == 2)
+        #expect(await diskCache.version(withId: Self.fixture.id, currentDate: expiredDate)?.id == Self.fixture.id)
     }
 
     @Test
@@ -279,5 +301,30 @@ struct BibleVersionRepositoryTests {
 
         _ = try await repository.version(withId: Self.fixture.id)
         #expect(api.callCount == 2)
+    }
+
+    @Test
+    func removeUnpermittedVersionsAlsoRemovesExpiredCachedFiles() async throws {
+        let currentDate = Date(timeIntervalSince1970: 2_000)
+        let (repository, _, storage) = try makeRepository()
+        defer { storage.remove() }
+        let versionCache = BibleVersionDiskCache(directoryProvider: storage.provider)
+        let chapterCache = BibleChapterDiskCache(directoryProvider: storage.provider)
+        let reference = BibleReference(versionId: Self.fixture.id, bookId: "GEN", chapter: 1)
+
+        await versionCache.addVersion(Self.fixture, expirationDate: currentDate.addingTimeInterval(-1))
+        await chapterCache.addChapterContent(
+            "<div>expired</div>",
+            reference: reference,
+            expirationDate: currentDate.addingTimeInterval(-1)
+        )
+
+        await repository.removeUnpermittedVersions(
+            permittedIds: [Self.fixture.id],
+            currentDate: currentDate
+        )
+
+        #expect(await versionCache.version(withId: Self.fixture.id, currentDate: currentDate) == nil)
+        #expect(await chapterCache.chapterContent(withReference: reference, currentDate: currentDate) == nil)
     }
 }

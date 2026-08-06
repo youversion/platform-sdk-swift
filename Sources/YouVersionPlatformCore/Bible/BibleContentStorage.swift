@@ -25,8 +25,14 @@ struct DefaultBibleContentDirectoryProvider: BibleContentDirectoryProviding {
 enum BibleContentStorageResource: Sendable {
     case versionDirectory(versionId: Int)
     case versionMetadata(versionId: Int)
+    case versionMetadataExpiration(versionId: Int)
     case chaptersDirectory(versionId: Int)
     case chapter(versionId: Int, chapterPassageId: String)
+    case chapterExpiration(versionId: Int, chapterPassageId: String)
+}
+
+private struct BibleContentCacheExpiration: Codable {
+    let expirationDate: Date?
 }
 
 struct BibleContentStorage: Sendable {
@@ -76,12 +82,18 @@ struct BibleContentStorage: Sendable {
         case let .versionMetadata(versionId):
             url(for: .versionDirectory(versionId: versionId))
                 .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
+        case let .versionMetadataExpiration(versionId):
+            url(for: .versionMetadata(versionId: versionId))
+                .appendingPathExtension("expiration")
         case let .chaptersDirectory(versionId):
             url(for: .versionDirectory(versionId: versionId))
                 .appending(path: "Chapters", directoryHint: .isDirectory)
         case let .chapter(versionId, chapterPassageId):
             url(for: .chaptersDirectory(versionId: versionId))
                 .appending(path: chapterPassageId, directoryHint: .notDirectory)
+        case let .chapterExpiration(versionId, chapterPassageId):
+            url(for: .chapter(versionId: versionId, chapterPassageId: chapterPassageId))
+                .appendingPathExtension("expiration")
         }
     }
 
@@ -131,7 +143,84 @@ struct BibleContentStorage: Sendable {
         try write(JSONEncoder().encode(value), to: resource, isExcludedFromBackup: isExcludedFromBackup)
     }
 
-    func contains(_ resource: BibleContentStorageResource) -> Bool {
+    func expirationDate(for resource: BibleContentStorageResource) -> Date? {
+        cacheExpiration(for: resource)?.expirationDate
+    }
+
+    func isExpired(_ resource: BibleContentStorageResource, currentDate: Date) -> Bool {
+        let expirationMetadataResource = expirationResource(for: resource)
+        guard hasResource(expirationMetadataResource) else {
+            return true
+        }
+        guard let cacheExpiration = decoded(
+            BibleContentCacheExpiration.self,
+            for: expirationMetadataResource
+        ) else {
+            return true
+        }
+        if let expirationDate = cacheExpiration.expirationDate {
+            return expirationDate <= currentDate
+        }
+        return false
+    }
+
+    func writeExpirationDate(_ expirationDate: Date?, for resource: BibleContentStorageResource) throws {
+        try writeEncoded(
+            BibleContentCacheExpiration(expirationDate: expirationDate),
+            to: expirationResource(for: resource)
+        )
+    }
+
+    func removeCachedResource(_ resource: BibleContentStorageResource) {
+        try? remove(resource)
+        try? remove(expirationResource(for: resource))
+    }
+
+    func removeExpiredCachedResources(currentDate: Date) {
+        guard storageKind == .cache,
+              let enumerator = FileManager.default.enumerator(
+                at: directoryProvider.rootURL(for: storageKind),
+                includingPropertiesForKeys: [.isRegularFileKey],
+                options: [.skipsHiddenFiles]
+              ) else {
+            return
+        }
+
+        let urls = enumerator.compactMap { $0 as? URL }
+        let expirationURLs = urls.filter { $0.pathExtension == "expiration" }
+        for expirationURL in expirationURLs {
+            guard let cacheExpiration = data(at: expirationURL).flatMap({
+                try? JSONDecoder().decode(BibleContentCacheExpiration.self, from: $0)
+            }) else {
+                try? FileManager.default.removeItem(at: expirationURL.deletingPathExtension())
+                try? FileManager.default.removeItem(at: expirationURL)
+                continue
+            }
+            guard let expirationDate = cacheExpiration.expirationDate else {
+                continue
+            }
+            guard expirationDate <= currentDate else {
+                continue
+            }
+            try? FileManager.default.removeItem(at: expirationURL.deletingPathExtension())
+            try? FileManager.default.removeItem(at: expirationURL)
+        }
+
+        let contentURLs = urls.filter { url in
+            guard (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true else {
+                return false
+            }
+            return url.lastPathComponent == "BibleVersionMetadata_v1"
+                || (url.pathComponents.contains("Chapters") && url.pathExtension != "expiration")
+        }
+        for contentURL in contentURLs where !FileManager.default.fileExists(
+            atPath: contentURL.appendingPathExtension("expiration").path
+        ) {
+            try? FileManager.default.removeItem(at: contentURL)
+        }
+    }
+
+    func hasResource(_ resource: BibleContentStorageResource) -> Bool {
         FileManager.default.fileExists(atPath: url(for: resource).path)
     }
 
@@ -145,5 +234,24 @@ struct BibleContentStorage: Sendable {
 
     func remove(_ resource: BibleContentStorageResource) throws {
         try FileManager.default.removeItem(at: url(for: resource))
+    }
+
+    private func expirationResource(for resource: BibleContentStorageResource) -> BibleContentStorageResource {
+        switch resource {
+        case let .versionMetadata(versionId):
+            .versionMetadataExpiration(versionId: versionId)
+        case let .chapter(versionId, chapterPassageId):
+            .chapterExpiration(versionId: versionId, chapterPassageId: chapterPassageId)
+        case .versionDirectory, .chaptersDirectory, .versionMetadataExpiration, .chapterExpiration:
+            resource
+        }
+    }
+
+    private func cacheExpiration(for resource: BibleContentStorageResource) -> BibleContentCacheExpiration? {
+        decoded(BibleContentCacheExpiration.self, for: expirationResource(for: resource))
+    }
+
+    private func data(at url: URL) -> Data? {
+        try? Data(contentsOf: url)
     }
 }
