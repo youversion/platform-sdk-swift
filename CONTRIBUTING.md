@@ -93,6 +93,17 @@ The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK u
 2. Select the `SampleApp` scheme
 3. Build and run on simulator or device
 
+#### Device builds on BrowserStack
+
+The **BrowserStack Build** workflow (Actions tab) dispatches the
+`platform_swift_sdk_automation` repo's build pipeline against the branch you
+run it on. That pipeline builds and signs the SampleApp `.ipa` and uploads it
+to BrowserStack App Automate and/or App Live; its run summary contains the
+`bs://...` app id. Builds are named `swift-<TICKET>-<N>`, with the ticket key
+taken from the branch name and `<N>` incrementing per build. Write access to
+this repository is the only requirement; no access to the automation repo is
+needed.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](./LICENSE).
