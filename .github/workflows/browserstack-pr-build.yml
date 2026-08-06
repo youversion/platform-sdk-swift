@@ -68,11 +68,13 @@ jobs:
           if [ -n "$TICKET" ]; then
             BUILD_KEY="$TICKET"
           else
-            BRANCH_KEY=$(printf '%s' "$HEAD_REF" |
+            BRANCH_LABEL=${HEAD_REF#*/}
+            BRANCH_KEY=$(printf '%s' "$BRANCH_LABEL" |
               tr '[:upper:]' '[:lower:]' |
               sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' |
-              cut -c1-40)
-            BUILD_KEY=${BRANCH_KEY:-pr-$PR_NUMBER}
+              cut -c1-10 |
+              sed -E 's/-+$//')
+            BUILD_KEY=${BRANCH_KEY:-branch}-pr$PR_NUMBER
           fi
 
           BUILD_PREFIX="swift-$BUILD_KEY-"

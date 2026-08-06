@@ -152,8 +152,10 @@ SDK workflow summary.
 
 Builds use the ticket key from the branch when present and increment for each
 upload, for example `swift-YPE-3011-1` and `swift-YPE-3011-2`. A sanitized
-branch name is used when the branch has no ticket key. The exact source SHA is
-recorded separately in the workflow summary.
+10-character branch label plus the PR number is used when the branch has no
+ticket key, for example `feature/rework-reader` becomes
+`swift-rework-rea-pr226-1`. The exact source SHA is recorded separately in the
+workflow summary.
 
 This initial bridge produces an App Live build only. It does not run the Hinqa
 corpus or upload to App Automate.
