@@ -7,13 +7,13 @@ import Testing
 final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sendable {
     private(set) var requestedIds: [Int] = []
     var result: BibleVersion
-    var expirationDate: Date?
+    var expirationDate: Date
     var isCacheable: Bool
     var error: Error?
 
     init(
         result: BibleVersion,
-        expirationDate: Date? = .distantFuture,
+        expirationDate: Date = .distantFuture,
         isCacheable: Bool = true,
         error: Error? = nil
     ) {
@@ -23,12 +23,12 @@ final class BibleVersionAPIRequestCounter: BibleVersionProviding, @unchecked Sen
         self.error = error
     }
 
-    func version(withId id: Int) async throws -> CachedBibleContent<BibleVersion> {
+    func version(withId id: Int) async throws -> BibleContentResponse<BibleVersion> {
         requestedIds.append(id)
         if let error {
             throw error
         }
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: result,
             expirationDate: expirationDate,
             isCacheable: isCacheable
@@ -144,27 +144,6 @@ struct BibleVersionRepositoryTests {
         #expect(second.id == Self.fixture.id)
         #expect(second.readerFooter == Self.fixture.readerFooter)
         #expect(api.callCount == 1)
-    }
-
-    @Test
-    func versionCachesResponseWithoutExpirationForDefaultDuration() async throws {
-        let currentDate = Date(timeIntervalSince1970: 1_000)
-        let api = BibleVersionAPIRequestCounter(
-            result: Self.fixture,
-            expirationDate: nil
-        )
-        let (repository, _, storage) = try makeRepository(apiRequestCounter: api)
-        defer { storage.remove() }
-        let diskCache = BibleVersionDiskCache(directoryProvider: storage.provider)
-
-        _ = try await repository.version(withId: Self.fixture.id, currentDate: currentDate)
-        _ = try await repository.version(
-            withId: Self.fixture.id,
-            currentDate: currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration - 1)
-        )
-
-        #expect(api.callCount == 1)
-        #expect(await diskCache.version(withId: Self.fixture.id, currentDate: currentDate)?.id == Self.fixture.id)
     }
 
     @Test

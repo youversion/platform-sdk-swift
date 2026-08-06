@@ -17,7 +17,7 @@ extension YouVersionAPI.Bible {
         withId versionId: Int,
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> CachedBibleContent<BibleVersion> {
+    ) async throws -> BibleContentResponse<BibleVersion> {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
 
         async let metadataTask = metadataResponseForVersion(
@@ -35,7 +35,7 @@ extension YouVersionAPI.Bible {
         let metadata = metadataResponse.value
         let index = indexResponse.value
 
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: BibleVersion(
                 id: metadata.id,
                 abbreviation: metadata.abbreviation,
@@ -52,16 +52,9 @@ extension YouVersionAPI.Bible {
                 books: index.books,
                 textDirection: index.textDirection,
             ),
-            expirationDate: combinedExpirationDate(
-                metadataResponse.expirationDate,
-                indexResponse.expirationDate
-            ),
+            expirationDate: min(metadataResponse.expirationDate, indexResponse.expirationDate),
             isCacheable: metadataResponse.isCacheable && indexResponse.isCacheable
         )
-    }
-
-    private static func combinedExpirationDate(_ first: Date?, _ second: Date?) -> Date? {
-        [first, second].compactMap { $0 }.min()
     }
 
     @available(*, deprecated, renamed: "version(withId:accessToken:session:)")
@@ -92,12 +85,12 @@ extension YouVersionAPI.Bible {
         withId versionId: Int,
         accessToken: String?,
         session: URLSession
-    ) async throws -> CachedBibleContent<BibleVersion> {
+    ) async throws -> BibleContentResponse<BibleVersion> {
         guard let url = URLBuilder.versionURL(versionId: versionId) else {
             throw URLError(.badURL)
         }
         let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: try JSONDecoder().decode(BibleVersion.self, from: response.value),
             expirationDate: response.expirationDate,
             isCacheable: response.isCacheable
@@ -113,7 +106,7 @@ extension YouVersionAPI.Bible {
         withId versionId: Int,
         accessToken: String?,
         session: URLSession
-    ) async throws -> CachedBibleContent<BibleVersionIndex> {
+    ) async throws -> BibleContentResponse<BibleVersionIndex> {
         struct BibleVersionChaptersResponse: Codable {
             let data: [BibleChapter]
         }
@@ -122,7 +115,7 @@ extension YouVersionAPI.Bible {
             throw URLError(.badURL)
         }
         let response = try await YouVersionAPI.responseData(at: url, accessToken: accessToken, session: session)
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: try JSONDecoder().decode(BibleVersionIndex.self, from: response.value),
             expirationDate: response.expirationDate,
             isCacheable: response.isCacheable
@@ -140,7 +133,7 @@ extension YouVersionAPI.Bible {
         reference: BibleReference,
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> CachedBibleContent<String> {
+    ) async throws -> BibleContentResponse<String> {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         guard let url = URLBuilder.passageURL(reference: reference, format: "html") else {
             throw URLError(.badURL)
@@ -170,7 +163,7 @@ extension YouVersionAPI.Bible {
             throw YouVersionAPIError.invalidDownload
         }
 
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: content,
             expirationDate: httpResponse.cacheExpirationDate(),
             isCacheable: httpResponse.allowsCaching

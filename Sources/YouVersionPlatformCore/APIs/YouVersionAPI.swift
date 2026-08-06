@@ -32,7 +32,7 @@ public enum YouVersionAPI {
         at url: URL,
         accessToken: String?,
         session: URLSession
-    ) async throws -> CachedBibleContent<Data> {
+    ) async throws -> BibleContentResponse<Data> {
         let request = urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
@@ -50,7 +50,7 @@ public enum YouVersionAPI {
             YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
             throw YouVersionAPIError.cannotDownload
         }
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: data,
             expirationDate: httpResponse.cacheExpirationDate(),
             isCacheable: httpResponse.allowsCaching

@@ -147,13 +147,13 @@ actor BibleChapterDownloadCache {
 }
 
 protocol BibleChapterContentProviding: Sendable {
-    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String>
+    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String>
 }
 
 final class BibleChapterContentAPI: BibleChapterContentProviding {
     init() {}
 
-    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String> {
+    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String> {
         try await YouVersionAPI.Bible.chapterResponse(reference: reference)
     }
 }
@@ -214,20 +214,18 @@ public actor BibleChapterRepository: ObservableObject {
         }
 
         let response = try await provider.chapterContent(for: reference)
-        let expirationDate = response.expirationDate
-            ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
 
         await memoryCache.addChapterContent(
             response.value,
             reference: reference,
-            expirationDate: expirationDate
+            expirationDate: response.expirationDate
         )
 
         if response.isCacheable {
             await diskCache.addChapterContent(
                 response.value,
                 reference: reference,
-                expirationDate: expirationDate
+                expirationDate: response.expirationDate
             )
         }
 

@@ -6,13 +6,12 @@ import FoundationNetworking
 struct CachedBibleContent<Value: Sendable>: Sendable {
     let value: Value
     let expirationDate: Date?
-    let isCacheable: Bool
+}
 
-    init(value: Value, expirationDate: Date?, isCacheable: Bool = true) {
-        self.value = value
-        self.expirationDate = expirationDate
-        self.isCacheable = isCacheable
-    }
+struct BibleContentResponse<Value: Sendable>: Sendable {
+    let value: Value
+    let expirationDate: Date
+    let isCacheable: Bool
 }
 
 enum BibleContentCachePolicy {
@@ -27,7 +26,7 @@ extension HTTPURLResponse {
         })
     }
 
-    func cacheExpirationDate(currentDate: Date = Date()) -> Date? {
+    func cacheExpirationDate(currentDate: Date = Date()) -> Date {
         let maxAge = cacheControlDirectives
             .first { $0.lowercased().hasPrefix("max-age=") }?
             .split(separator: "=", maxSplits: 1)

@@ -151,7 +151,7 @@ import Testing
             accessToken: "swift-test-suite",
             session: session
         )
-        let expirationDate = try #require(response.expirationDate)
+        let expirationDate = response.expirationDate
 
         #expect(expirationDate >= beforeRequestDate.addingTimeInterval(60))
         #expect(expirationDate <= Date().addingTimeInterval(60))
@@ -183,7 +183,6 @@ import Testing
         )
 
         #expect(response.isCacheable == false)
-        #expect(response.expirationDate != nil)
     }
 
     @MainActor
@@ -237,7 +236,7 @@ import Testing
             accessToken: "swift-test-suite",
             session: session
         )
-        let expirationDate = try #require(response.expirationDate)
+        let expirationDate = response.expirationDate
 
         #expect(response.value == "<div>ok</div>")
         #expect(expirationDate >= beforeRequestDate.addingTimeInterval(86_400))

@@ -207,13 +207,13 @@ actor BibleVersionDownloadCache {
 }
 
 protocol BibleVersionProviding: Sendable {
-    func version(withId id: Int) async throws -> CachedBibleContent<BibleVersion>
+    func version(withId id: Int) async throws -> BibleContentResponse<BibleVersion>
 }
 
 final class BibleVersionAPI: BibleVersionProviding {
     init() {}
 
-    func version(withId id: Int) async throws -> CachedBibleContent<BibleVersion> {
+    func version(withId id: Int) async throws -> BibleContentResponse<BibleVersion> {
         try await YouVersionAPI.Bible.versionResponse(withId: id)
     }
 }
@@ -304,13 +304,11 @@ public actor BibleVersionRepository: Observable, BibleVersionRepositoryProtocol 
         // Otherwise, create a new fetch task
         let task = Task { [provider, memoryCache, diskCache] in
             let response = try await provider.version(withId: id)
-            let expirationDate = response.expirationDate
-                ?? currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration)
 
-            await memoryCache.addVersion(response.value, expirationDate: expirationDate)
+            await memoryCache.addVersion(response.value, expirationDate: response.expirationDate)
 
             if response.isCacheable {
-                await diskCache.addVersion(response.value, expirationDate: expirationDate)
+                await diskCache.addVersion(response.value, expirationDate: response.expirationDate)
             }
             return response.value
         }

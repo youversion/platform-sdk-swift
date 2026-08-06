@@ -7,13 +7,13 @@ import Testing
 final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchecked Sendable {
     private(set) var requestedReferences: [BibleReference] = []
     var result: String
-    var expirationDate: Date?
+    var expirationDate: Date
     var isCacheable: Bool
     var error: Error?
 
     init(
         result: String,
-        expirationDate: Date? = .distantFuture,
+        expirationDate: Date = .distantFuture,
         isCacheable: Bool = true,
         error: Error? = nil
     ) {
@@ -23,12 +23,12 @@ final class BibleChapterAPIRequestCounter: BibleChapterContentProviding, @unchec
         self.error = error
     }
 
-    func chapterContent(for reference: BibleReference) async throws -> CachedBibleContent<String> {
+    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String> {
         requestedReferences.append(reference)
         if let error {
             throw error
         }
-        return CachedBibleContent(
+        return BibleContentResponse(
             value: result,
             expirationDate: expirationDate,
             isCacheable: isCacheable
@@ -127,33 +127,6 @@ struct BibleChapterRepositoryTests {
         #expect(first == "<div>server</div>")
         #expect(second == "<div>server</div>")
         #expect(api.callCount == 1)
-    }
-
-    @Test
-    func chapterCachesResponseWithoutExpirationForDefaultDuration() async throws {
-        let currentDate = Date(timeIntervalSince1970: 1_000)
-        let api = BibleChapterAPIRequestCounter(
-            result: "<div>first</div>",
-            expirationDate: nil
-        )
-        let (repository, _, storage) = try makeRepository(apiCounter: api)
-        defer { storage.remove() }
-        let diskCache = BibleChapterDiskCache(directoryProvider: storage.provider)
-
-        let first = try await repository.chapter(withReference: reference, currentDate: currentDate)
-        api.result = "<div>second</div>"
-        let second = try await repository.chapter(
-            withReference: reference,
-            currentDate: currentDate.addingTimeInterval(BibleContentCachePolicy.defaultDuration - 1)
-        )
-
-        #expect(first == "<div>first</div>")
-        #expect(second == "<div>first</div>")
-        #expect(api.callCount == 1)
-        #expect(
-            await diskCache.chapterContent(withReference: reference, currentDate: currentDate)
-                == "<div>first</div>"
-        )
     }
 
     @Test
