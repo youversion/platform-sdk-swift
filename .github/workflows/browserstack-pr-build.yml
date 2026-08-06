@@ -30,25 +30,25 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
-      - name: Verify PR author is an approved automation collaborator
+      - name: Verify trigger actor is an approved automation collaborator
         id: authorization
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          TRIGGER_ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
           PERMISSION=$(gh api \
-            "repos/$AUTOMATION_REPO/collaborators/$PR_AUTHOR/permission" \
+            "repos/$AUTOMATION_REPO/collaborators/$TRIGGER_ACTOR/permission" \
             --jq '.permission')
 
           case "$PERMISSION" in
             admin|maintain|write)
               echo "allowed=true" >> "$GITHUB_OUTPUT"
-              echo "PR author '$PR_AUTHOR' is approved with '$PERMISSION' access to $AUTOMATION_REPO."
+              echo "Trigger actor '$TRIGGER_ACTOR' is approved with '$PERMISSION' access to $AUTOMATION_REPO."
               ;;
             *)
               echo "allowed=false" >> "$GITHUB_OUTPUT"
-              echo "::notice::PR author '$PR_AUTHOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
+              echo "::notice::Trigger actor '$TRIGGER_ACTOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
               ;;
           esac
 
@@ -186,15 +186,15 @@ jobs:
           APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
           BUILD_NAME: ${{ steps.build.outputs.name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_URL: ${{ steps.remote.outputs.url }}
+          TRIGGER_ACTOR: ${{ github.actor }}
         run: |
           {
             echo "## BrowserStack App Live build"
             echo ""
             if [ "$ALLOWED" != "true" ]; then
-              echo "No build was dispatched because PR author $PR_AUTHOR is not an approved collaborator on $AUTOMATION_REPO."
+              echo "No build was dispatched because trigger actor $TRIGGER_ACTOR is not an approved collaborator on $AUTOMATION_REPO."
               exit 0
             fi
             echo "| Item | Value |"
