@@ -1,24 +1,28 @@
 name: BrowserStack App Live PR Build
 
 # First increment of YPE-3011: when an approved automation-repository
-# collaborator opens or updates a same-repository PR, dispatch the existing SDK
-# build for the PR's exact head SHA and upload the resulting .ipa to
-# BrowserStack App Live. Test automation and App Automate execution are
-# deliberately out of scope.
+# collaborator opens a same-repository PR, dispatch the existing SDK build for
+# the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
+# Live. Later builds are requested deliberately by commenting /app-live on the
+# open PR. Test automation and App Automate execution are deliberately out of
+# scope.
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
+  pull-requests: read
 
 env:
   AUTOMATION_REPO: youversion/platform_swift_sdk_automation
   WORKFLOW_FILE: build-sdk-app.yml
 
 concurrency:
-  group: app-live-pr-${{ github.event.pull_request.number }}
+  group: app-live-pr-${{ github.event.pull_request.number || github.event.issue.number }}
   cancel-in-progress: false
 
 jobs:
@@ -26,11 +30,43 @@ jobs:
     name: Build SampleApp for App Live
     runs-on: ubuntu-latest
     timeout-minutes: 55
-    # Fork pull_request workflows cannot receive the cross-repository secret.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event.issue.pull_request && github.event.comment.body == '/app-live')
 
     steps:
+      - name: Read current PR context
+        id: pr
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PATH: ${{ github.event_path }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            PR_JSON=$(jq '.pull_request' "$EVENT_PATH")
+          else
+            PR_NUMBER=$(jq -r '.issue.number' "$EVENT_PATH")
+            PR_JSON=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          fi
+
+          PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")
+          HEAD_REF=$(jq -r '.head.ref' <<< "$PR_JSON")
+          HEAD_REPO=$(jq -r '.head.repo.full_name' <<< "$PR_JSON")
+          HEAD_SHA=$(jq -r '.head.sha' <<< "$PR_JSON")
+          PR_STATE=$(jq -r '.state' <<< "$PR_JSON")
+
+          {
+            echo "number=$PR_NUMBER"
+            echo "head_ref=$HEAD_REF"
+            echo "head_sha=$HEAD_SHA"
+            echo "same_repo=$([ "$HEAD_REPO" = "$REPOSITORY" ] && echo true || echo false)"
+            echo "open=$([ "$PR_STATE" = "open" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Verify trigger actor is an approved automation collaborator
+        if: steps.pr.outputs.same_repo == 'true' && steps.pr.outputs.open == 'true'
         id: authorization
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
@@ -57,9 +93,9 @@ jobs:
         id: build
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ steps.pr.outputs.head_ref }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
           set -euo pipefail
           SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
@@ -96,7 +132,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
           BUILD_NAME: ${{ steps.build.outputs.name }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
         run: |
           set -euo pipefail
           jq -n \
@@ -187,14 +223,24 @@ jobs:
           ALLOWED: ${{ steps.authorization.outputs.allowed }}
           APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
           BUILD_NAME: ${{ steps.build.outputs.name }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          IS_OPEN: ${{ steps.pr.outputs.open }}
+          IS_SAME_REPO: ${{ steps.pr.outputs.same_repo }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
           RUN_URL: ${{ steps.remote.outputs.url }}
           TRIGGER_ACTOR: ${{ github.actor }}
         run: |
           {
             echo "## BrowserStack App Live build"
             echo ""
+            if [ "$IS_SAME_REPO" != "true" ]; then
+              echo "No build was dispatched because fork PRs cannot consume the cross-repository credential."
+              exit 0
+            fi
+            if [ "$IS_OPEN" != "true" ]; then
+              echo "No build was dispatched because PR #$PR_NUMBER is not open."
+              exit 0
+            fi
             if [ "$ALLOWED" != "true" ]; then
               echo "No build was dispatched because trigger actor $TRIGGER_ACTOR is not an approved collaborator on $AUTOMATION_REPO."
               exit 0
