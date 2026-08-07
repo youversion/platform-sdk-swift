@@ -119,10 +119,17 @@ jobs:
           fi
 
           BUILD_PREFIX="swift-$BUILD_KEY-"
-          PRIOR_BUILDS=$(gh api \
+          # Paginate the full run history and use max existing N + 1: a
+          # 100-run window lets an old ticket's counter reset, and counting
+          # runs (rather than taking the max) can reuse a number after a run
+          # is deleted.
+          MAX_BUILD=$(gh api --paginate \
             "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=100" \
-            --jq "[.workflow_runs[] | select(.display_title | startswith(\"$BUILD_PREFIX\"))] | length")
-          BUILD_NUMBER=$((PRIOR_BUILDS + 1))
+            --jq '.workflow_runs[].display_title' |
+            grep -E "^${BUILD_PREFIX}[0-9]+ " |
+            sed -E "s/^${BUILD_PREFIX}([0-9]+) .*/\1/" |
+            sort -n | tail -1 || true)
+          BUILD_NUMBER=$(( ${MAX_BUILD:-0} + 1 ))
           BUILD_NAME="$BUILD_PREFIX$BUILD_NUMBER"
 
           {
