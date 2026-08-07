@@ -18,7 +18,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 env:
   AUTOMATION_REPO: youversion/platform_swift_sdk_automation
