@@ -3,9 +3,11 @@ name: BrowserStack App Live PR Build
 # First increment of YPE-3011: when an approved automation-repository
 # collaborator opens a same-repository PR, dispatch the existing SDK build for
 # the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
-# Live. Later builds are requested deliberately by commenting /app-live on the
-# open PR. Test automation and App Automate execution are deliberately out of
-# scope.
+# Live. Later builds are requested deliberately by an approved collaborator
+# commenting /app-live on the open PR. For that issue_comment path, the
+# approved commenter explicitly authorizes the current same-repository PR head;
+# the PR author does not also need automation-repository access. Test automation
+# and App Automate execution are deliberately out of scope.
 
 on:
   pull_request:
