@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct DataExchangeAPITests {
+    @Suite(.serialized) struct DataExchangeAPITests {
         
         @MainActor
         @Test func tokenSuccessCreatesRequestAndReturnsToken() async throws {

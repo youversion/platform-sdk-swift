@@ -113,6 +113,18 @@ When writing or reviewing code in this repo, load the relevant skill:
 - **`audit-swift-ui`** (`.claude/skills/audit-swift-ui/SKILL.md`) — SwiftUI-specific rules: Dynamic Type, `@State` privacy, view naming.
 - **`naming`** (`.claude/skills/naming/SKILL.md`) — naming Swift entities (types, protocols, functions, parameters, properties, cases).
 
+## Review and implementation preferences
+
+- Keep changes tightly scoped to the requested module; do not modify UI or downstream consumers unless required.
+- Prefer production APIs that are natural for SDK users. Do not expose dependency-injection hooks solely for testing when an internal overload or test harness can provide control.
+- Make types reflect real production guarantees. Do not preserve optional or fallback paths that can occur only in mocks.
+- Prefer straightforward Swift:
+  - Avoid local names that shadow methods.
+  - Avoid optional `.map` when `if let` is clearer.
+  - Use descriptive Boolean/existence names such as `hasResource`.
+  - Do not introduce a helper for a single obvious one-line operation.
+- Apply DRY selectively: centralize policy and repeated magic values, but leave short, obvious expressions local unless abstraction clarifies a real rule.
+
 ## Release Process
 
 Releases are **manually triggered with an explicit version input** via `workflow_dispatch`. There is no auto-release on merges to `main`. Merging to `main` only lands code; a human decides when to cut a release and which version to ship.

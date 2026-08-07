@@ -14480,8 +14480,8 @@
           },
           {
             "kind": "Var",
-            "name": "bookUSFM",
-            "printedName": "bookUSFM",
+            "name": "bookId",
+            "printedName": "bookId",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -14491,8 +14491,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvp",
-            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvp",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV6bookIdSSvp",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV6bookIdSSvp",
             "moduleName": "YouVersionPlatformCore",
             "declAttributes": [
               "HasStorage"
@@ -14513,8 +14513,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvg",
-                "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvg",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV6bookIdSSvg",
+                "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV6bookIdSSvg",
                 "moduleName": "YouVersionPlatformCore",
                 "implicit": true,
                 "declAttributes": [
@@ -14697,6 +14697,105 @@
           {
             "kind": "Constructor",
             "name": "init",
+            "printedName": "init(versionId:bookId:chapter:verse:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV9versionId04bookH07chapter5verseACSi_SSS2iSgtcfc",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9versionId04bookH07chapter5verseACSi_SSS2iSgtcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(versionId:bookId:chapter:verseStart:verseEnd:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV9versionId04bookH07chapter10verseStart0K3EndACSi_SSS3itcfc",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9versionId04bookH07chapter10verseStart0K3EndACSi_SSS3itcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
             "printedName": "init(versionId:bookUSFM:chapter:verse:)",
             "children": [
               {
@@ -14743,6 +14842,10 @@
             "usr": "s:22YouVersionPlatformCore14BibleReferenceV9versionId8bookUSFM7chapter5verseACSi_SSS2iSgtcfc",
             "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9versionId8bookUSFM7chapter5verseACSi_SSS2iSgtcfc",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "init_kind": "Designated"
           },
           {
@@ -14791,6 +14894,10 @@
             "usr": "s:22YouVersionPlatformCore14BibleReferenceV9versionId8bookUSFM7chapter10verseStart0L3EndACSi_SSS3itcfc",
             "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9versionId8bookUSFM7chapter10verseStart0L3EndACSi_SSS3itcfc",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "init_kind": "Designated"
           },
           {
@@ -14817,6 +14924,47 @@
             "moduleName": "YouVersionPlatformCore",
             "throwing": true,
             "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "bookUSFM",
+            "printedName": "bookUSFM",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvp",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvg",
+                "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV8bookUSFMSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
           },
           {
             "kind": "Var",
@@ -14993,6 +15141,43 @@
           },
           {
             "kind": "Var",
+            "name": "chapterPassageId",
+            "printedName": "chapterPassageId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV16chapterPassageIdSSvp",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV16chapterPassageIdSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV16chapterPassageIdSSvg",
+                "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV16chapterPassageIdSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "chapterUSFM",
             "printedName": "chapterUSFM",
             "children": [
@@ -15015,6 +15200,10 @@
             "usr": "s:22YouVersionPlatformCore14BibleReferenceV11chapterUSFMSSSgvp",
             "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV11chapterUSFMSSSgvp",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "accessors": [
               {
                 "kind": "Accessor",
@@ -15046,6 +15235,43 @@
           },
           {
             "kind": "Var",
+            "name": "passageId",
+            "printedName": "passageId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore14BibleReferenceV9passageIdSSvp",
+            "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9passageIdSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV9passageIdSSvg",
+                "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV9passageIdSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "asUSFM",
             "printedName": "asUSFM",
             "children": [
@@ -15060,6 +15286,10 @@
             "usr": "s:22YouVersionPlatformCore14BibleReferenceV6asUSFMSSvp",
             "mangledName": "$s22YouVersionPlatformCore14BibleReferenceV6asUSFMSSvp",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "accessors": [
               {
                 "kind": "Accessor",
@@ -17640,6 +17870,59 @@
           },
           {
             "kind": "Var",
+            "name": "bookIds",
+            "printedName": "bookIds",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore05BibleB0V7bookIdsSaySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore05BibleB0V7bookIdsSaySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore05BibleB0V7bookIdsSaySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore05BibleB0V7bookIdsSaySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "bookUSFMs",
             "printedName": "bookUSFMs",
             "children": [
@@ -17662,6 +17945,10 @@
             "usr": "s:22YouVersionPlatformCore05BibleB0V9bookUSFMsSaySSGvp",
             "mangledName": "$s22YouVersionPlatformCore05BibleB0V9bookUSFMsSaySSGvp",
             "moduleName": "YouVersionPlatformCore",
+            "deprecated": true,
+            "declAttributes": [
+              "Available"
+            ],
             "accessors": [
               {
                 "kind": "Accessor",
@@ -21850,6 +22137,72 @@
           },
           {
             "kind": "Var",
+            "name": "excludedVersionIds",
+            "printedName": "excludedVersionIds",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV08excludedB3IdsShySiGvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV08excludedB3IdsShySiGvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Nonisolated",
+              "SetterAccess",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV08excludedB3IdsShySiGvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV08excludedB3IdsShySiGvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "installId",
             "printedName": "installId",
             "children": [
@@ -21980,7 +22333,7 @@
           {
             "kind": "Function",
             "name": "configure",
-            "printedName": "configure(appKey:apiHost:appName:isSignInEnabled:signInPromptMessage:permittedLanguageTags:permittedVersionIds:)",
+            "printedName": "configure(appKey:apiHost:appName:isSignInEnabled:signInPromptMessage:permittedLanguageTags:permittedVersionIds:excludedVersionIds:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -22098,11 +22451,26 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.Int>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sh"
               }
             ],
             "declKind": "Func",
-            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3IdsySSSg_A2LSbALShySSGSgShySiGSgtFZ",
-            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3IdsySSSg_A2LSbALShySSGSgShySiGSgtFZ",
+            "usr": "s:22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3Ids08excludedbV0ySSSg_A2MSbAMShySSGSgShySiGSgAPtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0abC13ConfigurationV9configure6appKey7apiHost0G4Name15isSignInEnabled04signN13PromptMessage21permittedLanguageTags0sB3Ids08excludedbV0ySSSg_A2MSbAMShySSGSgShySiGSgAPtFZ",
             "moduleName": "YouVersionPlatformCore",
             "static": true,
             "declAttributes": [

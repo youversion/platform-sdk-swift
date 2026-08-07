@@ -11,31 +11,31 @@ struct NavigateView: View {
     private let examples: [(title: String, reference: BibleReference, showsFullChapter: Bool, shouldFocus: Bool)] = [
         (
             "John 3:16 — full chapter, scrolled to the verse",
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
             true,
             false
         ),
         (
             "John 3:16 — focused",
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16),
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
             true,
             true
         ),
         (
             "Psalm 119:105 — full chapter, scrolled to the verse",
-            BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 119, verse: 105),
+            BibleReference(versionId: 3034, bookId: "PSA", chapter: 119, verse: 105),
             true,
             false
         ),
         (
             "Romans 8:28 — just the verse range",
-            BibleReference(versionId: 3034, bookUSFM: "ROM", chapter: 8, verse: 28),
+            BibleReference(versionId: 3034, bookId: "ROM", chapter: 8, verse: 28),
             false,
             false
         ),
         (
             "Genesis 1 — whole chapter",
-            BibleReference(versionId: 3034, bookUSFM: "GEN", chapter: 1),
+            BibleReference(versionId: 3034, bookId: "GEN", chapter: 1),
             true,
             false
         )

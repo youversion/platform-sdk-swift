@@ -104,7 +104,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
         )
     }
 }
@@ -117,7 +117,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 20)
         )
     }
 }
@@ -130,7 +130,7 @@ import YouVersionPlatform
 struct DemoView: View {
     var body: some View {
         BibleTextView(
-            BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3)
+            BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)
         )
     }
 }
@@ -154,7 +154,7 @@ To open to a specific passage:
 
 ```swift
 BibleReaderView(
-    reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 23)
+    reference: BibleReference(versionId: 3034, bookId: "PSA", chapter: 23)
 )
 ```
 
@@ -162,7 +162,7 @@ When the reference names a verse, the reader shows only that verse range by defa
 
 ```swift
 BibleReaderView(
-    reference: BibleReference(versionId: 3034, bookUSFM: "JHN", chapter: 3, verse: 16),
+    reference: BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
     showsFullChapter: true
 )
 ```
@@ -262,6 +262,17 @@ YouVersionPlatformConfiguration.configure(
 ```
 
 IDs are the YouVersion Bible version IDs (e.g. `111` for NIV, `1588` for AMP). Combines with `permittedLanguageTags` — a version must satisfy both filters to be shown.
+
+To make every otherwise available version selectable except for specific versions, pass `excludedVersionIds`:
+
+```swift
+YouVersionPlatformConfiguration.configure(
+    appKey: "YOUR_APP_KEY_HERE",
+    excludedVersionIds: [4212]
+)
+```
+
+Excluded IDs are omitted from SDK-managed version selection, restored selections, and automatic fallbacks. Exclusion takes precedence when an ID appears in both `permittedVersionIds` and `excludedVersionIds`.
 
 
 ### Implementing Sign In

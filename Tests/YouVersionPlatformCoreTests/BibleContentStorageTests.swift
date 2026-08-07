@@ -23,7 +23,7 @@ struct BibleContentStorageTests {
                 .appending(path: "BibleVersionMetadata_v1", directoryHint: .notDirectory)
         )
         #expect(
-            downloadStorage.url(for: .chapter(versionId: 206, usfm: "GEN.1")) ==
+            downloadStorage.url(for: .chapter(versionId: 206, chapterPassageId: "GEN.1")) ==
                 temporaryStorage.downloadRootURL
                 .appending(path: "bible_206", directoryHint: .isDirectory)
                 .appending(path: "Chapters", directoryHint: .isDirectory)
@@ -115,10 +115,10 @@ struct BibleContentStorageTests {
         let storage = BibleContentStorage(storageKind: .download, directoryProvider: temporaryStorage.provider)
         try temporaryStorage.write(
             Data("<div>In the beginning</div>".utf8),
-            to: storage.url(for: .chapter(versionId: 206, usfm: "GEN.1"))
+            to: storage.url(for: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
         )
 
-        let content = storage.string(for: .chapter(versionId: 206, usfm: "GEN.1"))
+        let content = storage.string(for: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
 
         #expect(content == "<div>In the beginning</div>")
     }
@@ -129,25 +129,25 @@ struct BibleContentStorageTests {
         defer { temporaryStorage.remove() }
 
         let storage = BibleContentStorage(storageKind: .download, directoryProvider: temporaryStorage.provider)
-        try temporaryStorage.write(Data([0xFF, 0xFE]), to: storage.url(for: .chapter(versionId: 206, usfm: "GEN.1")))
+        try temporaryStorage.write(Data([0xFF, 0xFE]), to: storage.url(for: .chapter(versionId: 206, chapterPassageId: "GEN.1")))
 
-        let missing = storage.string(for: .chapter(versionId: 206, usfm: "EXO.1"))
-        let invalid = storage.string(for: .chapter(versionId: 206, usfm: "GEN.1"))
+        let missing = storage.string(for: .chapter(versionId: 206, chapterPassageId: "EXO.1"))
+        let invalid = storage.string(for: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
 
         #expect(missing == nil)
         #expect(invalid == nil)
     }
 
     @Test
-    func containsChecksPresenceWithoutDecoding() throws {
+    func hasResourceChecksPresenceWithoutDecoding() throws {
         let temporaryStorage = try TemporaryStorage()
         defer { temporaryStorage.remove() }
 
         let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
         try temporaryStorage.write(Data("not json".utf8), to: storage.url(for: .versionMetadata(versionId: 206)))
 
-        #expect(storage.contains(.versionMetadata(versionId: 206)))
-        #expect(storage.contains(.versionMetadata(versionId: 999)) == false)
+        #expect(storage.hasResource(.versionMetadata(versionId: 206)))
+        #expect(storage.hasResource(.versionMetadata(versionId: 999)) == false)
     }
 
     @Test
@@ -166,7 +166,7 @@ struct BibleContentStorageTests {
 
         try temporaryStorage.write(
             Data("<div>content</div>".utf8),
-            to: storage.url(for: .chapter(versionId: 206, usfm: "GEN.1"))
+            to: storage.url(for: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
         )
 
         #expect(storage.containsNonEmptyDirectory(.chaptersDirectory(versionId: 206)))
@@ -192,9 +192,95 @@ struct BibleContentStorageTests {
 
         let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
 
-        try storage.writeString("chapter content", to: .chapter(versionId: 206, usfm: "GEN.1"))
+        try storage.writeString("chapter content", to: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
 
-        #expect(storage.string(for: .chapter(versionId: 206, usfm: "GEN.1")) == "chapter content")
+        #expect(storage.string(for: .chapter(versionId: 206, chapterPassageId: "GEN.1")) == "chapter content")
+    }
+
+    @Test
+    func expirationDateRoundTripsAndRemovesWithCachedResource() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let resource = BibleContentStorageResource.chapter(versionId: 206, chapterPassageId: "GEN.1")
+        let expirationDate = Date(timeIntervalSince1970: 10_000)
+
+        try storage.writeString("chapter content", to: resource)
+        try storage.writeExpirationDate(expirationDate, for: resource)
+
+        #expect(storage.expirationDate(for: resource) == expirationDate)
+        #expect(storage.isExpired(resource, currentDate: expirationDate.addingTimeInterval(-1)) == false)
+        #expect(storage.isExpired(resource, currentDate: expirationDate))
+
+        storage.removeCacheEntry(resource)
+
+        #expect(storage.hasResource(resource) == false)
+        #expect(storage.expirationDate(for: resource) == nil)
+    }
+
+    @Test
+    func cachedFilesWithoutExpirationMetadataAreExpiredAndRemoved() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let chapterResource = BibleContentStorageResource.chapter(
+            versionId: 206,
+            chapterPassageId: "GEN.1"
+        )
+        let versionResource = BibleContentStorageResource.versionMetadata(versionId: 206)
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+
+        try storage.writeString("legacy chapter content", to: chapterResource)
+        try storage.write(Self.fixtureData(), to: versionResource)
+
+        #expect(storage.isExpired(chapterResource, currentDate: currentDate))
+        #expect(storage.isExpired(versionResource, currentDate: currentDate))
+
+        storage.removeExpiredCachedResources(currentDate: currentDate)
+
+        #expect(storage.hasResource(chapterResource) == false)
+        #expect(storage.hasResource(versionResource) == false)
+    }
+
+    @Test
+    func removeExpiredCachedResourcesPreservesUnexpiredChapter() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let chapterResource = BibleContentStorageResource.chapter(
+            versionId: 206,
+            chapterPassageId: "GEN.1"
+        )
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+        let expirationDate = currentDate.addingTimeInterval(60)
+
+        try storage.writeString("fresh chapter content", to: chapterResource)
+        try storage.writeExpirationDate(expirationDate, for: chapterResource)
+
+        storage.removeExpiredCachedResources(currentDate: currentDate)
+
+        #expect(storage.string(for: chapterResource) == "fresh chapter content")
+        #expect(storage.expirationDate(for: chapterResource) == expirationDate)
+    }
+
+    @Test
+    func cleanupDuringCacheWritePreservesContentWrittenAfterExpirationMetadata() throws {
+        let temporaryStorage = try TemporaryStorage()
+        defer { temporaryStorage.remove() }
+        let storage = BibleContentStorage(storageKind: .cache, directoryProvider: temporaryStorage.provider)
+        let chapterResource = BibleContentStorageResource.chapter(
+            versionId: 206,
+            chapterPassageId: "GEN.1"
+        )
+        let currentDate = Date(timeIntervalSince1970: 10_000)
+        let expirationDate = currentDate.addingTimeInterval(60)
+
+        try storage.writeExpirationDate(expirationDate, for: chapterResource)
+        storage.removeExpiredCachedResources(currentDate: currentDate)
+        try storage.writeString("fresh chapter content", to: chapterResource)
+
+        #expect(storage.string(for: chapterResource) == "fresh chapter content")
+        #expect(storage.expirationDate(for: chapterResource) == expirationDate)
     }
 
     @Test
@@ -203,12 +289,12 @@ struct BibleContentStorageTests {
         defer { temporaryStorage.remove() }
 
         let storage = BibleContentStorage(storageKind: .download, directoryProvider: temporaryStorage.provider)
-        try storage.writeString("chapter content", to: .chapter(versionId: 206, usfm: "GEN.1"))
+        try storage.writeString("chapter content", to: .chapter(versionId: 206, chapterPassageId: "GEN.1"))
 
         try storage.remove(.versionDirectory(versionId: 206))
 
-        #expect(storage.contains(.chapter(versionId: 206, usfm: "GEN.1")) == false)
-        #expect(storage.contains(.versionDirectory(versionId: 206)) == false)
+        #expect(storage.hasResource(.chapter(versionId: 206, chapterPassageId: "GEN.1")) == false)
+        #expect(storage.hasResource(.versionDirectory(versionId: 206)) == false)
     }
 
     private static func fixtureData() throws -> Data {

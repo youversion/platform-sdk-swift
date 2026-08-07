@@ -75,7 +75,7 @@ public actor VersionDiskCache: BibleVersionCaching {
     }
 
     public func addVersion(_ version: BibleVersion) async {
-        await inner.addVersion(version)
+        await inner.addVersion(version, expirationDate: .distantFuture)
     }
 
     public func removeVersion(withId versionId: Int) async {

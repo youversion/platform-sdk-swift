@@ -326,7 +326,7 @@ private struct ReaderContent: View {
                     showChrome: viewModel.showChrome,
                     onSelectionChange: { version, book, chapter, passageId in
                         Task {
-                            let reference = BibleReference(versionId: version, bookUSFM: book, chapter: chapter ?? 1)
+                            let reference = BibleReference(versionId: version, bookId: book, chapter: chapter ?? 1)
                             await viewModel.onHeaderSelectionChange(reference, showIntro: chapter == nil)
                         }
                     },
@@ -511,7 +511,7 @@ private struct ReaderContent: View {
 
 #Preview {
     BibleReaderView(
-        reference: BibleReference(versionId: 3034, bookUSFM: "PSA", chapter: 117)
+        reference: BibleReference(versionId: 3034, bookId: "PSA", chapter: 117)
     )
     .environment(BibleReaderViewModel.preview)
 }

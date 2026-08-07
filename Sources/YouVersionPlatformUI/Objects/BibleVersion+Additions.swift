@@ -2,8 +2,8 @@ import Foundation
 import YouVersionPlatformCore
 
 public extension BibleVersion {
-    func bookName(_ bookUSFM: String) -> String? {
-        guard let book = book(with: bookUSFM) else {
+    func bookName(_ bookId: String) -> String? {
+        guard let book = book(with: bookId) else {
             return nil
         }
         return book.title ?? book.fullTitle
@@ -11,7 +11,7 @@ public extension BibleVersion {
     // Example: "https://www.bible.com/bible/3034/1SA.3.10.BSB"
     func shareUrl(reference: BibleReference) -> URL? {
         let prefix = "https://www.bible.com/bible/\(id)/"
-        let book = reference.bookUSFM
+        let book = reference.bookId
         let version = (localizedAbbreviation?.isEmpty == false ? localizedAbbreviation : nil) ?? 
                      (abbreviation?.isEmpty == false ? abbreviation : nil) ?? 
                      String(id)
@@ -47,10 +47,10 @@ public extension BibleVersion {
     }
 
     private func titleChunks(for reference: BibleReference) -> [String] {
-        let bookUSFM = reference.bookUSFM
-        let bookName = bookName(bookUSFM) ?? bookUSFM
+        let bookId = reference.bookId
+        let bookName = bookName(bookId) ?? bookId
 
-        let hasOneChapter = chapterLabels(bookUSFM).count == 1
+        let hasOneChapter = chapterLabels(bookId).count == 1
         let chapterSeparator = hasOneChapter ? " " : ":"
         let bookAndChapterSeparator = hasOneChapter ? "" : " "
         let chapter = hasOneChapter ? "" : String(reference.chapter)
