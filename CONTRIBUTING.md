@@ -150,6 +150,8 @@ not rebuild automatically. To upload the current PR head again, an approved
 collaborator comments exactly `/app-live` on the open PR. The automation
 repository builds and signs the SampleApp `.ipa`, uploads it to BrowserStack
 App Live, and returns the `bs://...` app id in the SDK workflow summary.
+After a successful upload, `github-actions[bot]` creates or updates one PR
+comment with the latest build details and the `/app-live` instruction.
 
 Builds use the ticket key from the branch when present and increment for each
 upload, for example `swift-YPE-3011-1` and `swift-YPE-3011-2`. A sanitized

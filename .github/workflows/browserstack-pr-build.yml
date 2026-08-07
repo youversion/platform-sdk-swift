@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   pull-requests: read
 
 env:
@@ -216,6 +217,60 @@ jobs:
             exit 1
           }
           echo "id=$APP_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publish App Live status on PR
+        if: steps.authorization.outputs.allowed == 'true' && steps.app_live.outputs.id != ''
+        env:
+          APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
+          AUTOMATION_RUN_URL: ${{ steps.remote.outputs.url }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          MARKER='<!-- browserstack-app-live-status -->'
+          SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
+          BODY=$(jq -nr \
+            --arg marker "$MARKER" \
+            --arg build "$BUILD_NAME" \
+            --arg sha "$SHA7" \
+            --arg run "$AUTOMATION_RUN_URL" \
+            --arg app "$APP_LIVE_ID" \
+            '[
+              $marker,
+              "## BrowserStack App Live",
+              "",
+              "| Item | Value |",
+              "|---|---|",
+              ("| Build | `" + $build + "` |"),
+              ("| Uploaded commit | `" + $sha + "` |"),
+              ("| Automation run | [Open run](" + $run + ") |"),
+              ("| App Live id | `" + $app + "` |"),
+              "",
+              "Review-fix commits are not uploaded automatically. To upload the current PR head again, comment exactly:",
+              "",
+              "`/app-live`",
+              "",
+              "Only approved collaborators on `platform_swift_sdk_automation` can trigger a build."
+            ] | join("\n")')
+
+          COMMENT_ID=$(gh api \
+            "repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" \
+            --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\") | select(.body | contains(\"$MARKER\")) | .id" |
+            head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            gh api --method PATCH \
+              "repos/$REPOSITORY/issues/comments/$COMMENT_ID" \
+              -f body="$BODY" >/dev/null
+          else
+            gh api --method POST \
+              "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              -f body="$BODY" >/dev/null
+          fi
 
       - name: Write summary
         if: always()
