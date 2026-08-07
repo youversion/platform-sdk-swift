@@ -42,15 +42,17 @@ jobs:
         id: pr
         env:
           EVENT_NAME: ${{ github.event_name }}
-          EVENT_PATH: ${{ github.event_path }}
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
+          # GITHUB_EVENT_PATH is the runner-provided default env var; the
+          # ${{ github.event_path }} expression resolved to an empty string
+          # here at runtime, which broke this step.
           if [ "$EVENT_NAME" = "pull_request" ]; then
-            PR_JSON=$(jq '.pull_request' "$EVENT_PATH")
+            PR_JSON=$(jq '.pull_request' "$GITHUB_EVENT_PATH")
           else
-            PR_NUMBER=$(jq -r '.issue.number' "$EVENT_PATH")
+            PR_NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
             PR_JSON=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
           fi
 
