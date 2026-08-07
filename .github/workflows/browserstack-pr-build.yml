@@ -8,9 +8,30 @@ name: BrowserStack App Live PR Build
 # approved commenter explicitly authorizes the current same-repository PR head;
 # the PR author does not also need automation-repository access. Test automation
 # and App Automate execution are deliberately out of scope.
+#
+# pull_request_target, NOT pull_request: this workflow consumes
+# AUTOMATION_DISPATCH_TOKEN. A plain `pull_request` trigger runs the workflow
+# definition AS IT EXISTS ON THE PR HEAD — for a same-repository PR (not just
+# forks) that means a PR author could edit this very file to exfiltrate the
+# secret before the authorization check below ever runs, since the check
+# itself is the first code that touches the token. That matters here
+# specifically because "can push a branch to this repo" and "is an approved
+# collaborator on platform_swift_sdk_automation" are different, and narrower,
+# sets of people — the whole point of the check this trigger type protects.
+# pull_request_target always runs the version of this file committed to the
+# base branch, so a PR cannot rewrite the logic that guards its own token
+# access. This workflow never checks out or executes the PR's application
+# code — it only reads github.event.pull_request JSON metadata and dispatches
+# a REMOTE build by value — so pull_request_target's usual "don't run
+# untrusted code" caveat doesn't apply here. Trade-off: unlike pull_request,
+# pull_request_target only runs the version already merged to the base
+# branch, so this specific workflow file can no longer prove itself by
+# triggering on its own PR being opened — verify future changes via a
+# follow-up PR (or an /app-live comment, which already only ever loaded from
+# the default branch).
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened]
   issue_comment:
     types: [created]
@@ -34,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     if: >-
-      github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request_target' ||
       (github.event.issue.pull_request && github.event.comment.body == '/app-live')
 
     steps:
@@ -49,7 +70,7 @@ jobs:
           # GITHUB_EVENT_PATH is the runner-provided default env var; the
           # ${{ github.event_path }} expression resolved to an empty string
           # here at runtime, which broke this step.
-          if [ "$EVENT_NAME" = "pull_request" ]; then
+          if [ "$EVENT_NAME" = "pull_request_target" ]; then
             PR_JSON=$(jq '.pull_request' "$GITHUB_EVENT_PATH")
           else
             PR_NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
@@ -78,9 +99,20 @@ jobs:
           TRIGGER_ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
+          # The collaborator-permission endpoint can fail (404, transient
+          # error, a caller-permission edge case) instead of cleanly
+          # returning "none" for an unauthorized actor. Under `set -e` that
+          # would kill this step before the case statement below ever runs,
+          # turning "not authorized" into a misleading job failure instead of
+          # the intended silent skip. Treat any lookup failure the same as an
+          # explicit denial — fail closed, never fail loud.
+          #
+          # stderr is left unredirected so a lookup failure's actual error
+          # (rate limit, network, unexpected shape) still lands in this
+          # step's log for diagnosis — only stdout feeds PERMISSION.
           PERMISSION=$(gh api \
             "repos/$AUTOMATION_REPO/collaborators/$TRIGGER_ACTOR/permission" \
-            --jq '.permission')
+            --jq '.permission') || PERMISSION=""
 
           case "$PERMISSION" in
             admin|maintain|write)
@@ -89,7 +121,11 @@ jobs:
               ;;
             *)
               echo "allowed=false" >> "$GITHUB_OUTPUT"
-              echo "::notice::Trigger actor '$TRIGGER_ACTOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
+              if [ -z "$PERMISSION" ]; then
+                echo "::notice::Could not confirm '$TRIGGER_ACTOR' has access to $AUTOMATION_REPO (lookup failed) — App Live build skipped."
+              else
+                echo "::notice::Trigger actor '$TRIGGER_ACTOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
+              fi
               ;;
           esac
 
