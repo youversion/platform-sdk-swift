@@ -48,17 +48,19 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
         }
         
-        @Test func configureDisablesSignIn() async {
+        @MainActor
+        @Test func configureDisablesSignIn() {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
             #expect(YouVersionPlatformConfiguration.isSignInEnabled == false)
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
         }
         
-        @Test func configureDefaultsSignInToEnabled() async {
+        @MainActor
+        @Test func configureDefaultsSignInToEnabled() {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
             #expect(YouVersionPlatformConfiguration.isSignInEnabled == true)
         }
         
@@ -82,7 +84,7 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
             #expect(YouVersionPlatformConfiguration.installId == firstId)
         }
-        
+
         // MARK: - configureSignIn
         
         @Test func configureSignInSetsAppName() async {
@@ -92,12 +94,13 @@ extension ConfigurationStateTests {
             await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
         }
         
-        @Test func configureSignInForcesSignInEnabled() async {
+        @MainActor
+        @Test func configureSignInForcesSignInEnabled() {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
-            await YouVersionPlatformConfiguration.configureSignIn(appName: "My App")
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey, isSignInEnabled: false)
+            YouVersionPlatformConfiguration.configureSignIn(appName: "My App")
             #expect(YouVersionPlatformConfiguration.isSignInEnabled == true)
-            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+            YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
         }
         
         @Test func configureSignInSetsPromptMessage() async {

@@ -4,58 +4,58 @@ import Testing
 @testable import YouVersionPlatformUI
 
 @Suite struct BibleVersionDisplayTitleTests {
-    @Test func displayTitleFallsBackToBookUSFMForInvalidBook() {
+    @Test func displayTitleFallsBackToBookIdForInvalidBook() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "XYZ", chapter: 3)
+        let reference = BibleReference(versionId: 111, bookId: "XYZ", chapter: 3)
 
         #expect(version.displayTitle(for: reference) == "XYZ 3 NIV")
     }
 
     @Test func displayTitleUsesBookNameAndChapterForWholeChapterReference() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1)
 
         #expect(version.displayTitle(for: reference) == "Genesis 1 NIV")
     }
 
     @Test func displayTitleUsesBookNameAndChapterForWholeChapterVerseSentinel() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 999)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 999)
 
         #expect(version.displayTitle(for: reference) == "Genesis 1 NIV")
     }
 
     @Test func displayTitleOmitsChapterForWholeChapterSingleChapterBook() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "JUD", chapter: 1)
+        let reference = BibleReference(versionId: 111, bookId: "JUD", chapter: 1)
 
         #expect(version.displayTitle(for: reference) == "Jude NIV")
     }
 
     @Test func displayTitleOmitsChapterForWholeChapterSentinelInSingleChapterBook() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "JUD", chapter: 1, verseStart: 1, verseEnd: 999)
+        let reference = BibleReference(versionId: 111, bookId: "JUD", chapter: 1, verseStart: 1, verseEnd: 999)
 
         #expect(version.displayTitle(for: reference) == "Jude NIV")
     }
 
     @Test func displayTitleIncludesSingleVerse() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 3)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 3)
 
         #expect(version.displayTitle(for: reference) == "Genesis 1:3 NIV")
     }
 
     @Test func displayTitleIncludesVerseRange() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
 
         #expect(version.displayTitle(for: reference) == "Genesis 1:3-5 NIV")
     }
 
     @Test func displayTitleIncludesSingleVerseInSingleChapterBook() {
         let version = makeBibleVersion()
-        let reference = BibleReference(versionId: 111, bookUSFM: "JUD", chapter: 1, verse: 4)
+        let reference = BibleReference(versionId: 111, bookId: "JUD", chapter: 1, verse: 4)
 
         #expect(version.displayTitle(for: reference) == "Jude 4 NIV")
     }

@@ -6,7 +6,7 @@ import Testing
 @testable import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    @Suite struct UsersAuthHelpersTests {
+    @Suite(.serialized) struct UsersAuthHelpersTests {
 
         @Test func obtainCodeReturnsAuthorizationCode() throws {
             let location = "youversionauth://callback?state=xyz&code=abc123&scope=bibles"

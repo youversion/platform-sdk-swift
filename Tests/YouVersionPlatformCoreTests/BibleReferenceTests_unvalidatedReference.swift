@@ -6,28 +6,28 @@ import Testing
 @Test
 func testUnvalidatedReference_singleVerse() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1.3", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 3)
+    let expected = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 3)
     #expect(ref == expected)
 }
 
 @Test
 func testUnvalidatedReference_verseRange() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1.3-5", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let expected = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
     #expect(ref == expected)
 }
 
 @Test
 func testUnvalidatedReference_fullRangeWithChapter() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1.3-1.5", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let expected = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
     #expect(ref == expected)
 }
 
 @Test
 func testUnvalidatedReference_fullRangeWithBook() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1.3-GEN.1.5", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
+    let expected = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 3, verseEnd: 5)
     #expect(ref == expected)
 }
 
@@ -46,12 +46,12 @@ func testUnvalidatedReference_invalidVerseOrder() {
 @Test
 func testUnvalidatedReference_chapterOnly() throws {
     let ref = try #require(BibleReference.unvalidatedReference(with: "GEN.1", versionId: 1))
-    let expected = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1)
+    let expected = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
     #expect(ref == expected)
     #expect(ref.verseStart == nil)
     #expect(ref.verseEnd == nil)
     // A chapter-level reference should overlap any verse within that chapter
-    let verse5 = BibleReference(versionId: 1, bookUSFM: "GEN", chapter: 1, verse: 5)
+    let verse5 = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 5)
     #expect(ref.overlaps(with: verse5))
 }
 

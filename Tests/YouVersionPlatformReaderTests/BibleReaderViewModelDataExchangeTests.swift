@@ -15,7 +15,7 @@ import Testing
             isSignedIn: true,
             hasPermission: { $0 == "highlights" }
         )
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.showingVerseActionsDrawer = true
 
@@ -32,7 +32,7 @@ import Testing
     func signedInUserWithoutHighlightPermissionStoresPendingHighlightAndShowsConfirmation() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
 
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
@@ -48,7 +48,7 @@ import Testing
     func cancellingDataExchangePromptClearsPendingHighlightWithoutCreatingHighlights() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
@@ -64,7 +64,7 @@ import Testing
     @Test
     func confirmingDataExchangePromptStartsBrowserFlow() {
         let viewModel = Support.makeViewModel(isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 
@@ -78,7 +78,7 @@ import Testing
     func grantedDataExchangeFlowAppliesPendingHighlightAndClearsSelection() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.showingVerseActionsDrawer = true
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
@@ -96,9 +96,9 @@ import Testing
     @Test
     func signedInUserGrantingHighlightPermissionLoadsCurrentChapterHighlights() async {
         let highlightsRepository = MockBibleHighlightsRepository()
-        let localReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
-        let serverReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 17)
-        let chapterReference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3)
+        let localReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let serverReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let chapterReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3)
         let viewModel = Support.makeViewModel(
             reference: chapterReference,
             highlightsRepository: highlightsRepository,
@@ -127,7 +127,7 @@ import Testing
     func cancelledDataExchangeFlowDoesNotApplyPendingHighlight() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
@@ -144,7 +144,7 @@ import Testing
     func emptyDataExchangePermissionsDoesNotApplyPendingHighlight() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
@@ -161,7 +161,7 @@ import Testing
     func grantedDataExchangeFlowWithoutHighlightsPermissionDoesNotApplyPendingHighlight() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
         viewModel.confirmDataExchangePrompt()
@@ -176,10 +176,9 @@ import Testing
 
     @Test
     func signedOutUserShowsSignInSheetBeforeShowingDataExchangeConfirmation() {
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: false)
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
 
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
@@ -193,7 +192,6 @@ import Testing
 
     @Test
     func pendingHighlightStartsDataExchangeFlowDirectlyAfterSignInSucceeds() async {
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let highlightsRepository = MockBibleHighlightsRepository()
         let authenticationState = MockBibleReaderAuthenticationState(isSignedIn: false)
         let viewModel = Support.makeViewModel(
@@ -201,7 +199,7 @@ import Testing
             readIsSignedIn: { authenticationState.isSignedIn },
             hasValidToken: true
         )
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.selectedVerses = [reference]
         viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
 

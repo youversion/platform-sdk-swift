@@ -84,7 +84,7 @@ public enum BibleVersionRendering {
         footnoteMarker?.markWithTextCategory(.footnoteMarker)
         let stateIn = StateIn(
             versionId: reference.versionId,
-            bookUSFM: reference.bookUSFM,
+            bookId: reference.bookId,
             currentChapter: reference.chapter,
             fromVerse: verseStart,
             toVerse: verseEnd,
@@ -111,7 +111,7 @@ public enum BibleVersionRendering {
             firstLineHeadIndent: 0,
             headIndent: 0,
             versionId: reference.versionId,
-            bookUSFM: reference.bookUSFM,
+            bookId: reference.bookId,
             chapter: reference.chapter,
             verse: 0
         )
@@ -128,9 +128,9 @@ public enum BibleVersionRendering {
 
     /// Fetches the data for the given reference, returns it converted to a BibleTextNode tree.
     static func rootNode(from reference: BibleReference) async throws -> BibleTextNode? {
-        let book = reference.bookUSFM
+        let book = reference.bookId
         let c = reference.chapter
-        let chapterReference = BibleReference(versionId: reference.versionId, bookUSFM: book, chapter: c)
+        let chapterReference = BibleReference(versionId: reference.versionId, bookId: book, chapter: c)
 
         do {
             let data = try await BibleChapterRepository.shared.chapter(withReference: chapterReference)
@@ -289,7 +289,7 @@ public enum BibleVersionRendering {
             var footState = StateUp(
                 rendering: true,
                 versionId: stateUp.versionId,
-                bookUSFM: stateUp.bookUSFM,
+                bookId: stateUp.bookId,
                 chapter: stateUp.chapter,
                 verse: stateUp.verse
             )
@@ -533,7 +533,7 @@ public enum BibleVersionRendering {
     // input parameters to the rendering; read-only while walking the node structure.
     struct StateIn {
         var versionId: Int
-        var bookUSFM: String
+        var bookId: String
         var currentChapter: Int
         var fromVerse: Int  // in the chapter, the lowest number verse to render. Could be 0.
         var toVerse: Int  // in the chapter, the highest number verse to render. Could be 999.
@@ -568,7 +568,7 @@ public enum BibleVersionRendering {
         var firstLineHeadIndent = 0
         var headIndent = 0
         var versionId: Int
-        var bookUSFM: String
+        var bookId: String
         var chapter: Int
         var verse: Int
         var blockStartVerse: Int?
@@ -587,7 +587,7 @@ public enum BibleVersionRendering {
                 newText.markWithTextCategory(category)
                 let isFootnote = category == .footnoteMarker || category == .footnoteImage
                 if isFootnote || (verse > 0 && (category == .scripture || category == .verseLabel)) {
-                    let reference = BibleReference(versionId: versionId, bookUSFM: bookUSFM, chapter: chapter, verse: verse > 0 ? verse : 1)
+                    let reference = BibleReference(versionId: versionId, bookId: bookId, chapter: chapter, verse: verse > 0 ? verse : 1)
                     let scheme = isFootnote ? BibleVersionRendering.LinkSchemes.footnote.rawValue : BibleVersionRendering.LinkSchemes.reference.rawValue
                     newText.markWithReference(reference, scheme: scheme, id: id)
                 }
@@ -601,7 +601,7 @@ public enum BibleVersionRendering {
         mutating func appendFootnote(text: BibleAttributedString) -> BibleFootnote {
             let reference = BibleReference(
                 versionId: versionId,
-                bookUSFM: bookUSFM,
+                bookId: bookId,
                 chapter: chapter,
                 verse: verse > 0 ? verse : 1
             )

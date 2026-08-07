@@ -69,6 +69,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     
     private let api: BibleHighlightsAPIProtocol
     private let retryDelayNanoseconds: UInt64
+    private let shouldProcessQueueAutomatically: Bool
     private var pendingServerOperations: [PendingHighlightOperation] = []
     private var operationResults: [UUID: OperationResult] = [:]
     private var processingQueue = false
@@ -79,11 +80,19 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     public init(api: BibleHighlightsAPIProtocol = BibleHighlightsAPI()) {
         self.api = api
         self.retryDelayNanoseconds = 2_000_000_000
+        self.shouldProcessQueueAutomatically = true
     }
 
     init(api: BibleHighlightsAPIProtocol, retryDelayNanoseconds: UInt64) {
         self.api = api
         self.retryDelayNanoseconds = retryDelayNanoseconds
+        self.shouldProcessQueueAutomatically = true
+    }
+
+    init(api: BibleHighlightsAPIProtocol, shouldProcessQueueAutomatically: Bool) {
+        self.api = api
+        self.retryDelayNanoseconds = 2_000_000_000
+        self.shouldProcessQueueAutomatically = shouldProcessQueueAutomatically
     }
     
     // MARK: - Public Methods
@@ -92,8 +101,8 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         var result: [String: [BibleHighlight]] = [:]
 
         for reference in references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter)"
-            let chapterKey = "\(reference.versionId)_\(reference.bookUSFM)_\(reference.chapter)"
+            let passageId = "\(reference.bookId).\(reference.chapter)"
+            let chapterKey = "\(reference.versionId)_\(reference.bookId)_\(reference.chapter)"
             do {
                 let apiHighlights = try await api.highlights(bibleId: reference.versionId, passageId: passageId)
 
@@ -154,7 +163,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         return BibleHighlight(
             BibleReference(
                 versionId: apiHighlight.bibleId,
-                bookUSFM: book,
+                bookId: book,
                 chapter: chapter,
                 verse: verse
             ),
@@ -182,7 +191,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             let hexColor = color.hasPrefix("#") ? String(color.dropFirst()) : color
             
             do {
@@ -209,7 +218,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     private func processRemoveOperation(_ operation: PendingHighlightOperation) async throws -> Bool {
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             
             do {
                 let result = try await api.deleteHighlight(
@@ -240,7 +249,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         
         var success = true
         for reference in operation.references {
-            let passageId = "\(reference.bookUSFM).\(reference.chapter).\(reference.verseStart ?? 1)"
+            let passageId = "\(reference.bookId).\(reference.chapter).\(reference.verseStart ?? 1)"
             let hexColor = color.hasPrefix("#") ? String(color.dropFirst()) : color
             
             do {
@@ -272,7 +281,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         pendingServerOperations.sort { $0.timestamp < $1.timestamp }
         
         // Start processing if not already running
-        if !processingQueue {
+        if shouldProcessQueueAutomatically && !processingQueue {
             Task {
                 await processQueue()
             }
@@ -288,7 +297,9 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
         var nextProcessingDelayNanoseconds: UInt64?
         defer {
             processingQueue = false
-            if let nextProcessingDelayNanoseconds, !pendingServerOperations.isEmpty {
+            if shouldProcessQueueAutomatically,
+               let nextProcessingDelayNanoseconds,
+               !pendingServerOperations.isEmpty {
                 scheduleQueueProcessing(after: nextProcessingDelayNanoseconds)
             }
         }

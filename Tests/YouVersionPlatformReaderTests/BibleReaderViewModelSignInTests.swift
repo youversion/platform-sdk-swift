@@ -9,11 +9,10 @@ import Testing
     @Test
     func handleVerseTapShowsSignInSheetWhenUnsignedOutAndSignInEnabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            reference: BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
             actionType: "",
             footnotes: []
         )
@@ -27,11 +26,10 @@ import Testing
     @Test
     func handleVerseTapDoesNothingWhenUnsignedOutAndSignInDisabled() {
         Support.clearReaderDefaults()
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: false)
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
-            reference: BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16),
+            reference: BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16),
             actionType: "",
             footnotes: []
         )
@@ -83,7 +81,7 @@ import Testing
                 authenticationState.isSignedIn = false
             }
         )
-        let reference = BibleReference(versionId: Support.versionId, bookUSFM: "JHN", chapter: 3, verse: 16)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
         #expect(viewModel.isSignedIn)

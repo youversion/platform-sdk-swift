@@ -238,7 +238,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             } else {
                 // no saved reference, so, pick a downloaded version, else a safe default.
                 let versionId = BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
-                self.reference = BibleReference(versionId: versionId, bookUSFM: "JHN", chapter: 1)
+                self.reference = BibleReference(versionId: versionId, bookId: "JHN", chapter: 1)
                 self.showBookIntro = false
                 self.showsFullChapter = showsFullChapter
             }
@@ -332,7 +332,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard reference.versionId != version.id else {
             return
         }
-        reference = BibleReference(versionId: version.id, bookUSFM: reference.bookUSFM, chapter: reference.chapter)
+        reference = BibleReference(versionId: version.id, bookId: reference.bookId, chapter: reference.chapter)
         await onHeaderSelectionChange(reference, showIntro: false)
     }
 

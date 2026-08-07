@@ -82,7 +82,7 @@ public final class BibleAttributedString: Equatable, Hashable {
     func markWithReference(_ reference: BibleReference, scheme: String, id: String?) {
         two.bibleReference = reference
         let idString = id == nil ? "" : "#\(id!)"
-        two.link = URL(string: "\(scheme)://\(reference.versionId)/\(reference.asUSFM)\(idString)")
+        two.link = URL(string: "\(scheme)://\(reference.versionId)/\(reference.passageId)\(idString)")
     }
 
 }

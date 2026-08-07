@@ -16,7 +16,7 @@ struct BibleVersionTests {
         }
     }()
 
-    private static let canonicalUSFMs = Set(version.books?.filter { $0.isCanonical }.map(\.id) ?? [])
+    private static let canonicalBookIds = Set(version.books?.filter { $0.isCanonical }.map(\.id) ?? [])
 
     @Test
     func decodesCoreMetadata() throws {
@@ -27,9 +27,9 @@ struct BibleVersionTests {
         #expect(version.title == "World English Bible, American English Edition, without Strong's Numbers")
         #expect(version.localizedTitle == "World English Bible, American English Edition, without Strong's Numbers")
         #expect(version.languageTag == "en")
-        #expect(version.bookUSFMs.count == 80)
+        #expect(version.bookIds.count == 80)
         let bookCodes = try #require(version.bookCodes)
-        #expect(bookCodes == version.bookUSFMs)
+        #expect(bookCodes == version.bookIds)
         #expect(bookCodes.first == "GEN")
         #expect(bookCodes.last == "REV")
         #expect(version.copyright == "PUBLIC DOMAIN (not copyrighted)")
@@ -46,9 +46,9 @@ struct BibleVersionTests {
         ("REEV", false),
         ("R", false)
     ])
-    func bookUSFMValidation(usfm: String, isValid: Bool) {
-        let normalized = usfm.uppercased()
-        #expect(Self.canonicalUSFMs.contains(normalized) == isValid)
+    func bookIdValidation(bookId: String, isValid: Bool) {
+        let normalizedBookId = bookId.uppercased()
+        #expect(Self.canonicalBookIds.contains(normalizedBookId) == isValid)
     }
 
     @Test
@@ -69,19 +69,19 @@ struct BibleVersionTests {
         ("REV", "Revelation", "Rev", 22, "REV.1")
     ])
     func bookMetadata(
-        bookUSFM: String,
+        bookId: String,
         expectedTitle: String,
         expectedAbbreviation: String,
         expectedChapterCount: Int,
         expectedFirstChapterId: String
     ) throws {
-        let book = try #require(Self.version.book(with: bookUSFM))
+        let book = try #require(Self.version.book(with: bookId))
         #expect(book.title == expectedTitle)
         #expect(book.abbreviation == expectedAbbreviation)
         let chapters = try #require(book.chapters)
         #expect(chapters.count == expectedChapterCount)
         #expect(chapters.first?.passageId == expectedFirstChapterId)
-        let labels = Self.version.chapterLabels(bookUSFM)
+        let labels = Self.version.chapterLabels(bookId)
         #expect(labels.count == expectedChapterCount)
         #expect(labels.first == "1")
         #expect(labels.last == String(expectedChapterCount))
@@ -90,7 +90,7 @@ struct BibleVersionTests {
     @Test
     func referenceTrimsWhitespace() throws {
         let reference = try #require(Self.version.reference(with: "  GEN.1.5  "))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 1)
         #expect(reference.verseStart == 5)
     }
@@ -98,7 +98,7 @@ struct BibleVersionTests {
     @Test
     func referenceMergesAdjacentVersesSeparatedByPlus() throws {
         let reference = try #require(Self.version.reference(with: "GEN.1.1+GEN.1.2"))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 1)
         #expect(reference.verseStart == 1)
         #expect(reference.verseEnd == 2)
@@ -107,7 +107,7 @@ struct BibleVersionTests {
     @Test
     func referenceSkipsInvalidSegments() throws {
         let reference = try #require(Self.version.reference(with: "GEN.3.7+GAN.3.8+GEN.3.8"))
-        #expect(reference.bookUSFM == "GEN")
+        #expect(reference.bookId == "GEN")
         #expect(reference.chapter == 3)
         #expect(reference.verseStart == 7)
         #expect(reference.verseEnd == 8)
@@ -116,6 +116,141 @@ struct BibleVersionTests {
     @Test
     func referenceReturnsNilWhenAllSegmentsInvalid() {
         #expect(Self.version.reference(with: "GAN.1.1+GAN.1.2") == nil)
+    }
+
+    @Test
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreMissing() {
+        let version = Self.versionWithBookCodes(nil)
+        #expect(version.bookIds == ["GEN", "EXO"])
+    }
+
+    @Test
+    func bookIdsFallsBackToBibleBooksWhenBookCodesAreEmpty() {
+        let version = Self.versionWithBookCodes([])
+        #expect(version.bookIds == ["GEN", "EXO"])
+    }
+
+    @Test
+    func emptyBookMetadataReturnsEmptyLookups() {
+        let version = Self.versionWithoutBookMetadata
+        #expect(version.bookIds.isEmpty)
+        #expect(version.book(with: "GEN") == nil)
+        #expect(version.reference(with: "GEN.1.1") == nil)
+        #expect(version.chapterLabels("GEN").isEmpty)
+    }
+
+    @Test
+    func chapterLabelsReturnsEmptyForUnknownBook() {
+        #expect(Self.version.chapterLabels("GAN").isEmpty)
+    }
+
+    @Test
+    func textDirectionDeterminesRightToLeftLayout() {
+        #expect(Self.versionWithTextDirection("rtl").isRightToLeft)
+        #expect(!Self.versionWithTextDirection("ltr").isRightToLeft)
+        #expect(!Self.versionWithTextDirection(nil).isRightToLeft)
+    }
+
+    @Test
+    func equalityAndHashingUseVersionId() {
+        let original = Self.versionWithId(206, title: "Original")
+        let renamed = Self.versionWithId(206, title: "Renamed")
+        let different = Self.versionWithId(111, title: "Original")
+
+        #expect(original == renamed)
+        #expect(original != different)
+        #expect(Set([original, renamed, different]).count == 2)
+    }
+
+    private static var versionWithoutBookMetadata: BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: nil,
+            books: nil,
+            textDirection: "ltr"
+        )
+    }
+
+    private static func versionWithBookCodes(_ bookCodes: [String]?) -> BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: bookCodes,
+            books: [
+                Self.book(id: "GEN", title: "Genesis", abbreviation: "Gen"),
+                Self.book(id: "EXO", title: "Exodus", abbreviation: "Exo")
+            ],
+            textDirection: "ltr"
+        )
+    }
+
+    private static func book(id: String, title: String, abbreviation: String) -> BibleBook {
+        BibleBook(
+            id: id,
+            title: title,
+            fullTitle: nil,
+            abbreviation: abbreviation,
+            canon: "ot",
+            chapters: [BibleChapter(id: "1", passageId: "\(id).1", title: "1", verses: nil)],
+            intro: nil
+        )
+    }
+
+    private static func versionWithTextDirection(_ textDirection: String?) -> BibleVersion {
+        BibleVersion(
+            id: 206,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: "World English Bible",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "World English Bible",
+            organizationId: nil,
+            bookCodes: ["GEN"],
+            books: nil,
+            textDirection: textDirection
+        )
+    }
+
+    private static func versionWithId(_ id: Int, title: String) -> BibleVersion {
+        BibleVersion(
+            id: id,
+            abbreviation: "WEBUS",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "WEBUS",
+            localizedTitle: title,
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: title,
+            organizationId: nil,
+            bookCodes: ["GEN"],
+            books: nil,
+            textDirection: "ltr"
+        )
     }
 
 }

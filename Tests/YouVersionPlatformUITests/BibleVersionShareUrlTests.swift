@@ -35,7 +35,7 @@ import Testing
     
     @Test func testShareUrl_SingleVerse() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verse: 10)
+        let reference = BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verse: 10)
         
         let url = version.shareUrl(reference: reference)
         
@@ -44,7 +44,7 @@ import Testing
     
     @Test func testShareUrl_SingleVerseWithLocalizedAbbreviation() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV", localizedAbbreviation: "NVI")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -53,7 +53,7 @@ import Testing
     
     @Test func testShareUrl_SingleVerseNoAbbreviation() {
         let version = createBibleVersion(id: 999)
-        let reference = BibleReference(versionId: 999, bookUSFM: "PSA", chapter: 23, verse: 1)
+        let reference = BibleReference(versionId: 999, bookId: "PSA", chapter: 23, verse: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -64,7 +64,7 @@ import Testing
     
     @Test func testShareUrl_VerseRange() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verseStart: 10, verseEnd: 15)
+        let reference = BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verseStart: 10, verseEnd: 15)
         
         let url = version.shareUrl(reference: reference)
         
@@ -73,7 +73,7 @@ import Testing
     
     @Test func testShareUrl_VerseRangeWithLocalizedAbbreviation() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV", localizedAbbreviation: "NVI")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5)
         
         let url = version.shareUrl(reference: reference)
         
@@ -83,7 +83,7 @@ import Testing
     @Test func testShareUrl_VerseRangeSameStartAndEnd() {
         // This should be treated as a single verse, not a range
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verseStart: 10, verseEnd: 10)
+        let reference = BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verseStart: 10, verseEnd: 10)
         
         let url = version.shareUrl(reference: reference)
         
@@ -94,7 +94,7 @@ import Testing
     
     @Test func testShareUrl_ChapterOnly() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3)
+        let reference = BibleReference(versionId: 111, bookId: "1SA", chapter: 3)
         
         let url = version.shareUrl(reference: reference)
         
@@ -103,7 +103,7 @@ import Testing
     
     @Test func testShareUrl_ChapterOnlyWithLocalizedAbbreviation() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV", localizedAbbreviation: "NVI")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -112,7 +112,7 @@ import Testing
     
     @Test func testShareUrl_ChapterOnlyNoAbbreviation() {
         let version = createBibleVersion(id: 999)
-        let reference = BibleReference(versionId: 999, bookUSFM: "PSA", chapter: 23)
+        let reference = BibleReference(versionId: 999, bookId: "PSA", chapter: 23)
         
         let url = version.shareUrl(reference: reference)
         
@@ -126,7 +126,7 @@ import Testing
         let version2 = createBibleVersion(id: 111, abbreviation: "NIV")
         let version3 = createBibleVersion(id: 999, abbreviation: "ESV")
         
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
         
         let url1 = version1.shareUrl(reference: reference)
         let url2 = version2.shareUrl(reference: reference)
@@ -137,15 +137,15 @@ import Testing
         #expect(url3?.absoluteString == "https://www.bible.com/bible/999/GEN.1.1.ESV")
     }
     
-    // MARK: - Book USFM Tests
+    // MARK: - Book ID Tests
     
-    @Test func testShareUrl_DifferentBookUSFMs() {
+    @Test func testShareUrl_DifferentBookIds() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
         
-        let ref1 = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
-        let ref2 = BibleReference(versionId: 111, bookUSFM: "EXO", chapter: 2, verse: 3)
-        let ref3 = BibleReference(versionId: 111, bookUSFM: "PSA", chapter: 23, verse: 1)
-        let ref4 = BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verse: 10)
+        let ref1 = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
+        let ref2 = BibleReference(versionId: 111, bookId: "EXO", chapter: 2, verse: 3)
+        let ref3 = BibleReference(versionId: 111, bookId: "PSA", chapter: 23, verse: 1)
+        let ref4 = BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verse: 10)
         
         let url1 = version.shareUrl(reference: ref1)
         let url2 = version.shareUrl(reference: ref2)
@@ -162,7 +162,7 @@ import Testing
     
     @Test func testShareUrl_DifferentChapterNumbers() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 50, verse: 20)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 50, verse: 20)
         
         let url = version.shareUrl(reference: reference)
         
@@ -179,7 +179,7 @@ import Testing
         // Create a reference with verseStart nil but verseEnd not nil
         // This would require creating a BibleReference directly with these values
         // Since the initializers don't allow this, we'll test the logic path
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -188,7 +188,7 @@ import Testing
     
     @Test func testShareUrl_LargeVerseNumbers() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "PSA", chapter: 119, verse: 176)
+        let reference = BibleReference(versionId: 111, bookId: "PSA", chapter: 119, verse: 176)
         
         let url = version.shareUrl(reference: reference)
         
@@ -197,7 +197,7 @@ import Testing
     
     @Test func testShareUrl_LargeVerseRange() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "PSA", chapter: 119, verseStart: 1, verseEnd: 176)
+        let reference = BibleReference(versionId: 111, bookId: "PSA", chapter: 119, verseStart: 1, verseEnd: 176)
         
         let url = version.shareUrl(reference: reference)
         
@@ -206,7 +206,7 @@ import Testing
     
     @Test func testShareUrl_EmptyAbbreviation() {
         let version = createBibleVersion(id: 111, abbreviation: "")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -215,7 +215,7 @@ import Testing
     
     @Test func testShareUrl_EmptyLocalizedAbbreviation() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV", localizedAbbreviation: "")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -226,7 +226,7 @@ import Testing
     
     @Test func testShareUrl_ReturnsValidURL() {
         let version = createBibleVersion(id: 111, abbreviation: "NIV")
-        let reference = BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1)
+        let reference = BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1)
         
         let url = version.shareUrl(reference: reference)
         
@@ -240,13 +240,13 @@ import Testing
         let version = createBibleVersion(id: 111, abbreviation: "NIV", localizedAbbreviation: "NVI")
         
         let scenarios: [BibleReference] = [
-            BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1),
-            BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verse: 1),
-            BibleReference(versionId: 111, bookUSFM: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
-            BibleReference(versionId: 111, bookUSFM: "PSA", chapter: 23, verse: 1),
-            BibleReference(versionId: 111, bookUSFM: "PSA", chapter: 23, verseStart: 1, verseEnd: 6),
-            BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verse: 10),
-            BibleReference(versionId: 111, bookUSFM: "1SA", chapter: 3, verseStart: 10, verseEnd: 15)
+            BibleReference(versionId: 111, bookId: "GEN", chapter: 1),
+            BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 1),
+            BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verseStart: 1, verseEnd: 5),
+            BibleReference(versionId: 111, bookId: "PSA", chapter: 23, verse: 1),
+            BibleReference(versionId: 111, bookId: "PSA", chapter: 23, verseStart: 1, verseEnd: 6),
+            BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verse: 10),
+            BibleReference(versionId: 111, bookId: "1SA", chapter: 3, verseStart: 10, verseEnd: 15)
         ]
         
         for reference in scenarios {
