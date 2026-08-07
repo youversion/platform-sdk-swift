@@ -143,13 +143,13 @@ The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK u
 
 #### Device builds on BrowserStack
 
-When an active member of the `youversion/platform-contractors` team opens a PR
+When an approved collaborator on `platform_swift_sdk_automation` opens a PR
 from a branch in this repository, **BrowserStack App Live PR Build** dispatches
 the existing automation build for the PR's exact head commit. New commits do
-not rebuild automatically. To upload the current PR head again, an authorized
-member comments exactly `/app-live` on the open PR. On this explicit
+not rebuild automatically. To upload the current PR head again, an approved
+collaborator comments exactly `/app-live` on the open PR. On this explicit
 rebuild path, the commenter authorizes the current same-repository PR head; the
-PR author does not also need to be authorized. The
+PR author does not also need access to the automation repository. The
 automation repository builds and signs the SampleApp `.ipa`, uploads it to
 BrowserStack App Live, and returns the `bs://...` app id in the SDK workflow
 summary.

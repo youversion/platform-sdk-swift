@@ -1,13 +1,13 @@
 name: BrowserStack App Live PR Build
 
-# First increment of YPE-3011: when an active member of the authorized team
-# opens a same-repository PR, dispatch the existing SDK build for the PR's
-# exact head SHA and upload the resulting .ipa to BrowserStack App Live.
-# Later builds are requested deliberately by an authorized member commenting
-# /app-live on the open PR. For that issue_comment path, the authorized
-# commenter explicitly authorizes the current same-repository PR head; the PR
-# author does not also need to be authorized. Test automation and App
-# Automate execution are deliberately out of scope.
+# First increment of YPE-3011: when an approved automation-repository
+# collaborator opens a same-repository PR, dispatch the existing SDK build for
+# the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
+# Live. Later builds are requested deliberately by an approved collaborator
+# commenting /app-live on the open PR. For that issue_comment path, the
+# approved commenter explicitly authorizes the current same-repository PR head;
+# the PR author does not also need automation-repository access. Test automation
+# and App Automate execution are deliberately out of scope.
 
 on:
   pull_request:
@@ -23,8 +23,6 @@ permissions:
 env:
   AUTOMATION_REPO: youversion/platform_swift_sdk_automation
   WORKFLOW_FILE: build-sdk-app.yml
-  ORG: youversion
-  AUTHORIZED_TEAM: platform-contractors
 
 concurrency:
   group: app-live-pr-${{ github.event.pull_request.number || github.event.issue.number }}
@@ -72,7 +70,7 @@ jobs:
             echo "open=$([ "$PR_STATE" = "open" ] && echo true || echo false)"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Verify trigger actor is in the authorized team
+      - name: Verify trigger actor is an approved automation collaborator
         if: steps.pr.outputs.same_repo == 'true' && steps.pr.outputs.open == 'true'
         id: authorization
         env:
@@ -80,21 +78,20 @@ jobs:
           TRIGGER_ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
-          # Effective repo permission is not a usable gate: the organization's
-          # base permission grants write on the automation repo to every org
-          # member. Require explicit, active membership in the authorized team
-          # instead. Needs organization Members read on the PAT.
-          STATE=$(gh api \
-            "orgs/$ORG/teams/$AUTHORIZED_TEAM/memberships/$TRIGGER_ACTOR" \
-            --jq '.state' 2>/dev/null || true)
+          PERMISSION=$(gh api \
+            "repos/$AUTOMATION_REPO/collaborators/$TRIGGER_ACTOR/permission" \
+            --jq '.permission')
 
-          if [ "$STATE" = "active" ]; then
-            echo "allowed=true" >> "$GITHUB_OUTPUT"
-            echo "Trigger actor '$TRIGGER_ACTOR' is an active member of $ORG/$AUTHORIZED_TEAM."
-          else
-            echo "allowed=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Trigger actor '$TRIGGER_ACTOR' is not an active member of $ORG/$AUTHORIZED_TEAM; App Live build skipped."
-          fi
+          case "$PERMISSION" in
+            admin|maintain|write)
+              echo "allowed=true" >> "$GITHUB_OUTPUT"
+              echo "Trigger actor '$TRIGGER_ACTOR' is approved with '$PERMISSION' access to $AUTOMATION_REPO."
+              ;;
+            *)
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Trigger actor '$TRIGGER_ACTOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
+              ;;
+          esac
 
       - name: Define remote build
         if: steps.authorization.outputs.allowed == 'true'
@@ -270,7 +267,7 @@ jobs:
               "",
               "`/app-live`",
               "",
-              "Only active members of the `youversion/platform-contractors` team can trigger a build."
+              "Only approved collaborators on `platform_swift_sdk_automation` can trigger a build."
             ] | join("\n")')
 
           COMMENT_ID=$(gh api \
@@ -314,7 +311,7 @@ jobs:
               exit 0
             fi
             if [ "$ALLOWED" != "true" ]; then
-              echo "No build was dispatched because trigger actor $TRIGGER_ACTOR is not an active member of $ORG/$AUTHORIZED_TEAM."
+              echo "No build was dispatched because trigger actor $TRIGGER_ACTOR is not an approved collaborator on $AUTOMATION_REPO."
               exit 0
             fi
             echo "| Item | Value |"
