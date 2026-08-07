@@ -156,12 +156,12 @@ summary.
 After a successful upload, `github-actions[bot]` creates or updates one PR
 comment with the latest build details and the `/app-live` instruction.
 
-Builds use the ticket key from the branch when present and increment for each
-upload, for example `swift-YPE-3011-1` and `swift-YPE-3011-2`. A sanitized
-10-character branch label plus the PR number is used when the branch has no
-ticket key, for example `feature/rework-reader` becomes
-`swift-rework-rea-pr226-1`. The exact source SHA is recorded separately in the
-workflow summary.
+Builds are numbered per PR: the key is the branch's ticket key plus the PR
+number, incrementing for each upload, for example `swift-YPE-3011-pr227-1`
+and `swift-YPE-3011-pr227-2`. A sanitized 10-character branch label plus the
+PR number is used when the branch has no ticket key, for example
+`feature/rework-reader` becomes `swift-rework-rea-pr226-1`. The exact source
+SHA is recorded separately in the workflow summary.
 
 This initial bridge produces an App Live build only. It does not run the Hinqa
 corpus or upload to App Automate.
