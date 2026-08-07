@@ -49,6 +49,7 @@ struct SampleApp: App {
                     }
                     .tag(4)
             }
+            .tint(.red)
         }
     }
 }
