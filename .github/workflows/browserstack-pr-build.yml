@@ -1,0 +1,323 @@
+name: BrowserStack App Live PR Build
+
+# First increment of YPE-3011: when an approved automation-repository
+# collaborator opens a same-repository PR, dispatch the existing SDK build for
+# the PR's exact head SHA and upload the resulting .ipa to BrowserStack App
+# Live. Later builds are requested deliberately by an approved collaborator
+# commenting /app-live on the open PR. For that issue_comment path, the
+# approved commenter explicitly authorizes the current same-repository PR head;
+# the PR author does not also need automation-repository access. Test automation
+# and App Automate execution are deliberately out of scope.
+
+on:
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  AUTOMATION_REPO: youversion/platform_swift_sdk_automation
+  WORKFLOW_FILE: build-sdk-app.yml
+
+concurrency:
+  group: app-live-pr-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  app-live-build:
+    name: Build SampleApp for App Live
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event.issue.pull_request && github.event.comment.body == '/app-live')
+
+    steps:
+      - name: Read current PR context
+        id: pr
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # GITHUB_EVENT_PATH is the runner-provided default env var; the
+          # ${{ github.event_path }} expression resolved to an empty string
+          # here at runtime, which broke this step.
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            PR_JSON=$(jq '.pull_request' "$GITHUB_EVENT_PATH")
+          else
+            PR_NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+            PR_JSON=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER")
+          fi
+
+          PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")
+          HEAD_REF=$(jq -r '.head.ref' <<< "$PR_JSON")
+          HEAD_REPO=$(jq -r '.head.repo.full_name' <<< "$PR_JSON")
+          HEAD_SHA=$(jq -r '.head.sha' <<< "$PR_JSON")
+          PR_STATE=$(jq -r '.state' <<< "$PR_JSON")
+
+          {
+            echo "number=$PR_NUMBER"
+            echo "head_ref=$HEAD_REF"
+            echo "head_sha=$HEAD_SHA"
+            echo "same_repo=$([ "$HEAD_REPO" = "$REPOSITORY" ] && echo true || echo false)"
+            echo "open=$([ "$PR_STATE" = "open" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify trigger actor is an approved automation collaborator
+        if: steps.pr.outputs.same_repo == 'true' && steps.pr.outputs.open == 'true'
+        id: authorization
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          TRIGGER_ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          PERMISSION=$(gh api \
+            "repos/$AUTOMATION_REPO/collaborators/$TRIGGER_ACTOR/permission" \
+            --jq '.permission')
+
+          case "$PERMISSION" in
+            admin|maintain|write)
+              echo "allowed=true" >> "$GITHUB_OUTPUT"
+              echo "Trigger actor '$TRIGGER_ACTOR' is approved with '$PERMISSION' access to $AUTOMATION_REPO."
+              ;;
+            *)
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Trigger actor '$TRIGGER_ACTOR' has '$PERMISSION' access to $AUTOMATION_REPO; App Live build skipped."
+              ;;
+          esac
+
+      - name: Define remote build
+        if: steps.authorization.outputs.allowed == 'true'
+        id: build
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          HEAD_REF: ${{ steps.pr.outputs.head_ref }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          set -euo pipefail
+          SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
+
+          TICKET=$(printf '%s' "$HEAD_REF" | grep -Eio 'YPE-[0-9]+' | head -1 | tr '[:lower:]' '[:upper:]' || true)
+          # pr<N> in the key scopes numbering to the PR, matching the
+          # concurrency boundary: two PRs on one ticket can otherwise race
+          # the same max and dispatch identical names.
+          if [ -n "$TICKET" ]; then
+            BUILD_KEY="$TICKET-pr$PR_NUMBER"
+          else
+            BRANCH_LABEL=${HEAD_REF#*/}
+            BRANCH_KEY=$(printf '%s' "$BRANCH_LABEL" |
+              tr '[:upper:]' '[:lower:]' |
+              sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//' |
+              cut -c1-10 |
+              sed -E 's/-+$//')
+            BUILD_KEY=${BRANCH_KEY:-branch}-pr$PR_NUMBER
+          fi
+
+          BUILD_PREFIX="swift-$BUILD_KEY-"
+          # Paginate the full run history and use max existing N + 1: a
+          # 100-run window lets an old ticket's counter reset, and counting
+          # runs (rather than taking the max) can reuse a number after a run
+          # is deleted.
+          MAX_BUILD=$(gh api --paginate \
+            "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=100" \
+            --jq '.workflow_runs[].display_title' |
+            grep -E "^${BUILD_PREFIX}[0-9]+ " |
+            sed -E "s/^${BUILD_PREFIX}([0-9]+) .*/\1/" |
+            sort -n | tail -1 || true)
+          BUILD_NUMBER=$(( ${MAX_BUILD:-0} + 1 ))
+          BUILD_NAME="$BUILD_PREFIX$BUILD_NUMBER"
+
+          {
+            echo "name=$BUILD_NAME"
+            echo "key=$BUILD_KEY"
+            echo "number=$BUILD_NUMBER"
+            echo "sha7=$SHA7"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch exact PR head to App Live
+        if: steps.authorization.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg sdk_ref "$HEAD_SHA" \
+            --arg build_name "$BUILD_NAME" \
+            '{
+              ref: "main",
+              inputs: {
+                sdk_ref: $sdk_ref,
+                target: "app-live",
+                build_name: $build_name
+              }
+            }' |
+            gh api \
+              --method POST \
+              "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
+              --input -
+          echo "Dispatched '$BUILD_NAME' for exact SDK SHA $HEAD_SHA."
+
+      - name: Locate remote build
+        if: steps.authorization.outputs.allowed == 'true'
+        id: remote
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
+        run: |
+          set -euo pipefail
+          RUN_ID=""
+          for _ in $(seq 1 20); do
+            RUN_ID=$(gh api \
+              "repos/$AUTOMATION_REPO/actions/workflows/$WORKFLOW_FILE/runs?event=workflow_dispatch&per_page=20" \
+              --jq ".workflow_runs[] | select(.display_title | startswith(\"$BUILD_NAME \")) | .id" |
+              head -1)
+            [ -n "$RUN_ID" ] && break
+            sleep 3
+          done
+
+          test -n "$RUN_ID" || {
+            echo "::error::Dispatched '$BUILD_NAME' but could not locate its automation run."
+            exit 1
+          }
+
+          echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "url=https://github.com/$AUTOMATION_REPO/actions/runs/$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for App Live upload
+        if: steps.authorization.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          RUN_ID: ${{ steps.remote.outputs.id }}
+        run: |
+          set -euo pipefail
+          while :; do
+            STATUS=$(gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID" --jq '.status')
+            [ "$STATUS" = "completed" ] && break
+            echo "Remote build $RUN_ID: $STATUS"
+            sleep 30
+          done
+
+          CONCLUSION=$(gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID" --jq '.conclusion')
+          echo "Remote build $RUN_ID concluded: $CONCLUSION"
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "::error::SampleApp build or App Live upload failed ($CONCLUSION)."
+            exit 1
+          fi
+
+      - name: Read App Live id
+        if: steps.authorization.outputs.allowed == 'true'
+        id: app_live
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_DISPATCH_TOKEN }}
+          RUN_ID: ${{ steps.remote.outputs.id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$AUTOMATION_REPO/actions/runs/$RUN_ID/logs" > /tmp/remote-logs.zip
+          unzip -oq /tmp/remote-logs.zip -d /tmp/remote-logs
+          APP_ID=$(grep -rhoE 'Uploaded to App Live: bs://[A-Za-z0-9]+' /tmp/remote-logs |
+            head -1 | grep -oE 'bs://[A-Za-z0-9]+' || true)
+          test -n "$APP_ID" || {
+            echo "::error::Remote build succeeded but its App Live bs:// id was not found."
+            exit 1
+          }
+          echo "id=$APP_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publish App Live status on PR
+        if: steps.authorization.outputs.allowed == 'true' && steps.app_live.outputs.id != ''
+        env:
+          APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
+          AUTOMATION_RUN_URL: ${{ steps.remote.outputs.url }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          MARKER='<!-- browserstack-app-live-status -->'
+          SHA7=$(printf '%s' "$HEAD_SHA" | cut -c1-7)
+          BODY=$(jq -nr \
+            --arg marker "$MARKER" \
+            --arg build "$BUILD_NAME" \
+            --arg sha "$SHA7" \
+            --arg run "$AUTOMATION_RUN_URL" \
+            --arg app "$APP_LIVE_ID" \
+            '[
+              $marker,
+              "## BrowserStack App Live",
+              "",
+              "| Item | Value |",
+              "|---|---|",
+              ("| Build | `" + $build + "` |"),
+              ("| Uploaded commit | `" + $sha + "` |"),
+              ("| Automation run | [Open run](" + $run + ") |"),
+              ("| App Live id | `" + $app + "` |"),
+              "",
+              "Review-fix commits are not uploaded automatically. To upload the current PR head again, comment exactly:",
+              "",
+              "`/app-live`",
+              "",
+              "Only approved collaborators on `platform_swift_sdk_automation` can trigger a build."
+            ] | join("\n")')
+
+          COMMENT_ID=$(gh api \
+            "repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" \
+            --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\") | select(.body | contains(\"$MARKER\")) | .id" |
+            head -1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            gh api --method PATCH \
+              "repos/$REPOSITORY/issues/comments/$COMMENT_ID" \
+              -f body="$BODY" >/dev/null
+          else
+            gh api --method POST \
+              "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+              -f body="$BODY" >/dev/null
+          fi
+
+      - name: Write summary
+        if: always()
+        env:
+          ALLOWED: ${{ steps.authorization.outputs.allowed }}
+          APP_LIVE_ID: ${{ steps.app_live.outputs.id }}
+          BUILD_NAME: ${{ steps.build.outputs.name }}
+          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          IS_OPEN: ${{ steps.pr.outputs.open }}
+          IS_SAME_REPO: ${{ steps.pr.outputs.same_repo }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          RUN_URL: ${{ steps.remote.outputs.url }}
+          TRIGGER_ACTOR: ${{ github.actor }}
+        run: |
+          {
+            echo "## BrowserStack App Live build"
+            echo ""
+            if [ "$IS_SAME_REPO" != "true" ]; then
+              echo "No build was dispatched because fork PRs cannot consume the cross-repository credential."
+              exit 0
+            fi
+            if [ "$IS_OPEN" != "true" ]; then
+              echo "No build was dispatched because PR #$PR_NUMBER is not open."
+              exit 0
+            fi
+            if [ "$ALLOWED" != "true" ]; then
+              echo "No build was dispatched because trigger actor $TRIGGER_ACTOR is not an approved collaborator on $AUTOMATION_REPO."
+              exit 0
+            fi
+            echo "| Item | Value |"
+            echo "|---|---|"
+            echo "| PR / SHA | #$PR_NUMBER @ $HEAD_SHA |"
+            echo "| Build name | $BUILD_NAME |"
+            echo "| Automation run | $RUN_URL |"
+            echo "| App Live id | $APP_LIVE_ID |"
+          } >> "$GITHUB_STEP_SUMMARY"
