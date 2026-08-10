@@ -7,7 +7,6 @@ public struct BibleReaderBookAndChapterPickerView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scrollPositionBookCode: String?
-    @State private var isScrollPositionActive = true
 
     let bookCodes: [String]
     let versionId: Int
@@ -63,9 +62,9 @@ public struct BibleReaderBookAndChapterPickerView: View {
 
     private var initialScrollPositionBookCodeBinding: Binding<String?> {
         Binding(
-            get: { isScrollPositionActive ? scrollPositionBookCode : nil },
+            get: { scrollPositionBookCode },
             set: { bookCode in
-                if isScrollPositionActive {
+                if scrollPositionBookCode != nil {
                     scrollPositionBookCode = bookCode
                 }
             }
@@ -121,7 +120,6 @@ public struct BibleReaderBookAndChapterPickerView: View {
 
     private func bookButton(_ bookCode: String) -> some View {
         Button {
-            isScrollPositionActive = false
             scrollPositionBookCode = nil
             withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
