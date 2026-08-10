@@ -12,15 +12,15 @@ struct ProfileView: View {
     var body: some View {
         VStack {
             if isSignedIn {
-                Text("You are signed in as: ")
+                Text("profile.signed_in_as")
                     .padding()
-                Text(YouVersionAPI.Users.currentUserName ?? "(no name)")
-                Text(YouVersionAPI.Users.currentUserEmail ?? "(no email)")
+                Text(YouVersionAPI.Users.currentUserName ?? String(localized: "profile.no_name"))
+                Text(YouVersionAPI.Users.currentUserEmail ?? String(localized: "profile.no_email"))
                     .padding(.bottom)
                 if hasHighlightsPermission {
-                    Text("Highlights permission: granted")
+                    Text("profile.highlights_permission_granted")
                 } else {
-                    Button("Request highlights permission") {
+                    Button("profile.request_highlights_permission") {
                         requestHighlightsPermission()
                     }
                 }
@@ -29,7 +29,7 @@ struct ProfileView: View {
                         .font(.footnote)
                         .padding(.vertical)
                 }
-                Button("Sign out") {
+                Button("profile.sign_out") {
                     doSignOut()
                 }
                 .padding(.top)
@@ -85,7 +85,10 @@ struct ProfileView: View {
                 _ = try await session.requestDataExchange(permissions: ["highlights"])
                 hasHighlightsPermission = YouVersionAPI.hasPermission("highlights")
             } catch {
-                dataExchangeStatusText = "Highlights permission failed: \(error.localizedDescription)"
+                dataExchangeStatusText = String(
+                    format: String(localized: "profile.highlights_permission_failed"),
+                    error.localizedDescription
+                )
             }
         }
     }

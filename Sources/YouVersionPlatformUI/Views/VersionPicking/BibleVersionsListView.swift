@@ -113,7 +113,7 @@ public struct BibleVersionsListView: View {
                     Capsule()
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
             Spacer()
         }
         .padding()
