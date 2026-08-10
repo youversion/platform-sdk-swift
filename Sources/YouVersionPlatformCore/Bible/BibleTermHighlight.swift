@@ -53,15 +53,32 @@ public struct BibleTermHighlight: CustomDebugStringConvertible, Sendable, Equata
     /// sides, so a short term like "son" does not match inside "person". Internal
     /// whitespace in multi-word terms (e.g. "Sea of Galilee") is preserved.
     ///
-    /// Quote characters are compared by shape, so a term written with a straight
-    /// apostrophe (`lions'`) matches verse text rendered with a typographic one
-    /// (`lions’`), and vice versa. The returned range always indexes `text`.
+    /// A term containing a quote also matches text that uses the opposite quote shape,
+    /// so a term written with a straight apostrophe (`lions'`) matches verse text
+    /// rendered with a typographic one (`lions’`), and vice versa. The returned range
+    /// always indexes `text`.
     public static func firstMatchRange(of term: String, in text: String) -> Range<String.Index>? {
         guard !term.isEmpty else {
             return nil
         }
+        if let range = wholeWordRange(of: term, in: text, using: foundationRange) {
+            return range
+        }
+        guard term.contains(where: \.isQuote) else {
+            return nil
+        }
+        return wholeWordRange(of: term, in: text, using: quoteFoldedRange)
+    }
+
+    /// Walks candidate matches produced by `nextRange`, returning the first bounded by
+    /// non-word characters on both sides.
+    private static func wholeWordRange(
+        of term: String,
+        in text: String,
+        using nextRange: (String, String, String.Index) -> Range<String.Index>?
+    ) -> Range<String.Index>? {
         var searchStart = text.startIndex
-        while searchStart < text.endIndex, let range = matchRange(of: term, in: text, from: searchStart) {
+        while searchStart < text.endIndex, let range = nextRange(term, text, searchStart) {
             let precededByWordChar = range.lowerBound > text.startIndex
                 && text[text.index(before: range.lowerBound)].isWordCharacter
             let followedByWordChar = range.upperBound < text.endIndex
@@ -74,9 +91,15 @@ public struct BibleTermHighlight: CustomDebugStringConvertible, Sendable, Equata
         return nil
     }
 
-    /// Scans forward from `searchStart` for the first quote-insensitive, case-insensitive
-    /// occurrence of `term`, returning its range in `text` without regard to word boundaries.
-    private static func matchRange(of term: String, in text: String, from searchStart: String.Index) -> Range<String.Index>? {
+    /// Foundation's case-insensitive search, which applies full Unicode case folding
+    /// (so `straße` matches `STRASSE`) but compares quote shapes literally.
+    private static func foundationRange(of term: String, in text: String, from searchStart: String.Index) -> Range<String.Index>? {
+        text.range(of: term, options: .caseInsensitive, range: searchStart..<text.endIndex)
+    }
+
+    /// Scans forward for the first occurrence of `term` comparing quote shapes as equal.
+    /// Used only when Foundation finds nothing and the term contains a quote.
+    private static func quoteFoldedRange(of term: String, in text: String, from searchStart: String.Index) -> Range<String.Index>? {
         var candidate = searchStart
         while candidate < text.endIndex {
             if let end = matchEnd(of: term, in: text, startingAt: candidate) {
@@ -117,6 +140,13 @@ private extension Character {
         isLetter || isNumber
     }
 
+    /// Whether this character is a quote in any of the shapes `quoteFolded` collapses.
+    var isQuote: Bool {
+        quoteFolded == "'" || quoteFolded == "\""
+    }
+
+    /// The straight equivalent of a typographic quote, so apostrophes and quotation
+    /// marks compare equal regardless of which form the source text uses.
     var quoteFolded: Character {
         switch self {
         case "\u{2018}", "\u{2019}", "\u{02BC}", "\u{FF07}":
@@ -128,6 +158,7 @@ private extension Character {
         }
     }
 
+    /// Whether two characters match for term searching, ignoring case and quote shape.
     func isEquivalent(to other: Character) -> Bool {
         let folded = quoteFolded
         let otherFolded = other.quoteFolded

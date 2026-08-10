@@ -146,6 +146,16 @@ struct BibleTermHighlightsCacheTests {
     }
 
     @Test
+    func preservesUnicodeCaseFoldingAcrossDifferingCharacterCounts() {
+        // Quote folding must not regress Foundation's full case folding, where one
+        // grapheme folds to several characters.
+        let sharpS = BibleTermHighlight(ref(1), term: "stra\u{00DF}e", color: "#FFCC00", id: "9")
+        #expect(sharpS.firstMatchRange(in: "the STRASSE gate") != nil)
+        let ligature = BibleTermHighlight(ref(1), term: "FISH", color: "#FFCC00", id: "10")
+        #expect(ligature.firstMatchRange(in: "a \u{FB01}sh and bread") != nil)
+    }
+
+    @Test
     func matchesCurlyDoubleQuotes() {
         let h = BibleTermHighlight(ref(1), term: "\"Immanuel\"", color: "#FFCC00", id: "3")
         let text = "they shall call his name \u{201C}Immanuel\u{201D} among them"

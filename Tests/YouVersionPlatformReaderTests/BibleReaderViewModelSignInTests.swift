@@ -26,6 +26,10 @@ import Testing
     @Test
     func handleVerseTapDoesNothingWhenUnsignedOutAndSignInDisabled() {
         Support.clearReaderDefaults()
+        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: false)
+        defer {
+            YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
+        }
         let viewModel = Support.makeViewModel(isSignedIn: false)
 
         viewModel.handleVerseTap(
@@ -37,7 +41,6 @@ import Testing
         #expect(viewModel.showingSignInSheet == false)
         #expect(viewModel.showingVerseActionsDrawer == false)
         #expect(viewModel.selectedVerses.isEmpty)
-        YouVersionPlatformConfiguration.configure(appKey: "test-app", isSignInEnabled: true)
     }
 
     @Test
