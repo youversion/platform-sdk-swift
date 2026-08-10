@@ -96,6 +96,63 @@ struct BibleTermHighlightsCacheTests {
     }
 
     @Test
+    func matchesStraightApostropheTermAgainstTypographicText() {
+        let h = BibleTermHighlight(ref(1), term: "Queen Esther's", color: "#FFCC00", id: "25")
+        let text = "So the king and Haman went to dine with Queen Esther\u{2019}s banquet"
+        let range = h.firstMatchRange(in: text)
+        #expect(range != nil)
+        #expect(range.map { String(text[$0]) } == "Queen Esther\u{2019}s")
+    }
+
+    @Test
+    func matchesTermEndingInApostrophe() {
+        let h = BibleTermHighlight(ref(7), term: "lions'", color: "#FFCC00", id: "45")
+        let text = "shall be cast into the lions\u{2019} den"
+        let range = h.firstMatchRange(in: text)
+        #expect(range != nil)
+        #expect(range.map { String(text[$0]) } == "lions\u{2019}")
+    }
+
+    @Test
+    func matchesTypographicTermAgainstStraightText() {
+        // The fold works in both directions, whichever form each source uses.
+        let h = BibleTermHighlight(ref(7), term: "lions\u{2019}", color: "#FFCC00", id: "45")
+        let text = "shall be cast into the lions' den"
+        #expect(h.firstMatchRange(in: text).map { String(text[$0]) } == "lions'")
+    }
+
+    @Test
+    func returnedRangeIndexesOriginalText() {
+        // The renderer maps this range to offsets in the very string passed in, so the
+        // range must slice back to the matched term without drift.
+        let h = BibleTermHighlight(ref(1), term: "Queen Esther's", color: "#FFCC00", id: "25")
+        let text = "dine with Queen Esther\u{2019}s banquet today"
+        let range = h.firstMatchRange(in: text)
+        #expect(range != nil)
+        guard let range else {
+            return
+        }
+        #expect(text.distance(from: text.startIndex, to: range.lowerBound) == 10)
+        #expect(String(text[range]) == "Queen Esther\u{2019}s")
+    }
+
+    @Test
+    func quoteFoldingStillRespectsWordBoundaries() {
+        // Folding must not loosen the whole-word rule.
+        let h = BibleTermHighlight(ref(7), term: "son's", color: "#FFCC00", id: "1")
+        #expect(h.firstMatchRange(in: "the person\u{2019}s cloak") == nil)
+        let text = "her son\u{2019}s cloak"
+        #expect(h.firstMatchRange(in: text).map { String(text[$0]) } == "son\u{2019}s")
+    }
+
+    @Test
+    func matchesCurlyDoubleQuotes() {
+        let h = BibleTermHighlight(ref(1), term: "\"Immanuel\"", color: "#FFCC00", id: "3")
+        let text = "they shall call his name \u{201C}Immanuel\u{201D} among them"
+        #expect(h.firstMatchRange(in: text).map { String(text[$0]) } == "\u{201C}Immanuel\u{201D}")
+    }
+
+    @Test
     func noMatchWhenAbsent() {
         let h = BibleTermHighlight(ref(26), term: "Bethlehem", color: "#FFCC00", id: "5")
         #expect(h.firstMatchRange(in: "God sent the angel Gabriel to Nazareth") == nil)
