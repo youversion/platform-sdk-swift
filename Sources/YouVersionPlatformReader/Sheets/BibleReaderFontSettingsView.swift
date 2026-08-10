@@ -30,7 +30,7 @@ struct BibleReaderFontSettingsView: View {
                     .font(ReaderFonts.displayFont(familyName: family, size: 22))
             }
             Spacer()
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.system(size: 18))
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)

@@ -14,7 +14,7 @@ struct BibleReaderFontListView: View {
                     Button {
                         viewModel.showingFontList = false
                     } label: {
-                        Image(systemName: "chevron.left")
+                        Image(systemName: "chevron.backward")
                             .font(.system(size: 24, weight: .semibold))
                     }
                     .padding()
