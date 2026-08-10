@@ -10,31 +10,31 @@ struct NavigateView: View {
 
     private let examples: [(title: String, reference: BibleReference, showsFullChapter: Bool, shouldFocus: Bool)] = [
         (
-            "John 3:16 — full chapter, scrolled to the verse",
+            String(localized: "navigate.john_3_16_full_chapter"),
             BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
             true,
             false
         ),
         (
-            "John 3:16 — focused",
+            String(localized: "navigate.john_3_16_focused"),
             BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16),
             true,
             true
         ),
         (
-            "Psalm 119:105 — full chapter, scrolled to the verse",
+            String(localized: "navigate.psalm_119_105_full_chapter"),
             BibleReference(versionId: 3034, bookId: "PSA", chapter: 119, verse: 105),
             true,
             false
         ),
         (
-            "Romans 8:28 — just the verse range",
+            String(localized: "navigate.romans_8_28_verse_range"),
             BibleReference(versionId: 3034, bookId: "ROM", chapter: 8, verse: 28),
             false,
             false
         ),
         (
-            "Genesis 1 — whole chapter",
+            String(localized: "navigate.genesis_1_whole_chapter"),
             BibleReference(versionId: 3034, bookId: "GEN", chapter: 1),
             true,
             false
@@ -56,10 +56,10 @@ struct NavigateView: View {
                         }
                     }
                 } footer: {
-                    Text("Tapping a passage drives the reader in the Bible tab — it isn't recreated.")
+                    Text("navigate.footer")
                 }
             }
-            .navigationTitle("Navigate")
+            .navigationTitle("navigate.title")
         }
     }
 }
