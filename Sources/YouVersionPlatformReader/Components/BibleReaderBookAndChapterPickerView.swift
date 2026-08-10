@@ -81,6 +81,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         Image(systemName: "chevron.backward")
                             .font(.system(size: 24, weight: .semibold))
                     }
+                    .accessibilityLabel(String.localized("generic.back"))
                     .padding(.leading, 16)
                     HStack {
                         Spacer()
