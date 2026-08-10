@@ -26,8 +26,33 @@ public struct BibleReaderBookAndChapterPickerView: View {
         introPassageId: @escaping (String) -> String?,
         onSelectionChange: ((Int, String, Int?, String?) -> Void)? = nil
     ) {
+        self.init(
+            expandedBookCode: expandedBookCode,
+            isPresented: isPresented,
+            initialBookCode: nil,
+            bookCodes: bookCodes,
+            versionId: versionId,
+            bookNameProvider: bookNameProvider,
+            chapterLabelsProvider: chapterLabelsProvider,
+            introPassageId: introPassageId,
+            onSelectionChange: onSelectionChange
+        )
+    }
+
+    init(
+        expandedBookCode: Binding<String?>,
+        isPresented: Binding<Bool>,
+        initialBookCode: String?,
+        bookCodes: [String],
+        versionId: Int,
+        bookNameProvider: @escaping (String) -> String?,
+        chapterLabelsProvider: @escaping (String) -> [String],
+        introPassageId: @escaping (String) -> String?,
+        onSelectionChange: ((Int, String, Int?, String?) -> Void)? = nil
+    ) {
         self._expandedBookCode = expandedBookCode
         self._isPresented = isPresented
+        self._scrollPositionBookCode = State(initialValue: initialBookCode)
         self.bookCodes = bookCodes
         self.versionId = versionId
         self.bookNameProvider = bookNameProvider
@@ -88,13 +113,6 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 }
                 .background(viewModel.readerCanvasPrimaryColor)
                 .scrollPosition(id: initialScrollPositionBookCodeBinding, anchor: .center)
-                .onAppear {
-                    isScrollPositionActive = true
-                    Task { @MainActor in
-                        await Task.yield()
-                        scrollPositionBookCode = viewModel.reference.bookId
-                    }
-                }
             }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
@@ -114,6 +132,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     .font(.body)
                 Spacer()
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
