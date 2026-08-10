@@ -6,6 +6,8 @@ public struct BibleReaderBookAndChapterPickerView: View {
     @Binding var isPresented: Bool
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var scrollPositionBookCode: String?
+    @State private var isScrollPositionActive = true
 
     let bookCodes: [String]
     let versionId: Int
@@ -14,9 +16,6 @@ public struct BibleReaderBookAndChapterPickerView: View {
     let introPassageId: (String) -> String?
     let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
 
-    private let chapterGridColumns = 5
-    private let chapterButtonSize: CGFloat = 56
-    
     public init(
         expandedBookCode: Binding<String?>,
         isPresented: Binding<Bool>,
@@ -36,14 +35,29 @@ public struct BibleReaderBookAndChapterPickerView: View {
         self.introPassageId = introPassageId
         self.onSelectionChange = onSelectionChange
     }
+
+    private var initialScrollPositionBookCodeBinding: Binding<String?> {
+        Binding(
+            get: { isScrollPositionActive ? scrollPositionBookCode : nil },
+            set: { bookCode in
+                if isScrollPositionActive {
+                    scrollPositionBookCode = bookCode
+                }
+            }
+        )
+    }
     
     public var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 ZStack(alignment: .leading) {
-                    Button(String.localized("generic.cancel")) {
+                    Button {
                         isPresented = false
-                    }.padding(.leading, 16)
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                            .font(.system(size: 24, weight: .semibold))
+                    }
+                    .padding(.leading, 16)
                     HStack {
                         Spacer()
                         Text(String.localized("bookChapterPicker.title"))
@@ -52,65 +66,70 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     }
                 }
                 .padding(.vertical, 16)
-                List {
-                    ForEach(bookCodes, id: \.self) { bookCode in
-                        Section {
-                            if expandedBookCode == bookCode {
-                                chapterListView(bookCode)
-#if !os(tvOS)
-                                    .listSectionSeparator(.hidden)
-#endif
-                            }
-                        } header: {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(bookCodes, id: \.self) { bookCode in
                             ZStack(alignment: .leading) {
                                 viewModel.readerCanvasPrimaryColor
-                                sectionHeaderView(bookCode)
-                                    .padding(.vertical, 4)
+                                bookButton(bookCode)
+                                    .padding(.horizontal, 16)
+                                    .frame(minHeight: 44)
+                                    .background(viewModel.reference.bookId == bookCode && (expandedBookCode != bookCode) ? viewModel.readerSurfaceTertiaryColor : .clear)
+                            }
+                            .id(bookCode)
+                            if expandedBookCode == bookCode {
+                                chapterListView(bookCode)
                                     .padding(.horizontal, 16)
                             }
-                            .listRowInsets(EdgeInsets())
                         }
-                        .listRowBackground(viewModel.readerCanvasPrimaryColor)
                     }
+                    .scrollTargetLayout()
+                    .frame(maxWidth: 500)
                 }
                 .background(viewModel.readerCanvasPrimaryColor)
-                .listStyle(.plain)
+                .scrollPosition(id: initialScrollPositionBookCodeBinding, anchor: .center)
+                .onAppear {
+                    isScrollPositionActive = true
+                    Task { @MainActor in
+                        await Task.yield()
+                        scrollPositionBookCode = viewModel.reference.bookId
+                    }
+                }
             }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
     }
 
-    private func sectionHeaderView(_ bookCode: String) -> some View {
+    private func bookButton(_ bookCode: String) -> some View {
         Button {
+            isScrollPositionActive = false
+            scrollPositionBookCode = nil
             withAnimation(reduceMotion ? nil : .default) {
                 expandedBookCode = expandedBookCode == bookCode ? nil : bookCode
             }
         } label: {
-            HStack(spacing: 8) {
+            HStack {
                 Text(bookNameProvider(bookCode) ?? bookCode)
                     .font(.body)
-                Spacer(minLength: 4)
-                Image(systemName: expandedBookCode == bookCode ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 14))
+                Spacer()
             }
-            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 2, trailing: 16))
-        .textCase(nil)
     }
 
     private func chapterListView(_ bookCode: String) -> some View {
         let chapters = chapterLabelsProvider(bookCode)
-        let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: chapterGridColumns)
-        return LazyVGrid(columns: columns, spacing: 16) {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 5)
+        return LazyVGrid(columns: columns, spacing: 0) {
             if let introId = introPassageId(bookCode) {
                 Button(action: {
                     isPresented = false
                     onSelectionChange?(versionId, bookCode, nil, introId)
                 }) {
-                    chapterListButton(Text(Image("i-icon", bundle: .YouVersionUIBundle)))
+                    let img = Image("i-icon", bundle: .YouVersionUIBundle)
+                        .renderingMode(.template)
+                    chapterListButton(Text(img))
                 }
                 .buttonStyle(.plain)
             }
@@ -124,17 +143,18 @@ public struct BibleReaderBookAndChapterPickerView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 8)
     }
     
     private func chapterListButton(_ text: Text) -> some View {
         text
-            .font(.system(size: 14, weight: .bold))
-            .frame(width: chapterButtonSize, height: chapterButtonSize)
+            .font(.system(size: 18, weight: .bold))
+            .frame(height: 48)
+            .frame(maxWidth: 96)
             .background(
                 RoundedRectangle(cornerRadius: 4)
                     .fill(viewModel.readerButtonPrimaryColor)
             )
+            .padding(2)
     }
 }
 
