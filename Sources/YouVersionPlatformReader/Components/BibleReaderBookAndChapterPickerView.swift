@@ -149,6 +149,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         .renderingMode(.template)
                     chapterListButton(Text(img))
                 }
+                .accessibilityLabel(String.localized("reader.learnMore"))
                 .buttonStyle(.plain)
             }
             ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
