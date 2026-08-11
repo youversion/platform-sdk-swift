@@ -11,8 +11,8 @@ struct SampleApp: App {
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
             appKey: <#Your App Key#>,
-            appName: "Sample App",
-            signInPromptMessage: "Sign in to see your YouVersion highlights in this Sample App."
+            appName: String(localized: "app.name"),
+            signInPromptMessage: String(localized: "app.sign_in_prompt")
         )
     }
 
@@ -21,31 +21,31 @@ struct SampleApp: App {
             TabView(selection: $selectedTab) {
                 BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
                 .tabItem {
-                    Label("Bible", systemImage: "book.closed.fill")
+                    Label("tab.bible", systemImage: "book.closed.fill")
                 }
                 .tag(0)
 
                 NavigateView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
                     .tabItem {
-                        Label("Navigate", systemImage: "arrow.uturn.right")
+                        Label("tab.navigate", systemImage: "arrow.uturn.right")
                     }
                     .tag(1)
 
                 VotdContainerView()
                     .tabItem {
-                        Label("VOTD", systemImage: "sun.max.fill")
+                        Label("tab.votd", systemImage: "sun.max.fill")
                     }
                     .tag(2)
 
                 CardView()
                     .tabItem {
-                        Label("Card", systemImage: "doc.plaintext")
+                        Label("tab.card", systemImage: "doc.plaintext")
                     }
                     .tag(3)
 
                 ProfileView()
                     .tabItem {
-                        Label("Profile", systemImage: "person.fill")
+                        Label("tab.profile", systemImage: "person.fill")
                     }
                     .tag(4)
             }

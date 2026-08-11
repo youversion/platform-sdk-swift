@@ -1,0 +1,216 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "app.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "تطبيق نموذجي" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beispiel-App" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sample App" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "App de ejemplo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Application exemple" } }
+      }
+    },
+    "app.sign_in_prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "سجّل الدخول لعرض تظليلات YouVersion الخاصة بك في هذا التطبيق النموذجي." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Melde dich an, um deine YouVersion-Markierungen in dieser Beispiel-App zu sehen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign in to see your YouVersion highlights in this Sample App." } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesión para ver tus subrayados de YouVersion en esta app de ejemplo." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous pour voir vos surlignages YouVersion dans cette application exemple." } }
+      }
+    },
+    "navigate.footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "اضغط على مقطع للانتقال بالقارئ إليه في علامة تبويب الكتاب المقدس من دون إعادة إنشائه." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tippe auf eine Bibelstelle, um den Reader im Tab „Bibel“ dorthin zu bewegen, ohne ihn neu zu erstellen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tapping a passage drives the reader in the Bible tab — it isn't recreated." } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Toca un pasaje para dirigir el lector en la pestaña Biblia sin volver a crearlo." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Touchez un passage pour déplacer le lecteur dans l’onglet Bible sans le recréer." } }
+      }
+    },
+    "navigate.genesis_1_whole_chapter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "التكوين 1 — الأصحاح كاملًا" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "1. Mose 1 — ganzes Kapitel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Genesis 1 — whole chapter" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Génesis 1 — capítulo completo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Genèse 1 — chapitre entier" } }
+      }
+    },
+    "navigate.john_3_16_focused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "يوحنا 3:16 — مع التركيز عليها" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Johannes 3,16 — hervorgehoben" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "John 3:16 — focused" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Juan 3:16 — resaltado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Jean 3:16 — mis en évidence" } }
+      }
+    },
+    "navigate.john_3_16_full_chapter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "يوحنا 3:16 — الأصحاح كاملًا، مع الانتقال إلى الآية" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Johannes 3,16 — ganzes Kapitel, zum Vers gescrollt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "John 3:16 — full chapter, scrolled to the verse" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Juan 3:16 — capítulo completo, desplazado al versículo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Jean 3:16 — chapitre entier, positionné sur le verset" } }
+      }
+    },
+    "navigate.psalm_119_105_full_chapter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "مزمور 119:105 — الأصحاح كاملًا، مع الانتقال إلى الآية" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Psalm 119,105 — ganzes Kapitel, zum Vers gescrollt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Psalm 119:105 — full chapter, scrolled to the verse" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Salmos 119:105 — capítulo completo, desplazado al versículo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Psaume 119:105 — chapitre entier, positionné sur le verset" } }
+      }
+    },
+    "navigate.romans_8_28_verse_range" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "رومية 8:28 — نطاق الآية فقط" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Römer 8,28 — nur der Versbereich" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Romans 8:28 — just the verse range" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Romanos 8:28 — solo el rango de versículos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Romains 8:28 — uniquement le passage" } }
+      }
+    },
+    "navigate.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "التنقل" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigate" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Navegar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } }
+      }
+    },
+    "profile.highlights_permission_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "تعذّر الحصول على إذن التظليلات: %@" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Berechtigung für Markierungen fehlgeschlagen: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Highlights permission failed: %@" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo obtener el permiso para subrayados: %@" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Échec de l’autorisation d’accès aux surlignages : %@" } }
+      }
+    },
+    "profile.highlights_permission_granted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "إذن التظليلات: تم منحه" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Berechtigung für Markierungen: erteilt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Highlights permission: granted" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Permiso para subrayados: concedido" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autorisation d’accès aux surlignages : accordée" } }
+      }
+    },
+    "profile.no_email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "(لا يوجد بريد إلكتروني)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "(keine E-Mail-Adresse)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "(no email)" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "(sin correo electrónico)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "(aucune adresse e-mail)" } }
+      }
+    },
+    "profile.no_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "(لا يوجد اسم)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "(kein Name)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "(no name)" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "(sin nombre)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "(aucun nom)" } }
+      }
+    },
+    "profile.request_highlights_permission" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "طلب إذن التظليلات" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Berechtigung für Markierungen anfordern" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Request highlights permission" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Solicitar permiso para subrayados" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Demander l’accès aux surlignages" } }
+      }
+    },
+    "profile.sign_out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "تسجيل الخروج" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abmelden" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign out" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesión" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } }
+      }
+    },
+    "profile.signed_in_as" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "تم تسجيل دخولك باسم:" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Du bist angemeldet als:" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You are signed in as:" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Iniciaste sesión como:" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vous êtes connecté en tant que :" } }
+      }
+    },
+    "tab.bible" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "الكتاب المقدس" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bibel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bible" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Biblia" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bible" } }
+      }
+    },
+    "tab.card" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "بطاقة" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Karte" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Card" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Tarjeta" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Carte" } }
+      }
+    },
+    "tab.navigate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "التنقل" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Navigate" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Navegar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Navigation" } }
+      }
+    },
+    "tab.profile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "الملف الشخصي" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Profil" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Perfil" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Profil" } }
+      }
+    },
+    "tab.votd" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "آية اليوم" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vers des Tages" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "VOTD" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Versículo del día" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Verset du jour" } }
+      }
+    }
+  },
+  "version" : "1.1"
+}

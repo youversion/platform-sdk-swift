@@ -42,7 +42,7 @@ struct BibleVersionOverviewListItem: View, AbbreviationSplitting {
                 .font(.body)
 
             Spacer()
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
         }
         .contentShape(Rectangle())
