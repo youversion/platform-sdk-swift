@@ -75,7 +75,7 @@ public struct BibleReaderView: View {
     ///     whenever the reader navigates to a different chapter. Use it to supply
     ///     an app-specific heading (fonts, colors, layout are entirely the host's).
     ///     The reader controls placement and width; it shows no header by default.
-    public init(reference: BibleReference,
+    public init<ChapterHeader: View>(reference: BibleReference,
                 selectedVerses: Binding<Set<BibleReference>>? = nil,
                 verseSelectionStyle: VerseSelectionStyle = .solid,
                 onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
@@ -86,7 +86,7 @@ public struct BibleReaderView: View {
                 onChapterComplete: ((BibleReference) -> Void)? = nil,
                 audioActiveReference: BibleReference? = nil,
                 audioActiveIndicatorColor: Color? = nil,
-                readerNavigation: BibleReaderNavigation? = nil
+                readerNavigation: BibleReaderNavigation? = nil,
                 @ViewBuilder chapterHeader: @escaping (BibleChapterDescriptor) -> ChapterHeader = { _ in EmptyView() }
     ) {
         self.init(
@@ -101,7 +101,7 @@ public struct BibleReaderView: View {
             onChapterComplete: onChapterComplete,
             audioActiveReference: audioActiveReference,
             audioActiveIndicatorColor: audioActiveIndicatorColor,
-            readerNavigation: readerNavigation
+            readerNavigation: readerNavigation,
             chapterHeader: { AnyView(chapterHeader($0)) }
         )
     }
@@ -145,7 +145,7 @@ public struct BibleReaderView: View {
     ///     another tab).
     ///   - chapterHeader: A view builder the reader renders at the top of each
     ///     chapter, above the verse text.
-    public static func restoringLastPassage(
+    public static func restoringLastPassage<ChapterHeader: View>(
         selectedVerses: Binding<Set<BibleReference>>? = nil,
         verseSelectionStyle: VerseSelectionStyle = .solid,
         onVerseTap: ((BibleReference) -> VerseTapResponse)? = nil,
@@ -155,7 +155,7 @@ public struct BibleReaderView: View {
         onChapterComplete: ((BibleReference) -> Void)? = nil,
         audioActiveReference: BibleReference? = nil,
         audioActiveIndicatorColor: Color? = nil,
-        readerNavigation: BibleReaderNavigation? = nil
+        readerNavigation: BibleReaderNavigation? = nil,
         @ViewBuilder chapterHeader: @escaping (BibleChapterDescriptor) -> ChapterHeader = { _ in EmptyView() }
     ) -> BibleReaderView {
         BibleReaderView(
@@ -170,7 +170,7 @@ public struct BibleReaderView: View {
             onChapterComplete: onChapterComplete,
             audioActiveReference: audioActiveReference,
             audioActiveIndicatorColor: audioActiveIndicatorColor,
-            readerNavigation: readerNavigation
+            readerNavigation: readerNavigation,
             chapterHeader: { AnyView(chapterHeader($0)) }
         )
     }
@@ -244,7 +244,7 @@ public struct BibleReaderView: View {
             onChapterComplete: onChapterComplete,
             audioActiveReference: audioActiveReference,
             audioActiveIndicatorColor: audioActiveIndicatorColor,
-            readerNavigation: nil
+            readerNavigation: nil,
             chapterHeader: { _ in AnyView(EmptyView()) }
         )
     }
@@ -260,7 +260,7 @@ public struct BibleReaderView: View {
                  onChapterComplete: ((BibleReference) -> Void)? = nil,
                  audioActiveReference: BibleReference? = nil,
                  audioActiveIndicatorColor: Color? = nil,
-                 readerNavigation: BibleReaderNavigation?
+                 readerNavigation: BibleReaderNavigation?,
                  chapterHeader: @escaping (BibleChapterDescriptor) -> AnyView
     ) {
         assert(
@@ -379,7 +379,7 @@ private struct ReaderContent: View {
         viewModel: BibleReaderViewModel,
         externalSelectedVerses: Binding<Set<BibleReference>>?,
         audioActiveReference: BibleReference?,
-        readerNavigation: BibleReaderNavigation?
+        readerNavigation: BibleReaderNavigation?,
         chapterHeader: @escaping (BibleChapterDescriptor) -> AnyView
     ) {
         self.viewModel = viewModel
