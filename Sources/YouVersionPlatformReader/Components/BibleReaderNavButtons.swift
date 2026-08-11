@@ -18,7 +18,6 @@ struct BibleReaderNavButtons: View {
                         .font(.system(size: 16, weight: .medium))
                 }
             }
-            .accessibilityLabel(String.localized("generic.back"))
             Spacer()
             Button(action: viewModel.goToNextChapter) {
                 ZStack {
