@@ -16,7 +16,7 @@ User-facing copy in the YouVersion Platform SDK (Swift) is owned by [platform-lo
 ## How to add or change user-facing copy
 
 1. Add or update keys in **platform-localization** under `sources/common/en.json` using the `swift.*` prefix (or shared unprefixed keys where appropriate).
-2. Wait for the localization distribute workflow to open a sync PR in this repo on branch `chore/localization-sync-swift-{YYYYMMDD}-{sha7}` authored by `app/platform-localization-pr-bot`.
+2. Wait for the localization distribute workflow to open a sync PR in this repo on branch `chore/localization-sync-swift` (legacy dated branches `chore/localization-sync-swift-{YYYYMMDD}-{sha7}` are also accepted) authored by `app/platform-localization-pr-bot`.
 3. After the sync PR merges, reference the key in SDK code with `String.localized("dotted.key")`.
 
 Do **not** hand-edit `Localizable.xcstrings` in feature PRs.
@@ -97,7 +97,7 @@ Prefer fixing call sites over adding allowlist entries.
 `Localizable.xcstrings` may only be modified by localization sync PRs when **both** are true:
 
 - PR author is the platform-localization GitHub App — its login surfaces as `platform-localization-pr-bot[bot]` in the `pull_request` event (the `app/platform-localization-pr-bot` form used by some CLI/API contexts is also accepted)
-- Head branch matches `chore/localization-sync-swift-*`
+- Head branch is `chore/localization-sync-swift` or matches legacy `chore/localization-sync-swift-*`
 
 All other PRs that touch the catalog fail CI with a link to this document.
 
