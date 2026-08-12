@@ -166,6 +166,34 @@ human acknowledgment, and clear automatically when additions are removed.*
 
 ---
 
+## Testing Plan
+
+In order of value:
+
+1. **Local dump run (first, cheap):** `scripts/check-api-stability.sh dump /tmp/api-dump` on a Mac
+   verifies the new mode against the real build. The whole detect step can be simulated locally:
+   dump at `main`, check out a branch with a test symbol, dump again, then
+   `scripts/check-api-stability.sh report /tmp/dump-a /tmp/dump-b --count-file /tmp/n`.
+2. **Stacked scratch PR (real end-to-end for `detect`, pre-merge):** branch off the implementation
+   branch, add a dummy `public func gateTest()` in `Sources/YouVersionPlatformCore/`, and open a PR
+   **with the implementation branch as base, not `main`**. `pull_request` workflows run from the
+   merge ref, so the new workflow executes with the paths filter matching. Expected: bot comment
+   with symbol list + hash, failing `api-additions-signoff` status. Then a write-access collaborator
+   *other than the author* (non-author rule) pastes the acknowledgment block, an empty commit
+   (`git commit --allow-empty`) re-triggers detect, and the status flips to success. Marking the
+   symbol `internal` and pushing should flip the comment to "gate cleared". Close the scratch PR and
+   delete the branch afterward.
+3. **Post-merge only — the `issue_comment` path:** `issue_comment` workflows always run from the
+   *default branch*, so the `acknowledge` job (comment posted → status flips without a push) cannot
+   be tested before merge. After merge, repeat the scratch PR against `main` once to verify it.
+
+Known limitations: step 2 covers everything except comment-triggered re-evaluation, which is
+inherently untestable pre-merge; `act` does not help (no macOS runner support). The implementation
+PR itself does not trigger the gate — it touches no `Sources/**` or `Package.swift`, so the paths
+filter skips it.
+
+---
+
 ## Risks
 
 - **Reviewer rubber-stamping** — the gate's value decays if acknowledgment becomes a reflexive
