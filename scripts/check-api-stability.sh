@@ -7,6 +7,11 @@
 #   scripts/check-api-stability.sh update   # overwrite baselines in .api-baseline/
 #   scripts/check-api-stability.sh check    # diff current API against baselines; non-zero exit on breakage
 #   scripts/check-api-stability.sh additions # list new public API grouped by source folder
+#   scripts/check-api-stability.sh dump <output-dir>
+#                                           # build and dump the public API of all modules into <output-dir>
+#   scripts/check-api-stability.sh report <base-dump-dir> <head-dump-dir> [report args...]
+#                                           # list public API added between two `dump` outputs (no build);
+#                                           # extra args are passed to report-api-additions.py (e.g. --count-file)
 #
 # If no mode is given, defaults to `check`.
 
@@ -14,10 +19,20 @@ set -euo pipefail
 
 MODE="${1:-check}"
 
-if [[ "$MODE" != "update" && "$MODE" != "check" && "$MODE" != "additions" ]]; then
-  echo "usage: $0 [update|check|additions]" >&2
-  exit 2
-fi
+case "$MODE" in
+  update|check|additions) ;;
+  dump)
+    DUMP_OUT="${2:?usage: $0 dump <output-dir>}"
+    ;;
+  report)
+    REPORT_BASE="${2:?usage: $0 report <base-dump-dir> <head-dump-dir> [report args...]}"
+    REPORT_HEAD="${3:?usage: $0 report <base-dump-dir> <head-dump-dir> [report args...]}"
+    ;;
+  *)
+    echo "usage: $0 [update|check|additions|dump <output-dir>|report <base-dump-dir> <head-dump-dir>]" >&2
+    exit 2
+    ;;
+esac
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BASELINE_DIR="$REPO_ROOT/.api-baseline"
@@ -25,6 +40,16 @@ TARGET_TRIPLE="$(uname -m)-apple-macosx15.0"
 MODULES=(YouVersionPlatformCore YouVersionPlatformUI YouVersionPlatformReader)
 
 cd "$REPO_ROOT"
+
+if [[ "$MODE" == "report" ]]; then
+  shift 3
+  exec python3 "$REPO_ROOT/scripts/report-api-additions.py" \
+    "$REPORT_BASE" \
+    "$REPORT_HEAD" \
+    "$REPO_ROOT/Sources" \
+    "${MODULES[@]}" \
+    "$@"
+fi
 
 echo "Building package for API digest..."
 swift build -c release >/dev/null
@@ -49,6 +74,22 @@ dump_module() {
     -target "$TARGET_TRIPLE" \
     -o "$output"
 }
+
+if [[ "$MODE" == "dump" ]]; then
+  mkdir -p "$DUMP_OUT"
+  for module in "${MODULES[@]}"; do
+    # A module absent from this build (e.g. introduced by the PR being diffed)
+    # is skipped rather than fatal; the report treats a missing dump as an
+    # empty module, so all of its declarations show up as additions.
+    if ! ls "$MODULES_DIR/$module.swiftmodule"* >/dev/null 2>&1; then
+      echo "Skipping $module: not present in this build." >&2
+      continue
+    fi
+    echo "Dumping $module -> $DUMP_OUT/$module.json"
+    dump_module "$module" "$DUMP_OUT/$module.json"
+  done
+  exit 0
+fi
 
 if [[ "$MODE" == "update" ]]; then
   mkdir -p "$BASELINE_DIR"
