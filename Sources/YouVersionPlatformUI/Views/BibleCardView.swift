@@ -2,6 +2,8 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct BibleCardView: View {
+    private static let maximumContentWidth: CGFloat = 600
+
     @State private var reference: BibleReference
     @State private var version: BibleVersion?
     @State private var isReferenceUnavailable = false
@@ -69,6 +71,7 @@ public struct BibleCardView: View {
         .padding()
         .background(backgroundColor)
         .foregroundStyle(foregroundColor)
+        .frame(maxWidth: Self.maximumContentWidth)
         .task {
             if version == nil {
                 if let loadedVersion = try? await BibleVersionRepository.shared.version(withId: reference.versionId) {
