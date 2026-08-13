@@ -100,6 +100,7 @@ public enum ReaderFonts {
 
     static let availableSizes: [CGFloat] = [9, 12, 15, 18, 21, 24, 27]
     static let lineSpacingOptions: [CGFloat] = [0.3, 0.4, 0.6]
+    private static let legacyLineSpacingOptions: [CGFloat] = [6, 12, 18]
 
     // MARK: - Default Values
 
@@ -121,5 +122,18 @@ public enum ReaderFonts {
         lineSpacingOptions.filter { $0 > currentSpacing }.min()
         ?? lineSpacingOptions.min()
         ?? defaultLineSpacing
+    }
+
+    static func lineSpacing(forStoredValue storedValue: CGFloat?) -> CGFloat {
+        guard let storedValue else {
+            return defaultLineSpacing
+        }
+        if lineSpacingOptions.contains(storedValue) {
+            return storedValue
+        }
+        if let legacyIndex = legacyLineSpacingOptions.firstIndex(of: storedValue) {
+            return lineSpacingOptions[legacyIndex]
+        }
+        return defaultLineSpacing
     }
 }

@@ -107,6 +107,7 @@ import Testing
         let viewModel = Support.makeViewModel()
 
         #expect(viewModel.textOptions.fontSize == 18)
+        #expect(viewModel.textOptions.lineSpacing == ReaderFonts.defaultLineSpacing)
 
         viewModel.decreaseFontSize()
         #expect(viewModel.textOptions.fontSize == 15)
@@ -149,6 +150,84 @@ import Testing
         #expect(viewModel.textOptions.fontFamily == ReaderFonts.defaultFontFamily)
         #expect(viewModel.textOptions.fontSize == 15)
         #expect(viewModel.colorTheme == ReaderTheme.theme(withId: 6))
+    }
+
+    @Test
+    func currentLineSpacingValuesRestoreWithoutModification() throws {
+        for lineSpacing in ReaderFonts.lineSpacingOptions {
+            Support.clearReaderDefaults()
+            let settings = StoredReaderSettings(
+                fontFamily: "Georgia",
+                fontSize: 15,
+                lineSpacing: lineSpacing,
+                colorTheme: 6
+            )
+            let savedData = try JSONEncoder().encode(settings)
+            UserDefaults.standard.set(savedData, forKey: Support.readerSettingsKey)
+
+            let viewModel = Support.makeViewModel()
+
+            #expect(viewModel.textOptions.lineSpacing == lineSpacing)
+            #expect(UserDefaults.standard.data(forKey: Support.readerSettingsKey) == savedData)
+        }
+    }
+
+    @Test
+    func legacyLineSpacingValuesMigrateAndPersist() throws {
+        let migrations: [(legacy: CGFloat, current: CGFloat)] = [
+            (6, 0.3),
+            (12, 0.4),
+            (18, 0.6),
+        ]
+
+        for migration in migrations {
+            Support.clearReaderDefaults()
+            let settings = StoredReaderSettings(
+                fontFamily: "Georgia",
+                fontSize: 15,
+                lineSpacing: migration.legacy,
+                colorTheme: 6
+            )
+            UserDefaults.standard.set(try JSONEncoder().encode(settings), forKey: Support.readerSettingsKey)
+
+            let viewModel = Support.makeViewModel()
+            let migratedSettings = try storedReaderSettings()
+
+            #expect(viewModel.textOptions.lineSpacing == migration.current)
+            #expect(migratedSettings.lineSpacing == migration.current)
+        }
+    }
+
+    @Test
+    func invalidLineSpacingValuesFallBackToDefaultAndPersist() throws {
+        for invalidLineSpacing: CGFloat in [-1, 0, 0.5, 999] {
+            Support.clearReaderDefaults()
+            let settings = StoredReaderSettings(
+                fontFamily: "Georgia",
+                fontSize: 15,
+                lineSpacing: invalidLineSpacing,
+                colorTheme: 6
+            )
+            UserDefaults.standard.set(try JSONEncoder().encode(settings), forKey: Support.readerSettingsKey)
+
+            let viewModel = Support.makeViewModel()
+            let migratedSettings = try storedReaderSettings()
+
+            #expect(viewModel.textOptions.lineSpacing == ReaderFonts.defaultLineSpacing)
+            #expect(migratedSettings.lineSpacing == ReaderFonts.defaultLineSpacing)
+        }
+    }
+
+    @Test
+    func malformedStoredSettingsUseFreshDefaults() {
+        Support.clearReaderDefaults()
+        UserDefaults.standard.set(Data("not json".utf8), forKey: Support.readerSettingsKey)
+
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.textOptions.fontFamily == ReaderFonts.defaultFontFamily)
+        #expect(viewModel.textOptions.fontSize == ReaderFonts.defaultFontSize)
+        #expect(viewModel.textOptions.lineSpacing == ReaderFonts.defaultLineSpacing)
     }
 
     @Test
@@ -218,5 +297,10 @@ import Testing
 
         viewModel.cycleLineSpacing()
         #expect(viewModel.textOptions.lineSpacing == 0.3)
+    }
+
+    private func storedReaderSettings() throws -> StoredReaderSettings {
+        let data = try #require(UserDefaults.standard.data(forKey: Support.readerSettingsKey))
+        return try JSONDecoder().decode(StoredReaderSettings.self, from: data)
     }
 }
