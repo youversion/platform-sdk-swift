@@ -59,6 +59,27 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 }
 
 @MainActor
+private final class TestGate {
+    private var isOpen = false
+    private var continuations: [CheckedContinuation<Void, Never>] = []
+
+    func wait() async {
+        guard !isOpen else {
+            return
+        }
+        await withCheckedContinuation { continuation in
+            continuations.append(continuation)
+        }
+    }
+
+    func open() {
+        isOpen = true
+        continuations.forEach { $0.resume() }
+        continuations.removeAll()
+    }
+}
+
+@MainActor
 @Suite(.serialized) struct BibleVersionsViewModelTests {
     @Test
     func initUsesSharedRepositoryByDefault() {
@@ -141,6 +162,40 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 
         #expect(firstResult == nil)
         #expect(secondResult == nil)
+        #expect(loadCount == 1)
+    }
+
+    @Test
+    func permittedVersionsAllowsOneConcurrentAttemptAndCachesEmptySuccess() async {
+        let viewModel = BibleVersionsViewModel()
+        let loadStarted = TestGate()
+        let loadCanFinish = TestGate()
+        var loadCount = 0
+
+        let firstLoad = Task {
+            await viewModel.permittedVersions {
+                loadCount += 1
+                loadStarted.open()
+                await loadCanFinish.wait()
+                return []
+            }
+        }
+        await loadStarted.wait()
+
+        let concurrentResult = await viewModel.permittedVersions {
+            loadCount += 1
+            return []
+        }
+        loadCanFinish.open()
+        let firstResult = await firstLoad.value
+        let cachedResult = await viewModel.permittedVersions {
+            loadCount += 1
+            return []
+        }
+
+        #expect(concurrentResult == nil)
+        #expect(firstResult == [])
+        #expect(cachedResult == [])
         #expect(loadCount == 1)
     }
 
