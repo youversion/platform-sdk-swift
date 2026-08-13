@@ -111,6 +111,40 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
     }
 
     @Test
+    func statisticsPromoReadsDoNotLoadPermittedVersions() async {
+        let viewModel = BibleVersionsViewModel()
+        var loadCount = 0
+
+        #expect(viewModel.bibleVersionStatisticsPromo.isEmpty)
+        #expect(viewModel.bibleVersionStatisticsPromo.isEmpty)
+        await Task.yield()
+        _ = await viewModel.permittedVersions {
+            loadCount += 1
+            return []
+        }
+
+        #expect(loadCount == 1)
+    }
+
+    @Test
+    func permittedVersionsDoesNotRetryAfterFailure() async {
+        let viewModel = BibleVersionsViewModel()
+        var loadCount = 0
+
+        func unavailableVersions() async throws -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
+            loadCount += 1
+            throw URLError(.notConnectedToInternet)
+        }
+
+        let firstResult = await viewModel.permittedVersions(using: unavailableVersions)
+        let secondResult = await viewModel.permittedVersions(using: unavailableVersions)
+
+        #expect(firstResult == nil)
+        #expect(secondResult == nil)
+        #expect(loadCount == 1)
+    }
+
+    @Test
     func excludedVersionIsNotPermitted() {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         YouVersionPlatformConfiguration.configure(

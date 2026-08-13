@@ -216,21 +216,35 @@ public final class BibleVersionsViewModel {
     
     /// Holds minimal information about all Bible versions available to this app, in all languages.
     private(set) var cachedPermittedVersions: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
+    private var hasAttemptedPermittedVersionsLoad = false
     
     /// Returns minimal information about all Bible versions available to this app, in all languages.
     /// On error or when offline, returns nil
     func permittedVersions() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
+        await permittedVersions {
+            try await YouVersionAPI.Bible.permittedVersions()
+        }
+    }
+
+    /// Returns permitted versions from the provided source at most once for this model instance.
+    func permittedVersions(
+        using versions: () async throws -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]
+    ) async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
         if let cachedPermittedVersions {
             return cachedPermittedVersions
         }
-        
-        let fetched = try? await YouVersionAPI.Bible.permittedVersions()
-        let versions = fetched?.filter { isPermitted(versionId: $0.id, languageTag: $0.languageTag) }
-
-        if let versions, cachedPermittedVersions == nil {
-            cachedPermittedVersions = versions
+        guard !hasAttemptedPermittedVersionsLoad else {
+            return nil
         }
-        return versions
+        hasAttemptedPermittedVersionsLoad = true
+
+        let fetched = try? await versions()
+        let permittedVersions = fetched?.filter { isPermitted(versionId: $0.id, languageTag: $0.languageTag) }
+
+        if let permittedVersions, cachedPermittedVersions == nil {
+            cachedPermittedVersions = permittedVersions
+        }
+        return permittedVersions
     }
     
     private var languageTagsBeingFetched: Set<String> = []

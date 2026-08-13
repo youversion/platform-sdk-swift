@@ -8,9 +8,6 @@ extension BibleVersionsViewModel {
 
     public var bibleVersionStatisticsPromo: String {
         guard let versions = cachedPermittedVersions, !versions.isEmpty else {
-            Task {
-                await permittedVersions()
-            }
             return ""
         }
 
