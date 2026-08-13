@@ -30,6 +30,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
     private let userDefaultsKeyForShowsFullChapter = "bible-reader-view--showsfullchapter"
+    private let userDefaultsKeyForMyVersions = "bible-reader-view--my-versions"
     private let userDefaultsKeyForReaderSettings = "bible-reader-view--readersettings"
     var reference: BibleReference {
         didSet {
@@ -176,6 +177,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication: BibleReaderAuthentication?
     ) {
         let authentication = authentication ?? .default
+        let savedVersionIds = UserDefaults.standard.array(forKey: userDefaultsKeyForMyVersions) as? [Int] ?? []
         if let initialReference {
             self.reference = initialReference
             self.showBookIntro = false
@@ -187,8 +189,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                 self.showBookIntro = UserDefaults.standard.bool(forKey: userDefaultsKeyForBibleDisplayIntro)
                 self.showsFullChapter = UserDefaults.standard.bool(forKey: userDefaultsKeyForShowsFullChapter)
             } else {
-                // no saved reference, so, pick a downloaded version, else a safe default.
-                let versionId = BibleVersionRepository.shared.downloadedVersionIds.first ?? 3034
+                // no saved reference, so, pick a downloaded or saved version, else a safe default.
+                let versionId = Self.defaultVersionId(
+                    downloadedVersionIds: BibleVersionRepository.shared.downloadedVersionIds,
+                    savedVersionIds: savedVersionIds
+                )
                 self.reference = BibleReference(versionId: versionId, bookId: "JHN", chapter: 1)
                 self.showBookIntro = false
                 self.showsFullChapter = showsFullChapter
@@ -221,6 +226,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         if initialReference != nil {
             setScrollTarget()
         }
+    }
+
+    /// Returns the preferred initial version ID when no Bible reference has been saved.
+    static func defaultVersionId(downloadedVersionIds: [Int], savedVersionIds: [Int]) -> Int {
+        downloadedVersionIds.first ?? savedVersionIds.first ?? 3034
     }
 
     // Reacts to BibleVersionsViewModel.currentVersion changes by updating

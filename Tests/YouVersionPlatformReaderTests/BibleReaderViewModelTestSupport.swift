@@ -80,6 +80,7 @@ enum BibleReaderViewModelTestSupport {
     static let referenceKey = "bible-reader-view--reference"
     static let displayIntroKey = "bible-reader-view--displayintro"
     static let showsFullChapterKey = "bible-reader-view--showsfullchapter"
+    static let myVersionsKey = "bible-reader-view--my-versions"
     static let readerSettingsKey = "bible-reader-view--readersettings"
 
     @MainActor
@@ -166,6 +167,7 @@ enum BibleReaderViewModelTestSupport {
         UserDefaults.standard.removeObject(forKey: referenceKey)
         UserDefaults.standard.removeObject(forKey: displayIntroKey)
         UserDefaults.standard.removeObject(forKey: showsFullChapterKey)
+        UserDefaults.standard.removeObject(forKey: myVersionsKey)
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
     }
 

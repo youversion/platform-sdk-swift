@@ -85,6 +85,46 @@ import Testing
     }
 
     @Test
+    func initWithoutSavedReferenceUsesFirstSavedVersion() {
+        Support.clearReaderDefaults()
+        UserDefaults.standard.set([111, 222], forKey: Support.myVersionsKey)
+
+        let viewModel = Support.makeViewModel(reference: nil)
+
+        #expect(viewModel.reference == BibleReference(versionId: 111, bookId: "JHN", chapter: 1))
+    }
+
+    @Test
+    func defaultVersionPrefersFirstDownloadedVersion() {
+        let versionId = BibleReaderViewModel.defaultVersionId(
+            downloadedVersionIds: [333, 444],
+            savedVersionIds: [111, 222]
+        )
+
+        #expect(versionId == 333)
+    }
+
+    @Test
+    func defaultVersionPrefersFirstSavedVersionWhenNothingIsDownloaded() {
+        let versionId = BibleReaderViewModel.defaultVersionId(
+            downloadedVersionIds: [],
+            savedVersionIds: [111, 222]
+        )
+
+        #expect(versionId == 111)
+    }
+
+    @Test
+    func defaultVersionUsesBSBWhenNoPreferredVersionExists() {
+        let versionId = BibleReaderViewModel.defaultVersionId(
+            downloadedVersionIds: [],
+            savedVersionIds: []
+        )
+
+        #expect(versionId == 3034)
+    }
+
+    @Test
     func referenceAndShowBookIntroPersistWhenChanged() {
         Support.clearReaderDefaults()
         let viewModel = Support.makeViewModel(
