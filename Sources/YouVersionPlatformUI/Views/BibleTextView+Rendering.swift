@@ -46,9 +46,17 @@ extension BibleTextView {
     // This hack is necessary because AttributedString doesn't have a
     // ParagraphStyle or any other way to specify .firstLineHeadIndent.
     // NSAttributedString has paragraphStyle.firstLineHeadIndent which would be ideal.
-    private func indentString(_ indent: Int) -> AttributedString {
+    private func indentationString(for indent: Int, textOptions: BibleTextOptions) -> AttributedString? {
+        let characterCount = min(max(indent * 3, 0), 24)
+        guard characterCount > 0 else {
+            return nil
+        }
+
         let nbsp = "\u{00a0}"
-        return AttributedString(String(repeating: nbsp, count: min(max(indent * 3, 0), 24)))
+        var indentation = AttributedString(String(repeating: nbsp, count: characterCount))
+        let fonts = BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
+        indentation.font = fonts.font(for: .font100em)
+        return indentation
     }
 
     // Custom text renderer which implements the custom way we want to underline
@@ -133,12 +141,19 @@ extension BibleTextView {
         var isDimmed = false
     }
 
-    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
-        let string = double.asAttributedString
+    private func combinedText(
+        for string: AttributedString,
+        firstLineHeadIndent: Int,
+        textOptions: BibleTextOptions,
+        darkMode: Bool
+    ) -> Text? {
         // Copy the category from AttributedString-world into Text-world.
-        // textCombo is a Text object built up from multiple Text objects,
+        // combinedText is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
-        var textCombo = Text(indentString(firstLineHeadIndent))
+        var combinedText: Text?
+        if let indentation = indentationString(for: firstLineHeadIndent, textOptions: textOptions) {
+            combinedText = Text(indentation)
+        }
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -164,37 +179,53 @@ extension BibleTextView {
                 // repaint over the dimmed color the renderer draws.
                 t.link = nil
             }
-            // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, isDimmed: isDimmed))
+            let renderedText = Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, isDimmed: isDimmed))
+            if let existingText = combinedText {
+                combinedText = existingText + renderedText
+            } else {
+                combinedText = renderedText
+            }
         }
-        
-        let resolvedTextColor = textOptions.textColor ?? .primary
-        let retValue = textCombo
-            // Verse runs carry link attributes (for OpenURLAction tap routing), so the
-            // effective text color comes from .tint, not .foregroundStyle.
-            .tint(resolvedTextColor)
-            .fixedSize(horizontal: false, vertical: true)
-            .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
-            // Highlight state goes into `.accessibilityIdentifier`, NOT
-            // `.accessibilityValue`. Rationale: VoiceOver reads value but
-            // never identifier — real assistive-tech users hear scripture
-            // only (matches the Bible iOS app's model where highlights are
-            // visual affordances, not narrated inline). UI automation
-            // queries the identifier via Appium's `@name` fallback on
-            // XCUIElementTypeStaticText.
-            .accessibilityIdentifier(highlightSummary(for: string))
-        if #available(iOS 18.0, *) {
-            let dimmedTextColor = resolvedTextColor.opacity(Self.dimmedTextOpacity)
-            return retValue.textRenderer(
-                BibleRenderer(
-                    verseSelectionStyle: textOptions.verseSelectionStyle,
-                    dimmedTextColor: dimmedTextColor,
-                    dimProgress: focusedReference == nil ? 0 : 1
+        return combinedText
+    }
+
+    @ViewBuilder
+    private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
+        let string = double.asAttributedString
+        if let combinedText = combinedText(
+            for: string,
+            firstLineHeadIndent: firstLineHeadIndent,
+            textOptions: textOptions,
+            darkMode: darkMode
+        ) {
+            let resolvedTextColor = textOptions.textColor ?? .primary
+            let retValue = combinedText
+                // Verse runs carry link attributes (for OpenURLAction tap routing), so the
+                // effective text color comes from .tint, not .foregroundStyle.
+                .tint(resolvedTextColor)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(fontRelativeLineSpacing(textOptions: textOptions))
+                // Highlight state goes into `.accessibilityIdentifier`, NOT
+                // `.accessibilityValue`. Rationale: VoiceOver reads value but
+                // never identifier — real assistive-tech users hear scripture
+                // only (matches the Bible iOS app's model where highlights are
+                // visual affordances, not narrated inline). UI automation
+                // queries the identifier via Appium's `@name` fallback on
+                // XCUIElementTypeStaticText.
+                .accessibilityIdentifier(highlightSummary(for: string))
+            if #available(iOS 18.0, *) {
+                let dimmedTextColor = resolvedTextColor.opacity(Self.dimmedTextOpacity)
+                retValue.textRenderer(
+                    BibleRenderer(
+                        verseSelectionStyle: textOptions.verseSelectionStyle,
+                        dimmedTextColor: dimmedTextColor,
+                        dimProgress: focusedReference == nil ? 0 : 1
+                    )
                 )
-            )
-            .animation(Self.focusAnimation, value: focusedReference)
-        } else {
-            return retValue
+                .animation(Self.focusAnimation, value: focusedReference)
+            } else {
+                retValue
+            }
         }
     }
 
