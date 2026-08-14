@@ -86,6 +86,13 @@ struct ReaderFontsTests {
         #expect(ReaderFonts.nextLineSpacing(currentSpacing: ReaderFonts.lineSpacingOptions.last!) == ReaderFonts.lineSpacingOptions[0])
         #expect(ReaderFonts.nextLineSpacing(currentSpacing: 999) == ReaderFonts.lineSpacingOptions.first)
     }
+
+    @Test
+    func nonFiniteStoredLineSpacingFallsBackToDefault() {
+        #expect(ReaderFonts.lineSpacing(forStoredValue: .nan) == ReaderFonts.defaultLineSpacing)
+        #expect(ReaderFonts.lineSpacing(forStoredValue: .infinity) == ReaderFonts.defaultLineSpacing)
+        #expect(ReaderFonts.lineSpacing(forStoredValue: -.infinity) == ReaderFonts.defaultLineSpacing)
+    }
 }
 
 private func debugDescription(of font: Font) -> String {

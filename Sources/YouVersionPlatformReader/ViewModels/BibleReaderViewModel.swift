@@ -346,7 +346,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
         // else: no saved theme yet — userSelectedTheme stays nil and colorTheme
         // tracks the device's system color scheme until the user picks one.
-        if savedValue.lineSpacing != lineSpacing {
+        if let savedLineSpacing = savedValue.lineSpacing, savedLineSpacing != lineSpacing {
             saveUserSettingsToStorage()
         }
     }
