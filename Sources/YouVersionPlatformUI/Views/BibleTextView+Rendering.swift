@@ -104,16 +104,44 @@ extension BibleTextView {
                             width: height,
                             height: height
                         )
-                        if let highlightColor = attrs?.highlightColor {
-                            let highlightRect = CGRect(
+                        let highlightRect: CGRect?
+                        if attrs?.highlightColor != nil {
+                            highlightRect = CGRect(
                                 x: runRect.origin.x,
                                 y: lineRect.origin.y,
                                 width: runRect.width,
                                 height: lineRect.height
                             )
-                            context.fill(Path(highlightRect), with: .color(highlightColor))
+                        } else {
+                            highlightRect = nil
                         }
-                        context.draw(footnoteImage, in: rect)
+                        if attrs?.isDimmed == true && dimProgress > 0 {
+                            if dimProgress < 1 {
+                                var original = context
+                                original.opacity = 1 - dimProgress
+                                if let highlightColor = attrs?.highlightColor, let highlightRect {
+                                    original.fill(Path(highlightRect), with: .color(highlightColor))
+                                }
+                                original.draw(footnoteImage, in: rect)
+                            }
+                            context.drawLayer { layer in
+                                layer.opacity = dimProgress
+                                if let highlightRect {
+                                    layer.fill(Path(highlightRect), with: .color(dimmedTextColor))
+                                }
+                                layer.drawLayer { iconLayer in
+                                    iconLayer.clipToLayer { mask in
+                                        mask.draw(footnoteImage, in: rect)
+                                    }
+                                    iconLayer.fill(Path(rect), with: .color(dimmedTextColor))
+                                }
+                            }
+                        } else {
+                            if let highlightColor = attrs?.highlightColor, let highlightRect {
+                                context.fill(Path(highlightRect), with: .color(highlightColor))
+                            }
+                            context.draw(footnoteImage, in: rect)
+                        }
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
@@ -246,12 +274,13 @@ extension BibleTextView {
         return parts.joined(separator: ", ")
     }
     
-    /// Whether a run should be dimmed because a different reference is focused. Only
-    /// scripture, verse-label, and heading runs dim; the focused reference and
-    /// footnote glyphs keep full color.
+    /// Whether a run should be dimmed because a different reference is focused.
+    /// Scripture, verse-label, heading, and image-footnote runs dim; runs belonging
+    /// to the focused reference keep full color.
     private func isReferenceDimmed(_ reference: BibleReference?, category: BibleTextCategory?) -> Bool {
         guard let focusedReference,
-              category == .scripture || category == .verseLabel || category == .header else {
+              category == .scripture || category == .verseLabel || category == .header ||
+              category == .footnoteImage else {
             return false
         }
         guard let reference else {
