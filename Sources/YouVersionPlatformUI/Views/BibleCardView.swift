@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct BibleCardView: View {
-    private static let maximumContentWidth: CGFloat = 600
+    private static let maximumContentWidth: CGFloat = 700
 
     @State private var reference: BibleReference
     @State private var version: BibleVersion?
