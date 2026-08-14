@@ -104,6 +104,15 @@ extension BibleTextView {
                             width: height,
                             height: height
                         )
+                        if let highlightColor = attrs?.highlightColor {
+                            let highlightRect = CGRect(
+                                x: rect.origin.x,
+                                y: lineRect.origin.y,
+                                width: rect.width,
+                                height: lineRect.height
+                            )
+                            context.fill(Path(highlightRect), with: .color(highlightColor))
+                        }
                         context.draw(footnoteImage, in: rect)
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
@@ -131,6 +140,7 @@ extension BibleTextView {
         var underlined = false
         var footnoteImage = false
         var isDimmed = false
+        var highlightColor: Color?
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
@@ -146,8 +156,10 @@ extension BibleTextView {
             let range = run.2
             var t = AttributedString(string[range])
             var isUnderlined = false
+            var highlightColor: Color?
             if let reference {
-                if let highlightColor = highlightFor(reference: reference) {
+                highlightColor = highlightFor(reference: reference)
+                if let highlightColor {
                     if darkMode && category == .verseLabel {
                         t.foregroundColor = .white
                     }
@@ -165,7 +177,14 @@ extension BibleTextView {
                 t.link = nil
             }
             // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(RenderHowAttribute(underlined: isUnderlined, footnoteImage: category == .footnoteImage, isDimmed: isDimmed))
+            textCombo = textCombo + Text(t).customAttribute(
+                RenderHowAttribute(
+                    underlined: isUnderlined,
+                    footnoteImage: category == .footnoteImage,
+                    isDimmed: isDimmed,
+                    highlightColor: category == .footnoteImage ? highlightColor : nil
+                )
+            )
         }
         
         let resolvedTextColor = textOptions.textColor ?? .primary
