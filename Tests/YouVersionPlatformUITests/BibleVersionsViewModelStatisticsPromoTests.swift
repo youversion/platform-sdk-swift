@@ -135,7 +135,7 @@ extension BibleVersionsViewModelTests {
     }
 
     @Test
-    func offlineFailureIsNotRetried() async {
+    func offlineFailureIsNotRetriedWithinTheRetryInterval() async {
         let stub = PermittedVersionsStub(result: .failure(URLError(.notConnectedToInternet)))
         let viewModel = makeViewModel(fetchingWith: stub)
 
@@ -150,9 +150,45 @@ extension BibleVersionsViewModelTests {
         }
         _ = await viewModel.permittedVersions()
         viewModel.openVersionsStack(currentBibleLanguage: "en")
+        viewModel.versionsStackPush(to: .moreVersions)
+        _ = await viewModel.permittedVersions(currentDate: Date().addingTimeInterval(59))
         await settle()
 
         #expect(stub.callCount == 1)
+    }
+
+    @Test
+    func offlineFailureIsRetriedOnceTheRetryIntervalHasPassed() async {
+        let stub = PermittedVersionsStub(result: .failure(URLError(.notConnectedToInternet)))
+        let viewModel = makeViewModel(fetchingWith: stub)
+        let startTime = Date()
+
+        _ = await viewModel.permittedVersions(currentDate: startTime)
+        #expect(stub.callCount == 1)
+
+        // Back online by the time the interval is up.
+        stub.result = .success(makeMinimalInfos())
+        let versions = await viewModel.permittedVersions(currentDate: startTime.addingTimeInterval(61))
+
+        #expect(stub.callCount == 2)
+        #expect(versions == makeMinimalInfos())
+        #expect(!viewModel.bibleVersionStatisticsPromo.isEmpty)
+    }
+
+    @Test
+    func repeatedFailuresRequestOnlyOncePerRetryInterval() async {
+        let stub = PermittedVersionsStub(result: .failure(URLError(.notConnectedToInternet)))
+        let viewModel = makeViewModel(fetchingWith: stub)
+        let startTime = Date()
+
+        // Three minutes of the user moving through the picker, a trip every 10 seconds.
+        for step in 0..<18 {
+            _ = await viewModel.permittedVersions(currentDate: startTime.addingTimeInterval(Double(step) * 10))
+        }
+        await settle()
+
+        #expect(stub.callCount == 3)
+        #expect(viewModel.bibleVersionStatisticsPromo.isEmpty)
     }
 
     // MARK: - Loading is driven by the version-picking UI path
