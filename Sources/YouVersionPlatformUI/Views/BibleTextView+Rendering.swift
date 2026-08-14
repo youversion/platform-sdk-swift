@@ -106,9 +106,9 @@ extension BibleTextView {
                         )
                         if let highlightColor = attrs?.highlightColor {
                             let highlightRect = CGRect(
-                                x: rect.origin.x,
+                                x: runRect.origin.x,
                                 y: lineRect.origin.y,
-                                width: rect.width,
+                                width: runRect.width,
                                 height: lineRect.height
                             )
                             context.fill(Path(highlightRect), with: .color(highlightColor))
