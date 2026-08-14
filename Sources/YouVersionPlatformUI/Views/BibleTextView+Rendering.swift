@@ -158,14 +158,14 @@ extension BibleTextView {
             var isUnderlined = false
             var highlightColor: Color?
             if let reference {
-                highlightColor = highlightFor(reference: reference)
+                highlightColor = highlightFor(reference: reference)?
+                    .opacity(darkMode ? 0.3 : 1.0)
                 if let highlightColor {
                     if darkMode && category == .verseLabel {
                         t.foregroundColor = .white
                     }
                     if category == .scripture || category == .verseLabel {
                         t.backgroundColor = highlightColor
-                            .opacity(darkMode ? 0.3 : 1.0)
                     }
                 }
                 isUnderlined = isSelected(reference) && category == .scripture
