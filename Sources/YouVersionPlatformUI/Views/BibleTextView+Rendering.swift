@@ -77,12 +77,46 @@ extension BibleTextView {
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
+
+            func highlightRect(for runRect: CGRect, lineRect: CGRect) -> CGRect {
+                CGRect(
+                    x: runRect.origin.x,
+                    y: lineRect.origin.y,
+                    width: runRect.width,
+                    height: lineRect.height
+                )
+            }
+
+            func footnoteIconRect(for runRect: CGRect) -> CGRect {
+                let height = runRect.height
+                return CGRect(
+                    x: runRect.origin.x,
+                    y: runRect.origin.y - (height / 4),
+                    width: height,
+                    height: height
+                )
+            }
+
+            func drawDimmedFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect) {
+                context.clipToLayer { mask in
+                    mask.draw(footnoteImage, in: iconRect)
+                }
+                context.fill(Path(iconRect), with: .color(dimmedTextColor))
+            }
+
+            func drawDimmedRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext) {
+                context.clipToLayer { mask in
+                    mask.draw(run)
+                }
+                context.fill(Path(lineRect), with: .color(dimmedTextColor))
+            }
+
             for line in layout {
                 let lineRect = line.typographicBounds.rect
                 for run in line {
                     let attrs = run[RenderHowAttribute.self]
+                    let runRect = run.typographicBounds.rect
                     if attrs?.underlined == true {
-                        let runRect = run.typographicBounds.rect
                         let yPosition = lineRect.origin.y + line.typographicBounds.ascent + line.typographicBounds.descent + 2
                         let start = CGPoint(x: runRect.origin.x, y: yPosition)
                         let end   = CGPoint(x: runRect.origin.x + runRect.size.width, y: yPosition)
@@ -95,66 +129,37 @@ extension BibleTextView {
                             style: verseSelectionStyle.strokeStyle
                         )
                     }
-                    if attrs?.footnoteImage == true {
-                        let runRect = run.typographicBounds.rect
-                        let height = runRect.height
-                        let rect = CGRect(
-                            x: runRect.origin.x,
-                            y: runRect.origin.y - (height / 4),
-                            width: height,
-                            height: height
+                    if let highlightColor = attrs?.highlightColor {
+                        context.fill(
+                            Path(highlightRect(for: runRect, lineRect: lineRect)),
+                            with: .color(highlightColor)
                         )
-                        let highlightRect: CGRect?
-                        if attrs?.highlightColor != nil {
-                            highlightRect = CGRect(
-                                x: runRect.origin.x,
-                                y: lineRect.origin.y,
-                                width: runRect.width,
-                                height: lineRect.height
-                            )
-                        } else {
-                            highlightRect = nil
-                        }
+                    }
+                    if attrs?.footnoteImage == true {
+                        let iconRect = footnoteIconRect(for: runRect)
                         if attrs?.isDimmed == true && dimProgress > 0 {
                             if dimProgress < 1 {
-                                var original = context
-                                original.opacity = 1 - dimProgress
-                                if let highlightColor = attrs?.highlightColor, let highlightRect {
-                                    original.fill(Path(highlightRect), with: .color(highlightColor))
-                                }
-                                original.draw(footnoteImage, in: rect)
+                                var dimContext = context
+                                dimContext.opacity = 1 - dimProgress
+                                dimContext.draw(footnoteImage, in: iconRect)
                             }
                             context.drawLayer { layer in
                                 layer.opacity = dimProgress
-                                if let highlightRect {
-                                    layer.fill(Path(highlightRect), with: .color(dimmedTextColor))
-                                }
-                                layer.drawLayer { iconLayer in
-                                    iconLayer.clipToLayer { mask in
-                                        mask.draw(footnoteImage, in: rect)
-                                    }
-                                    iconLayer.fill(Path(rect), with: .color(dimmedTextColor))
-                                }
+                                drawDimmedFootnoteIcon(in: &layer, iconRect: iconRect)
                             }
                         } else {
-                            if let highlightColor = attrs?.highlightColor, let highlightRect {
-                                context.fill(Path(highlightRect), with: .color(highlightColor))
-                            }
-                            context.draw(footnoteImage, in: rect)
+                            context.draw(footnoteImage, in: iconRect)
                         }
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
-                            var original = context
-                            original.opacity = 1 - dimProgress
-                            original.draw(run)
+                            var dimContext = context
+                            dimContext.opacity = 1 - dimProgress
+                            dimContext.draw(run)
                         }
                         context.drawLayer { layer in
                             layer.opacity = dimProgress
-                            layer.clipToLayer { mask in
-                                mask.draw(run)
-                            }
-                            layer.fill(Path(lineRect), with: .color(dimmedTextColor))
+                            drawDimmedRun(run, lineRect: lineRect, in: &layer)
                         }
                     } else {
                         context.draw(run)
@@ -177,6 +182,12 @@ extension BibleTextView {
         // textCombo is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
         var textCombo = Text(indentString(firstLineHeadIndent))
+        let rendererPaintsHighlight: Bool
+        if #available(iOS 18.0, *) {
+            rendererPaintsHighlight = true
+        } else {
+            rendererPaintsHighlight = false
+        }
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -192,7 +203,7 @@ extension BibleTextView {
                     if darkMode && category == .verseLabel {
                         t.foregroundColor = .white
                     }
-                    if category == .scripture || category == .verseLabel {
+                    if !rendererPaintsHighlight && (category == .scripture || category == .verseLabel) {
                         t.backgroundColor = highlightColor
                     }
                 }
@@ -204,13 +215,15 @@ extension BibleTextView {
                 // repaint over the dimmed color the renderer draws.
                 t.link = nil
             }
+            let isHighlightCategory = category == .scripture || category == .verseLabel ||
+                category == .footnoteImage
             // swiftlint:disable:next shorthand_operator
             textCombo = textCombo + Text(t).customAttribute(
                 RenderHowAttribute(
                     underlined: isUnderlined,
                     footnoteImage: category == .footnoteImage,
                     isDimmed: isDimmed,
-                    highlightColor: category == .footnoteImage ? highlightColor : nil
+                    highlightColor: isHighlightCategory ? highlightColor : nil
                 )
             )
         }
