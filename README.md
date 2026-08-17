@@ -14,8 +14,6 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-  - [Swift Package Manager](#swift-package-manager)
-  - [CocoaPods](#cocoapods)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
   - [Displaying Scripture in SwiftUI](#displaying-scripture-in-swiftui)
@@ -44,7 +42,7 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
 
 ## Installation
 
-### Swift Package Manager
+The SDK is distributed through Swift Package Manager.
 
 1. In Xcode, open your app project, then select the menu **File → Add Package Dependencies**
 2. Enter the package URL: `https://github.com/youversion/platform-sdk-swift.git`
@@ -56,19 +54,9 @@ Or add it to your `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/youversion/platform-sdk-swift.git", from: "0.1.0")
+    .package(url: "https://github.com/youversion/platform-sdk-swift.git", from: "5.0.0")
 ]
 ```
-
-### CocoaPods
-
-Add the following to your `Podfile`:
-
-```ruby
-pod 'YouVersionPlatform', '~> 1.0'
-```
-
-Then run `pod install`
 
 ## Getting Started
 
