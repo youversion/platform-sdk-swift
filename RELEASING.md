@@ -9,7 +9,7 @@ The release pipeline does not use `semantic-release` as an orchestrator. We use 
 - [`@semantic-release/commit-analyzer`](https://github.com/semantic-release/commit-analyzer) — invoked by `scripts/preview-release.mjs` to compute what version the commits *would* suggest (shown in the PR's Commit Lint comment and in the release workflow's job summary for audit).
 - [`@semantic-release/release-notes-generator`](https://github.com/semantic-release/release-notes-generator) — invoked by `scripts/generate-release-notes.mjs` to render the CHANGELOG entry and GitHub release body from commits since the last tag.
 
-Everything else (validation, version stamping, podspec updates, commit, tag, push, GitHub release creation, pod publish, Dev-restore) is in `scripts/release.sh`, which the release workflow calls directly.
+Everything else (validation, version stamping, commit, tag, push, GitHub release creation, Dev-restore) is in `scripts/release.sh`, which the release workflow calls directly.
 
 This split exists because `semantic-release`'s lifecycle tightly couples computation to execution. There is no hook to override its calculated version — the only way to ship a version that differs from what the analyzer computes is to commit-message-engineer history, which is brittle, slow, and unreviewable. By making the version an explicit workflow input we get one-click overrides, a side-by-side audit log of "calculator said X, human chose Y," and no history rewrites.
 
@@ -29,11 +29,10 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
    - Warns (but does not block) if the chosen version is more than one major above calculated.
    - Generates release notes from commits since the last tag.
    - Prepends the new entry to `CHANGELOG.md`.
-   - Stamps `SDKVersion.swift` and all four podspecs to the chosen version.
+   - Stamps `SDKVersion.swift` to the chosen version.
    - Commits everything as `chore(release): <version> [skip ci]` (commit **X**), with the release notes embedded as the commit body.
    - Tags **X** with the version and pushes both to `main`.
    - Creates a GitHub release with the generated notes.
-   - Publishes all four pods to CocoaPods trunk in dependency order.
    - Creates a follow-up commit **Y** that restores `SDKVersion.swift` to `"Dev"` on `main`, so subsequent dev/CI builds don't report a stale released version. The tag stays at **X** (which is reachable from `main` via Y → X).
 
 ## Major Release Signoff
@@ -69,9 +68,9 @@ If the PR doesn't actually contain a breaking change (e.g. the trigger is prose 
 
 ### GitHub Secrets
 
-The following secrets must be configured in the repository:
+The following secret must be configured in the repository:
 
-#### 1. `RELEASE_SSH_KEY`
+#### `RELEASE_SSH_KEY`
 
 An SSH private key used to bypass the `main` branch-protection ruleset so the release workflow can push commits **X** and **Y** and the version tag.
 
@@ -88,23 +87,6 @@ An SSH private key used to bypass the `main` branch-protection ruleset so the re
    - Value: paste entire contents of the `release_key` file
 
 > **Important:** the secret name `RELEASE_SSH_KEY` must match the reference in `.github/workflows/release.yml`. If you rename the secret, update the workflow too.
-
-#### 2. `COCOAPODS_TRUNK_TOKEN`
-
-Your CocoaPods trunk session token, used by `scripts/publish-pods.sh` to authenticate the `pod trunk push` calls.
-
-```bash
-# Get your token from ~/.netrc after registering
-cat ~/.netrc | grep cocoapods.org
-```
-
-Or:
-
-```bash
-pod trunk me
-```
-
-Add the token to repository secrets as `COCOAPODS_TRUNK_TOKEN`.
 
 ### Branch Protection Configuration
 
@@ -144,7 +126,7 @@ Prints the markdown that would be prepended to `CHANGELOG.md` and used as the Gi
 VERSION=5.2.3 DRY_RUN=1 SKIP_LINT=1 bash scripts/release.sh
 ```
 
-Validates the version, generates notes, updates `CHANGELOG.md` and podspecs, stamps `SDKVersion.swift`, builds commit X, tags it — then stops without pushing. `SKIP_LINT=1` bypasses the `pod lib lint` step which needs Xcode + iOS simulator runtime (CI has it; most dev machines don't).
+Validates the version, generates notes, updates `CHANGELOG.md`, stamps `SDKVersion.swift`, builds commit X, tags it — then stops without pushing.
 
 Clean up after a dry-run:
 
@@ -169,31 +151,20 @@ echo "feat: add new feature" | npx commitlint
 echo "invalid message" | npx commitlint   # should fail
 ```
 
-## Version Synchronization
+## Version Stamping
 
-All four podspecs are kept in sync via `scripts/update-pod-versions.sh`:
+`SDKVersion.swift` is the only file stamped at release time, by
+`scripts/stamp-sdk-version.sh`. It reads `"Dev"` on `main` and the real version
+in the tagged release commit, so SPM consumers resolving a tag report the right
+version in the `x-yvp-sdk` telemetry header while in-repo and PR-CI builds
+report `"Dev"`.
 
-- `YouVersionPlatformCore.podspec`
-- `YouVersionPlatformUI.podspec` (depends on Core)
-- `YouVersionPlatformReader.podspec` (depends on UI)
-- `YouVersionPlatform.podspec` (umbrella, depends on all)
-
-Inter-pod dependencies use `s.version.to_s`, so a single version-bump call updates everything coherently.
-
-## Publishing Order
-
-Pods are published in dependency order by `scripts/publish-pods.sh`:
-
-1. **YouVersionPlatformCore** (no dependencies)
-2. **YouVersionPlatformUI** (depends on Core)
-3. **YouVersionPlatformReader** (depends on UI)
-4. **YouVersionPlatform** (umbrella, depends on all)
-
-`pod trunk push` is non-idempotent and can partial-succeed: a network blip can leave Core published but UI not. The script checks `pod trunk info <PodName>` for the target version before each push, so re-running on the same version is safe.
+Distribution is Swift Package Manager only. Consumers resolve the tag directly
+from GitHub, so there is no separate publish step to keep in sync.
 
 ## Troubleshooting
 
-For failure-by-failure recovery (trunk-API timeout, partial pod publish, post-push abort, diverged Dev-restore, rogue tag, expired trunk session, rejected SSH key) see [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md). The short version: **for almost every partial failure, re-dispatch `release.yml` with the same version**. `release.sh` detects when the tag already exists on origin and enters resume mode, replaying only the steps that didn't complete.
+For failure-by-failure recovery (post-push abort, diverged Dev-restore, rogue tag, rejected SSH key) see [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md). The short version: **for almost every partial failure, re-dispatch `release.yml` with the same version**. `release.sh` detects when the tag already exists on origin and enters resume mode, replaying only the steps that didn't complete.
 
 ### The Commit Lint preview shows a major bump on a "patch" PR
 
@@ -217,18 +188,14 @@ node scripts/preview-release.mjs --base "$(git describe --tags --abbrev=0)" --he
 node scripts/generate-release-notes.mjs --base "$(git describe --tags --abbrev=0)" --head HEAD --version "$VERSION" > notes.md
 
 # Update files
-bash scripts/update-pod-versions.sh "$VERSION"
 bash scripts/stamp-sdk-version.sh "$VERSION"
 # manually prepend notes.md to CHANGELOG.md
 
 # Commit X, tag, push
-git add CHANGELOG.md Sources/YouVersionPlatformCore/SDKVersion.swift *.podspec
+git add CHANGELOG.md Sources/YouVersionPlatformCore/SDKVersion.swift
 git commit -m "chore(release): $VERSION [skip ci]" -m "$(cat notes.md)"
 git tag "$VERSION"
 git push origin main "$VERSION"
-
-# Publish
-bash scripts/publish-pods.sh "$VERSION"
 
 # Restore Dev
 bash scripts/restore-dev-sdk-on-main.sh "$VERSION"
