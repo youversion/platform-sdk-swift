@@ -61,6 +61,7 @@ extension BibleTextView {
         let footnoteIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
         let dimmedTextColor: Color
+        let dimmedHighlightOpacity: CGFloat
         var dimProgress: CGFloat // 0 = full color, 1 = fully dimmed.
 
         var animatableData: CGFloat {
@@ -68,10 +69,16 @@ extension BibleTextView {
             set { dimProgress = newValue }
         }
 
-        init(verseSelectionStyle: VerseSelectionStyle = .solid, dimmedTextColor: Color = .primary, dimProgress: CGFloat = 0) {
+        init(
+            verseSelectionStyle: VerseSelectionStyle = .solid,
+            dimmedTextColor: Color = .primary,
+            dimmedHighlightOpacity: CGFloat,
+            dimProgress: CGFloat = 0
+        ) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
             self.dimmedTextColor = dimmedTextColor
+            self.dimmedHighlightOpacity = dimmedHighlightOpacity
             self.dimProgress = dimProgress
         }
 
@@ -130,10 +137,23 @@ extension BibleTextView {
                         )
                     }
                     if let highlightColor = attrs?.highlightColor {
-                        context.fill(
-                            Path(highlightRect(for: runRect, lineRect: lineRect)),
-                            with: .color(highlightColor)
-                        )
+                        let highlightPath = Path(highlightRect(for: runRect, lineRect: lineRect))
+                        if attrs?.isDimmed == true && dimProgress > 0 {
+                            if dimProgress < 1 {
+                                var fullColorContext = context
+                                fullColorContext.opacity = 1 - dimProgress
+                                fullColorContext.fill(highlightPath, with: .color(highlightColor))
+                            }
+                            context.drawLayer { layer in
+                                layer.opacity = dimProgress
+                                layer.fill(
+                                    highlightPath,
+                                    with: .color(highlightColor.opacity(dimmedHighlightOpacity))
+                                )
+                            }
+                        } else {
+                            context.fill(highlightPath, with: .color(highlightColor))
+                        }
                     }
                     if attrs?.footnoteImage == true {
                         let iconRect = footnoteIconRect(for: runRect)
@@ -251,6 +271,7 @@ extension BibleTextView {
                 BibleRenderer(
                     verseSelectionStyle: textOptions.verseSelectionStyle,
                     dimmedTextColor: dimmedTextColor,
+                    dimmedHighlightOpacity: Self.dimmedTextOpacity,
                     dimProgress: focusedReference == nil ? 0 : 1
                 )
             )
