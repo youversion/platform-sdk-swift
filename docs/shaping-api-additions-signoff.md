@@ -2,8 +2,8 @@
 
 | Field    | Value                                          |
 |----------|------------------------------------------------|
-| Date     | 2026-08-11                                     |
-| Status   | Draft                                          |
+| Date     | 2026-08-11 (updated 2026-08-18 per review feedback) |
+| Status   | Open questions resolved                        |
 | Team     | Platform SDK (Swift)                           |
 | Author   | Jared Hightower                                |
 | Audience | All (Product / Engineering / SDK stakeholders) |
@@ -22,19 +22,22 @@ have no equivalent gate.
 
 ---
 
-## Open Questions
+## Open Questions — Resolved (review feedback, 2026-08-12 → 2026-08-14)
 
-1. **Acknowledgment strictness** — Should the acknowledger be required to be someone other than the
-   PR author (matching the breaking-change gate), or is author self-acknowledgment enough for
-   additions? Second pair of eyes is safer; solo-maintainer PRs would stall. *Owner: Engineering lead*
-2. **Merge blocking** — Should the gate be a hard merge block (branch protection required check) or
-   a visible-but-advisory failing check for an initial trial period? *Owner: Engineering lead*
-3. **Fork contributions** — This is a public repo. Should the gate run on PRs from external forks
-   (requires elevated-token handling), or only on PRs from branches in this repo for v1?
-   *Owner: Engineering lead*
-4. **Rubber-stamp review** — After the gate has run for ~2 months, who audits whether
-   acknowledgments are meaningful (e.g., sampling acknowledged symbols that later got walked back)?
-   *Owner: SDK maintainers*
+1. **Acknowledgment strictness** — **Resolved.** The person with authority to approve the PR is the
+   one confirming the addition is OK — the gate is part of the automated checks, it flags any change
+   to the public surface, and the reviewer overrides (acknowledges) it. Acknowledger must be a
+   write-access collaborator other than the PR author.
+2. **Merge blocking** — **Resolved.** The check surfaces as a warning-style failing status that a
+   reviewer can clear by acknowledging — not an unconditional block. For external contributions it
+   is also an education moment: a change to the public surface is part of our support commitment,
+   and we make those changes explicit.
+3. **Fork contributions** — **Resolved.** The gate MUST run on PRs from external forks. External
+   contributions must not be able to bypass it; internal reviewers must be able to approve and
+   incorporate the addition into a formal release (possibly MAJOR/BREAKING). What a fork does
+   privately in its own copy is out of scope — only PRs submitted back to this repo are gated.
+4. **Rubber-stamp review** — **Resolved.** The engineering lead audits acknowledgment quality;
+   expectation is this will be obvious in practice quickly.
 
 ---
 
@@ -113,8 +116,10 @@ flowchart TD
     I[Acknowledgment comment<br/>posted / edited / deleted] --> F
 ```
 
-*One workflow: detect per-PR public API additions, surface them in one comment, gate merge on a
-human acknowledgment, and clear automatically when additions are removed.*
+*Detect per-PR public API additions, surface them in one comment, gate merge on a human
+acknowledgment, and clear automatically when additions are removed. Physically split into an
+unprivileged detect workflow and a privileged gate workflow so fork PRs are covered — see
+"Fork support" below.*
 
 ### Implementation Notes
 
@@ -130,9 +135,24 @@ human acknowledgment, and clear automatically when additions are removed.*
 - Gate the expensive build behind a `paths` filter (`Sources/**`, `Package.swift`) so docs-only
   PRs skip it entirely.
 
+#### Fork support: two-workflow split (decision, 2026-08-14)
+
+Fork PR tokens are read-only — they cannot post comments or statuses — but the gate must cover
+forks. So the workflow is split following the repo's `coverage-comment.yml` pattern:
+
+- `api-additions-signoff.yml` (**detect**, unprivileged): runs on `pull_request` for every PR
+  including forks, builds and diffs the API surface, and uploads the report + metadata as an
+  artifact. `permissions: contents: read` only — untrusted fork code never runs with a write token.
+- `api-additions-signoff-gate.yml` (**gate**, privileged): runs on `workflow_run` completion of
+  detect, always executing trusted code from the default branch. Downloads the artifact, searches
+  for acknowledgment, upserts the PR comment, and posts the commit status. Also hosts the
+  `issue_comment` re-evaluation job.
+
 #### Comment and acknowledgment mechanics (lifted from major-release-signoff.yml)
 
 - Marker comment `<!-- api-additions-signoff -->`, upserted (PATCH existing, never spam).
+- Comment opens with an education line for (especially external) contributors: public symbols are
+  a long-term support commitment, the check exists to make each addition a deliberate promise.
 - Comment body: one orientation line, the grouped symbol list, and a copy-paste-ready reply block
   containing a verbatim acknowledgment phrase, e.g. *"I confirm these public API additions are
   intentional and we are committing to support them."*
@@ -160,7 +180,7 @@ human acknowledgment, and clear automatically when additions are removed.*
 
 #### v1 constraints
 
-- Runs on same-repo branches only if fork-token handling is deferred (Open Question 3).
+- Fork PRs are in scope (resolved Open Question 3) via the detect/gate workflow split above.
 - No impact analysis or symbol classification — flat list, human judgment.
 - English-only comment text.
 
@@ -177,20 +197,21 @@ In order of value:
 2. **Stacked scratch PR (real end-to-end for `detect`, pre-merge):** branch off the implementation
    branch, add a dummy `public func gateTest()` in `Sources/YouVersionPlatformCore/`, and open a PR
    **with the implementation branch as base, not `main`**. `pull_request` workflows run from the
-   merge ref, so the new workflow executes with the paths filter matching. Expected: bot comment
-   with symbol list + hash, failing `api-additions-signoff` status. Then a write-access collaborator
-   *other than the author* (non-author rule) pastes the acknowledgment block, an empty commit
-   (`git commit --allow-empty`) re-triggers detect, and the status flips to success. Marking the
-   symbol `internal` and pushing should flip the comment to "gate cleared". Close the scratch PR and
-   delete the branch afterward.
-3. **Post-merge only — the `issue_comment` path:** `issue_comment` workflows always run from the
-   *default branch*, so the `acknowledge` job (comment posted → status flips without a push) cannot
-   be tested before merge. After merge, repeat the scratch PR against `main` once to verify it.
+   merge ref, so the detect workflow executes with the paths filter matching. Expected: a detect
+   run that uploads the `api-additions-detect` artifact with the symbol report, count, and hash.
+3. **Post-merge only — the `workflow_run` and `issue_comment` paths:** both triggers always run
+   workflows from the *default branch*, so the privileged `gate` job (comment + status posting) and
+   the `acknowledge` job cannot be tested before merge. After merge, repeat the scratch PR against
+   `main` once: expect the bot comment + failing status, then a write-access collaborator *other
+   than the author* pastes the acknowledgment block and the status flips to success without a push.
+   Marking the symbol `internal` and pushing should flip the comment to "gate cleared". Also test
+   once from a fork to verify the fork path end to end. Close scratch PRs and delete branches
+   afterward.
 
-Known limitations: step 2 covers everything except comment-triggered re-evaluation, which is
-inherently untestable pre-merge; `act` does not help (no macOS runner support). The implementation
-PR itself does not trigger the gate — it touches no `Sources/**` or `Package.swift`, so the paths
-filter skips it.
+Known limitations: only detection (build + diff + artifact) is testable pre-merge; everything that
+writes to the PR runs from the default branch and is post-merge-only by GitHub's design. `act` does
+not help (no macOS runner support). The implementation PR itself does not trigger the gate — it
+touches no `Sources/**` or `Package.swift`, so the paths filter skips it.
 
 ---
 
@@ -203,10 +224,10 @@ filter skips it.
 - **CI cost and latency** — two release builds per API-touching PR on macOS runners adds minutes
   and runner spend. Mitigation: `paths` filter skips non-source PRs; potential future optimization
   is sharing the build with the existing `api-stability.yml` job.
-- **Fork PRs can't clear the gate** — external contributors' workflow tokens can't post statuses or
-  comments without `pull_request_target` handling; a fork PR would sit blocked. Mitigation: follow
-  the af9f8e5 hardening pattern already used by the breaking-change gate, or scope v1 to same-repo
-  branches and decide fork handling explicitly.
+- **Fork PRs can't clear the gate** — resolved by the detect/gate workflow split: fork PR code
+  builds unprivileged, and all writes happen in the `workflow_run` gate that runs trusted
+  default-branch code. Residual risk: the artifact contents (report text, count, hash) originate
+  from an untrusted build; the gate treats them as data only and never executes them.
 - **Gate bypass via admin merge** — admins can merge past a failing required check. Accepted: the
   gate is a forcing function for attention, not a security control; the audit trail (comment +
   status history) still records that the gate was bypassed.
@@ -218,12 +239,12 @@ filter skips it.
 
 ## Open Questions — Detail
 
-| # | Question | Owner | Status |
-|---|----------|-------|--------|
-| 1 | Must the acknowledger be a non-author (matching the breaking-change gate), or is author self-acknowledgment acceptable for additions? | Engineering lead | Open |
-| 2 | Hard merge block via branch protection from day one, or advisory failing check during a trial period? | Engineering lead | Open |
-| 3 | Support fork PRs in v1 (requires elevated-token handling per af9f8e5 pattern) or same-repo branches only? | Engineering lead | Open |
-| 4 | Who audits acknowledgment quality after ~2 months, and what signal triggers tightening or loosening the gate? | SDK maintainers | Open |
+| # | Question | Owner | Status | Decision |
+|---|----------|-------|--------|----------|
+| 1 | Must the acknowledger be a non-author, or is author self-acknowledgment acceptable? | Engineering lead | Resolved 2026-08-12 | Non-author with PR-approval authority (write access); automated check flags the change, reviewer overrides. |
+| 2 | Hard merge block from day one, or advisory failing check? | Engineering lead | Resolved 2026-08-12 | Warning-style failing check the reviewer clears by acknowledging; educational framing in the comment. |
+| 3 | Support fork PRs in v1 or same-repo branches only? | Engineering lead | Resolved 2026-08-14 | Fork PRs MUST be gated; external contributors must not bypass. Implemented via detect/gate workflow split. |
+| 4 | Who audits acknowledgment quality after ~2 months? | Engineering lead | Resolved 2026-08-12 | Engineering lead; expected to be obvious in practice quickly. |
 
 ---
 

@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # Scan a PR's comments for a qualifying acknowledgment of public API additions.
-# Used by .github/workflows/api-additions-signoff.yml on both pull_request and
-# issue_comment events so the matching rules live in exactly one place.
+# Used by .github/workflows/api-additions-signoff-gate.yml on both
+# workflow_run and issue_comment events so the matching rules live in exactly
+# one place.
 #
 # Usage:
 #   find-api-additions-acknowledgment.sh <owner/repo> <pr-number> <pr-author> <symbol-list-hash>
