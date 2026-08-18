@@ -141,16 +141,34 @@ Fork PR tokens are read-only — they cannot post comments or statuses — but t
 forks. So the workflow is split following the repo's `coverage-comment.yml` pattern:
 
 - `api-additions-signoff.yml` (**detect**, unprivileged): runs on `pull_request` for every PR
-  including forks, builds and diffs the API surface, and uploads the report + metadata as an
+  including forks, builds and diffs the API surface, and uploads the report + count + hash as an
   artifact. `permissions: contents: read` only — untrusted fork code never runs with a write token.
-- `api-additions-signoff-gate.yml` (**gate**, privileged): runs on `workflow_run` completion of
-  detect, always executing trusted code from the default branch. Downloads the artifact, searches
-  for acknowledgment, upserts the PR comment, and posts the commit status. Also hosts the
-  `issue_comment` re-evaluation job.
+- `api-additions-signoff-gate.yml` (**gate**, privileged): one job handling both `workflow_run`
+  completion of detect and `issue_comment` re-evaluation, always executing trusted code from the
+  default branch. Downloads the artifact, searches for acknowledgment, upserts the PR comment, and
+  posts the commit status.
+
+The artifact is **untrusted input** (a fork PR runs its own copy of the detect workflow and
+scripts), so the gate hardens the boundary:
+
+- Head SHA, PR number, and PR author come from the trusted `workflow_run` payload and API lookups,
+  never from the artifact.
+- Only strictly-validated `count=` / `hash=` lines are accepted from `meta.txt` (malformed →
+  fail closed).
+- `report.txt` is sanitized (backticks neutralized, size-capped) before being embedded in the bot
+  comment, so PR-controlled text cannot forge bot-authored markdown.
+- A PR that modifies the gate's own workflows or scripts could make detection lie (report
+  `count=0`), so such PRs always require acknowledgment regardless of the reported count.
 
 #### Comment and acknowledgment mechanics (lifted from major-release-signoff.yml)
 
-- Marker comment `<!-- api-additions-signoff -->`, upserted (PATCH existing, never spam).
+- Marker comment upserted (PATCH existing, never spam). The marker line is a data structure, not
+  just an identifier: `<!-- api-additions-signoff head=<sha> hash=<12-hex> count=<n>
+  tooling=<0|1> -->` — the `issue_comment` re-evaluation parses these fields as its only state
+  between runs (read/written via `scripts/find-api-additions-comment.sh`, one place for the
+  format). It is refreshed on **every** detect evaluation, acknowledged or not, so the stored head
+  always tracks the PR's current head. Only bot-authored comments *starting with* the marker
+  qualify, so a participant quoting the marker cannot spoof stored state.
 - Comment opens with an education line for (especially external) contributors: public symbols are
   a long-term support commitment, the check exists to make each addition a deliberate promise.
 - Comment body: one orientation line, the grouped symbol list, and a copy-paste-ready reply block
@@ -169,8 +187,11 @@ forks. So the workflow is split following the repo's `coverage-comment.yml` patt
 
 - **Additions redacted after acknowledgment:** a new push re-runs detection; if additions are gone,
   status succeeds and the comment is updated to inactive. If a *different* set of additions
-  appears, the prior acknowledgment must not carry over — include a hash of the symbol list in the
-  comment and require the acknowledgment to postdate the latest symbol-list change.
+  appears, the prior acknowledgment must not carry over — the acknowledgment must quote the hash
+  of the current report, so it is automatically invalidated when the addition set changes. (v1
+  ships the hash check only; no timestamp/postdate rule is enforced.) Note the hash covers the
+  *rendered report text*, so report formatting is load-bearing — flagged in
+  `report-api-additions.py`.
 - **Base branch moves:** diff against the merge-base of head and `main`, not `main` tip, so
   unrelated additions merged to main don't leak into the PR's list.
 - **Digester noise:** synthesized declarations (e.g., `==` on Equatable structs) appear in
@@ -200,8 +221,8 @@ In order of value:
    merge ref, so the detect workflow executes with the paths filter matching. Expected: a detect
    run that uploads the `api-additions-detect` artifact with the symbol report, count, and hash.
 3. **Post-merge only — the `workflow_run` and `issue_comment` paths:** both triggers always run
-   workflows from the *default branch*, so the privileged `gate` job (comment + status posting) and
-   the `acknowledge` job cannot be tested before merge. After merge, repeat the scratch PR against
+   workflows from the *default branch*, so the privileged `gate` job (comment + status posting on
+   either trigger) cannot be tested before merge. After merge, repeat the scratch PR against
    `main` once: expect the bot comment + failing status, then a write-access collaborator *other
    than the author* pastes the acknowledgment block and the status flips to success without a push.
    Marking the symbol `internal` and pushing should flip the comment to "gate cleared". Also test
@@ -226,14 +247,18 @@ touches no `Sources/**` or `Package.swift`, so the paths filter skips it.
   is sharing the build with the existing `api-stability.yml` job.
 - **Fork PRs can't clear the gate** — resolved by the detect/gate workflow split: fork PR code
   builds unprivileged, and all writes happen in the `workflow_run` gate that runs trusted
-  default-branch code. Residual risk: the artifact contents (report text, count, hash) originate
-  from an untrusted build; the gate treats them as data only and never executes them.
+  default-branch code. Residual risk: the artifact originates from an untrusted build and its
+  values steer the gate's behavior, so the gate consumes it defensively — identity (head SHA, PR
+  number, PR author) comes only from the trusted `workflow_run` payload, `count`/`hash` are
+  strictly validated (fail closed), report text is sanitized before embedding, and PRs touching
+  the gate tooling itself cannot self-report `count=0` (see Fork support).
 - **Gate bypass via admin merge** — admins can merge past a failing required check. Accepted: the
   gate is a forcing function for attention, not a security control; the audit trail (comment +
   status history) still records that the gate was bypassed.
 - **Acknowledgment staleness** — approving symbols that later change within the same PR would leave
-  a stale approval. Mitigation: symbol-list hash + acknowledgment-must-postdate rule (see Edge
-  cases).
+  a stale approval. Mitigation: the acknowledgment must quote the current report hash, and the
+  marker comment is refreshed on every detect evaluation so acknowledgment deletion always
+  re-gates the current head (see Edge cases; v1 enforces the hash check only, no postdate rule).
 
 ---
 

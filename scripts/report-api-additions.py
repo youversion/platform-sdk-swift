@@ -11,10 +11,16 @@ Usage:
 
 With --count-file, the total number of added declarations is also written to
 <path> as a bare integer, for machine consumption (e.g. CI gating).
+
+NOTE: the api-additions-signoff workflows hash this script's stdout and embed
+that hash in the acknowledgment handshake, so the report *text* is
+load-bearing — a formatting change invalidates outstanding acknowledgments on
+open PRs.
 """
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -363,29 +369,25 @@ def print_report(
 
 
 def main() -> int:
-    args = sys.argv[1:]
+    parser = argparse.ArgumentParser(
+        description="Report public API additions between swift-api-digester dumps."
+    )
+    parser.add_argument("baseline_dir", type=Path)
+    parser.add_argument("current_dir", type=Path)
+    parser.add_argument("sources_dir", type=Path)
+    parser.add_argument("modules", nargs="+")
+    parser.add_argument(
+        "--count-file",
+        type=Path,
+        help="also write the total number of added declarations to this path",
+    )
+    parsed = parser.parse_args()
 
-    count_file: Path | None = None
-    if "--count-file" in args:
-        index = args.index("--count-file")
-        if index + 1 >= len(args):
-            print("--count-file requires a path argument", file=sys.stderr)
-            return 2
-        count_file = Path(args[index + 1])
-        del args[index : index + 2]
-
-    if len(args) < 4:
-        print(
-            "usage: report-api-additions.py <baseline-dir> <current-dir> <sources-dir>"
-            " <module>... [--count-file <path>]",
-            file=sys.stderr,
-        )
-        return 2
-
-    baseline_dir = Path(args[0])
-    current_dir = Path(args[1])
-    sources_dir = Path(args[2])
-    modules = args[3:]
+    count_file: Path | None = parsed.count_file
+    baseline_dir = parsed.baseline_dir
+    current_dir = parsed.current_dir
+    sources_dir = parsed.sources_dir
+    modules = parsed.modules
 
     additions_by_path: dict[Path | None, list[tuple[Addition, SourceMatch | None]]] = {}
 

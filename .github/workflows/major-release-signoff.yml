@@ -146,6 +146,11 @@ jobs:
           # Normalize: drop `>` quote markers and collapse all whitespace
           # (incl. newlines) to a single space. This way "Quote reply"
           # output, hard-wrapped lines, and CRLF-vs-LF all match.
+          #
+          # KEEP IN SYNC: this matching core (normalize(), bot/author
+          # skips, fail-closed permission cache) is duplicated in
+          # scripts/find-api-additions-acknowledgment.sh — harden both,
+          # or migrate this workflow onto that script.
           normalize() {
             printf '%s' "$1" | tr -d '>' | tr -s '[:space:]' ' '
           }

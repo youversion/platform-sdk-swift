@@ -10,9 +10,23 @@ name: API Additions Signoff Gate
 # always runs the trusted code from the default branch with write permissions
 # and does all comment/status posting. Same pattern as coverage-comment.yml.
 #
+# TRUST BOUNDARY: the detect artifact is produced by PR-controlled code and
+# is untrusted. This workflow therefore:
+#   - takes head SHA, PR number, and PR author from the trusted
+#     `workflow_run` payload / API lookups, never from the artifact;
+#   - accepts only strictly-validated `count=`/`hash=` lines from meta.txt;
+#   - sanitizes report.txt before embedding it in the bot comment;
+#   - refuses the silent count=0 pass when the PR modifies the gate's own
+#     workflows or scripts (a PR could otherwise patch the reporter to lie).
+#
 # External contributors MUST NOT be able to bypass the gate; a repo
 # collaborator with write access (someone with authority to approve the PR)
 # clears it by posting the acknowledgment reply.
+#
+# One job handles both triggers, branching in the resolve step (same shape
+# as major-release-signoff.yml): `workflow_run` re-detections read state
+# from the artifact, `issue_comment` re-evaluations read it back from the
+# marker comment via scripts/find-api-additions-comment.sh.
 
 on:
   workflow_run:
@@ -36,35 +50,36 @@ concurrency:
 
 env:
   STATUS_CONTEXT: api-additions-signoff
-  # Hidden marker prefix identifying this workflow's upserted PR comment. The
-  # full marker line also carries head SHA, symbol-list hash, and count so the
-  # issue_comment job can re-evaluate acknowledgments without rebuilding.
-  MARKER_PREFIX: '<!-- api-additions-signoff'
+  REPO: ${{ github.repository }}
 
 jobs:
-  # Runs after each detect run: reads its artifact, upserts the PR comment,
-  # and sets the commit status. Never checks out or executes PR code.
   gate:
     name: Gate on human acknowledgment
+    # issue_comment fires for issues AND PRs across the repo. Skip non-PR
+    # issues so we don't waste a run when someone comments on a plain issue.
     if: >-
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.event == 'pull_request'
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.event == 'pull_request') ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       # Fail closed: a build or digester failure must never read as "no
-      # additions". workflow_run.head_sha is available even when the detect
-      # job died before uploading anything.
+      # additions". workflow_run.head_sha is trusted and available even when
+      # the detect job died before uploading anything.
       - name: Post failure status when detection itself failed
-        if: github.event.workflow_run.conclusion != 'success'
+        if: >-
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion != 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
         run: |
           set -e
-          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
+          gh api "repos/$REPO/statuses/$HEAD_SHA" \
             -f state=failure \
             -f context="$STATUS_CONTEXT" \
             -f description="API additions check failed to run; fails closed. See workflow logs." \
@@ -72,6 +87,7 @@ jobs:
           exit 1
 
       - name: Download detection results
+        if: github.event_name == 'workflow_run'
         uses: actions/download-artifact@v4
         with:
           name: api-additions-detect
@@ -79,243 +95,266 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Read detection results
-        id: report
+      - name: Resolve trusted PR context
+        id: ctx
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -e
-          cat ./detect/meta.txt >> "$GITHUB_OUTPUT"
-          cat ./detect/meta.txt
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            # Identity comes ONLY from the trusted event payload / API — the
+            # artifact gets no say in which commit or PR the gate writes to.
+            HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+
+            # The artifact is untrusted: accept exactly one well-formed count
+            # and hash line, nothing else, and fail closed when either is
+            # missing or malformed.
+            COUNT=$(grep -E '^count=[0-9]{1,6}$' ./detect/meta.txt | head -n 1 | cut -d= -f2 || true)
+            HASH=$(grep -E '^hash=[0-9a-f]{12}$' ./detect/meta.txt | head -n 1 | cut -d= -f2 || true)
+            if [ -z "$COUNT" ] || [ -z "$HASH" ]; then
+              gh api "repos/$REPO/statuses/$HEAD_SHA" \
+                -f state=failure \
+                -f context="$STATUS_CONTEXT" \
+                -f description="Detection artifact is missing or malformed; fails closed." \
+                -f target_url="$RUN_URL"
+              echo "Invalid meta.txt in detection artifact." >&2
+              exit 1
+            fi
+
+            # Resolve the PR from the trusted head SHA. Requiring the PR's
+            # current head to equal this SHA also drops runs superseded by a
+            # newer push.
+            PR_JSON=$(gh api "repos/$REPO/commits/$HEAD_SHA/pulls" \
+              --jq "[.[] | select(.head.sha == \"$HEAD_SHA\")] | .[0] // empty")
+            if [ -z "$PR_JSON" ]; then
+              echo "No open PR currently at head $HEAD_SHA; skipping (superseded or closed)."
+              echo "active=0" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            PR_NUMBER=$(jq -r .number <<<"$PR_JSON")
+            PR_AUTHOR=$(jq -r .user.login <<<"$PR_JSON")
+
+            # A PR that modifies the gate's own tooling could make detection
+            # lie (count=0), so such PRs always require acknowledgment.
+            if gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename' \
+              | grep -qE '^(\.github/workflows/api-additions-signoff(-gate)?\.yml|scripts/(check-api-stability\.sh|report-api-additions\.py|find-api-additions-(acknowledgment|comment)\.sh))$'; then
+              TOOLING=1
+            else
+              TOOLING=0
+            fi
+            HAS_REPORT=1
+          else
+            PR_NUMBER="${{ github.event.issue.number }}"
+            # issue_comment payload has no head/author info — look it up so we
+            # evaluate the PR's *current* head, not a stale snapshot.
+            PR_JSON=$(gh api "repos/$REPO/pulls/$PR_NUMBER")
+            HEAD_SHA=$(jq -r .head.sha <<<"$PR_JSON")
+            PR_AUTHOR=$(jq -r .user.login <<<"$PR_JSON")
+
+            eval "$(scripts/find-api-additions-comment.sh "$REPO" "$PR_NUMBER" | sed 's/^/local_/')" || true
+            if [ -z "${local_comment_id:-}" ]; then
+              echo "No detection comment on this PR; nothing to re-evaluate."
+              echo "active=0" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ "${local_stored_head:-}" != "$HEAD_SHA" ]; then
+              # The detect workflow re-runs on every push and owns stale
+              # heads (the gate refreshes the marker on every run, so a
+              # mismatch here means a detect run is in flight).
+              echo "Stored detection is for a different head; skipping."
+              echo "active=0" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            COUNT="${local_stored_count:-0}"
+            HASH="${local_stored_hash:-}"
+            TOOLING="${local_stored_tooling:-0}"
+            HAS_REPORT=0
+          fi
+
+          if [ "$COUNT" != "0" ] || [ "$TOOLING" = "1" ]; then
+            GATED=1
+          else
+            GATED=0
+          fi
+
+          {
+            echo "active=1"
+            echo "gated=$GATED"
+            echo "pr_number=$PR_NUMBER"
+            echo "pr_author=$PR_AUTHOR"
+            echo "head_sha=$HEAD_SHA"
+            echo "count=$COUNT"
+            echo "hash=$HASH"
+            echo "tooling=$TOOLING"
+            echo "has_report=$HAS_REPORT"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved: pr=#$PR_NUMBER author=$PR_AUTHOR head=$HEAD_SHA count=$COUNT tooling=$TOOLING gated=$GATED"
 
       - name: Search PR comments for valid acknowledgment
         id: ack
-        if: steps.report.outputs.count != '0'
+        if: steps.ctx.outputs.active == '1' && steps.ctx.outputs.gated == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.report.outputs.pr_number }}
-          PR_AUTHOR: ${{ steps.report.outputs.pr_author }}
-          LIST_HASH: ${{ steps.report.outputs.hash }}
         run: |
           set -e
           scripts/find-api-additions-acknowledgment.sh \
-            "${{ github.repository }}" "$PR_NUMBER" "$PR_AUTHOR" "$LIST_HASH" \
+            "$REPO" \
+            "${{ steps.ctx.outputs.pr_number }}" \
+            "${{ steps.ctx.outputs.pr_author }}" \
+            "${{ steps.ctx.outputs.hash }}" \
             >> "$GITHUB_OUTPUT"
 
-      - name: Upsert signoff comment when additions unacknowledged
-        if: steps.report.outputs.count != '0' && steps.ack.outputs.approver == ''
+      # Upserted on EVERY workflow_run evaluation — acknowledged or not — so
+      # the marker's head= always tracks the PR's current head and a later
+      # acknowledgment deletion can never be dismissed as stale.
+      - name: Upsert signoff comment
+        if: >-
+          steps.ctx.outputs.active == '1' &&
+          steps.ctx.outputs.gated == '1' &&
+          steps.ctx.outputs.has_report == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.report.outputs.pr_number }}
-          HEAD_SHA: ${{ steps.report.outputs.head_sha }}
-          COUNT: ${{ steps.report.outputs.count }}
-          LIST_HASH: ${{ steps.report.outputs.hash }}
+          PR_NUMBER: ${{ steps.ctx.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.ctx.outputs.head_sha }}
+          COUNT: ${{ steps.ctx.outputs.count }}
+          LIST_HASH: ${{ steps.ctx.outputs.hash }}
+          TOOLING: ${{ steps.ctx.outputs.tooling }}
+          APPROVER: ${{ steps.ack.outputs.approver }}
         run: |
           set -e
+          PHRASE=$(scripts/find-api-additions-acknowledgment.sh --print-phrase)
+          # report.txt is untrusted PR output: neutralize backticks so it
+          # cannot escape the fenced block and forge bot-authored markdown,
+          # and cap the size.
+          SAFE_REPORT=$(tr '`' "'" < ./detect/report.txt | head -c 60000)
+
           # Build the comment body with echo-per-line; a heredoc's un-indented
           # lines confuse the YAML block-scalar parser (same pattern as
           # major-release-signoff.yml).
           {
-            echo "$MARKER_PREFIX head=$HEAD_SHA hash=$LIST_HASH count=$COUNT -->"
-            echo "## ⚠️ This PR adds $COUNT public API declaration(s)"
+            echo "<!-- api-additions-signoff head=$HEAD_SHA hash=$LIST_HASH count=$COUNT tooling=$TOOLING -->"
+            if [ -n "$APPROVER" ]; then
+              echo "## ✅ $COUNT public API declaration(s) acknowledged by @$APPROVER"
+            else
+              echo "## ⚠️ This PR adds $COUNT public API declaration(s)"
+            fi
             echo
             echo "Every public symbol in this SDK is part of our long-term support commitment: once it ships in a release, developers can build on it and it cannot change without a breaking release. This check makes sure each addition to that surface is a deliberate promise, not an accident."
             echo
-            echo "A repo collaborator with write access **other than the PR author** must acknowledge these additions before the \`$STATUS_CONTEXT\` check passes."
-            echo
+            if [ "$TOOLING" = "1" ]; then
+              echo "This PR also modifies the API-additions gate's own workflows or scripts, so acknowledgment is required even when the reported addition count is 0."
+              echo
+            fi
+            if [ -z "$APPROVER" ]; then
+              echo "A repo collaborator with write access **other than the PR author** must acknowledge before the \`$STATUS_CONTEXT\` check passes."
+              echo
+            fi
             echo "<details><summary>New public API in this PR</summary>"
             echo
             echo '```'
-            cat ./detect/report.txt
+            printf '%s\n' "$SAFE_REPORT"
             echo '```'
             echo
             echo "</details>"
             echo
-            echo "**Copy-paste-ready reply (maintainers):**"
-            echo
-            echo '```'
-            echo "I confirm these public API additions are intentional and we are committing to support them."
-            echo
-            echo "API-hash: $LIST_HASH"
-            echo '```'
-            echo
+            if [ -z "$APPROVER" ]; then
+              echo "**Copy-paste-ready reply (maintainers):**"
+              echo
+              echo '```'
+              printf '%s\n' "$PHRASE"
+              echo
+              echo "API-hash: $LIST_HASH"
+              echo '```'
+              echo
+            fi
             echo "If any of these should not be public, mark them \`internal\` and push — the gate clears automatically. The check re-runs when a qualifying comment is posted, edited, or deleted."
           } > comment.md
 
-          EXISTING=$(gh api --paginate \
-            "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq "[.[] | select(.body | contains(\"$MARKER_PREFIX\"))] | .[0].id // empty" | head -n 1)
+          EXISTING=$(scripts/find-api-additions-comment.sh "$REPO" "$PR_NUMBER" \
+            | sed -n 's/^comment_id=//p')
 
           # Send as a JSON payload via --input — the body has newlines and
           # backticks that don't survive -f string-encoding.
           jq -Rs '{body: .}' < comment.md > comment.json
           if [ -n "$EXISTING" ]; then
-            gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$EXISTING" --input comment.json > /dev/null
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" --input comment.json > /dev/null
             echo "Updated existing signoff comment ($EXISTING)."
           else
-            gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" --input comment.json > /dev/null
+            gh api "repos/$REPO/issues/$PR_NUMBER/comments" --input comment.json > /dev/null
             echo "Posted new signoff comment."
           fi
 
       - name: Mark prior signoff comment cleared when additions are gone
-        if: steps.report.outputs.count == '0'
+        if: >-
+          steps.ctx.outputs.active == '1' &&
+          steps.ctx.outputs.gated == '0' &&
+          steps.ctx.outputs.has_report == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.report.outputs.pr_number }}
-          HEAD_SHA: ${{ steps.report.outputs.head_sha }}
+          PR_NUMBER: ${{ steps.ctx.outputs.pr_number }}
+          HEAD_SHA: ${{ steps.ctx.outputs.head_sha }}
         run: |
           set -e
-          EXISTING=$(gh api --paginate \
-            "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq "[.[] | select(.body | contains(\"$MARKER_PREFIX\"))] | .[0].id // empty" | head -n 1)
+          EXISTING=$(scripts/find-api-additions-comment.sh "$REPO" "$PR_NUMBER" \
+            | sed -n 's/^comment_id=//p')
           if [ -z "$EXISTING" ]; then
             echo "No prior signoff comment; nothing to clear."
             exit 0
           fi
           {
-            echo "$MARKER_PREFIX head=$HEAD_SHA hash=none count=0 -->"
+            echo "<!-- api-additions-signoff head=$HEAD_SHA hash=none count=0 tooling=0 -->"
             echo "## ✅ No public API additions — gate cleared"
             echo
             echo "An earlier revision of this PR added public API; the current revision adds none."
           } > comment.md
           jq -Rs '{body: .}' < comment.md > comment.json
-          gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$EXISTING" --input comment.json > /dev/null
+          gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" --input comment.json > /dev/null
           echo "Marked signoff comment cleared ($EXISTING)."
 
       - name: Post success status
-        if: steps.report.outputs.count == '0' || steps.ack.outputs.approver != ''
+        if: >-
+          steps.ctx.outputs.active == '1' &&
+          (steps.ctx.outputs.gated == '0' || steps.ack.outputs.approver != '')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.report.outputs.head_sha }}
+          HEAD_SHA: ${{ steps.ctx.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COUNT: ${{ steps.report.outputs.count }}
+          COUNT: ${{ steps.ctx.outputs.count }}
           APPROVER: ${{ steps.ack.outputs.approver }}
         run: |
           set -e
-          if [ "$COUNT" = "0" ]; then
+          if [ -z "$APPROVER" ]; then
             DESCRIPTION="No public API additions."
           else
             DESCRIPTION="$COUNT public API addition(s) acknowledged by $APPROVER."
           fi
-          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
+          gh api "repos/$REPO/statuses/$HEAD_SHA" \
             -f state=success \
             -f context="$STATUS_CONTEXT" \
             -f description="$DESCRIPTION" \
             -f target_url="$RUN_URL"
 
       - name: Post failure status when acknowledgment missing
-        if: steps.report.outputs.count != '0' && steps.ack.outputs.approver == ''
+        if: >-
+          steps.ctx.outputs.active == '1' &&
+          steps.ctx.outputs.gated == '1' &&
+          steps.ack.outputs.approver == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.report.outputs.head_sha }}
+          HEAD_SHA: ${{ steps.ctx.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COUNT: ${{ steps.report.outputs.count }}
+          COUNT: ${{ steps.ctx.outputs.count }}
+          TOOLING: ${{ steps.ctx.outputs.tooling }}
         run: |
           set -e
-          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
+          if [ "$COUNT" = "0" ] && [ "$TOOLING" = "1" ]; then
+            DESCRIPTION="PR modifies the API-additions gate tooling; awaiting acknowledgment from a write-access collaborator."
+          else
+            DESCRIPTION="$COUNT public API addition(s) awaiting acknowledgment from a write-access collaborator."
+          fi
+          gh api "repos/$REPO/statuses/$HEAD_SHA" \
             -f state=failure \
             -f context="$STATUS_CONTEXT" \
-            -f description="$COUNT public API addition(s) awaiting acknowledgment from a write-access collaborator." \
-            -f target_url="$RUN_URL"
-
-  # Runs on comment activity: re-evaluates the acknowledgment against the
-  # detection results stored in the marker comment, without rebuilding the
-  # package on a macOS runner.
-  acknowledge:
-    name: Re-evaluate acknowledgment
-    # issue_comment fires for issues AND PRs across the repo. Skip non-PR
-    # issues so we don't waste a run when someone comments on a plain issue.
-    if: github.event_name == 'issue_comment' && github.event.issue.pull_request != null
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Resolve PR and stored detection results
-        id: state
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          set -e
-          # issue_comment payload has no head/author info — look it up so we
-          # evaluate the PR's *current* head, not a stale snapshot.
-          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/$PR_NUMBER)
-          HEAD_SHA=$(jq -r .head.sha <<<"$PR_JSON")
-          PR_AUTHOR=$(jq -r .user.login <<<"$PR_JSON")
-
-          COMMENT_ID=$(gh api --paginate \
-            "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq "[.[] | select(.body | contains(\"$MARKER_PREFIX\"))] | .[0].id // empty" | head -n 1)
-          if [ -z "$COMMENT_ID" ]; then
-            echo "No detection comment on this PR; nothing to re-evaluate."
-            echo "active=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          META=$(gh api "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" --jq .body | head -n 1)
-          STORED_HEAD=$(sed -n 's/.*head=\([^ ]*\).*/\1/p' <<<"$META")
-          STORED_HASH=$(sed -n 's/.*hash=\([^ ]*\).*/\1/p' <<<"$META")
-          STORED_COUNT=$(sed -n 's/.*count=\([0-9]*\).*/\1/p' <<<"$META")
-          echo "Stored detection: head=$STORED_HEAD hash=$STORED_HASH count=$STORED_COUNT (current head=$HEAD_SHA)"
-
-          if [ "$STORED_HEAD" != "$HEAD_SHA" ]; then
-            # The detect job re-runs on every push and owns stale heads.
-            echo "Stored detection is for a different head; skipping."
-            echo "active=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if [ -z "$STORED_COUNT" ] || [ "$STORED_COUNT" = "0" ]; then
-            echo "No additions recorded for this head; nothing to gate."
-            echo "active=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "active=1" >> "$GITHUB_OUTPUT"
-          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
-          echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
-          echo "hash=$STORED_HASH" >> "$GITHUB_OUTPUT"
-          echo "count=$STORED_COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Search PR comments for valid acknowledgment
-        id: ack
-        if: steps.state.outputs.active == '1'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-        run: |
-          set -e
-          scripts/find-api-additions-acknowledgment.sh \
-            "${{ github.repository }}" \
-            "$PR_NUMBER" \
-            "${{ steps.state.outputs.pr_author }}" \
-            "${{ steps.state.outputs.hash }}" \
-            >> "$GITHUB_OUTPUT"
-
-      - name: Post success status when acknowledgment present
-        if: steps.state.outputs.active == '1' && steps.ack.outputs.approver != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.state.outputs.head_sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COUNT: ${{ steps.state.outputs.count }}
-          APPROVER: ${{ steps.ack.outputs.approver }}
-        run: |
-          set -e
-          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
-            -f state=success \
-            -f context="$STATUS_CONTEXT" \
-            -f description="$COUNT public API addition(s) acknowledged by $APPROVER." \
-            -f target_url="$RUN_URL"
-
-      - name: Post failure status when acknowledgment missing
-        if: steps.state.outputs.active == '1' && steps.ack.outputs.approver == ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.state.outputs.head_sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          COUNT: ${{ steps.state.outputs.count }}
-        run: |
-          set -e
-          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
-            -f state=failure \
-            -f context="$STATUS_CONTEXT" \
-            -f description="$COUNT public API addition(s) awaiting acknowledgment from a write-access collaborator." \
+            -f description="$DESCRIPTION" \
             -f target_url="$RUN_URL"

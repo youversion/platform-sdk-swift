@@ -10,6 +10,14 @@ name: API Additions Signoff
 # `workflow_run` half in api-additions-signoff-gate.yml (which always runs
 # the trusted code from the default branch) does all the writing.
 #
+# TRUST BOUNDARY: for `pull_request` events a fork PR executes its own copy
+# of this file and of scripts/, so everything this job produces — the
+# artifact included — is untrusted input to the gate. The gate therefore
+# takes all identity (head SHA, PR number, PR author) from its own trusted
+# `workflow_run` payload, accepts only validated `count=`/`hash=` lines from
+# the artifact, sanitizes the report text before embedding it, and refuses
+# the silent count=0 pass for PRs that modify this tooling.
+#
 # Note for branch protection: the `paths` filter means docs-only PRs never
 # run this workflow, so the `api-additions-signoff` commit status is absent
 # on them. Keep that in mind before making the status a required check.
@@ -34,7 +42,8 @@ env:
 jobs:
   # Builds the API surface at the merge-base and at head, diffs them, and
   # uploads the result. No write operations — safe to run on untrusted fork
-  # code.
+  # code. A build/digester failure fails this run, and the gate translates a
+  # non-success detect conclusion into a failing commit status (fail closed).
   detect:
     name: Detect public API additions
     runs-on: macos-26
@@ -44,21 +53,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-
-      # Written before the build so the gate workflow can fail closed with
-      # the right head SHA even when the build itself dies.
-      - name: Record PR metadata for the gate workflow
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/detect"
-          {
-            echo "pr_number=$PR_NUMBER"
-            echo "head_sha=$HEAD_SHA"
-            echo "pr_author=$PR_AUTHOR"
-          } > "$RUNNER_TEMP/detect/meta.txt"
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -87,6 +81,7 @@ jobs:
       - name: Report additions in this PR
         run: |
           set -e
+          mkdir -p "$RUNNER_TEMP/detect"
           scripts/check-api-stability.sh report \
             "$RUNNER_TEMP/dump-base" "$RUNNER_TEMP/dump-head" \
             --count-file "$RUNNER_TEMP/count.txt" \
@@ -94,17 +89,16 @@ jobs:
           COUNT=$(tr -d '[:space:]' < "$RUNNER_TEMP/count.txt")
           # Short hash of the report text: embedded in the PR comment and
           # required in the acknowledgment reply, so an acknowledgment is
-          # automatically invalidated when the addition set changes.
+          # automatically invalidated when the addition set changes. It covers
+          # the *rendered report*, so report formatting is load-bearing — see
+          # the note in scripts/report-api-additions.py.
           HASH=$(shasum -a 256 "$RUNNER_TEMP/detect/report.txt" | cut -c1-12)
           {
             echo "count=$COUNT"
             echo "hash=$HASH"
-          } >> "$RUNNER_TEMP/detect/meta.txt"
+          } > "$RUNNER_TEMP/detect/meta.txt"
 
-      # if: always() so the gate can fail closed using the metadata even when
-      # the build or digester step above failed.
       - name: Upload detection results
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-additions-detect

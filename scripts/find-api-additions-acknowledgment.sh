@@ -6,30 +6,46 @@
 # one place.
 #
 # Usage:
-#   find-api-additions-acknowledgment.sh <owner/repo> <pr-number> <pr-author> <symbol-list-hash>
+#   find-api-additions-acknowledgment.sh <owner/repo> <pr-number> <pr-author> <report-hash>
+#   find-api-additions-acknowledgment.sh --print-phrase
 #
 # Prints GITHUB_OUTPUT-style lines to stdout (human notes go to stderr):
 #   approver=<login>       (empty when no qualifying acknowledgment exists)
-#   approver_url=<url>
+#
+# --print-phrase prints the verbatim acknowledgment phrase and exits, so the
+# workflow's copy-paste comment block and this script's matcher can never
+# drift apart — this file is the single source of truth for the phrase.
 #
 # A qualifying comment must:
 #   1. contain the verbatim acknowledgment phrase (quote markers stripped and
 #      whitespace collapsed, same normalization as major-release-signoff.yml),
-#   2. contain "API-hash: <hash>" for the *current* symbol list, so an
-#      acknowledgment of an older set of additions never carries over,
+#   2. contain "API-hash: <hash>" for the *current* report (the hash covers
+#      the rendered report text), so an acknowledgment of an older set of
+#      additions never carries over,
 #   3. be authored by a non-bot collaborator with write+ permission who is not
 #      the PR author (second pair of eyes, matching the breaking-change gate).
 #      Permission lookups fail closed: a lookup error counts as no permission.
+#
+# KEEP IN SYNC: the matching core (normalize(), bot/author skips, fail-closed
+# permission cache) is duplicated inline in
+# .github/workflows/major-release-signoff.yml — harden both or migrate that
+# workflow onto this script.
 
 set -euo pipefail
 
-REPO="${1:?usage: $0 <owner/repo> <pr-number> <pr-author> <symbol-list-hash>}"
+# Keep in sync with the copy-paste block the workflow puts in its PR comment
+# (the workflow reads it via --print-phrase).
+TEMPLATE_PHRASE='I confirm these public API additions are intentional and we are committing to support them.'
+
+if [ "${1:-}" = "--print-phrase" ]; then
+  printf '%s\n' "$TEMPLATE_PHRASE"
+  exit 0
+fi
+
+REPO="${1:?usage: $0 <owner/repo> <pr-number> <pr-author> <report-hash>}"
 PR_NUMBER="${2:?missing pr-number}"
 PR_AUTHOR="${3:?missing pr-author}"
-HASH="${4:?missing symbol-list-hash}"
-
-# Keep in sync with the copy-paste block the workflow puts in its PR comment.
-TEMPLATE_PHRASE='I confirm these public API additions are intentional and we are committing to support them.'
+HASH="${4:?missing report-hash}"
 
 # Normalize: drop `>` quote markers and collapse all whitespace (incl.
 # newlines) to a single space, so "Quote reply" output, hard-wrapped lines,
@@ -86,7 +102,6 @@ while IFS= read -r row; do
 done < <(jq -c '.[]' <<<"$COMMENTS")
 
 echo "approver=$MATCH_LOGIN"
-echo "approver_url=$MATCH_URL"
 if [ -n "$MATCH_LOGIN" ]; then
   echo "Acknowledgment found: $MATCH_LOGIN ($MATCH_URL)" >&2
 else

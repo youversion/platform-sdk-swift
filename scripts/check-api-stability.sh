@@ -27,6 +27,11 @@ case "$MODE" in
   report)
     REPORT_BASE="${2:?usage: $0 report <base-dump-dir> <head-dump-dir> [report args...]}"
     REPORT_HEAD="${3:?usage: $0 report <base-dump-dir> <head-dump-dir> [report args...]}"
+    # Resolve to absolute paths before the later `cd "$REPO_ROOT"` silently
+    # re-anchors relative arguments — and so a typo'd directory fails here
+    # instead of being read as an empty API surface downstream.
+    REPORT_BASE="$(cd "$REPORT_BASE" && pwd)"
+    REPORT_HEAD="$(cd "$REPORT_HEAD" && pwd)"
     ;;
   *)
     echo "usage: $0 [update|check|additions|dump <output-dir>|report <base-dump-dir> <head-dump-dir>]" >&2
@@ -39,8 +44,9 @@ BASELINE_DIR="$REPO_ROOT/.api-baseline"
 TARGET_TRIPLE="$(uname -m)-apple-macosx15.0"
 MODULES=(YouVersionPlatformCore YouVersionPlatformUI YouVersionPlatformReader)
 
-cd "$REPO_ROOT"
-
+# Report runs from the caller's cwd (before the cd below) so relative
+# passthrough args like `--count-file out.txt` resolve where the caller
+# expects, not in the repo root.
 if [[ "$MODE" == "report" ]]; then
   shift 3
   exec python3 "$REPO_ROOT/scripts/report-api-additions.py" \
@@ -50,6 +56,8 @@ if [[ "$MODE" == "report" ]]; then
     "${MODULES[@]}" \
     "$@"
 fi
+
+cd "$REPO_ROOT"
 
 echo "Building package for API digest..."
 swift build -c release >/dev/null
