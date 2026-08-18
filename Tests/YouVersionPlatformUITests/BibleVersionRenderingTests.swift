@@ -255,6 +255,25 @@ import Testing
         #expect(hasScriptureContaining(blocks, text: "First verse text."))
     }
 
+    @Test(arguments: ["q", "q1", "iq", "iq1"])
+    func testDefaultPoetryLevelUsesFirstLevelIndent(paragraphClass: String) async throws {
+        let html = """
+        <div>
+            <div class="\(paragraphClass)">
+                <span class="yv-v" v="1"></span>
+                <span class="yv-vlbl">1</span>
+                Poetry text.
+            </div>
+        </div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "PSA", chapter: 1, verse: 1)
+
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let poetryBlock = try block(blocks, containingText: "Poetry text.")
+        #expect(poetryBlock.firstLineHeadIndent == 0)
+        #expect(poetryBlock.headIndent == 2)
+    }
+
     // MARK: - firstVerse (scroll-to-verse support)
 
     private func block(_ blocks: [BibleTextBlock], containingText text: String) throws -> BibleTextBlock {

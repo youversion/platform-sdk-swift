@@ -187,7 +187,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .trailing
                 stateDown.currentFont = .font100emItalic
 
-            case "q1", "iq1":
+            case "q", "q1", "iq", "iq1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
                 
@@ -238,10 +238,6 @@ final class BibleVersionRenderingStyles {
                 
             case "pr":
                 stateDown.alignment = .trailing
-
-            case "iq", "q":
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
 
             case "iot":
                 stateDown.currentFont = .font100em500
