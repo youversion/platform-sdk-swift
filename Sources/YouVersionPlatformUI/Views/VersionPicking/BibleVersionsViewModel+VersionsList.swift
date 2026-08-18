@@ -6,11 +6,11 @@ extension BibleVersionsViewModel {
         chosenLanguage ?? currentBibleVersionLanguage ?? "en"
     }
 
+    /// Describes how many Bible versions, in how many languages, this app offers.
+    /// Empty until the permitted versions have loaded; reading it never starts a
+    /// request, since the version-picking navigation drives that loading.
     public var bibleVersionStatisticsPromo: String {
         guard let versions = cachedPermittedVersions, !versions.isEmpty else {
-            Task {
-                await permittedVersions()
-            }
             return ""
         }
 
