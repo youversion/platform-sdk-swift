@@ -260,6 +260,14 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         )
     }
 
+    var canDecreaseFontSize: Bool {
+        ReaderFonts.nextSmallerSize(currentSize: textOptions.fontSize) != nil
+    }
+
+    var canIncreaseFontSize: Bool {
+        ReaderFonts.nextLargerSize(currentSize: textOptions.fontSize) != nil
+    }
+
     /// Aligns the reader's reference to a newly picked version and triggers a
     /// header selection change to load its content. No-ops when the reference's
     /// versionId already matches — this is the guard that prevents
