@@ -137,21 +137,19 @@ gh workflow run release.yml -f version=5.3.0
 # add -f dry-run=true to validate the workflow without shipping
 ```
 
-If a dispatched release fails partway, **re-dispatch with the same version**. `release.sh` detects the existing tag on origin and resumes — push, GitHub release create, pod publish, and Dev-restore each skip already-completed work. Per-pod `pod trunk push` also retries once on transient trunk failures (e.g. trunk's "Calling the GitHub commit API timed out") before giving up. See [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md) for the symptom catalogue.
+If a dispatched release fails partway, **re-dispatch with the same version**. `release.sh` detects the existing tag on origin and resumes — push, GitHub release create, and Dev-restore each skip already-completed work. See [RELEASE-RUNBOOK.md](./RELEASE-RUNBOOK.md) for the symptom catalogue.
 
-Two pieces of state get version-bumped: the four `.podspec` files, and the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. They live in the same commit X but the SDKVersion handling has a twist.
-
-**Podspecs** are bumped by `scripts/update-pod-versions.sh`, called from `release.sh` before commit X.
+One piece of state gets version-bumped: the `SDKVersion` constant used by the `x-yvp-sdk` HTTP header. It lives in commit X, and its handling has a twist.
 
 **`Sources/YouVersionPlatformCore/SDKVersion.swift`** is stamped to the release version by `scripts/stamp-sdk-version.sh` in commit X (so consumers fetching the tag see the real version), then restored to `"Dev"` in a follow-up commit Y by `scripts/restore-dev-sdk-on-main.sh`. Both X and Y are pushed to `main`; the tag stays at X. Topology after a release:
 
 ```
-main:  ... ─ X (podspec=5.3.0, CHANGELOG entry, SDKVersion="5.3.0")   ← TAG 5.3.0
+main:  ... ─ X (CHANGELOG entry, SDKVersion="5.3.0")   ← TAG 5.3.0
                    \
                     Y (SDKVersion="Dev")                              ← main HEAD
 ```
 
-Why: `main` HEAD reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR CI report `SwiftSDK=Dev` rather than poisoning the data lake with stale or imprecise versions. SPM consumers resolving a tag and CocoaPods consumers (podspec source is `:tag => s.version.to_s`) fetch X, so production traffic reports the precise released version. Y is reachable from `main` and X is reachable from Y, so `git tag --merged main` still finds the release tag — that wasn't true in an earlier design that placed Y off-main.
+Why: `main` HEAD reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR CI report `SwiftSDK=Dev` rather than poisoning the data lake with stale or imprecise versions. SPM consumers resolving a tag fetch X, so production traffic reports the precise released version. Y is reachable from `main` and X is reachable from Y, so `git tag --merged main` still finds the release tag — that wasn't true in an earlier design that placed Y off-main.
 
 **Footguns**:
 - `git log main` does show every release: X (stamped, tagged) sits one commit behind every Y (Dev-restore). To find the tag commits, `git log main --grep '^chore(release):'` works.
