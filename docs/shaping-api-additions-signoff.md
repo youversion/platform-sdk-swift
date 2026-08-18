@@ -158,7 +158,16 @@ scripts), so the gate hardens the boundary:
 - `report.txt` is sanitized (backticks neutralized, size-capped) before being embedded in the bot
   comment, so PR-controlled text cannot forge bot-authored markdown.
 - A PR that modifies the gate's own workflows or scripts could make detection lie (report
-  `count=0`), so such PRs always require acknowledgment regardless of the reported count.
+  `count=0`, or a plausible-but-incomplete list), so such PRs always require acknowledgment
+  regardless of the reported count, and the bot comment carries an explicit warning that the
+  displayed list came from the PR's own tooling and the reviewer must verify against the
+  `Sources/` diff directly. Trusted recomputation is deliberately not attempted: it would mean
+  building untrusted PR source inside the privileged workflow, a worse hole than the one being
+  closed.
+- All gate evaluations run in a single serialized concurrency queue (no cancel-in-progress):
+  `workflow_run` and `issue_comment` events cannot share a per-PR key, and parallel evaluations
+  could let a stale run overwrite a newer status (e.g. re-post `success` after an acknowledgment
+  deletion posted `failure`).
 
 #### Comment and acknowledgment mechanics (lifted from major-release-signoff.yml)
 
@@ -251,7 +260,10 @@ touches no `Sources/**` or `Package.swift`, so the paths filter skips it.
   values steer the gate's behavior, so the gate consumes it defensively — identity (head SHA, PR
   number, PR author) comes only from the trusted `workflow_run` payload, `count`/`hash` are
   strictly validated (fail closed), report text is sanitized before embedding, and PRs touching
-  the gate tooling itself cannot self-report `count=0` (see Fork support).
+  the gate tooling itself cannot self-report `count=0` (see Fork support). Accepted residual: a
+  tooling-touching PR's *symbol list* is still untrusted output — the gate flags this loudly in
+  the comment and shifts verification to the human reviewing the diff, since trusted
+  recomputation would require executing untrusted source in the privileged workflow.
 - **Gate bypass via admin merge** — admins can merge past a failing required check. Accepted: the
   gate is a forcing function for attention, not a security control; the audit trail (comment +
   status history) still records that the gate was bypassed.

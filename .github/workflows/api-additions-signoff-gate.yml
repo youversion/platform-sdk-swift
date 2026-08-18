@@ -44,9 +44,19 @@ permissions:
   statuses: write
   actions: read
 
+# One global queue: workflow_run and issue_comment events cannot compute a
+# common per-PR key at concurrency-evaluation time (workflow_run has no
+# reliable PR number for forks, issue_comment has no head SHA), and distinct
+# groups let a stale run that observed an acknowledgment post `success` after
+# a deletion-triggered run posted `failure`. Serializing every evaluation
+# makes the last status written reflect the newest event; each run re-reads
+# live comment state, so queued runs never act on stale observations.
+# cancel-in-progress stays false — with a shared group, cancelling would drop
+# a pending evaluation for a *different* PR.
+# ponytail: global queue, per-PR keys if gate latency ever matters.
 concurrency:
-  group: api-additions-gate-${{ github.event.workflow_run.head_sha || github.event.issue.number }}
-  cancel-in-progress: true
+  group: api-additions-gate
+  cancel-in-progress: false
 
 env:
   STATUS_CONTEXT: api-additions-signoff
@@ -243,7 +253,8 @@ jobs:
             echo "Every public symbol in this SDK is part of our long-term support commitment: once it ships in a release, developers can build on it and it cannot change without a breaking release. This check makes sure each addition to that surface is a deliberate promise, not an accident."
             echo
             if [ "$TOOLING" = "1" ]; then
-              echo "This PR also modifies the API-additions gate's own workflows or scripts, so acknowledgment is required even when the reported addition count is 0."
+              echo "> [!WARNING]"
+              echo "> This PR modifies the API-additions gate's own workflows or scripts, so the symbol list below was produced by **this PR's modified tooling and may be incomplete or wrong**. Do not acknowledge based on the list alone — review the \`Sources/\` diff directly for new \`public\` declarations. Acknowledgment is required even when the reported addition count is 0."
               echo
             fi
             if [ -z "$APPROVER" ]; then
