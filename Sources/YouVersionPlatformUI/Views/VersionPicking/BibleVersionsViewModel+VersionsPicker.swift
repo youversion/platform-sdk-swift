@@ -6,6 +6,7 @@ extension BibleVersionsViewModel {
     // MARK: - VersionsPicker functions, for Version selection and manipulation
 
     func versionsStackPush(to screen: VersionsPickerScreen) {
+        startPermittedVersionsLoad()
         versionsPickerStack.append(screen)
         showingVersionsStack = true
     }
@@ -19,9 +20,7 @@ extension BibleVersionsViewModel {
     }
 
     public func openVersionsStack(currentBibleLanguage: String) {
-        Task {
-            await permittedVersions()
-        }
+        startPermittedVersionsLoad()
         currentBibleVersionLanguage = currentBibleLanguage
         fetchVersions(forLanguageTag: activeLanguage)
         chosenLanguage = nil  // reset the search field

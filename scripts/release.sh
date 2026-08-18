@@ -23,22 +23,20 @@
 # - Git identity configured.
 # - SSH remote configured for push.
 # - GH_TOKEN (or GITHUB_TOKEN) exported for `gh release create`.
-# - COCOAPODS_TRUNK_TOKEN exported for pod publish.
 #
 # Resume mode (auto-detected): if tag $VERSION already exists on origin
-# with a tree that has SDKVersion + all four podspecs stamped to $VERSION,
+# with a tree that has SDKVersion stamped to $VERSION,
 # the script treats this as a re-dispatch after a prior partial run. It
 # checks out the tag, regenerates the release notes, and proceeds to the
-# idempotent post-tag steps (push, GitHub release, pod publish, Dev-restore),
+# idempotent post-tag steps (push, GitHub release, Dev-restore),
 # each of which detects and skips already-completed work. See
 # RELEASE-RUNBOOK.md for failure-mode-by-failure-mode recovery details.
 #
 # Post-conditions on success:
 # - Tag $VERSION points at commit X (chore(release) commit stamping
-#   SDKVersion, all four podspecs, and prepending the CHANGELOG entry).
+#   SDKVersion and prepending the CHANGELOG entry).
 # - main HEAD = Y (Dev-restore commit on top of X).
 # - GitHub release created from the generated notes.
-# - All four pods (Core, UI, Reader, Platform) published at $VERSION.
 #
 # Local usage (validates and stops before push):
 #   VERSION=5.2.3 DRY_RUN=1 bash scripts/release.sh
@@ -134,10 +132,9 @@ fi
 # moved by hand, leftover from a different process) must abort, not silently
 # heal. Healing the wrong tag would push unrelated work to consumers.
 #
-# Why also overlay scripts/ from origin/main: the tag predates this resume
-# logic. If we ran publish-pods.sh from the tagged tree, we'd lose the
-# retry-with-backoff and partial-success handling that's only present in the
-# current scripts. The same trick that manual-pod-publish.yml uses.
+# Why also overlay scripts/ from origin/main: the tag may predate this resume
+# logic, so running the tagged tree's scripts would use stale post-tag steps
+# (Dev-restore in particular) instead of the current ones.
 
 if [ "$RESUME" = "1" ]; then
   echo
@@ -157,15 +154,7 @@ if [ "$RESUME" = "1" ]; then
     echo "   Refusing to resume against a tag whose content does not match. See RELEASE-RUNBOOK.md." >&2
     exit 1
   fi
-  for PODSPEC in YouVersionPlatform YouVersionPlatformCore YouVersionPlatformReader YouVersionPlatformUI; do
-    if ! git show "refs/tags/$VERSION:${PODSPEC}.podspec" 2>/dev/null \
-      | grep -qF "s.version      = '$VERSION'"; then
-      echo "❌ Tag $VERSION exists but ${PODSPEC}.podspec does not read $VERSION." >&2
-      echo "   Refusing to resume against a tag whose content does not match. See RELEASE-RUNBOOK.md." >&2
-      exit 1
-    fi
-  done
-  echo "  ✓ Tag $VERSION content matches (SDKVersion + 4 podspecs all stamped to $VERSION)."
+  echo "  ✓ Tag $VERSION content matches (SDKVersion stamped to $VERSION)."
 
   # Detach onto the tag so all post-tag steps operate from X.
   git checkout --detach "refs/tags/$VERSION"
@@ -175,7 +164,7 @@ if [ "$RESUME" = "1" ]; then
   git fetch origin main 2>/dev/null || true
   if git rev-parse --verify origin/main >/dev/null 2>&1; then
     git checkout origin/main -- scripts/
-    echo "  ✓ Overlaid scripts/ from origin/main so resume uses the latest publish logic."
+    echo "  ✓ Overlaid scripts/ from origin/main so resume uses the latest post-tag logic."
   fi
 
   # Regenerate notes using the same commit range the original run used.
@@ -273,18 +262,13 @@ NODE
 
   # --- Stamp version into source files --------------------------------------
 
-  bash scripts/update-pod-versions.sh "$VERSION"
   bash scripts/stamp-sdk-version.sh "$VERSION"
 
   # --- Build X commit -------------------------------------------------------
 
   git add \
     CHANGELOG.md \
-    Sources/YouVersionPlatformCore/SDKVersion.swift \
-    YouVersionPlatform.podspec \
-    YouVersionPlatformCore.podspec \
-    YouVersionPlatformReader.podspec \
-    YouVersionPlatformUI.podspec
+    Sources/YouVersionPlatformCore/SDKVersion.swift
 
   # Subject + blank + notes body. [skip ci] prevents push-triggered workflows
   # from re-running on the release commit.
@@ -311,12 +295,12 @@ fi
 if [ "$DRY_RUN" = "1" ]; then
   echo
   if [ "$RESUME" = "1" ]; then
-    echo "DRY_RUN=1 (resume mode) — stopping before push, GitHub release, pod publish, and Dev restore."
+    echo "DRY_RUN=1 (resume mode) — stopping before push, GitHub release, and Dev restore."
     echo "Inspect locally:"
     echo "  cat notes.md"
     echo "  git log -1 $VERSION"
   else
-    echo "DRY_RUN=1 — stopping before push, GitHub release, pod publish, and Dev restore."
+    echo "DRY_RUN=1 — stopping before push, GitHub release, and Dev restore."
     echo "Inspect locally:"
     echo "  git log -1"
     echo "  git tag -l '$VERSION'"
@@ -370,12 +354,6 @@ else
   echo "Creating GitHub release..."
   gh release create "$VERSION" --notes-file notes.md --title "$VERSION"
 fi
-
-# --- Publish pods (idempotent per-pod + retry on transient failures) -------
-
-echo
-echo "Publishing pods..."
-bash scripts/publish-pods.sh "$VERSION"
 
 # --- Restore Dev on main (Y commit) ----------------------------------------
 #
