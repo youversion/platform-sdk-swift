@@ -216,23 +216,73 @@ public final class BibleVersionsViewModel {
     
     /// Holds minimal information about all Bible versions available to this app, in all languages.
     private(set) var cachedPermittedVersions: [YouVersionAPI.Bible.BibleVersionMinimalInfo]?
-    
-    /// Returns minimal information about all Bible versions available to this app, in all languages.
-    /// On error or when offline, returns nil
-    func permittedVersions() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
-        if let cachedPermittedVersions {
-            return cachedPermittedVersions
-        }
-        
-        let fetched = try? await YouVersionAPI.Bible.permittedVersions()
-        let versions = fetched?.filter { isPermitted(versionId: $0.id, languageTag: $0.languageTag) }
 
-        if let versions, cachedPermittedVersions == nil {
-            cachedPermittedVersions = versions
-        }
-        return versions
+    /// Supplies the versions this app is allowed to show. Tests substitute this to
+    /// drive the request without network access.
+    @ObservationIgnored
+    var permittedVersionsProvider: @MainActor () async throws -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]
+        = BibleVersionsViewModel.permittedVersionsFromAPI
+
+    private static func permittedVersionsFromAPI() async throws -> [YouVersionAPI.Bible.BibleVersionMinimalInfo] {
+        try await YouVersionAPI.Bible.permittedVersions()
     }
-    
+
+    /// The permitted-versions request in flight, or the one that succeeded. Held onto so
+    /// that simultaneous callers share a single request, and so a successful result is
+    /// never requested again.
+    @ObservationIgnored
+    private var permittedVersionsRequest: Task<Void, Never>?
+
+    /// The earliest time another request may start after one failed. Keeps an offline
+    /// app from requesting again on every trip through the version-picking UI.
+    @ObservationIgnored
+    private var permittedVersionsRetryTime: Date?
+
+    /// The shortest time between permitted-versions requests while they keep failing.
+    private static let permittedVersionsRetryInterval: TimeInterval = 60
+
+    /// Starts loading the versions available to this app. Call this as the user moves
+    /// through the version-picking UI: views observe ``cachedPermittedVersions`` and
+    /// update when the request finishes. Does nothing while a request is in flight, once
+    /// one has succeeded, or within a minute of one failing.
+    func startPermittedVersionsLoad() {
+        startPermittedVersionsLoad(currentDate: Date())
+    }
+
+    func startPermittedVersionsLoad(currentDate: Date) {
+        guard permittedVersionsRequest == nil else {
+            return
+        }
+        if let permittedVersionsRetryTime, currentDate < permittedVersionsRetryTime {
+            return
+        }
+        permittedVersionsRequest = Task { @MainActor in
+            YouVersionPlatformLogger.debug("Requesting the permitted versions.", category: "Reader")
+            guard let fetched = try? await self.permittedVersionsProvider() else {
+                // When offline we don't get a list, so leave the cache unset and let a
+                // later trip through the UI try again, once the retry interval is up.
+                self.permittedVersionsRetryTime = currentDate.addingTimeInterval(Self.permittedVersionsRetryInterval)
+                self.permittedVersionsRequest = nil
+                return
+            }
+            self.cachedPermittedVersions = fetched.filter {
+                self.isPermitted(versionId: $0.id, languageTag: $0.languageTag)
+            }
+        }
+    }
+
+    /// Returns minimal information about all Bible versions available to this app, in all languages.
+    /// On error or when offline, returns nil.
+    func permittedVersions() async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
+        await permittedVersions(currentDate: Date())
+    }
+
+    func permittedVersions(currentDate: Date) async -> [YouVersionAPI.Bible.BibleVersionMinimalInfo]? {
+        startPermittedVersionsLoad(currentDate: currentDate)
+        await permittedVersionsRequest?.value
+        return cachedPermittedVersions
+    }
+
     private var languageTagsBeingFetched: Set<String> = []
     
     /// Causes data to be fetched, if necessary, to fill out `versionsByLanguageTag` for the given language tag.
