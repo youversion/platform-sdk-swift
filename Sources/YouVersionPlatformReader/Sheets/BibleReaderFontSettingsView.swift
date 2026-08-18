@@ -113,6 +113,8 @@ struct BibleReaderFontSettingsView: View {
                     HalfRoundedRectangleShape(side: .left)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
+                .opacity(viewModel.canDecreaseFontSize ? 1 : 0.4)
+                .disabled(!viewModel.canDecreaseFontSize)
 
                 Rectangle()
                     .frame(width: 2, height: 40)
@@ -133,6 +135,8 @@ struct BibleReaderFontSettingsView: View {
                     HalfRoundedRectangleShape(side: .right)
                         .fill(viewModel.readerButtonPrimaryColor)
                 )
+                .opacity(viewModel.canIncreaseFontSize ? 1 : 0.4)
+                .disabled(!viewModel.canIncreaseFontSize)
             }
 
             Spacer()
