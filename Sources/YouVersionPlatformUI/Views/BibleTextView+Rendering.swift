@@ -138,7 +138,8 @@ extension BibleTextView {
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
-        var textCombo = Text(indentString(firstLineHeadIndent))
+        let fonts = BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
+        var textCombo = Text(indentString(firstLineHeadIndent)).font(fonts.font(for: .font100em))
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
