@@ -51,8 +51,9 @@ symbols are removed or acknowledged.
 
 ### PRs that modify the gate's own tooling
 
-If a PR touches the signoff workflows or their scripts, the symbol list was produced by that PR's
-own modified tooling and cannot be trusted. The bot comment carries an explicit warning in that
+If a PR touches the signoff workflows, their scripts, or `Package.swift` (the manifest is
+executable build code the detector runs, and can exclude sources from the dump), the symbol list
+was produced by that PR's own modified tooling and cannot be trusted. The bot comment carries an explicit warning in that
 case, and acknowledgment is required regardless of the reported count. **Verify against the
 `Sources/` diff directly, not the rendered list.**
 
@@ -108,7 +109,8 @@ Trust boundary rules when changing the gate — the artifact is untrusted fork o
 - `count=` / `hash=` from `meta.txt` are strictly validated; malformed input fails closed.
 - `report.txt` is sanitized (backticks neutralized, size-capped) before embedding in the comment.
 - Never execute PR-controlled code in the gate workflow — that is why tooling-touching PRs get the
-  warning path instead of trusted recomputation.
+  warning path instead of trusted recomputation. The tooling set includes `Package.swift`: the
+  detector builds the PR's package, so the manifest steers what reaches the dump.
 - All gate evaluations share one serialized concurrency queue with cancel-in-progress off; the
   two trigger types cannot share a per-PR key, and parallel runs could let a stale evaluation
   overwrite a newer status.

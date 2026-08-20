@@ -17,7 +17,8 @@ name: API Additions Signoff Gate
 #   - accepts only strictly-validated `count=`/`hash=` lines from meta.txt;
 #   - sanitizes report.txt before embedding it in the bot comment;
 #   - refuses the silent count=0 pass when the PR modifies the gate's own
-#     workflows or scripts (a PR could otherwise patch the reporter to lie).
+#     workflows, scripts, or Package.swift (a PR could otherwise patch the
+#     reporter — or the build the detector runs — to lie).
 #
 # External contributors MUST NOT be able to bypass the gate; a repo
 # collaborator with write access (someone with authority to approve the PR)
@@ -147,8 +148,11 @@ jobs:
 
             # A PR that modifies the gate's own tooling could make detection
             # lie (count=0), so such PRs always require acknowledgment.
+            # Package.swift counts as tooling: it is executable build code the
+            # detector runs, and can exclude sources (even conditionally on CI
+            # environment) so new public declarations never reach the dump.
             if gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename' \
-              | grep -qE '^(\.github/workflows/api-additions-signoff(-gate)?\.yml|scripts/(check-api-stability\.sh|report-api-additions\.py|find-api-additions-(acknowledgment|comment)\.sh))$'; then
+              | grep -qE '^(Package\.swift|\.github/workflows/api-additions-signoff(-gate)?\.yml|scripts/(check-api-stability\.sh|report-api-additions\.py|find-api-additions-(acknowledgment|comment)\.sh))$'; then
               TOOLING=1
             else
               TOOLING=0
@@ -254,7 +258,7 @@ jobs:
             echo
             if [ "$TOOLING" = "1" ]; then
               echo "> [!WARNING]"
-              echo "> This PR modifies the API-additions gate's own workflows or scripts, so the symbol list below was produced by **this PR's modified tooling and may be incomplete or wrong**. Do not acknowledge based on the list alone — review the \`Sources/\` diff directly for new \`public\` declarations. Acknowledgment is required even when the reported addition count is 0."
+              echo "> This PR modifies the API-additions gate's own workflows, scripts, or the package manifest, so the symbol list below was produced by **this PR's modified tooling and may be incomplete or wrong**. Do not acknowledge based on the list alone — review the \`Sources/\` diff directly for new \`public\` declarations. Acknowledgment is required even when the reported addition count is 0."
               echo
             fi
             if [ -z "$APPROVER" ]; then
