@@ -2,7 +2,7 @@ name: API Additions Signoff Gate
 
 # Privileged half of the human signoff gate for *additive* public API
 # changes, mirroring the breaking-change gate in major-release-signoff.yml.
-# Design and decisions: docs/shaping-api-additions-signoff.md.
+# Design and decisions: docs/api-additions-signoff.md.
 #
 # Split from the detect workflow (api-additions-signoff.yml) so the gate
 # covers external fork PRs: fork tokens are read-only, so detection runs

@@ -1,7 +1,7 @@
 name: API Additions Signoff
 
 # Unprivileged half of the human signoff gate for *additive* public API
-# changes. Design and decisions: docs/shaping-api-additions-signoff.md.
+# changes. Design and decisions: docs/api-additions-signoff.md.
 #
 # This workflow runs on every PR — including external forks, which MUST NOT
 # be able to bypass the gate (shaping-doc decision, 2026-08-14). Fork PR
