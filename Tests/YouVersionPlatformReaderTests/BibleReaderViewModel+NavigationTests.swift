@@ -247,6 +247,34 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(vm.showingVerseActionsDrawer == true)
     }
 
+    @Test
+    func toggleBookPickerFromClosedExpandsCurrentBookAndOpens() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3)
+        )
+        vm.showingBookPicker = false
+        vm.headerExpandedBookCode = nil
+
+        vm.toggleBookPicker()
+
+        #expect(vm.showingBookPicker == true)
+        #expect(vm.headerExpandedBookCode == "JHN")
+    }
+
+    @Test
+    func toggleBookPickerFromOpenClosesWithoutChangingExpandedBook() {
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3)
+        )
+        vm.showingBookPicker = true
+        vm.headerExpandedBookCode = "GEN"
+
+        vm.toggleBookPicker()
+
+        #expect(vm.showingBookPicker == false)
+        #expect(vm.headerExpandedBookCode == "GEN")
+    }
+
     @Test(arguments: [
         (BookFixture(id: "GEN", chapterCount: 3, hasIntro: true), true),
         (BookFixture(id: "JUD", chapterCount: 1, hasIntro: false), false),

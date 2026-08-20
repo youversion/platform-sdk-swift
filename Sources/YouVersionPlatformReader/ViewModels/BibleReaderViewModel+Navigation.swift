@@ -89,6 +89,15 @@ extension BibleReaderViewModel {
         }
     }
 
+    /// Opens the picker with the current book already expanded, so its chapters are
+    /// visible without a second tap. Closing leaves the expanded book untouched.
+    func toggleBookPicker() {
+        if !showingBookPicker {
+            headerExpandedBookCode = reference.bookId
+        }
+        showingBookPicker.toggle()
+    }
+
     func handleScroll(offset: CGFloat) {
         let previousOffset = lastScrollOffset
         lastScrollOffset = offset
