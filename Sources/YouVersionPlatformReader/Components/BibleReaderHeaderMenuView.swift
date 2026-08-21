@@ -57,7 +57,7 @@ struct BibleReaderHeaderMenuView: View {
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .padding()
         }
-        .accessibilityLabel(String.localized("reader.header.accountMenu"))
+        .accessibilityLabel(String.localized("menu.account"))
     }
 
     private func openFontSettings() {
