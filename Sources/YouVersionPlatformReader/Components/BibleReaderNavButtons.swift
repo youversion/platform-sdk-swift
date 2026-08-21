@@ -13,7 +13,7 @@ struct BibleReaderNavButtons: View {
                         .fill(viewModel.readerCanvasPrimaryColor)
                         .shadow(color: viewModel.readerDropShadowColor, radius: 2, x: 0, y: 2)
                         .frame(width: 42, height: 42)
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "chevron.backward")
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .font(.system(size: 16, weight: .medium))
                 }
@@ -25,7 +25,7 @@ struct BibleReaderNavButtons: View {
                         .fill(viewModel.readerCanvasPrimaryColor)
                         .shadow(color: viewModel.readerDropShadowColor, radius: 2, x: 0, y: 2)
                         .frame(width: 42, height: 42)
-                    Image(systemName: "chevron.right")
+                    Image(systemName: "chevron.forward")
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .font(.system(size: 16, weight: .medium))
                 }

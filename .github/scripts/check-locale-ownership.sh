@@ -20,7 +20,8 @@ is_sync_bot_author() {
 }
 
 is_sync_branch() {
-  [[ "$HEAD_REF" =~ ^chore/localization-sync-swift- ]]
+  [[ "$HEAD_REF" == "chore/localization-sync-swift" \
+    || "$HEAD_REF" =~ ^chore/localization-sync-swift- ]]
 }
 
 is_allowed_sync_pr() {

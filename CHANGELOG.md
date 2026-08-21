@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.5.0](https://github.com/youversion/platform-sdk-swift/compare/5.4.0...5.5.0) (2026-08-13)
+
+
+### Features
+
+* add 2 more accessibility labels ([a70b05f](https://github.com/youversion/platform-sdk-swift/commit/a70b05fcdc9a23c8cf2e1a157e020f657e6d5ac6))
+* add excludedVersionIds ([db0666d](https://github.com/youversion/platform-sdk-swift/commit/db0666d7070de4d94445ff0b069373b95732bb13))
+* localize SampleApp, and fix RTL layout and chevrons ([d4e13f4](https://github.com/youversion/platform-sdk-swift/commit/d4e13f468b53fe99f047fb4dcf713496147d8a9c))
+* obey cache-control headers for Bible content and metadata ([7f673fb](https://github.com/youversion/platform-sdk-swift/commit/7f673fbcbb72a520a547a609be5a83e4602d151c))
+* rename "usfm" terminology to "passageId" or "bookId" as appropriate ([3b4de6f](https://github.com/youversion/platform-sdk-swift/commit/3b4de6f85a132423e0c90519c6027df2c5d7a032))
+* scroll the picker to the current book, and modernize its visuals ([da7c354](https://github.com/youversion/platform-sdk-swift/commit/da7c354637b60024967542490e35b78b181350f1))
+* use Untitled serif instead of Baskerville in version management UI, when it is available ([3cd3c4d](https://github.com/youversion/platform-sdk-swift/commit/3cd3c4dd411fd1e1574e324784d7fa9d98da15bc))
+
+
+### Bug Fixes
+
+* **ci:** fail closed on permission-lookup errors; use pull_request_target ([#229](https://github.com/youversion/platform-sdk-swift/issues/229)) ([af9f8e5](https://github.com/youversion/platform-sdk-swift/commit/af9f8e5c5a1e88bc380a1222ee1ae5961a966d17))
+* **ci:** read the event payload from GITHUB_EVENT_PATH in the App Live bridge (YPE-3011) ([#228](https://github.com/youversion/platform-sdk-swift/issues/228)) ([7a5472b](https://github.com/youversion/platform-sdk-swift/commit/7a5472b957bd5fe09ca8973a7abf1af6016d9a89))
+* **i18n:** sync swift localization from platform-localization ([#232](https://github.com/youversion/platform-sdk-swift/issues/232)) ([1136de2](https://github.com/youversion/platform-sdk-swift/commit/1136de2be7bda88144ded9d63d1f9ced9c0dcf31))
+
 ## [5.4.0](https://github.com/youversion/platform-sdk-swift/compare/5.3.0...5.4.0) (2026-07-27)
 
 
