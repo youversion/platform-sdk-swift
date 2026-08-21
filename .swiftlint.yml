@@ -654,3 +654,6 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
   - '**/derived_data'
   - '**/*.pb.swift'
   - .build
+# Persist the rule cache inside the workspace. Sandboxed agents (Cursor, Codex,
+# Claude Code) cannot write the default ~/Library/Caches/SwiftLint location.
+cache_path: .build/swiftlint-cache

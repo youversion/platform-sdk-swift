@@ -450,8 +450,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Probléma merült fel az internetkapcsolattal. Kérjük, tölts le egy Bibliafordítást, amikor újra online vagy."
           }
         },
         "pl": {
@@ -636,8 +636,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "A korábban kiválasztott Bibliafordítás nem érhető el. Kérjük, válts egy másikra."
           }
         },
         "pl": {
@@ -2496,8 +2496,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "A Bibliafordítás kiadójával kötött megállapodásunk értelmében bizonyos adatokat meg kell osztanunk velük ahhoz, hogy ezt a verziót offline használatra is elérhetővé tegyük. A folytatással hozzájárulsz adataid megosztásához, és ahhoz, hogy a kiadó e-mailt küldhessen neked."
           }
         },
         "pl": {
@@ -3426,8 +3426,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Bibliaolvasási betűtípusok"
           }
         },
         "pl": {
@@ -5671,6 +5671,192 @@
       },
       "comment": "Screen title for Bible language selection."
     },
+    "menu.account": {
+      "comment": "Spoken label for the account menu button in the Bible reader header.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "menu.download": {
       "extractionState": "manual",
       "localizations": {
@@ -7146,8 +7332,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "ez a fordítás"
           }
         },
         "pl": {
@@ -7332,8 +7518,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "%@ sikeres letöltése."
           }
         },
         "pl": {
@@ -7704,8 +7890,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Ezt a fordítást jelenleg nem sikerült letölteni."
           }
         },
         "pl": {
@@ -7890,8 +8076,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Jelenleg nem sikerült letölteni a következőt: %@.\n\n%@"
           }
         },
         "pl": {
@@ -8262,8 +8448,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Saját fordítások"
           }
         },
         "pl": {
@@ -8448,8 +8634,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Hamarosan..."
           }
         },
         "pl": {
@@ -9378,8 +9564,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Nem érhető el Bibliafordítás. Csatlakozz újra a hálózathoz, és tölts le egy Bibliafordítást az offline használathoz."
           }
         },
         "pl": {
@@ -9564,8 +9750,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Ezt a Bibliafordítást nem sikerült elérni. Kérjük, próbáld újra később."
           }
         },
         "pl": {
@@ -9936,8 +10122,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "(A Bibliai szöveg nem érhető el)"
           }
         },
         "pl": {
@@ -11232,8 +11418,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "%@ csatlakozni szeretne a YouVersion Biblia alkalmazás fiókodhoz. Ez lehetővé teszi számára, hogy lássa és kezelje a Biblia alkalmazás tevékenységedet. Szeretnéd folytatni?"
           }
         },
         "pl": {
@@ -12348,8 +12534,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Biztosan ki szeretnél jelentkezni a YouVersion-ből?"
           }
         },
         "pl": {
@@ -12906,8 +13092,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Napi igevers"
           }
         },
         "pl": {
@@ -13650,8 +13836,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Húzd felfelé a többiért"
           }
         },
         "pl": {
@@ -15510,8 +15696,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Megosztod"
           }
         },
         "pl": {
@@ -15522,6 +15708,378 @@
         }
       },
       "comment": "Title of dialog explaining data shared with publisher."
+    },
+    "versionList.clearSearch": {
+      "comment": "Spoken label for the button that clears the Bible version search field.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "versionList.noSearchResults": {
+      "comment": "Empty state shown when a Bible version search returns no matches.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No versions found"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "versionList.searchPlaceholder": {
       "extractionState": "manual",
@@ -15696,8 +16254,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "Fordítás keresése"
           }
         },
         "pl": {
@@ -16050,8 +16608,8 @@
         },
         "hu": {
           "stringUnit": {
-            "state": "needs_translation",
-            "value": ""
+            "state": "translated",
+            "value": "%#@versions_string@ fordítás %#@languages_string@ nyelven"
           }
         },
         "pl": {

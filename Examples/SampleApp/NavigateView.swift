@@ -22,6 +22,12 @@ struct NavigateView: View {
             true
         ),
         (
+            String(localized: "navigate.psalm_118_1_focused"),
+            BibleReference(versionId: 3034, bookId: "PSA", chapter: 118, verse: 1),
+            true,
+            true
+        ),
+        (
             String(localized: "navigate.psalm_119_105_full_chapter"),
             BibleReference(versionId: 3034, bookId: "PSA", chapter: 119, verse: 105),
             true,

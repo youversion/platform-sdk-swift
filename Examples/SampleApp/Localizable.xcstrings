@@ -71,6 +71,16 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Psaume 119:105 — chapitre entier, positionné sur le verset" } }
       }
     },
+    "navigate.psalm_118_1_focused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "مزمور 118:1 — مع التركيز عليها" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Psalm 118,1 — hervorgehoben" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Psalm 118:1 — focused" } },
+        "es-MX" : { "stringUnit" : { "state" : "translated", "value" : "Salmos 118:1 — resaltado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Psaume 118:1 — mis en évidence" } }
+      }
+    },
     "navigate.romans_8_28_verse_range" : {
       "extractionState" : "manual",
       "localizations" : {
