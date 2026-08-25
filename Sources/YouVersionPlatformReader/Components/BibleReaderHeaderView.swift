@@ -64,6 +64,7 @@ public struct BibleReaderHeaderView: View {
                 BibleReaderBookAndChapterPickerView(
                     expandedBookCode: $viewModel.headerExpandedBookCode,
                     isPresented: $viewModel.showingBookPicker,
+                    initialBookCode: viewModel.reference.bookId,
                     bookCodes: version.bookIds,
                     versionId: viewModel.reference.versionId,
                     bookNameProvider: { bookCode in version.bookName(bookCode) },

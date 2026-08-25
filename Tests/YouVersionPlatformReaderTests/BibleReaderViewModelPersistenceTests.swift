@@ -125,6 +125,28 @@ import Testing
     }
 
     @Test
+    func fontSizeControlAvailabilityTracksSizeBoundaries() throws {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        let minimumFontSize = try #require(ReaderFonts.availableSizes.min())
+        let maximumFontSize = try #require(ReaderFonts.availableSizes.max())
+
+        viewModel.setFont(size: minimumFontSize)
+        #expect(viewModel.canDecreaseFontSize == false)
+        #expect(viewModel.canIncreaseFontSize)
+
+        viewModel.increaseFontSize()
+        #expect(viewModel.canDecreaseFontSize)
+
+        viewModel.setFont(size: maximumFontSize)
+        #expect(viewModel.canDecreaseFontSize)
+        #expect(viewModel.canIncreaseFontSize == false)
+
+        viewModel.decreaseFontSize()
+        #expect(viewModel.canIncreaseFontSize)
+    }
+
+    @Test
     func openFontSettingsShowsFontSettings() {
         let viewModel = Support.makeViewModel()
 

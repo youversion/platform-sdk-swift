@@ -12,7 +12,7 @@
         "scope": [
           "Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings"
         ],
-        "rule": "Localizable.xcstrings is upstream-owned by platform-localization. Do not edit in feature PRs. Add English keys as swift.* (or shared unprefixed keys) in platform-localization sources/common/en.json; translations arrive via Crowdin and sync PRs on chore/localization-sync-swift-* branches authored by app/platform-localization-pr-bot. See docs/localization-guardrails.md."
+        "rule": "Localizable.xcstrings is upstream-owned by platform-localization. Do not edit in feature PRs. Add English keys as swift.* (or shared unprefixed keys) in platform-localization sources/common/en.json; translations arrive via Crowdin and sync PRs on branch chore/localization-sync-swift (legacy chore/localization-sync-swift-* branches also accepted) authored by app/platform-localization-pr-bot. See docs/localization-guardrails.md."
       }
     ],
     "files": [

@@ -8,7 +8,7 @@
 # Topology after this script runs (X is the @semantic-release/git release
 # commit; Y is the commit this script creates):
 #
-#   main:  ... ─ X (SDKVersion=$VERSION, podspec=$VERSION)   ← TAG $VERSION
+#   main:  ... ─ X (SDKVersion=$VERSION)   ← TAG $VERSION
 #                     ↓
 #                     Y (SDKVersion="Dev")                   ← main HEAD
 #
@@ -63,7 +63,7 @@ cd "$(dirname "$0")/.."
 #
 # Using an ancestor check (not strict HEAD~1 equality) covers both the normal
 # topology (Y directly on X) and the diverged-main topology (Y on C on X,
-# Failure Mode #5), where HEAD~1 is C — not X — and the strict parent check
+# Failure Mode #3), where HEAD~1 is C — not X — and the strict parent check
 # would incorrectly miss the already-restored state.
 if grep -qF 'static let current = "Dev"' Sources/YouVersionPlatformCore/SDKVersion.swift; then
   TAG_SHA_FOR_IDEMP=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
@@ -105,7 +105,7 @@ fi
 #
 #    Reachability (ancestor-or-equal), not strict equality: in release.sh
 #    resume mode after a diverged-main failure (RELEASE-RUNBOOK.md Failure
-#    Mode #5), HEAD is origin/main = C — an unrelated commit on top of X,
+#    Mode #3), HEAD is origin/main = C — an unrelated commit on top of X,
 #    not X itself. The resulting topology X → C → Y is still valid (tag
 #    stays at X; X is reachable from main via Y → C → X).
 TAG_SHA=$(git rev-parse "refs/tags/$VERSION^{}" 2>/dev/null || echo "")
