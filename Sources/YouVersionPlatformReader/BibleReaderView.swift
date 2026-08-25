@@ -442,13 +442,18 @@ private struct ReaderContent: View {
     /// non-numeric), falling back to the numeric index when metadata is missing.
     private var chapterDescriptor: BibleChapterDescriptor {
         let reference = viewModel.reference
-        let chapters = viewModel.version?.book(with: reference.bookId)?.chapters
-        let chapterIndex = reference.chapter - 1
-        let chapterTitle = chapters.flatMap { $0.indices.contains(chapterIndex) ? $0[chapterIndex].title : nil }
+        // Match the chapter's metadata by identity rather than array position —
+        // a version's chapter list may be sparse or ordered differently from the
+        // numeric reference (same matching as BibleReference.existsIn(version:)).
+        let chapterMetadata = viewModel.version?.book(with: reference.bookId)?.chapters?.first {
+            $0.passageId == reference.chapterPassageId
+                || $0.id == reference.chapterPassageId
+                || $0.id == String(reference.chapter)
+        }
         return BibleChapterDescriptor(
             reference: reference,
             bookName: viewModel.version?.bookName(reference.bookId) ?? reference.bookId,
-            chapterLabel: chapterTitle ?? String(reference.chapter)
+            chapterLabel: chapterMetadata?.title ?? String(reference.chapter)
         )
     }
 
