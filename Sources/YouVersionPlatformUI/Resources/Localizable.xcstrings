@@ -145,7 +145,7 @@
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ez a szakasz nem érhető el a kiválasztott bibliafordításban."
+            "value": "Ez a szakasz nem érhető el a kiválasztott Bibliafordításban."
           }
         },
         "ig": {
@@ -865,7 +865,7 @@
         "af": {
           "stringUnit": {
             "state": "translated",
-            "value": "Boeke"
+            "value": "Bybelboeke"
           }
         },
         "ar": {
@@ -1034,7 +1034,7 @@
         "af": {
           "stringUnit": {
             "state": "translated",
-            "value": "Boeke"
+            "value": "Bybelboeke"
           }
         },
         "ar": {
@@ -2143,7 +2143,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Akzeptieren und herunterladen"
+            "value": "Zustimmen und herunterladen"
           }
         },
         "en": {
@@ -2329,7 +2329,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unsere Vereinbarung mit dem Herausgeber dieser Bibelversion erfordert, dass wir bestimmte Informationen mit ihnen teilen, um diese Version offline anzubieten. Mit dem Fortfahren stimmst du zu, deine Informationen zu teilen und zu erlauben, dass der Herausgeber dir E-Mails sendet."
+            "value": "Unsere Vereinbarung mit dem Herausgeber dieser Bibelausgabe erfordert, dass wir bestimmte Informationen an ihn weitergeben, um diese Ausgabe für die Offline-Nutzung anbieten zu können. Wenn du fortfährst, erklärst du dich damit einverstanden, deine Daten weiterzugeben und dem Herausgeber zu gestatten, dir E-Mails zu senden."
           }
         },
         "en": {
@@ -2341,13 +2341,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nuestro acuerdo con el editor de esta versión de la Biblia requiere que compartamos cierta información con ellos para ofrecer esta versión sin conexión. Al continuar, aceptas compartir tu información y permitir que el editor te envíe correos electrónicos."
+            "value": "Nuestro acuerdo con el editor de esta versión de la Biblia nos exige compartir cierta información con ellos para poder ofrecer esta versión para uso sin conexión. Al continuar, aceptas compartir tu información y permitir que el editor te envíe correos electrónicos."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notre accord avec l'éditeur de cette version de la Bible nous oblige à partager certaines informations avec lui afin de proposer cette version hors ligne. En continuant, tu acceptes de partager tes informations et de permettre à l'éditeur de t'envoyer des e-mails."
+            "value": "Notre accord avec l'éditeur de cette version de la Bible nous oblige à partager certaines informations avec eux afin de proposer cette version pour une utilisation hors ligne. En continuant, vous acceptez de partager vos informations et d'autoriser l'éditeur à vous envoyer des e-mails."
           }
         },
         "af": {
@@ -2515,7 +2515,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lies sie jederzeit, überall – sogar offline"
+            "value": "Jederzeit und überall lesen – auch offline"
           }
         },
         "en": {
@@ -2527,13 +2527,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Léela cuando quieras, donde quieras, incluso sin conexión"
+            "value": "Léela en cualquier momento y lugar, incluso sin conexión"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lis-la à tout moment, n'importe où, même hors ligne"
+            "value": "Lisez-le n'importe quand, n'importe où—même hors ligne"
           }
         },
         "af": {
@@ -2713,7 +2713,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leer solo en línea"
+            "value": "Solo lectura en línea"
           }
         },
         "fr": {
@@ -2899,7 +2899,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Otras"
+            "value": "Otros"
           }
         },
         "fr": {
@@ -3073,7 +3073,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empfohlen"
+            "value": "Vorgeschlagen"
           }
         },
         "en": {
@@ -3091,7 +3091,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suggérées"
+            "value": "Suggéré"
           }
         },
         "af": {
@@ -3259,7 +3259,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schriftarten für die Bibellektüre"
+            "value": "Schriftarten zum Bibellesen"
           }
         },
         "en": {
@@ -3271,13 +3271,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fuentes de lectura bíblica"
+            "value": "Tipos de letra de lectura bíblica"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Polices de lecture biblique"
+            "value": "Polices de lecture de la Bible"
           }
         },
         "af": {
@@ -3457,7 +3457,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fuente"
+            "value": "Tipo de letra"
           }
         },
         "fr": {
@@ -4765,7 +4765,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toutes"
+            "value": "Tout"
           }
         },
         "af": {
@@ -5137,7 +5137,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Régionales"
+            "value": "Régional"
           }
         },
         "af": {
@@ -5305,7 +5305,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empfohlen"
+            "value": "Vorgeschlagen"
           }
         },
         "en": {
@@ -5323,7 +5323,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suggérées"
+            "value": "Suggéré"
           }
         },
         "af": {
@@ -5509,7 +5509,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Langues bibliques"
+            "value": "Langues de la Bible"
           }
         },
         "af": {
@@ -5569,7 +5569,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bibelspråk"
+            "value": "Bibelns språk"
           }
         },
         "tr": {
@@ -6061,13 +6061,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajustes de fuente"
+            "value": "Configuración del tipo de letra"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réglages de police"
+            "value": "Paramètres de police"
           }
         },
         "af": {
@@ -6607,7 +6607,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Von der Liste entfernen"
+            "value": "Aus Liste entfernen"
           }
         },
         "en": {
@@ -7351,7 +7351,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erfolgreicher Download von %@."
+            "value": "%@ wurde erfolgreich heruntergeladen."
           }
         },
         "en": {
@@ -7723,7 +7723,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Version konnte zu diesem Zeitpunkt nicht heruntergeladen werden."
+            "value": "Es war nicht möglich, diese Version zu diesem Zeitpunkt herunterzuladen."
           }
         },
         "en": {
@@ -7909,7 +7909,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ konnte nicht heruntergeladen werden.\n\n%@"
+            "value": "Es war nicht möglich, %@ herunterzuladen.\n\n%@"
           }
         },
         "en": {
@@ -7927,7 +7927,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de télécharger %@.\n\n%@"
+            "value": "Il n'a pas été possible de télécharger %@.\n\n%@"
           }
         },
         "af": {
@@ -8293,7 +8293,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mis versiones"
+            "value": "Mis Versiones"
           }
         },
         "fr": {
@@ -8467,7 +8467,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "INFOS FOLGEN"
+            "value": "INFO FOLGT"
           }
         },
         "en": {
@@ -8479,13 +8479,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "INFORMACIÓN POR VENIR"
+            "value": "PRÓXIMAMENTE MÁS INFORMACIÓN"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "INFOS À VENIR"
+            "value": "INFORMATIONS À VENIR"
           }
         },
         "af": {
@@ -9223,7 +9223,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saber más"
+            "value": "Más información"
           }
         },
         "fr": {
@@ -9397,7 +9397,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es sind keine Bibelversionen verfügbar. Verbinde dich erneut und lade eine Bibelversion herunter, um offline weiterzumachen."
+            "value": "Keine Bibelversionen verfügbar. Stelle eine Verbindung her und lade eine Bibelversion herunter, um offline fortzufahren."
           }
         },
         "en": {
@@ -9415,7 +9415,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune version de la Bible n'est disponible. Reconnecte-toi et télécharge une version de la Bible pour continuer hors ligne."
+            "value": "Aucune version de la Bible n'est disponible. Reconnectez-vous et téléchargez une version de la Bible pour continuer hors ligne."
           }
         },
         "af": {
@@ -9769,7 +9769,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": ", "
+            "value": ","
           }
         },
         "en": {
@@ -9781,13 +9781,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": ", "
+            "value": ","
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": ", "
+            "value": ","
           }
         },
         "af": {
@@ -9955,7 +9955,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "(Bibeltext nicht verfügbar)"
+            "value": "(Bibeltext ist nicht verfügbar)"
           }
         },
         "en": {
@@ -9967,13 +9967,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "(Texto bíblico no disponible)"
+            "value": "(El texto bíblico no está disponible)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "(Texte biblique indisponible)"
+            "value": "(Le texte biblique n'est pas disponible)"
           }
         },
         "af": {
@@ -10333,7 +10333,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inicia sesión con YouVersion"
+            "value": "Iniciar sesión con YouVersion"
           }
         },
         "fr": {
@@ -10705,7 +10705,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inicia sesión con %@"
+            "value": "Iniciar sesión con %@"
           }
         },
         "fr": {
@@ -10879,7 +10879,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "WIR STELLEN VOR"
+            "value": "EINFÜHRUNG"
           }
         },
         "en": {
@@ -10891,13 +10891,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "PRESENTAMOS"
+            "value": "PRESENTANDO"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "NOUS PRÉSENTONS"
+            "value": "PRÉSENTATION"
           }
         },
         "af": {
@@ -11065,7 +11065,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nein danke"
+            "value": "Nein, danke"
           }
         },
         "en": {
@@ -11251,7 +11251,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ möchte sich mit deinem YouVersion Bible App-Konto verbinden. Dies ermöglicht ihnen, deine Bibel-App-Aktivitäten zu sehen und damit zu interagieren. Möchtest du fortfahren?"
+            "value": "%@ möchte eine Verbindung zu deinem YouVersion Bibel-App-Konto herstellen. Dadurch können sie deine Bibel-App-Aktivitäten sehen und damit interagieren. Möchtest du fortfahren?"
           }
         },
         "en": {
@@ -11263,13 +11263,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ quiere conectarse a tu cuenta de YouVersion Bible App. Esto les permitirá ver e interactuar con tu actividad en la aplicación. ¿Te gustaría continuar?"
+            "value": "%@ quiere conectarse a tu cuenta de la Biblia App de YouVersion. Esto les permitirá ver e interactuar con tu actividad en la Biblia App. ¿Te gustaría continuar?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ souhaite se connecter à ton compte YouVersion Bible App. Cela lui permettra de voir et d'interagir avec ton activité dans l'application. Souhaites-tu continuer ?"
+            "value": "%@ souhaite se connecter à votre compte YouVersion Bible App. Cela leur permettra de voir et d'interagir avec votre activité sur l'application Bible. Souhaitez-vous continuer ?"
           }
         },
         "af": {
@@ -11323,7 +11323,7 @@
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ vill ansluta till ditt konto i YouVersion bibelappen. Detta gör det möjligt för dem att se och vara delaktiga i din aktivitet i bibelappen. Vill du fortsätta?"
+            "value": "%@ vill ansluta till ditt konto i YouVersion Bibelappen. Detta gör det möjligt för dem att se och vara delaktiga i din aktivitet i Bibelappen. Vill du fortsätta?"
           }
         },
         "tr": {
@@ -11437,7 +11437,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ja"
+            "value": "Ja, bitte"
           }
         },
         "en": {
@@ -11449,13 +11449,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sí"
+            "value": "Sí, por favor"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oui"
+            "value": "Oui, s'il vous plaît"
           }
         },
         "af": {
@@ -11635,13 +11635,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tendrás que iniciar sesión nuevamente para acceder a tus destacados."
+            "value": "Deberás iniciar sesión nuevamente para acceder a tus resaltados."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu devras te reconnecter pour accéder à tes surlignages."
+            "value": "Vous devrez vous reconnecter pour accéder à vos surlignages."
           }
         },
         "af": {
@@ -12367,7 +12367,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bist du sicher, dass du dich von YouVersion abmelden möchtest?"
+            "value": "Bist du sicher, dass du dich bei YouVersion abmelden möchtest?"
           }
         },
         "en": {
@@ -12385,7 +12385,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es-tu sûr de vouloir te déconnecter de YouVersion ?"
+            "value": "Êtes-vous sûr de vouloir vous déconnecter de YouVersion ?"
           }
         },
         "af": {
@@ -12937,7 +12937,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Versículo del día"
+            "value": "Versículo del Día"
           }
         },
         "fr": {
@@ -13669,7 +13669,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wische nach oben für mehr"
+            "value": "Nach oben wischen für mehr"
           }
         },
         "en": {
@@ -13687,7 +13687,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balaye vers le haut pour plus"
+            "value": "Faites glisser vers le haut pour plus"
           }
         },
         "af": {
@@ -14053,13 +14053,13 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agregada"
+            "value": "Agregado"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoutée"
+            "value": "Ajouté"
           }
         },
         "af": {
@@ -14971,7 +14971,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Probe"
+            "value": "Beispiel"
           }
         },
         "en": {
@@ -14989,7 +14989,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échantillon"
+            "value": "Extrait"
           }
         },
         "af": {
@@ -15169,7 +15169,7 @@
         "es-MX": {
           "stringUnit": {
             "state": "translated",
-            "value": "OK"
+            "value": "Aceptar"
           }
         },
         "fr": {
@@ -15547,7 +15547,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu vas partager"
+            "value": "Vous partagerez"
           }
         },
         "af": {
@@ -16273,7 +16273,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$#@versions_string@ in %2$#@languages_string@"
+            "value": "%#@versions_string@ in %#@languages_string@"
           },
           "substitutions": {
             "languages_string": {
@@ -16304,13 +16304,13 @@
                   "one": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu Übersetzung"
+                      "value": "%lu Version"
                     }
                   },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu Übersetzungen"
+                      "value": "%lu Versionen"
                     }
                   }
                 }
@@ -16400,6 +16400,342 @@
                   "one": {
                     "stringUnit": {
                       "state": "translated",
+                      "value": "%lu versión"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu versiones"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ en %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Langue"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Langues"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Version"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versions"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ in %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu taal"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu tale"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu weergawe"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu weergawes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ في %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "zero": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu لغة"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu لغة"
+                    }
+                  },
+                  "two": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "‏%lu لغة"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu لغات"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu لغات"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu لغات"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "zero": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدار"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدار"
+                    }
+                  },
+                  "two": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدارات"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدارات"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدارات"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu إصدارات"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ yn %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "zero": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Iaith"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Iaith"
+                    }
+                  },
+                  "two": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Iaith"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu o Ieithoedd"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Iaith"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Iaith"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "zero": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fersiwn"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fersiwn"
+                    }
+                  },
+                  "two": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fersiwn"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu o Fersiynau"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fersiwn"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fersiwn"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ en %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Idioma"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Idiomas"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
                       "value": "%lu Versión"
                     }
                   },
@@ -16414,10 +16750,82 @@
             }
           }
         },
-        "fr": {
+        "ig": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$#@versions_string@ dans %2$#@languages_string@"
+            "value": "%#@versions_string@ na %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Asụsụ-Gasị"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Ụdị Nsụgharị Gasị"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@languages_string@ - %#@versions_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 언어"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 번역본"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@versions_string@ em %#@languages_string@"
           },
           "substitutions": {
             "languages_string": {
@@ -16428,13 +16836,13 @@
                   "one": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu langue"
+                      "value": "%lu Idioma"
                     }
                   },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu langues"
+                      "value": "%lu Idiomas"
                     }
                   }
                 }
@@ -16448,13 +16856,13 @@
                   "one": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu version"
+                      "value": "%lu Versão"
                     }
                   },
                   "other": {
                     "stringUnit": {
                       "state": "translated",
-                      "value": "%lu versions"
+                      "value": "%lu Versões"
                     }
                   }
                 }
@@ -16462,160 +16870,952 @@
             }
           }
         },
-        "af": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ in %#@languages_string@"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ في %#@languages_string@"
-          }
-        },
-        "cy": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ yn %#@languages_string@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ en %#@languages_string@"
-          }
-        },
-        "ig": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ na %#@languages_string@"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@languages_string@ - %#@versions_string@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%#@versions_string@ em %#@languages_string@"
-          }
-        },
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@, %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Языков: %lu"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Языков: %lu"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Языков: %lu"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Языков: %lu"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Переводов: %lu"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Переводов: %lu"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Переводов: %lu"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Переводов: %lu"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ på %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu språk"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu språk"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu översättning"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu översättningar"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%#@languages_string@ dilinde %#@versions_string@"
+            "value": "%#@versions_string@ içinde %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Dil"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Dil"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versiyon"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versiyon"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ bằng %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Ngôn Ngữ"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Phiên Bản"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@languages_string@中的%#@versions_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 种语言"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 个译本"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "zh-HK": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@languages_string@中的%#@versions_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 種語言"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 個譯本"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@languages_string@中的%#@versions_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 種語言"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 個譯本"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ v %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jazyk"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jazyky"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jazyků"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jazyků"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu verze"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu verze"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu verzí"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu verzí"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ kielellä %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu kieli"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu kieltä"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu versio"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu versiota"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ in %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Lingua"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Lingue"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versione"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versioni"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ in %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu taal"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu talen"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu vertaling"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu vertalingen"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ på %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu språk"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu språk"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu utgave"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu utgaver"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "sr-Latn": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ na %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jezik"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jezika"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu jezika"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu prevod"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu prevoda"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu prevoda"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ мовою %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Мов: %lu"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Мов: %lu"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Мов: %lu"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Мов: %lu"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Перекладів: %lu"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Перекладів: %lu"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Перекладів: %lu"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Перекладів: %lu"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ em %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Idioma"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Idiomas"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versão"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Versões"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@languages_string@の%#@versions_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 言語"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu 聖書の訳"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
             "value": "%#@versions_string@ în %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu limbă"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu limbi"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu de limbi"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu versiune"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu versiuni"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu de versiuni"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "%#@versions_string@ fordítás %#@languages_string@ nyelven"
+            "value": "%#@versions_string@ a %#@languages_string@"
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu nyelv"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu nyelv"
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fordítás"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%lu Fordítás"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pl": {
           "stringUnit": {
             "state": "needs_translation",
             "value": ""
+          },
+          "substitutions": {
+            "languages_string": {
+              "argNum": 2,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "needs_translation",
+                      "value": ""
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "needs_translation",
+                      "value": ""
+                    }
+                  }
+                }
+              }
+            },
+            "versions_string": {
+              "argNum": 1,
+              "formatSpecifier": "lu",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "needs_translation",
+                      "value": ""
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "needs_translation",
+                      "value": ""
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
