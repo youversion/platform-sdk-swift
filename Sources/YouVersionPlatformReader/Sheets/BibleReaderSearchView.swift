@@ -134,7 +134,9 @@ struct BibleReaderSearchView: View {
     }
 
     private func resultButton(_ result: YouVersionVerseSearchResult) -> some View {
-        Button {
+        let resultSetID = viewModel.searchResultSetID
+
+        return Button {
             isSearchFieldFocused = false
             Task {
                 try? await ContinuousClock().sleep(for: .milliseconds(100))
@@ -164,8 +166,8 @@ struct BibleReaderSearchView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .task {
-            await viewModel.loadVerseText(for: result)
+        .task(id: resultSetID) {
+            await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
         }
     }
 

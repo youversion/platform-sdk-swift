@@ -93,6 +93,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var hasCompletedSearch = false
     var searchFailed = false
     private(set) var searchResultTextByUSFM: [String: String] = [:]
+    private(set) var searchResultSetID = UUID()
     private var completedSearchQuery: String?
     private var completedSearchVersionID: Int?
     private var searchRequestID: UUID?
@@ -427,8 +428,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
             }
-            searchResults = results.verses.filter { $0.bibleReference(versionID: versionId) != nil }
             searchResultTextByUSFM = [:]
+            searchResults = results.verses.filter { $0.bibleReference(versionID: versionId) != nil }
+            searchResultSetID = UUID()
             searchScrollPosition = nil
             completedSearchQuery = query
             completedSearchVersionID = versionId
@@ -456,12 +458,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
-    func loadVerseText(for result: YouVersionVerseSearchResult) async {
-        guard searchResultTextByUSFM[result.reference] == nil,
+    func loadVerseText(for result: YouVersionVerseSearchResult, resultSetID: UUID) async {
+        guard resultSetID == searchResultSetID,
+              searchResultTextByUSFM[result.reference] == nil,
               let reference = result.bibleReference(versionID: reference.versionId) else {
             return
         }
         guard let text = try? await BibleVersionRendering.plainTextOf(reference) else {
+            return
+        }
+        guard resultSetID == searchResultSetID else {
             return
         }
         searchResultTextByUSFM[result.reference] = text.trimmingCharacters(in: .whitespacesAndNewlines)
