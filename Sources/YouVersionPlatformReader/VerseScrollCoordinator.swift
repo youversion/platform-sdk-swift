@@ -82,13 +82,13 @@ final class VerseScrollCoordinator {
             return
         }
 
-        fallbackTask?.cancel()
         scrollTask?.cancel()
         scrollTask = Task { @MainActor [weak self] in
             await DisplayFrame().nextFrame()
             if Task.isCancelled {
                 return
             }
+            self?.fallbackTask?.cancel()
             proxy.scrollTo(blockID, anchor: .top)
             if let target = self?.viewModel.scrollTarget, target.shouldFocus {
                 // Focus `target.reference` a frame after the scroll.

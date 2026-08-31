@@ -118,6 +118,30 @@ public enum URLBuilder {
         return components.url
     }
 
+    static func searchVersesURL(
+        query: String,
+        bibleID: Int,
+        userIntent: YouVersionSearchUserIntent,
+        pageSize: Int?,
+        pageToken: String?
+    ) -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1-beta/search-verses"
+        var queryItems = [
+            URLQueryItem(name: "query", value: query),
+            URLQueryItem(name: "bible_id", value: String(bibleID)),
+            URLQueryItem(name: "user_intent", value: userIntent.rawValue)
+        ]
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize)))
+        }
+        if let pageToken {
+            queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
+        }
+        components.queryItems = queryItems
+        return components.url
+    }
+
     public static func versionsURL(languageRanges: [String] = [], fields: [String] = [], pageSize: Int? = 99, pageToken: String? = nil) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/bibles"

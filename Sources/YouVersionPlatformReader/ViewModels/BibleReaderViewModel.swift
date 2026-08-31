@@ -75,6 +75,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
+    var showingSearchSheet = false
     var isReduceMotionEnabled = false
     var selectedVerses: Set<BibleReference> = []
     var showingBookPicker = false
@@ -82,6 +83,19 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
     let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
+
+    // MARK: - Search
+
+    var searchQuery = ""
+    var searchResults: [YouVersionVerseSearchResult] = []
+    var searchScrollPosition: String?
+    var isSearching = false
+    var hasCompletedSearch = false
+    var searchFailed = false
+    private(set) var searchResultTextByUSFM: [String: String] = [:]
+    private var completedSearchQuery: String?
+    private var completedSearchVersionID: Int?
+    private var searchRequestID: UUID?
 
     // MARK: - Font settings
 
@@ -370,6 +384,95 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     func openFontSettings() {
         showingFontSettings = true
+    }
+
+    func openSearch() {
+        showingSearchSheet = true
+    }
+
+    func searchIfNeeded() async {
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            completedSearchQuery = nil
+            completedSearchVersionID = nil
+            searchRequestID = nil
+            searchResults = []
+            searchResultTextByUSFM = [:]
+            searchScrollPosition = nil
+            isSearching = false
+            hasCompletedSearch = false
+            searchFailed = false
+            return
+        }
+        let versionId = reference.versionId
+        guard query != completedSearchQuery || versionId != completedSearchVersionID else {
+            return
+        }
+
+        let requestID = UUID()
+        searchRequestID = requestID
+        isSearching = false
+        searchFailed = false
+        do {
+            try await ContinuousClock().sleep(for: .milliseconds(300))
+            try Task.checkCancellation()
+            guard requestID == searchRequestID,
+                  query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                return
+            }
+            isSearching = true
+            let results = try await YouVersionAPI.Search.verses(query: query, bibleID: versionId)
+            try Task.checkCancellation()
+            guard requestID == searchRequestID,
+                  query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                return
+            }
+            searchResults = results.verses.filter { $0.bibleReference(versionID: versionId) != nil }
+            searchResultTextByUSFM = [:]
+            searchScrollPosition = nil
+            completedSearchQuery = query
+            completedSearchVersionID = versionId
+            isSearching = false
+            hasCompletedSearch = true
+            searchFailed = false
+        } catch is CancellationError {
+            if requestID == searchRequestID {
+                isSearching = false
+            }
+        } catch {
+            guard requestID == searchRequestID,
+                  query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
+                return
+            }
+            searchResults = []
+            searchResultTextByUSFM = [:]
+            searchScrollPosition = nil
+            completedSearchQuery = nil
+            completedSearchVersionID = nil
+            isSearching = false
+            hasCompletedSearch = false
+            searchFailed = true
+            YouVersionPlatformLogger.error("Bible search failed: \(error)", category: "Reader")
+        }
+    }
+
+    func loadVerseText(for result: YouVersionVerseSearchResult) async {
+        guard searchResultTextByUSFM[result.reference] == nil,
+              let reference = result.bibleReference(versionID: reference.versionId) else {
+            return
+        }
+        guard let text = try? await BibleVersionRendering.plainTextOf(reference) else {
+            return
+        }
+        searchResultTextByUSFM[result.reference] = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func selectSearchResult(_ result: YouVersionVerseSearchResult) async {
+        guard let reference = result.bibleReference(versionID: reference.versionId) else {
+            return
+        }
+        showingSearchSheet = false
+        await goToReference(reference, showsFullChapter: true, shouldFocus: true)
     }
 
     func decreaseFontSize() {
