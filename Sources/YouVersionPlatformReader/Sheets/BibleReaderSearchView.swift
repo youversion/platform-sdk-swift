@@ -20,7 +20,7 @@ struct BibleReaderSearchView: View {
             isSearchFieldFocused = viewModel.searchQuery.isEmpty
         }
         .task(id: viewModel.searchQuery) {
-            await viewModel.searchIfNeeded()
+            await viewModel.updateSuggestedSearchQueries()
         }
     }
 
@@ -34,6 +34,13 @@ struct BibleReaderSearchView: View {
                 TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()
                     .focused($isSearchFieldFocused)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        isSearchFieldFocused = false
+                        Task {
+                            await viewModel.search()
+                        }
+                    }
                     .onChange(of: viewModel.searchQuery) { _, query in
                         if query.count > 100 {
                             viewModel.searchQuery = String(query.prefix(100))
@@ -67,7 +74,7 @@ struct BibleReaderSearchView: View {
         @Bindable var viewModel = viewModel
 
         VStack(spacing: 0) {
-            if viewModel.isSearching {
+            if viewModel.isSearching || viewModel.isLoadingSearchQueries {
                 ProgressView()
                     .controlSize(.small)
                     .tint(viewModel.readerTextMutedColor)
@@ -85,9 +92,43 @@ struct BibleReaderSearchView: View {
                     systemImage: "magnifyingglass",
                     title: noResultsText
                 )
-            } else {
+            } else if viewModel.hasCompletedSearch {
                 searchResultsScrollView
+            } else {
+                searchQueriesScrollView
             }
+        }
+    }
+
+    private var searchQueriesScrollView: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(viewModel.suggestedSearchQueries, id: \.self) { query in
+                    Button {
+                        isSearchFieldFocused = false
+                        Task {
+                            await viewModel.search(for: query)
+                        }
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(viewModel.readerTextMutedColor)
+                            Text(query.text)
+                                .font(.body)
+                                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                                .multilineTextAlignment(.leading)
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.vertical, 14)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .frame(maxWidth: viewModel.readerMaxWidth)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
         }
     }
 

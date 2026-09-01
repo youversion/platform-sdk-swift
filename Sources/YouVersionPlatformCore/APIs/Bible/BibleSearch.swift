@@ -83,11 +83,69 @@ public struct YouVersionVerseSearchResults: Codable, Hashable, Sendable {
     }
 }
 
+/// A search string a user might run and the source that supplied it.
+public struct YouVersionSearchQuery: Codable, Hashable, Sendable {
+    public let text: String
+    public let source: String?
+
+    public init(text: String, source: String?) {
+        self.text = text
+        self.source = source
+    }
+}
+
+/// A collection of suggested or trending search queries.
+public struct YouVersionSearchQueries: Codable, Hashable, Sendable {
+    public let queries: [YouVersionSearchQuery]
+
+    public init(queries: [YouVersionSearchQuery]) {
+        self.queries = queries
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case queries = "data"
+    }
+}
+
 public extension YouVersionAPI {
     enum Search {}
 }
 
 public extension YouVersionAPI.Search {
+    /// Returns as-you-type search query suggestions matching `query` in the first supported language range.
+    static func suggestedQueries(
+        matching query: String,
+        languageRanges: [String],
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionSearchQueries {
+        guard !query.isEmpty else {
+            throw YouVersionAPIRequestError(code: .invalidParameter)
+        }
+        return try await queries(
+            languageRanges: languageRanges,
+            query: query,
+            isTrending: false,
+            accessToken: providedToken,
+            session: session
+        )
+    }
+
+    /// Returns recently popular search queries in the first supported language range.
+    static func trendingQueries(
+        languageRanges: [String],
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionSearchQueries {
+        try await queries(
+            languageRanges: languageRanges,
+            query: nil,
+            isTrending: true,
+            accessToken: providedToken,
+            session: session
+        )
+    }
+
     /// Returns Bible verse search results matching `query` in the requested Bible version.
     ///
     /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
@@ -121,5 +179,35 @@ public extension YouVersionAPI.Search {
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         return try JSONDecoder().decode(YouVersionVerseSearchResults.self, from: data)
+    }
+
+    private static func queries(
+        languageRanges: [String],
+        query: String?,
+        isTrending: Bool,
+        accessToken providedToken: String?,
+        session: URLSession
+    ) async throws -> YouVersionSearchQueries {
+        guard !languageRanges.isEmpty,
+              languageRanges.allSatisfy({ !$0.isEmpty }) else {
+            throw YouVersionAPIRequestError(code: .invalidParameter)
+        }
+        guard let url = URLBuilder.searchQueriesURL(
+            languageRanges: languageRanges,
+            query: query,
+            isTrending: isTrending
+        ) else {
+            throw URLError(.badURL)
+        }
+
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionSearchQueries(queries: [])
+        }
+        return try JSONDecoder().decode(YouVersionSearchQueries.self, from: data)
     }
 }

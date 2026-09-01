@@ -7,7 +7,7 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
 
     @Test
-    func reopeningSearchPreservesQueryResultsAndScrollPosition() {
+    func openingSearchResetsPreviousSearchForTrendingQueries() {
         let viewModel = Support.makeViewModel()
         let results = [
             YouVersionVerseSearchResult(reference: "JHN.1.1"),
@@ -18,34 +18,32 @@ import Testing
         viewModel.searchScrollPosition = results[1].reference
 
         viewModel.openSearch()
-        viewModel.showingSearchSheet = false
-        viewModel.openSearch()
 
         #expect(viewModel.showingSearchSheet)
-        #expect(viewModel.searchQuery == "the word")
-        #expect(viewModel.searchResults == results)
-        #expect(viewModel.searchScrollPosition == "JHN.1.2")
+        #expect(viewModel.searchQuery.isEmpty)
+        #expect(viewModel.searchResults.isEmpty)
+        #expect(viewModel.searchScrollPosition == nil)
     }
 
     @Test
-    func searchDoesNotShowProgressDuringDebounce() async {
+    func suggestionsDoNotShowProgressDuringDebounce() async {
         let viewModel = Support.makeViewModel()
         let existingResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
         viewModel.searchQuery = "peace"
         viewModel.searchResults = existingResults
 
-        let searchTask = Task { await viewModel.searchIfNeeded() }
+        let searchTask = Task { await viewModel.updateSuggestedSearchQueries() }
         await Task.yield()
 
         #expect(!viewModel.isSearching)
-        #expect(viewModel.searchResults == existingResults)
+        #expect(viewModel.searchResults.isEmpty)
 
         searchTask.cancel()
         await searchTask.value
     }
 
     @Test
-    func clearingSearchResetsStatus() async {
+    func openingSearchResetsStatus() {
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = "   "
         viewModel.searchResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
@@ -53,7 +51,7 @@ import Testing
         viewModel.hasCompletedSearch = true
         viewModel.searchFailed = true
 
-        await viewModel.searchIfNeeded()
+        viewModel.openSearch()
 
         #expect(viewModel.searchResults.isEmpty)
         #expect(!viewModel.isSearching)

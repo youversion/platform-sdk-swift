@@ -142,6 +142,26 @@ public enum URLBuilder {
         return components.url
     }
 
+    static func searchQueriesURL(
+        languageRanges: [String],
+        query: String?,
+        isTrending: Bool
+    ) -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1-beta/search-queries"
+        var queryItems = languageRanges.map {
+            URLQueryItem(name: "language_ranges[]", value: $0)
+        }
+        if let query, !isTrending {
+            queryItems.append(URLQueryItem(name: "query", value: query))
+        }
+        if isTrending {
+            queryItems.append(URLQueryItem(name: "trending", value: "true"))
+        }
+        components.queryItems = queryItems
+        return components.url
+    }
+
     public static func versionsURL(languageRanges: [String] = [], fields: [String] = [], pageSize: Int? = 99, pageToken: String? = nil) -> URL? {
         var components = baseURLComponents
         components.path = "/v1/bibles"

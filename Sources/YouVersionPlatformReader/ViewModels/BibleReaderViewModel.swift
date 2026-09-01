@@ -86,17 +86,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     // MARK: - Search
 
-    internal var searchQuery = ""
-    internal var searchResults: [YouVersionVerseSearchResult] = []
-    internal var searchScrollPosition: String?
-    internal var isSearching = false
-    internal var hasCompletedSearch = false
-    internal var searchFailed = false
-    internal var searchResultTextByUSFM: [String: String] = [:]
-    internal var searchResultSetID = UUID()
-    internal var completedSearchQuery: String?
-    internal var completedSearchVersionID: Int?
-    internal var searchRequestID: UUID?
+    var searchQuery = ""
+    var suggestedSearchQueries: [YouVersionSearchQuery] = []
+    var searchResults: [YouVersionVerseSearchResult] = []
+    var searchScrollPosition: String?
+    var isLoadingSearchQueries = false
+    var isSearching = false
+    var hasCompletedSearch = false
+    var searchFailed = false
+    var searchResultTextByUSFM: [String: String] = [:]
+    var searchResultSetID = UUID()
+    var completedSearchQuery: String?
+    var completedSearchVersionID: Int?
+    var submittedSearchQuery: String?
+    var searchQueryRequestID: UUID?
+    var searchRequestID: UUID?
 
     // MARK: - Font settings
 
