@@ -235,6 +235,7 @@ jobs:
           LIST_HASH: ${{ steps.ctx.outputs.hash }}
           TOOLING: ${{ steps.ctx.outputs.tooling }}
           APPROVER: ${{ steps.ack.outputs.approver }}
+          PR_AUTHOR: ${{ steps.ctx.outputs.pr_author }}
         run: |
           set -e
           PHRASE=$(scripts/find-api-additions-acknowledgment.sh --print-phrase)
@@ -262,7 +263,15 @@ jobs:
               echo
             fi
             if [ -z "$APPROVER" ]; then
-              echo "A repo collaborator with write access **other than the PR author** must acknowledge before the \`$STATUS_CONTEXT\` check passes."
+              echo "### What needs to happen"
+              echo
+              echo "The \`$STATUS_CONTEXT\` check stays **failing** until a qualifying acknowledgment is posted. A reply qualifies only if **all** of these hold:"
+              echo
+              echo "1. The commenter is a repo collaborator with **write access**."
+              echo "2. The commenter is **not the PR author** (@$PR_AUTHOR cannot acknowledge this PR — a second pair of eyes is required)."
+              echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. A new push that changes the addition set changes the hash and invalidates earlier replies."
+              echo
+              echo "Replies that miss any of these are silently ignored: the gate workflow will show a green run, but the check on the PR stays red."
               echo
             fi
             echo "<details><summary>New public API in this PR</summary>"
@@ -274,7 +283,7 @@ jobs:
             echo "</details>"
             echo
             if [ -z "$APPROVER" ]; then
-              echo "**Copy-paste-ready reply (maintainers):**"
+              echo "**Copy-paste-ready reply (for a write-access reviewer other than @$PR_AUTHOR):**"
               echo
               echo '```'
               printf '%s\n' "$PHRASE"
