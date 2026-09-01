@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
@@ -50,11 +51,13 @@ extension BibleReaderViewModel {
             }
             suggestedSearchQueries = response.queries
             isLoadingSearchQueries = false
-        } catch is CancellationError {
-            if requestID == searchQueryRequestID {
-                isLoadingSearchQueries = false
-            }
         } catch {
+            if isCancellation(error) {
+                if requestID == searchQueryRequestID {
+                    isLoadingSearchQueries = false
+                }
+                return
+            }
             guard requestID == searchQueryRequestID,
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
@@ -91,6 +94,7 @@ extension BibleReaderViewModel {
             }
             searchResultTextByUSFM = [:]
             searchResults = results.verses.filter { $0.bibleReference(versionID: versionID) != nil }
+            nextSearchPageToken = results.nextPageToken
             searchResultSetID = UUID()
             searchScrollPosition = nil
             completedSearchQuery = query
@@ -98,11 +102,13 @@ extension BibleReaderViewModel {
             isSearching = false
             hasCompletedSearch = true
             searchFailed = false
-        } catch is CancellationError {
-            if requestID == searchRequestID {
-                isSearching = false
-            }
         } catch {
+            if isCancellation(error) {
+                if requestID == searchRequestID {
+                    isSearching = false
+                }
+                return
+            }
             guard requestID == searchRequestID,
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
@@ -110,6 +116,61 @@ extension BibleReaderViewModel {
             clearSearchResults()
             searchFailed = true
             YouVersionPlatformLogger.error("Bible search failed: \(error)", category: "Reader")
+        }
+    }
+
+    func loadNextSearchPageIfNeeded() async {
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        let versionID = reference.versionId
+        guard !isLoadingNextSearchPage,
+              let pageToken = nextSearchPageToken,
+              !pageToken.isEmpty,
+              query == completedSearchQuery,
+              versionID == completedSearchVersionID else {
+            return
+        }
+
+        let requestID = UUID()
+        nextSearchPageRequestID = requestID
+        isLoadingNextSearchPage = true
+        defer {
+            if requestID == nextSearchPageRequestID {
+                nextSearchPageRequestID = nil
+                isLoadingNextSearchPage = false
+            }
+        }
+        do {
+            let results = try await YouVersionAPI.Search.verses(
+                query: query,
+                bibleID: versionID,
+                pageToken: pageToken
+            )
+            try Task.checkCancellation()
+            guard requestID == nextSearchPageRequestID,
+                  query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines),
+                  query == completedSearchQuery,
+                  versionID == reference.versionId,
+                  versionID == completedSearchVersionID else {
+                return
+            }
+
+            var existingReferences = Set(searchResults.map(\.reference))
+            let newResults = results.verses.filter {
+                $0.bibleReference(versionID: versionID) != nil && existingReferences.insert($0.reference).inserted
+            }
+            searchResults.append(contentsOf: newResults)
+            nextSearchPageToken = results.nextPageToken
+        } catch {
+            guard !isCancellation(error) else {
+                return
+            }
+            guard requestID == nextSearchPageRequestID else {
+                return
+            }
+            YouVersionPlatformLogger.error(
+                "Loading the next Bible search page failed: \(error)",
+                category: "Reader"
+            )
         }
     }
 
@@ -164,6 +225,17 @@ extension BibleReaderViewModel {
         completedSearchQuery = nil
         completedSearchVersionID = nil
         searchRequestID = nil
+        nextSearchPageToken = nil
+        nextSearchPageRequestID = nil
+        isLoadingNextSearchPage = false
+    }
+
+    private func isCancellation(_ error: Error) -> Bool {
+        if error is CancellationError {
+            return true
+        }
+        let foundationError = error as NSError
+        return foundationError.domain == NSURLErrorDomain && foundationError.code == NSURLErrorCancelled
     }
 
 }

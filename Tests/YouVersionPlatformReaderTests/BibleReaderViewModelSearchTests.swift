@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import YouVersionPlatformCore
 @testable import YouVersionPlatformReader
@@ -16,6 +17,9 @@ import Testing
         viewModel.searchQuery = "the word"
         viewModel.searchResults = results
         viewModel.searchScrollPosition = results[1].reference
+        viewModel.nextSearchPageToken = "next-page"
+        viewModel.nextSearchPageRequestID = UUID()
+        viewModel.isLoadingNextSearchPage = true
 
         viewModel.openSearch()
 
@@ -23,6 +27,25 @@ import Testing
         #expect(viewModel.searchQuery.isEmpty)
         #expect(viewModel.searchResults.isEmpty)
         #expect(viewModel.searchScrollPosition == nil)
+        #expect(viewModel.nextSearchPageToken == nil)
+        #expect(viewModel.nextSearchPageRequestID == nil)
+        #expect(!viewModel.isLoadingNextSearchPage)
+    }
+
+    @Test
+    func loadingNextPageWithoutContinuationTokenDoesNothing() async {
+        let viewModel = Support.makeViewModel()
+        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        viewModel.searchQuery = "word"
+        viewModel.searchResults = results
+        viewModel.completedSearchQuery = "word"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+
+        await viewModel.loadNextSearchPageIfNeeded()
+
+        #expect(viewModel.searchResults == results)
+        #expect(!viewModel.isLoadingNextSearchPage)
+        #expect(viewModel.nextSearchPageRequestID == nil)
     }
 
     @Test

@@ -137,9 +137,24 @@ struct BibleReaderSearchView: View {
 
         return ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(viewModel.searchResults, id: \.reference) { result in
+                ForEach(Array(viewModel.searchResults.enumerated()), id: \.element.reference) { index, result in
                     resultButton(result)
                         .id(result.reference)
+                        .task(id: viewModel.searchResults.count) {
+                            let loadThreshold = max(0, viewModel.searchResults.count - 5)
+                            guard index >= loadThreshold else {
+                                return
+                            }
+                            await viewModel.loadNextSearchPageIfNeeded()
+                        }
+                }
+
+                if viewModel.isLoadingNextSearchPage {
+                    ProgressView()
+                        .controlSize(.small)
+                        .tint(viewModel.readerTextMutedColor)
+                        .accessibilityLabel(String.localized("generic.search"))
+                        .padding(.vertical, 16)
                 }
             }
             .scrollTargetLayout()
