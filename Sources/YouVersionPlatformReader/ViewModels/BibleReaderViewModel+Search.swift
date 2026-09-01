@@ -70,6 +70,7 @@ extension BibleReaderViewModel {
     func search() async {
         let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
+            clearSearchResults()
             return
         }
         let versionID = reference.versionId

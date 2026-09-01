@@ -49,6 +49,32 @@ import Testing
     }
 
     @Test
+    func loadingNextPageRejectsStaleSearchState() async {
+        let viewModel = Support.makeViewModel()
+        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        viewModel.searchQuery = "joy"
+        viewModel.searchResults = results
+        viewModel.nextSearchPageToken = "next-page"
+        viewModel.completedSearchQuery = "love"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+
+        await viewModel.loadNextSearchPageIfNeeded()
+
+        #expect(viewModel.searchResults == results)
+        #expect(viewModel.nextSearchPageToken == "next-page")
+        #expect(viewModel.nextSearchPageRequestID == nil)
+
+        viewModel.completedSearchQuery = "joy"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId + 1
+
+        await viewModel.loadNextSearchPageIfNeeded()
+
+        #expect(viewModel.searchResults == results)
+        #expect(viewModel.nextSearchPageToken == "next-page")
+        #expect(viewModel.nextSearchPageRequestID == nil)
+    }
+
+    @Test
     func suggestionsDoNotShowProgressDuringDebounce() async {
         let viewModel = Support.makeViewModel()
         let existingResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
@@ -63,6 +89,154 @@ import Testing
 
         searchTask.cancel()
         await searchTask.value
+    }
+
+    @Test
+    func unchangedSubmittedQueryPreservesSuggestions() async {
+        let viewModel = Support.makeViewModel()
+        let suggestions = [YouVersionSearchQuery(text: "joy", source: "community")]
+        viewModel.searchQuery = "joy"
+        viewModel.submittedSearchQuery = "joy"
+        viewModel.suggestedSearchQueries = suggestions
+
+        await viewModel.updateSuggestedSearchQueries()
+
+        #expect(viewModel.suggestedSearchQueries == suggestions)
+        #expect(viewModel.searchQueryRequestID == nil)
+    }
+
+    @Test
+    func searchingWhitespaceClearsPreviousResultsWithoutRequesting() async {
+        let viewModel = Support.makeViewModel()
+        let result = YouVersionVerseSearchResult(reference: "JHN.1.1")
+        viewModel.searchQuery = "   "
+        viewModel.searchResults = [result]
+        viewModel.searchResultTextByUSFM[result.reference] = "In the beginning"
+        viewModel.searchScrollPosition = result.reference
+        viewModel.completedSearchQuery = "beginning"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+        viewModel.nextSearchPageToken = "next-page"
+        viewModel.isSearching = true
+        viewModel.hasCompletedSearch = true
+        viewModel.searchFailed = true
+
+        await viewModel.search()
+
+        #expect(viewModel.searchResults.isEmpty)
+        #expect(viewModel.searchResultTextByUSFM.isEmpty)
+        #expect(viewModel.searchScrollPosition == nil)
+        #expect(viewModel.completedSearchQuery == nil)
+        #expect(viewModel.completedSearchVersionID == nil)
+        #expect(viewModel.nextSearchPageToken == nil)
+        #expect(!viewModel.isSearching)
+        #expect(!viewModel.hasCompletedSearch)
+        #expect(!viewModel.searchFailed)
+    }
+
+    @Test
+    func repeatedCompletedSearchPreservesResults() async {
+        let viewModel = Support.makeViewModel()
+        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        viewModel.searchQuery = "  joy  "
+        viewModel.searchResults = results
+        viewModel.completedSearchQuery = "joy"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+        viewModel.hasCompletedSearch = true
+        viewModel.suggestedSearchQueries = [YouVersionSearchQuery(text: "joyful", source: nil)]
+
+        await viewModel.search()
+
+        #expect(viewModel.searchQuery == "joy")
+        #expect(viewModel.submittedSearchQuery == "joy")
+        #expect(viewModel.searchResults == results)
+        #expect(viewModel.suggestedSearchQueries.isEmpty)
+        #expect(viewModel.hasCompletedSearch)
+    }
+
+    @Test
+    func selectingSuggestionSubmitsItsTextAndHandlesCancellation() async {
+        let viewModel = Support.makeViewModel()
+        let suggestion = YouVersionSearchQuery(text: "joy", source: "community")
+        viewModel.suggestedSearchQueries = [suggestion]
+        let searchTask = Task {
+            await viewModel.search(for: suggestion)
+        }
+        searchTask.cancel()
+
+        await searchTask.value
+
+        #expect(viewModel.searchQuery == "joy")
+        #expect(viewModel.submittedSearchQuery == "joy")
+        #expect(viewModel.suggestedSearchQueries.isEmpty)
+        #expect(!viewModel.isSearching)
+        #expect(!viewModel.searchFailed)
+    }
+
+    @Test
+    func cancellingNextPagePreservesResultsAndContinuationToken() async {
+        let viewModel = Support.makeViewModel()
+        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        viewModel.searchQuery = "joy"
+        viewModel.searchResults = results
+        viewModel.nextSearchPageToken = "next-page"
+        viewModel.completedSearchQuery = "joy"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+        let searchTask = Task {
+            await viewModel.loadNextSearchPageIfNeeded()
+        }
+        searchTask.cancel()
+
+        await searchTask.value
+
+        #expect(viewModel.searchResults == results)
+        #expect(viewModel.nextSearchPageToken == "next-page")
+        #expect(viewModel.nextSearchPageRequestID == nil)
+        #expect(!viewModel.isLoadingNextSearchPage)
+    }
+
+    @Test
+    func loadingVerseTextUsesCachedChapterAndTrimsWhitespace() async throws {
+        let versionID = 9_030_034
+        let chapterReference = BibleReference(versionId: versionID, bookId: "JHN", chapter: 3)
+        let result = YouVersionVerseSearchResult(reference: "JHN.3.16")
+        let html = """
+        <div>
+            <div class="p">
+                <span class="yv-v" v="16"></span><span class="yv-vlbl">16</span>
+                For God so loved the world.
+            </div>
+        </div>
+        """
+        let storage = BibleContentStorage(storageKind: .cache)
+        let resource = BibleContentStorageResource.chapter(
+            versionId: versionID,
+            chapterPassageId: chapterReference.chapterPassageId
+        )
+        try storage.writeString(html, to: resource)
+        try storage.writeExpirationDate(.distantFuture, for: resource)
+        let viewModel = Support.makeViewModel(reference: chapterReference)
+        let resultSetID = viewModel.searchResultSetID
+
+        await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
+
+        #expect(viewModel.searchResultTextByUSFM[result.reference] == "For God so loved the world.")
+        await BibleChapterRepository.shared.removeVersion(withId: versionID)
+    }
+
+    @Test
+    func loadingVerseTextRejectsStaleMalformedAndPreviouslyLoadedResults() async {
+        let viewModel = Support.makeViewModel()
+        let result = YouVersionVerseSearchResult(reference: "JHN.1.1")
+        viewModel.searchResultTextByUSFM[result.reference] = "Existing text"
+
+        await viewModel.loadVerseText(for: result, resultSetID: viewModel.searchResultSetID)
+        await viewModel.loadVerseText(
+            for: YouVersionVerseSearchResult(reference: "malformed"),
+            resultSetID: viewModel.searchResultSetID
+        )
+        await viewModel.loadVerseText(for: result, resultSetID: UUID())
+
+        #expect(viewModel.searchResultTextByUSFM == [result.reference: "Existing text"])
     }
 
     @Test
@@ -112,4 +286,5 @@ import Testing
         #expect(viewModel.showingSearchSheet)
         #expect(viewModel.reference == originalReference)
     }
+
 }
