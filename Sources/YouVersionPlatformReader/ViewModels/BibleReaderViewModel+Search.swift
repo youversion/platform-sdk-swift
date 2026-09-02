@@ -183,10 +183,10 @@ extension BibleReaderViewModel {
     func loadVerseText(for result: YouVersionVerseSearchResult, resultSetID: UUID) async {
         guard resultSetID == searchResultSetID,
               searchResultTextByUSFM[result.reference] == nil,
-              let reference = result.bibleReference(versionID: reference.versionId) else {
+              let verseReference = result.bibleReference(versionID: reference.versionId) else {
             return
         }
-        guard let text = try? await BibleVersionRendering.plainTextOf(reference) else {
+        guard let text = try? await BibleVersionRendering.plainTextOf(verseReference) else {
             return
         }
         guard resultSetID == searchResultSetID else {
@@ -196,11 +196,11 @@ extension BibleReaderViewModel {
     }
 
     func selectSearchResult(_ result: YouVersionVerseSearchResult) async {
-        guard let reference = result.bibleReference(versionID: reference.versionId) else {
+        guard let verseReference = result.bibleReference(versionID: reference.versionId) else {
             return
         }
         showingSearchSheet = false
-        await goToReference(reference, showsFullChapter: true, shouldFocus: true)
+        await goToReference(verseReference, showsFullChapter: true, shouldFocus: true)
     }
 
     private func resetSearch() {

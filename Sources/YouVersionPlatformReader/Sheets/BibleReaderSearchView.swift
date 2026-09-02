@@ -7,8 +7,6 @@ struct BibleReaderSearchView: View {
     @FocusState private var isSearchFieldFocused: Bool
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
         VStack(spacing: 0) {
             searchHeader
             Divider()
@@ -195,6 +193,7 @@ struct BibleReaderSearchView: View {
         return Button {
             isSearchFieldFocused = false
             Task {
+                // Allow keyboard dismissal to begin before closing the search sheet.
                 try? await ContinuousClock().sleep(for: .milliseconds(100))
                 await viewModel.selectSearchResult(result)
             }

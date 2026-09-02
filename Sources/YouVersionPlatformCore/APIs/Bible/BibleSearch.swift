@@ -148,8 +148,23 @@ public extension YouVersionAPI.Search {
 
     /// Returns Bible verse search results matching `query` in the requested Bible version.
     ///
-    /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
-    ///   is outside the range accepted by the API.
+    /// - Parameters:
+    ///   - query: The search text. Must contain between 1 and 100 characters.
+    ///   - bibleID: The identifier of the Bible version to search.
+    ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
+    ///   - pageSize: The maximum number of results to return. When supplied, must be between 1 and 99.
+    ///   - pageToken: A continuation token returned by a previous search request.
+    ///   - accessToken: An optional access token. Defaults to the configured access token.
+    ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
+    /// - Returns: The matching verse references and any continuation token supplied by the API.
+    /// - Throws:
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
+    ///     is outside the range accepted by the API.
+    ///   - `URLError` if the request URL is invalid or the network request fails.
+    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
+    ///   - `DecodingError` if the response body is malformed.
     static func verses(
         query: String,
         bibleID: Int,
