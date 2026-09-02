@@ -134,6 +134,7 @@ extension BibleReaderViewModel {
         let requestID = UUID()
         nextSearchPageRequestID = requestID
         isLoadingNextSearchPage = true
+        hasNextSearchPageLoadError = false
         defer {
             if requestID == nextSearchPageRequestID {
                 nextSearchPageRequestID = nil
@@ -168,6 +169,7 @@ extension BibleReaderViewModel {
             guard requestID == nextSearchPageRequestID else {
                 return
             }
+            hasNextSearchPageLoadError = true
             YouVersionPlatformLogger.error(
                 "Loading the next Bible search page failed: \(error)",
                 category: "Reader"
@@ -229,6 +231,7 @@ extension BibleReaderViewModel {
         nextSearchPageToken = nil
         nextSearchPageRequestID = nil
         isLoadingNextSearchPage = false
+        hasNextSearchPageLoadError = false
     }
 
     private func isCancellation(_ error: Error) -> Bool {

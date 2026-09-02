@@ -88,7 +88,7 @@ struct BibleReaderSearchView: View {
             } else if viewModel.hasCompletedSearch && viewModel.searchResults.isEmpty {
                 searchStateView(
                     systemImage: "magnifyingglass",
-                    title: noResultsText
+                    title: String.localized("bibleReader.search.noResults")
                 )
             } else if viewModel.hasCompletedSearch {
                 searchResultsScrollView
@@ -153,6 +153,16 @@ struct BibleReaderSearchView: View {
                         .tint(viewModel.readerTextMutedColor)
                         .accessibilityLabel(String.localized("generic.search"))
                         .padding(.vertical, 16)
+                } else if viewModel.hasNextSearchPageLoadError {
+                    Button {
+                        Task {
+                            await viewModel.loadNextSearchPageIfNeeded()
+                        }
+                    } label: {
+                        Label(String.localized("generic.error"), systemImage: "arrow.clockwise")
+                    }
+                    .foregroundStyle(viewModel.readerTextMutedColor)
+                    .padding(.vertical, 16)
                 }
             }
             .scrollTargetLayout()
@@ -162,16 +172,6 @@ struct BibleReaderSearchView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollPosition(id: $viewModel.searchScrollPosition, anchor: .top)
-    }
-
-    private var noResultsText: String {
-        NSLocalizedString(
-            "bibleReader.search.noResults",
-            tableName: "Localizable",
-            bundle: Bundle.YouVersionUIBundle,
-            value: "No verses found.",
-            comment: "Message shown when a Bible search returns no verses."
-        )
     }
 
     private func searchStateView(systemImage: String, title: String) -> some View {

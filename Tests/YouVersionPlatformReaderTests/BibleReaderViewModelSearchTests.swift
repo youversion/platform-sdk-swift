@@ -20,6 +20,7 @@ import Testing
         viewModel.nextSearchPageToken = "next-page"
         viewModel.nextSearchPageRequestID = UUID()
         viewModel.isLoadingNextSearchPage = true
+        viewModel.hasNextSearchPageLoadError = true
 
         viewModel.openSearch()
 
@@ -30,6 +31,7 @@ import Testing
         #expect(viewModel.nextSearchPageToken == nil)
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
+        #expect(!viewModel.hasNextSearchPageLoadError)
     }
 
     @Test
@@ -181,6 +183,7 @@ import Testing
         viewModel.nextSearchPageToken = "next-page"
         viewModel.completedSearchQuery = "joy"
         viewModel.completedSearchVersionID = viewModel.reference.versionId
+        viewModel.hasNextSearchPageLoadError = true
         let searchTask = Task {
             await viewModel.loadNextSearchPageIfNeeded()
         }
@@ -192,6 +195,7 @@ import Testing
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
+        #expect(!viewModel.hasNextSearchPageLoadError)
     }
 
     @Test

@@ -104,6 +104,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
     var isLoadingNextSearchPage = false
+    var hasNextSearchPageLoadError = false
 
     // MARK: - Font settings
 
