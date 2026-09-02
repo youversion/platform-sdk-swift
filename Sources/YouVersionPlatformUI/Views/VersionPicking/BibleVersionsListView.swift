@@ -21,20 +21,26 @@ public struct BibleVersionsListView: View {
             }
             Group {
                 if let versions = filteredVersions {
-                    List(versions, id: \.id) { version in
-                        Button {
-                            viewModel.handleVersionPickerTap(version.id)
-                        } label: {
-                            BibleVersionOverviewListItem(version: version)
-                        }
-                        .buttonStyle(.plain)
-                        .listRowBackground(viewModel.readerCanvasPrimaryColor)
+                    if versions.isEmpty && hasSearchText {
+                        Text(String.localized("versionList.noSearchResults"))
+                            .foregroundStyle(viewModel.readerTextMutedColor)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(versions, id: \.id) { version in
+                            Button {
+                                viewModel.handleVersionPickerTap(version.id)
+                            } label: {
+                                BibleVersionOverviewListItem(version: version)
+                            }
+                            .buttonStyle(.plain)
+                            .listRowBackground(viewModel.readerCanvasPrimaryColor)
 #if !os(tvOS)
-                        .listRowSeparator(.hidden)
+                            .listRowSeparator(.hidden)
 #endif
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
                 } else {
                     VStack {
                         Spacer()
@@ -81,6 +87,16 @@ public struct BibleVersionsListView: View {
             #endif
             .autocorrectionDisabled(true)
             .accessibilityLabel(String.localized("versionList.searchPlaceholder"))
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String.localized("versionList.clearSearch"))
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -97,6 +113,10 @@ public struct BibleVersionsListView: View {
             return true
         }
         return Set(versions.compactMap { $0.languageTag }).count > 1
+    }
+
+    private var hasSearchText: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var languageDisplay: some View {

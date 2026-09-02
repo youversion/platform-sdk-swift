@@ -7,11 +7,20 @@ This script compares baseline and current digester JSON by USR, then groups
 new declarations by the Swift source file that appears to implement them.
 
 Usage:
-  report-api-additions.py <baseline-dir> <current-dir> <sources-dir> <module>...
+  report-api-additions.py <baseline-dir> <current-dir> <sources-dir> <module>... [--count-file <path>]
+
+With --count-file, the total number of added declarations is also written to
+<path> as a bare integer, for machine consumption (e.g. CI gating).
+
+NOTE: the api-additions-signoff workflows hash this script's stdout and embed
+that hash in the acknowledgment handshake, so the report *text* is
+load-bearing — a formatting change invalidates outstanding acknowledgments on
+open PRs.
 """
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -360,23 +369,36 @@ def print_report(
 
 
 def main() -> int:
-    if len(sys.argv) < 5:
-        print(
-            "usage: report-api-additions.py <baseline-dir> <current-dir> <sources-dir> <module>...",
-            file=sys.stderr,
-        )
-        return 2
+    parser = argparse.ArgumentParser(
+        description="Report public API additions between swift-api-digester dumps."
+    )
+    parser.add_argument("baseline_dir", type=Path)
+    parser.add_argument("current_dir", type=Path)
+    parser.add_argument("sources_dir", type=Path)
+    parser.add_argument("modules", nargs="+")
+    parser.add_argument(
+        "--count-file",
+        type=Path,
+        help="also write the total number of added declarations to this path",
+    )
+    parsed = parser.parse_args()
 
-    baseline_dir = Path(sys.argv[1])
-    current_dir = Path(sys.argv[2])
-    sources_dir = Path(sys.argv[3])
-    modules = sys.argv[4:]
+    count_file: Path | None = parsed.count_file
+    baseline_dir = parsed.baseline_dir
+    current_dir = parsed.current_dir
+    sources_dir = parsed.sources_dir
+    modules = parsed.modules
 
     additions_by_path: dict[Path | None, list[tuple[Addition, SourceMatch | None]]] = {}
 
     for module in modules:
-        baseline = public_declarations(baseline_dir / f"{module}.json", module)
-        current = public_declarations(current_dir / f"{module}.json", module)
+        # A dump missing on either side means the module doesn't exist at that
+        # commit (added or removed by the change under review); treat it as an
+        # empty API surface rather than failing.
+        baseline_path = baseline_dir / f"{module}.json"
+        current_path = current_dir / f"{module}.json"
+        baseline = public_declarations(baseline_path, module) if baseline_path.exists() else {}
+        current = public_declarations(current_path, module) if current_path.exists() else {}
         source_files = source_files_for_module(sources_dir, module)
 
         added_usrs = sorted(current.keys() - baseline.keys())
@@ -385,6 +407,10 @@ def main() -> int:
             source_match = find_source_match(addition, source_files)
             path = source_match.path if source_match else None
             additions_by_path.setdefault(path, []).append((addition, source_match))
+
+    if count_file is not None:
+        total = sum(len(items) for items in additions_by_path.values())
+        count_file.write_text(f"{total}\n")
 
     print_report(additions_by_path, sources_dir)
     return 0

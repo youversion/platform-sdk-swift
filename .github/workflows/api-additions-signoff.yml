@@ -1,0 +1,106 @@
+name: API Additions Signoff
+
+# Unprivileged half of the human signoff gate for *additive* public API
+# changes. Design and decisions: docs/api-additions-signoff.md.
+#
+# This workflow runs on every PR — including external forks, which MUST NOT
+# be able to bypass the gate (shaping-doc decision, 2026-08-14). Fork PR
+# tokens are read-only, so this job never posts comments or statuses; it only
+# builds the API diff and uploads it as an artifact. The privileged
+# `workflow_run` half in api-additions-signoff-gate.yml (which always runs
+# the trusted code from the default branch) does all the writing.
+#
+# TRUST BOUNDARY: for `pull_request` events a fork PR executes its own copy
+# of this file and of scripts/, so everything this job produces — the
+# artifact included — is untrusted input to the gate. The gate therefore
+# takes all identity (head SHA, PR number, PR author) from its own trusted
+# `workflow_run` payload, accepts only validated `count=`/`hash=` lines from
+# the artifact, sanitizes the report text before embedding it, and refuses
+# the silent count=0 pass for PRs that modify this tooling.
+#
+# Note for branch protection: the `paths` filter means docs-only PRs never
+# run this workflow, so the `api-additions-signoff` commit status is absent
+# on them. Keep that in mind before making the status a required check.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'Sources/**'
+      - 'Package.swift'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-additions-signoff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  XCODE_VERSION: latest-stable
+
+jobs:
+  # Builds the API surface at the merge-base and at head, diffs them, and
+  # uploads the result. No write operations — safe to run on untrusted fork
+  # code. A build/digester failure fails this run, and the gate translates a
+  # non-success detect conclusion into a failing commit status (fail closed).
+  detect:
+    name: Detect public API additions
+    runs-on: macos-26
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Dump public API at merge-base and head
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -e
+          # Diff against the merge-base, not the base branch tip, so additions
+          # merged to main after this PR branched don't leak into its list.
+          MERGE_BASE=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          echo "Merge base: $MERGE_BASE"
+
+          git checkout --quiet "$MERGE_BASE"
+          # Overlay head's scripts so tooling changes in this PR (including
+          # the dump mode itself) apply to the merge-base build too.
+          git checkout --quiet "$HEAD_SHA" -- scripts
+          scripts/check-api-stability.sh dump "$RUNNER_TEMP/dump-base"
+
+          git checkout --quiet --force "$HEAD_SHA"
+          scripts/check-api-stability.sh dump "$RUNNER_TEMP/dump-head"
+
+      - name: Report additions in this PR
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/detect"
+          scripts/check-api-stability.sh report \
+            "$RUNNER_TEMP/dump-base" "$RUNNER_TEMP/dump-head" \
+            --count-file "$RUNNER_TEMP/count.txt" \
+            | tee "$RUNNER_TEMP/detect/report.txt"
+          COUNT=$(tr -d '[:space:]' < "$RUNNER_TEMP/count.txt")
+          # Short hash of the report text: embedded in the PR comment and
+          # required in the acknowledgment reply, so an acknowledgment is
+          # automatically invalidated when the addition set changes. It covers
+          # the *rendered report*, so report formatting is load-bearing — see
+          # the note in scripts/report-api-additions.py.
+          HASH=$(shasum -a 256 "$RUNNER_TEMP/detect/report.txt" | cut -c1-12)
+          {
+            echo "count=$COUNT"
+            echo "hash=$HASH"
+          } > "$RUNNER_TEMP/detect/meta.txt"
+
+      - name: Upload detection results
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-additions-detect
+          path: ${{ runner.temp }}/detect/
+          if-no-files-found: error

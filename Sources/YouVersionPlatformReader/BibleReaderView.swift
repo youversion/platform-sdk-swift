@@ -11,6 +11,7 @@ public struct BibleReaderView: View {
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
+    private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
     ///
@@ -36,11 +37,12 @@ public struct BibleReaderView: View {
     ///   - readerNavigation: An optional ``BibleReaderNavigation`` used to move the reader
     ///     to a new passage from elsewhere in the app (for example, a "Read" button in
     ///     another tab).
-    public init(reference: BibleReference,
-                verseSelectionStyle: VerseSelectionStyle = .solid,
-                onVerseTap: ((BibleReference) -> Void)? = nil,
-                showsFullChapter: Bool = false,
-                readerNavigation: BibleReaderNavigation? = nil
+    public init(
+        reference: BibleReference,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        showsFullChapter: Bool = false,
+        readerNavigation: BibleReaderNavigation? = nil
     ) {
         self.init(
             initialReference: reference,
@@ -75,6 +77,21 @@ public struct BibleReaderView: View {
             showsFullChapter: false,
             readerNavigation: readerNavigation
         )
+    }
+
+    /// Returns a reader that renders `header` at the top of each chapter, above
+    /// the verse text. The builder receives a ``BibleChapterDescriptor`` (the
+    /// chapter reference, book name, and chapter label) and is rebuilt whenever
+    /// the reader navigates to a different chapter. Use it to supply an
+    /// app-specific heading — fonts, colors, and layout are entirely the host's,
+    /// while the reader owns placement and width. Without this modifier the
+    /// reader shows no header.
+    public func chapterHeader<Header: View>(
+        @ViewBuilder _ header: @escaping (BibleChapterDescriptor) -> Header
+    ) -> BibleReaderView {
+        var copy = self
+        copy.chapterHeaderBuilder = { AnyView(header($0)) }
+        return copy
     }
 
     /// Creates a Bible reader view.
@@ -155,7 +172,7 @@ public struct BibleReaderView: View {
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation)
+                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation, chapterHeader: chapterHeaderBuilder)
             } else {
                 Color.clear
             }
@@ -183,6 +200,7 @@ public struct BibleReaderView: View {
 private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
+    let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -197,9 +215,14 @@ private struct ReaderContent: View {
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
 
-    init(viewModel: BibleReaderViewModel, readerNavigation: BibleReaderNavigation?) {
+    init(
+        viewModel: BibleReaderViewModel,
+        readerNavigation: BibleReaderNavigation?,
+        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+    ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
+        self.chapterHeader = chapterHeader
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
@@ -420,6 +443,26 @@ private struct ReaderContent: View {
         }
     }
 
+    /// Describes the currently displayed chapter for the host's chapter header.
+    /// The chapter label comes from the version's chapter metadata (which may be
+    /// non-numeric), falling back to the numeric index when metadata is missing.
+    private var chapterDescriptor: BibleChapterDescriptor {
+        let reference = viewModel.reference
+        // Match the chapter's metadata by identity rather than array position —
+        // a version's chapter list may be sparse or ordered differently from the
+        // numeric reference (same matching as BibleReference.existsIn(version:)).
+        let chapterMetadata = viewModel.version?.book(with: reference.bookId)?.chapters?.first {
+            $0.passageId == reference.chapterPassageId
+                || $0.id == reference.chapterPassageId
+                || $0.id == String(reference.chapter)
+        }
+        return BibleChapterDescriptor(
+            reference: reference,
+            bookName: viewModel.version?.bookName(reference.bookId) ?? reference.bookId,
+            chapterLabel: chapterMetadata?.title ?? String(reference.chapter)
+        )
+    }
+
     private var mainScroller: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
@@ -428,6 +471,9 @@ private struct ReaderContent: View {
                         if viewModel.showBookIntro {
                             BibleReaderIntroView()
                         } else {
+                            if let chapterHeader {
+                                chapterHeader(chapterDescriptor)
+                            }
                             BibleTextView(
                                 viewModel.showsFullChapter ? viewModel.reference.chapterReference : viewModel.reference,
                                 textOptions: viewModel.textOptions,
