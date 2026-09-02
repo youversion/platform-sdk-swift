@@ -138,7 +138,7 @@ struct BibleReaderSearchView: View {
                 ForEach(Array(viewModel.searchResults.enumerated()), id: \.element.reference) { index, result in
                     resultButton(result)
                         .id(result.reference)
-                        .task(id: viewModel.searchResults.count) {
+                        .task(id: viewModel.nextSearchPageToken) {
                             let loadThreshold = max(0, viewModel.searchResults.count - 5)
                             guard index >= loadThreshold else {
                                 return
