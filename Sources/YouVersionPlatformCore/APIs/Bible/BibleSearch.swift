@@ -91,7 +91,7 @@ public extension YouVersionAPI.Search {
         session: URLSession = .shared
     ) async throws -> [YouVersionSearchQuery] {
         guard !query.isEmpty else {
-            throw YouVersionAPIError.invalidParameter
+            throw YouVersionAPIRequestError(code: .invalidParameter)
         }
         return try await queries(
             languageRanges: languageRanges,
@@ -129,7 +129,7 @@ public extension YouVersionAPI.Search {
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching verse references and any continuation token supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIError.invalidParameter` when `query`, `bibleID`, or `pageSize`
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
     ///     is outside the range accepted by the API.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
@@ -149,7 +149,7 @@ public extension YouVersionAPI.Search {
               bibleID > 0,
               Int32(exactly: bibleID) != nil,
               pageSize.map({ (1...99).contains($0) }) ?? true else {
-            throw YouVersionAPIError.invalidParameter
+            throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
         guard let url = URLBuilder.searchVersesURL(
@@ -183,7 +183,7 @@ public extension YouVersionAPI.Search {
     ) async throws -> [YouVersionSearchQuery] {
         guard !languageRanges.isEmpty,
               languageRanges.allSatisfy({ !$0.isEmpty }) else {
-            throw YouVersionAPIError.invalidParameter
+            throw YouVersionAPIRequestError(code: .invalidParameter)
         }
         guard let url = URLBuilder.searchQueriesURL(
             languageRanges: languageRanges,

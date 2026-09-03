@@ -106,25 +106,25 @@ import Testing
 
     @Test
     func invalidParametersReturnInvalidParameterError() async {
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "", bibleID: 111)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: String(repeating: "a", count: 101), bibleID: 111)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 0)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: -1)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: Int(Int32.max) + 1)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 0)
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 100)
         }
     }

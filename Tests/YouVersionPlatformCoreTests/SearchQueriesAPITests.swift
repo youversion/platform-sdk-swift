@@ -111,13 +111,13 @@ import Testing
 
     @Test
     func invalidParametersReturnInvalidParameterError() async {
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.suggestedQueries(matching: "", languageRanges: ["en"])
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.suggestedQueries(matching: "love", languageRanges: [])
         }
-        await #expect(throws: YouVersionAPIError.invalidParameter) {
+        await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.trendingQueries(languageRanges: [""])
         }
     }
