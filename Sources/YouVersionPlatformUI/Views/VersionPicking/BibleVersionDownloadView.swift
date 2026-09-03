@@ -23,6 +23,8 @@ struct BibleVersionDownloadView: View {
                         viewModel.versionDownloadInfoButtonTapped(for: version)
                     }) {
                         Image(systemName: "info.circle")
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                             .padding(.trailing)
                     }
                 }

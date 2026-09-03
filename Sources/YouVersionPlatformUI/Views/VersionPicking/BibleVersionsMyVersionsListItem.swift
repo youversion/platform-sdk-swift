@@ -116,7 +116,8 @@ struct BibleVersionsMyVersionsListItem: View, AbbreviationSplitting {
         } label: {
             Image(systemName: "ellipsis")
                 .foregroundStyle(viewModel.readerTextMutedColor)
-                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
                 .clipShape(Rectangle())
         }
     }

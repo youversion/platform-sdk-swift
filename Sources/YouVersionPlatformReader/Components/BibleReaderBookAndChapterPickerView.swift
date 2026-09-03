@@ -80,6 +80,8 @@ public struct BibleReaderBookAndChapterPickerView: View {
                     } label: {
                         Image(systemName: "chevron.backward")
                             .font(.system(size: 24, weight: .semibold))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
                     .accessibilityLabel(String.localized("generic.back"))
                     .padding(.leading, 16)
@@ -90,7 +92,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         Spacer()
                     }
                 }
-                .padding(.vertical, 16)
+                .padding(.vertical, 6)
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(bookCodes, id: \.self) { bookCode in

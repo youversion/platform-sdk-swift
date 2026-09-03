@@ -16,9 +16,11 @@ struct BibleReaderFontListView: View {
                     } label: {
                         Image(systemName: "chevron.backward")
                             .font(.system(size: 24, weight: .semibold))
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
                     .accessibilityLabel(String.localized("generic.back"))
-                    .padding()
+                    .padding(6)
                     Spacer()
                 }
             }
