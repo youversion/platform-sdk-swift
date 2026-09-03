@@ -43,6 +43,21 @@ public struct YouVersionVerseSearchResults: Sendable {
     public let nextPageToken: String?
 }
 
+/// A topic related to a search query.
+public struct YouVersionSearchTopic: Sendable {
+    public let id: Int?
+    public let text: String
+    public let subtopics: [String]
+}
+
+/// Topics and query metadata returned by a topic search.
+public struct YouVersionTopicSearchResults: Sendable {
+    public let topics: [YouVersionSearchTopic]
+    public let didYouMean: [String]
+    public let searchInsteadFor: String?
+    public let totalSize: Int
+}
+
 /// A search string a user might run and the source that supplied it.
 public struct YouVersionSearchQuery: Sendable {
     public let text: String
@@ -76,6 +91,26 @@ private struct VerseSearchResponse: Decodable {
 
 private struct VerseSearchResultResponse: Decodable {
     let reference: String
+}
+
+private struct TopicSearchResponse: Decodable {
+    let topics: [TopicSearchResultResponse]
+    let didYouMean: [String]
+    let searchInsteadFor: String?
+    let totalSize: Int
+
+    enum CodingKeys: String, CodingKey {
+        case topics
+        case didYouMean = "did_you_mean"
+        case searchInsteadFor = "search_instead_for"
+        case totalSize = "total_size"
+    }
+}
+
+private struct TopicSearchResultResponse: Decodable {
+    let id: Int?
+    let text: String
+    let subtopics: [String]
 }
 
 public extension YouVersionAPI {
@@ -114,6 +149,51 @@ public extension YouVersionAPI.Search {
             isTrending: true,
             accessToken: providedToken,
             session: session
+        )
+    }
+
+    /// Returns topics related to `query` in the first supported language range.
+    ///
+    /// - Parameters:
+    ///   - query: The search text. Must contain between 1 and 100 characters.
+    ///   - languageRanges: An ordered list of Basic Language Ranges, or `*` to match all languages.
+    ///   - accessToken: An optional access token. Defaults to the configured access token.
+    ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
+    /// - Returns: The matching topics and query metadata supplied by the API.
+    /// - Throws:
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `languageRanges`
+    ///     is outside the range accepted by the API.
+    ///   - `URLError` if the request URL is invalid or the network request fails.
+    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
+    ///   - `DecodingError` if the response body is malformed.
+    static func topics(
+        matching query: String,
+        languageRanges: [String],
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionTopicSearchResults {
+        guard (1...100).contains(query.count),
+              !languageRanges.isEmpty,
+              languageRanges.allSatisfy(isValidLanguageRange) else {
+            throw YouVersionAPIRequestError(code: .invalidParameter)
+        }
+
+        guard let url = searchTopicsURL(query: query, languageRanges: languageRanges) else {
+            throw URLError(.badURL)
+        }
+
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        let response = try JSONDecoder().decode(TopicSearchResponse.self, from: data)
+        return YouVersionTopicSearchResults(
+            topics: response.topics.map {
+                YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
+            },
+            didYouMean: response.didYouMean,
+            searchInsteadFor: response.searchInsteadFor,
+            totalSize: response.totalSize
         )
     }
 
@@ -203,5 +283,23 @@ public extension YouVersionAPI.Search {
         }
         let response = try JSONDecoder().decode(SearchQueriesResponse.self, from: data)
         return response.data.map { YouVersionSearchQuery(text: $0.text, source: $0.source) }
+    }
+
+    private static func isValidLanguageRange(_ languageRange: String) -> Bool {
+        languageRange == "*" || languageRange.range(
+            of: #"^[A-z]{1,8}([-_][0-9A-z]{1,8})*$"#,
+            options: .regularExpression
+        ) != nil
+    }
+
+    private static func searchTopicsURL(query: String, languageRanges: [String]) -> URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = YouVersionPlatformConfiguration.apiHost
+        components.path = "/v1-beta/search-topics"
+        components.queryItems = [URLQueryItem(name: "query", value: query)] + languageRanges.map {
+            URLQueryItem(name: "language_ranges[]", value: $0)
+        }
+        return components.url
     }
 }
