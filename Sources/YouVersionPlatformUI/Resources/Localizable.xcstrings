@@ -91,6 +91,750 @@
     }
   },
   "strings": {
+    "agreeAndDownload": {
+      "comment": "Primary button to accept publisher agreement and download version.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agree and Download"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "all": {
+      "comment": "Tab label for all languages in language picker.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "back": {
+      "comment": "Standard text for Back navigation; used on multiple screens.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "bibleApp": {
+      "comment": "Bible App product brand name; keep as proper noun.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bible App"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "bibleCard.unavailableReference": {
       "extractionState": "manual",
       "localizations": {
@@ -1405,7 +2149,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign Out"
+            "value": "Sign out"
           }
         },
         "es-MX": {
@@ -1578,6 +2322,564 @@
         }
       },
       "comment": "Standard text for Sign Out; used in menus and dialogs."
+    },
+    "cancel": {
+      "comment": "Standard text for Cancel; used in dialogs and sheets across the app.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "close": {
+      "comment": "Spoken label for close control in popover.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "copy": {
+      "comment": "Copy action in the verse actions menu.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "dataExchange.continue": {
       "comment": "Confirm button in alert requesting permission to save highlights with YouVersion.",
@@ -1953,6 +3255,564 @@
     },
     "dataExchange.highlights.question": {
       "comment": "Alert title asking permission to save highlights with YouVersion; preserve YouVersion brand.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow this app to save highlights with YouVersion?"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "dataExchangeContinue": {
+      "comment": "Button that continues past the highlights permission dialog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "dataExchangeHighlightsExplanation": {
+      "comment": "Explanation in the highlights permission dialog; keep YouVersion as brand name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouVersion will ask you to grant access before highlights can be saved."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "dataExchangeHighlightsQuestion": {
+      "comment": "Question in a permission dialog asking the user to let an app save their highlights with YouVersion; keep YouVersion as brand name.",
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -2707,7 +4567,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read Online Only"
+            "value": "Maybe Later"
           }
         },
         "es-MX": {
@@ -2880,6 +4740,564 @@
         }
       },
       "comment": "Button to decline offline download and read online only."
+    },
+    "error": {
+      "comment": "Generic error heading in dialogs and alerts.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "font": {
+      "comment": "Label for font option in reader settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Font"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "fontAndSettings": {
+      "comment": "Reader overflow menu item for font and settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fonts & Settings"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "fontList.others": {
       "extractionState": "manual",
@@ -4741,6 +7159,192 @@
       },
       "comment": "Standard text for Search; used as field placeholder or button in lists and pickers."
     },
+    "language": {
+      "comment": "Row label for language selection in picker.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "languageList.all": {
       "extractionState": "manual",
       "localizations": {
@@ -5497,7 +8101,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bible Languages"
+            "value": "Select a Language"
           }
         },
         "es-MX": {
@@ -5670,6 +8274,564 @@
         }
       },
       "comment": "Screen title for Bible language selection."
+    },
+    "learnMore": {
+      "comment": "Link label for additional information.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn more"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "loading": {
+      "comment": "Status text shown while content is loading.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "maybeLater": {
+      "comment": "Secondary button to defer offline download agreement.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maybe Later"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "menu.account": {
       "comment": "Spoken label for the account menu button in the Bible reader header.",
@@ -6055,7 +9217,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Font Settings"
+            "value": "Fonts & Settings"
           }
         },
         "es-MX": {
@@ -6799,7 +9961,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign In"
+            "value": "Sign in"
           }
         },
         "es-MX": {
@@ -6985,7 +10147,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign Out"
+            "value": "Sign out"
           }
         },
         "es-MX": {
@@ -8647,6 +11809,1494 @@
       },
       "comment": "Placeholder text for version info not yet available; all caps intentional."
     },
+    "nextChapterAriaLabel": {
+      "comment": "Spoken label for next-chapter navigation control.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next chapter"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "noVersionsFound": {
+      "comment": "Empty state when version search returns no matches.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No versions found"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "offlineConnectionLostMessage": {
+      "comment": "Offline placeholder message when internet connection is lost.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’re having difficulties with your connection."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "offlineDownloadAgreement": {
+      "comment": "Publisher consent text shown before offline Bible version download.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Our agreement with the publisher of this Bible version requires us to share certain information with them in order to offer this version for offline use. By proceeding you agree to share your information and to allow the publisher to email you."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "offlineDownloadTagline": {
+      "comment": "Promotional tagline for offline Bible download feature.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read it anytime, anywhere—even offline"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "ok": {
+      "comment": "Standard text for OK confirmation; used in dialogs across the app.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "passageUnavailable": {
+      "comment": "Error when requested passage is unavailable in selected version.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This passage is unavailable in the selected Bible version."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "previousChapterAriaLabel": {
+      "comment": "Spoken label for previous-chapter navigation control.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous chapter"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "reader.availableLanguagesErrorBody": {
       "extractionState": "manual",
       "localizations": {
@@ -9763,6 +14413,1122 @@
       },
       "comment": "Error body when selected Bible version cannot be accessed."
     },
+    "regional": {
+      "comment": "Section heading for regional languages group.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regional"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "search": {
+      "comment": "Standard text for Search; used as button or field label in pickers and lists.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "searchLanguages": {
+      "comment": "Spoken label for language search field.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search languages"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "searchVersions": {
+      "comment": "Search placeholder in Bible version list.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search versions"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "selectLanguage": {
+      "comment": "Language selection screen title.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a Language"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "share": {
+      "comment": "Share action in the verse actions menu.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "shareableVerse.referencesSeparator": {
       "extractionState": "manual",
       "localizations": {
@@ -10134,6 +15900,192 @@
         }
       },
       "comment": "Placeholder when Bible verse text cannot be loaded for sharing."
+    },
+    "signIn": {
+      "comment": "Short sign-in button text shown in header or toolbar where space is limited.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "signIn.appMessage": {
       "extractionState": "manual",
@@ -11617,6 +17569,750 @@
       },
       "comment": "Accept button during external-app sign-in permission flow."
     },
+    "signInIntroducing": {
+      "comment": "Small heading shown above the sign-in prompt; intentionally uppercase.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "INTRODUCING"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signInNoButton": {
+      "comment": "Button that declines connecting an app to the user's account on the sign-in prompt.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Thanks"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signInYesButton": {
+      "comment": "Button that confirms connecting an app to the user's account on the sign-in prompt.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yes Please"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signOut": {
+      "comment": "Standard text for Sign Out; used in menus and dialogs.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
     "signOut.explanation": {
       "extractionState": "manual",
       "localizations": {
@@ -12546,6 +19242,1122 @@
         }
       },
       "comment": "Sign-out confirmation question; YouVersion is brand name."
+    },
+    "signOutExplanation": {
+      "comment": "Explanation in the sign-out dialog telling the user they must sign in again to reach their highlights.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You'll need to sign in again to access your highlights."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signOutPendingHighlightsConfirm": {
+      "comment": "Button that signs out even though some highlights have not been saved yet.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out anyway"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signOutPendingHighlightsExplanation": {
+      "comment": "Explanation shown when signing out with unsaved highlights that will be lost.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some of your highlights haven't been saved yet, and they will be lost if you sign out. Do you want to sign out anyway?"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signOutPendingHighlightsQuestion": {
+      "comment": "Question in the sign-out dialog shown when the user has highlights that haven't been saved yet.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save your highlights?"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "signOutQuestion": {
+      "comment": "Confirmation question in the sign-out dialog; keep YouVersion as brand name.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to sign out from YouVersion?"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
+    },
+    "suggested": {
+      "comment": "Tab label for suggested languages in language picker.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggested"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "tab.bible": {
       "extractionState": "manual",
@@ -13848,6 +21660,192 @@
         }
       },
       "comment": "Hint label for swipe-up gesture to reveal more verse actions."
+    },
+    "verseOfTheDay": {
+      "comment": "Heading for Verse of the Day section in reader.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verse of the Day"
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "versionInfo.addButton": {
       "extractionState": "manual",
@@ -17820,6 +25818,192 @@
         }
       },
       "comment": "Pluralized stats line; versions_string and languages_string are plural rule keys."
+    },
+    "versionUnavailableAutoSelectedMessage": {
+      "comment": "Message when the user's selected Bible version is no longer available.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your previously selected Bible version is unavailable. Please switch to another one."
+          }
+        },
+        "af": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "zh-HK": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ig": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sr-Latn": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "es-MX": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        },
+        "cy": {
+          "stringUnit": {
+            "state": "needs_translation",
+            "value": ""
+          }
+        }
+      }
     },
     "widget.poweredBy": {
       "extractionState": "manual",
