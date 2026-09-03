@@ -62,7 +62,10 @@ import Testing
     }
 
     @Test
-    func responsePreservesFutureUserIntentValues() throws {
+    func responsePreservesFutureUserIntentValues() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
         let json = """
         {
           "verses": [],
@@ -72,14 +75,24 @@ import Testing
         }
         """.data(using: .utf8)!
 
-        let results = try JSONDecoder().decode(YouVersionVerseSearchResults.self, from: json)
-        let roundTrippedResults = try JSONDecoder().decode(
-            YouVersionVerseSearchResults.self,
-            from: JSONEncoder().encode(results)
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            return (json, response)
+        }
+
+        let results = try await YouVersionAPI.Search.verses(
+            query: "love",
+            bibleID: 111,
+            accessToken: "swift-test-suite",
+            session: session
         )
 
         #expect(results.userIntent?.rawValue == "future-intent")
-        #expect(roundTrippedResults.userIntent?.rawValue == "future-intent")
     }
 
     @Test
@@ -93,25 +106,25 @@ import Testing
 
     @Test
     func invalidParametersReturnInvalidParameterError() async {
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "", bibleID: 111)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: String(repeating: "a", count: 101), bibleID: 111)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 0)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: -1)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: Int(Int32.max) + 1)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 0)
         }
-        await #expect(throws: YouVersionAPIRequestError(code: .invalidParameter)) {
+        await #expect(throws: YouVersionAPIError.invalidParameter) {
             try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 100)
         }
     }

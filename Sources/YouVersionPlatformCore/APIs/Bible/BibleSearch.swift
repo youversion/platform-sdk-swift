@@ -3,35 +3,17 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public struct YouVersionSearchUserIntent: RawRepresentable, Codable, Hashable, Sendable {
+public struct YouVersionSearchUserIntent: Equatable, Sendable {
     public static let reference = Self(rawValue: "reference")
     public static let text = Self(rawValue: "text")
     public static let topical = Self(rawValue: "topical")
     public static let unknown = Self(rawValue: "unknown")
 
     public let rawValue: String
-
-    public init(rawValue: String) {
-        self.rawValue = rawValue
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        rawValue = try container.decode(String.self)
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
 }
 
-public struct YouVersionVerseSearchResult: Codable, Hashable, Sendable {
+public struct YouVersionVerseSearchResult: Sendable {
     public let reference: String
-
-    public init(reference: String) {
-        self.reference = reference
-    }
 
     /// Converts the result's USFM reference to a Bible reference in `versionID`.
     public func bibleReference(versionID: Int) -> BibleReference? {
@@ -53,26 +35,35 @@ public struct YouVersionVerseSearchResult: Codable, Hashable, Sendable {
     }
 }
 
-public struct YouVersionVerseSearchResults: Codable, Hashable, Sendable {
+public struct YouVersionVerseSearchResults: Sendable {
     public let verses: [YouVersionVerseSearchResult]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
     public let searchInsteadFor: String?
     public let nextPageToken: String?
+}
 
-    public init(
-        verses: [YouVersionVerseSearchResult],
-        userIntent: YouVersionSearchUserIntent?,
-        didYouMean: [String],
-        searchInsteadFor: String?,
-        nextPageToken: String?
-    ) {
-        self.verses = verses
-        self.userIntent = userIntent
-        self.didYouMean = didYouMean
-        self.searchInsteadFor = searchInsteadFor
-        self.nextPageToken = nextPageToken
-    }
+/// A search string a user might run and the source that supplied it.
+public struct YouVersionSearchQuery: Sendable {
+    public let text: String
+    public let source: String?
+}
+
+private struct SearchQueriesResponse: Decodable {
+    let data: [SearchQueryResponse]
+}
+
+private struct SearchQueryResponse: Decodable {
+    let text: String
+    let source: String?
+}
+
+private struct VerseSearchResponse: Decodable {
+    let verses: [VerseSearchResultResponse]
+    let userIntent: String?
+    let didYouMean: [String]
+    let searchInsteadFor: String?
+    let nextPageToken: String?
 
     enum CodingKeys: String, CodingKey {
         case verses
@@ -83,28 +74,8 @@ public struct YouVersionVerseSearchResults: Codable, Hashable, Sendable {
     }
 }
 
-/// A search string a user might run and the source that supplied it.
-public struct YouVersionSearchQuery: Codable, Hashable, Sendable {
-    public let text: String
-    public let source: String?
-
-    public init(text: String, source: String?) {
-        self.text = text
-        self.source = source
-    }
-}
-
-/// A collection of suggested or trending search queries.
-public struct YouVersionSearchQueries: Codable, Hashable, Sendable {
-    public let queries: [YouVersionSearchQuery]
-
-    public init(queries: [YouVersionSearchQuery]) {
-        self.queries = queries
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case queries = "data"
-    }
+private struct VerseSearchResultResponse: Decodable {
+    let reference: String
 }
 
 public extension YouVersionAPI {
@@ -118,9 +89,9 @@ public extension YouVersionAPI.Search {
         languageRanges: [String],
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> YouVersionSearchQueries {
+    ) async throws -> [YouVersionSearchQuery] {
         guard !query.isEmpty else {
-            throw YouVersionAPIRequestError(code: .invalidParameter)
+            throw YouVersionAPIError.invalidParameter
         }
         return try await queries(
             languageRanges: languageRanges,
@@ -136,7 +107,7 @@ public extension YouVersionAPI.Search {
         languageRanges: [String],
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> YouVersionSearchQueries {
+    ) async throws -> [YouVersionSearchQuery] {
         try await queries(
             languageRanges: languageRanges,
             query: nil,
@@ -158,7 +129,7 @@ public extension YouVersionAPI.Search {
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching verse references and any continuation token supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
+    ///   - `YouVersionAPIError.invalidParameter` when `query`, `bibleID`, or `pageSize`
     ///     is outside the range accepted by the API.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
@@ -178,7 +149,7 @@ public extension YouVersionAPI.Search {
               bibleID > 0,
               Int32(exactly: bibleID) != nil,
               pageSize.map({ (1...99).contains($0) }) ?? true else {
-            throw YouVersionAPIRequestError(code: .invalidParameter)
+            throw YouVersionAPIError.invalidParameter
         }
 
         guard let url = URLBuilder.searchVersesURL(
@@ -193,7 +164,14 @@ public extension YouVersionAPI.Search {
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
-        return try JSONDecoder().decode(YouVersionVerseSearchResults.self, from: data)
+        let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
+        return YouVersionVerseSearchResults(
+            verses: response.verses.map { YouVersionVerseSearchResult(reference: $0.reference) },
+            userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
+            didYouMean: response.didYouMean,
+            searchInsteadFor: response.searchInsteadFor,
+            nextPageToken: response.nextPageToken
+        )
     }
 
     private static func queries(
@@ -202,10 +180,10 @@ public extension YouVersionAPI.Search {
         isTrending: Bool,
         accessToken providedToken: String?,
         session: URLSession
-    ) async throws -> YouVersionSearchQueries {
+    ) async throws -> [YouVersionSearchQuery] {
         guard !languageRanges.isEmpty,
               languageRanges.allSatisfy({ !$0.isEmpty }) else {
-            throw YouVersionAPIRequestError(code: .invalidParameter)
+            throw YouVersionAPIError.invalidParameter
         }
         guard let url = URLBuilder.searchQueriesURL(
             languageRanges: languageRanges,
@@ -221,8 +199,9 @@ public extension YouVersionAPI.Search {
             accessToken: accessToken,
             session: session
         ) else {
-            return YouVersionSearchQueries(queries: [])
+            return []
         }
-        return try JSONDecoder().decode(YouVersionSearchQueries.self, from: data)
+        let response = try JSONDecoder().decode(SearchQueriesResponse.self, from: data)
+        return response.data.map { YouVersionSearchQuery(text: $0.text, source: $0.source) }
     }
 }

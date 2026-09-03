@@ -253,27 +253,10 @@ private actor AccessTokenProvider {
 }
 
 public enum YouVersionAPIError: Error, Sendable {
+    case invalidParameter
     case missingAuthentication
     case notPermitted
     case cannotDownload
     case invalidDownload
     case invalidResponse
-}
-
-public struct YouVersionAPIRequestError: Error, Hashable, Sendable {
-    public struct Code: RawRepresentable, Hashable, Sendable {
-        public static let invalidParameter = Self(rawValue: "invalid_parameter")
-
-        public let rawValue: String
-
-        public init(rawValue: String) {
-            self.rawValue = rawValue
-        }
-    }
-
-    public let code: Code
-
-    public init(code: Code) {
-        self.code = code
-    }
 }

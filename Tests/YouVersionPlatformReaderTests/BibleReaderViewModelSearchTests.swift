@@ -45,7 +45,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults == results)
+        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(!viewModel.isLoadingNextSearchPage)
         #expect(viewModel.nextSearchPageRequestID == nil)
     }
@@ -62,7 +62,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults == results)
+        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
 
@@ -71,7 +71,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults == results)
+        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
     }
@@ -103,7 +103,7 @@ import Testing
 
         await viewModel.updateSuggestedSearchQueries()
 
-        #expect(viewModel.suggestedSearchQueries == suggestions)
+        #expect(viewModel.suggestedSearchQueries.map(\.text) == suggestions.map(\.text))
         #expect(viewModel.searchQueryRequestID == nil)
     }
 
@@ -150,7 +150,7 @@ import Testing
 
         #expect(viewModel.searchQuery == "joy")
         #expect(viewModel.submittedSearchQuery == "joy")
-        #expect(viewModel.searchResults == results)
+        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(viewModel.suggestedSearchQueries.isEmpty)
         #expect(viewModel.hasCompletedSearch)
     }
@@ -191,7 +191,7 @@ import Testing
 
         await searchTask.value
 
-        #expect(viewModel.searchResults == results)
+        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)

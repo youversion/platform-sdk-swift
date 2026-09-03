@@ -36,7 +36,7 @@ extension BibleReaderViewModel {
             } else {
                 "*"
             }
-            let response = if query.isEmpty {
+            let queries = if query.isEmpty {
                 try await YouVersionAPI.Search.trendingQueries(languageRanges: [languageRange])
             } else {
                 try await YouVersionAPI.Search.suggestedQueries(
@@ -49,7 +49,7 @@ extension BibleReaderViewModel {
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
             }
-            suggestedSearchQueries = response.queries
+            suggestedSearchQueries = queries
             isLoadingSearchQueries = false
         } catch {
             if isCancellation(error) {

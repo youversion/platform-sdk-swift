@@ -101,7 +101,7 @@ struct BibleReaderSearchView: View {
     private var searchQueriesScrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(viewModel.suggestedSearchQueries, id: \.self) { query in
+                ForEach(Array(viewModel.suggestedSearchQueries.enumerated()), id: \.offset) { _, query in
                     Button {
                         isSearchFieldFocused = false
                         Task {
