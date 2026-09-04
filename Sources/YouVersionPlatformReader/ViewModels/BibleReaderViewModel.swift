@@ -22,6 +22,13 @@ enum ScrollAction: Equatable {
     case reference(ScrollTarget)
 }
 
+enum SearchStatus: Equatable {
+    case idle
+    case searching
+    case completed
+    case failed
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -75,6 +82,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
+    var showingSearchSheet = false
     var isReduceMotionEnabled = false
     var selectedVerses: Set<BibleReference> = []
     var showingBookPicker = false
@@ -82,6 +90,23 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
     let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
+
+    // MARK: - Search
+
+    var searchQuery = ""
+    var suggestedSearchQueries: [YouVersionSearchQuery] = []
+    var searchResults: [YouVersionVerseSearchResult] = []
+    var isLoadingSearchQueries = false
+    var searchStatus: SearchStatus = .idle
+    var searchResultTextByUSFM: [String: String] = [:]
+    var completedSearchQuery: String?
+    var completedSearchVersionID: Int?
+    var submittedSearchQuery: String?
+    var searchQueryRequestID: UUID?
+    var searchRequestID: UUID?
+    var nextSearchPageToken: String?
+    var nextSearchPageRequestID: UUID?
+    var hasNextSearchPageLoadError = false
 
     // MARK: - Font settings
 
