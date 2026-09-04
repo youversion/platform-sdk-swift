@@ -88,7 +88,7 @@ struct BibleReaderSearchView: View {
             } else if viewModel.hasCompletedSearch && viewModel.searchResults.isEmpty {
                 searchStateView(
                     systemImage: "magnifyingglass",
-                    title: String.localized("bibleReader.search.noResults")
+                    title: String.localized("noBibleSearchResults")
                 )
             } else if viewModel.hasCompletedSearch {
                 searchResultsScrollView
