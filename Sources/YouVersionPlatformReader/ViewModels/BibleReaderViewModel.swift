@@ -22,6 +22,13 @@ enum ScrollAction: Equatable {
     case reference(ScrollTarget)
 }
 
+enum SearchStatus: Equatable {
+    case idle
+    case searching
+    case completed
+    case failed
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -89,13 +96,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var searchQuery = ""
     var suggestedSearchQueries: [YouVersionSearchQuery] = []
     var searchResults: [YouVersionVerseSearchResult] = []
-    var searchScrollPosition: String?
     var isLoadingSearchQueries = false
-    var isSearching = false
-    var hasCompletedSearch = false
-    var searchFailed = false
+    var searchStatus: SearchStatus = .idle
     var searchResultTextByUSFM: [String: String] = [:]
-    var searchResultSetID = UUID()
     var completedSearchQuery: String?
     var completedSearchVersionID: Int?
     var submittedSearchQuery: String?
@@ -103,7 +106,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var searchRequestID: UUID?
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
-    var isLoadingNextSearchPage = false
     var hasNextSearchPageLoadError = false
 
     // MARK: - Font settings

@@ -16,10 +16,8 @@ import Testing
         ]
         viewModel.searchQuery = "the word"
         viewModel.searchResults = results
-        viewModel.searchScrollPosition = results[1].reference
         viewModel.nextSearchPageToken = "next-page"
         viewModel.nextSearchPageRequestID = UUID()
-        viewModel.isLoadingNextSearchPage = true
         viewModel.hasNextSearchPageLoadError = true
 
         viewModel.openSearch()
@@ -27,7 +25,6 @@ import Testing
         #expect(viewModel.showingSearchSheet)
         #expect(viewModel.searchQuery.isEmpty)
         #expect(viewModel.searchResults.isEmpty)
-        #expect(viewModel.searchScrollPosition == nil)
         #expect(viewModel.nextSearchPageToken == nil)
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
@@ -86,7 +83,7 @@ import Testing
         let searchTask = Task { await viewModel.updateSuggestedSearchQueries() }
         await Task.yield()
 
-        #expect(!viewModel.isSearching)
+        #expect(viewModel.searchStatus == .idle)
         #expect(viewModel.searchResults.isEmpty)
 
         searchTask.cancel()
@@ -114,25 +111,19 @@ import Testing
         viewModel.searchQuery = "   "
         viewModel.searchResults = [result]
         viewModel.searchResultTextByUSFM[result.reference] = "In the beginning"
-        viewModel.searchScrollPosition = result.reference
         viewModel.completedSearchQuery = "beginning"
         viewModel.completedSearchVersionID = viewModel.reference.versionId
         viewModel.nextSearchPageToken = "next-page"
-        viewModel.isSearching = true
-        viewModel.hasCompletedSearch = true
-        viewModel.searchFailed = true
+        viewModel.searchStatus = .failed
 
         await viewModel.search()
 
         #expect(viewModel.searchResults.isEmpty)
         #expect(viewModel.searchResultTextByUSFM.isEmpty)
-        #expect(viewModel.searchScrollPosition == nil)
         #expect(viewModel.completedSearchQuery == nil)
         #expect(viewModel.completedSearchVersionID == nil)
         #expect(viewModel.nextSearchPageToken == nil)
-        #expect(!viewModel.isSearching)
-        #expect(!viewModel.hasCompletedSearch)
-        #expect(!viewModel.searchFailed)
+        #expect(viewModel.searchStatus == .idle)
     }
 
     @Test
@@ -143,7 +134,7 @@ import Testing
         viewModel.searchResults = results
         viewModel.completedSearchQuery = "joy"
         viewModel.completedSearchVersionID = viewModel.reference.versionId
-        viewModel.hasCompletedSearch = true
+        viewModel.searchStatus = .completed
         viewModel.suggestedSearchQueries = [YouVersionSearchQuery(text: "joyful", source: nil)]
 
         await viewModel.search()
@@ -152,7 +143,7 @@ import Testing
         #expect(viewModel.submittedSearchQuery == "joy")
         #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
         #expect(viewModel.suggestedSearchQueries.isEmpty)
-        #expect(viewModel.hasCompletedSearch)
+        #expect(viewModel.searchStatus == .completed)
     }
 
     @Test
@@ -170,8 +161,7 @@ import Testing
         #expect(viewModel.searchQuery == "joy")
         #expect(viewModel.submittedSearchQuery == "joy")
         #expect(viewModel.suggestedSearchQueries.isEmpty)
-        #expect(!viewModel.isSearching)
-        #expect(!viewModel.searchFailed)
+        #expect(viewModel.searchStatus == .idle)
     }
 
     @Test
@@ -219,7 +209,8 @@ import Testing
         try storage.writeString(html, to: resource)
         try storage.writeExpirationDate(.distantFuture, for: resource)
         let viewModel = Support.makeViewModel(reference: chapterReference)
-        let resultSetID = viewModel.searchResultSetID
+        let resultSetID = UUID()
+        viewModel.searchRequestID = resultSetID
 
         await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
 
@@ -231,12 +222,14 @@ import Testing
     func loadingVerseTextRejectsStaleMalformedAndPreviouslyLoadedResults() async {
         let viewModel = Support.makeViewModel()
         let result = YouVersionVerseSearchResult(reference: "JHN.1.1")
+        let resultSetID = UUID()
+        viewModel.searchRequestID = resultSetID
         viewModel.searchResultTextByUSFM[result.reference] = "Existing text"
 
-        await viewModel.loadVerseText(for: result, resultSetID: viewModel.searchResultSetID)
+        await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
         await viewModel.loadVerseText(
             for: YouVersionVerseSearchResult(reference: "malformed"),
-            resultSetID: viewModel.searchResultSetID
+            resultSetID: resultSetID
         )
         await viewModel.loadVerseText(for: result, resultSetID: UUID())
 
@@ -248,16 +241,12 @@ import Testing
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = "   "
         viewModel.searchResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
-        viewModel.isSearching = true
-        viewModel.hasCompletedSearch = true
-        viewModel.searchFailed = true
+        viewModel.searchStatus = .failed
 
         viewModel.openSearch()
 
         #expect(viewModel.searchResults.isEmpty)
-        #expect(!viewModel.isSearching)
-        #expect(!viewModel.hasCompletedSearch)
-        #expect(!viewModel.searchFailed)
+        #expect(viewModel.searchStatus == .idle)
     }
 
     @Test

@@ -5,6 +5,7 @@ import YouVersionPlatformUI
 struct BibleReaderSearchView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @FocusState private var isSearchFieldFocused: Bool
+    @State private var searchScrollPosition: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,6 +20,9 @@ struct BibleReaderSearchView: View {
         }
         .task(id: viewModel.searchQuery) {
             await viewModel.updateSuggestedSearchQueries()
+        }
+        .onChange(of: viewModel.searchRequestID) {
+            searchScrollPosition = nil
         }
     }
 
@@ -72,7 +76,7 @@ struct BibleReaderSearchView: View {
         @Bindable var viewModel = viewModel
 
         VStack(spacing: 0) {
-            if viewModel.isSearching || viewModel.isLoadingSearchQueries {
+            if viewModel.searchStatus == .searching || viewModel.isLoadingSearchQueries {
                 ProgressView()
                     .controlSize(.small)
                     .tint(viewModel.readerTextMutedColor)
@@ -80,17 +84,17 @@ struct BibleReaderSearchView: View {
                     .padding(.vertical, 8)
             }
 
-            if viewModel.searchFailed {
+            if viewModel.searchStatus == .failed {
                 searchStateView(
                     systemImage: "exclamationmark.circle",
                     title: String.localized("generic.error")
                 )
-            } else if viewModel.hasCompletedSearch && viewModel.searchResults.isEmpty {
+            } else if viewModel.searchStatus == .completed && viewModel.searchResults.isEmpty {
                 searchStateView(
                     systemImage: "magnifyingglass",
                     title: String.localized("noBibleSearchResults")
                 )
-            } else if viewModel.hasCompletedSearch {
+            } else if viewModel.searchStatus == .completed {
                 searchResultsScrollView
             } else {
                 searchQueriesScrollView
@@ -171,7 +175,7 @@ struct BibleReaderSearchView: View {
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
         }
-        .scrollPosition(id: $viewModel.searchScrollPosition, anchor: .top)
+        .scrollPosition(id: $searchScrollPosition, anchor: .top)
     }
 
     private func searchStateView(systemImage: String, title: String) -> some View {
@@ -188,7 +192,7 @@ struct BibleReaderSearchView: View {
     }
 
     private func resultButton(_ result: YouVersionVerseSearchResult) -> some View {
-        let resultSetID = viewModel.searchResultSetID
+        let resultSetID = viewModel.searchRequestID
 
         return Button {
             isSearchFieldFocused = false
@@ -222,7 +226,9 @@ struct BibleReaderSearchView: View {
         }
         .buttonStyle(.plain)
         .task(id: resultSetID) {
-            await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
+            if let resultSetID {
+                await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
+            }
         }
     }
 

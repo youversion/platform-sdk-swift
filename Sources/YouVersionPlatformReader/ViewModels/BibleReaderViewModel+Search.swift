@@ -4,6 +4,10 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 extension BibleReaderViewModel {
+    var isLoadingNextSearchPage: Bool {
+        nextSearchPageRequestID != nil
+    }
+
     func openSearch() {
         resetSearch()
         showingSearchSheet = true
@@ -84,8 +88,7 @@ extension BibleReaderViewModel {
         clearSearchResults()
         let requestID = UUID()
         searchRequestID = requestID
-        isSearching = true
-        searchFailed = false
+        searchStatus = .searching
         do {
             let results = try await YouVersionAPI.Search.verses(query: query, bibleID: versionID)
             try Task.checkCancellation()
@@ -96,17 +99,14 @@ extension BibleReaderViewModel {
             searchResultTextByUSFM = [:]
             searchResults = results.verses.filter { $0.bibleReference(versionID: versionID) != nil }
             nextSearchPageToken = results.nextPageToken
-            searchResultSetID = UUID()
-            searchScrollPosition = nil
             completedSearchQuery = query
             completedSearchVersionID = versionID
-            isSearching = false
-            hasCompletedSearch = true
-            searchFailed = false
+            searchStatus = .completed
         } catch {
             if isCancellation(error) {
                 if requestID == searchRequestID {
-                    isSearching = false
+                    searchRequestID = nil
+                    searchStatus = .idle
                 }
                 return
             }
@@ -115,7 +115,7 @@ extension BibleReaderViewModel {
                 return
             }
             clearSearchResults()
-            searchFailed = true
+            searchStatus = .failed
             YouVersionPlatformLogger.error("Bible search failed: \(error)", category: "Reader")
         }
     }
@@ -133,12 +133,10 @@ extension BibleReaderViewModel {
 
         let requestID = UUID()
         nextSearchPageRequestID = requestID
-        isLoadingNextSearchPage = true
         hasNextSearchPageLoadError = false
         defer {
             if requestID == nextSearchPageRequestID {
                 nextSearchPageRequestID = nil
-                isLoadingNextSearchPage = false
             }
         }
         do {
@@ -183,7 +181,7 @@ extension BibleReaderViewModel {
     }
 
     func loadVerseText(for result: YouVersionVerseSearchResult, resultSetID: UUID) async {
-        guard resultSetID == searchResultSetID,
+        guard resultSetID == searchRequestID,
               searchResultTextByUSFM[result.reference] == nil,
               let verseReference = result.bibleReference(versionID: reference.versionId) else {
             return
@@ -191,7 +189,7 @@ extension BibleReaderViewModel {
         guard let text = try? await BibleVersionRendering.plainTextOf(verseReference) else {
             return
         }
-        guard resultSetID == searchResultSetID else {
+        guard resultSetID == searchRequestID else {
             return
         }
         searchResultTextByUSFM[result.reference] = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -221,16 +219,12 @@ extension BibleReaderViewModel {
     private func clearSearchResults() {
         searchResults = []
         searchResultTextByUSFM = [:]
-        searchScrollPosition = nil
-        isSearching = false
-        hasCompletedSearch = false
-        searchFailed = false
+        searchStatus = .idle
         completedSearchQuery = nil
         completedSearchVersionID = nil
         searchRequestID = nil
         nextSearchPageToken = nil
         nextSearchPageRequestID = nil
-        isLoadingNextSearchPage = false
         hasNextSearchPageLoadError = false
     }
 
