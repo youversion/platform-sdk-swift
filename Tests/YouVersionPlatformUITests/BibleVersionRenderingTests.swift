@@ -11,7 +11,8 @@ import Testing
     private func renderBlocks(
         html: String,
         reference: BibleReference,
-        renderHeadlines: Bool = true
+        renderHeadlines: Bool = true,
+        footnotesMode: BibleTextFootnoteMode = .none
     ) async throws -> [BibleTextBlock] {
         let node = try BibleTextNode(html: html)
 
@@ -20,7 +21,7 @@ import Testing
             reference: reference,
             renderHeadlines: renderHeadlines,
             renderVerseNumbers: true,
-            footnotesMode: .none,
+            footnotesMode: footnotesMode,
             textColor: .black,
             wocColor: .red,
             fonts: fonts
@@ -464,5 +465,178 @@ import Testing
         #expect(layout.blockFirstVerse(forTargetVerse: 105) == 105)
         #expect(layout.blockFirstVerse(forTargetVerse: 100) == 100)
         #expect(layout.blockFirstVerse(forTargetVerse: 113) == 113)
+    }
+
+    // MARK: - Phase 2 typography coverage
+
+    private func singleStyledBlock(blockClass: String, text: String = "Styled text") async throws -> BibleTextBlock {
+        let html = #"<div><div class="\#(blockClass)">\#(text)</div></div>"#
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)
+        return try #require(try await renderBlocks(html: html, reference: reference).first)
+    }
+
+    private func singleStyledRun(inlineClass: String) async throws -> AttributedString.Runs.Run {
+        let html = #"<div><div class="p"><span class="\#(inlineClass)">Styled text</span></div></div>"#
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)
+        let rendered = try #require(try await renderBlocks(html: html, reference: reference).first)
+        return try #require(rendered.text.asAttributedString.runs.first)
+    }
+
+    @Test func testPhaseTwoBlockAlignmentAndIndentStyles() async throws {
+        let closing = try await singleStyledBlock(blockClass: "cls")
+        #expect(closing.alignment == .trailing)
+
+        for className in ["li", "lim"] {
+            let list = try await singleStyledBlock(blockClass: className)
+            #expect(list.firstLineHeadIndent == 0)
+            #expect(list.headIndent == 2)
+        }
+
+        let quote = try await singleStyledBlock(blockClass: "imq")
+        #expect(quote.firstLineHeadIndent == 0)
+        #expect(quote.headIndent == 2)
+        #expect(quote.marginTop == 0.50 * fonts.baseSize)
+        #expect(quote.marginBottom == 0.50 * fonts.baseSize)
+    }
+
+    @Test func testPhaseTwoTitleAndSectionStyles() async throws {
+        for className in ["imt1", "imt2", "mt1", "mt2", "s"] {
+            let heading = try await singleStyledBlock(blockClass: className)
+            let categories = heading.text.asAttributedString.runs[\.bibleTextCategory]
+            #expect(categories.contains { $0.0 == .header } || className == "s")
+        }
+
+        let introTitle = try await singleStyledBlock(blockClass: "imt1")
+        #expect(introTitle.alignment == .center)
+        #expect(introTitle.marginTop == 0.50 * fonts.baseSize)
+        #expect(introTitle.marginBottom == 0.25 * fonts.baseSize)
+
+        let introSubtitle = try await singleStyledBlock(blockClass: "imt2")
+        #expect(introSubtitle.alignment == .center)
+        #expect(introSubtitle.marginBottom == 0.25 * fonts.baseSize)
+
+        let majorTitle = try await singleStyledBlock(blockClass: "mt1")
+        #expect(majorTitle.alignment == .center)
+        #expect(majorTitle.marginTop == 0.25 * fonts.baseSize)
+        #expect(majorTitle.marginBottom == 0.50 * fonts.baseSize)
+
+        let secondaryTitle = try await singleStyledBlock(blockClass: "mt2")
+        #expect(secondaryTitle.alignment == .center)
+        #expect(secondaryTitle.marginBottom == 0.25 * fonts.baseSize)
+
+        let section = try await singleStyledBlock(blockClass: "s")
+        #expect(section.marginTop == 0)
+        #expect(section.marginBottom == 0.25 * fonts.baseSize)
+    }
+
+    @Test func testPhaseTwoInlineFontStyles() async throws {
+        let expectedFonts: [(classes: [String], font: BibleTextFontOption)] = [
+            (["bd"], .font100em500),
+            (["em", "qac", "sig"], .font100emItalic),
+            (["fk", "fl"], .font100em500Italic),
+            (["va"], .verseNumFont)
+        ]
+
+        for expectation in expectedFonts {
+            for className in expectation.classes {
+                let run = try await singleStyledRun(inlineClass: className)
+                #expect(run.font == fonts.font(for: expectation.font))
+            }
+        }
+
+        let alternateVerseRun = try await singleStyledRun(inlineClass: "va")
+        #expect(alternateVerseRun.baselineOffset == fonts.verseNumBaselineOffset)
+    }
+
+    @Test func testPhaseTwoTypographyNeutralClassesPreserveText() async throws {
+        for className in ["ref", "wg", "wh"] {
+            let html = #"<div><div class="p"><span class="\#(className)">Preserved \#(className)</span></div></div>"#
+            let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)
+            let blocks = try await renderBlocks(html: html, reference: reference)
+            #expect(hasScriptureContaining(blocks, text: "Preserved \(className)"))
+        }
+    }
+
+    @Test func testPhaseThreeBlockStyles() async throws {
+        let introductionTitle = try await singleStyledBlock(blockClass: "imt3")
+        #expect(introductionTitle.alignment == .center)
+        #expect(introductionTitle.marginTop == 0.125 * fonts.baseSize)
+        #expect(introductionTitle.marginBottom == 0.125 * fonts.baseSize)
+        #expect(introductionTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500))
+
+        let introductionHeading = try await singleStyledBlock(blockClass: "is1")
+        #expect(introductionHeading.alignment == .center)
+        #expect(introductionHeading.marginTop == 0.50 * fonts.baseSize)
+        #expect(introductionHeading.marginBottom == 0.25 * fonts.baseSize)
+        #expect(introductionHeading.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em500))
+
+        let listHeader = try await singleStyledBlock(blockClass: "lh")
+        #expect(listHeader.firstLineHeadIndent == 1)
+
+        let letterOpening = try await singleStyledBlock(blockClass: "po")
+        #expect(letterOpening.firstLineHeadIndent == 1)
+        #expect(letterOpening.marginTop == 0.25 * fonts.baseSize)
+        #expect(letterOpening.marginBottom == 0.25 * fonts.baseSize)
+
+        let parallelReferences = try await singleStyledBlock(blockClass: "r")
+        #expect(parallelReferences.alignment == .center)
+        #expect(parallelReferences.marginBottom == 0.25 * fonts.baseSize)
+        #expect(parallelReferences.text.asAttributedString.runs.first?.font == fonts.font(for: .font100emItalic))
+
+        let sectionRange = try await singleStyledBlock(blockClass: "sr")
+        #expect(sectionRange.alignment == .center)
+        #expect(sectionRange.marginBottom == 0.25 * fonts.baseSize)
+        #expect(sectionRange.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500))
+
+        let outlineLevelOne = try await singleStyledBlock(blockClass: "io1")
+        let outlineLevelTwo = try await singleStyledBlock(blockClass: "io2")
+        #expect(outlineLevelOne.headIndent == 2)
+        #expect(outlineLevelTwo.headIndent == 3)
+    }
+
+    @Test func testPhaseThreeInlineStyles() async throws {
+        let listTotal = try await singleStyledRun(inlineClass: "litl")
+        #expect(listTotal.font == fonts.font(for: .font100emItalic))
+
+        let properName = try await singleStyledRun(inlineClass: "pn")
+        #expect(properName.font == fonts.font(for: .font100em500))
+    }
+
+    @Test func testPhaseThreeTypographyNeutralClassesPreserveText() async throws {
+        for className in ["ior", "xta"] {
+            let html = #"<div><div class="p"><span class="\#(className)">Preserved \#(className)</span></div></div>"#
+            let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)
+            let blocks = try await renderBlocks(html: html, reference: reference)
+            #expect(hasScriptureContaining(blocks, text: "Preserved \(className)"))
+        }
+    }
+
+    @Test func testAdditionalFootnoteParagraphPreservesParagraphBreak() async throws {
+        let html = """
+        <div><div class="p">
+            <span class="yv-v" v="1"></span><span class="yv-vlbl">1</span>
+            Verse text.<span class="yv-n f"><span class="ft">First paragraph.</span><span class="fp">Second paragraph.</span></span>
+        </div></div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1, verse: 1)
+        let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: .letters)
+        let footnote = try #require(blocks.first?.footnotes.first)
+        #expect(footnote.text.characters == "First paragraph.\nSecond paragraph.")
+    }
+
+    @Test func testInlineQuotationReferenceIsVisibleAndItalic() async throws {
+        let html = """
+        <div><div class="p">
+            <span class="yv-v" v="1"></span><span class="yv-vlbl">1</span>
+            Quoted scripture<span class="rq"> (Deuteronomy 19:15)</span>
+        </div></div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "2CO", chapter: 13, verse: 1)
+        let block = try #require(try await renderBlocks(html: html, reference: reference).first)
+        #expect(block.text.characters.contains("(Deuteronomy 19:15)"))
+        let referenceRun = try #require(block.text.asAttributedString.runs.first { run in
+            String(block.text.asAttributedString[run.range].characters).contains("Deuteronomy")
+        })
+        #expect(referenceRun.font == fonts.font(for: .font083emItalic))
     }
 }
