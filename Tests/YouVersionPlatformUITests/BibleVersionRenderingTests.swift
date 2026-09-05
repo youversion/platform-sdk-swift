@@ -469,6 +469,54 @@ import Testing
 
     // MARK: - Phase 2 typography coverage
 
+    @Test(arguments: [
+        "cl", "d", "imt", "imt1", "imt2", "imt3", "imt4", "imte", "imte1", "imte2", "iot",
+        "is", "is1", "is2", "mr", "ms", "ms1", "ms2", "ms3", "ms4", "mt1", "mt2", "pc", "qc",
+        "r", "s", "s1", "s2", "s3", "s4", "sr"
+    ])
+    func testCenteredAndSectionStylesClearBothInheritedIndents(style: String) {
+        let stateIn = BibleVersionRendering.StateIn(
+            versionId: defaultVersionId, bookId: "GEN", currentChapter: 1, fromVerse: 1, toVerse: 999,
+            renderVerseNumbers: true, renderHeadlines: true, footnotesMode: .none, footnoteMarker: nil,
+            textColor: .black, verseNumColor: .gray, wocColor: .red, fonts: fonts
+        )
+        var stateDown = BibleVersionRendering.StateDown(currentFont: .font100em, textCategory: .scripture, nodeDepth: 0)
+        var stateUp = BibleVersionRendering.StateUp(
+            rendering: true, firstLineHeadIndent: 3, headIndent: 7,
+            versionId: defaultVersionId, bookId: "GEN", chapter: 1, verse: 1
+        )
+
+        BibleVersionRenderingStyles.interpretBlockClasses(
+            [style], stateIn: stateIn, stateDown: &stateDown, stateUp: &stateUp
+        )
+
+        #expect(stateUp.firstLineHeadIndent == 0)
+        #expect(stateUp.headIndent == 0)
+        #expect(stateDown.alignment == (["s", "s1", "s2", "s3", "s4"].contains(style) ? .leading : .center))
+    }
+
+    @Test(arguments: ["mt1", "mt2", "s", "r", "sr"], ["p", "q", "li3", "pi1"])
+    func testHeadingAfterIndentedBlockDoesNotInheritIndent(style: String, precedingStyle: String) async throws {
+        let html = """
+        <div>
+          <div class="\(precedingStyle)"><span class="yv-v" v="1"></span>Preceding text</div>
+          <div class="\(style)">Heading target</div>
+          <div class="p"><span class="yv-v" v="2"></span>Following paragraph</div>
+        </div>
+        """
+        let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let preceding = try block(blocks, containingText: "Preceding text")
+        let heading = try block(blocks, containingText: "Heading target")
+        let following = try block(blocks, containingText: "Following paragraph")
+
+        #expect(preceding.firstLineHeadIndent != 0 || preceding.headIndent != 0)
+        #expect(heading.firstLineHeadIndent == 0)
+        #expect(heading.headIndent == 0)
+        #expect(following.firstLineHeadIndent == 1)
+        #expect(following.headIndent == 0)
+    }
+
     private func singleStyledBlock(blockClass: String, text: String = "Styled text") async throws -> BibleTextBlock {
         let html = #"<div><div class="\#(blockClass)">\#(text)</div></div>"#
         let reference = BibleReference(versionId: defaultVersionId, bookId: "GEN", chapter: 1)

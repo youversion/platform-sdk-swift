@@ -76,16 +76,12 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
 
             case "is1":
                 stateDown.currentFont = .font117em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
                 stateDown.marginBottom = 0.25 * fontSize
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
 
             case "lh":
                 stateUp.firstLineHeadIndent = 1
@@ -237,8 +233,6 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .center
                 stateDown.marginBottom = 0
                 stateDown.marginTop = 0
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
 
             case "qm":
                 stateDown.marginBottom = 0.50 * fontSize
@@ -285,18 +279,21 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 0.25 * fontSize
                 stateDown.currentFont = .font117em500
                 stateUp.headIndent = 0
+                stateUp.firstLineHeadIndent = 0
 
             case "s1":
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
                 stateDown.currentFont = .font117em500
                 stateUp.headIndent = 0
+                stateUp.firstLineHeadIndent = 0
 
             case "s2", "s3", "s4":
                 stateDown.marginTop = 0.5 * fontSize
                 stateDown.marginBottom = 0.5 * fontSize
                 stateDown.currentFont = .font100em500Italic
                 stateUp.headIndent = 0
+                stateUp.firstLineHeadIndent = 0
 
             case "sp":
                 stateDown.currentFont = .font117em500Italic
@@ -336,8 +333,6 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
-                stateUp.firstLineHeadIndent = 0
-                stateUp.headIndent = 0
 
             case "io", "io1":
                 stateUp.headIndent = 2
@@ -371,6 +366,10 @@ final class BibleVersionRenderingStyles {
 
             default:
                 BibleVersionRendering.assertionFailed("interpretBlockClasses: unexpected class: \(c)")
+            }
+            if stateDown.alignment == .center {
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 0
             }
         }
     }
