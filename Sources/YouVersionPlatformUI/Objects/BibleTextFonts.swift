@@ -5,6 +5,7 @@ import UIKit
 
 public enum BibleTextFontOption {
     case font076emItalic
+    case font083emItalic
     case font100em
     case font100emItalic
     case font100em500
@@ -92,6 +93,7 @@ public struct BibleTextFonts {
 
         fonts = [
             .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
+            .font083emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.83).italic(),
             .font100em: Self.font(familyName: familyName, size: baseSize),
             .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
             .font100em500: Self.font(familyName: familyName, size: baseSize).weight(.medium),
