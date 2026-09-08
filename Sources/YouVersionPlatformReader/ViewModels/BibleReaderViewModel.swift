@@ -96,6 +96,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var searchQuery = ""
     var suggestedSearchQueries: [YouVersionSearchQuery] = []
     var searchResults: [BibleReference] = []
+    var searchVersion: BibleVersion?
     var isLoadingSearchQueries = false
     var searchStatus: SearchStatus = .idle
     var searchResultTextByPassageID: [String: String] = [:]

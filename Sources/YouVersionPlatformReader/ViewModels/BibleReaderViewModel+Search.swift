@@ -88,6 +88,7 @@ extension BibleReaderViewModel {
         clearSearchResults()
         let requestID = UUID()
         searchRequestID = requestID
+        searchVersion = version
         searchStatus = .searching
         do {
             let results = try await YouVersionAPI.Search.verses(query: query, bibleID: versionID)
@@ -180,6 +181,13 @@ extension BibleReaderViewModel {
         await search()
     }
 
+    func searchResultTitle(for result: BibleReference) -> String {
+        guard let searchVersion, searchVersion.id == result.versionId else {
+            return result.passageId
+        }
+        return searchVersion.displayTitle(for: result, includesVersionAbbreviation: false)
+    }
+
     func loadVerseText(for result: BibleReference, resultSetID: UUID) async {
         guard resultSetID == searchRequestID && searchResultTextByPassageID[result.passageId] == nil else {
             return
@@ -213,6 +221,7 @@ extension BibleReaderViewModel {
 
     private func clearSearchResults() {
         searchResults = []
+        searchVersion = nil
         searchResultTextByPassageID = [:]
         searchStatus = .idle
         completedSearchQuery = nil

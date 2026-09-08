@@ -214,7 +214,7 @@ struct BibleReaderSearchView: View {
                             .lineLimit(3)
                             .multilineTextAlignment(.leading)
                     }
-                    Text(referenceTitle(for: result))
+                    Text(viewModel.searchResultTitle(for: result))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(viewModel.readerTextMutedColor)
                         .textCase(.uppercase)
@@ -230,9 +230,5 @@ struct BibleReaderSearchView: View {
                 await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
             }
         }
-    }
-
-    private func referenceTitle(for result: BibleReference) -> String {
-        viewModel.version?.displayTitle(for: result, includesVersionAbbreviation: false) ?? result.passageId
     }
 }
