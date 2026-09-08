@@ -139,9 +139,9 @@ struct BibleReaderSearchView: View {
 
         return ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(Array(viewModel.searchResults.enumerated()), id: \.element.reference) { index, result in
+                ForEach(Array(viewModel.searchResults.enumerated()), id: \.element.passageId) { index, result in
                     resultButton(result)
-                        .id(result.reference)
+                        .id(result.passageId)
                         .task(id: viewModel.nextSearchPageToken) {
                             let loadThreshold = max(0, viewModel.searchResults.count - 5)
                             guard index >= loadThreshold else {
@@ -191,7 +191,7 @@ struct BibleReaderSearchView: View {
         .padding(32)
     }
 
-    private func resultButton(_ result: YouVersionVerseSearchResult) -> some View {
+    private func resultButton(_ result: BibleReference) -> some View {
         let resultSetID = viewModel.searchRequestID
 
         return Button {
@@ -208,7 +208,7 @@ struct BibleReaderSearchView: View {
                     .frame(width: 3)
 
                 VStack(alignment: .leading, spacing: 7) {
-                    if let text = viewModel.searchResultTextByUSFM[result.reference], !text.isEmpty {
+                    if let text = viewModel.searchResultTextByPassageID[result.passageId], !text.isEmpty {
                         Text(text)
                             .font(.body)
                             .lineLimit(3)
@@ -232,10 +232,7 @@ struct BibleReaderSearchView: View {
         }
     }
 
-    private func referenceTitle(for result: YouVersionVerseSearchResult) -> String {
-        guard let reference = result.bibleReference(versionID: viewModel.reference.versionId) else {
-            return result.reference
-        }
-        return viewModel.version?.displayTitle(for: reference, includesVersionAbbreviation: false) ?? result.reference
+    private func referenceTitle(for result: BibleReference) -> String {
+        viewModel.version?.displayTitle(for: result, includesVersionAbbreviation: false) ?? result.passageId
     }
 }

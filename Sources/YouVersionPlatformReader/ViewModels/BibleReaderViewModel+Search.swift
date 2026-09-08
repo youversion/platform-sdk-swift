@@ -90,14 +90,14 @@ extension BibleReaderViewModel {
         searchRequestID = requestID
         searchStatus = .searching
         do {
-            let results = try await YouVersionAPI.Search.verses(query: query, bibleID: versionID)
+            let results = try await YouVersionAPI.Search.references(query: query, bibleID: versionID)
             try Task.checkCancellation()
             guard requestID == searchRequestID,
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
             }
-            searchResultTextByUSFM = [:]
-            searchResults = results.verses.filter { $0.bibleReference(versionID: versionID) != nil }
+            searchResultTextByPassageID = [:]
+            searchResults = results.references
             nextSearchPageToken = results.nextPageToken
             completedSearchQuery = query
             completedSearchVersionID = versionID
@@ -140,7 +140,7 @@ extension BibleReaderViewModel {
             }
         }
         do {
-            let results = try await YouVersionAPI.Search.verses(
+            let results = try await YouVersionAPI.Search.references(
                 query: query,
                 bibleID: versionID,
                 pageToken: pageToken
@@ -154,9 +154,9 @@ extension BibleReaderViewModel {
                 return
             }
 
-            var existingReferences = Set(searchResults.map(\.reference))
-            let newResults = results.verses.filter {
-                $0.bibleReference(versionID: versionID) != nil && existingReferences.insert($0.reference).inserted
+            var existingReferences = Set(searchResults.map(\.passageId))
+            let newResults = results.references.filter {
+                existingReferences.insert($0.passageId).inserted
             }
             searchResults.append(contentsOf: newResults)
             nextSearchPageToken = results.nextPageToken
@@ -180,27 +180,22 @@ extension BibleReaderViewModel {
         await search()
     }
 
-    func loadVerseText(for result: YouVersionVerseSearchResult, resultSetID: UUID) async {
-        guard resultSetID == searchRequestID,
-              searchResultTextByUSFM[result.reference] == nil,
-              let verseReference = result.bibleReference(versionID: reference.versionId) else {
+    func loadVerseText(for result: BibleReference, resultSetID: UUID) async {
+        guard resultSetID == searchRequestID && searchResultTextByPassageID[result.passageId] == nil else {
             return
         }
-        guard let text = try? await BibleVersionRendering.plainTextOf(verseReference) else {
+        guard let text = try? await BibleVersionRendering.plainTextOf(result) else {
             return
         }
         guard resultSetID == searchRequestID else {
             return
         }
-        searchResultTextByUSFM[result.reference] = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        searchResultTextByPassageID[result.passageId] = text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func selectSearchResult(_ result: YouVersionVerseSearchResult) async {
-        guard let verseReference = result.bibleReference(versionID: reference.versionId) else {
-            return
-        }
+    func selectSearchResult(_ result: BibleReference) async {
         showingSearchSheet = false
-        await goToReference(verseReference, showsFullChapter: true, shouldFocus: true)
+        await goToReference(result, showsFullChapter: true, shouldFocus: true)
     }
 
     private func resetSearch() {
@@ -218,7 +213,7 @@ extension BibleReaderViewModel {
 
     private func clearSearchResults() {
         searchResults = []
-        searchResultTextByUSFM = [:]
+        searchResultTextByPassageID = [:]
         searchStatus = .idle
         completedSearchQuery = nil
         completedSearchVersionID = nil

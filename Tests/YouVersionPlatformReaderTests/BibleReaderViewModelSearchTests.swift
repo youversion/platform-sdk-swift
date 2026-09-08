@@ -11,8 +11,8 @@ import Testing
     func openingSearchResetsPreviousSearchForTrendingQueries() {
         let viewModel = Support.makeViewModel()
         let results = [
-            YouVersionVerseSearchResult(reference: "JHN.1.1"),
-            YouVersionVerseSearchResult(reference: "JHN.1.2")
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1),
+            BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 2)
         ]
         viewModel.searchQuery = "the word"
         viewModel.searchResults = results
@@ -34,7 +34,7 @@ import Testing
     @Test
     func loadingNextPageWithoutContinuationTokenDoesNothing() async {
         let viewModel = Support.makeViewModel()
-        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        let results = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchQuery = "word"
         viewModel.searchResults = results
         viewModel.completedSearchQuery = "word"
@@ -42,7 +42,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
+        #expect(viewModel.searchResults.map(\.passageId) == results.map(\.passageId))
         #expect(!viewModel.isLoadingNextSearchPage)
         #expect(viewModel.nextSearchPageRequestID == nil)
     }
@@ -50,7 +50,7 @@ import Testing
     @Test
     func loadingNextPageRejectsStaleSearchState() async {
         let viewModel = Support.makeViewModel()
-        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        let results = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchQuery = "joy"
         viewModel.searchResults = results
         viewModel.nextSearchPageToken = "next-page"
@@ -59,7 +59,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
+        #expect(viewModel.searchResults.map(\.passageId) == results.map(\.passageId))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
 
@@ -68,7 +68,7 @@ import Testing
 
         await viewModel.loadNextSearchPageIfNeeded()
 
-        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
+        #expect(viewModel.searchResults.map(\.passageId) == results.map(\.passageId))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
     }
@@ -76,7 +76,7 @@ import Testing
     @Test
     func suggestionsDoNotShowProgressDuringDebounce() async {
         let viewModel = Support.makeViewModel()
-        let existingResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        let existingResults = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchQuery = "peace"
         viewModel.searchResults = existingResults
 
@@ -107,10 +107,10 @@ import Testing
     @Test
     func searchingWhitespaceClearsPreviousResultsWithoutRequesting() async {
         let viewModel = Support.makeViewModel()
-        let result = YouVersionVerseSearchResult(reference: "JHN.1.1")
+        let result = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)
         viewModel.searchQuery = "   "
         viewModel.searchResults = [result]
-        viewModel.searchResultTextByUSFM[result.reference] = "In the beginning"
+        viewModel.searchResultTextByPassageID[result.passageId] = "In the beginning"
         viewModel.completedSearchQuery = "beginning"
         viewModel.completedSearchVersionID = viewModel.reference.versionId
         viewModel.nextSearchPageToken = "next-page"
@@ -119,7 +119,7 @@ import Testing
         await viewModel.search()
 
         #expect(viewModel.searchResults.isEmpty)
-        #expect(viewModel.searchResultTextByUSFM.isEmpty)
+        #expect(viewModel.searchResultTextByPassageID.isEmpty)
         #expect(viewModel.completedSearchQuery == nil)
         #expect(viewModel.completedSearchVersionID == nil)
         #expect(viewModel.nextSearchPageToken == nil)
@@ -129,7 +129,7 @@ import Testing
     @Test
     func repeatedCompletedSearchPreservesResults() async {
         let viewModel = Support.makeViewModel()
-        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        let results = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchQuery = "  joy  "
         viewModel.searchResults = results
         viewModel.completedSearchQuery = "joy"
@@ -141,7 +141,7 @@ import Testing
 
         #expect(viewModel.searchQuery == "joy")
         #expect(viewModel.submittedSearchQuery == "joy")
-        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
+        #expect(viewModel.searchResults.map(\.passageId) == results.map(\.passageId))
         #expect(viewModel.suggestedSearchQueries.isEmpty)
         #expect(viewModel.searchStatus == .completed)
     }
@@ -167,7 +167,7 @@ import Testing
     @Test
     func cancellingNextPagePreservesResultsAndContinuationToken() async {
         let viewModel = Support.makeViewModel()
-        let results = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        let results = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchQuery = "joy"
         viewModel.searchResults = results
         viewModel.nextSearchPageToken = "next-page"
@@ -181,7 +181,7 @@ import Testing
 
         await searchTask.value
 
-        #expect(viewModel.searchResults.map(\.reference) == results.map(\.reference))
+        #expect(viewModel.searchResults.map(\.passageId) == results.map(\.passageId))
         #expect(viewModel.nextSearchPageToken == "next-page")
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
@@ -192,7 +192,7 @@ import Testing
     func loadingVerseTextUsesCachedChapterAndTrimsWhitespace() async throws {
         let versionID = 9_030_034
         let chapterReference = BibleReference(versionId: versionID, bookId: "JHN", chapter: 3)
-        let result = YouVersionVerseSearchResult(reference: "JHN.3.16")
+        let result = BibleReference(versionId: versionID, bookId: "JHN", chapter: 3, verse: 16)
         let html = """
         <div>
             <div class="p">
@@ -214,33 +214,29 @@ import Testing
 
         await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
 
-        #expect(viewModel.searchResultTextByUSFM[result.reference] == "For God so loved the world.")
+        #expect(viewModel.searchResultTextByPassageID[result.passageId] == "For God so loved the world.")
         await BibleChapterRepository.shared.removeVersion(withId: versionID)
     }
 
     @Test
-    func loadingVerseTextRejectsStaleMalformedAndPreviouslyLoadedResults() async {
+    func loadingVerseTextRejectsStaleAndPreviouslyLoadedResults() async {
         let viewModel = Support.makeViewModel()
-        let result = YouVersionVerseSearchResult(reference: "JHN.1.1")
+        let result = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)
         let resultSetID = UUID()
         viewModel.searchRequestID = resultSetID
-        viewModel.searchResultTextByUSFM[result.reference] = "Existing text"
+        viewModel.searchResultTextByPassageID[result.passageId] = "Existing text"
 
         await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
-        await viewModel.loadVerseText(
-            for: YouVersionVerseSearchResult(reference: "malformed"),
-            resultSetID: resultSetID
-        )
         await viewModel.loadVerseText(for: result, resultSetID: UUID())
 
-        #expect(viewModel.searchResultTextByUSFM == [result.reference: "Existing text"])
+        #expect(viewModel.searchResultTextByPassageID == [result.passageId: "Existing text"])
     }
 
     @Test
     func openingSearchResetsStatus() {
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = "   "
-        viewModel.searchResults = [YouVersionVerseSearchResult(reference: "JHN.1.1")]
+        viewModel.searchResults = [BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)]
         viewModel.searchStatus = .failed
 
         viewModel.openSearch()
@@ -255,7 +251,7 @@ import Testing
         viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
         viewModel.showingSearchSheet = true
 
-        await viewModel.selectSearchResult(YouVersionVerseSearchResult(reference: "JHN.3.16"))
+        await viewModel.selectSearchResult(BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16))
 
         #expect(!viewModel.showingSearchSheet)
         #expect(viewModel.reference == BibleReference(
@@ -266,18 +262,6 @@ import Testing
         ))
         #expect(viewModel.showsFullChapter)
         #expect(viewModel.scrollTarget?.reference.verseStart == 16)
-    }
-
-    @Test
-    func selectingMalformedResultDoesNothing() async {
-        let viewModel = Support.makeViewModel()
-        let originalReference = viewModel.reference
-        viewModel.showingSearchSheet = true
-
-        await viewModel.selectSearchResult(YouVersionVerseSearchResult(reference: "not-a-reference"))
-
-        #expect(viewModel.showingSearchSheet)
-        #expect(viewModel.reference == originalReference)
     }
 
 }

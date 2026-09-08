@@ -95,10 +95,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     var searchQuery = ""
     var suggestedSearchQueries: [YouVersionSearchQuery] = []
-    var searchResults: [YouVersionVerseSearchResult] = []
+    var searchResults: [BibleReference] = []
     var isLoadingSearchQueries = false
     var searchStatus: SearchStatus = .idle
-    var searchResultTextByUSFM: [String: String] = [:]
+    var searchResultTextByPassageID: [String: String] = [:]
     var completedSearchQuery: String?
     var completedSearchVersionID: Int?
     var submittedSearchQuery: String?
