@@ -109,6 +109,35 @@ import Testing
         #expect(results.isEmpty)
     }
 
+    @Test(arguments: ["en_US", "en[US", "en\n", "en--US"], [false, true])
+    func malformedLanguageRangesAreRejectedBeforeRequest(languageRange: String, isTrending: Bool) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { _ in
+            Issue.record("Invalid language ranges must not send a request")
+            throw URLError(.badURL)
+        }
+
+        await #expect {
+            if isTrending {
+                return try await YouVersionAPI.Search.trendingQueries(
+                    languageRanges: ["en", languageRange],
+                    accessToken: "swift-test-suite",
+                    session: session
+                )
+            }
+            return try await YouVersionAPI.Search.suggestedQueries(
+                matching: "love",
+                languageRanges: ["en", languageRange],
+                accessToken: "swift-test-suite",
+                session: session
+            )
+        } throws: { error in
+            (error as? YouVersionAPIRequestError)?.code == .invalidParameter
+        }
+    }
+
     @Test
     func invalidParametersReturnInvalidParameterError() async {
         await #expect(throws: YouVersionAPIRequestError.self) {

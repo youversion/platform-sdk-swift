@@ -345,7 +345,7 @@ public extension YouVersionAPI.Search {
         session: URLSession
     ) async throws -> [YouVersionSearchQuery] {
         guard !languageRanges.isEmpty &&
-              languageRanges.allSatisfy({ !$0.isEmpty }) else {
+              languageRanges.allSatisfy(isValidLanguageRange) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
         guard let url = URLBuilder.searchQueriesURL(
