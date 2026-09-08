@@ -90,7 +90,7 @@ extension BibleReaderViewModel {
         searchRequestID = requestID
         searchStatus = .searching
         do {
-            let results = try await YouVersionAPI.Search.references(query: query, bibleID: versionID)
+            let results = try await YouVersionAPI.Search.verses(query: query, bibleID: versionID)
             try Task.checkCancellation()
             guard requestID == searchRequestID,
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
@@ -140,7 +140,7 @@ extension BibleReaderViewModel {
             }
         }
         do {
-            let results = try await YouVersionAPI.Search.references(
+            let results = try await YouVersionAPI.Search.verses(
                 query: query,
                 bibleID: versionID,
                 pageToken: pageToken
