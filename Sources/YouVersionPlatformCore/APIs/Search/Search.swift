@@ -135,6 +135,9 @@ public extension YouVersionAPI {
 
 public extension YouVersionAPI.Search {
     /// Returns as-you-type search query suggestions matching `query` in the first supported language range.
+    ///
+    /// - Parameter languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
+    ///   or `*` to match all languages.
     static func suggestedQueries(
         matching query: String,
         languageRanges: [String],
@@ -154,6 +157,9 @@ public extension YouVersionAPI.Search {
     }
 
     /// Returns recently popular search queries in the first supported language range.
+    ///
+    /// - Parameter languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
+    ///   or `*` to match all languages.
     static func trendingQueries(
         languageRanges: [String],
         accessToken providedToken: String? = nil,
@@ -173,7 +179,8 @@ public extension YouVersionAPI.Search {
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
     ///   - bibleID: The identifier of the Bible version to search.
-    ///   - languageRanges: An ordered list of Basic Language Ranges, or `*` to match all languages.
+    ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
+    ///     or `*` to match all languages.
     ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
     ///   - fields: Result kinds to include. Pass `verses`, `topics`, or both. Defaults to all kinds.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
@@ -232,7 +239,8 @@ public extension YouVersionAPI.Search {
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
-    ///   - languageRanges: An ordered list of Basic Language Ranges, or `*` to match all languages.
+    ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
+    ///     or `*` to match all languages.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching topics and query metadata supplied by the API.
