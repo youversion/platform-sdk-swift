@@ -122,6 +122,7 @@ import Testing
     }
 
     @Test(arguments: [
+        "en\n", "en-US\r", "en-US\r\n", "en\u{2028}", "en\u{2029}",
         "en_US", "zh_Hant_TW", "zh-Hant_TW",
         "en[US", #"en\US"#, "en]US", "en^US", "en`US", "_en",
         "en-U[S", #"en-U\S"#, "en-U]S", "en-U^S", "en-U`S",
