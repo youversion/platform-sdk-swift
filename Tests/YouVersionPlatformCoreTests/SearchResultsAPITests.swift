@@ -14,6 +14,12 @@ import Testing
         let json = """
         {
           "verses": [
+            {"reference":""},
+            {"reference":".3.16"},
+            {"reference":"JHN.0.1"},
+            {"reference":"JHN.3.0"},
+            {"reference":"JHN.3"},
+            {"reference":"JHN.a.1"},
             {"reference":"JHN.3.16"},
             {"reference":"1CO.13.4"}
           ],
@@ -63,11 +69,12 @@ import Testing
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "topical")) == true)
         #expect(languageRanges == ["en-US", "*"])
         #expect(fields == ["verses", "topics"])
-        #expect(results.verses.map(\.reference) == ["JHN.3.16", "1CO.13.4"])
+        #expect(results.references.map(\.passageId) == ["JHN.3.16", "1CO.13.4"])
         #expect(results.topics.map(\.id) == [42, nil])
         #expect(results.topics.map(\.text) == ["Love", "Faith"])
         #expect(results.topics.first?.subtopics == ["kindness", "patience"])
         #expect(results.topics.last?.subtopics == [])
+        #expect(results.references.allSatisfy { $0.versionId == 111 })
         #expect(results.userIntent == .topical)
         #expect(results.didYouMean == ["loved"])
         #expect(results.searchInsteadFor == "love")

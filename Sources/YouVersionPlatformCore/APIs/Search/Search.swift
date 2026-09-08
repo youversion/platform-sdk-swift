@@ -12,31 +12,8 @@ public struct YouVersionSearchUserIntent: Equatable, Sendable {
     public let rawValue: String
 }
 
-public struct YouVersionVerseSearchResult: Sendable {
-    public let reference: String
-
-    /// Converts the result's USFM reference to a Bible reference in `versionID`.
-    public func bibleReference(versionID: Int) -> BibleReference? {
-        let components = reference.split(separator: ".", omittingEmptySubsequences: false)
-        guard components.count == 3,
-              !components[0].isEmpty,
-              let chapter = Int(components[1]),
-              let verse = Int(components[2]),
-              chapter > 0,
-              verse > 0 else {
-            return nil
-        }
-        return BibleReference(
-            versionId: versionID,
-            bookId: String(components[0]),
-            chapter: chapter,
-            verse: verse
-        )
-    }
-}
-
-public struct YouVersionVerseSearchResults: Sendable {
-    public let verses: [YouVersionVerseSearchResult]
+public struct YouVersionReferenceSearchResults: Sendable {
+    public let references: [BibleReference]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
     public let searchInsteadFor: String?
@@ -55,12 +32,11 @@ public struct YouVersionTopicSearchResults: Sendable {
     public let topics: [YouVersionSearchTopic]
     public let didYouMean: [String]
     public let searchInsteadFor: String?
-    public let totalSize: Int
 }
 
-/// Bible verses, related topics, and query metadata returned by a unified search.
+/// Bible references, related topics, and query metadata returned by a unified search.
 public struct YouVersionSearchResults: Sendable {
-    public let verses: [YouVersionVerseSearchResult]
+    public let references: [BibleReference]
     public let topics: [YouVersionSearchTopic]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
@@ -82,15 +58,15 @@ private struct SearchQueryResponse: Decodable {
     let source: String?
 }
 
-private struct VerseSearchResponse: Decodable {
-    let verses: [VerseSearchResultResponse]
+private struct ReferenceSearchResponse: Decodable {
+    let references: [ReferenceSearchResultResponse]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
     let nextPageToken: String?
 
     enum CodingKeys: String, CodingKey {
-        case verses
+        case references = "verses"
         case userIntent = "user_intent"
         case didYouMean = "did_you_mean"
         case searchInsteadFor = "search_instead_for"
@@ -98,21 +74,36 @@ private struct VerseSearchResponse: Decodable {
     }
 }
 
-private struct VerseSearchResultResponse: Decodable {
+private struct ReferenceSearchResultResponse: Decodable {
     let reference: String
+
+    /// Converts the result's reference ID to a Bible reference in `versionID`.
+    func bibleReference(versionID: Int) -> BibleReference? {
+        let components = reference.split(separator: ".", omittingEmptySubsequences: false)
+        guard components.count == 3 && !components[0].isEmpty,
+              let chapter = Int(components[1]),
+              let verse = Int(components[2]),
+              chapter > 0 && verse > 0 else {
+            return nil
+        }
+        return BibleReference(
+            versionId: versionID,
+            bookId: String(components[0]),
+            chapter: chapter,
+            verse: verse
+        )
+    }
 }
 
 private struct TopicSearchResponse: Decodable {
     let topics: [TopicSearchResultResponse]
     let didYouMean: [String]
     let searchInsteadFor: String?
-    let totalSize: Int
 
     enum CodingKeys: String, CodingKey {
         case topics
         case didYouMean = "did_you_mean"
         case searchInsteadFor = "search_instead_for"
-        case totalSize = "total_size"
     }
 }
 
@@ -123,14 +114,14 @@ private struct TopicSearchResultResponse: Decodable {
 }
 
 private struct SearchResultsResponse: Decodable {
-    let verses: [VerseSearchResultResponse]
+    let references: [ReferenceSearchResultResponse]
     let topics: [TopicSearchResultResponse]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
 
     enum CodingKeys: String, CodingKey {
-        case verses
+        case references = "verses"
         case topics
         case userIntent = "user_intent"
         case didYouMean = "did_you_mean"
@@ -177,7 +168,7 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    /// Returns a unified set of Bible verse references and topics matching `query`.
+    /// Returns a unified set of Bible references and topics matching `query`.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -187,7 +178,7 @@ public extension YouVersionAPI.Search {
     ///   - fields: Result kinds to include. Pass `verses`, `topics`, or both. Defaults to all kinds.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
-    /// - Returns: The matching verse references, topics, and query metadata supplied by the API.
+    /// - Returns: The matching Bible references, topics, and query metadata supplied by the API.
     /// - Throws:
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or
     ///     `languageRanges` is outside the range accepted by the API.
@@ -205,10 +196,10 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionSearchResults {
-        guard (1...100).contains(query.count),
-              bibleID > 0,
-              Int32(exactly: bibleID) != nil,
-              !languageRanges.isEmpty,
+        guard (1...100).contains(query.count) &&
+              bibleID > 0 &&
+              Int32(exactly: bibleID) != nil &&
+              !languageRanges.isEmpty &&
               languageRanges.allSatisfy(isValidLanguageRange) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
@@ -227,7 +218,7 @@ public extension YouVersionAPI.Search {
         let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
         let response = try JSONDecoder().decode(SearchResultsResponse.self, from: data)
         return YouVersionSearchResults(
-            verses: response.verses.map { YouVersionVerseSearchResult(reference: $0.reference) },
+            references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
             topics: response.topics.map {
                 YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
             },
@@ -259,8 +250,8 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionTopicSearchResults {
-        guard (1...100).contains(query.count),
-              !languageRanges.isEmpty,
+        guard (1...100).contains(query.count) &&
+              !languageRanges.isEmpty &&
               languageRanges.allSatisfy(isValidLanguageRange) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
@@ -277,12 +268,11 @@ public extension YouVersionAPI.Search {
                 YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
             },
             didYouMean: response.didYouMean,
-            searchInsteadFor: response.searchInsteadFor,
-            totalSize: response.totalSize
+            searchInsteadFor: response.searchInsteadFor
         )
     }
 
-    /// Returns Bible verse search results matching `query` in the requested Bible version.
+    /// Returns Bible reference search results matching `query` in the requested Bible version.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -292,7 +282,7 @@ public extension YouVersionAPI.Search {
     ///   - pageToken: A continuation token returned by a previous search request.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
-    /// - Returns: The matching verse references and any continuation token supplied by the API.
+    /// - Returns: The matching Bible references and any continuation token supplied by the API.
     /// - Throws:
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
     ///     is outside the range accepted by the API.
@@ -301,7 +291,7 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.
-    static func verses(
+    static func references(
         query: String,
         bibleID: Int,
         userIntent: YouVersionSearchUserIntent = .unknown,
@@ -309,10 +299,10 @@ public extension YouVersionAPI.Search {
         pageToken: String? = nil,
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> YouVersionVerseSearchResults {
-        guard (1...100).contains(query.count),
-              bibleID > 0,
-              Int32(exactly: bibleID) != nil,
+    ) async throws -> YouVersionReferenceSearchResults {
+        guard (1...100).contains(query.count) &&
+              bibleID > 0 &&
+              Int32(exactly: bibleID) != nil &&
               pageSize.map({ (1...99).contains($0) }) ?? true else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
@@ -329,9 +319,9 @@ public extension YouVersionAPI.Search {
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
-        let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
-        return YouVersionVerseSearchResults(
-            verses: response.verses.map { YouVersionVerseSearchResult(reference: $0.reference) },
+        let response = try JSONDecoder().decode(ReferenceSearchResponse.self, from: data)
+        return YouVersionReferenceSearchResults(
+            references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
             userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
             didYouMean: response.didYouMean,
             searchInsteadFor: response.searchInsteadFor,
@@ -346,7 +336,7 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String?,
         session: URLSession
     ) async throws -> [YouVersionSearchQuery] {
-        guard !languageRanges.isEmpty,
+        guard !languageRanges.isEmpty &&
               languageRanges.allSatisfy({ !$0.isEmpty }) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
