@@ -18,8 +18,7 @@ import Testing
             {"id":null,"text":"Love","subtopics":[]}
           ],
           "did_you_mean": ["faith"],
-          "search_instead_for": "faith",
-          "total_size": 2
+          "search_instead_for": "faith"
         }
         """.data(using: .utf8)!
 
@@ -56,7 +55,6 @@ import Testing
         #expect(results.topics.last?.subtopics == [])
         #expect(results.didYouMean == ["faith"])
         #expect(results.searchInsteadFor == "faith")
-        #expect(results.totalSize == 2)
     }
 
     @Test(arguments: [

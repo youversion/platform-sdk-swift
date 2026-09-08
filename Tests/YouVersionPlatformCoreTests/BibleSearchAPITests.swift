@@ -7,13 +7,19 @@ import Testing
 
 @Suite(.serialized) struct BibleSearchAPITests {
     @Test
-    func searchVersesSendsParametersAndDecodesCollection() async throws {
+    func searchReferencesSendsParametersAndDecodesCollection() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
         let json = """
         {
           "verses": [
+            {"reference":""},
+            {"reference":".3.16"},
+            {"reference":"JHN.0.1"},
+            {"reference":"JHN.3.0"},
+            {"reference":"JHN.3"},
+            {"reference":"JHN.a.1"},
             {"reference":"MAT.14.17"},
             {"reference":"JHN.6.9"}
           ],
@@ -36,7 +42,7 @@ import Testing
             return (json, response)
         }
 
-        let results = try await YouVersionAPI.Search.verses(
+        let results = try await YouVersionAPI.Search.references(
             query: "two fish",
             bibleID: 111,
             userIntent: .text,
@@ -54,7 +60,8 @@ import Testing
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "text")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "page_size", value: "25")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "page_token", value: "current-token")) == true)
-        #expect(results.verses.map(\.reference) == ["MAT.14.17", "JHN.6.9"])
+        #expect(results.references.map(\.passageId) == ["MAT.14.17", "JHN.6.9"])
+        #expect(results.references.allSatisfy { $0.versionId == 111 })
         #expect(results.userIntent == .text)
         #expect(results.didYouMean == ["two fishes"])
         #expect(results.searchInsteadFor == nil)
@@ -85,7 +92,7 @@ import Testing
             return (json, response)
         }
 
-        let results = try await YouVersionAPI.Search.verses(
+        let results = try await YouVersionAPI.Search.references(
             query: "love",
             bibleID: 111,
             accessToken: "swift-test-suite",
@@ -96,36 +103,27 @@ import Testing
     }
 
     @Test
-    func verseResultConvertsValidUSFMToReference() throws {
-        let result = YouVersionVerseSearchResult(reference: "JHN.3.16")
-        let reference = try #require(result.bibleReference(versionID: 111))
-
-        #expect(reference == BibleReference(versionId: 111, bookId: "JHN", chapter: 3, verse: 16))
-        #expect(YouVersionVerseSearchResult(reference: "JHN.3").bibleReference(versionID: 111) == nil)
-    }
-
-    @Test
     func invalidParametersReturnInvalidParameterError() async {
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "", bibleID: 111)
+            try await YouVersionAPI.Search.references(query: "", bibleID: 111)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: String(repeating: "a", count: 101), bibleID: 111)
+            try await YouVersionAPI.Search.references(query: String(repeating: "a", count: 101), bibleID: 111)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "love", bibleID: 0)
+            try await YouVersionAPI.Search.references(query: "love", bibleID: 0)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "love", bibleID: -1)
+            try await YouVersionAPI.Search.references(query: "love", bibleID: -1)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "love", bibleID: Int(Int32.max) + 1)
+            try await YouVersionAPI.Search.references(query: "love", bibleID: Int(Int32.max) + 1)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 0)
+            try await YouVersionAPI.Search.references(query: "love", bibleID: 111, pageSize: 0)
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.verses(query: "love", bibleID: 111, pageSize: 100)
+            try await YouVersionAPI.Search.references(query: "love", bibleID: 111, pageSize: 100)
         }
     }
 }
