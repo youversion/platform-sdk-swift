@@ -114,6 +114,32 @@ import Testing
         #expect(components.queryItems?.contains(where: { $0.name == "fields[]" }) == false)
     }
 
+    @Test(arguments: [
+        "en[US", #"en\US"#, "en]US", "en^US", "en`US", "_en",
+        "en-U[S", #"en-U\S"#, "en-U]S", "en-U^S", "en-U`S",
+    ])
+    func punctuationInLanguageRangesIsRejectedBeforeRequest(languageRange: String) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        HTTPMocking.setHandler(token: token) { _ in
+            Issue.record("Invalid language ranges must not send a request")
+            throw URLError(.badURL)
+        }
+
+        await #expect {
+            try await YouVersionAPI.Search.results(
+                matching: "love",
+                bibleID: 111,
+                languageRanges: [languageRange],
+                accessToken: "swift-test-suite",
+                session: session
+            )
+        } throws: { error in
+            (error as? YouVersionAPIRequestError)?.code == .invalidParameter
+        }
+    }
+
     @Test
     func invalidParametersReturnInvalidParameterError() async {
         await #expect(throws: YouVersionAPIRequestError.self) {

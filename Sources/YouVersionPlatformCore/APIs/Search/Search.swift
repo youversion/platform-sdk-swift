@@ -372,7 +372,7 @@ public extension YouVersionAPI.Search {
 
     private static func isValidLanguageRange(_ languageRange: String) -> Bool {
         languageRange == "*" || languageRange.range(
-            of: #"^[A-z]{1,8}([-_][0-9A-z]{1,8})*$"#,
+            of: #"^[A-Za-z]{1,8}([-_][0-9A-Za-z]{1,8})*$"#,
             options: .regularExpression
         ) != nil
     }
