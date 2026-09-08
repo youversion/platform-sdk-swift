@@ -12,7 +12,7 @@ public struct YouVersionSearchUserIntent: Equatable, Sendable {
     public let rawValue: String
 }
 
-public struct YouVersionReferenceSearchResults: Sendable {
+public struct YouVersionVerseSearchResults: Sendable {
     public let references: [BibleReference]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
@@ -58,7 +58,7 @@ private struct SearchQueryResponse: Decodable {
     let source: String?
 }
 
-private struct ReferenceSearchResponse: Decodable {
+private struct VerseSearchResponse: Decodable {
     let references: [ReferenceSearchResultResponse]
     let userIntent: String?
     let didYouMean: [String]
@@ -307,7 +307,7 @@ public extension YouVersionAPI.Search {
         pageToken: String? = nil,
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
-    ) async throws -> YouVersionReferenceSearchResults {
+    ) async throws -> YouVersionVerseSearchResults {
         guard (1...100).contains(query.count) &&
               bibleID > 0 &&
               Int32(exactly: bibleID) != nil &&
@@ -327,8 +327,8 @@ public extension YouVersionAPI.Search {
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
         let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
-        let response = try JSONDecoder().decode(ReferenceSearchResponse.self, from: data)
-        return YouVersionReferenceSearchResults(
+        let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
+        return YouVersionVerseSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
             userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
             didYouMean: response.didYouMean,
