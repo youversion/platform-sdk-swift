@@ -59,7 +59,7 @@ private struct SearchQueryResponse: Decodable {
 }
 
 private struct VerseSearchResponse: Decodable {
-    let references: [ReferenceSearchResultResponse]
+    let references: [VerseSearchResultResponse]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
@@ -74,7 +74,7 @@ private struct VerseSearchResponse: Decodable {
     }
 }
 
-private struct ReferenceSearchResultResponse: Decodable {
+private struct VerseSearchResultResponse: Decodable {
     let reference: String
 
     /// Converts the result's reference ID to a Bible reference in `versionID`.
@@ -114,7 +114,7 @@ private struct TopicSearchResultResponse: Decodable {
 }
 
 private struct SearchResultsResponse: Decodable {
-    let references: [ReferenceSearchResultResponse]
+    let references: [VerseSearchResultResponse]
     let topics: [TopicSearchResultResponse]
     let userIntent: String?
     let didYouMean: [String]
@@ -280,7 +280,7 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    /// Returns Bible reference search results matching `query` in the requested Bible version.
+    /// Returns Bible verse search results matching `query` in the requested Bible version.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -299,7 +299,7 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.
-    static func references(
+    static func verses(
         query: String,
         bibleID: Int,
         userIntent: YouVersionSearchUserIntent = .unknown,
