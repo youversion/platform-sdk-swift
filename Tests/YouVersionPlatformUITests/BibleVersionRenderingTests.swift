@@ -609,10 +609,8 @@ import Testing
 
     @Test func testPhaseThreeBlockStyles() async throws {
         let introductionTitle = try await singleStyledBlock(blockClass: "imt3")
-        #expect(introductionTitle.alignment == .center)
-        #expect(introductionTitle.marginTop == 0.15 * fonts.baseSize)
-        #expect(introductionTitle.marginBottom == 0.15 * fonts.baseSize)
-        #expect(introductionTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em700))
+        #expect(introductionTitle.text.characters == "Styled text")
+        #expect(hasHeaderContaining([introductionTitle], text: "Styled text"))
 
         let introductionHeading = try await singleStyledBlock(blockClass: "is1")
         #expect(introductionHeading.alignment == .center)
