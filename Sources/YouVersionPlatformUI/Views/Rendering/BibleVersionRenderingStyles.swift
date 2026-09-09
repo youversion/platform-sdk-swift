@@ -413,13 +413,13 @@ final class BibleVersionRenderingStyles {
             case "bdit", "fk", "fl":
                 stateDown.currentFont = .font100em500Italic
             
-            case "ord", "fv", "sup", "va":
+            case "ord", "fv", "sup":
                 stateDown.currentFont = .verseNumFont  // superscript, really; same thing in practice.
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
 
             default:
                 if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fp", "fr", "ft",
-                     "w", "ior", "ref", "wg", "wh", "x", "xta"].contains(c) {
+                     "w", "ior", "ref", "va", "wg", "wh", "x", "xta"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }

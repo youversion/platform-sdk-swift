@@ -202,7 +202,7 @@ public enum BibleVersionRendering {
         }
 
         if stateUp.rendering &&
-            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl"))
+            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") || node.classes.contains("va"))
             && node.children.count == 1 && node.children.first?.type == .text {
             if let t = node.children.first?.text {
                 if stateIn.renderVerseNumbers {
