@@ -543,8 +543,8 @@ import Testing
         let quote = try await singleStyledBlock(blockClass: "imq")
         #expect(quote.firstLineHeadIndent == 0)
         #expect(quote.headIndent == 2)
-        #expect(quote.marginTop == 0.50 * fonts.baseSize)
-        #expect(quote.marginBottom == 0.50 * fonts.baseSize)
+        #expect(quote.marginTop == fonts.baseSize)
+        #expect(quote.marginBottom == fonts.baseSize)
     }
 
     @Test func testPhaseTwoTitleAndSectionStyles() async throws {
@@ -556,12 +556,14 @@ import Testing
 
         let introTitle = try await singleStyledBlock(blockClass: "imt1")
         #expect(introTitle.alignment == .center)
-        #expect(introTitle.marginTop == 0.50 * fonts.baseSize)
+        #expect(introTitle.marginTop == fonts.baseSize)
         #expect(introTitle.marginBottom == 0.25 * fonts.baseSize)
+        #expect(introTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em700))
 
         let introSubtitle = try await singleStyledBlock(blockClass: "imt2")
         #expect(introSubtitle.alignment == .center)
         #expect(introSubtitle.marginBottom == 0.25 * fonts.baseSize)
+        #expect(introSubtitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font108emItalic))
 
         let majorTitle = try await singleStyledBlock(blockClass: "mt1")
         #expect(majorTitle.alignment == .center)
@@ -579,7 +581,7 @@ import Testing
 
     @Test func testPhaseTwoInlineFontStyles() async throws {
         let expectedFonts: [(classes: [String], font: BibleTextFontOption)] = [
-            (["bd"], .font100em500),
+            (["bd"], .font100em700),
             (["em", "qac", "sig"], .font100emItalic),
             (["fk", "fl"], .font100em500Italic),
             (["va"], .verseNumFont)
@@ -608,18 +610,19 @@ import Testing
     @Test func testPhaseThreeBlockStyles() async throws {
         let introductionTitle = try await singleStyledBlock(blockClass: "imt3")
         #expect(introductionTitle.alignment == .center)
-        #expect(introductionTitle.marginTop == 0.125 * fonts.baseSize)
-        #expect(introductionTitle.marginBottom == 0.125 * fonts.baseSize)
-        #expect(introductionTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500))
+        #expect(introductionTitle.marginTop == 0.15 * fonts.baseSize)
+        #expect(introductionTitle.marginBottom == 0.15 * fonts.baseSize)
+        #expect(introductionTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em700))
 
         let introductionHeading = try await singleStyledBlock(blockClass: "is1")
         #expect(introductionHeading.alignment == .center)
         #expect(introductionHeading.marginTop == 0.50 * fonts.baseSize)
-        #expect(introductionHeading.marginBottom == 0.25 * fonts.baseSize)
-        #expect(introductionHeading.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em500))
+        #expect(introductionHeading.marginBottom == 0.50 * fonts.baseSize)
+        #expect(introductionHeading.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em700))
 
         let listHeader = try await singleStyledBlock(blockClass: "lh")
         #expect(listHeader.firstLineHeadIndent == 1)
+        #expect(listHeader.marginTop == 0.50 * fonts.baseSize)
 
         let letterOpening = try await singleStyledBlock(blockClass: "po")
         #expect(letterOpening.firstLineHeadIndent == 1)
@@ -647,7 +650,16 @@ import Testing
         #expect(listTotal.font == fonts.font(for: .font100emItalic))
 
         let properName = try await singleStyledRun(inlineClass: "pn")
-        #expect(properName.font == fonts.font(for: .font100em500))
+        #expect(properName.font == fonts.font(for: .font100em))
+    }
+
+    @Test(arguments: ["r yv-h", "yv-h r"])
+    func testParallelReferenceHeadingUsesOverrideWeight(blockClass: String) async throws {
+        let heading = try await singleStyledBlock(blockClass: blockClass)
+        #expect(heading.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500Italic))
+        #expect(heading.alignment == .center)
+        #expect(heading.firstLineHeadIndent == 0)
+        #expect(heading.headIndent == 0)
     }
 
     @Test func testPhaseThreeTypographyNeutralClassesPreserveText() async throws {

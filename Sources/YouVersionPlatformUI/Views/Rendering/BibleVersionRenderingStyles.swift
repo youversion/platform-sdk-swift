@@ -38,8 +38,8 @@ final class BibleVersionRenderingStyles {
 
             case "imq":
                 stateDown.currentFont = .font100emItalic
-                stateDown.marginBottom = 0.50 * fontSize
-                stateDown.marginTop = 0.50 * fontSize
+                stateDown.marginBottom = fontSize
+                stateDown.marginTop = fontSize
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
@@ -50,24 +50,24 @@ final class BibleVersionRenderingStyles {
 
             case "imt1":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font117em500
+                stateDown.currentFont = .font117em700
                 stateDown.alignment = .center
-                stateDown.marginTop = 0.50 * fontSize
+                stateDown.marginTop = fontSize
                 stateDown.marginBottom = 0.25 * fontSize
 
             case "imt2":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font100emItalic
+                stateDown.currentFont = .font108emItalic
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
                 stateDown.marginBottom = 0.25 * fontSize
 
             case "imt3":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font100em500
+                stateDown.currentFont = .font100em700
                 stateDown.alignment = .center
-                stateDown.marginTop = 0.125 * fontSize
-                stateDown.marginBottom = 0.125 * fontSize
+                stateDown.marginTop = 0.15 * fontSize
+                stateDown.marginBottom = 0.15 * fontSize
 
             case "ior":
                 break
@@ -78,12 +78,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = fontSize / 2
 
             case "is1":
-                stateDown.currentFont = .font117em500
+                stateDown.currentFont = .font117em700
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
-                stateDown.marginBottom = 0.25 * fontSize
+                stateDown.marginBottom = 0.50 * fontSize
 
             case "lh":
+                stateDown.marginTop = 0.50 * fontSize
                 stateUp.firstLineHeadIndent = 1
 
             case "li":
@@ -269,7 +270,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100emItalic
 
             case "r":
-                stateDown.currentFont = .font100emItalic
+                stateDown.currentFont = classes.contains("yv-h") ? .font100em500Italic : .font100emItalic
                 stateDown.alignment = .center
                 stateDown.marginTop = 0
                 stateDown.marginBottom = 0.25 * fontSize
@@ -403,8 +404,11 @@ final class BibleVersionRenderingStyles {
             case "tl", "it", "add", "em", "fq", "fqa", "qac", "qs", "qt", "bk", "sig", "litl":
                 stateDown.currentFont = .font100emItalic
 
-            case "bd", "pn":
-                stateDown.currentFont = .font100em500
+            case "bd":
+                stateDown.currentFont = .font100em700
+
+            case "pn":
+                stateDown.currentFont = .font100em
 
             case "bdit", "fk", "fl":
                 stateDown.currentFont = .font100em500Italic
