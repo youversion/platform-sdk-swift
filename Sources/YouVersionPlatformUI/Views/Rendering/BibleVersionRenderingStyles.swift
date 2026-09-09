@@ -64,7 +64,7 @@ final class BibleVersionRenderingStyles {
 
             case "imt3":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font100em700
+                stateDown.currentFont = .font100em
                 stateDown.alignment = .center
                 stateDown.marginTop = 0.15 * fontSize
                 stateDown.marginBottom = 0.15 * fontSize
