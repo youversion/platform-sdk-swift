@@ -9,7 +9,7 @@ struct BibleReaderSearchView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            searchHeader
+            BibleReaderSearchHeaderView(isSearchFieldFocused: $isSearchFieldFocused)
             Divider()
             results
         }
@@ -24,51 +24,6 @@ struct BibleReaderSearchView: View {
         .onChange(of: viewModel.searchRequestID) {
             searchScrollPosition = nil
         }
-    }
-
-    private var searchHeader: some View {
-        @Bindable var viewModel = viewModel
-
-        return HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(viewModel.readerTextMutedColor)
-                TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
-                    .autocorrectionDisabled()
-                    .focused($isSearchFieldFocused)
-                    .submitLabel(.search)
-                    .onSubmit {
-                        isSearchFieldFocused = false
-                        Task {
-                            await viewModel.search()
-                        }
-                    }
-                    .onChange(of: viewModel.searchQuery) { _, query in
-                        if query.count > 100 {
-                            viewModel.searchQuery = String(query.prefix(100))
-                        }
-                    }
-                if !viewModel.searchQuery.isEmpty {
-                    Button {
-                        viewModel.searchQuery = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(viewModel.readerTextMutedColor)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(String.localized("generic.cancel"))
-                }
-            }
-            .padding(.horizontal, 12)
-            .frame(minHeight: 40)
-            .background(viewModel.readerButtonSecondaryColor, in: Capsule())
-
-            Button(String.localized("generic.done")) {
-                viewModel.showingSearchSheet = false
-            }
-            .font(.callout.weight(.semibold))
-        }
-        .padding()
     }
 
     @ViewBuilder
@@ -230,5 +185,55 @@ struct BibleReaderSearchView: View {
                 await viewModel.loadVerseText(for: result, resultSetID: resultSetID)
             }
         }
+    }
+}
+
+private struct BibleReaderSearchHeaderView: View {
+    @Environment(BibleReaderViewModel.self) private var viewModel
+    @FocusState.Binding var isSearchFieldFocused: Bool
+
+    var body: some View {
+        @Bindable var viewModel = viewModel
+
+        return HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(viewModel.readerTextMutedColor)
+                TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
+                    .autocorrectionDisabled()
+                    .focused($isSearchFieldFocused)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        isSearchFieldFocused = false
+                        Task {
+                            await viewModel.search()
+                        }
+                    }
+                    .onChange(of: viewModel.searchQuery) { _, query in
+                        if query.count > 100 {
+                            viewModel.searchQuery = String(query.prefix(100))
+                        }
+                    }
+                if !viewModel.searchQuery.isEmpty {
+                    Button {
+                        viewModel.searchQuery = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(viewModel.readerTextMutedColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String.localized("generic.cancel"))
+                }
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 40)
+            .background(viewModel.readerButtonSecondaryColor, in: Capsule())
+
+            Button(String.localized("generic.done")) {
+                viewModel.showingSearchSheet = false
+            }
+            .font(.callout.weight(.semibold))
+        }
+        .padding()
     }
 }
