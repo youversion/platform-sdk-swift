@@ -4,25 +4,19 @@ import YouVersionPlatformUI
 
 public struct BibleReaderHeaderView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
-#if canImport(UIKit)
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-#endif
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    let showChrome: Bool
+    private let accessory: AnyView?
+    private let isCompact: Bool
     let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
-    let onCompactTap: (() -> Void)?
-
-    @State private var spaceNeeded = false
 
     init(
-        showChrome: Bool = true,
         onSelectionChange: ((Int, String, Int?, String?) -> Void)? = nil,
-        onCompactTap: (() -> Void)? = nil
+        accessory: AnyView? = nil,
+        isCompact: Bool = false
     ) {
-        self.showChrome = showChrome
+        self.accessory = accessory
+        self.isCompact = isCompact
         self.onSelectionChange = onSelectionChange
-        self.onCompactTap = onCompactTap
     }
 
     public var body: some View {
@@ -30,30 +24,15 @@ public struct BibleReaderHeaderView: View {
         @Bindable var bindableVersionsViewModel = viewModel.versionsViewModel
 
         HStack {
-            if showChrome {
-                HStack {
-                    halfPillPickers
-                    Spacer()
-                    BibleReaderHeaderMenuView()
-                }
-                .transition(reduceMotion ? .identity : .opacity)
-            } else {
-                compactLabels
-                    .transition(reduceMotion ? .identity : .opacity)
+            if let accessory, !isCompact {
+                accessory
+                    .frame(minWidth: 44, minHeight: 44)
+                    .background(isCompact ? Color.clear : buttonBackgroundColor, in: Capsule())
+                    .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
             }
+            navigationPickers
         }
-        .padding(.leading, 16)
-        // Avoid overlapping the red/yellow/green window buttons that iPadOS 26+ adds
-        // when running compact (Slide Over / split-screen narrow).
-        .padding(.top, spaceNeeded ? 32 : 0)
-#if canImport(UIKit)
-        .onChange(of: horizontalSizeClass, initial: true) { _, _ in
-            if #available(iOS 26, *) {
-                spaceNeeded = UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .compact
-            }
-        }
-#endif
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.15), value: showChrome)
+        .padding(.vertical, isCompact ? 0 : 8)
         .sheet(
             isPresented: $viewModel.showingBookPicker,
             onDismiss: { viewModel.headerExpandedBookCode = nil }
@@ -85,18 +64,18 @@ public struct BibleReaderHeaderView: View {
     }
 
     @ViewBuilder
-    private var halfPillPickers: some View {
+    private var navigationPickers: some View {
         if let version = viewModel.version {
             let title = viewModel.showBookIntro ? introString : bookAndChapter
 
-            halfPillPickersView(
+            navigationPickersView(
                 bookAndChapter: title,
                 versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id),
                 handleChapterTap: { viewModel.showingBookPicker.toggle() },
                 handleVersionTap: { viewModel.versionsViewModel.openVersionsStack(currentBibleLanguage: version.languageTag ?? "en") }
             )
         } else {
-            halfPillPickersView(
+            navigationPickersView(
                 bookAndChapter: "",
                 versionAbbreviation: "",
                 handleChapterTap: {},
@@ -105,22 +84,71 @@ public struct BibleReaderHeaderView: View {
         }
     }
 
-    private func halfPillPickersView(
+    private func navigationPickersView(
         bookAndChapter: String,
         versionAbbreviation: String,
         handleChapterTap: @escaping () -> Void,
         handleVersionTap: @escaping () -> Void
     ) -> some View {
-        BibleReaderHalfPillPickersView(
-            bookAndChapter: bookAndChapter,
-            versionAbbreviation: versionAbbreviation,
-            handleChapterTap: handleChapterTap,
-            handleVersionTap: handleVersionTap,
-            foregroundColor: viewModel.readerTextPrimaryColor,
-            buttonColor: viewModel.readerButtonPrimaryColor,
-            backgroundColor: viewModel.readerCanvasPrimaryColor,
-            compactMode: false
-        )
+        let chapterPicker =
+            HStack(spacing: 0) {
+                if !isCompact {
+                    Button(action: viewModel.goToPreviousChapter) {
+                        Image(systemName: "chevron.backward")
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .accessibilityLabel(String.localized("previousChapterAriaLabel"))
+                    .accessibilityIdentifier("previousChapterBtn")
+                }
+                Button(action: handleChapterTap) {
+                    Text(bookAndChapter)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, minHeight: isCompact ? 28 : 44)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("bookAndChapterPickerBtn")
+                if !isCompact {
+                    Button(action: viewModel.goToNextChapter) {
+                        Image(systemName: "chevron.forward")
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .accessibilityLabel(String.localized("nextChapterAriaLabel"))
+                    .accessibilityIdentifier("nextChapterBtn")
+                }
+            }
+            .background(isCompact ? Color.clear : buttonBackgroundColor, in: Capsule())
+            .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
+
+        let versionPicker =
+            Button(action: handleVersionTap) {
+                Text(versionAbbreviation)
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .frame(minWidth: 44, minHeight: isCompact ? 28 : 44)
+            }
+            .background(isCompact ? Color.clear : buttonBackgroundColor, in: Capsule())
+            .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
+            .fixedSize(horizontal: true, vertical: false)
+            .accessibilityIdentifier("versionPickerBtn")
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                chapterPicker
+                versionPicker
+            }
+
+            VStack(spacing: 8) {
+                chapterPicker
+                versionPicker
+            }
+        }
+        .font(isCompact ? .caption.weight(.semibold) : .subheadline.weight(.semibold))
+        .foregroundStyle(viewModel.readerTextPrimaryColor)
+        .buttonStyle(.plain)
+        .disabled(viewModel.version == nil)
+    }
+
+    private var buttonBackgroundColor: Color {
+        viewModel.colorForScheme(light: viewModel.readerWhiteColor, dark: viewModel.readerButtonPrimaryColor)
     }
 
     private var bookAndChapter: String {
@@ -139,62 +167,21 @@ public struct BibleReaderHeaderView: View {
         return "\(book.title ?? "") \(intro.title ?? "")"
     }
 
-    @ViewBuilder
-    private var compactLabels: some View {
-        if let version = viewModel.version {
-            compactLabelsView(
-                bookAndChapter: bookAndChapter,
-                versionAbbreviation: version.localizedAbbreviation ?? version.abbreviation ?? String(version.id)
-            )
-        } else {
-            compactLabelsView(bookAndChapter: "", versionAbbreviation: "")
-        }
-    }
-
-    private func compactLabelsView(bookAndChapter: String, versionAbbreviation: String) -> some View {
-        Button {
-            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
-                onCompactTap?()
-            }
-        } label: {
-            HStack(spacing: 8) {
-                Text(bookAndChapter)
-                    .font(.system(size: 14, weight: .semibold))
-
-                Divider()
-                    .frame(width: 1, height: 14)
-
-                Text(versionAbbreviation)
-                    .font(.system(size: 14, weight: .semibold))
-            }
-            .foregroundStyle(viewModel.readerTextPrimaryColor)
-            .frame(height: 24)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-
 }
 
 #Preview {
-    VStack {
-        Divider()
-        BibleReaderHeaderView(
-            showChrome: true,
-            onSelectionChange: { versionId, book, chapter, passageId in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999), Passage: \(passageId ?? "nil")")
-            }
-        )
-        Divider()
-        BibleReaderHeaderView(
-            showChrome: false,
-            onSelectionChange: { versionId, book, chapter, passageId in
-                print("Version: \(versionId), Book: \(book), Chapter: \(chapter ?? 999), Passage: \(passageId ?? "nil")")
-            }, onCompactTap: {
-                print("Compact header tapped!")
-            }
-        )
-        Divider()
-    }
+    BibleReaderHeaderView()
+        .padding()
+        .environment(BibleReaderViewModel.preview)
+}
+
+#Preview("Navigation with accessory") {
+    BibleReaderHeaderView(accessory: AnyView(
+        Button(action: {}) {
+            Image(systemName: "magnifyingglass")
+        }
+        .accessibilityLabel(String.localized("generic.search"))
+    ))
+    .padding()
     .environment(BibleReaderViewModel.preview)
 }

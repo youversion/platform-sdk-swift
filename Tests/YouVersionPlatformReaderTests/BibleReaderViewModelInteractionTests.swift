@@ -9,37 +9,14 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
 
     @Test
-    func handleScrollShowsAndHidesChromeAroundThreshold() {
-        let viewModel = Support.makeViewModel()
-        viewModel.showChrome = true
-
-        viewModel.handleScroll(offset: -5)
-        #expect(viewModel.showChrome)
-
-        viewModel.handleScroll(offset: -30)
-        #expect(viewModel.showChrome == false)
-
-        viewModel.handleScroll(offset: -25)
-        #expect(viewModel.showChrome == false)
-
-        viewModel.handleScroll(offset: -5)
-        #expect(viewModel.showChrome)
-
-        viewModel.handleScroll(offset: 0)
-        #expect(viewModel.showChrome)
-    }
-
-    @Test
-    func handleScrollTracksOffsetButLeavesChromeWhileChangingChapter() {
+    func handleScrollTracksOffsetWhileChangingChapter() {
         let viewModel = Support.makeViewModel()
         viewModel.isChangingChapter = true
         viewModel.lastScrollOffset = -30
-        viewModel.showChrome = true
 
         viewModel.handleScroll(offset: -100)
 
         #expect(viewModel.lastScrollOffset == -100)
-        #expect(viewModel.showChrome)
     }
 
     @Test
