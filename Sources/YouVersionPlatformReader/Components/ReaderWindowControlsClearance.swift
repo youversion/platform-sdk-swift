@@ -1,6 +1,7 @@
 import SwiftUI
 
-#if os(iOS)
+#if compiler(>=6.2) && os(iOS)
+/// Requires the Swift 6.2 toolchain shipped with the iOS 26 SDK.
 /// Reads the system's corner-aware safe area without identifying the device.
 @available(iOS 26.0, *)
 struct ReaderWindowControlsClearance: UIViewRepresentable {

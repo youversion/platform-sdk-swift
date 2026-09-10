@@ -5,7 +5,7 @@ import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
     @State private var viewModel: BibleReaderViewModel?
-
+    
     private let initialReference: BibleReference?
     private let readerNavigation: BibleReaderNavigation?
     private let showsFullChapter: Bool
@@ -13,7 +13,7 @@ public struct BibleReaderView: View {
     private let onVerseTap: ((BibleReference) -> Void)?
     private var navigationPlacement = BibleReaderNavigationPlacement.topBar
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
-
+    
     /// Creates a Bible reader view displaying `reference`.
     ///
     /// To restore the passage the user was last viewing instead, use
@@ -53,7 +53,7 @@ public struct BibleReaderView: View {
             readerNavigation: readerNavigation
         )
     }
-
+    
     /// Creates a Bible reader view that restores the passage the user was last
     /// viewing — the reference and its display mode — or shows John 1 when
     /// nothing has been saved yet.
@@ -79,7 +79,7 @@ public struct BibleReaderView: View {
             readerNavigation: readerNavigation
         )
     }
-
+    
     /// Positions the chapter and version controls at the top (the default) or bottom.
     /// The reader menu remains at the top in either placement.
     public func navigation(_ placement: BibleReaderNavigationPlacement) -> BibleReaderView {
@@ -87,7 +87,7 @@ public struct BibleReaderView: View {
         copy.navigationPlacement = placement
         return copy
     }
-
+    
     /// Returns a reader that renders `header` at the top of each chapter, above
     /// the verse text. The builder receives a ``BibleChapterDescriptor`` (the
     /// chapter reference, book name, and chapter label) and is rebuilt whenever
@@ -102,7 +102,7 @@ public struct BibleReaderView: View {
         copy.chapterHeaderBuilder = { AnyView(header($0)) }
         return copy
     }
-
+    
     /// Creates a Bible reader view.
     ///
     /// - Parameters:
@@ -136,7 +136,7 @@ public struct BibleReaderView: View {
             readerNavigation: nil
         )
     }
-
+    
     private init(initialReference: BibleReference?,
                  verseSelectionStyle: VerseSelectionStyle,
                  onVerseTap: ((BibleReference) -> Void)?,
@@ -153,7 +153,7 @@ public struct BibleReaderView: View {
         self.verseSelectionStyle = verseSelectionStyle
         self.onVerseTap = onVerseTap
     }
-
+    
     /// Creates a Bible reader view with sign-in configuration.
     ///
     /// - Parameters:
@@ -177,7 +177,7 @@ public struct BibleReaderView: View {
             readerNavigation: nil
         )
     }
-
+    
     public var body: some View {
         Group {
             if let viewModel {
@@ -222,23 +222,23 @@ struct ReaderContent: View {
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
-
+    
     @State private var isNavigationCompact = false
     @State private var windowControlsTopInset: CGFloat = 0
     @State private var bottomControlsHeight: CGFloat = 60
     @State private var topControlsHeight: CGFloat = 60
     @State private var hasWideNavigationSpace = false
-
+    
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
-
+    
     private let fontSettingsDetent = PresentationDetent.height(360)
     private let fontListDetent = PresentationDetent.height(480)
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
-
+    
     init(
         viewModel: BibleReaderViewModel,
         readerNavigation: BibleReaderNavigation?,
@@ -255,7 +255,7 @@ struct ReaderContent: View {
         self.accessory = accessory
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             mainScroller
@@ -285,7 +285,7 @@ struct ReaderContent: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom))
             }
         }
-
+        
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
@@ -373,18 +373,18 @@ struct ReaderContent: View {
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
     }
-
+    
     // MARK: - Helper views
     private var progressView: some View {
         ProgressView()
             .tint(viewModel.readerTextMutedColor)
             .padding(.vertical, 48)
     }
-
+    
     private var navigationAnimation: Animation? {
         reduceMotion ? nil : .easeInOut(duration: 0.1)
     }
-
+    
     private var topControls: some View {
         HStack(spacing: 8) {
             if navigationPlacement == .topBar {
@@ -399,7 +399,7 @@ struct ReaderContent: View {
         .padding(.top, windowControlsTopInset)
         .background(viewModel.readerCanvasPrimaryColor, in: Capsule())
         .background {
-#if os(iOS)
+#if compiler(>=6.2) && os(iOS)
             if #available(iOS 26.0, *) {
                 ReaderWindowControlsClearance(topInset: $windowControlsTopInset)
                     .allowsHitTesting(false)
@@ -415,7 +415,7 @@ struct ReaderContent: View {
             }
         }
     }
-
+    
     private var navigationScrim: some View {
         LinearGradient(
             stops: [
@@ -430,7 +430,7 @@ struct ReaderContent: View {
         .clipShape(Capsule())
         .allowsHitTesting(false)
     }
-
+    
     private var header: some View {
         ViewThatFits(in: .horizontal) {
             if hasWideNavigationSpace {
@@ -460,7 +460,7 @@ struct ReaderContent: View {
             hasWideNavigationSpace = isWide
         }
     }
-
+    
     @ViewBuilder
     private var navigationHeader: some View {
         if viewModel.version != nil {
@@ -476,7 +476,7 @@ struct ReaderContent: View {
             )
         }
     }
-
+    
     private var fontSettingsSheet: some View {
         Group {
             if viewModel.showingFontList {
@@ -495,7 +495,7 @@ struct ReaderContent: View {
         .presentationDetents(detents, selection: $selectedDetent)
         .presentationBackground(viewModel.readerCanvasPrimaryColor)
     }
-
+    
     private var signInView: some View {
         SignInWithYouVersionView(
             textPrimaryColor: viewModel.readerTextPrimaryColor,
@@ -516,14 +516,14 @@ struct ReaderContent: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(viewModel.readerCanvasPrimaryColor)
     }
-
+    
     private var verseActionDrawer: some View {
         BibleReaderDrawer()
             .presentationDetents([PresentationDetent.height(160)])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(viewModel.readerCanvasPrimaryColor)
+            .presentationDragIndicator(.visible)
+            .presentationBackground(viewModel.readerCanvasPrimaryColor)
     }
-
+    
     private var bibleCopyrightBlock: some View {
         VStack(alignment: .center) {
             if let version = viewModel.version {
@@ -550,7 +550,7 @@ struct ReaderContent: View {
             }
         }
     }
-
+    
     /// Describes the currently displayed chapter for the host's chapter header.
     /// The chapter label comes from the version's chapter metadata (which may be
     /// non-numeric), falling back to the numeric index when metadata is missing.
@@ -561,8 +561,8 @@ struct ReaderContent: View {
         // numeric reference (same matching as BibleReference.existsIn(version:)).
         let chapterMetadata = viewModel.version?.book(with: reference.bookId)?.chapters?.first {
             $0.passageId == reference.chapterPassageId
-                || $0.id == reference.chapterPassageId
-                || $0.id == String(reference.chapter)
+            || $0.id == reference.chapterPassageId
+            || $0.id == String(reference.chapter)
         }
         return BibleChapterDescriptor(
             reference: reference,
@@ -570,7 +570,7 @@ struct ReaderContent: View {
             chapterLabel: chapterMetadata?.title ?? String(reference.chapter)
         )
     }
-
+    
     private var mainScroller: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
@@ -623,8 +623,8 @@ struct ReaderContent: View {
                     // Tap anywhere in the reader to clear a focused reference.
                     .simultaneousGesture(
                         viewModel.focusedReference != nil
-                            ? TapGesture().onEnded { viewModel.clearFocus() }
-                            : nil
+                        ? TapGesture().onEnded { viewModel.clearFocus() }
+                        : nil
                     )
                 } else {
                     progressView
@@ -660,15 +660,13 @@ struct ReaderContent: View {
         }
     }
     
-    
-
 #if !os(tvOS)
     final class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
         func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
 #if canImport(UIKit)
             guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let window = scene.windows.first
-            else {
+                    else {
                 return ASPresentationAnchor()
             }
             return window
@@ -678,11 +676,5 @@ struct ReaderContent: View {
         }
     }
 #endif
-
+    
 }
-
-#if DEBUG
-#Preview("Reader design gallery", traits: .landscapeLeft) {
-    BibleReaderDesignGallery()
-}
-#endif
