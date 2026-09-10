@@ -1,6 +1,13 @@
 {
+  "triggerOnUpdates": true,
   "customContext": {
     "rules": [
+      {
+        "scope": [
+          "Examples/SampleApp/SampleApp.swift"
+        ],
+        "rule": "Repository hygiene: the tracked YouVersionPlatformConfiguration.configure() call must keep the exact appKey argument appKey: <#Your App Key#>. Flag any replacement of this placeholder or addition of an app key anywhere in this file, including comments, constants, and commented-out code, and recommend restoring the placeholder before merge. This applies to test, staging, demo, and personal keys. Actual app keys must remain unstaged local changes and must never be committed. App keys are public configuration, not secrets; explain findings as repository tidiness and avoiding confusion, not a security incident. Do not repeat the key value in review comments or suggested fixes; identify the location and recommend restoring the placeholder."
+      },
       {
         "scope": [
           "Sources/YouVersionPlatformUI/**/*.swift",
