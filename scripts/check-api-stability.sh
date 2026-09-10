@@ -64,6 +64,11 @@ swift build -c release >/dev/null
 
 BIN_PATH="$(swift build -c release --show-bin-path)"
 MODULES_DIR="$BIN_PATH/Modules"
+# Swift Build places modules directly in the products directory; older SwiftPM
+# versions using the native build system place them in a Modules subdirectory.
+if [[ ! -d "$MODULES_DIR" ]] && compgen -G "$BIN_PATH/*.swiftmodule" >/dev/null; then
+  MODULES_DIR="$BIN_PATH"
+fi
 
 if [[ ! -d "$MODULES_DIR" ]]; then
   echo "Expected modules directory not found: $MODULES_DIR" >&2
