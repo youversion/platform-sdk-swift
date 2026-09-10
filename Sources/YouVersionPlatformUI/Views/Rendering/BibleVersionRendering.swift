@@ -202,7 +202,7 @@ public enum BibleVersionRendering {
         }
 
         if stateUp.rendering &&
-            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl"))
+            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") || node.classes.contains("va"))
             && node.children.count == 1 && node.children.first?.type == .text {
             if let t = node.children.first?.text {
                 if stateIn.renderVerseNumbers {
@@ -214,8 +214,6 @@ public enum BibleVersionRendering {
                     stateUp.append(vn, category: .verseLabel)
                 }
             }
-        } else if node.classes.contains("rq") {
-            // a cross-reference, e.g. NIrV (#110) Revelation 19:15. Not really a footnote; something different.
         } else if node.classes.contains("yv-n") && node.classes.contains("f") {
             if stateUp.rendering && stateIn.footnotesMode != .none {
                 handleFootnoteNode(node, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)

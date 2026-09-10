@@ -28,11 +28,42 @@ public enum YouVersionAPI {
         try await responseData(at: url, accessToken: accessToken, session: session).value
     }
 
+    static func dataIfPresent(at url: URL, accessToken: String?, session: URLSession) async throws -> Data? {
+        try await response(
+            at: url,
+            accessToken: accessToken,
+            session: session,
+            allowsNoContent: true
+        ).data
+    }
+
     static func responseData(
         at url: URL,
         accessToken: String?,
         session: URLSession
     ) async throws -> BibleContentResponse<Data> {
+        let response = try await response(
+            at: url,
+            accessToken: accessToken,
+            session: session,
+            allowsNoContent: false
+        )
+        guard let data = response.data else {
+            throw YouVersionAPIError.cannotDownload
+        }
+        return BibleContentResponse(
+            value: data,
+            expirationDate: response.httpResponse.cacheExpirationDate(),
+            isCacheable: response.httpResponse.allowsCaching
+        )
+    }
+
+    private static func response(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession,
+        allowsNoContent: Bool
+    ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
         let request = urlRequest(with: url, accessToken: accessToken, session: session)
         let (data, response) = try await session.data(for: request)
 
@@ -46,15 +77,15 @@ public enum YouVersionAPI {
             throw YouVersionAPIError.notPermitted
         }
 
+        if httpResponse.statusCode == 204 && allowsNoContent {
+            return (nil, httpResponse)
+        }
+
         guard httpResponse.statusCode == 200 else {
             YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
             throw YouVersionAPIError.cannotDownload
         }
-        return BibleContentResponse(
-            value: data,
-            expirationDate: httpResponse.cacheExpirationDate(),
-            isCacheable: httpResponse.allowsCaching
-        )
+        return (data, httpResponse)
     }
 
     static func urlRequest(
@@ -227,4 +258,14 @@ public enum YouVersionAPIError: Error, Sendable {
     case cannotDownload
     case invalidDownload
     case invalidResponse
+}
+
+public struct YouVersionAPIRequestError: Error, Sendable {
+    public struct Code: Equatable, Sendable {
+        public static let invalidParameter = Self(rawValue: "invalid_parameter")
+
+        public let rawValue: String
+    }
+
+    public let code: Code
 }

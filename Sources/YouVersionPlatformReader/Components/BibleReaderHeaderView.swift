@@ -31,6 +31,18 @@ public struct BibleReaderHeaderView: View {
                     .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
             }
             navigationPickers
+            if !isCompact {
+                Button(action: viewModel.openSearch) {
+                    Image(systemName: "magnifyingglass")
+                        .imageScale(.large)
+                        .foregroundStyle(viewModel.readerTextPrimaryColor)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .background(buttonBackgroundColor, in: Capsule())
+                .shadow(color: viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
+                .accessibilityLabel(String.localized("generic.search"))
+            }
         }
         .padding(.vertical, isCompact ? 0 : 8)
         .sheet(

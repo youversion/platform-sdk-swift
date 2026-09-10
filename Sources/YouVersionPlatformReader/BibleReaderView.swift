@@ -335,6 +335,12 @@ struct ReaderContent: View {
         .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
         }
+        .sheet(isPresented: $viewModel.showingSearchSheet) {
+            BibleReaderSearchView()
+                .environment(viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             // TODO: move this to the viewModel
             if newValue {
