@@ -5,12 +5,16 @@ import UIKit
 
 public enum BibleTextFontOption {
     case font076emItalic
+    case font083emItalic
     case font100em
     case font100emItalic
     case font100em500
     case font100em500Italic
+    case font100em700
+    case font108emItalic
     case font117em500
     case font117em500Italic
+    case font117em700
     case footnote
     case verseNumFont
 
@@ -92,12 +96,16 @@ public struct BibleTextFonts {
 
         fonts = [
             .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
+            .font083emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.83).italic(),
             .font100em: Self.font(familyName: familyName, size: baseSize),
             .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
             .font100em500: Self.font(familyName: familyName, size: baseSize).weight(.medium),
             .font100em500Italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium).italic(),
+            .font100em700: Self.font(familyName: familyName, size: baseSize).weight(.bold),
+            .font108emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.08).italic(),
             .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
             .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
+            .font117em700: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.bold),
             .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
             .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
             
