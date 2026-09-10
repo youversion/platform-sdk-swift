@@ -46,7 +46,7 @@ import Testing
         let languageRanges = components.queryItems?
             .filter { $0.name == "language_ranges[]" }
             .compactMap(\.value)
-        #expect(components.path == "/v1-beta/search-topics")
+        #expect(components.path == "/v1/search-topics")
         #expect(components.queryItems?.contains(URLQueryItem(name: "query", value: "faif")) == true)
         #expect(languageRanges == ["en-US", "*"])
         #expect(results.topics.map(\.id) == [42, nil])

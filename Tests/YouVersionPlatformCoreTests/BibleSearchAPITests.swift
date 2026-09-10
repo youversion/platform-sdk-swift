@@ -54,7 +54,7 @@ import Testing
 
         let request = try #require(capturedRequest)
         let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-        #expect(components.path == "/v1-beta/search-verses")
+        #expect(components.path == "/v1/search-verses")
         #expect(components.queryItems?.contains(URLQueryItem(name: "query", value: "two fish")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "bible_id", value: "111")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "text")) == true)

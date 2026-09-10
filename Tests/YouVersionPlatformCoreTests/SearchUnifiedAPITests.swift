@@ -5,9 +5,9 @@ import FoundationNetworking
 import Testing
 @testable import YouVersionPlatformCore
 
-@Suite(.serialized) struct SearchResultsAPITests {
+@Suite(.serialized) struct SearchUnifiedAPITests {
     @Test
-    func resultsSendParametersAndDecodeCollection() async throws {
+    func unifiedSendsParametersAndDecodesCollection() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -45,7 +45,7 @@ import Testing
             return (json, response)
         }
 
-        let results = try await YouVersionAPI.Search.results(
+        let results = try await YouVersionAPI.Search.unified(
             matching: "luv",
             bibleID: 111,
             languageRanges: ["en-US", "*"],
@@ -63,7 +63,7 @@ import Testing
         let fields = components.queryItems?
             .filter { $0.name == "fields[]" }
             .compactMap(\.value)
-        #expect(components.path == "/v1-beta/search-results")
+        #expect(components.path == "/v1/search-unified")
         #expect(components.queryItems?.contains(URLQueryItem(name: "query", value: "luv")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "bible_id", value: "111")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "topical")) == true)
@@ -107,7 +107,7 @@ import Testing
             return (json, response)
         }
 
-        _ = try await YouVersionAPI.Search.results(
+        _ = try await YouVersionAPI.Search.unified(
             matching: "love",
             bibleID: 111,
             languageRanges: ["en"],
@@ -137,7 +137,7 @@ import Testing
         }
 
         await #expect {
-            try await YouVersionAPI.Search.results(
+            try await YouVersionAPI.Search.unified(
                 matching: "love",
                 bibleID: 111,
                 languageRanges: [languageRange],
@@ -152,36 +152,36 @@ import Testing
     @Test
     func invalidParametersReturnInvalidParameterError() async {
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "", bibleID: 111, languageRanges: ["en"])
+            try await YouVersionAPI.Search.unified(matching: "", bibleID: 111, languageRanges: ["en"])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(
+            try await YouVersionAPI.Search.unified(
                 matching: String(repeating: "a", count: 101),
                 bibleID: 111,
                 languageRanges: ["en"]
             )
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "love", bibleID: 0, languageRanges: ["en"])
+            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 0, languageRanges: ["en"])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "love", bibleID: -1, languageRanges: ["en"])
+            try await YouVersionAPI.Search.unified(matching: "love", bibleID: -1, languageRanges: ["en"])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(
+            try await YouVersionAPI.Search.unified(
                 matching: "love",
                 bibleID: Int(Int32.max) + 1,
                 languageRanges: ["en"]
             )
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "love", bibleID: 111, languageRanges: [])
+            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: [])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "love", bibleID: 111, languageRanges: [""])
+            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: [""])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.results(matching: "love", bibleID: 111, languageRanges: ["en--US"])
+            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: ["en--US"])
         }
     }
 }

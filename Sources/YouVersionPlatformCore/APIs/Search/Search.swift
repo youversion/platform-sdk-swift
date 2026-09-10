@@ -194,7 +194,7 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.
-    static func results(
+    static func unified(
         matching query: String,
         bibleID: Int,
         languageRanges: [String],
@@ -211,7 +211,7 @@ public extension YouVersionAPI.Search {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
-        guard let url = searchResultsURL(
+        guard let url = searchUnifiedURL(
             query: query,
             bibleID: bibleID,
             languageRanges: languageRanges,
@@ -379,14 +379,14 @@ public extension YouVersionAPI.Search {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1-beta/search-topics"
+        components.path = "/v1/search-topics"
         components.queryItems = [URLQueryItem(name: "query", value: query)] + languageRanges.map {
             URLQueryItem(name: "language_ranges[]", value: $0)
         }
         return components.url
     }
 
-    private static func searchResultsURL(
+    private static func searchUnifiedURL(
         query: String,
         bibleID: Int,
         languageRanges: [String],
@@ -396,7 +396,7 @@ public extension YouVersionAPI.Search {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1-beta/search-results"
+        components.path = "/v1/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))

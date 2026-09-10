@@ -126,7 +126,7 @@ public enum URLBuilder {
         pageToken: String?
     ) -> URL? {
         var components = baseURLComponents
-        components.path = "/v1-beta/search-verses"
+        components.path = "/v1/search-verses"
         var queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID)),
@@ -148,7 +148,7 @@ public enum URLBuilder {
         isTrending: Bool
     ) -> URL? {
         var components = baseURLComponents
-        components.path = "/v1-beta/search-queries"
+        components.path = "/v1/search-queries"
         var queryItems = languageRanges.map {
             URLQueryItem(name: "language_ranges[]", value: $0)
         }
