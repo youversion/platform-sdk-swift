@@ -83,6 +83,221 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "BibleChapterDescriptor",
+        "printedName": "BibleChapterDescriptor",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "reference",
+            "printedName": "reference",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV9reference0abC4Core0E9ReferenceVvp",
+            "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV9reference0abC4Core0E9ReferenceVvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV9reference0abC4Core0E9ReferenceVvg",
+                "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV9reference0abC4Core0E9ReferenceVvg",
+                "moduleName": "YouVersionPlatformReader",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "bookName",
+            "printedName": "bookName",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV8bookNameSSvp",
+            "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV8bookNameSSvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV8bookNameSSvg",
+                "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV8bookNameSSvg",
+                "moduleName": "YouVersionPlatformReader",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "chapterLabel",
+            "printedName": "chapterLabel",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV12chapterLabelSSvp",
+            "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV12chapterLabelSSvp",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV12chapterLabelSSvg",
+                "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV12chapterLabelSSvg",
+                "moduleName": "YouVersionPlatformReader",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(reference:bookName:chapterLabel:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleChapterDescriptor",
+                "printedName": "YouVersionPlatformReader.BibleChapterDescriptor",
+                "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReference",
+                "printedName": "YouVersionPlatformCore.BibleReference",
+                "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV9reference8bookName12chapterLabelAC0abC4Core0E9ReferenceV_S2Stcfc",
+            "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV9reference8bookName12chapterLabelAC0abC4Core0E9ReferenceV_S2Stcfc",
+            "moduleName": "YouVersionPlatformReader",
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV",
+        "mangledName": "$s24YouVersionPlatformReader22BibleChapterDescriptorV",
+        "moduleName": "YouVersionPlatformReader",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "BibleReaderNavigation",
         "printedName": "BibleReaderNavigation",
         "children": [
@@ -722,6 +937,47 @@
             "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV20restoringLastPassage19verseSelectionStyle10onVerseTap16readerNavigationAC0abC2UI0nkL0V_y0abC4Core0E9ReferenceVcSgAA0edQ0CSgtFZ",
             "moduleName": "YouVersionPlatformReader",
             "static": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "chapterHeader",
+            "printedName": "chapterHeader(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformReader.BibleChapterDescriptor) -> Header",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Header"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleChapterDescriptor",
+                    "printedName": "YouVersionPlatformReader.BibleChapterDescriptor",
+                    "usr": "s:24YouVersionPlatformReader22BibleChapterDescriptorV"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV13chapterHeaderyACxAA0E17ChapterDescriptorVc7SwiftUI0F0RzlF",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV13chapterHeaderyACxAA0E17ChapterDescriptorVc7SwiftUI0F0RzlF",
+            "moduleName": "YouVersionPlatformReader",
+            "genericSig": "<Header where Header : SwiftUI.View>",
             "declAttributes": [
               "Preconcurrency",
               "Custom"

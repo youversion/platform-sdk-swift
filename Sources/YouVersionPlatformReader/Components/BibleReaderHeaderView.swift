@@ -34,6 +34,14 @@ public struct BibleReaderHeaderView: View {
                 HStack {
                     halfPillPickers
                     Spacer()
+                    Button(action: viewModel.openSearch) {
+                        Image(systemName: "magnifyingglass")
+                            .imageScale(.large)
+                            .foregroundStyle(viewModel.readerTextPrimaryColor)
+                            .padding(8)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String.localized("generic.search"))
                     BibleReaderHeaderMenuView()
                 }
                 .transition(reduceMotion ? .identity : .opacity)
