@@ -31,19 +31,6 @@ public struct BibleReaderHeaderView: View {
                     .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
             }
             navigationPickers
-            if !isCompact {
-                Button(action: viewModel.openSearch) {
-                    Image(systemName: "magnifyingglass")
-                        .imageScale(.large)
-                        .foregroundStyle(viewModel.readerTextPrimaryColor)
-                        .padding(4)
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .buttonStyle(.plain)
-                .background(buttonBackgroundColor, in: Capsule())
-                .shadow(color: viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
-                .accessibilityLabel(String.localized("generic.search"))
-            }
         }
         .padding(.vertical, isCompact ? 0 : 8)
         .sheet(
@@ -116,6 +103,7 @@ public struct BibleReaderHeaderView: View {
                 Button(action: handleChapterTap) {
                     Text(bookAndChapter)
                         .lineLimit(2)
+                        .truncationMode(.middle)
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, minHeight: isCompact ? 28 : 44)
                         .contentShape(Rectangle())
@@ -145,16 +133,9 @@ public struct BibleReaderHeaderView: View {
             .shadow(color: isCompact ? .clear : viewModel.colorForScheme(light: viewModel.readerDropShadowColor, dark: .clear), radius: 8, y: 2)
             .fixedSize(horizontal: true, vertical: false)
             .accessibilityIdentifier("versionPickerBtn")
-        return ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                chapterPicker
-                versionPicker
-            }
-
-            VStack(spacing: 8) {
-                chapterPicker
-                versionPicker
-            }
+        return HStack(spacing: 8) {
+            chapterPicker
+            versionPicker
         }
         .font(isCompact ? .caption.weight(.semibold) : .subheadline.weight(.semibold))
         .foregroundStyle(viewModel.readerTextPrimaryColor)

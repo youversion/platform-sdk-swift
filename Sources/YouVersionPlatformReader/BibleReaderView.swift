@@ -227,7 +227,6 @@ struct ReaderContent: View {
     @State private var windowControlsTopInset: CGFloat = 0
     @State private var bottomControlsHeight: CGFloat = 60
     @State private var topControlsHeight: CGFloat = 60
-    @State private var hasWideNavigationSpace = false
     
     @Environment(\.openURL) private var openURL
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -262,6 +261,7 @@ struct ReaderContent: View {
                 .clipped()
                 .overlay(alignment: .top) {
                     topControls
+                        .padding(.horizontal, 8)
                         .animation(navigationAnimation, value: isNavigationCompact)
                 }
                 .overlay(alignment: .bottom) {
@@ -283,6 +283,7 @@ struct ReaderContent: View {
                 verseActionDrawer
                     .frame(maxWidth: viewModel.readerMaxWidth, alignment: .bottom)
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom))
+                    .accessibilityIdentifier("verseActionDrawer")
             }
         }
         
@@ -398,8 +399,22 @@ struct ReaderContent: View {
             } else {
                 Spacer(minLength: 0)
             }
-            BibleReaderHeaderMenuView(isCompact: isNavigationCompact)
+            HStack(spacing: 0) {
+                Button(action: viewModel.openSearch) {
+                    Image(systemName: "magnifyingglass")
+                        .font(isNavigationCompact ? .subheadline : .title2)
+                        .foregroundStyle(viewModel.readerTextPrimaryColor)
+                        .frame(width: 44, height: isNavigationCompact ? 28 : 44)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String.localized("generic.search"))
+                .accessibilityIdentifier("searchBtn")
                 .padding(.vertical, isNavigationCompact ? 0 : 8)
+                BibleReaderHeaderMenuView(isCompact: isNavigationCompact)
+                    .padding(.vertical, isNavigationCompact ? 0 : 8)
+                    .accessibilityIdentifier("menuBtn")
+            }
         }
         .padding(.horizontal, 8)
         .padding(.top, windowControlsTopInset)
@@ -438,13 +453,7 @@ struct ReaderContent: View {
     }
     
     private var header: some View {
-        ViewThatFits(in: .horizontal) {
-            if hasWideNavigationSpace {
-                navigationHeader
-                    .fixedSize(horizontal: true, vertical: false)
-            }
-            navigationHeader
-        }
+        navigationHeader
         .frame(maxWidth: 350)
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
@@ -459,11 +468,6 @@ struct ReaderContent: View {
             if isPresented {
                 isNavigationCompact = false
             }
-        }
-        .onGeometryChange(for: Bool.self) { proxy in
-            proxy.size.width >= 600
-        } action: { isWide in
-            hasWideNavigationSpace = isWide
         }
     }
     
@@ -584,9 +588,11 @@ struct ReaderContent: View {
                     VStack(alignment: .leading) {
                         if viewModel.showBookIntro {
                             BibleReaderIntroView()
+                                .accessibilityIdentifier("introView")
                         } else {
                             if let chapterHeader {
                                 chapterHeader(chapterDescriptor)
+                                    .accessibilityIdentifier("chapterHeader")
                             }
                             if let passageContent {
                                 passageContent(viewModel)
@@ -600,6 +606,7 @@ struct ReaderContent: View {
                                     },
                                     focusedReference: viewModel.focusedReference
                                 )
+                                .accessibilityIdentifier("bibleTextView")
                             }
                         }
                         VStack(alignment: .center) {
@@ -619,6 +626,7 @@ struct ReaderContent: View {
                     .overlay(alignment: .top) {
                         if verseScrollCoordinator.isScrollPending {
                             progressView
+                                .accessibilityIdentifier("progressView")
                         }
                     }
                     .onGeometryChange(for: CGFloat.self) { proxy in
@@ -634,6 +642,7 @@ struct ReaderContent: View {
                     )
                 } else {
                     progressView
+                        .accessibilityIdentifier("progressView")
                 }
             }
             .modifier(ReaderNavigationScrollModifier(isCompact: $isNavigationCompact))
