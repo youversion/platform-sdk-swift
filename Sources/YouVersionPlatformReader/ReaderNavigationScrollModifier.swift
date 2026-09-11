@@ -14,11 +14,8 @@ struct ReaderNavigationScrollState {
                 distance = 0
             }
             distance += delta
-            if distance >= 60 {
+            if abs(distance) >= 60 {
                 isCompact = true
-                distance = 0
-            } else if distance <= -60 {
-                isCompact = false
                 distance = 0
             }
         }
@@ -49,16 +46,12 @@ struct ReaderNavigationScrollModifier: ViewModifier {
                     }
                 }
                 .onScrollGeometryChange(for: NavigationScrollGeometry.self) { geometry in
-                    NavigationScrollGeometry(
-                        offset: geometry.contentOffset.y + geometry.contentInsets.top,
-                        maximumOffset: max(0, geometry.contentSize.height + geometry.contentInsets.top
-                            + geometry.contentInsets.bottom - geometry.containerSize.height)
-                    )
+                    NavigationScrollGeometry(geometry)
                 } action: { oldValue, newValue in
                     state.update(
                         delta: newValue.offset - oldValue.offset,
                         isUserScrolling: isUserScrolling,
-                        isAtBoundary: newValue.offset <= 2 || newValue.offset >= newValue.maximumOffset - 2
+                        isAtBoundary: newValue.isAtBoundary
                     )
                     isCompact = state.isCompact
                 }
@@ -68,7 +61,17 @@ struct ReaderNavigationScrollModifier: ViewModifier {
     }
 }
 
-private struct NavigationScrollGeometry: Equatable {
+struct NavigationScrollGeometry: Equatable {
     let offset: CGFloat
-    let maximumOffset: CGFloat
+    private let maximumOffset: CGFloat
+
+    @available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, *)
+    init(_ geometry: ScrollGeometry) {
+        offset = geometry.contentOffset.y + geometry.contentInsets.top
+        maximumOffset = max(0, geometry.contentSize.height - geometry.containerSize.height)
+    }
+
+    var isAtBoundary: Bool {
+        offset <= 2 || offset >= maximumOffset - 2
+    }
 }
