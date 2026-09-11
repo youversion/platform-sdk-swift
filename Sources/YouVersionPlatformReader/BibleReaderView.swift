@@ -261,14 +261,14 @@ struct ReaderContent: View {
                 .clipped()
                 .overlay(alignment: .top) {
                     topControls
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, isNavigationCompact ? 0 : 8)
                         .animation(navigationAnimation, value: isNavigationCompact)
                 }
                 .overlay(alignment: .bottom) {
                     if navigationPlacement == .bottomBar {
                         header
                             .background(alignment: .bottom) { navigationScrim }
-                            .padding(.horizontal, 8)
+                            .padding(.horizontal, isNavigationCompact ? 0 : 8)
                             .onGeometryChange(for: CGFloat.self) { proxy in
                                 proxy.size.height
                             } action: { height in
@@ -399,27 +399,29 @@ struct ReaderContent: View {
             } else {
                 Spacer(minLength: 0)
             }
-            HStack(spacing: 0) {
-                Button(action: viewModel.openSearch) {
-                    Image("magnifying-glass", bundle: .YouVersionUIBundle)
-                        .renderingMode(.template)
-                        .foregroundStyle(viewModel.readerTextPrimaryColor)
-                        .frame(width: 44, height: isNavigationCompact ? 28 : 44)
-                        .contentShape(Circle())
+            if !isNavigationCompact {
+                HStack(spacing: 0) {
+                    Button(action: viewModel.openSearch) {
+                        Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                            .renderingMode(.template)
+                            .foregroundStyle(viewModel.readerTextPrimaryColor)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String.localized("generic.search"))
+                    .accessibilityIdentifier("searchBtn")
+                    .padding(.vertical, 8)
+                    BibleReaderHeaderMenuView(isCompact: false)
+                        .padding(.vertical, 8)
+                        .accessibilityIdentifier("menuBtn")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(String.localized("generic.search"))
-                .accessibilityIdentifier("searchBtn")
-                .padding(.vertical, isNavigationCompact ? 0 : 8)
-                BibleReaderHeaderMenuView(isCompact: isNavigationCompact)
-                    .padding(.vertical, isNavigationCompact ? 0 : 8)
-                    .accessibilityIdentifier("menuBtn")
             }
         }
         .dynamicTypeSize(.medium)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, isNavigationCompact ? 16 : 8)
         .padding(.top, windowControlsTopInset)
-        .background(viewModel.readerCanvasPrimaryColor, in: Capsule())
+        .background(viewModel.readerCanvasPrimaryColor, in: navigationBackgroundShape)
         .background {
 #if compiler(>=6.2) && os(iOS)
             if #available(iOS 26.0, *) {
@@ -438,24 +440,29 @@ struct ReaderContent: View {
         }
     }
     
+    private var navigationBackgroundShape: AnyShape {
+        isNavigationCompact ? AnyShape(Rectangle()) : AnyShape(Capsule())
+    }
+
     private var navigationScrim: some View {
         LinearGradient(
             stops: [
                 Gradient.Stop(color: viewModel.readerCanvasPrimaryColor, location: 0),
                 Gradient.Stop(color: viewModel.readerCanvasPrimaryColor, location: 0.75),
-                Gradient.Stop(color: viewModel.readerCanvasPrimaryColor.opacity(0), location: 1)
+                Gradient.Stop(color: viewModel.readerCanvasPrimaryColor.opacity(isNavigationCompact ? 1 : 0), location: 1)
             ],
             startPoint: .bottom,
             endPoint: .top
         )
         .padding(.top, isNavigationCompact ? 0 : -bottomScrimExtension)
-        .clipShape(Capsule())
+        .clipShape(navigationBackgroundShape)
         .allowsHitTesting(false)
     }
     
     private var header: some View {
         navigationHeader
         .frame(maxWidth: 350)
+        .frame(maxWidth: isNavigationCompact ? .infinity : nil)
         .contentShape(Rectangle())
         .simultaneousGesture(TapGesture().onEnded {
             isNavigationCompact = false
