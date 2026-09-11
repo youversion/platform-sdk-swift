@@ -416,6 +416,7 @@ struct ReaderContent: View {
                     .accessibilityIdentifier("menuBtn")
             }
         }
+        .dynamicTypeSize(.medium)
         .padding(.horizontal, 8)
         .padding(.top, windowControlsTopInset)
         .background(viewModel.readerCanvasPrimaryColor, in: Capsule())

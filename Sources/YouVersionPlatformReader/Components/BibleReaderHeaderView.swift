@@ -102,7 +102,7 @@ public struct BibleReaderHeaderView: View {
                 }
                 Button(action: handleChapterTap) {
                     Text(bookAndChapter)
-                        .lineLimit(2)
+                        .lineLimit(1)
                         .truncationMode(.middle)
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, minHeight: isCompact ? 28 : 44)
@@ -125,6 +125,7 @@ public struct BibleReaderHeaderView: View {
             Button(action: handleVersionTap) {
                 Text(versionAbbreviation)
                     .lineLimit(1)
+                    .truncationMode(.middle)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .frame(minWidth: 44, minHeight: isCompact ? 28 : 44)
@@ -137,6 +138,7 @@ public struct BibleReaderHeaderView: View {
             chapterPicker
             versionPicker
         }
+        .dynamicTypeSize(.medium)
         .font(isCompact ? .caption.weight(.semibold) : .subheadline.weight(.semibold))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .buttonStyle(.plain)
