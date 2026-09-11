@@ -36,6 +36,7 @@ public struct BibleReaderHeaderView: View {
                     Image(systemName: "magnifyingglass")
                         .imageScale(.large)
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
+                        .padding(4)
                         .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
@@ -115,6 +116,7 @@ public struct BibleReaderHeaderView: View {
                 Button(action: handleChapterTap) {
                     Text(bookAndChapter)
                         .lineLimit(2)
+                        .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, minHeight: isCompact ? 28 : 44)
                         .contentShape(Rectangle())
                 }
@@ -136,6 +138,7 @@ public struct BibleReaderHeaderView: View {
                 Text(versionAbbreviation)
                     .lineLimit(1)
                     .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                     .frame(minWidth: 44, minHeight: isCompact ? 28 : 44)
             }
             .background(isCompact ? Color.clear : buttonBackgroundColor, in: Capsule())
