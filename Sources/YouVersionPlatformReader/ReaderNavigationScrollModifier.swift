@@ -14,8 +14,11 @@ struct ReaderNavigationScrollState {
                 distance = 0
             }
             distance += delta
-            if abs(distance) >= 60 {
+            if distance >= 60 {
                 isCompact = true
+                distance = 0
+            } else if distance <= -60 {
+                isCompact = false
                 distance = 0
             }
         }

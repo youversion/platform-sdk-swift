@@ -9,15 +9,16 @@ struct ReaderNavigationScrollStateTests {
         #expect(!state.isCompact)
     }
 
-    @Test(arguments: [30.0, -30.0])
-    func deliberateMovementInEitherDirectionCollapsesNavigation(delta: Double) {
+    @Test func scrollingTowardBottomCollapsesAndTowardTopExpands() {
         var state = ReaderNavigationScrollState()
-        state.update(delta: delta, isUserScrolling: true, isAtBoundary: false)
+        state.update(delta: 30, isUserScrolling: true, isAtBoundary: false)
         #expect(!state.isCompact)
-        state.update(delta: delta, isUserScrolling: true, isAtBoundary: false)
+        state.update(delta: 30, isUserScrolling: true, isAtBoundary: false)
         #expect(state.isCompact)
-        state.update(delta: -delta * 2, isUserScrolling: true, isAtBoundary: false)
+        state.update(delta: -30, isUserScrolling: true, isAtBoundary: false)
         #expect(state.isCompact)
+        state.update(delta: -30, isUserScrolling: true, isAtBoundary: false)
+        #expect(!state.isCompact)
     }
 
     @Test func boundariesAlwaysRestoreNavigation() {
@@ -35,7 +36,7 @@ struct ReaderNavigationScrollStateTests {
         state.update(delta: 1, isUserScrolling: true, isAtBoundary: true)
         #expect(!state.isCompact)
         state.update(delta: -100, isUserScrolling: true, isAtBoundary: false)
-        #expect(state.isCompact)
+        #expect(!state.isCompact)
         state.endGesture()
         state.update(delta: 60, isUserScrolling: true, isAtBoundary: false)
         #expect(state.isCompact)
