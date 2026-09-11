@@ -73,9 +73,9 @@ public struct BibleVersionsListView: View {
 
     private var searchInput: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .imageScale(.medium)
-                .foregroundStyle(.secondary)
+            Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                .renderingMode(.template)
+                .foregroundStyle(viewModel.readerTextMutedColor)
             TextField(
                 "",
                 text: $searchText,
