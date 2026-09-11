@@ -401,8 +401,8 @@ struct ReaderContent: View {
             }
             HStack(spacing: 0) {
                 Button(action: viewModel.openSearch) {
-                    Image(systemName: "magnifyingglass")
-                        .font(isNavigationCompact ? .subheadline : .title2)
+                    Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                        .renderingMode(.template)
                         .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .frame(width: 44, height: isNavigationCompact ? 28 : 44)
                         .contentShape(Circle())
