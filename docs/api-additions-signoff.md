@@ -92,7 +92,9 @@ Pieces and their responsibilities:
 
 - `.github/workflows/api-additions-signoff.yml` — **detect** (unprivileged, `contents: read`):
   runs on `pull_request` for every PR including forks, builds and diffs the API surface, uploads
-  report + count + hash as an artifact.
+  report + count + hash as an artifact. It runs on every PR so the status is never absent; a
+  cheap `scope` job first decides whether the surface could have changed, and only then pays for
+  the macOS build.
 - `.github/workflows/api-additions-signoff-gate.yml` — **gate** (privileged): handles both
   `workflow_run` completion and `issue_comment` re-evaluation from default-branch code; downloads
   the artifact, searches for acknowledgment, upserts the PR comment, posts the commit status.

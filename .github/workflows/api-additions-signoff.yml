@@ -18,16 +18,18 @@ name: API Additions Signoff
 # the artifact, sanitizes the report text before embedding it, and refuses
 # the silent count=0 pass for PRs that modify this tooling.
 #
-# Note for branch protection: the `paths` filter means docs-only PRs never
-# run this workflow, so the `api-additions-signoff` commit status is absent
-# on them. Keep that in mind before making the status a required check.
+# This workflow runs on EVERY pull request so the `api-additions-signoff`
+# status is present on all of them and can be a required check. A `paths`
+# filter here would leave docs-only PRs with no status at all, which reads as
+# permanently pending. The `scope` job below decides whether an API diff is
+# actually needed, so only PRs that can change the surface pay for a macOS
+# runner. It also closes a gap the filter left open: a PR touching only this
+# workflow or the gate's scripts did not match `Sources/**`, so the tooling
+# check in the gate never ran on it.
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'Sources/**'
-      - 'Package.swift'
 
 permissions:
   contents: read
@@ -40,12 +42,72 @@ env:
   XCODE_VERSION: latest-stable
 
 jobs:
+  # Cheap gatekeeper: an API diff needs a full Xcode build at two revisions,
+  # so skip it for PRs that cannot change the public surface. The relevant
+  # set is deliberately a superset of the gate's tooling list, so a PR the
+  # gate would treat as tooling always reaches the real detector.
+  scope:
+    name: Decide whether an API diff is needed
+    runs-on: ubuntu-latest
+    outputs:
+      relevant: ${{ steps.scope.outputs.relevant }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Classify the changed paths
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          MERGE_BASE=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          # Into a variable, not a pipe: `grep -q` exits on its first match
+          # and SIGPIPEs `git diff`, which under pipefail returns 141 and
+          # would read as "no match".
+          CHANGED=$(git diff --name-only "$MERGE_BASE" "$HEAD_SHA")
+          if grep -qE '^(Sources/|scripts/|Package\.swift$|\.github/workflows/api-additions-signoff(-gate)?\.yml$)' <<<"$CHANGED"; then
+            RELEVANT=1
+          else
+            RELEVANT=0
+          fi
+          echo "relevant=$RELEVANT" >> "$GITHUB_OUTPUT"
+          echo "relevant=$RELEVANT"
+
+      # The gate always expects an artifact; a missing one fails it closed.
+      # An out-of-scope PR changed no file the detector reads, so an empty
+      # report is the true answer, not a stand-in for one.
+      - name: Publish an empty detection for an out-of-scope PR
+        if: steps.scope.outputs.relevant == '0'
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/detect"
+          : > "$RUNNER_TEMP/detect/report.txt"
+          {
+            echo "count=0"
+            echo "hash=$(sha256sum "$RUNNER_TEMP/detect/report.txt" | cut -c1-12)"
+          } > "$RUNNER_TEMP/detect/meta.txt"
+
+      - name: Upload empty detection results
+        if: steps.scope.outputs.relevant == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-additions-detect
+          path: ${{ runner.temp }}/detect/
+          if-no-files-found: error
+
   # Builds the API surface at the merge-base and at head, diffs them, and
   # uploads the result. No write operations — safe to run on untrusted fork
   # code. A build/digester failure fails this run, and the gate translates a
   # non-success detect conclusion into a failing commit status (fail closed).
   detect:
     name: Detect public API additions
+    needs: scope
+    if: needs.scope.outputs.relevant == '1'
     runs-on: macos-26
     steps:
       - name: Checkout PR head
