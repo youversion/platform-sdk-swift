@@ -6,7 +6,7 @@ Releases on this repo are **manually triggered with an explicit version input**.
 
 The release pipeline does not use `semantic-release` as an orchestrator. We use two pieces of it as libraries:
 
-- [`@semantic-release/commit-analyzer`](https://github.com/semantic-release/commit-analyzer) — invoked by `scripts/preview-release.mjs` to compute what version the commits *would* suggest (shown in the PR's Commit Lint comment and in the release workflow's job summary for audit).
+- [`@semantic-release/commit-analyzer`](https://github.com/semantic-release/commit-analyzer) — invoked by `scripts/preview-release.mjs` to compute what version the commits _would_ suggest (shown in the PR's Commit Lint comment and in the release workflow's job summary for audit).
 - [`@semantic-release/release-notes-generator`](https://github.com/semantic-release/release-notes-generator) — invoked by `scripts/generate-release-notes.mjs` to render the CHANGELOG entry and GitHub release body from commits since the last tag.
 
 Everything else (validation, version stamping, commit, tag, push, GitHub release creation, Dev-restore) is in `scripts/release.sh`, which the release workflow calls directly.
@@ -37,26 +37,33 @@ This split exists because `semantic-release`'s lifecycle tightly couples computa
 
 ## Major Release Signoff
 
-PRs that **introduce a breaking change** are gated by a required PR status check named `major-release-signoff`. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
+PRs that **introduce a breaking change** are gated by a PR status check named `major-release-signoff`.
 
-A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission (and who is **not** the PR author) posts a single comment containing **all three (3) of the following:**
+> **Not yet enforced.** The `Stable Main` ruleset has no `required_status_checks` rule, so a red
+> `major-release-signoff` does not currently block merging. Registering it needs repo admin. Until
+> then this check reports but does not gate. The check runs on every PR via `.github/workflows/major-release-signoff.yml` and is a no-op for any PR that doesn't introduce a breaking change (i.e. anything the analyzer scores as `patch`, `minor`, or no bump).
+
+A "breaking change" is detected the same way `@semantic-release/commit-analyzer` detects it — either a `BREAKING CHANGE:` body/footer token on any commit, or a `!` after the conventional-commit type (`feat!:`, `fix!:`, etc.). When that's present, the analyzer scores the PR as a major bump, and this check posts a blocking comment and stays in a `failure` state until any repo collaborator with `write`, `maintain`, or `admin` permission (and who is **not** the PR author) posts a single comment containing **all four (4) of the following:**
 
 1. The verbatim affirmation phrase:
 
    > I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
 
-2. The precise next version string (e.g. `v6.0.0` or `6.0.0`), and
-3. A 🚀 (`:rocket:`) emoji.
+2. The precise next version string (e.g. `v6.0.0` or `6.0.0`),
+3. The full 40-character commit hash being approved, and
+4. A 🚀 (`:rocket:`) emoji.
 
 A copy-paste-ready example (assuming the next version is `6.0.0`):
 
 ```
 I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release.
 
-v6.0.0 🚀
+v6.0.0 9fceb02d7f1a4c0e8b3d5a6f7e8c9d0a1b2c3d4e 🚀
 ```
 
-The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply. The PR author is excluded — signoff has to come from a *different* write-access collaborator, so the gate guarantees a second pair of eyes.
+The hash binds the approval to the code it was given on: pushing a new commit changes it, which retires the previous signoff and requires a fresh one. The full hash is required rather than an abbreviation, because a 7-character prefix is 28 bits and cheap to grind. The bot's blocking comment always names the current hash, so copy the reply from there.
+
+The matcher normalizes whitespace and strips Markdown blockquote markers (`>`), so using GitHub's "Quote reply" button on the bot's blocking comment also satisfies item (1) as long as the version and 🚀 are added in the same reply. The PR author is excluded — signoff has to come from a _different_ write-access collaborator, so the gate guarantees a second pair of eyes.
 
 The check re-runs automatically when a qualifying comment is posted or edited; once it sees a comment from a write-access collaborator containing both tokens, it flips to `success` and merging is unblocked. The approver's comment lives in PR history as the audit record — no extra log is required.
 

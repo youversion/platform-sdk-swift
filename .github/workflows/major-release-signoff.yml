@@ -8,25 +8,35 @@ on:
     # so a previously-cached `success` status doesn't outlive its evidence.
     types: [created, edited, deleted]
 
-permissions:
-  contents: read
-  pull-requests: write
-  statuses: write
+permissions: {}
 
 concurrency:
-  group: major-release-signoff-${{ github.event.pull_request.number || github.event.issue.number }}
+  # Bot comment runs get their own key. Without this a comment posted by this
+  # workflow, or by any other bot on the PR, cancels the in-flight evaluation and
+  # the cancelled run renders as a failure on a PR that was fine.
+  group: major-release-signoff-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.event_name == 'issue_comment' && github.event.comment.user.type == 'Bot' && format('bot-{0}', github.run_id) || 'evaluation' }}
   cancel-in-progress: true
 
 env:
   STATUS_CONTEXT: major-release-signoff
 
 jobs:
-  signoff:
-    # issue_comment fires for issues AND PRs across the repo. Skip non-PR
-    # issues so we don't waste a run when someone comments on a plain issue.
-    if: ${{ github.event_name != 'issue_comment' || github.event.issue.pull_request != null }}
-    name: Major release signoff
+  context:
+    # issue_comment fires for issues AND PRs across the repo. Skip non-PR issues and
+    # bot comments; bot runs have isolated concurrency keys above, because this
+    # condition is not evaluated until after concurrency handling.
+    if: ${{ github.event_name != 'issue_comment' || (github.event.issue.pull_request != null && github.event.comment.user.type != 'Bot') }}
+    name: Resolve PR context
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      base_sha: ${{ steps.pr.outputs.base_sha }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      is_fork: ${{ steps.pr.outputs.is_fork }}
+      pr_author: ${{ steps.pr.outputs.pr_author }}
+      pr_number: ${{ steps.pr.outputs.pr_number }}
     steps:
       - name: Resolve PR context
         id: pr
@@ -39,6 +49,7 @@ jobs:
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
             PR_AUTHOR=${{ github.event.pull_request.user.login }}
+            HEAD_REPO=${{ github.event.pull_request.head.repo.full_name }}
           else
             PR_NUMBER=${{ github.event.issue.number }}
             # issue_comment payload has no head/base info — look it up so
@@ -47,31 +58,92 @@ jobs:
             BASE_SHA=$(jq -r .base.sha <<<"$PR_JSON")
             HEAD_SHA=$(jq -r .head.sha <<<"$PR_JSON")
             PR_AUTHOR=$(jq -r .user.login <<<"$PR_JSON")
+            HEAD_REPO=$(jq -r '.head.repo.full_name // ""' <<<"$PR_JSON")
           fi
+          # A deleted fork reports no head repo. Treat that as a fork too, since we cannot
+          # show it came from here.
+          if [ "$HEAD_REPO" = "${{ github.repository }}" ]; then
+            IS_FORK=false
+          else
+            IS_FORK=true
+          fi
+          echo "is_fork=$IS_FORK" >> "$GITHUB_OUTPUT"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "pr_author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
 
+  preview:
+    # Runs PR-authored code: `npm ci` executes lifecycle scripts from the PR. It
+    # therefore holds no write scopes, and never sees the status API. Skipped for forks,
+    # whose code is untrusted; the gate fails closed for those instead.
+    if: needs.context.outputs.is_fork == 'false'
+    name: Compute release preview
+    needs: context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      is_major: ${{ steps.preview.outputs.is_major }}
+      next: ${{ steps.preview.outputs.next }}
+      release_type: ${{ steps.preview.outputs.release_type }}
+    steps:
       - name: Checkout PR head
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.pr.outputs.head_sha }}
+          ref: ${{ needs.context.outputs.head_sha }}
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Restore release tooling from the base branch
+        # The PR supplies commits only. The detector that reads them, the semantic-release
+        # config that tells it what a breaking change is, and the dependency set it runs
+        # under all come from `main`, so a branch cannot rewrite the check that gates it.
+        #
+        # Without this the split above is only half a boundary: the job no longer *holds* a
+        # write token, but the PR's own `scripts/preview-release.mjs`, `.releaserc.json` and
+        # `node_modules/@semantic-release/commit-analyzer` still decide the answer, and a
+        # `release_type=patch` from any of them posts success on a real major.
+        #
+        # Runs before setup-node, which reads `package.json`.
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --force origin main:refs/heads/main
+          # All of main's tooling, or none of it. Restoring some from main and taking the
+          # rest from the PR gives a detector without its own dependencies.
+          if git cat-file -e main:scripts/preview-release.mjs 2>/dev/null; then
+            for f in scripts/preview-release.mjs .releaserc.json package.json package-lock.json; do
+              git cat-file -e "main:$f" 2>/dev/null && git checkout main -- "$f"
+            done
+            # Install hooks a PR could add to rewrite what we just restored. Take main's, or
+            # remove it outright: leaving a PR-authored one hands back the control.
+            for f in .npmrc; do
+              if git cat-file -e "main:$f" 2>/dev/null; then
+                git checkout main -- "$f"
+              else
+                rm -f "$f"
+              fi
+            done
+          else
+            echo "::warning::scripts/preview-release.mjs is not on main yet, so this PR supplies its own tooling. The trust boundary engages once it merges."
+          fi
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        # `--ignore-scripts`: lifecycle scripts come from the PR's dependency tree and would
+        # run before the detector does. The job holds no write scopes either, so nothing here
+        # reaches the status API, but the detector's answer still has to be trustworthy.
+        run: npm ci --ignore-scripts
 
       - name: Compute release preview
         id: preview
         env:
-          BASE_SHA: ${{ steps.pr.outputs.base_sha }}
-          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          BASE_SHA: ${{ needs.context.outputs.base_sha }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
         run: |
           set -e
           # Same analyzer call commit-lint.yml uses, so the two checks stay
@@ -88,13 +160,90 @@ jobs:
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
           echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
 
-      - name: Mark PRs without a breaking change as success and exit
-        if: steps.preview.outputs.is_major != '1'
+  gate:
+    # `always()`: preview is skipped for forks and the gate still has to post a status.
+    # This job writes statuses and comments, and deliberately never checks out PR code.
+    #
+    # Deliberately not gated on `needs.context.result == 'success'`. Skipping the gate when
+    # context fails leaves no status at all, and a skipped job check reads as passing, so a
+    # transient API error would look like approval.
+    if: always()
+    name: Major release signoff
+    needs: [context, preview]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      statuses: write
+    steps:
+      - name: Decide whether a signoff is required
+        id: decision
+        env:
+          CONTEXT_RESULT: ${{ needs.context.result }}
+          IS_FORK: ${{ needs.context.outputs.is_fork }}
+          PREVIEW_RESULT: ${{ needs.preview.result }}
+          PREVIEW_IS_MAJOR: ${{ needs.preview.outputs.is_major }}
+          PREVIEW_NEXT: ${{ needs.preview.outputs.next }}
+          PREVIEW_RELEASE_TYPE: ${{ needs.preview.outputs.release_type }}
+        run: |
+          set -euo pipefail
+          # No context means no head SHA, so there is nothing to address a status to. Fail the
+          # job loudly instead; a skipped or silent gate reads as approval.
+          if [ "$CONTEXT_RESULT" != "success" ]; then
+            echo "::error::Could not resolve PR context ($CONTEXT_RESULT); refusing to report on an unevaluated PR."
+            exit 1
+          fi
+          # Fail closed. A fork, or a preview that did not succeed, means the release impact
+          # is unknown. Keep the gate red, but do not classify that uncertainty as a
+          # confirmed breaking change or offer signoff instructions for an unknown result.
+          if [ "$IS_FORK" = "true" ] || [ "$PREVIEW_RESULT" != "success" ]; then
+            if [ "$IS_FORK" = "true" ]; then
+              echo "blocked=pull request is from a fork, so its release preview is not trusted" >> "$GITHUB_OUTPUT"
+            else
+              echo "blocked=release preview did not succeed ($PREVIEW_RESULT)" >> "$GITHUB_OUTPUT"
+            fi
+            echo "is_major=0" >> "$GITHUB_OUTPUT"
+            echo "next=" >> "$GITHUB_OUTPUT"
+            echo "release_type=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          case "$PREVIEW_IS_MAJOR" in
+            0|1) ;;
+            *)
+              echo "blocked=release preview returned an invalid major decision" >> "$GITHUB_OUTPUT"
+              echo "is_major=0" >> "$GITHUB_OUTPUT"
+              echo "next=" >> "$GITHUB_OUTPUT"
+              echo "release_type=" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+          echo "blocked=" >> "$GITHUB_OUTPUT"
+          echo "is_major=$PREVIEW_IS_MAJOR" >> "$GITHUB_OUTPUT"
+          echo "next=$PREVIEW_NEXT" >> "$GITHUB_OUTPUT"
+          echo "release_type=$PREVIEW_RELEASE_TYPE" >> "$GITHUB_OUTPUT"
+
+      - name: Post a blocked status when release impact is unknown
+        if: steps.decision.outputs.blocked != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          RELEASE_TYPE: ${{ steps.preview.outputs.release_type }}
+          BLOCKED: ${{ steps.decision.outputs.blocked }}
+        run: |
+          set -euo pipefail
+          gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
+            -f state=failure \
+            -f context="$STATUS_CONTEXT" \
+            -f description="Release impact could not be determined." \
+            -f target_url="$RUN_URL"
+          echo "Unable to determine release impact: $BLOCKED"
+
+      - name: Mark PRs without a breaking change as success and exit
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major != '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RELEASE_TYPE: ${{ steps.decision.outputs.release_type }}
         run: |
           set -e
           gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
@@ -105,12 +254,13 @@ jobs:
 
       - name: Search PR comments for valid approver signoff
         id: signoff
-        if: steps.preview.outputs.is_major == '1'
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
-          PR_AUTHOR: ${{ steps.pr.outputs.pr_author }}
-          NEXT_VERSION: ${{ steps.preview.outputs.next }}
+          PR_NUMBER: ${{ needs.context.outputs.pr_number }}
+          PR_AUTHOR: ${{ needs.context.outputs.pr_author }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
+          NEXT_VERSION: ${{ steps.decision.outputs.next }}
         run: |
           set -e
           # Guard: when release_type=major, the analyzer must also have
@@ -132,6 +282,12 @@ jobs:
           VERSION_RE="(^|[^0-9A-Za-z])v?${ESCAPED_VERSION}([^0-9A-Za-z]|$)"
           # Rocket: literal emoji or :rocket: shortcode.
           ROCKET_RE='(🚀|:rocket:)'
+          # A signoff approves the code it was given on, so it has to name that code.
+          # Without this, signing off commit A and then pushing commit B leaves the
+          # approval standing for code nobody agreed to. The full 40 characters, not an
+          # abbreviation: a 7-character prefix is 28 bits and cheap to brute-force, so a
+          # crafted commit could inherit an approved prefix.
+          SHA_RE="(^|[^0-9A-Za-z])${HEAD_SHA}([^0-9A-Za-z]|$)"
           # Acceptance criterion (1): the approver must quote the bot's
           # affirmation phrase verbatim. The phrase is an active
           # confirmation that the breaking change is intentional and
@@ -184,12 +340,15 @@ jobs:
             fi
             # Content match first: cheap, and most comments won't qualify.
             # All three AC items must be present in the same comment:
-            #   (1) verbatim template phrase, (2) precise version, (3) 🚀.
+            #   (1) verbatim template phrase, (2) precise version, (3) head SHA, (4) 🚀.
             NORM_BODY=$(normalize "$BODY")
             if [[ "$NORM_BODY" != *"$NORM_TEMPLATE"* ]]; then
               continue
             fi
             if ! [[ "$BODY" =~ $VERSION_RE ]] || ! [[ "$BODY" =~ $ROCKET_RE ]]; then
+              continue
+            fi
+            if ! [[ "$BODY" =~ $SHA_RE ]]; then
               continue
             fi
             # Then verify the author has write+ permission on this repo.
@@ -220,13 +379,13 @@ jobs:
           fi
 
       - name: Post success status when signoff present
-        if: steps.preview.outputs.is_major == '1' && steps.signoff.outputs.signed_off == '1'
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           APPROVER: ${{ steps.signoff.outputs.approver }}
-          NEXT_VERSION: ${{ steps.preview.outputs.next }}
+          NEXT_VERSION: ${{ steps.decision.outputs.next }}
         run: |
           set -e
           gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
@@ -236,11 +395,17 @@ jobs:
             -f target_url="$RUN_URL"
 
       - name: Upsert blocking comment when signoff missing
-        if: steps.preview.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1' && github.event_name == 'pull_request'
+        # Runs on comment events too, not just pushes. The comment names the head SHA an
+        # approver must quote, so a run that does not refresh it leaves the instructions
+        # pointing at a commit that is no longer current, and the signoff silently fails to
+        # match. It is an upsert, so re-running only edits the existing comment. Bot comments
+        # never reach here: `context` skips them, so this cannot feed itself.
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
-          NEXT_VERSION: ${{ steps.preview.outputs.next }}
+          PR_NUMBER: ${{ needs.context.outputs.pr_number }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
+          NEXT_VERSION: ${{ steps.decision.outputs.next }}
         run: |
           set -e
           MARKER='<!-- major-signoff-required -->'
@@ -251,11 +416,12 @@ jobs:
             echo "$MARKER"
             echo "## 🚨 Breaking change detected — signoff required for \`v$NEXT_VERSION\`"
             echo
-            echo "One or more commits on this PR introduce a **breaking change** (a \`BREAKING CHANGE\` footer or a \`!\` in the type, e.g. \`feat!:\`), which would ship as a major version bump (\`v$NEXT_VERSION\`). Merging is blocked until a repo collaborator with write access comments on this PR with **all three (3) of the following:**"
+            echo "One or more commits on this PR introduce a **breaking change** (a \`BREAKING CHANGE\` footer or a \`!\` in the type, e.g. \`feat!:\`), which would ship as a major version bump (\`v$NEXT_VERSION\`). Merging is blocked until a repo collaborator with write access comments on this PR with **all four (4) of the following:**"
             echo
             echo "1. The verbatim acknowledgment phrase below,"
-            echo "2. The precise next version (\`v$NEXT_VERSION\` or \`$NEXT_VERSION\`), and"
-            echo "3. A 🚀 (\`:rocket:\`) emoji."
+            echo "2. The precise next version (\`v$NEXT_VERSION\` or \`$NEXT_VERSION\`),"
+            echo "3. The full commit hash being approved (\`$HEAD_SHA\`), and"
+            echo "4. A 🚀 (\`:rocket:\`) emoji."
             echo
             echo "I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release."
             echo
@@ -264,10 +430,10 @@ jobs:
             echo '```'
             echo "I confirm that this is an intentional breaking change, and I have read the release procedures. I understand and have documented its impact upon release."
             echo
-            echo "v$NEXT_VERSION 🚀"
+            echo "v$NEXT_VERSION $HEAD_SHA 🚀"
             echo '```'
             echo
-            echo "The check re-runs automatically when a qualifying comment is posted or edited."
+            echo "The check re-runs automatically when a qualifying comment is posted or edited. Pushing new commits changes the hash, so a fresh signoff is needed."
           } > comment.md
 
           # Look for an existing marker comment so we upsert rather than
@@ -288,12 +454,12 @@ jobs:
           fi
 
       - name: Post failure status when signoff missing
-        if: steps.preview.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          HEAD_SHA: ${{ needs.context.outputs.head_sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          NEXT_VERSION: ${{ steps.preview.outputs.next }}
+          NEXT_VERSION: ${{ steps.decision.outputs.next }}
         run: |
           set -e
           gh api repos/${{ github.repository }}/statuses/$HEAD_SHA \
@@ -303,7 +469,13 @@ jobs:
             -f target_url="$RUN_URL"
 
       - name: Fail the job so the gate is loud in the PR UI
-        if: steps.preview.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
+        if: always() && ((steps.decision.outputs.blocked != '') || (steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'))
+        env:
+          BLOCKED: ${{ steps.decision.outputs.blocked }}
         run: |
-          echo "Breaking change detected; awaiting write-access collaborator signoff."
+          if [ -n "$BLOCKED" ]; then
+            echo "Unable to determine release impact: $BLOCKED"
+          else
+            echo "Breaking change detected; awaiting write-access collaborator signoff."
+          fi
           exit 1
