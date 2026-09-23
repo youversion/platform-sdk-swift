@@ -43,6 +43,9 @@ current report hash. To clear the gate:
    - You must not be the PR author.
    - The reply must quote the report hash from the current comment — a new push that changes the
      addition set changes the hash and invalidates prior acknowledgments.
+   - On a PR that changes the gate's own tooling, the hash also covers the head commit, so **any**
+     push invalidates prior acknowledgments. Such a PR is acknowledged on its diff rather than on
+     the symbol list, and the list alone cannot show that the diff changed.
 3. The status flips to success and records who acknowledged. Deleting the acknowledgment comment
    re-fails the status.
 
