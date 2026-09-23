@@ -113,6 +113,10 @@ jobs:
               echo "::error::A PR merged since $CURRENT_TAG has a failing major-release-signoff. Resolve it before publishing."
               exit 1
               ;;
+            23)
+              echo "::error::A PR merged since $CURRENT_TAG has no major-release-signoff status at all, so it was never evaluated for breaking changes. Re-run the gate on it before publishing a major."
+              exit 1
+              ;;
             *)
               echo "::error::Signoff check failed (exit $CODE)."
               exit 1

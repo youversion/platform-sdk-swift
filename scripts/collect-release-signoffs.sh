@@ -42,10 +42,17 @@ while IFS= read -r pr; do
   head_sha=$(gh api "repos/$REPO/pulls/$pr" --jq '.head.sha')
   # The combined-status endpoint returns only the newest status per context,
   # which is the one the gate last wrote for that head.
-  record=$(gh api "repos/$REPO/commits/$head_sha/status" \
-    --jq "[.statuses[] | select(.context == \"$CONTEXT\")] | .[0] // empty" \
-    | jq -c --argjson pr "$pr" '{pr: $pr, state: .state, description: .description}')
-  [ -n "$record" ] || continue
+  status=$(gh api "repos/$REPO/commits/$head_sha/status" \
+    --jq "[.statuses[] | select(.context == \"$CONTEXT\")] | .[0] // empty")
+  if [ -n "$status" ]; then
+    record=$(jq -c --argjson pr "$pr" '{pr: $pr, state: .state, description: .description}' <<<"$status")
+  else
+    # No status at all means the gate never ran on this PR, so nothing is known
+    # about whether it was breaking. Report it rather than dropping it: a silent
+    # omission would let one PR's signoff authorize a release containing another
+    # PR the gate never saw.
+    record=$(jq -nc --argjson pr "$pr" '{pr: $pr, state: "missing", description: null}')
+  fi
   RECORDS+="$record"$'\n'
 done <<<"$(sort -u <<<"$PRS")"
 

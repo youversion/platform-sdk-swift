@@ -22,10 +22,11 @@
 //    0  authorized, or not a major bump (nothing to authorize)
 //   21  major bump with no signoff naming this version
 //   22  a PR in the range has a failing signoff status
+//   23  a PR in the range has no signoff status at all
 //    1  usage error, or stdin is not a JSON array
 //
 // Stderr is one of: "not_major", "authorized_by=<login>", "no_signoff",
-// "failing_signoff=<pr>", or a usage message. Exit codes are the contract;
+// "failing_signoff=<pr>", "missing_signoff=<pr>", or a usage message. Exit codes are the contract;
 // the stderr tokens exist for human-readable logs.
 
 import { readFileSync } from "node:fs";
@@ -75,6 +76,15 @@ const failing = records.find((r) => r?.state === "failure");
 if (failing) {
   console.error(`failing_signoff=${failing.pr}`);
   process.exit(22);
+}
+
+// A PR the gate never evaluated is not evidence of anything. Accepting the
+// release on a different PR's signoff would publish an unreviewed breaking
+// change under cover of a reviewed one.
+const missing = records.find((r) => r?.state === "missing");
+if (missing) {
+  console.error(`missing_signoff=${missing.pr}`);
+  process.exit(23);
 }
 
 // Match the version as a whole token so v6.0.0 is never satisfied by a signoff
