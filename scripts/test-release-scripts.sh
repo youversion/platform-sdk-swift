@@ -105,6 +105,54 @@ assert_stderr_contains "more than one major above" "three-major jump prints warn
 assert_stderr_empty   "invalid calc is silent"              node scripts/release-warn-version-jump.mjs 5.2.3 unknown
 
 echo
+echo "release-check-signoff.mjs:"
+# The script reads its records on stdin, which the assert helpers do not
+# redirect, so wrap it.
+# run_signoff <records-json> <version> <current-tag>
+run_signoff() {
+  local records=$1
+  shift
+  node scripts/release-check-signoff.mjs "$@" <<<"$records"
+}
+
+SIGNED='[{"pr":272,"state":"success","description":"Major v6.0.0 signed off by jhampton."}]'
+OTHER_VERSION='[{"pr":9,"state":"success","description":"Major v7.0.0 signed off by jhampton."}]'
+PRERELEASE='[{"pr":9,"state":"success","description":"Major v6.0.0-beta.1 signed off by jhampton."}]'
+PENDING='[{"pr":9,"state":"pending","description":"Major v6.0.0 signed off by jhampton."}]'
+FAILING='[{"pr":9,"state":"failure","description":"Breaking change requires signoff."}]'
+BOTH='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by a."},{"pr":9,"state":"failure","description":"no"}]'
+
+assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNED" 6.0.0 5.5.0
+assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
+assert_exit  0 "minor bump needs no signoff"               run_signoff '[]' 5.6.0 5.5.0
+assert_exit  0 "patch bump needs no signoff"               run_signoff '[]' 5.5.1 5.5.0
+assert_exit 21 "major with no signoff at all → block"      run_signoff '[]' 6.0.0 5.5.0
+assert_exit 21 "signoff for a different version → block"   run_signoff "$OTHER_VERSION" 6.0.0 5.5.0
+assert_exit 21 "prerelease signoff cannot satisfy 6.0.0"   run_signoff "$PRERELEASE" 6.0.0 5.5.0
+assert_exit 21 "only a success authorizes, not a pending" run_signoff "$PENDING" 6.0.0 5.5.0
+assert_exit 22 "a failing signoff in range → block"        run_signoff "$FAILING" 6.0.0 5.5.0
+assert_exit 22 "a failure outranks another PR's success"   run_signoff "$BOTH" 6.0.0 5.5.0
+assert_exit  1 "non-semver version → usage error"          run_signoff '[]' 6.0 5.5.0
+assert_exit  1 "stdin that is not an array → usage error"  run_signoff '{"a":1}' 6.0.0 5.5.0
+assert_exit  1 "missing args → usage error"                run_signoff '[]' 6.0.0
+assert_stderr_contains "authorized_by=jhampton" "names the approver" run_signoff "$SIGNED" 6.0.0 5.5.0
+assert_stderr_contains "not_major"       "minor reports not_major"   run_signoff '[]' 5.6.0 5.5.0
+assert_stderr_contains "no_signoff"      "unsigned major reports no_signoff" run_signoff '[]' 6.0.0 5.5.0
+assert_stderr_contains "failing_signoff=9" "names the failing PR"    run_signoff "$FAILING" 6.0.0 5.5.0
+
+echo
+echo "release.yml wiring (the signoff check is actually invoked):"
+# Without this, deleting the step from release.yml would leave every test above
+# passing while nothing enforces anything at release time.
+if grep -q "scripts/release-check-signoff.mjs" .github/workflows/release.yml; then
+  echo "  ✓ release.yml invokes release-check-signoff.mjs"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ release.yml no longer invokes release-check-signoff.mjs"
+  FAIL=$((FAIL + 1))
+fi
+
+echo
 echo "release.sh wiring (no inline node -e):"
 # Guard against the inline `node -e` form sneaking back into release.sh.
 # The whole point of extracting these scripts was to eliminate the
