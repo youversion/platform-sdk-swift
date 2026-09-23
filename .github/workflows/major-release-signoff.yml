@@ -395,7 +395,12 @@ jobs:
             -f target_url="$RUN_URL"
 
       - name: Upsert blocking comment when signoff missing
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1' && github.event_name == 'pull_request'
+        # Runs on comment events too, not just pushes. The comment names the head SHA an
+        # approver must quote, so a run that does not refresh it leaves the instructions
+        # pointing at a commit that is no longer current, and the signoff silently fails to
+        # match. It is an upsert, so re-running only edits the existing comment. Bot comments
+        # never reach here: `context` skips them, so this cannot feed itself.
+        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ needs.context.outputs.pr_number }}
