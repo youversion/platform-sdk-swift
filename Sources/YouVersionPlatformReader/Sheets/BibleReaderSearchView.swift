@@ -68,7 +68,8 @@ struct BibleReaderSearchView: View {
                         }
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "magnifyingglass")
+                            Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                                .renderingMode(.template)
                                 .foregroundStyle(viewModel.readerTextMutedColor)
                             Text(query.text)
                                 .font(.body)
@@ -197,7 +198,8 @@ private struct BibleReaderSearchHeaderView: View {
 
         return HStack(spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
+                Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                    .renderingMode(.template)
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()

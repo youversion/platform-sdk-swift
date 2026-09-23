@@ -7,10 +7,18 @@ extension BibleReaderViewModel {
 
     public static var preview: BibleReaderViewModel {
         // Create a minimal BibleReaderViewModel for preview purposes
-        let vm = BibleReaderViewModel(reference: BibleReference(versionId: 3034, bookId: "GEN", chapter: 1))
-
-        let previewVersion = BibleVersion.preview
-        vm.versionsViewModel.switchToVersion(previewVersion)
+        let versionsViewModel = BibleVersionsViewModel()
+        versionsViewModel.switchToVersion(BibleVersion.preview)
+        let vm = BibleReaderViewModel(
+            reference: BibleReference(versionId: 3034, bookId: "GEN", chapter: 1),
+            versionsViewModel: versionsViewModel,
+            authentication: BibleReaderAuthentication(
+                isSignedIn: { false },
+                hasValidToken: { false },
+                signOut: {},
+                hasPermission: { _ in false }
+            )
+        )
 
         let footnoteReference = BibleReference(versionId: 3034, bookId: "JHN", chapter: 21, verse: 1)
         vm.footnotesToDisplay = [

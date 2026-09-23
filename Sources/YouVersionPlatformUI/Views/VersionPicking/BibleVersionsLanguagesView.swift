@@ -19,8 +19,9 @@ struct BibleVersionsLanguagesView: View {
         VStack(alignment: .leading) {
             if selectedSegment == .searching {
                 HStack {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 16, weight: .semibold))
+                    Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                        .renderingMode(.template)
+                        .foregroundStyle(viewModel.readerTextPrimaryColor)
                         .padding(.leading)
                     TextField(String.localized("generic.search"), text: $searchText)
                         .textFieldStyle(.plain)
@@ -111,7 +112,9 @@ struct BibleVersionsLanguagesView: View {
                     searchFieldIsFocused = true
                     selectedSegment = .searching
                 } label: {
-                    Image(systemName: "magnifyingglass")
+                    Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                        .renderingMode(.template)
+                        .foregroundStyle(viewModel.readerTextPrimaryColor)
                 }
             }
         }

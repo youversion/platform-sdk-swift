@@ -155,6 +155,15 @@ BibleReaderView(
 )
 ```
 
+The chapter and version controls appear at the top by default. To place them at the bottom:
+
+```swift
+BibleReaderView.restoringLastPassage()
+    .navigation(.bottomBar)
+```
+
+Use `.navigation(.topBar)` to explicitly select the top. The three-dot menu stays at the top in either layout.
+
 #### Navigating the reader from elsewhere in your app
 
 To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.

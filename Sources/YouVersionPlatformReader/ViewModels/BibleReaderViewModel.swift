@@ -58,7 +58,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private let authentication: BibleReaderAuthentication
 
     // MARK: - UI state of the Reader itself
-    var showChrome = true
     var lastScrollOffset: CGFloat = 0
     var isChangingChapter = false
     var scrollAction: ScrollAction = .none
@@ -327,7 +326,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
-    /// without ending the chapter change (chrome stays suppressed until the scroll settles).
+    /// without ending the chapter change until the scroll settles.
     func clearScrollAction() {
         scrollAction = .none
     }
@@ -335,7 +334,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     /// Puts the reader into the same state a freshly opened chapter would be in.
     func resetScrollStateForNewChapter() {
         lastScrollOffset = 0
-        showChrome = true
         scrollAction = .top
         clearFocus()
     }
@@ -425,9 +423,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func setColorTheme(_ theme: ReaderTheme) {
+    /// Applies a theme, optionally leaving the saved reader preferences unchanged.
+    func setColorTheme(_ theme: ReaderTheme, shouldSave: Bool = true) {
         userSelectedTheme = theme
-        saveUserSettingsToStorage()
+        if shouldSave {
+            saveUserSettingsToStorage()
+        }
     }
 
     func updateSignInState() async {
