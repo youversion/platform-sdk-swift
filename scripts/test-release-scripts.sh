@@ -76,6 +76,11 @@ assert_stderr_empty() {
   fi
 }
 
+echo "release rules (.releaserc.json):"
+assert_exit 0 "commit types map to the intended release types" \
+  node scripts/assert-release-rules.mjs
+
+echo
 echo "release-validate.mjs:"
 assert_exit  0  "5.2.3 > 5.2.2 → accept"           node scripts/release-validate.mjs 5.2.3 5.2.2
 assert_exit  0  "5.3.0 > 5.2.2 → accept"           node scripts/release-validate.mjs 5.3.0 5.2.2
