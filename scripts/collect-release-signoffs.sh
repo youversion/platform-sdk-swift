@@ -26,15 +26,41 @@ HEAD_REF="${3:-HEAD}"
 
 CONTEXT="major-release-signoff"
 
-COMMITS=$(gh api --paginate "repos/$REPO/compare/$CURRENT_TAG...$HEAD_REF" --jq '.commits[].sha')
+# The compare response already carries author and subject, so classifying a
+# commit costs no extra request. `--paginate` matters: the endpoint caps its
+# commits array at 250 and a longer range would silently lose the rest.
+COMMITS=$(gh api --paginate "repos/$REPO/compare/$CURRENT_TAG...$HEAD_REF" \
+  --jq '.commits[] | "\(.sha)\t\(.commit.author.name)\t\(.commit.message | split("\n")[0])"')
+
+# The release process pushes its own commits straight to main over the deploy
+# key, so those legitimately have no pull request. Anything else without one
+# reached main without the gate ever seeing it, and has to be reported rather
+# than passed over. This is not hypothetical: a `feat:` landed directly on main
+# between 5.3.0 and 5.4.0.
+#
+# Author and subject together, because release.sh sets both. Neither is a
+# security boundary, since anyone able to push directly can also set them; the
+# point is to let the release's own commits through without hiding a real one.
+RELEASE_AUTHOR="github-actions[bot][release]"
 
 # `commits/<sha>/pulls` returns whole PR objects, so take the head SHA from the
 # same response rather than spending a second round trip per PR to fetch it.
 PRS=""
+UNREVIEWED=""
 if [ -n "$COMMITS" ]; then
-  while IFS= read -r sha; do
+  while IFS=$'\t' read -r sha author subject; do
     [ -n "$sha" ] || continue
-    PRS+=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '.[] | "\(.number) \(.head.sha)"')$'\n'
+    found=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '.[] | "\(.number) \(.head.sha)"')
+    if [ -n "$found" ]; then
+      PRS+="$found"$'\n'
+      continue
+    fi
+    if [ "$author" = "$RELEASE_AUTHOR" ] && [[ "$subject" == chore\(release\):* ]]; then
+      continue
+    fi
+    UNREVIEWED+=$(jq -nc --arg sha "${sha:0:9}" --arg subject "$subject" \
+      '{pr: null, commit: $sha, subject: $subject, state: "unreviewed",
+        description: null, creator: null, creator_type: null}')$'\n'
   done <<<"$COMMITS"
 fi
 
@@ -64,4 +90,4 @@ while IFS=' ' read -r pr head_sha; do
   RECORDS+="$record"$'\n'
 done <<<"$(sort -u <<<"$PRS")"
 
-jq -s -c '.' <<<"$RECORDS"
+jq -s -c '.' <<<"$RECORDS$UNREVIEWED"

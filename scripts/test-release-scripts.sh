@@ -76,6 +76,27 @@ assert_stderr_empty() {
   fi
 }
 
+echo "collect-release-signoffs.sh release-commit filter:"
+# release.sh pushes its own commits straight to main, so those legitimately have
+# no PR. If the collector stopped skipping them, every release would block on the
+# previous release's own commit.
+if grep -qF 'RELEASE_AUTHOR="github-actions[bot][release]"' scripts/collect-release-signoffs.sh; then
+  echo "  ✓ the collector still exempts the release process's own commits"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ the collector no longer exempts release commits; every release would block"
+  FAIL=$((FAIL + 1))
+fi
+# And the author it exempts has to be the one release.yml actually sets.
+if grep -qF 'GIT_AUTHOR_NAME: "github-actions[bot][release]"' .github/workflows/release.yml; then
+  echo "  ✓ that author still matches the one release.yml sets"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ release.yml no longer authors release commits as the name the collector exempts"
+  FAIL=$((FAIL + 1))
+fi
+
+echo
 echo "release rules (.releaserc.json):"
 assert_exit 0 "commit types map to the intended release types" \
   node scripts/assert-release-rules.mjs
@@ -138,6 +159,10 @@ SIGNED_PLUS_PENDING="[$GATE_OK,$(record 9 pending '"awaiting signoff"')]"
 SIGNED_PLUS_ERROR="[$GATE_OK,$(record 9 error '"boom"')]"
 FREEFORM="[$(record 1 success '"v6.0.0"')]"
 HUMAN_POSTED='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by jhampton.","creator":"Kyleasmth","creator_type":"User"}]'
+# A commit that reached main with no pull request at all. The release process's
+# own commits are filtered out by the collector, so anything left is unreviewed.
+DIRECT_COMMIT='{"pr":null,"commit":"1f0e6b6a9","subject":"feat: adjust highlight colors","state":"unreviewed","description":null,"creator":null,"creator_type":null}'
+SIGNED_PLUS_DIRECT="[$GATE_OK,$DIRECT_COMMIT]"
 
 assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNED" 6.0.0 5.5.0
 assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
@@ -158,6 +183,8 @@ assert_exit  1 "a pending PR blocks even with another signed"  run_signoff "$SIG
 assert_exit  1 "an errored PR blocks even with another signed" run_signoff "$SIGNED_PLUS_ERROR" 6.0.0 5.5.0
 assert_exit  1 "free-form text naming the version is not a signoff" run_signoff "$FREEFORM" 6.0.0 5.5.0
 assert_exit  1 "the exact sentence posted by a human is refused"    run_signoff "$HUMAN_POSTED" 6.0.0 5.5.0
+assert_exit  1 "a direct push with no PR blocks even with another signed" run_signoff "$SIGNED_PLUS_DIRECT" 6.0.0 5.5.0
+assert_exit  0 "a direct push is fine on a non-major bump"         run_signoff "$SIGNED_PLUS_DIRECT" 5.6.0 5.5.0
 assert_exit  0 "an unseen PR is fine on a non-major bump"    run_signoff "$MISSING" 5.6.0 5.5.0
 assert_exit  1 "non-semver version → usage error"           run_signoff '[]' 6.0 5.5.0
 assert_exit  1 "stdin that is not an array → usage error"   run_signoff '{"a":1}' 6.0.0 5.5.0
@@ -169,6 +196,7 @@ assert_stderr_contains "status of 'failure'" "names the failing PR" run_signoff 
 assert_stderr_contains "PR #9 has no major-release-signoff" "names the unseen PR" run_signoff "$MISSING" 6.0.0 5.5.0
 assert_stderr_contains "status of 'pending'" "names the unresolved state" run_signoff "$SIGNED_PLUS_PENDING" 6.0.0 5.5.0
 assert_stderr_contains "gate-issued"  "says the signoff must come from the gate" run_signoff "$FREEFORM" 6.0.0 5.5.0
+assert_stderr_contains "no pull request" "names the unreviewed commit" run_signoff "$SIGNED_PLUS_DIRECT" 6.0.0 5.5.0
 
 # release-check-signoff.mjs parses the status description to authorize a release.
 # The tests above feed it hand-written copies of that format, so rewording the

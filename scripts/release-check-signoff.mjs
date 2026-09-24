@@ -76,13 +76,21 @@ if (!Array.isArray(records)) {
   block("The signoff records on stdin are not a JSON array.");
 }
 
-// Every PR in the range has to have passed the gate. Anything else, a failure, a
-// run still pending, an errored one, or no status at all, means a breaking change
-// may have reached main unreviewed, and one PR's approval must not cover it.
+// Every commit in the range has to trace back to a PR that passed the gate.
+// Anything else, a failure, a run still pending, an errored one, no status at
+// all, or no pull request in the first place, means a breaking change may have
+// reached main unreviewed, and one PR's approval must not cover it.
 const GATE_IDENTITY = "github-actions[bot]";
 
 const unresolved = records.find((r) => r?.state !== "success");
 if (unresolved) {
+  if (unresolved.state === "unreviewed") {
+    block(
+      `Commit ${unresolved.commit} ("${unresolved.subject}") reached main with no pull ` +
+        `request, so the gate never evaluated it for breaking changes. Another PR's signoff ` +
+        `cannot cover it.`,
+    );
+  }
   if (unresolved.state === "missing") {
     block(
       `PR #${unresolved.pr} has no major-release-signoff status, so it was never evaluated for ` +
