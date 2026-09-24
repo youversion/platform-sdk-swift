@@ -463,6 +463,564 @@
         }
       }
     },
+    "allLanguagesHeading" : {
+      "comment" : "Section heading for all languages list.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Languages"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "allVersionsHeading" : {
+      "comment" : "Section heading for all available Bible versions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Versions"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "alphabetical" : {
+      "comment" : "Option that lists Bible books by localized display title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alphabetical"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
     "back" : {
       "comment" : "Standard text for Back navigation; used on multiple screens.",
       "extractionState" : "manual",
@@ -471,6 +1029,192 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Back"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "backToBibleVersionsAriaLabel" : {
+      "comment" : "Spoken label for control that returns to the Bible versions list.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Bible versions"
           }
         },
         "af" : {
@@ -1020,6 +1764,564 @@
         }
       },
       "comment" : "Error message on Bible card when passage is unavailable."
+    },
+    "bibleSearchClearAriaLabel" : {
+      "comment" : "Spoken label for the control that empties the Bible search field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear search"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "bibleSearchRecentHeading" : {
+      "comment" : "Section heading for Bible searches the user has run recently.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent Searches"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "bibleSearchTrendingHeading" : {
+      "comment" : "Section heading for popular Bible searches.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trending Searches"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
     },
     "bibleText.connectionIssue" : {
       "extractionState" : "manual",
@@ -12739,6 +14041,564 @@
         }
       }
     },
+    "noChaptersAvailable" : {
+      "comment" : "Empty state when a book has no available chapters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No chapters available"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "noLanguageSearchResults" : {
+      "comment" : "Message displayed when no language search results are found.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We're sorry, there are no results for this search."
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "noRegionalLanguagesAvailable" : {
+      "comment" : "Empty state when no regional languages are available.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No regional languages available"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
     "noVersionsFound" : {
       "comment" : "Empty state when version search returns no matches.",
       "extractionState" : "manual",
@@ -15157,6 +17017,192 @@
       },
       "comment" : "Error body when selected Bible version cannot be accessed."
     },
+    "recentlyUsedVersionsHeading" : {
+      "comment" : "Section heading for recently used Bible versions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recently Used Versions"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
     "regional" : {
       "comment" : "Section heading for regional languages group.",
       "extractionState" : "manual",
@@ -15165,6 +17211,192 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Regional"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "retry" : {
+      "comment" : "Button that tries an unsuccessful action again.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
           }
         },
         "af" : {
@@ -21846,6 +24078,192 @@
         }
       },
       "comment" : "Tab or section label for Widget area."
+    },
+    "traditional" : {
+      "comment" : "Option that lists Bible books in the traditional order supplied by the selected version.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traditional"
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
     },
     "verseActions.copy" : {
       "extractionState" : "manual",
