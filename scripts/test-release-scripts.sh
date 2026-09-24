@@ -76,6 +76,32 @@ assert_stderr_empty() {
   fi
 }
 
+echo "collect-release-signoffs.sh release-commit filter:"
+# release.sh pushes its own commits straight to main, so those legitimately have
+# no PR. If the collector stopped skipping them, every release would block on the
+# previous release's own commit.
+if grep -qF 'RELEASE_AUTHOR="github-actions[bot][release]"' scripts/collect-release-signoffs.sh; then
+  echo "  ✓ the collector still exempts the release process's own commits"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ the collector no longer exempts release commits; every release would block"
+  FAIL=$((FAIL + 1))
+fi
+# And the author it exempts has to be the one release.yml actually sets.
+if grep -qF 'GIT_AUTHOR_NAME: "github-actions[bot][release]"' .github/workflows/release.yml; then
+  echo "  ✓ that author still matches the one release.yml sets"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ release.yml no longer authors release commits as the name the collector exempts"
+  FAIL=$((FAIL + 1))
+fi
+
+echo
+echo "release rules (.releaserc.json):"
+assert_exit 0 "commit types map to the intended release types" \
+  node scripts/assert-release-rules.mjs
+
+echo
 echo "release-validate.mjs:"
 assert_exit  0  "5.2.3 > 5.2.2 → accept"           node scripts/release-validate.mjs 5.2.3 5.2.2
 assert_exit  0  "5.3.0 > 5.2.2 → accept"           node scripts/release-validate.mjs 5.3.0 5.2.2
@@ -103,6 +129,98 @@ assert_stderr_empty   "one-major jump prints no warning"    node scripts/release
 assert_stderr_contains "more than one major above" "two-major jump prints warning"   node scripts/release-warn-version-jump.mjs 7.0.0 5.2.2
 assert_stderr_contains "more than one major above" "three-major jump prints warning" node scripts/release-warn-version-jump.mjs 8.0.0 5.2.2
 assert_stderr_empty   "invalid calc is silent"              node scripts/release-warn-version-jump.mjs 5.2.3 unknown
+
+echo
+echo "release-check-signoff.mjs:"
+# The script reads its records on stdin, which the assert helpers do not
+# redirect, so wrap it.
+# run_signoff <records-json> <version> <current-tag>
+run_signoff() {
+  local records=$1
+  shift
+  node scripts/release-check-signoff.mjs "$@" <<<"$records"
+}
+
+# The gate posts as the Actions bot; `record <pr> <state> <description>` builds a
+# record with that provenance, and the odd ones out override it explicitly.
+record() { printf '{"pr":%s,"state":"%s","description":%s,"creator":"github-actions[bot]","creator_type":"Bot"}' "$1" "$2" "$3"; }
+GATE_OK=$(record 1 success '"Major v6.0.0 signed off by jhampton."')
+
+SIGNED="[$(record 272 success '"Major v6.0.0 signed off by jhampton."')]"
+OTHER_VERSION="[$(record 9 success '"Major v7.0.0 signed off by jhampton."')]"
+PRERELEASE="[$(record 9 success '"Major v6.0.0-beta.1 signed off by jhampton."')]"
+PENDING="[$(record 9 pending '"Major v6.0.0 signed off by jhampton."')]"
+FAILING="[$(record 9 failure '"Breaking change requires signoff."')]"
+BOTH="[$GATE_OK,$(record 9 failure '"no"')]"
+MISSING="[$GATE_OK,$(record 9 missing null)]"
+# Cam's two: a gate-passed range must be entirely success, and a status the gate
+# did not write must not authorize anything.
+SIGNED_PLUS_PENDING="[$GATE_OK,$(record 9 pending '"awaiting signoff"')]"
+SIGNED_PLUS_ERROR="[$GATE_OK,$(record 9 error '"boom"')]"
+FREEFORM="[$(record 1 success '"v6.0.0"')]"
+HUMAN_POSTED='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by jhampton.","creator":"Kyleasmth","creator_type":"User"}]'
+# A commit that reached main with no pull request at all. The release process's
+# own commits are filtered out by the collector, so anything left is unreviewed.
+DIRECT_COMMIT='{"pr":null,"commit":"1f0e6b6a9","subject":"feat: adjust highlight colors","state":"unreviewed","description":null,"creator":null,"creator_type":null}'
+SIGNED_PLUS_DIRECT="[$GATE_OK,$DIRECT_COMMIT]"
+
+assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNED" 6.0.0 5.5.0
+assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
+assert_exit  0 "minor bump needs no signoff"               run_signoff '[]' 5.6.0 5.5.0
+assert_exit  0 "patch bump needs no signoff"               run_signoff '[]' 5.5.1 5.5.0
+assert_exit  1 "major with no signoff at all → block"       run_signoff '[]' 6.0.0 5.5.0
+assert_exit  1 "signoff for a different version → block"    run_signoff "$OTHER_VERSION" 6.0.0 5.5.0
+assert_exit  1 "prerelease signoff cannot satisfy 6.0.0"    run_signoff "$PRERELEASE" 6.0.0 5.5.0
+assert_exit  1 "only a success authorizes, not a pending"   run_signoff "$PENDING" 6.0.0 5.5.0
+assert_exit  1 "a failing signoff in range → block"         run_signoff "$FAILING" 6.0.0 5.5.0
+assert_exit  1 "a failure outranks another PR's success"    run_signoff "$BOTH" 6.0.0 5.5.0
+assert_exit  1 "a PR the gate never saw blocks the release" run_signoff "$MISSING" 6.0.0 5.5.0
+# The resume path: release.sh dispatches the version that is already tagged, so a
+# base of $VERSION would read every major as no bump and skip the check entirely.
+assert_exit  1 "the requested version as its own base is refused" run_signoff '[]' 6.0.0 6.0.0
+assert_stderr_contains "is not older than" "…and says the base is wrong" run_signoff '[]' 6.0.0 6.0.0
+assert_exit  1 "a pending PR blocks even with another signed"  run_signoff "$SIGNED_PLUS_PENDING" 6.0.0 5.5.0
+assert_exit  1 "an errored PR blocks even with another signed" run_signoff "$SIGNED_PLUS_ERROR" 6.0.0 5.5.0
+assert_exit  1 "free-form text naming the version is not a signoff" run_signoff "$FREEFORM" 6.0.0 5.5.0
+assert_exit  1 "the exact sentence posted by a human is refused"    run_signoff "$HUMAN_POSTED" 6.0.0 5.5.0
+assert_exit  1 "a direct push with no PR blocks even with another signed" run_signoff "$SIGNED_PLUS_DIRECT" 6.0.0 5.5.0
+assert_exit  0 "a direct push is fine on a non-major bump"         run_signoff "$SIGNED_PLUS_DIRECT" 5.6.0 5.5.0
+assert_exit  0 "an unseen PR is fine on a non-major bump"    run_signoff "$MISSING" 5.6.0 5.5.0
+assert_exit  1 "non-semver version → usage error"           run_signoff '[]' 6.0 5.5.0
+assert_exit  1 "stdin that is not an array → usage error"   run_signoff '{"a":1}' 6.0.0 5.5.0
+assert_exit  1 "missing args → usage error"                 run_signoff '[]' 6.0.0
+assert_stderr_contains "authorized by jhampton" "names the approver" run_signoff "$SIGNED" 6.0.0 5.5.0
+assert_stderr_contains "not a major bump"  "minor says so"           run_signoff '[]' 5.6.0 5.5.0
+assert_stderr_contains "no PR merged since 5.5.0" "unsigned major names the base" run_signoff '[]' 6.0.0 5.5.0
+assert_stderr_contains "status of 'failure'" "names the failing PR" run_signoff "$FAILING" 6.0.0 5.5.0
+assert_stderr_contains "PR #9 has no major-release-signoff" "names the unseen PR" run_signoff "$MISSING" 6.0.0 5.5.0
+assert_stderr_contains "status of 'pending'" "names the unresolved state" run_signoff "$SIGNED_PLUS_PENDING" 6.0.0 5.5.0
+assert_stderr_contains "gate-issued"  "says the signoff must come from the gate" run_signoff "$FREEFORM" 6.0.0 5.5.0
+assert_stderr_contains "no pull request" "names the unreviewed commit" run_signoff "$SIGNED_PLUS_DIRECT" 6.0.0 5.5.0
+
+# release-check-signoff.mjs parses the status description to authorize a release.
+# The tests above feed it hand-written copies of that format, so rewording the
+# workflow would block every future major while the suite stayed green.
+DESCRIPTION_WRITER='description="Major v${NEXT_VERSION} signed off by ${APPROVER}."'
+if grep -qF "$DESCRIPTION_WRITER" .github/workflows/major-release-signoff.yml; then
+  echo "  ✓ the gate still writes the description release-check-signoff.mjs parses"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ the gate's status description changed; release-check-signoff.mjs cannot parse it"
+  FAIL=$((FAIL + 1))
+fi
+
+echo
+echo "release.sh wiring (the signoff check is actually invoked):"
+# Without this, deleting the step from release.yml would leave every test above
+# passing while nothing enforces anything at release time.
+if grep -q "scripts/release-check-signoff.mjs" scripts/release.sh; then
+  echo "  ✓ release.sh invokes release-check-signoff.mjs"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ release.sh no longer invokes release-check-signoff.mjs"
+  FAIL=$((FAIL + 1))
+fi
 
 echo
 echo "release.sh wiring (no inline node -e):"
