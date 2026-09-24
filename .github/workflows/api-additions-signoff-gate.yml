@@ -282,10 +282,11 @@ jobs:
               echo "1. The commenter is a repo collaborator with **write access**."
               echo "2. The commenter is **not the PR author** (@$PR_AUTHOR cannot acknowledge this PR — a second pair of eyes is required)."
               if [ "$TOOLING" = "1" ]; then
-                echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. Because this PR changes the gate's own tooling, the hash is bound to the commit: **any** new push invalidates earlier replies, not just one that changes the addition set."
+                HASH_NOTE="Because this PR changes the gate's own tooling, the hash is bound to the commit: **any** new push invalidates earlier replies, not just one that changes the addition set."
               else
-                echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. A new push that changes the addition set changes the hash and invalidates earlier replies."
+                HASH_NOTE="A new push that changes the addition set changes the hash and invalidates earlier replies."
               fi
+              echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. $HASH_NOTE"
               echo
               echo "Replies that miss any of these are silently ignored: the gate workflow will show a green run, but the check on the PR stays red."
               echo

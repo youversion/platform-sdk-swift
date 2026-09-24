@@ -33,6 +33,9 @@ on:
 
 permissions:
   contents: read
+  # The scope job reads the PR's changed-file list instead of checking the PR
+  # out. Read-only, and a fork PR's token carries the same scope.
+  pull-requests: read
 
 concurrency:
   group: api-additions-signoff-${{ github.event.pull_request.number }}
@@ -52,24 +55,18 @@ jobs:
     outputs:
       relevant: ${{ steps.scope.outputs.relevant }}
     steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
+      # The API gives the changed files directly, so this job never checks out
+      # the PR's code. That matters here beyond saving a clone: this workflow
+      # runs on fork PRs, and nothing untrusted is fetched to decide scope.
       - name: Classify the changed paths
         id: scope
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          MERGE_BASE=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
-          # Into a variable, not a pipe: `grep -q` exits on its first match
-          # and SIGPIPEs `git diff`, which under pipefail returns 141 and
-          # would read as "no match".
-          CHANGED=$(git diff --name-only "$MERGE_BASE" "$HEAD_SHA")
+          CHANGED=$(gh api --paginate "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --jq '.[].filename')
           if grep -qE '^(Sources/|scripts/|Package\.swift$|\.github/workflows/api-additions-signoff(-gate)?\.yml$)' <<<"$CHANGED"; then
             RELEVANT=1
           else

@@ -127,32 +127,48 @@ assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNE
 assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
 assert_exit  0 "minor bump needs no signoff"               run_signoff '[]' 5.6.0 5.5.0
 assert_exit  0 "patch bump needs no signoff"               run_signoff '[]' 5.5.1 5.5.0
-assert_exit 21 "major with no signoff at all → block"      run_signoff '[]' 6.0.0 5.5.0
-assert_exit 21 "signoff for a different version → block"   run_signoff "$OTHER_VERSION" 6.0.0 5.5.0
-assert_exit 21 "prerelease signoff cannot satisfy 6.0.0"   run_signoff "$PRERELEASE" 6.0.0 5.5.0
-assert_exit 21 "only a success authorizes, not a pending" run_signoff "$PENDING" 6.0.0 5.5.0
-assert_exit 22 "a failing signoff in range → block"        run_signoff "$FAILING" 6.0.0 5.5.0
-assert_exit 22 "a failure outranks another PR's success"   run_signoff "$BOTH" 6.0.0 5.5.0
-assert_exit 23 "a PR the gate never saw blocks the release" run_signoff "$MISSING" 6.0.0 5.5.0
-assert_exit  0 "an unseen PR is fine on a non-major bump"   run_signoff "$MISSING" 5.6.0 5.5.0
-assert_exit  1 "non-semver version → usage error"          run_signoff '[]' 6.0 5.5.0
-assert_exit  1 "stdin that is not an array → usage error"  run_signoff '{"a":1}' 6.0.0 5.5.0
-assert_exit  1 "missing args → usage error"                run_signoff '[]' 6.0.0
-assert_stderr_contains "authorized_by=jhampton" "names the approver" run_signoff "$SIGNED" 6.0.0 5.5.0
-assert_stderr_contains "not_major"       "minor reports not_major"   run_signoff '[]' 5.6.0 5.5.0
-assert_stderr_contains "no_signoff"      "unsigned major reports no_signoff" run_signoff '[]' 6.0.0 5.5.0
-assert_stderr_contains "failing_signoff=9" "names the failing PR"    run_signoff "$FAILING" 6.0.0 5.5.0
-assert_stderr_contains "missing_signoff=9" "names the unseen PR"     run_signoff "$MISSING" 6.0.0 5.5.0
+assert_exit  1 "major with no signoff at all → block"       run_signoff '[]' 6.0.0 5.5.0
+assert_exit  1 "signoff for a different version → block"    run_signoff "$OTHER_VERSION" 6.0.0 5.5.0
+assert_exit  1 "prerelease signoff cannot satisfy 6.0.0"    run_signoff "$PRERELEASE" 6.0.0 5.5.0
+assert_exit  1 "only a success authorizes, not a pending"   run_signoff "$PENDING" 6.0.0 5.5.0
+assert_exit  1 "a failing signoff in range → block"         run_signoff "$FAILING" 6.0.0 5.5.0
+assert_exit  1 "a failure outranks another PR's success"    run_signoff "$BOTH" 6.0.0 5.5.0
+assert_exit  1 "a PR the gate never saw blocks the release" run_signoff "$MISSING" 6.0.0 5.5.0
+# The resume path: release.sh dispatches the version that is already tagged, so a
+# base of $VERSION would read every major as no bump and skip the check entirely.
+assert_exit  1 "the requested version as its own base is refused" run_signoff '[]' 6.0.0 6.0.0
+assert_stderr_contains "is not older than" "…and says the base is wrong" run_signoff '[]' 6.0.0 6.0.0
+assert_exit  0 "an unseen PR is fine on a non-major bump"    run_signoff "$MISSING" 5.6.0 5.5.0
+assert_exit  1 "non-semver version → usage error"           run_signoff '[]' 6.0 5.5.0
+assert_exit  1 "stdin that is not an array → usage error"   run_signoff '{"a":1}' 6.0.0 5.5.0
+assert_exit  1 "missing args → usage error"                 run_signoff '[]' 6.0.0
+assert_stderr_contains "authorized by jhampton" "names the approver" run_signoff "$SIGNED" 6.0.0 5.5.0
+assert_stderr_contains "not a major bump"  "minor says so"           run_signoff '[]' 5.6.0 5.5.0
+assert_stderr_contains "no PR merged since 5.5.0" "unsigned major names the base" run_signoff '[]' 6.0.0 5.5.0
+assert_stderr_contains "PR #9 has a failing"  "names the failing PR" run_signoff "$FAILING" 6.0.0 5.5.0
+assert_stderr_contains "PR #9 has no major-release-signoff" "names the unseen PR" run_signoff "$MISSING" 6.0.0 5.5.0
 
-echo
-echo "release.yml wiring (the signoff check is actually invoked):"
-# Without this, deleting the step from release.yml would leave every test above
-# passing while nothing enforces anything at release time.
-if grep -q "scripts/release-check-signoff.mjs" .github/workflows/release.yml; then
-  echo "  ✓ release.yml invokes release-check-signoff.mjs"
+# release-check-signoff.mjs parses the status description to authorize a release.
+# The tests above feed it hand-written copies of that format, so rewording the
+# workflow would block every future major while the suite stayed green.
+DESCRIPTION_WRITER='description="Major v${NEXT_VERSION} signed off by ${APPROVER}."'
+if grep -qF "$DESCRIPTION_WRITER" .github/workflows/major-release-signoff.yml; then
+  echo "  ✓ the gate still writes the description release-check-signoff.mjs parses"
   PASS=$((PASS + 1))
 else
-  echo "  ✗ release.yml no longer invokes release-check-signoff.mjs"
+  echo "  ✗ the gate's status description changed; release-check-signoff.mjs cannot parse it"
+  FAIL=$((FAIL + 1))
+fi
+
+echo
+echo "release.sh wiring (the signoff check is actually invoked):"
+# Without this, deleting the step from release.yml would leave every test above
+# passing while nothing enforces anything at release time.
+if grep -q "scripts/release-check-signoff.mjs" scripts/release.sh; then
+  echo "  ✓ release.sh invokes release-check-signoff.mjs"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ release.sh no longer invokes release-check-signoff.mjs"
   FAIL=$((FAIL + 1))
 fi
 

@@ -66,6 +66,18 @@ External contributions are gated identically. Detection runs unprivileged on the
 comment and status writes run from trusted default-branch code. Nothing extra is required from the
 contributor — a maintainer acknowledges the same way.
 
+## Re-running the gate on a merged PR
+
+The release-time check refuses to publish a major when a PR in the range carries no
+`major-release-signoff` status, because a PR the gate never evaluated is not evidence of
+anything. That can happen to a PR merged before the gate existed, or one whose run died
+before posting.
+
+To produce the missing status after the fact, comment on the merged PR. Both signoff
+workflows trigger on `issue_comment` with no filter on PR state, and they resolve the PR
+through the API rather than from the event payload, so a merged PR re-evaluates and
+re-posts its status to the same head SHA. Then re-dispatch the release.
+
 ## What the gate does not do
 
 - It is not a hard security control: admins can merge past the failing check. The comment and

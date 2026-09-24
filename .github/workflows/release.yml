@@ -29,8 +29,8 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-  # Read-only: the signoff check below reads the `major-release-signoff` status
-  # the gate wrote on each released PR's head. Nothing here writes statuses.
+  # Read-only: scripts/release.sh reads the `major-release-signoff` status the
+  # gate wrote on each released PR's head. Nothing here writes statuses.
   statuses: read
 
 jobs:
@@ -86,42 +86,6 @@ jobs:
 
       - name: Install npm dependencies
         run: npm ci
-
-      # Merge-time signoff binds to a PR head SHA and cannot see what a human
-      # later types into the `version` input. Before anything is pushed or
-      # tagged, prove a major was authorized for *this* version. Runs on dry
-      # runs too, so a rehearsal exercises the same gate as the real thing.
-      - name: Verify the release is authorized
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ inputs.version }}
-        run: |
-          set -euo pipefail
-          CURRENT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
-          RECORDS=$(bash scripts/collect-release-signoffs.sh \
-            "$GITHUB_REPOSITORY" "$CURRENT_TAG" HEAD)
-          echo "Signoff statuses in ${CURRENT_TAG}..HEAD: $RECORDS"
-          CODE=0
-          node scripts/release-check-signoff.mjs "$VERSION" "$CURRENT_TAG" <<<"$RECORDS" || CODE=$?
-          case "$CODE" in
-            0) ;;
-            21)
-              echo "::error::v$VERSION is a major release, but no PR merged since $CURRENT_TAG carries a major-release-signoff naming that version. Sign off on the breaking change's PR, or publish the version the range actually justifies."
-              exit 1
-              ;;
-            22)
-              echo "::error::A PR merged since $CURRENT_TAG has a failing major-release-signoff. Resolve it before publishing."
-              exit 1
-              ;;
-            23)
-              echo "::error::A PR merged since $CURRENT_TAG has no major-release-signoff status at all, so it was never evaluated for breaking changes. Re-run the gate on it before publishing a major."
-              exit 1
-              ;;
-            *)
-              echo "::error::Signoff check failed (exit $CODE)."
-              exit 1
-              ;;
-          esac
 
       - name: Verify scripts are executable
         run: |

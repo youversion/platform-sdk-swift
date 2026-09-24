@@ -26,20 +26,21 @@ CONTEXT="major-release-signoff"
 
 COMMITS=$(gh api --paginate "repos/$REPO/compare/$CURRENT_TAG...$HEAD_REF" --jq '.commits[].sha')
 
+# `commits/<sha>/pulls` returns whole PR objects, so take the head SHA from the
+# same response rather than spending a second round trip per PR to fetch it.
 PRS=""
 if [ -n "$COMMITS" ]; then
   while IFS= read -r sha; do
     [ -n "$sha" ] || continue
-    PRS+=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '.[].number')$'\n'
+    PRS+=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '.[] | "\(.number) \(.head.sha)"')$'\n'
   done <<<"$COMMITS"
 fi
 
 # `sort -u` over an empty string still yields one empty line; the guard below
 # drops it rather than looking up PR "".
 RECORDS=""
-while IFS= read -r pr; do
+while IFS=' ' read -r pr head_sha; do
   [ -n "$pr" ] || continue
-  head_sha=$(gh api "repos/$REPO/pulls/$pr" --jq '.head.sha')
   # The combined-status endpoint returns only the newest status per context,
   # which is the one the gate last wrote for that head.
   status=$(gh api "repos/$REPO/commits/$head_sha/status" \
