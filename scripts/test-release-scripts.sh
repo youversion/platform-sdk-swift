@@ -115,13 +115,24 @@ run_signoff() {
   node scripts/release-check-signoff.mjs "$@" <<<"$records"
 }
 
-SIGNED='[{"pr":272,"state":"success","description":"Major v6.0.0 signed off by jhampton."}]'
-OTHER_VERSION='[{"pr":9,"state":"success","description":"Major v7.0.0 signed off by jhampton."}]'
-PRERELEASE='[{"pr":9,"state":"success","description":"Major v6.0.0-beta.1 signed off by jhampton."}]'
-PENDING='[{"pr":9,"state":"pending","description":"Major v6.0.0 signed off by jhampton."}]'
-FAILING='[{"pr":9,"state":"failure","description":"Breaking change requires signoff."}]'
-BOTH='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by a."},{"pr":9,"state":"failure","description":"no"}]'
-MISSING='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by a."},{"pr":9,"state":"missing","description":null}]'
+# The gate posts as the Actions bot; `record <pr> <state> <description>` builds a
+# record with that provenance, and the odd ones out override it explicitly.
+record() { printf '{"pr":%s,"state":"%s","description":%s,"creator":"github-actions[bot]","creator_type":"Bot"}' "$1" "$2" "$3"; }
+GATE_OK=$(record 1 success '"Major v6.0.0 signed off by jhampton."')
+
+SIGNED="[$(record 272 success '"Major v6.0.0 signed off by jhampton."')]"
+OTHER_VERSION="[$(record 9 success '"Major v7.0.0 signed off by jhampton."')]"
+PRERELEASE="[$(record 9 success '"Major v6.0.0-beta.1 signed off by jhampton."')]"
+PENDING="[$(record 9 pending '"Major v6.0.0 signed off by jhampton."')]"
+FAILING="[$(record 9 failure '"Breaking change requires signoff."')]"
+BOTH="[$GATE_OK,$(record 9 failure '"no"')]"
+MISSING="[$GATE_OK,$(record 9 missing null)]"
+# Cam's two: a gate-passed range must be entirely success, and a status the gate
+# did not write must not authorize anything.
+SIGNED_PLUS_PENDING="[$GATE_OK,$(record 9 pending '"awaiting signoff"')]"
+SIGNED_PLUS_ERROR="[$GATE_OK,$(record 9 error '"boom"')]"
+FREEFORM="[$(record 1 success '"v6.0.0"')]"
+HUMAN_POSTED='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off by jhampton.","creator":"Kyleasmth","creator_type":"User"}]'
 
 assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNED" 6.0.0 5.5.0
 assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
@@ -138,6 +149,10 @@ assert_exit  1 "a PR the gate never saw blocks the release" run_signoff "$MISSIN
 # base of $VERSION would read every major as no bump and skip the check entirely.
 assert_exit  1 "the requested version as its own base is refused" run_signoff '[]' 6.0.0 6.0.0
 assert_stderr_contains "is not older than" "…and says the base is wrong" run_signoff '[]' 6.0.0 6.0.0
+assert_exit  1 "a pending PR blocks even with another signed"  run_signoff "$SIGNED_PLUS_PENDING" 6.0.0 5.5.0
+assert_exit  1 "an errored PR blocks even with another signed" run_signoff "$SIGNED_PLUS_ERROR" 6.0.0 5.5.0
+assert_exit  1 "free-form text naming the version is not a signoff" run_signoff "$FREEFORM" 6.0.0 5.5.0
+assert_exit  1 "the exact sentence posted by a human is refused"    run_signoff "$HUMAN_POSTED" 6.0.0 5.5.0
 assert_exit  0 "an unseen PR is fine on a non-major bump"    run_signoff "$MISSING" 5.6.0 5.5.0
 assert_exit  1 "non-semver version → usage error"           run_signoff '[]' 6.0 5.5.0
 assert_exit  1 "stdin that is not an array → usage error"   run_signoff '{"a":1}' 6.0.0 5.5.0
@@ -145,8 +160,10 @@ assert_exit  1 "missing args → usage error"                 run_signoff '[]' 6
 assert_stderr_contains "authorized by jhampton" "names the approver" run_signoff "$SIGNED" 6.0.0 5.5.0
 assert_stderr_contains "not a major bump"  "minor says so"           run_signoff '[]' 5.6.0 5.5.0
 assert_stderr_contains "no PR merged since 5.5.0" "unsigned major names the base" run_signoff '[]' 6.0.0 5.5.0
-assert_stderr_contains "PR #9 has a failing"  "names the failing PR" run_signoff "$FAILING" 6.0.0 5.5.0
+assert_stderr_contains "status of 'failure'" "names the failing PR" run_signoff "$FAILING" 6.0.0 5.5.0
 assert_stderr_contains "PR #9 has no major-release-signoff" "names the unseen PR" run_signoff "$MISSING" 6.0.0 5.5.0
+assert_stderr_contains "status of 'pending'" "names the unresolved state" run_signoff "$SIGNED_PLUS_PENDING" 6.0.0 5.5.0
+assert_stderr_contains "gate-issued"  "says the signoff must come from the gate" run_signoff "$FREEFORM" 6.0.0 5.5.0
 
 # release-check-signoff.mjs parses the status description to authorize a release.
 # The tests above feed it hand-written copies of that format, so rewording the

@@ -10,7 +10,9 @@
 # Usage:
 #   collect-release-signoffs.sh <owner/repo> <current-tag> [<head-ref>]
 #
-# Output (stdout): [{"pr": 272, "state": "success", "description": "..."}]
+# Output (stdout):
+#   [{"pr": 272, "state": "success", "description": "...",
+#     "creator": "github-actions[bot]", "creator_type": "Bot"}]
 #
 # The gate writes its status to the PR *head* SHA, which a squash merge does not
 # preserve, so the status cannot be read off the commit on main. Resolve each
@@ -41,18 +43,23 @@ fi
 RECORDS=""
 while IFS=' ' read -r pr head_sha; do
   [ -n "$pr" ] || continue
-  # The combined-status endpoint returns only the newest status per context,
-  # which is the one the gate last wrote for that head.
-  status=$(gh api "repos/$REPO/commits/$head_sha/status" \
-    --jq "[.statuses[] | select(.context == \"$CONTEXT\")] | .[0] // empty")
+  # The per-status list, not the combined `/status` endpoint: the combined one
+  # omits `creator`, and who posted the status is the only thing separating a
+  # gate-produced signoff from one any repo writer can POST by hand. The list is
+  # newest-first, so the first match is the status the gate last wrote.
+  status=$(gh api "repos/$REPO/commits/$head_sha/statuses" --paginate \
+    --jq "[.[] | select(.context == \"$CONTEXT\")] | .[0] // empty")
   if [ -n "$status" ]; then
-    record=$(jq -c --argjson pr "$pr" '{pr: $pr, state: .state, description: .description}' <<<"$status")
+    record=$(jq -c --argjson pr "$pr" \
+      '{pr: $pr, state: .state, description: .description, creator: .creator.login, creator_type: .creator.type}' \
+      <<<"$status")
   else
     # No status at all means the gate never ran on this PR, so nothing is known
     # about whether it was breaking. Report it rather than dropping it: a silent
     # omission would let one PR's signoff authorize a release containing another
     # PR the gate never saw.
-    record=$(jq -nc --argjson pr "$pr" '{pr: $pr, state: "missing", description: null}')
+    record=$(jq -nc --argjson pr "$pr" \
+      '{pr: $pr, state: "missing", description: null, creator: null, creator_type: null}')
   fi
   RECORDS+="$record"$'\n'
 done <<<"$(sort -u <<<"$PRS")"

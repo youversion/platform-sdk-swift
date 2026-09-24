@@ -20,7 +20,8 @@
 // stdin is a JSON array of the signoff statuses found on the PRs in the release
 // range. Gathering is the caller's job (scripts/collect-release-signoffs.sh) so
 // the decision stays pure and testable:
-//   [{"pr": 272, "state": "success", "description": "Major v6.0.0 signed off by jhampton."}]
+//   [{"pr": 272, "state": "success", "description": "Major v6.0.0 signed off by jhampton.",
+//     "creator": "github-actions[bot]", "creator_type": "Bot"}]
 //
 // Exit 0 when the release may proceed, 1 when it may not. The reason goes to
 // stderr as the operator message; the caller just propagates the failure.
@@ -75,44 +76,52 @@ if (!Array.isArray(records)) {
   block("The signoff records on stdin are not a JSON array.");
 }
 
-// A failing signoff anywhere in the range means a breaking change reached main
-// without approval. Report it before looking for a success: publishing on the
-// strength of a different PR's signoff would ship exactly what the gate refused.
-const failing = records.find((r) => r?.state === "failure");
-if (failing) {
+// Every PR in the range has to have passed the gate. Anything else, a failure, a
+// run still pending, an errored one, or no status at all, means a breaking change
+// may have reached main unreviewed, and one PR's approval must not cover it.
+const GATE_IDENTITY = "github-actions[bot]";
+
+const unresolved = records.find((r) => r?.state !== "success");
+if (unresolved) {
+  if (unresolved.state === "missing") {
+    block(
+      `PR #${unresolved.pr} has no major-release-signoff status, so it was never evaluated for ` +
+        `breaking changes. Re-run the gate by commenting on that PR, then re-dispatch.`,
+    );
+  }
   block(
-    `PR #${failing.pr} has a failing major-release-signoff. Resolve it before publishing v${requested}.`,
+    `PR #${unresolved.pr} has a major-release-signoff status of '${unresolved.state}', not ` +
+      `success. Every PR in a major release range must pass the gate before it can be published.`,
   );
 }
 
-// A PR the gate never evaluated is not evidence of anything. Accepting the
-// release on a different PR's signoff would publish an unreviewed breaking
-// change under cover of a reviewed one.
-const missing = records.find((r) => r?.state === "missing");
-if (missing) {
-  block(
-    `PR #${missing.pr} has no major-release-signoff status, so it was never evaluated for ` +
-      `breaking changes. Re-run the gate by commenting on that PR, then re-dispatch.`,
-  );
-}
-
-// Match the version as a whole token so v6.0.0 is never satisfied by a signoff
-// for v6.0.0-beta.1 or v6.0.01.
-const names = new RegExp(
-  `(^|[^0-9A-Za-z.])v${requested.replace(/\./g, "\\.")}([^0-9A-Za-z.-]|$)`,
+// Match the sentence the gate writes, not a version appearing somewhere in free
+// text. Anyone with write access can POST a status to any context, so a loose
+// match would let a PR author self-authorize a major and skip the second pair of
+// eyes the gate exists to require.
+const SIGNOFF_SENTENCE = new RegExp(
+  `^Major v${requested.replace(/\./g, "\\.")} signed off by (\\S+)\\.$`,
 );
+
 const match = records.find(
-  (r) => r?.state === "success" && typeof r.description === "string" && names.test(r.description),
+  (r) =>
+    typeof r.description === "string" &&
+    SIGNOFF_SENTENCE.test(r.description.trim()) &&
+    // Provenance: the gate posts as the Actions bot. This does not prove the
+    // status came from *this* workflow, since anything in the repo posts under
+    // the same identity, but it does stop a status written by a person.
+    r.creator === GATE_IDENTITY &&
+    r.creator_type === "Bot",
 );
 
 if (!match) {
   block(
     `v${requested} is a major release, but no PR merged since ${baseTag} carries a ` +
-      `major-release-signoff naming that version. Sign off on the breaking change's PR, ` +
-      `or publish the version the range actually justifies.`,
+      `gate-issued major-release-signoff naming that version. Sign off on the breaking ` +
+      `change's PR, or publish the version the range actually justifies.`,
   );
 }
 
-const approver = /signed off by (\S+?)\.?$/.exec(match.description)?.[1] ?? "unknown";
+const approver = SIGNOFF_SENTENCE.exec(match.description.trim())[1];
 console.error(`v${requested} authorized by ${approver} (PR #${match.pr}).`);
 process.exit(0);
