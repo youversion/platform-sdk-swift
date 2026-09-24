@@ -146,14 +146,20 @@ actor BibleChapterDownloadCache {
     }
 }
 
-protocol BibleChapterContentProviding: Sendable {
+/// Where a chapter's HTML comes from. The SDK's own implementation calls the platform directly;
+/// an app may supply another — a server-side cache in front of the same platform, say — with
+/// `BibleChapterRepository.use(provider:)`, and everything above it (the parser, the styles, the
+/// views, the memory and disk caches) is unchanged.
+public protocol BibleChapterContentProviding: Sendable {
     func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String>
 }
 
-final class BibleChapterContentAPI: BibleChapterContentProviding {
-    init() {}
+/// The SDK's own provider: the platform, directly. Public so an app that supplies another can
+/// keep this one as its fallback.
+public final class BibleChapterContentAPI: BibleChapterContentProviding {
+    public init() {}
 
-    func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String> {
+    public func chapterContent(for reference: BibleReference) async throws -> BibleContentResponse<String> {
         try await YouVersionAPI.Bible.chapterResponse(reference: reference)
     }
 }
@@ -162,7 +168,7 @@ public actor BibleChapterRepository: ObservableObject {
 
     public static let shared = BibleChapterRepository()
 
-    private let provider: BibleChapterContentProviding
+    private var provider: BibleChapterContentProviding
     private let memoryCache: ChapterMemoryCache
     private let diskCache: BibleChapterDiskCache
     private let downloadCache: BibleChapterDownloadCache
@@ -182,6 +188,12 @@ public actor BibleChapterRepository: ObservableObject {
         self.memoryCache = ChapterMemoryCache()
         self.diskCache = BibleChapterDiskCache(directoryProvider: directoryProvider)
         self.downloadCache = BibleChapterDownloadCache(directoryProvider: directoryProvider)
+    }
+
+    /// Replace where chapters are fetched from. Actor-isolated, so it is safe to call at launch
+    /// or later; content already in the memory or disk cache is unaffected.
+    public func use(provider: BibleChapterContentProviding) {
+        self.provider = provider
     }
 
     public func chapter(withReference reference: BibleReference) async throws -> String {
