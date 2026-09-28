@@ -2,10 +2,9 @@ import CoreText
 import Foundation
 import Testing
 
-/// Pins the Unicode line-breaking contract `BibleTextView+Rendering.swift` relies on to fix
-/// BL-1977: a word joiner (U+2060) after each of the note-indicator badge's space characters
-/// must prevent CoreText from ever suggesting a line break inside the badge, while still
-/// allowing a break at the ordinary trailing space that follows it.
+/// Pins the Unicode line-breaking contract the note-indicator badge relies on: a word
+/// joiner (U+2060) after each space character must block a break inside the badge, while
+/// the ordinary trailing space after it stays breakable.
 @Suite struct NoteIndicatorLineBreakGlueTests {
     // Mirrors the literal sequence BibleTextView+Rendering.swift builds for a note badge:
     // EM SPACE (pencil placeholder) + WJ, THIN SPACE (spacer) + WJ, then the verse number.

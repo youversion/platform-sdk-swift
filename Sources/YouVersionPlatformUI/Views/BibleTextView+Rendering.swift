@@ -335,9 +335,8 @@ extension BibleTextView {
                 let highlightColor = highlightFor(reference: reference)
                 let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
 
-                // The trailing word joiner (U+2060) glues this run to the spacer/verse-number
-                // runs that follow (UAX #14 LB11 forbids a break immediately after it), so
-                // SwiftUI's line breaker can't split the badge across a line wrap (BL-1977).
+                // Trailing word joiner (U+2060) glues this run to the spacer/verse-number
+                // runs that follow, so the line breaker can't split the badge mid-sequence.
                 var pencilAttr = AttributedString("\u{2003}\u{2060}")
                 pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
@@ -351,8 +350,7 @@ extension BibleTextView {
                     )
                 )
 
-                // Same word-joiner glue as the pencil run above, so this run stays attached
-                // to the verse-number run that follows (BL-1977).
+                // Same word-joiner glue, keeping this run attached to the verse number.
                 var spacerAttr = AttributedString("\u{2009}\u{2060}")
                 spacerAttr.link = noteURL
                 spacerAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
