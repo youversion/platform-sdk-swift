@@ -8,25 +8,28 @@ import Testing
 @Suite struct NoteIndicatorLineBreakGlueTests {
     // Mirrors the literal sequence BibleTextView+Rendering.swift builds for a note badge:
     // EM SPACE (pencil placeholder) + WJ, THIN SPACE (spacer) + WJ, then the verse number.
+    private static let leadingWord = "word "
     private static let badge = "\u{2003}\u{2060}\u{2009}\u{2060}12"
     private static let trailingSpace = " "
     private static let nextWord = "next"
 
     @Test
     func wordJoinerPreventsBreakInsideNoteBadge() throws {
-        let full = Self.badge + Self.trailingSpace + Self.nextWord
         let font = CTFontCreateWithName("Helvetica" as CFString, 17, nil)
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
 
+        let leadingLine = CTLineCreateWithAttributedString(NSAttributedString(string: Self.leadingWord, attributes: attrs))
+        let leadingWidth = CTLineGetTypographicBounds(leadingLine, nil, nil, nil)
         let badgeLine = CTLineCreateWithAttributedString(NSAttributedString(string: Self.badge, attributes: attrs))
         let badgeWidth = CTLineGetTypographicBounds(badgeLine, nil, nil, nil)
 
+        let full = Self.leadingWord + Self.badge + Self.trailingSpace + Self.nextWord
         let typesetter = CTTypesetterCreateWithAttributedString(NSAttributedString(string: full, attributes: attrs))
-        // Constrain to just enough width for the badge alone -- any break CoreText offers
-        // within that width must land at/after the badge's end, never inside it.
-        let breakIndex = CTTypesetterSuggestLineBreak(typesetter, 0, badgeWidth + 2)
+        // Room for the leading word plus half the badge, but not the whole badge: with no
+        // legal break inside it, the whole badge must defer to the next line.
+        let breakIndex = CTTypesetterSuggestLineBreak(typesetter, 0, leadingWidth + badgeWidth / 2)
 
-        #expect(breakIndex >= (Self.badge as NSString).length)
+        #expect(breakIndex == (Self.leadingWord as NSString).length)
     }
 
     @Test
