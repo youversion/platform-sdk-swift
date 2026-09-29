@@ -304,7 +304,7 @@ import Testing
 
     @Test
     func nothingSavedMeansNoRecentSearches() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
 
         #expect(viewModel.recentSearches.isEmpty)
@@ -312,7 +312,7 @@ import Testing
 
     @Test
     func unreadableSavedValueMeansNoRecentSearches() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         UserDefaults.standard.set("not a list", forKey: Support.recentSearchesKey)
         let viewModel = Support.makeViewModel()
 
@@ -321,7 +321,7 @@ import Testing
 
     @Test
     func newestRecentSearchComesFirst() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
 
         viewModel.recordRecentSearch("love")
@@ -332,7 +332,7 @@ import Testing
 
     @Test
     func repeatedRecentSearchMovesToFrontRatherThanAppearingTwice() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
 
         viewModel.recordRecentSearch("love")
@@ -344,7 +344,7 @@ import Testing
 
     @Test
     func onlyThreeNewestRecentSearchesAreKept() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
 
         viewModel.recordRecentSearch("love")
@@ -357,7 +357,7 @@ import Testing
 
     @Test
     func recentSearchIsSavedTrimmedAndBlankSearchIsNotSaved() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
 
         viewModel.recordRecentSearch("  love  ")
@@ -368,7 +368,7 @@ import Testing
 
     @Test
     func recentSearchesAreRememberedAcrossViewModels() {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         Support.makeViewModel().recordRecentSearch("love")
 
         let reopenedViewModel = Support.makeViewModel()
@@ -378,7 +378,7 @@ import Testing
 
     @Test
     func emptySearchFieldOffersRecentSearchesWithoutWaiting() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         viewModel.recordRecentSearch("peace")
         viewModel.recordRecentSearch("love")
@@ -396,7 +396,7 @@ import Testing
 
     @Test
     func recentSearchesAreHiddenWhileTyping() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         viewModel.recordRecentSearch("love")
         viewModel.recentSearchQueries = ["love"]
@@ -413,7 +413,7 @@ import Testing
 
     @Test
     func submittedSearchIsRememberedAsRecent() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = " love "
         let searchTask = Task { await viewModel.search() }
@@ -426,7 +426,7 @@ import Testing
 
     @Test
     func tappedQueryIsRememberedAsRecent() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         let searchTask = Task {
             await viewModel.search(for: "peace")
@@ -440,7 +440,7 @@ import Testing
 
     @Test
     func blankSubmittedSearchIsNotRemembered() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = "   "
 
@@ -451,7 +451,7 @@ import Testing
 
     @Test
     func submittingSearchClearsTrendingAndRecentQueries() async {
-        Support.clearReaderDefaults()
+        Support.clearRecentSearches()
         let viewModel = Support.makeViewModel()
         viewModel.searchQuery = "joy"
         viewModel.completedSearchQuery = "joy"
