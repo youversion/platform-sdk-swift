@@ -14,7 +14,6 @@ import Testing
         let selectedReference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 1)
         viewModel.selectedVerses = [selectedReference]
         viewModel.showingVerseActionsDrawer = true
-        viewModel.showChrome = false
         viewModel.lastScrollOffset = -100
 
         let newReference = BibleReference(versionId: 111, bookId: "JHN", chapter: 3)
@@ -26,7 +25,6 @@ import Testing
         #expect(viewModel.versionsViewModel.myVersions.contains(Support.makeBibleVersion(id: 111)))
         #expect(viewModel.selectedVerses.isEmpty)
         #expect(viewModel.showingVerseActionsDrawer == false)
-        #expect(viewModel.showChrome)
         #expect(viewModel.lastScrollOffset == 0)
         #expect(viewModel.scrollAction == .top)
         #expect(await repository.requestedIds() == [111])

@@ -4,6 +4,7 @@ import YouVersionPlatformCore
 struct BibleReaderHeaderMenuView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @State private var observedIsSignedIn: Bool?
+    var isCompact = false
 
     var body: some View {
         Menu {
@@ -17,10 +18,12 @@ struct BibleReaderHeaderMenuView: View {
             }
         } label: {
             Image(systemName: "ellipsis.circle")
-                .imageScale(.large)
+                .font(isCompact ? .subheadline : .title2)
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
-                .padding()
+                .frame(width: 44, height: isCompact ? 28 : 44)
+                .contentShape(Circle())
         }
+        .buttonStyle(.plain)
         .task {
             await updateSignInState()
         }

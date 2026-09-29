@@ -100,20 +100,6 @@ extension BibleReaderViewModel {
         if focusedReference != nil && abs(offset - previousOffset) > userScrollThreshold {
             clearFocus()
         }
-
-        let threshold: CGFloat = 10
-        let animation: Animation? = isReduceMotionEnabled ? nil : .easeInOut(duration: 0.1)
-        // offset is the content's minY in the scroll viewport: 0 at top,
-        // negative while scrolled down, positive when rubber-banding past top.
-        if offset >= 0 {
-            withAnimation(animation) { showChrome = true }
-        } else if abs(offset - previousOffset) >= threshold {
-            if offset < previousOffset - threshold {
-                withAnimation(animation) { showChrome = false }
-            } else if offset > previousOffset + threshold {
-                withAnimation(animation) { showChrome = true }
-            }
-        }
     }
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
