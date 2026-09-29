@@ -6,6 +6,7 @@ struct BibleReaderSearchView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @FocusState private var isSearchFieldFocused: Bool
     @State private var searchScrollPosition: String?
+    @State private var showsSearchFilters = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,6 +23,9 @@ struct BibleReaderSearchView: View {
             await viewModel.updateSuggestedSearchQueries()
         }
         .onChange(of: viewModel.searchRequestID) {
+            searchScrollPosition = nil
+        }
+        .onChange(of: viewModel.searchCanonFilter) {
             searchScrollPosition = nil
         }
     }
@@ -50,7 +54,15 @@ struct BibleReaderSearchView: View {
                     title: String.localized("noBibleSearchResults")
                 )
             } else if viewModel.searchStatus == .completed {
-                searchResultsScrollView
+                searchResultsHeader
+                if viewModel.filteredSearchResults.isEmpty && !viewModel.hasNextSearchPage {
+                    searchStateView(
+                        systemImage: "magnifyingglass",
+                        title: String.localized("noBibleSearchResults")
+                    )
+                } else {
+                    searchResultsScrollView
+                }
             } else {
                 searchQueriesScrollView
             }
@@ -144,14 +156,23 @@ struct BibleReaderSearchView: View {
 
         return ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(Array(viewModel.searchResults.enumerated()), id: \.element.passageId) { index, result in
+                let filteredResults = viewModel.filteredSearchResults
+                ForEach(Array(filteredResults.enumerated()), id: \.element.passageId) { index, result in
                     resultButton(result)
                         .id(result.passageId)
                         .task(id: viewModel.nextSearchPageToken) {
-                            let loadThreshold = max(0, viewModel.searchResults.count - 5)
+                            let loadThreshold = max(0, filteredResults.count - 5)
                             guard index >= loadThreshold else {
                                 return
                             }
+                            await viewModel.loadNextSearchPageIfNeeded()
+                        }
+                }
+
+                if filteredResults.isEmpty {
+                    Color.clear
+                        .frame(height: 1)
+                        .task(id: viewModel.nextSearchPageToken) {
                             await viewModel.loadNextSearchPageIfNeeded()
                         }
                 }
@@ -181,6 +202,80 @@ struct BibleReaderSearchView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollPosition(id: $searchScrollPosition, anchor: .top)
+    }
+
+    private var searchResultsHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(String.localized("bibleSearchBibleHeading"))
+                    .font(.headline)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer(minLength: 0)
+                Button {
+                    showsSearchFilters.toggle()
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(String.localized("bibleSearchFiltersButton"))
+                        Image(systemName: "line.3.horizontal.decrease")
+                            .scaleEffect(y: showsSearchFilters ? -1 : 1)
+                            .accessibilityHidden(true)
+                    }
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
+                    .padding(.vertical, 8)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(showsSearchFilters ? .isSelected : [])
+            }
+
+            if showsSearchFilters {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(SearchCanonFilter.allCases, id: \.self) { filter in
+                            canonFilterChip(filter)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: viewModel.readerMaxWidth)
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .frame(maxWidth: .infinity)
+    }
+
+    private func canonFilterChip(_ filter: SearchCanonFilter) -> some View {
+        let isSelected = filter == viewModel.searchCanonFilter
+
+        return Button {
+            viewModel.searchCanonFilter = filter
+        } label: {
+            Text(canonFilterTitle(filter))
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(isSelected ? viewModel.readerButtonSecondaryColor : .clear, in: Capsule())
+                .overlay {
+                    if !isSelected {
+                        Capsule()
+                            .strokeBorder(viewModel.readerBorderSecondaryColor, lineWidth: 1)
+                    }
+                }
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func canonFilterTitle(_ filter: SearchCanonFilter) -> String {
+        switch filter {
+        case .oldTestament: String.localized("bibleSearchFilterOldTestament")
+        case .newTestament: String.localized("bibleSearchFilterNewTestament")
+        case .both: String.localized("bibleSearchFilterBoth")
+        }
     }
 
     private func searchStateView(systemImage: String, title: String) -> some View {
