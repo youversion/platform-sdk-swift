@@ -335,7 +335,9 @@ extension BibleTextView {
                 let highlightColor = highlightFor(reference: reference)
                 let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
 
-                var pencilAttr = AttributedString("\u{2003}")
+                // Trailing word joiner (U+2060) glues this run to the spacer/verse-number
+                // runs that follow, so the line breaker can't split the badge mid-sequence.
+                var pencilAttr = AttributedString("\u{2003}\u{2060}")
                 pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 pencilAttr.backgroundColor = highlightColor
@@ -348,7 +350,8 @@ extension BibleTextView {
                     )
                 )
 
-                var spacerAttr = AttributedString("\u{2009}")
+                // Same word-joiner glue, keeping this run attached to the verse number.
+                var spacerAttr = AttributedString("\u{2009}\u{2060}")
                 spacerAttr.link = noteURL
                 spacerAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
                 spacerAttr.backgroundColor = highlightColor
