@@ -48,7 +48,9 @@ struct BibleReaderSearchView: View {
                     systemImage: "exclamationmark.circle",
                     title: String.localized("generic.error")
                 )
-            } else if viewModel.searchStatus == .completed && viewModel.searchResults.isEmpty {
+            } else if viewModel.searchStatus == .completed
+                        && viewModel.searchResults.isEmpty
+                        && !viewModel.hasNextSearchPage {
                 searchStateView(
                     systemImage: "magnifyingglass",
                     title: String.localized("noBibleSearchResults")
