@@ -58,35 +58,85 @@ struct BibleReaderSearchView: View {
     }
 
     private var searchQueriesScrollView: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(Array(viewModel.suggestedSearchQueries.enumerated()), id: \.offset) { _, query in
-                    Button {
-                        isSearchFieldFocused = false
-                        Task {
-                            await viewModel.search(for: query)
-                        }
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundStyle(viewModel.readerTextMutedColor)
-                            Text(query.text)
-                                .font(.body)
-                                .foregroundStyle(viewModel.readerTextPrimaryColor)
-                                .multilineTextAlignment(.leading)
-                            Spacer(minLength: 0)
-                        }
-                        .padding(.vertical, 14)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                }
+        let isSearchQueryBlank = viewModel.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                searchQuerySection(
+                    heading: String.localized("bibleSearchTrendingHeading"),
+                    queries: isSearchQueryBlank ? viewModel.trendingSearchQueries.map(\.text) : [],
+                    icon: Image("trending", bundle: .YouVersionUIBundle)
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                )
+                searchQuerySection(
+                    heading: String.localized("bibleSearchRecentHeading"),
+                    queries: isSearchQueryBlank ? viewModel.recentSearchQueries : [],
+                    icon: Image(systemName: "clock.arrow.circlepath")
+                        .font(.body)
+                )
+                searchQuerySection(
+                    heading: nil,
+                    queries: isSearchQueryBlank ? [] : viewModel.suggestedSearchQueries.map(\.text),
+                    icon: Image(systemName: "magnifyingglass")
+                        .font(.body)
+                )
             }
             .frame(maxWidth: viewModel.readerMaxWidth)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
         }
+    }
+
+    @ViewBuilder
+    private func searchQuerySection(heading: String?, queries: [String], icon: some View) -> some View {
+        if !queries.isEmpty {
+            VStack(alignment: .leading, spacing: 0) {
+                if let heading {
+                    Text(heading)
+                        .font(.headline)
+                        .foregroundStyle(viewModel.readerTextPrimaryColor)
+                        .accessibilityAddTraits(.isHeader)
+                        .padding(.top, 16)
+                        .padding(.bottom, 4)
+                }
+                ForEach(Array(queries.enumerated()), id: \.offset) { _, query in
+                    searchQueryButton(query, icon: icon)
+                }
+            }
+        }
+    }
+
+    private func searchQueryButton(_ query: String, icon: some View) -> some View {
+        Button {
+            isSearchFieldFocused = false
+            Task {
+                await viewModel.search(for: query)
+            }
+        } label: {
+            HStack(spacing: 12) {
+                icon
+                    .foregroundStyle(
+                        viewModel.colorForScheme(
+                            light: viewModel.readerTextPrimaryColor,
+                            dark: viewModel.readerTextMutedColor
+                        )
+                    )
+                    .frame(width: 36, height: 36)
+                    .background(viewModel.readerSurfaceTertiaryColor, in: Circle())
+                    .accessibilityHidden(true)
+                Text(query)
+                    .font(.body)
+                    .foregroundStyle(viewModel.readerTextPrimaryColor)
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var searchResultsScrollView: some View {
