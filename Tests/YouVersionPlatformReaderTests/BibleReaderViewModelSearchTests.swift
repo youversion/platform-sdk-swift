@@ -19,6 +19,8 @@ import Testing
         viewModel.nextSearchPageToken = "next-page"
         viewModel.nextSearchPageRequestID = UUID()
         viewModel.hasNextSearchPageLoadError = true
+        viewModel.trendingSearchQueries = [YouVersionSearchQuery(text: "love", source: nil)]
+        viewModel.recentSearchQueries = ["peace"]
 
         viewModel.openSearch()
 
@@ -29,6 +31,8 @@ import Testing
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
         #expect(!viewModel.hasNextSearchPageLoadError)
+        #expect(viewModel.trendingSearchQueries.isEmpty)
+        #expect(viewModel.recentSearchQueries.isEmpty)
     }
 
     @Test
@@ -152,7 +156,7 @@ import Testing
         let suggestion = YouVersionSearchQuery(text: "joy", source: "community")
         viewModel.suggestedSearchQueries = [suggestion]
         let searchTask = Task {
-            await viewModel.search(for: suggestion)
+            await viewModel.search(for: suggestion.text)
         }
         searchTask.cancel()
 
@@ -296,5 +300,169 @@ import Testing
         #expect(viewModel.searchResultTitle(for: result) == result.passageId)
         viewModel.searchVersion = Support.makeBibleVersion(id: Support.versionId + 1)
         #expect(viewModel.searchResultTitle(for: result) == result.passageId)
+    }
+
+    @Test
+    func nothingSavedMeansNoRecentSearches() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.recentSearches.isEmpty)
+    }
+
+    @Test
+    func unreadableSavedValueMeansNoRecentSearches() {
+        Support.clearReaderDefaults()
+        UserDefaults.standard.set("not a list", forKey: Support.recentSearchesKey)
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.recentSearches.isEmpty)
+    }
+
+    @Test
+    func newestRecentSearchComesFirst() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.recordRecentSearch("love")
+        viewModel.recordRecentSearch("peace")
+
+        #expect(viewModel.recentSearches == ["peace", "love"])
+    }
+
+    @Test
+    func repeatedRecentSearchMovesToFrontRatherThanAppearingTwice() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.recordRecentSearch("love")
+        viewModel.recordRecentSearch("peace")
+        viewModel.recordRecentSearch("Love")
+
+        #expect(viewModel.recentSearches == ["Love", "peace"])
+    }
+
+    @Test
+    func onlyThreeNewestRecentSearchesAreKept() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.recordRecentSearch("love")
+        viewModel.recordRecentSearch("peace")
+        viewModel.recordRecentSearch("joy")
+        viewModel.recordRecentSearch("hope")
+
+        #expect(viewModel.recentSearches == ["hope", "joy", "peace"])
+    }
+
+    @Test
+    func recentSearchIsSavedTrimmedAndBlankSearchIsNotSaved() {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+
+        viewModel.recordRecentSearch("  love  ")
+        viewModel.recordRecentSearch("   ")
+
+        #expect(viewModel.recentSearches == ["love"])
+    }
+
+    @Test
+    func recentSearchesAreRememberedAcrossViewModels() {
+        Support.clearReaderDefaults()
+        Support.makeViewModel().recordRecentSearch("love")
+
+        let reopenedViewModel = Support.makeViewModel()
+
+        #expect(reopenedViewModel.recentSearches == ["love"])
+    }
+
+    @Test
+    func emptySearchFieldOffersRecentSearchesWithoutWaiting() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        viewModel.recordRecentSearch("peace")
+        viewModel.recordRecentSearch("love")
+
+        let suggestionsTask = Task { await viewModel.updateSuggestedSearchQueries() }
+        await Task.yield()
+
+        #expect(viewModel.recentSearchQueries == ["love", "peace"])
+
+        suggestionsTask.cancel()
+        await suggestionsTask.value
+
+        #expect(viewModel.recentSearchQueries == ["love", "peace"])
+    }
+
+    @Test
+    func recentSearchesAreHiddenWhileTyping() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        viewModel.recordRecentSearch("love")
+        viewModel.recentSearchQueries = ["love"]
+        viewModel.searchQuery = "pea"
+
+        let suggestionsTask = Task { await viewModel.updateSuggestedSearchQueries() }
+        await Task.yield()
+
+        #expect(viewModel.recentSearchQueries.isEmpty)
+
+        suggestionsTask.cancel()
+        await suggestionsTask.value
+    }
+
+    @Test
+    func submittedSearchIsRememberedAsRecent() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        viewModel.searchQuery = " love "
+        let searchTask = Task { await viewModel.search() }
+        searchTask.cancel()
+
+        await searchTask.value
+
+        #expect(viewModel.recentSearches == ["love"])
+    }
+
+    @Test
+    func tappedQueryIsRememberedAsRecent() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        let searchTask = Task {
+            await viewModel.search(for: "peace")
+        }
+        searchTask.cancel()
+
+        await searchTask.value
+
+        #expect(viewModel.recentSearches == ["peace"])
+    }
+
+    @Test
+    func blankSubmittedSearchIsNotRemembered() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        viewModel.searchQuery = "   "
+
+        await viewModel.search()
+
+        #expect(viewModel.recentSearches.isEmpty)
+    }
+
+    @Test
+    func submittingSearchClearsTrendingAndRecentQueries() async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel()
+        viewModel.searchQuery = "joy"
+        viewModel.completedSearchQuery = "joy"
+        viewModel.completedSearchVersionID = viewModel.reference.versionId
+        viewModel.searchStatus = .completed
+        viewModel.trendingSearchQueries = [YouVersionSearchQuery(text: "love", source: nil)]
+        viewModel.recentSearchQueries = ["peace"]
+
+        await viewModel.search()
+
+        #expect(viewModel.trendingSearchQueries.isEmpty)
+        #expect(viewModel.recentSearchQueries.isEmpty)
     }
 }
