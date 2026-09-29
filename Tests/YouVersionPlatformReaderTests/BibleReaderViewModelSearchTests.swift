@@ -465,4 +465,111 @@ import Testing
         #expect(viewModel.trendingSearchQueries.isEmpty)
         #expect(viewModel.recentSearchQueries.isEmpty)
     }
+
+    @Test
+    func everySearchResultIsListedWhileFilterIsBoth() {
+        let viewModel = Support.makeViewModel()
+        viewModel.searchVersion = versionWithTestaments
+        viewModel.searchResults = [john316, psalm231, tobit11]
+
+        #expect(viewModel.searchCanonFilter == .both)
+        #expect(viewModel.filteredSearchResults == [john316, psalm231, tobit11])
+    }
+
+    @Test
+    func eachTestamentFilterListsOnlyResultsFromItsOwnBooks() {
+        let viewModel = Support.makeViewModel()
+        viewModel.searchVersion = versionWithTestaments
+        viewModel.searchResults = [john316, psalm231, tobit11]
+
+        viewModel.searchCanonFilter = .oldTestament
+        #expect(viewModel.filteredSearchResults == [psalm231])
+
+        viewModel.searchCanonFilter = .newTestament
+        #expect(viewModel.filteredSearchResults == [john316])
+    }
+
+    @Test
+    func longCanonNamesAreFilteredLikeShortOnes() {
+        let viewModel = Support.makeViewModel()
+        viewModel.searchVersion = makeVersion(books: [("JHN", "new_testament"), ("PSA", "old_testament")])
+        viewModel.searchResults = [john316, psalm231]
+
+        viewModel.searchCanonFilter = .oldTestament
+        #expect(viewModel.filteredSearchResults == [psalm231])
+
+        viewModel.searchCanonFilter = .newTestament
+        #expect(viewModel.filteredSearchResults == [john316])
+    }
+
+    @Test
+    func testamentFilterListsNothingWithoutSearchVersion() {
+        let viewModel = Support.makeViewModel()
+        viewModel.searchResults = [john316, psalm231]
+
+        viewModel.searchCanonFilter = .newTestament
+
+        #expect(viewModel.filteredSearchResults.isEmpty)
+    }
+
+    @Test
+    func openingSearchPutsFilterBackToBoth() {
+        let viewModel = Support.makeViewModel()
+        viewModel.searchCanonFilter = .newTestament
+
+        viewModel.openSearch()
+
+        #expect(viewModel.searchCanonFilter == .both)
+    }
+
+    @Test
+    func nextSearchPageIsOnlyReportedForNonEmptyToken() {
+        let viewModel = Support.makeViewModel()
+
+        viewModel.nextSearchPageToken = nil
+        #expect(!viewModel.hasNextSearchPage)
+
+        viewModel.nextSearchPageToken = ""
+        #expect(!viewModel.hasNextSearchPage)
+
+        viewModel.nextSearchPageToken = "next"
+        #expect(viewModel.hasNextSearchPage)
+    }
+
+    private let john316 = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
+    private let psalm231 = BibleReference(versionId: Support.versionId, bookId: "PSA", chapter: 23, verse: 1)
+    private let tobit11 = BibleReference(versionId: Support.versionId, bookId: "TOB", chapter: 1, verse: 1)
+
+    private var versionWithTestaments: BibleVersion {
+        makeVersion(books: [("JHN", "nt"), ("PSA", "ot"), ("TOB", "deuterocanon")])
+    }
+
+    private func makeVersion(books: [(id: String, canon: String)]) -> BibleVersion {
+        BibleVersion(
+            id: Support.versionId,
+            abbreviation: "TEST",
+            promotionalContent: nil,
+            copyright: nil,
+            languageTag: "en",
+            localizedAbbreviation: "TST",
+            localizedTitle: "Test Version",
+            readerFooter: nil,
+            readerFooterUrl: nil,
+            title: "Test Version",
+            organizationId: nil,
+            bookCodes: books.map(\.id),
+            books: books.map { book in
+                BibleBook(
+                    id: book.id,
+                    title: book.id,
+                    fullTitle: book.id,
+                    abbreviation: book.id,
+                    canon: book.canon,
+                    chapters: nil,
+                    intro: nil
+                )
+            },
+            textDirection: "ltr"
+        )
+    }
 }

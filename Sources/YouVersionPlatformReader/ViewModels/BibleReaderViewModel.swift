@@ -29,6 +29,20 @@ enum SearchStatus: Equatable {
     case failed
 }
 
+enum SearchCanonFilter: CaseIterable {
+    case oldTestament
+    case newTestament
+    case both
+
+    var canons: Set<String>? {
+        switch self {
+        case .oldTestament: ["ot", "old_testament"]
+        case .newTestament: ["nt", "new_testament"]
+        case .both: nil
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -110,6 +124,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
     var hasNextSearchPageLoadError = false
+    var searchCanonFilter: SearchCanonFilter = .both
 
     // MARK: - Font settings
 

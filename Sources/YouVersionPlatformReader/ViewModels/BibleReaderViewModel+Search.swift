@@ -12,6 +12,22 @@ extension BibleReaderViewModel {
         nextSearchPageRequestID != nil
     }
 
+    var filteredSearchResults: [BibleReference] {
+        guard let canons = searchCanonFilter.canons else {
+            return searchResults
+        }
+        return searchResults.filter { result in
+            guard let canon = searchVersion?.book(with: result.bookId)?.canon else {
+                return false
+            }
+            return canons.contains(canon)
+        }
+    }
+
+    var hasNextSearchPage: Bool {
+        !(nextSearchPageToken ?? "").isEmpty
+    }
+
     var recentSearches: [String] {
         UserDefaults.standard.stringArray(forKey: Self.userDefaultsKeyForRecentSearches) ?? []
     }
@@ -238,6 +254,7 @@ extension BibleReaderViewModel {
     private func resetSearch() {
         searchQuery = ""
         submittedSearchQuery = nil
+        searchCanonFilter = .both
         clearSuggestedSearchQueries()
         clearSearchResults()
     }
