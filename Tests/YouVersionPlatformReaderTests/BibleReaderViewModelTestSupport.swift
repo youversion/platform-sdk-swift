@@ -168,6 +168,9 @@ enum BibleReaderViewModelTestSupport {
         UserDefaults.standard.removeObject(forKey: displayIntroKey)
         UserDefaults.standard.removeObject(forKey: showsFullChapterKey)
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
+    }
+
+    static func clearRecentSearches() {
         UserDefaults.standard.removeObject(forKey: recentSearchesKey)
     }
 
