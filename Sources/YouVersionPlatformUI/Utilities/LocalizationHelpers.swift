@@ -13,5 +13,5 @@ public extension String {
 private extension Bundle {
     static let YouVersionUIEnglishBundle: Bundle? = Bundle.YouVersionUIBundle
         .path(forResource: "en", ofType: "lproj")
-        .flatMap(Bundle.init(path:))
+        .flatMap { Bundle(path: $0) }
 }
