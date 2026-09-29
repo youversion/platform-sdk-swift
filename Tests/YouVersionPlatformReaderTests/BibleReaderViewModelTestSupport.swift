@@ -81,6 +81,7 @@ enum BibleReaderViewModelTestSupport {
     static let displayIntroKey = "bible-reader-view--displayintro"
     static let showsFullChapterKey = "bible-reader-view--showsfullchapter"
     static let readerSettingsKey = "bible-reader-view--readersettings"
+    static let recentSearchesKey = "bible-reader-view--recentsearches"
 
     @MainActor
     static func makeViewModel(
@@ -167,6 +168,10 @@ enum BibleReaderViewModelTestSupport {
         UserDefaults.standard.removeObject(forKey: displayIntroKey)
         UserDefaults.standard.removeObject(forKey: showsFullChapterKey)
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
+    }
+
+    static func clearRecentSearches() {
+        UserDefaults.standard.removeObject(forKey: recentSearchesKey)
     }
 
 }
