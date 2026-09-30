@@ -100,6 +100,36 @@ else
   FAIL=$((FAIL + 1))
 fi
 
+# A cancelled preview means a newer event superseded this run, not that release impact is
+# unknown. Reporting it as blocked paints the PR red for work already being re-evaluated,
+# which is what Jeff hit after signing off.
+if grep -q 'PREVIEW_RESULT" = "cancelled"' "$WORKFLOW"; then
+  echo "  ✓ a cancelled preview is treated as superseded, not as unknown impact"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ a cancelled preview still reports unknown release impact"
+  FAIL=$((FAIL + 1))
+fi
+# And no status writer may fire on that superseded run, or the exit-0 above would let the
+# no-breaking-change writer post a green success for an evaluation that never finished.
+writers=$(grep -c "steps.decision.outputs.superseded != '1'" "$WORKFLOW")
+if [ "$writers" -ge 6 ]; then
+  echo "  ✓ every status writer stands down on a superseded run ($writers)"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ only $writers status writers check for a superseded run"
+  FAIL=$((FAIL + 1))
+fi
+# Cancellation also has to stop the jobs themselves, or an older run publishes after its
+# replacement has started.
+if [ "$(grep -c 'always() && !cancelled()' "$WORKFLOW")" -ge 3 ]; then
+  echo "  ✓ terminal jobs and steps are guarded against cancellation"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ an always() writer can publish after its replacement starts"
+  FAIL=$((FAIL + 1))
+fi
+
 echo "collect-release-signoffs.sh release-commit filter:"
 # release.sh pushes its own commits straight to main, so those legitimately have
 # no PR. If the collector stopped skipping them, every release would block on the

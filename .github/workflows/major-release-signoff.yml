@@ -174,7 +174,7 @@ jobs:
   # where there is nothing to evaluate and nothing to report. Treating that as unresolved is
   # what made every Greptile comment fail this workflow on main.
   context_unresolved:
-    if: always() && needs.context.result == 'failure'
+    if: always() && !cancelled() && needs.context.result == 'failure'
     name: Signoff status when context is unresolved
     needs: context
     runs-on: ubuntu-latest
@@ -216,7 +216,7 @@ jobs:
     # Narrowed to a resolved context. A *failed* context is handled by the job above, which
     # posts the red status the gate cannot address without a head SHA. A *skipped* one is a
     # bot comment with nothing to evaluate, and must not fail the run.
-    if: always() && needs.context.result == 'success'
+    if: always() && !cancelled() && needs.context.result == 'success'
     name: Major release signoff
     needs: [context, preview]
     runs-on: ubuntu-latest
@@ -244,6 +244,18 @@ jobs:
           # Fail closed. A fork, or a preview that did not succeed, means the release impact
           # is unknown. Keep the gate red, but do not classify that uncertainty as a
           # confirmed breaking change or offer signoff instructions for an unknown result.
+          # A cancelled preview means a newer event superseded this run, not that the
+          # release impact is unknown. Reporting it as blocked paints the PR red for work
+          # that is already being re-evaluated.
+          if [ "$PREVIEW_RESULT" = "cancelled" ]; then
+            echo "Release preview was cancelled; a newer run supersedes this one."
+            echo "blocked=" >> "$GITHUB_OUTPUT"
+            echo "is_major=0" >> "$GITHUB_OUTPUT"
+            echo "next=" >> "$GITHUB_OUTPUT"
+            echo "release_type=" >> "$GITHUB_OUTPUT"
+            echo "superseded=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "$IS_FORK" = "true" ] || [ "$PREVIEW_RESULT" != "success" ]; then
             if [ "$IS_FORK" = "true" ]; then
               echo "blocked=pull request is from a fork, so its release preview is not trusted" >> "$GITHUB_OUTPUT"
@@ -271,7 +283,7 @@ jobs:
           echo "release_type=$PREVIEW_RELEASE_TYPE" >> "$GITHUB_OUTPUT"
 
       - name: Post a blocked status when release impact is unknown
-        if: steps.decision.outputs.blocked != ''
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ needs.context.outputs.head_sha }}
@@ -287,7 +299,7 @@ jobs:
           echo "Unable to determine release impact: $BLOCKED"
 
       - name: Mark PRs without a breaking change as success and exit
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major != '1'
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ needs.context.outputs.head_sha }}
@@ -303,7 +315,7 @@ jobs:
 
       - name: Search PR comments for valid approver signoff
         id: signoff
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1'
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ needs.context.outputs.pr_number }}
@@ -428,7 +440,7 @@ jobs:
           fi
 
       - name: Post success status when signoff present
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off == '1'
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ needs.context.outputs.head_sha }}
@@ -449,7 +461,7 @@ jobs:
         # pointing at a commit that is no longer current, and the signoff silently fails to
         # match. It is an upsert, so re-running only edits the existing comment. Bot comments
         # never reach here: `context` skips them, so this cannot feed itself.
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ needs.context.outputs.pr_number }}
@@ -503,7 +515,7 @@ jobs:
           fi
 
       - name: Post failure status when signoff missing
-        if: steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
+        if: steps.decision.outputs.superseded != '1' && steps.decision.outputs.blocked == '' && steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ needs.context.outputs.head_sha }}
@@ -518,7 +530,7 @@ jobs:
             -f target_url="$RUN_URL"
 
       - name: Fail the job so the gate is loud in the PR UI
-        if: always() && ((steps.decision.outputs.blocked != '') || (steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'))
+        if: always() && !cancelled() && steps.decision.outputs.superseded != '1' && ((steps.decision.outputs.blocked != '') || (steps.decision.outputs.is_major == '1' && steps.signoff.outputs.signed_off != '1'))
         env:
           BLOCKED: ${{ steps.decision.outputs.blocked }}
         run: |
