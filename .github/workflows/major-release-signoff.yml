@@ -217,7 +217,7 @@ jobs:
     # posts the red status the gate cannot address without a head SHA. A *skipped* one is a
     # bot comment with nothing to evaluate, and must not fail the run.
     if: always() && !cancelled() && needs.context.result == 'success'
-    name: Major release signoff
+    name: Evaluate release signoff
     needs: [context, preview]
     runs-on: ubuntu-latest
     permissions:
