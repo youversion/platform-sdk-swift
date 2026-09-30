@@ -160,14 +160,63 @@ jobs:
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
           echo "release_type=$RELEASE_TYPE" >> "$GITHUB_OUTPUT"
 
+  # `context` is what resolves the head SHA, so when it fails the gate below is skipped and
+  # whatever status was last written to that SHA stands, including a `success` whose signoff
+  # comment has since been edited or deleted. Write a failing status so a revocation can
+  # never leave a stale green on a major release.
+  #
+  # The head SHA has to come from somewhere other than the API call that just failed.
+  # `pull_request` payloads carry it; `issue_comment` payloads do not, so read
+  # `refs/pull/N/head` over git, which is a different backend from the REST call in
+  # `context` and needs no scope beyond `contents: read`.
+  #
+  # `failure`, not `!= 'success'`: `context` is also *skipped* by design on a bot comment,
+  # where there is nothing to evaluate and nothing to report. Treating that as unresolved is
+  # what made every Greptile comment fail this workflow on main.
+  context_unresolved:
+    if: always() && needs.context.result == 'failure'
+    name: Signoff status when context is unresolved
+    needs: context
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Post an unresolved status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PAYLOAD_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$PAYLOAD_HEAD_SHA"
+          if [ -z "$HEAD_SHA" ]; then
+            HEAD_SHA=$(git ls-remote \
+              "https://x-access-token:$GH_TOKEN@github.com/$REPOSITORY" \
+              "refs/pull/$EVENT_ISSUE_NUMBER/head" | cut -f1) || HEAD_SHA=""
+          fi
+          if ! [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::PR context is unresolved and no head SHA could be recovered."
+            exit 1
+          fi
+          gh api "repos/$REPOSITORY/statuses/$HEAD_SHA" \
+            -f state=failure \
+            -f context="$STATUS_CONTEXT" \
+            -f description="Could not resolve PR context; release impact is unknown." \
+            -f target_url="$RUN_URL" > /dev/null
+          echo "Posted a failing status: PR context could not be resolved."
+          exit 1
+
   gate:
     # `always()`: preview is skipped for forks and the gate still has to post a status.
     # This job writes statuses and comments, and deliberately never checks out PR code.
     #
-    # Deliberately not gated on `needs.context.result == 'success'`. Skipping the gate when
-    # context fails leaves no status at all, and a skipped job check reads as passing, so a
-    # transient API error would look like approval.
-    if: always()
+    # Narrowed to a resolved context. A *failed* context is handled by the job above, which
+    # posts the red status the gate cannot address without a head SHA. A *skipped* one is a
+    # bot comment with nothing to evaluate, and must not fail the run.
+    if: always() && needs.context.result == 'success'
     name: Major release signoff
     needs: [context, preview]
     runs-on: ubuntu-latest

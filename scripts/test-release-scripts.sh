@@ -76,6 +76,30 @@ assert_stderr_empty() {
   fi
 }
 
+echo "signoff workflow: skipped context is not a failure"
+WORKFLOW=.github/workflows/major-release-signoff.yml
+# `context` skips by design on a bot comment. Before this, the gate ran anyway with
+# `always()`, read the skip as an unresolved context, and failed the workflow on main every
+# time Greptile commented on a PR.
+if awk '/^  gate:/{f=1} f&&/^    if:/{print;exit}' "$WORKFLOW" |
+  grep -q "needs.context.result == 'success'"; then
+  echo "  ✓ the gate runs only on a resolved context"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ the gate runs on a skipped context, so a bot comment fails the workflow"
+  FAIL=$((FAIL + 1))
+fi
+# And a genuinely failed context still has to publish red, or the gate skipping leaves no
+# status at all and a missing required check reads as passing.
+if awk '/^  context_unresolved:/{f=1} f&&/^    if:/{print;exit}' "$WORKFLOW" |
+  grep -q "needs.context.result == 'failure'"; then
+  echo "  ✓ a failed context still posts a red status"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ no job posts a status when the context fails"
+  FAIL=$((FAIL + 1))
+fi
+
 echo "collect-release-signoffs.sh release-commit filter:"
 # release.sh pushes its own commits straight to main, so those legitimately have
 # no PR. If the collector stopped skipping them, every release would block on the
