@@ -91,6 +91,15 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0.50 * fontSize
                 stateDown.marginBottom = 0.15 * fontSize
 
+            case "io", "io1":
+                stateUp.headIndent = 2
+
+            case "io2":
+                stateUp.headIndent = 3
+
+            case "io3":
+                stateUp.headIndent = 4
+
             case "ior":
                 break
 
@@ -119,6 +128,15 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 2
                 stateDown.marginBottom = 0.50 * fontSize
+
+            case "is2":
+                stateDown.currentFont = .font100em700
+                stateDown.alignment = .center
+                stateDown.marginTop = 0.50 * fontSize
+                stateDown.marginBottom = 0.50 * fontSize
+
+            case "lf":
+                break
 
             case "lh":
                 stateDown.marginTop = 0.50 * fontSize
@@ -244,6 +262,9 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 0.25 * fontSize
                 stateUp.firstLineHeadIndent = 1
 
+            case "pr":
+                stateDown.alignment = .trailing
+
             case "q", "q1", "iq", "iq1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
@@ -357,21 +378,7 @@ final class BibleVersionRenderingStyles {
 
             // The tags below here are not yet adjusted for our new
             // typography standards; they may or may not reflect the new way.
-            case "pr":
-                stateDown.alignment = .trailing
-
-            case "is2":
-                stateDown.currentFont = .font100em500
-                stateDown.alignment = .center
-                stateDown.marginTop = fontSize / 3
-
-            case "io", "io1":
-                stateUp.headIndent = 2
-
-            case "io2":
-                stateUp.headIndent = 3
-
-            case "io3", "io4":
+            case "io4":
                 stateUp.headIndent = 4
 
             case "imt4":
@@ -380,7 +387,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
 
-            case "b", "lf":
+            case "b":
                 break
 
             default:
