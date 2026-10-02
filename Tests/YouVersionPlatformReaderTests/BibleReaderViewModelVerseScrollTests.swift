@@ -1,6 +1,6 @@
 import Testing
 @testable import YouVersionPlatformCore
-@testable import YouVersionPlatformReader
+@_spi(Typography) @testable import YouVersionPlatformReader
 
 @MainActor
 @Suite(.serialized) struct BibleReaderViewModelVerseScrollTests {
@@ -280,6 +280,28 @@ import Testing
 
 @MainActor
 @Suite struct BibleReaderNavigationTests {
+    @Test
+    func ordinaryRequestDoesNotInheritTypographyPresentation() {
+        let navigation = BibleReaderNavigation()
+        let reference = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
+        navigation.requestTypography(reference, footnoteIndex: 2)
+        navigation.request(reference)
+
+        #expect(navigation.pendingRequest?.typographyOptions == nil)
+        #expect(navigation.pendingRequest?.showsFullChapter == false)
+    }
+
+    @Test
+    func retryTypographyExampleClearsPreviousFailure() {
+        let navigation = BibleReaderNavigation()
+        navigation.reportTypographyError("Missing footnote")
+        navigation.requestTypography(BibleReference(versionId: 93, bookId: "EXO", chapter: 1), showsIntroduction: true)
+
+        #expect(navigation.typographyError == nil)
+        #expect(navigation.pendingRequest?.typographyOptions?.showsIntroduction == true)
+        #expect(navigation.pendingRequest?.typographyOptions?.footnoteIndex == nil)
+    }
+
     @Test
     func requestSetsPendingRequest() {
         let navigation = BibleReaderNavigation()

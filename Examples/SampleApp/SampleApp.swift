@@ -10,7 +10,7 @@ struct SampleApp: App {
     init() {
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
-            appKey: "0l11yjhHCGe1vmAGoceT7yFhXdDu4O7UZTxToqOAfiqjsIA9", // prod SampleApp
+            appKey: ProcessInfo.processInfo.environment["YVP_APP_KEY"] ?? "<#Your App Key#>", // prod SampleApp
             appName: String(localized: "app.name"),
             signInPromptMessage: String(localized: "app.sign_in_prompt")
         )

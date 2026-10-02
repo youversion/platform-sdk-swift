@@ -16,6 +16,9 @@ final class BibleVersionRenderingStyles {
         for c in classes {
             switch c {
                 
+            case "cd":
+                stateDown.currentFont = classes.contains("yv-h") ? .font100em500Italic : .font100emItalic
+
             case "cl":
                 stateDown.alignment = .center
                 stateDown.currentFont = .font117em500
@@ -35,6 +38,11 @@ final class BibleVersionRenderingStyles {
             case "iex":
                 stateUp.firstLineHeadIndent = 1
                 stateUp.headIndent = 0
+
+            case "imi":
+                stateDown.marginBottom = 0.60 * fontSize
+                stateUp.firstLineHeadIndent = 0
+                stateUp.headIndent = 2
 
             case "imq":
                 stateDown.currentFont = .font100emItalic
@@ -69,8 +77,37 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0.15 * fontSize
                 stateDown.marginBottom = 0.15 * fontSize
 
+            case "imte", "imte1":
+                stateDown.textCategory = .header
+                stateDown.currentFont = .font100em700
+                stateDown.alignment = .center
+                stateDown.marginTop = fontSize
+                stateDown.marginBottom = 0.25 * fontSize
+
+            case "imte2":
+                stateDown.textCategory = .header
+                stateDown.currentFont = .font100emItalic
+                stateDown.alignment = .center
+                stateDown.marginTop = 0.50 * fontSize
+                stateDown.marginBottom = 0.15 * fontSize
+
             case "ior":
                 break
+
+            case "iot":
+                stateDown.currentFont = .font100em700
+                stateDown.alignment = .center
+                stateDown.marginTop = 0.50 * fontSize
+                stateDown.marginBottom = 0.50 * fontSize
+
+            case "ipq":
+                stateDown.currentFont = .font100emItalic
+                stateUp.firstLineHeadIndent = 1
+                stateUp.headIndent = 2
+
+            case "ipr":
+                stateDown.currentFont = .font100emItalic
+                stateDown.alignment = .trailing
 
             case "is":
                 stateDown.currentFont = .font100em500
@@ -107,7 +144,7 @@ final class BibleVersionRenderingStyles {
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 8
 
-            case "lim":
+            case "lim", "lim1":
                 stateUp.firstLineHeadIndent = 0
                 stateUp.headIndent = 2
 
@@ -145,7 +182,7 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
 
-            case "mt1":
+            case "mt", "mt1":
                 stateDown.textCategory = .header
                 stateDown.currentFont = .font117em500
                 stateDown.alignment = .center
@@ -235,6 +272,9 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginBottom = 0
                 stateDown.marginTop = 0
 
+            case "qd":
+                stateDown.currentFont = .font100emItalic
+
             case "qm":
                 stateDown.marginBottom = 0.50 * fontSize
                 stateDown.marginTop = 0.50 * fontSize
@@ -317,18 +357,8 @@ final class BibleVersionRenderingStyles {
 
             // The tags below here are not yet adjusted for our new
             // typography standards; they may or may not reflect the new way.
-            case "imi":
-                stateDown.marginBottom = 0.60 * fontSize
-                stateUp.firstLineHeadIndent = 1
-                stateUp.headIndent = 0
-
             case "pr":
                 stateDown.alignment = .trailing
-
-            case "iot":
-                stateDown.currentFont = .font100em500
-                stateDown.alignment = .center
-                stateDown.marginTop = fontSize / 3
 
             case "is2":
                 stateDown.currentFont = .font100em500
@@ -343,18 +373,6 @@ final class BibleVersionRenderingStyles {
 
             case "io3", "io4":
                 stateUp.headIndent = 4
-
-            case "imte", "imte1":
-                stateDown.textCategory = .header
-                stateDown.currentFont = .font100em500
-                stateDown.alignment = .center
-
-            case "imte2":
-                stateDown.textCategory = .header
-                stateDown.currentFont = .font100emItalic
-                stateDown.alignment = .center
-                stateDown.marginTop = fontSize / 2
-                stateDown.marginBottom = 0.25 * fontSize
 
             case "imt4":
                 stateDown.textCategory = .header
@@ -401,10 +419,10 @@ final class BibleVersionRenderingStyles {
             case "rq":
                 stateDown.currentFont = .font083emItalic
 
-            case "tl", "it", "add", "em", "fq", "fqa", "qac", "qs", "qt", "bk", "sig", "litl":
+            case "tl", "it", "add", "em", "fq", "fqa", "qac", "qs", "qt", "bk", "sig", "litl", "sls", "iqt":
                 stateDown.currentFont = .font100emItalic
 
-            case "bd":
+            case "bd", "k":
                 stateDown.currentFont = .font100em700
 
             case "pn":

@@ -62,13 +62,46 @@ extension BibleReaderViewModel {
             return
         }
         readerNavigation.clearPendingRequest()
+        showingFootnotes = false
+        typographyFootnoteIndex = nil
         if request.shouldFocus && !request.scrollsToVerse {
             removeVerseSelection()
             focusReference(request.reference)
         } else {
             Task {
+                if let options = request.typographyOptions, options.showsIntroduction {
+                    await onHeaderSelectionChange(request.reference, showIntro: true)
+                    return
+                }
                 await goToReference(request.reference, showsFullChapter: request.showsFullChapter, shouldFocus: request.shouldFocus)
+                if let index = request.typographyOptions?.footnoteIndex, reference == request.reference {
+                    await openTypographyFootnote(at: index, navigation: readerNavigation)
+                }
             }
+        }
+    }
+
+    private func openTypographyFootnote(at index: Int, navigation: BibleReaderNavigation) async {
+        let target = reference
+        let options = textOptions
+        do {
+            let blocks = try await BibleVersionRendering.textBlocks(
+                reference: target,
+                fonts: BibleTextFonts(familyName: options.fontFamily, baseSize: options.fontSize)
+            )
+            guard reference == target else {
+                return
+            }
+            let notes = (blocks ?? []).flatMap(\.footnotes).filter { $0.reference == target }
+            guard notes.indices.contains(index) else {
+                navigation.reportTypographyError("Footnote index \(index) is unavailable at \(target).")
+                return
+            }
+            footnotesToDisplay = notes
+            typographyFootnoteIndex = index
+            showingFootnotes = true
+        } catch {
+            navigation.reportTypographyError("Could not open footnote: \(error.localizedDescription)")
         }
     }
 
@@ -118,6 +151,7 @@ extension BibleReaderViewModel {
 
     func handleVerseTap(reference: BibleReference, actionType: String, footnotes: [BibleFootnote]) {
         if actionType == BibleVersionRendering.LinkSchemes.footnote.rawValue {
+            typographyFootnoteIndex = nil
             showingFootnotes = true
             footnotesToDisplay = footnotes
             return
