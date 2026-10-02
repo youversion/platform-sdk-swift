@@ -6,17 +6,6 @@ struct BibleReaderFootnotesView: View {
     @State private var footnotes: [BibleFootnote] = []
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            content
-                .onChange(of: footnotes) { _, notes in
-                    if let index = viewModel.typographyFootnoteIndex, index > 0, notes.indices.contains(index) {
-                        scrollProxy.scrollTo(index, anchor: .top)
-                    }
-                }
-        }
-    }
-
-    private var content: some View {
         VStack(alignment: .leading) {
             if let version = viewModel.version,
                 let reference = viewModel.footnotesToDisplay.first?.reference {
@@ -38,7 +27,6 @@ struct BibleReaderFootnotesView: View {
                                 Text(footnote.text.asAttributedString)
                                     .multilineTextAlignment(.leading)
                             }
-                            .id(index)
                             Divider()
                                 .padding(.vertical, 8)
                         }

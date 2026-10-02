@@ -81,7 +81,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
-    var typographyFootnoteIndex: Int?
     let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
 
     // MARK: - Font settings

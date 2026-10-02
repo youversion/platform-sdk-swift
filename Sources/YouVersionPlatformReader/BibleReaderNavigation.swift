@@ -10,42 +10,12 @@ public final class BibleReaderNavigation {
         public let showsFullChapter: Bool
         public let scrollsToVerse: Bool
         public let shouldFocus: Bool
-        var typographyOptions: TypographyOptions?
     }
-
-    struct TypographyOptions: Equatable, Sendable {
-        let showsIntroduction: Bool
-        let footnoteIndex: Int?
-    }
-
-    private var typographyErrorMessage: String?
-
-    @_spi(Typography) public var typographyError: String? { typographyErrorMessage }
 
     /// The request the reader should act on next.
     public private(set) var pendingRequest: Request?
 
     public init() {}
-
-    /// Opens a sample-app typography example using the normal Reader. Footnote indexes are zero-based within a verse.
-    @_spi(Typography) public func requestTypography(
-        _ reference: BibleReference,
-        showsIntroduction: Bool = false,
-        footnoteIndex: Int? = nil
-    ) {
-        typographyErrorMessage = nil
-        pendingRequest = Request(
-            reference: reference,
-            showsFullChapter: true,
-            scrollsToVerse: true,
-            shouldFocus: false,
-            typographyOptions: TypographyOptions(showsIntroduction: showsIntroduction, footnoteIndex: footnoteIndex)
-        )
-    }
-
-    func reportTypographyError(_ message: String) {
-        typographyErrorMessage = message
-    }
 
     /// Requests that the connected reader move to `reference`. Safe to call from
     /// any view that shares this object — the reader need not be on screen yet; it

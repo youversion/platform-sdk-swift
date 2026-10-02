@@ -47,7 +47,6 @@ import Testing
         let viewModel = Support.makeViewModel()
         let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let footnote = BibleFootnote(text: BibleAttributedString("Footnote"), reference: reference, id: "one")
-        viewModel.typographyFootnoteIndex = 2
 
         viewModel.handleVerseTap(
             reference: reference,
@@ -57,7 +56,6 @@ import Testing
 
         #expect(viewModel.showingFootnotes)
         #expect(viewModel.footnotesToDisplay == [footnote])
-        #expect(viewModel.typographyFootnoteIndex == nil)
     }
 
     @Test
