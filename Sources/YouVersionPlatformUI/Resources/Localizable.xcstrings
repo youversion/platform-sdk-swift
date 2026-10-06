@@ -9949,6 +9949,192 @@
       },
       "comment" : "Standard text for OK confirmation; used in dialogs across the app."
     },
+    "generic.requestErrorBody" : {
+      "comment" : "Body of an alert when a request cannot currently be completed, including when a usage limit has been reached. Does not assign fault or promise when the request will become available.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This request can’t be completed right now."
+          }
+        },
+        "af" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ig" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sr-Latn" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        },
+        "cy" : {
+          "stringUnit" : {
+            "state" : "needs_translation",
+            "value" : ""
+          }
+        }
+      }
+    },
     "generic.search" : {
       "extractionState" : "manual",
       "localizations" : {
