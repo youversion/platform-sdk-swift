@@ -14173,7 +14173,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@is succesvol gedownload."
+            "value" : "%@ is succesvol gedownload."
           }
         },
         "nb" : {
@@ -14731,7 +14731,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Het was niet mogelijk om %@te downloaden.\n\n%@"
+            "value" : "Het was niet mogelijk om %@ te downloaden.\n\n%@"
           }
         },
         "nb" : {
