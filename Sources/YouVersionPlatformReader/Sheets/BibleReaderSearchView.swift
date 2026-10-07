@@ -237,13 +237,15 @@ struct BibleReaderSearchView: View {
             }
 
             if showsSearchFilters {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ViewThatFits(in: .horizontal) {
                     HStack(spacing: 8) {
-                        ForEach(SearchCanonFilter.allCases, id: \.self) { filter in
-                            canonFilterChip(filter)
-                        }
+                        canonFilterChips
+                    }
+                    VStack(alignment: .leading, spacing: 0) {
+                        canonFilterChips
                     }
                 }
+                .padding(.vertical, -6)
             }
         }
         .frame(maxWidth: viewModel.readerMaxWidth)
@@ -251,6 +253,12 @@ struct BibleReaderSearchView: View {
         .padding(.top, 8)
         .padding(.bottom, showsSearchFilters ? 16 : 0)
         .frame(maxWidth: .infinity)
+    }
+
+    private var canonFilterChips: some View {
+        ForEach(SearchCanonFilter.allCases, id: \.self) { filter in
+            canonFilterChip(filter)
+        }
     }
 
     private func canonFilterChip(_ filter: SearchCanonFilter) -> some View {
@@ -271,7 +279,8 @@ struct BibleReaderSearchView: View {
                             .strokeBorder(viewModel.readerBorderSecondaryColor, lineWidth: 1)
                     }
                 }
-                .contentShape(Capsule())
+                .padding(.vertical, 6)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
