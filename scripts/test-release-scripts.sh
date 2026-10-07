@@ -217,6 +217,11 @@ HUMAN_POSTED='[{"pr":1,"state":"success","description":"Major v6.0.0 signed off 
 # own commits are filtered out by the collector, so anything left is unreviewed.
 DIRECT_COMMIT='{"pr":null,"commit":"1f0e6b6a9","subject":"feat: adjust highlight colors","state":"unreviewed","description":null,"creator":null,"creator_type":null}'
 SIGNED_PLUS_DIRECT="[$GATE_OK,$DIRECT_COMMIT]"
+# Cam's range-wide provenance point: the authorizing status already had to come from the
+# gate, but every *other* success in the range was taken at face value. A PR author can POST
+# a success to any context, so a forged one made an unevaluated PR read as cleared while a
+# genuine signoff on a different PR carried the release.
+FORGED_IN_RANGE="[$GATE_OK,{\"pr\":9,\"state\":\"success\",\"description\":\"No breaking change (patch); signoff not required.\",\"creator\":\"Kyleasmth\",\"creator_type\":\"User\"}]"
 
 assert_exit  0 "major with a signoff naming it → accept"   run_signoff "$SIGNED" 6.0.0 5.5.0
 assert_exit  0 "v-prefixed current tag is coerced"         run_signoff "$SIGNED" 6.0.0 v5.5.0
@@ -238,6 +243,12 @@ assert_exit  1 "an errored PR blocks even with another signed" run_signoff "$SIG
 assert_exit  1 "free-form text naming the version is not a signoff" run_signoff "$FREEFORM" 6.0.0 5.5.0
 assert_exit  1 "the exact sentence posted by a human is refused"    run_signoff "$HUMAN_POSTED" 6.0.0 5.5.0
 assert_exit  1 "a direct push with no PR blocks even with another signed" run_signoff "$SIGNED_PLUS_DIRECT" 6.0.0 5.5.0
+assert_exit  1 "a human-posted success elsewhere in the range blocks"     run_signoff "$FORGED_IN_RANGE" 6.0.0 5.5.0
+# `find` returns the element, so a falsy one made `if (hit)` false and the record skipped
+# every check. A record this script cannot read must never read as approval.
+assert_exit  1 "a null record cannot slip past the checks"               run_signoff "[$GATE_OK,null]" 6.0.0 5.5.0
+assert_exit  1 "a false record cannot slip past the checks"              run_signoff "[$GATE_OK,false]" 6.0.0 5.5.0
+assert_stderr_contains "the gate did not write" "…and says it was not gate-issued" run_signoff "$FORGED_IN_RANGE" 6.0.0 5.5.0
 assert_exit  0 "a direct push is fine on a non-major bump"         run_signoff "$SIGNED_PLUS_DIRECT" 5.6.0 5.5.0
 assert_exit  0 "an unseen PR is fine on a non-major bump"    run_signoff "$MISSING" 5.6.0 5.5.0
 assert_exit  1 "non-semver version → usage error"           run_signoff '[]' 6.0 5.5.0

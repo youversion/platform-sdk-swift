@@ -82,6 +82,20 @@ if (!Array.isArray(records)) {
 // reached main unreviewed, and one PR's approval must not cover it.
 const GATE_IDENTITY = "github-actions[bot]";
 
+// `find` returns the element, so a falsy one (null, false, 0, "") makes `if (hit)` false and
+// the record is never judged at all, skipping every check below. The collector builds each
+// element with `jq -c` so it cannot emit one today, but a record this script cannot read must
+// never be read as approval. Reject the shape up front instead of relying on truthiness.
+const malformed = records.findIndex((r) => r === null || typeof r !== "object" || Array.isArray(r));
+if (malformed !== -1) {
+  block(
+    `Signoff record at index ${malformed} is not an object, so it cannot be checked. ` +
+      `Refusing to authorize a release from records this script cannot read.`,
+  );
+}
+
+const isGateIssued = (r) => r?.creator === GATE_IDENTITY && r?.creator_type === "Bot";
+
 const unresolved = records.find((r) => r?.state !== "success");
 if (unresolved) {
   if (unresolved.state === "unreviewed") {
@@ -103,6 +117,19 @@ if (unresolved) {
   );
 }
 
+// A success is only evidence if the gate wrote it. Anyone with write access can POST a status
+// to any context, so without this a PR author could stamp their own `success` on the context and
+// have the range read as fully evaluated. Checked after the state loop above so the synthetic
+// `unreviewed` and `missing` records, which carry no creator, report their clearer reasons first.
+const forged = records.find((r) => !isGateIssued(r));
+if (forged) {
+  block(
+    `PR #${forged.pr} has a successful major-release-signoff status that the gate did not ` +
+      `write (posted by ${forged.creator ?? "an unknown author"}). A status anyone can POST is ` +
+      `not evidence the breaking-change gate ran.`,
+  );
+}
+
 // Match the sentence the gate writes, not a version appearing somewhere in free
 // text. Anyone with write access can POST a status to any context, so a loose
 // match would let a PR author self-authorize a major and skip the second pair of
@@ -115,11 +142,9 @@ const match = records.find(
   (r) =>
     typeof r.description === "string" &&
     SIGNOFF_SENTENCE.test(r.description.trim()) &&
-    // Provenance: the gate posts as the Actions bot. This does not prove the
-    // status came from *this* workflow, since anything in the repo posts under
-    // the same identity, but it does stop a status written by a person.
-    r.creator === GATE_IDENTITY &&
-    r.creator_type === "Bot",
+    // Provenance: every record in the range is held to this same bar above; repeated
+    // here so the authorizing status is never matched on its description alone.
+    isGateIssued(r),
 );
 
 if (!match) {
