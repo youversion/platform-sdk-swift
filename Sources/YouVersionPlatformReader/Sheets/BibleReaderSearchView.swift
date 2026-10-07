@@ -45,21 +45,21 @@ struct BibleReaderSearchView: View {
 
             if viewModel.searchStatus == .failed {
                 searchStateView(
-                    systemImage: "exclamationmark.circle",
+                    image: Image(systemName: "exclamationmark.circle"),
                     title: String.localized("generic.error")
                 )
             } else if viewModel.searchStatus == .completed
                         && viewModel.searchResults.isEmpty
                         && !viewModel.hasNextSearchPage {
                 searchStateView(
-                    systemImage: "magnifyingglass",
+                    image: magnifyingGlassImage,
                     title: String.localized("noBibleSearchResults")
                 )
             } else if viewModel.searchStatus == .completed {
                 searchResultsHeader
                 if viewModel.filteredSearchResults.isEmpty && !viewModel.hasNextSearchPage {
                     searchStateView(
-                        systemImage: "magnifyingglass",
+                        image: magnifyingGlassImage,
                         title: String.localized("noBibleSearchResults")
                     )
                 } else {
@@ -93,8 +93,7 @@ struct BibleReaderSearchView: View {
                 searchQuerySection(
                     heading: nil,
                     queries: isSearchQueryBlank ? [] : viewModel.suggestedSearchQueries.map(\.text),
-                    icon: Image(systemName: "magnifyingglass")
-                        .font(.body)
+                    icon: magnifyingGlassImage
                 )
             }
             .frame(maxWidth: viewModel.readerMaxWidth)
@@ -151,6 +150,11 @@ struct BibleReaderSearchView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    private var magnifyingGlassImage: Image {
+        Image("magnifying-glass", bundle: .YouVersionUIBundle)
+            .renderingMode(.template)
     }
 
     private var searchResultsScrollView: some View {
@@ -245,6 +249,7 @@ struct BibleReaderSearchView: View {
         .frame(maxWidth: viewModel.readerMaxWidth)
         .padding(.horizontal, 20)
         .padding(.top, 8)
+        .padding(.bottom, showsSearchFilters ? 16 : 0)
         .frame(maxWidth: .infinity)
     }
 
@@ -255,10 +260,10 @@ struct BibleReaderSearchView: View {
             viewModel.searchCanonFilter = filter
         } label: {
             Text(canonFilterTitle(filter))
-                .font(.callout.weight(.semibold))
+                .font(.subheadline)
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(isSelected ? viewModel.readerButtonSecondaryColor : .clear, in: Capsule())
                 .overlay {
                     if !isSelected {
@@ -280,9 +285,9 @@ struct BibleReaderSearchView: View {
         }
     }
 
-    private func searchStateView(systemImage: String, title: String) -> some View {
+    private func searchStateView(image: Image, title: String) -> some View {
         VStack(spacing: 12) {
-            Image(systemName: systemImage)
+            image
                 .font(.title2)
             Text(title)
                 .font(.body)
@@ -344,7 +349,8 @@ private struct BibleReaderSearchHeaderView: View {
 
         return HStack(spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
+                Image("magnifying-glass", bundle: .YouVersionUIBundle)
+                    .renderingMode(.template)
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()
