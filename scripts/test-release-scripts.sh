@@ -150,6 +150,48 @@ else
   FAIL=$((FAIL + 1))
 fi
 
+echo "collect-release-signoffs.sh paginated status history:"
+# `gh api --paginate --jq` runs the filter once per page, so a status context that
+# spans two pages used to yield one record per page. A latest success beside an
+# older failure then blocked the release no matter how often the gate was rerun.
+# The fake gh mirrors that per-page behaviour, and `--slurp`'s array of pages.
+GH_FAKE=$(mktemp -d)
+cat >"$GH_FAKE/gh" <<'FAKE'
+#!/bin/bash
+endpoint="" filter="" slurp=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    api|--paginate) ;;
+    --jq) filter=$2; shift ;;
+    --slurp) slurp=1 ;;
+    *) endpoint=$1 ;;
+  esac
+  shift
+done
+case "$endpoint" in
+  */compare/*) pages=('{"commits":[{"sha":"c1","commit":{"author":{"name":"dev"},"message":"feat: x"}}]}') ;;
+  */commits/c1/pulls) pages=('[{"number":7,"head":{"sha":"h7"}}]') ;;
+  */commits/h7/statuses)
+    bot='"creator":{"login":"github-actions[bot]","type":"Bot"}'
+    pages=("[{\"context\":\"major-release-signoff\",\"state\":\"success\",\"description\":\"new\",$bot}]"
+           "[{\"context\":\"major-release-signoff\",\"state\":\"failure\",\"description\":\"old\",$bot}]") ;;
+  *) echo "fake gh: unexpected $endpoint" >&2; exit 1 ;;
+esac
+if [ "$slurp" = 1 ]; then printf '%s\n' "${pages[@]}" | jq -sc .
+elif [ -n "$filter" ]; then for page in "${pages[@]}"; do jq -rc "$filter" <<<"$page"; done
+else printf '%s\n' "${pages[@]}"; fi
+FAKE
+chmod +x "$GH_FAKE/gh"
+records=$(PATH="$GH_FAKE:$PATH" bash scripts/collect-release-signoffs.sh o/r v5.5.0 2>&1)
+rm -rf "$GH_FAKE"
+if [ "$(jq -c '[.[] | {pr, state}]' <<<"$records" 2>/dev/null)" = '[{"pr":7,"state":"success"}]' ]; then
+  echo "  ✓ one record per PR, the newest status across all pages"
+  PASS=$((PASS + 1))
+else
+  echo "  ✗ expected one success record for PR 7, got: $records"
+  FAIL=$((FAIL + 1))
+fi
+
 echo
 echo "release rules (.releaserc.json):"
 assert_exit 0 "commit types map to the intended release types" \

@@ -72,9 +72,11 @@ while IFS=' ' read -r pr head_sha; do
   # The per-status list, not the combined `/status` endpoint: the combined one
   # omits `creator`, and who posted the status is the only thing separating a
   # gate-produced signoff from one any repo writer can POST by hand. The list is
-  # newest-first, so the first match is the status the gate last wrote.
-  status=$(gh api "repos/$REPO/commits/$head_sha/statuses" --paginate \
-    --jq "[.[] | select(.context == \"$CONTEXT\")] | .[0] // empty")
+  # newest-first, so the first match is the status the gate last wrote. Slurp the
+  # pages and pick across all of them: `--jq` runs once per page, which would
+  # emit an older failure beside the newest success whenever they span pages.
+  status=$(gh api "repos/$REPO/commits/$head_sha/statuses" --paginate --slurp |
+    jq -c --arg context "$CONTEXT" 'add // [] | map(select(.context == $context)) | .[0] // empty')
   if [ -n "$status" ]; then
     record=$(jq -c --argjson pr "$pr" \
       '{pr: $pr, state: .state, description: .description, creator: .creator.login, creator_type: .creator.type}' \
