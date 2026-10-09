@@ -157,6 +157,18 @@ jobs:
             else
               TOOLING=0
             fi
+
+            # A tooling PR is acknowledged on its *diff*, not on the symbol
+            # list: the comment tells the reviewer the list may be wrong and
+            # to read `Sources/` directly. But `hash` covers only the rendered
+            # report, and a tooling PR reporting 0 additions renders the same
+            # report on every push. Without this, an acknowledgment of tooling
+            # change A stays valid for tooling change B on the same PR, which
+            # is the one branch of the gate that exists to stop tampering.
+            # Fold the head SHA in so every push re-asks.
+            if [ "$TOOLING" = "1" ]; then
+              HASH=$(printf '%s%s' "$HASH" "$HEAD_SHA" | sha256sum | cut -c1-12)
+            fi
             HAS_REPORT=1
           else
             PR_NUMBER="${{ github.event.issue.number }}"
@@ -269,7 +281,12 @@ jobs:
               echo
               echo "1. The commenter is a repo collaborator with **write access**."
               echo "2. The commenter is **not the PR author** (@$PR_AUTHOR cannot acknowledge this PR — a second pair of eyes is required)."
-              echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. A new push that changes the addition set changes the hash and invalidates earlier replies."
+              if [ "$TOOLING" = "1" ]; then
+                HASH_NOTE="Because this PR changes the gate's own tooling, the hash is bound to the commit: **any** new push invalidates earlier replies, not just one that changes the addition set."
+              else
+                HASH_NOTE="A new push that changes the addition set changes the hash and invalidates earlier replies."
+              fi
+              echo "3. The reply contains the copy-paste block below **unmodified**, including \`API-hash: $LIST_HASH\`. $HASH_NOTE"
               echo
               echo "Replies that miss any of these are silently ignored: the gate workflow will show a green run, but the check on the PR stays red."
               echo
