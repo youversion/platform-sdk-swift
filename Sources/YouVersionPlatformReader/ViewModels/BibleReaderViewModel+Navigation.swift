@@ -180,6 +180,24 @@ extension BibleReaderViewModel {
         addHighlightOrStartPermissionFlow(references: selectedVerses, color: hex)
     }
 
+    var highlightColorsOnSelectedVerses: [Color] {
+        Set(
+            selectedVerses
+                .flatMap { highlightsViewModel.highlights(for: $0) }
+                .compactMap { normalizedHighlightHex($0.color) }
+        )
+        .sorted()
+        .map { Color(hex: $0) }
+    }
+
+    func normalizedHighlightHex(_ color: String) -> String? {
+        let hex = hexColorValueForComparison(color).lowercased()
+        guard hex.count == 6, hex.allSatisfy(\.isHexDigit) else {
+            return nil
+        }
+        return hex
+    }
+
     func removeVerseColor(_ color: Color) {
         guard let hex = color.hexString else {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")

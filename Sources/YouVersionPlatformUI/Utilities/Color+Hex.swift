@@ -39,6 +39,17 @@ public extension Color {
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 
+    static func isDarkHighlightHex(_ hex: String) -> Bool {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        guard hex.count == 6, let value = UInt64(hex, radix: 16) else {
+            return false
+        }
+        let red = Double((value >> 16) & 0xFF)
+        let green = Double((value >> 8) & 0xFF)
+        let blue = Double(value & 0xFF)
+        return (0.299 * red + 0.587 * green + 0.114 * blue) / 255 < 0.5
+    }
+
     /// returns e.g. "DDAAFF" indicating RGB. Conversion maybe be impossible and if so this will return nil.
     var hexString: String? {
 #if canImport(UIKit)

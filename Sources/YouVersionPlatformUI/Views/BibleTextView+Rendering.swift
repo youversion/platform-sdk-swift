@@ -104,18 +104,30 @@ extension BibleTextView {
                 )
             }
 
-            func drawDimmedFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect) {
-                context.clipToLayer { mask in
-                    mask.draw(footnoteImage, in: iconRect)
+            func drawFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect, color: Color?) {
+                guard let color else {
+                    context.draw(footnoteImage, in: iconRect)
+                    return
                 }
-                context.fill(Path(iconRect), with: .color(dimmedTextColor))
+                context.drawLayer { layer in
+                    layer.clipToLayer { mask in
+                        mask.draw(footnoteImage, in: iconRect)
+                    }
+                    layer.fill(Path(iconRect), with: .color(color))
+                }
             }
 
-            func drawDimmedRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext) {
-                context.clipToLayer { mask in
-                    mask.draw(run)
+            func drawRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext, color: Color?) {
+                guard let color else {
+                    context.draw(run)
+                    return
                 }
-                context.fill(Path(lineRect), with: .color(dimmedTextColor))
+                context.drawLayer { layer in
+                    layer.clipToLayer { mask in
+                        mask.draw(run)
+                    }
+                    layer.fill(Path(lineRect), with: .color(color))
+                }
             }
 
             for line in layout {
@@ -155,34 +167,35 @@ extension BibleTextView {
                             context.fill(highlightPath, with: .color(highlightColor))
                         }
                     }
+                    let textColor = attrs?.textColor
                     if attrs?.footnoteImage == true {
                         let iconRect = footnoteIconRect(for: runRect)
                         if attrs?.isDimmed == true && dimProgress > 0 {
                             if dimProgress < 1 {
-                                var dimContext = context
-                                dimContext.opacity = 1 - dimProgress
-                                dimContext.draw(footnoteImage, in: iconRect)
+                                var fullColorContext = context
+                                fullColorContext.opacity = 1 - dimProgress
+                                drawFootnoteIcon(in: &fullColorContext, iconRect: iconRect, color: textColor)
                             }
                             context.drawLayer { layer in
                                 layer.opacity = dimProgress
-                                drawDimmedFootnoteIcon(in: &layer, iconRect: iconRect)
+                                drawFootnoteIcon(in: &layer, iconRect: iconRect, color: dimmedTextColor)
                             }
                         } else {
-                            context.draw(footnoteImage, in: iconRect)
+                            drawFootnoteIcon(in: &context, iconRect: iconRect, color: textColor)
                         }
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
-                            var dimContext = context
-                            dimContext.opacity = 1 - dimProgress
-                            dimContext.draw(run)
+                            var fullColorContext = context
+                            fullColorContext.opacity = 1 - dimProgress
+                            drawRun(run, lineRect: lineRect, in: &fullColorContext, color: textColor)
                         }
                         context.drawLayer { layer in
                             layer.opacity = dimProgress
-                            drawDimmedRun(run, lineRect: lineRect, in: &layer)
+                            drawRun(run, lineRect: lineRect, in: &layer, color: dimmedTextColor)
                         }
                     } else {
-                        context.draw(run)
+                        drawRun(run, lineRect: lineRect, in: &context, color: textColor)
                     }
                 }
             }
@@ -194,6 +207,7 @@ extension BibleTextView {
         var footnoteImage = false
         var isDimmed = false
         var highlightColor: Color?
+        var textColor: Color?
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
@@ -210,6 +224,7 @@ extension BibleTextView {
         } else {
             rendererPaintsHighlight = false
         }
+        let resolvedTextColor = textOptions.textColor ?? .primary
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -218,12 +233,21 @@ extension BibleTextView {
             var t = AttributedString(string[range])
             var isUnderlined = false
             var highlightColor: Color?
+            var textColorOverride: Color?
             if let reference {
-                highlightColor = highlightFor(reference: reference)?
-                    .opacity(darkMode ? 0.3 : 1.0)
-                if let highlightColor {
-                    if darkMode && category == .verseLabel {
-                        t.foregroundColor = .white
+                let highlightHex = highlightHexFor(reference: reference)
+                highlightColor = highlightHex.map { Color(hex: $0) }?
+                    .opacity(darkMode ? Self.darkModeHighlightOpacity : 1.0)
+                if let highlightHex, let highlightColor {
+                    if !darkMode && Color.isDarkHighlightHex(highlightHex) {
+                        if category == .scripture || category == .verseLabel || category == .footnoteImage {
+                            textColorOverride = .white
+                        }
+                    } else if category == .verseLabel {
+                        textColorOverride = resolvedTextColor
+                    }
+                    if let textColorOverride {
+                        t.foregroundColor = textColorOverride
                     }
                     if !rendererPaintsHighlight && (category == .scripture || category == .verseLabel) {
                         t.backgroundColor = highlightColor
@@ -245,12 +269,12 @@ extension BibleTextView {
                     underlined: isUnderlined,
                     footnoteImage: category == .footnoteImage,
                     isDimmed: isDimmed,
-                    highlightColor: isHighlightCategory ? highlightColor : nil
+                    highlightColor: isHighlightCategory ? highlightColor : nil,
+                    textColor: textColorOverride
                 )
             )
         }
         
-        let resolvedTextColor = textOptions.textColor ?? .primary
         let retValue = textCombo
             // Verse runs carry link attributes (for OpenURLAction tap routing), so the
             // effective text color comes from .tint, not .foregroundStyle.
@@ -394,6 +418,10 @@ extension BibleTextView {
     }
 
     private func highlightFor(reference: BibleReference) -> Color? {
+        highlightHexFor(reference: reference).map { Color(hex: $0) }
+    }
+
+    private func highlightHexFor(reference: BibleReference) -> String? {
         // Rendered runs carry a single-verse reference. A STORED highlight
         // may cover a range (e.g. v1–v5), so match by inclusion in
         // [verseStart, verseEnd] — not verseStart equality, which would
@@ -406,7 +434,7 @@ extension BibleTextView {
                   let start = highlight.reference.verseStart else { continue }
             let end = highlight.reference.verseEnd ?? start
             if refVerse >= start && refVerse <= end {
-                return Color(hex: highlight.color)
+                return highlight.color
             }
         }
         return nil

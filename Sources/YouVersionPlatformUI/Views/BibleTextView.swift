@@ -6,6 +6,7 @@ public struct BibleTextView: View {
     public typealias VerseTapAction = (BibleReference, String, [BibleFootnote], String?) -> Void
 
     static let dimmedTextOpacity: CGFloat = 0.35
+    public static let darkModeHighlightOpacity: CGFloat = 0.2
     static let focusAnimation: Animation = .easeInOut(duration: 0.5)
 
     let focusedReference: BibleReference?
