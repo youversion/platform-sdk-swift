@@ -1,0 +1,259 @@
+import CoreGraphics
+import Testing
+@testable import YouVersionPlatformUI
+
+@Suite struct HighlightOutlineTests {
+    @Test
+    func singleLineBandIsPaddedByOuterPaddingOnBothSides() {
+        let bands = HighlightOutline.bands(
+            for: [CGRect(x: 0, y: 10, width: 100, height: 20)],
+            outerPadding: 4
+        )
+
+        #expect(bands == [6...34])
+    }
+
+    @Test
+    func adjacentLineBandsMeetAtTheMidpointOfTheirGap() {
+        let bands = HighlightOutline.bands(
+            for: [
+                CGRect(x: 0, y: 0, width: 100, height: 20),
+                CGRect(x: 0, y: 28, width: 100, height: 20),
+                CGRect(x: 0, y: 56, width: 60, height: 20)
+            ],
+            outerPadding: 4
+        )
+
+        #expect(bands == [-4...24, 24...52, 52...80])
+    }
+
+    @Test
+    func overlappingLinesProduceNonInvertedBands() {
+        let bands = HighlightOutline.bands(
+            for: [
+                CGRect(x: 0, y: 0, width: 100, height: 20),
+                CGRect(x: 0, y: 16, width: 100, height: 2)
+            ],
+            outerPadding: 0
+        )
+
+        #expect(bands.allSatisfy { $0.lowerBound <= $0.upperBound })
+    }
+
+    @Test
+    func touchingRunsOfTheSameStyleMergeIntoOneSpan() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 40, maxX: 80),
+                HighlightRun(style: "yellow", minX: 0, maxX: 40)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.count == 1)
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 80, band: 0...20)]])
+    }
+
+    @Test
+    func touchingRunsOfDifferentStylesShareTheirMeetingEdge() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "green", minX: 40, maxX: 80)
+            ]],
+            bands: [0...20]
+        )
+
+        let yellow = groups.first { $0.style == "yellow" }?.lines.first?.first
+        let green = groups.first { $0.style == "green" }?.lines.first?.first
+        #expect(yellow?.isTrailingEdgeShared == true)
+        #expect(yellow?.isLeadingEdgeShared == false)
+        #expect(green?.isLeadingEdgeShared == true)
+        #expect(green?.isTrailingEdgeShared == false)
+    }
+
+    @Test
+    func horizontallyOverlappingSpansOnConsecutiveLinesFormOneChain() {
+        let first = HighlightSpan(minX: 50, maxX: 100, band: 0...20)
+        let second = HighlightSpan(minX: 0, maxX: 100, band: 20...40)
+        let third = HighlightSpan(minX: 0, maxX: 30, band: 40...60)
+
+        let chains = HighlightOutline.chains([[first], [second], [third]])
+
+        #expect(chains == [[first, second, third]])
+    }
+
+    @Test
+    func spansThatDoNotOverlapHorizontallyFormSeparateChains() {
+        let first = HighlightSpan(minX: 60, maxX: 100, band: 0...20)
+        let second = HighlightSpan(minX: 0, maxX: 40, band: 20...40)
+
+        let chains = HighlightOutline.chains([[first], [second]])
+
+        #expect(chains.count == 2)
+    }
+
+    @Test
+    func spansThatOnlyTouchOncePaddedFormOneChain() {
+        let first = HighlightSpan(minX: 42, maxX: 100, band: 0...20)
+        let second = HighlightSpan(minX: 0, maxX: 40, band: 20...40)
+
+        let chains = HighlightOutline.chains([[first], [second]], padding: 2)
+
+        #expect(chains == [[first, second]])
+    }
+
+    @Test
+    func singleSpanOutlineIsItsPaddedRectangle() {
+        let corners = HighlightOutline.corners(
+            of: [HighlightSpan(minX: 10, maxX: 50, band: 0...20)],
+            padding: 2
+        )
+
+        #expect(corners.map(\.point) == [
+            CGPoint(x: 52, y: 0),
+            CGPoint(x: 52, y: 20),
+            CGPoint(x: 8, y: 20),
+            CGPoint(x: 8, y: 0)
+        ])
+        #expect(corners.allSatisfy { $0.isRounded })
+    }
+
+    @Test
+    func alignedEdgesAcrossLinesCollapseIntoOneStraightSide() {
+        let corners = HighlightOutline.corners(
+            of: [
+                HighlightSpan(minX: 50, maxX: 100, band: 0...20),
+                HighlightSpan(minX: 0, maxX: 100, band: 20...40)
+            ],
+            padding: 0
+        )
+
+        #expect(corners.map(\.point) == [
+            CGPoint(x: 100, y: 0),
+            CGPoint(x: 100, y: 40),
+            CGPoint(x: 0, y: 40),
+            CGPoint(x: 0, y: 20),
+            CGPoint(x: 50, y: 20),
+            CGPoint(x: 50, y: 0)
+        ])
+    }
+
+    @Test
+    func sharedEdgesAreNeitherPaddedNorRounded() {
+        let corners = HighlightOutline.corners(
+            of: [HighlightSpan(minX: 10, maxX: 50, band: 0...20, isTrailingEdgeShared: true)],
+            padding: 2
+        )
+
+        #expect(corners.map(\.point) == [
+            CGPoint(x: 50, y: 0),
+            CGPoint(x: 50, y: 20),
+            CGPoint(x: 8, y: 20),
+            CGPoint(x: 8, y: 0)
+        ])
+        #expect(corners.map(\.isRounded) == [false, false, true, true])
+    }
+
+    @Test
+    func runAtLineStartMakesItsSpanFlush() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[HighlightRun(style: "yellow", minX: 0, maxX: 40, isAtLineStart: true)]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines.first?.first?.isLeadingEdgeFlush == true)
+    }
+
+    @Test
+    func flushSpansInAChainShareTheLeftMostLeadingEdge() {
+        let chain = HighlightOutline.flushAligned([
+            HighlightSpan(minX: 30, maxX: 100, band: 0...20),
+            HighlightSpan(minX: 16, maxX: 100, band: 20...40, isLeadingEdgeFlush: true),
+            HighlightSpan(minX: 32, maxX: 100, band: 40...60, isLeadingEdgeFlush: true)
+        ])
+
+        #expect(chain.map(\.minX) == [30, 16, 16])
+    }
+
+    @Test
+    func outlineLeavesNoUnpaintedSpaceBetweenLines() {
+        let chain = [
+            HighlightSpan(minX: 0, maxX: 100, band: 0...20),
+            HighlightSpan(minX: 0, maxX: 70, band: 20...40)
+        ]
+        let path = HighlightOutline.path(
+            of: HighlightOutline.corners(of: chain, padding: 0),
+            cornerRadius: 4
+        )
+
+        #expect(path.contains(CGPoint(x: 0.5, y: 20)))
+        #expect(path.contains(CGPoint(x: 69.5, y: 20.5)))
+        #expect(path.contains(CGPoint(x: 90, y: 19.5)))
+    }
+
+    @Test
+    func gapBetweenBlocksIsFilledWhenBothEdgeLinesAreHighlighted() {
+        let bands = HighlightOutline.bands(
+            for: [
+                [line(y: 0, highlighted: true)],
+                [line(y: 40, highlighted: true)]
+            ],
+            outerPadding: 4
+        )
+
+        #expect(bands == [[-4...30], [30...64]])
+    }
+
+    @Test
+    func gapBetweenBlocksIsKeptWhenAnEdgeLineIsNotHighlighted() {
+        let bands = HighlightOutline.bands(
+            for: [
+                [line(y: 0, highlighted: true)],
+                [line(y: 40, highlighted: false)]
+            ],
+            outerPadding: 4
+        )
+
+        #expect(bands == [[-4...24], [36...64]])
+    }
+
+    @Test
+    func verticallyOverlappingBlocksAreNotJoined() {
+        let bands = HighlightOutline.bands(
+            for: [
+                [line(y: 0, highlighted: true)],
+                [line(y: 10, highlighted: true)]
+            ],
+            outerPadding: 4
+        )
+
+        #expect(bands == [[-4...24], [6...34]])
+    }
+
+    @Test
+    func highlightSpanningBlocksIsOneShape() {
+        let highlights = HighlightOutline.paths(
+            for: [
+                [line(y: 0, highlighted: true)],
+                [line(y: 40, minX: 20, highlighted: true)]
+            ],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        #expect(highlights.count == 1)
+        let path = highlights.first?.path
+        #expect(path?.contains(CGPoint(x: 50, y: 30)) == true)
+        #expect(path?.contains(CGPoint(x: 50, y: 22)) == true)
+        #expect(path?.contains(CGPoint(x: 50, y: 38)) == true)
+    }
+
+    private func line(y: CGFloat, minX: CGFloat = 0, highlighted: Bool) -> HighlightLine<String> {
+        HighlightLine(
+            bounds: CGRect(x: minX, y: y, width: 100, height: 20),
+            runs: highlighted ? [HighlightRun(style: "yellow", minX: minX, maxX: minX + 100)] : []
+        )
+    }
+}
