@@ -30,6 +30,21 @@ import UIKit
         #expect(components.alpha.isApproximatelyEqual(to: 128.0 / 255.0) == true)
     }
 
+    @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF"])
+    func lightHighlightHexIsNotDark(hex: String) {
+        #expect(Color.isDarkHighlightHex(hex) == false)
+    }
+
+    @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a"])
+    func darkHighlightHexIsDark(hex: String) {
+        #expect(Color.isDarkHighlightHex(hex) == true)
+    }
+
+    @Test(arguments: ["", "fff", "zzzzzz", "80DDAAFF"])
+    func malformedHighlightHexIsNotDark(hex: String) {
+        #expect(Color.isDarkHighlightHex(hex) == false)
+    }
+
     private func colorComponents(for color: Color) throws -> ColorComponents? {
 #if canImport(UIKit)
         let color = UIColor(color)

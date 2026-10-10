@@ -40,11 +40,12 @@ struct BibleReaderDrawer: View {
     
     private var highlightColors: [Color] {
         [
-            Color(hex: "fffe00"),
-            Color(hex: "5DFF79"),
-            Color(hex: "00D6FF"),
-            Color(hex: "FFC66F"),
-            Color(hex: "FF95EF")
+            Color(hex: "ffec5b"),
+            Color(hex: "b4ffc1"),
+            Color(hex: "bbf4ff"),
+            Color(hex: "ffdca7"),
+            Color(hex: "ffcff8"),
+            Color(hex: "dfdcff")
         ]
     }
 
@@ -68,6 +69,7 @@ struct BibleReaderDrawer: View {
 
     private var highlightColorButtons: some View {
         let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
+            + viewModel.highlightColorsOnSelectedVerses.filter { !highlightColors.contains($0) }
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
         return HStack {
             ForEach(colorsToRemove, id: \.self) { color in
@@ -75,6 +77,8 @@ struct BibleReaderDrawer: View {
                     coloredCircle(with: color)
                         .overlay(
                             Image("highlight_checkmark", bundle: .YouVersionUIBundle)
+                                .renderingMode(.template)
+                                .foregroundStyle(checkmarkColor(for: color))
                         )
                 }
                 .accessibilityIdentifier("Remove \(accessibilityColorName(for: color)) highlight")
@@ -93,11 +97,17 @@ struct BibleReaderDrawer: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
     }
 
+    private func checkmarkColor(for color: Color) -> Color {
+        let isDarkHighlight = color.hexString.map(Color.isDarkHighlightHex) ?? false
+        return viewModel.colorScheme == .dark || isDarkHighlight ? .white : Color(hex: "#121212")
+    }
+
     private func coloredCircle(with color: Color) -> some View {
-        Circle()
-            .fill(color)
+        let isDark = viewModel.colorScheme == .dark
+        return Circle()
+            .fill(color.opacity(isDark ? BibleTextView.darkModeHighlightOpacity : 1))
             .overlay(
-                Circle().strokeBorder(Color(hex: "#121212").opacity(0.2), lineWidth: 1)
+                Circle().strokeBorder(isDark ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
             )
             .frame(width: 36, height: 36)
     }
