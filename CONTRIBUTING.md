@@ -90,17 +90,34 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
 - Make access controls as strict as possible (`private`, `fileprivate`, etc.)
 - Prefer structs over classes
 - Avoid abbreviations; prefer clarity over brevity
+- Keep changes scoped to the requested module. Do not modify UI or downstream consumers unless required.
+- Prefer production APIs that are natural for SDK users. Do not expose dependency-injection hooks solely for testing when an internal overload or test harness can provide control.
+- Make types reflect real production guarantees. Do not preserve optional or fallback paths that can occur only in mocks.
+- Do not use a local name that shadows a method.
+- Prefer `if let` when it is clearer than optional `.map`.
+- Use descriptive Boolean names such as `hasResource`.
+- Do not add a helper for a single obvious one-line operation.
+- Apply DRY when it centralizes a real rule or a repeated magic value. Leave a short, obvious expression local.
 
-See [CLAUDE.md](./CLAUDE.md) and [.swiftlint.yml](./.swiftlint.yml) for detailed style rules.
+See [.swiftlint.yml](./.swiftlint.yml) for detailed style rules.
 
 ### Git Workflow
 
-**Important: Never push directly to `main`. Always use feature/task branches and pull requests.**
+**Important: Never push directly to `main`. Always use feature or task branches and pull requests.**
 
-1. Create a branch from `main` using the pattern: `initials/ticket-number` or `initials/description`
+1. Create a branch named `<JIRA-TICKET>-<kebab-description>`, for example `YPE-5959-trim-agents-md-move-skills`. The ticket prefix comes first. There is no initials prefix and no `feature/` prefix. Every change needs a ticket, including doc-only edits.
 2. Make your changes and commit using conventional commit format
-3. Create a PR targeting `main`
+3. Open a pull request. The pull request title matches the first line of the commit message. A task branch targets its feature branch. Other branches target `main`.
 4. Ensure CI passes before requesting review
+
+Feature branches cover a large task or several sub-tickets.
+
+1. Create the feature branch from `main` using the parent epic's ticket, `<EPIC-TICKET>-<kebab-description>`.
+2. Create task branches off the feature branch using each sub-ticket, `<TASK-TICKET>-<kebab-description>`.
+3. Open pull requests from task branches targeting the feature branch.
+4. Open a final pull request from the feature branch to `main` when the feature is complete.
+
+To update a feature branch with changes from `main`, merge `main` into the feature branch first. Then merge the updated feature branch into the task branch. Never merge `main` directly into a task branch.
 
 ### Running Tests
 
@@ -111,6 +128,18 @@ See [CLAUDE.md](./CLAUDE.md) and [.swiftlint.yml](./.swiftlint.yml) for detailed
 # Or via command line
 swift test
 ```
+
+### Linux
+
+`YouVersionPlatformCore` tests must build and pass on Linux, where SwiftUI is unavailable.
+
+In a Linux container, run SwiftLint with SourceKit configured:
+
+```bash
+LINUX_SOURCEKIT_LIB_PATH=/root/.local/share/swiftly/toolchains/6.1.3/usr/lib swiftlint --strict
+```
+
+If SwiftLint is not installed, get it from https://github.com/realm/SwiftLint/releases/latest/download/swiftlint_linux_amd64.zip or similar.
 
 ### Code Coverage
 
@@ -141,6 +170,8 @@ The `Examples/SampleApp` directory contains a sample iOS app demonstrating SDK u
 1. Open the project in Xcode
 2. Select the `SampleApp` scheme
 3. Build and run on simulator or device
+
+Keep the tracked placeholder `<#Your App Key#>` in `Examples/SampleApp/SampleApp.swift`. Leave a real key as an unstaged local change. Do not commit a real app key.
 
 #### Device builds on BrowserStack
 

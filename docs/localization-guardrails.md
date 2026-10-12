@@ -103,6 +103,18 @@ All other PRs that touch the catalog fail CI with a link to this document.
 
 Sync PRs still run the hardcoded-string and key-existence checks.
 
+### Sample App languages
+
+When platform-localization adds a locale, the Sample App needs a dummy localization file so iOS recognizes the language. The sync pull request only rewrites the string catalog. The steps below stay manual and need a follow-up pull request in this repo whenever a new locale lands.
+
+1. Wait for the localization sync pull request to update `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings`. Do not edit the catalog locally.
+2. Create a matching `.lproj` directory in `Examples/SampleApp/`, for example `de.lproj/` or `fr.lproj/`.
+3. Add a dummy `Localizable.strings` file in that directory with the content `/* Dummy file to ensure [Language] localization is recognized */`.
+4. Add the language code to `knownRegions` in `Examples/SampleApp.xcodeproj/project.pbxproj`.
+5. Add the language code to `INFOPLIST_KEY_CFBundleLocalizations` in both the Debug and Release build configurations.
+
+iOS matches languages from `CFBundleLocalizations` in Info.plist. Xcode writes that entry only when the app target itself contains localized resources. SDK strings live in the package resource bundle, so the dummy files make Xcode declare the languages.
+
 ## Greptile
 
 Advisory localization rules live in `greptile.json`. Greptile supplements but does not replace CI merge gates.
