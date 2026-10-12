@@ -5,11 +5,7 @@ struct HighlightRun<Style: Equatable> {
     let minX: CGFloat
     let maxX: CGFloat
     var isAtLineStart = false
-}
-
-struct HighlightCorner: Equatable {
-    let point: CGPoint
-    let isRounded: Bool
+    var isWhitespace = false
 }
 
 struct HighlightLine<Style: Equatable> {
@@ -136,39 +132,35 @@ enum HighlightOutline {
         }
     }
 
-    static func corners(of chain: [HighlightSpan], padding: CGFloat) -> [HighlightCorner] {
+    static func corners(of chain: [HighlightSpan], padding: CGFloat) -> [CGPoint] {
         let edges = chain.map { paddedEdges(of: $0, padding: padding) }
-        var corners: [HighlightCorner] = []
+        var corners: [CGPoint] = []
         for (span, edge) in zip(chain, edges) {
-            let isRounded = !span.isTrailingEdgeShared
-            corners.append(HighlightCorner(point: CGPoint(x: edge.maxX, y: span.band.lowerBound), isRounded: isRounded))
-            corners.append(HighlightCorner(point: CGPoint(x: edge.maxX, y: span.band.upperBound), isRounded: isRounded))
+            corners.append(CGPoint(x: edge.maxX, y: span.band.lowerBound))
+            corners.append(CGPoint(x: edge.maxX, y: span.band.upperBound))
         }
         for (span, edge) in zip(chain, edges).reversed() {
-            let isRounded = !span.isLeadingEdgeShared
-            corners.append(HighlightCorner(point: CGPoint(x: edge.minX, y: span.band.upperBound), isRounded: isRounded))
-            corners.append(HighlightCorner(point: CGPoint(x: edge.minX, y: span.band.lowerBound), isRounded: isRounded))
+            corners.append(CGPoint(x: edge.minX, y: span.band.upperBound))
+            corners.append(CGPoint(x: edge.minX, y: span.band.lowerBound))
         }
         return simplified(corners)
     }
 
-    static func path(of corners: [HighlightCorner], cornerRadius: CGFloat) -> Path {
+    static func path(of corners: [CGPoint], cornerRadius: CGFloat) -> Path {
         var path = Path()
         guard corners.count >= 3 else { return path }
         let count = corners.count
-        let last = corners[count - 1].point
-        path.move(to: CGPoint(x: (last.x + corners[0].point.x) / 2, y: (last.y + corners[0].point.y) / 2))
+        let last = corners[count - 1]
+        path.move(to: CGPoint(x: (last.x + corners[0].x) / 2, y: (last.y + corners[0].y) / 2))
         for index in corners.indices {
-            let previous = corners[(index + count - 1) % count].point
+            let previous = corners[(index + count - 1) % count]
             let corner = corners[index]
-            let next = corners[(index + 1) % count].point
-            let radius = corner.isRounded
-                ? min(cornerRadius, distance(previous, corner.point) / 2, distance(corner.point, next) / 2)
-                : 0
+            let next = corners[(index + 1) % count]
+            let radius = min(cornerRadius, distance(previous, corner) / 2, distance(corner, next) / 2)
             if radius > 0 {
-                path.addArc(tangent1End: corner.point, tangent2End: next, radius: radius)
+                path.addArc(tangent1End: corner, tangent2End: next, radius: radius)
             } else {
-                path.addLine(to: corner.point)
+                path.addLine(to: corner)
             }
         }
         path.closeSubpath()
@@ -180,7 +172,7 @@ enum HighlightOutline {
         band: ClosedRange<CGFloat>
     ) -> [(style: Style, span: HighlightSpan)] {
         var merged: [(style: Style, span: HighlightSpan)] = []
-        for run in runs.sorted(by: { $0.minX < $1.minX }) {
+        for run in resolvingWhitespace(runs) {
             if let last = merged.last, last.style == run.style, run.minX <= last.span.maxX + tolerance {
                 merged[merged.count - 1].span.maxX = max(last.span.maxX, run.maxX)
             } else {
@@ -198,6 +190,40 @@ enum HighlightOutline {
             }
         }
         return merged
+    }
+
+    private static func resolvingWhitespace<Style: Equatable>(_ runs: [HighlightRun<Style>]) -> [HighlightRun<Style>] {
+        let sorted = runs.sorted { $0.minX < $1.minX }
+        var result: [HighlightRun<Style>] = []
+        var index = sorted.startIndex
+        while index < sorted.endIndex {
+            guard sorted[index].isWhitespace else {
+                result.append(sorted[index])
+                index += 1
+                continue
+            }
+            var end = index
+            while end + 1 < sorted.endIndex,
+                  sorted[end + 1].isWhitespace,
+                  sorted[end + 1].minX <= sorted[end].maxX + tolerance {
+                end += 1
+            }
+            let minX = sorted[index].minX
+            let maxX = sorted[end].maxX
+            let previous = result.last.flatMap { $0.maxX >= minX - tolerance ? $0 : nil }
+            let next = end + 1 < sorted.endIndex && sorted[end + 1].minX <= maxX + tolerance ? sorted[end + 1] : nil
+            if let previous, let next {
+                if previous.style == next.style {
+                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: maxX))
+                } else {
+                    let middle = (minX + maxX) / 2
+                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: middle))
+                    result.append(HighlightRun(style: next.style, minX: middle, maxX: maxX))
+                }
+            }
+            index = end + 1
+        }
+        return result
     }
 
     private static func paddedEdges(of span: HighlightSpan, padding: CGFloat) -> (minX: CGFloat, maxX: CGFloat) {
@@ -230,16 +256,16 @@ enum HighlightOutline {
             || (abs(first.y - middle.y) <= tolerance && abs(middle.y - last.y) <= tolerance)
     }
 
-    private static func simplified(_ corners: [HighlightCorner]) -> [HighlightCorner] {
+    private static func simplified(_ corners: [CGPoint]) -> [CGPoint] {
         var result = corners
         var changed = true
         while changed && result.count >= 3 {
             changed = false
             for index in result.indices {
                 let count = result.count
-                let previous = result[(index + count - 1) % count].point
-                let next = result[(index + 1) % count].point
-                let point = result[index].point
+                let previous = result[(index + count - 1) % count]
+                let next = result[(index + 1) % count]
+                let point = result[index]
                 if isSamePoint(previous, point) || isCollinear(previous, point, next) {
                     result.remove(at: index)
                     changed = true

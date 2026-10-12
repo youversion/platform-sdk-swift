@@ -88,7 +88,8 @@ extension BibleTextView {
                                     style: HighlightStyle(color: highlightColor, isDimmed: attrs.isDimmed),
                                     minX: runRect.minX + origin.x,
                                     maxX: runRect.maxX + origin.x,
-                                    isAtLineStart: isAtLineStart
+                                    isAtLineStart: isAtLineStart,
+                                    isWhitespace: attrs.isWhitespace
                                 )
                             }
                         )

@@ -110,13 +110,12 @@ import Testing
             padding: 2
         )
 
-        #expect(corners.map(\.point) == [
+        #expect(corners == [
             CGPoint(x: 52, y: 0),
             CGPoint(x: 52, y: 20),
             CGPoint(x: 8, y: 20),
             CGPoint(x: 8, y: 0)
         ])
-        #expect(corners.allSatisfy { $0.isRounded })
     }
 
     @Test
@@ -129,7 +128,7 @@ import Testing
             padding: 0
         )
 
-        #expect(corners.map(\.point) == [
+        #expect(corners == [
             CGPoint(x: 100, y: 0),
             CGPoint(x: 100, y: 40),
             CGPoint(x: 0, y: 40),
@@ -140,19 +139,78 @@ import Testing
     }
 
     @Test
-    func sharedEdgesAreNeitherPaddedNorRounded() {
+    func sharedEdgesAreNotPadded() {
         let corners = HighlightOutline.corners(
             of: [HighlightSpan(minX: 10, maxX: 50, band: 0...20, isTrailingEdgeShared: true)],
             padding: 2
         )
 
-        #expect(corners.map(\.point) == [
+        #expect(corners == [
             CGPoint(x: 50, y: 0),
             CGPoint(x: 50, y: 20),
             CGPoint(x: 8, y: 20),
             CGPoint(x: 8, y: 0)
         ])
-        #expect(corners.map(\.isRounded) == [false, false, true, true])
+    }
+
+    @Test
+    func sharedEdgesKeepRoundedCorners() {
+        let path = HighlightOutline.path(
+            of: HighlightOutline.corners(
+                of: [HighlightSpan(minX: 0, maxX: 50, band: 0...20, isTrailingEdgeShared: true)],
+                padding: 0
+            ),
+            cornerRadius: 4
+        )
+
+        #expect(!path.contains(CGPoint(x: 49.5, y: 0.5)))
+        #expect(path.contains(CGPoint(x: 49.5, y: 10)))
+    }
+
+    @Test
+    func trailingWhitespaceBeforeAnUnhighlightedRunIsNotPainted() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "yellow", minX: 40, maxX: 45, isWhitespace: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 40, band: 0...20)]])
+    }
+
+    @Test
+    func whitespaceBetweenRunsOfTheSameStyleIsPainted() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "yellow", minX: 40, maxX: 45, isWhitespace: true),
+                HighlightRun(style: "yellow", minX: 45, maxX: 80)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 80, band: 0...20)]])
+    }
+
+    @Test
+    func whitespaceBetweenDifferentStylesIsSplitAtItsMiddle() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "yellow", minX: 40, maxX: 46, isWhitespace: true),
+                HighlightRun(style: "green", minX: 46, maxX: 80)
+            ]],
+            bands: [0...20]
+        )
+
+        let yellow = groups.first { $0.style == "yellow" }?.lines.first?.first
+        let green = groups.first { $0.style == "green" }?.lines.first?.first
+        #expect(yellow?.maxX == 43)
+        #expect(yellow?.isTrailingEdgeShared == true)
+        #expect(green?.minX == 43)
+        #expect(green?.isLeadingEdgeShared == true)
     }
 
     @Test
