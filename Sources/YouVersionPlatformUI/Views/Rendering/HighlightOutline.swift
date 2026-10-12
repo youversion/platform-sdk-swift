@@ -122,7 +122,9 @@ enum HighlightOutline {
     }
 
     static func flushAligned(_ chain: [HighlightSpan]) -> [HighlightSpan] {
-        guard let leadingEdge = chain.filter(\.isLeadingEdgeFlush).map(\.minX).min() else { return chain }
+        guard let leadingEdge = chain.filter(\.isLeadingEdgeFlush).map(\.minX).min() else {
+            return chain
+        }
         return chain.map { span in
             var span = span
             if span.isLeadingEdgeFlush {
@@ -148,7 +150,9 @@ enum HighlightOutline {
 
     static func path(of corners: [CGPoint], cornerRadius: CGFloat) -> Path {
         var path = Path()
-        guard corners.count >= 3 else { return path }
+        guard corners.count >= 3 else {
+            return path
+        }
         let count = corners.count
         let last = corners[count - 1]
         path.move(to: CGPoint(x: (last.x + corners[0].x) / 2, y: (last.y + corners[0].y) / 2))
