@@ -159,7 +159,7 @@ Why: `main` HEAD reads `SDKVersion.current = "Dev"` so in-repo dev builds and PR
 
 ## Localization
 
-User-facing strings are owned by [platform-localization](https://github.com/youversion/platform-localization) and synced into `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings`. Do **not** edit the catalog in feature PRs — add or change English keys upstream (typically under `swift.*` in `sources/common/en.json`), then consume them via `String.localized("dotted.key")` after the sync PR lands.
+User-facing strings are owned by [platform-localization](https://github.com/youversion/platform-localization) and synced into `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings`. Open a pull request in platform-localization that edits `sources/common/en.json` (typically under `swift.*`, or a shared unprefixed key). Do not edit `Localizable.xcstrings` in this repo, and do not open that string change as a pull request here. After the sync pull request lands, consume keys with `String.localized("dotted.key")`.
 
 See [docs/localization-guardrails.md](docs/localization-guardrails.md) for CI gates, bot exemption rules, and local verification commands.
 

@@ -15,7 +15,7 @@ User-facing copy in the YouVersion Platform SDK (Swift) is owned by [platform-lo
 
 ## How to add or change user-facing copy
 
-1. Add or update keys in **platform-localization** under `sources/common/en.json` using the `swift.*` prefix (or shared unprefixed keys where appropriate).
+1. Open a pull request in [platform-localization](https://github.com/youversion/platform-localization) that edits `sources/common/en.json`. Use the `swift.*` prefix, or a shared unprefixed key. Do not edit `Sources/YouVersionPlatformUI/Resources/Localizable.xcstrings` in this repo, and do not open that string change as a pull request here.
 2. Wait for the localization distribute workflow to open a sync PR in this repo on branch `chore/localization-sync-swift` (legacy dated branches `chore/localization-sync-swift-{YYYYMMDD}-{sha7}` are also accepted) authored by `app/platform-localization-pr-bot`.
 3. After the sync PR merges, reference the key in SDK code with `String.localized("dotted.key")`.
 
