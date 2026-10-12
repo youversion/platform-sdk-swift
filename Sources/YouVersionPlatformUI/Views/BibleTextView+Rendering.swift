@@ -164,6 +164,22 @@ extension BibleTextView {
         var isDimmed = false
         var highlightColor: Color?
         var isIndent = false
+        var isWhitespace = false
+    }
+
+    private func whitespaceSegments(of string: AttributedString) -> [(text: AttributedString, isWhitespace: Bool)] {
+        let characters = string.characters
+        guard let first = characters.firstIndex(where: { !$0.isWhitespace }),
+              let last = characters.lastIndex(where: { !$0.isWhitespace }) else {
+            return [(string, true)]
+        }
+        let end = characters.index(after: last)
+        let segments: [(text: AttributedString, isWhitespace: Bool)] = [
+            (AttributedString(string[string.startIndex..<first]), true),
+            (AttributedString(string[first..<end]), false),
+            (AttributedString(string[end..<string.endIndex]), true)
+        ]
+        return segments.filter { !$0.text.characters.isEmpty }
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
@@ -210,15 +226,21 @@ extension BibleTextView {
             }
             let isHighlightCategory = category == .scripture || category == .verseLabel ||
                 category == .footnoteImage
-            // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(
-                RenderHowAttribute(
-                    underlined: isUnderlined,
-                    footnoteImage: category == .footnoteImage,
-                    isDimmed: isDimmed,
-                    highlightColor: isHighlightCategory ? highlightColor : nil
+            let segments = isHighlightCategory && highlightColor != nil
+                ? whitespaceSegments(of: t)
+                : [(text: t, isWhitespace: false)]
+            for segment in segments {
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(segment.text).customAttribute(
+                    RenderHowAttribute(
+                        underlined: isUnderlined,
+                        footnoteImage: category == .footnoteImage,
+                        isDimmed: isDimmed,
+                        highlightColor: isHighlightCategory ? highlightColor : nil,
+                        isWhitespace: segment.isWhitespace
+                    )
                 )
-            )
+            }
         }
         
         let resolvedTextColor = textOptions.textColor ?? .primary
