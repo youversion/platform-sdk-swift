@@ -6,6 +6,7 @@ struct HighlightRun<Style: Equatable> {
     let maxX: CGFloat
     var isAtLineStart = false
     var isWhitespace = false
+    var isDimmed = false
 }
 
 struct HighlightLine<Style: Equatable> {
@@ -20,10 +21,12 @@ struct HighlightSpan: Equatable {
     var isLeadingEdgeShared = false
     var isTrailingEdgeShared = false
     var isLeadingEdgeFlush = false
+    var dimmedRanges: [ClosedRange<CGFloat>] = []
 }
 
 enum HighlightOutline {
     private static let tolerance: CGFloat = 0.5
+    private static let dimmedAreaBleed: CGFloat = 1
 
     static func bands(for lineBounds: [CGRect], outerPadding: CGFloat) -> [ClosedRange<CGFloat>] {
         lineBounds.indices.map { index in
@@ -63,7 +66,7 @@ enum HighlightOutline {
         outerPadding: CGFloat,
         padding: CGFloat,
         cornerRadius: CGFloat
-    ) -> [(style: Style, path: Path)] {
+    ) -> [(style: Style, path: Path, dimmedArea: Path)] {
         let lines = Array(blocks.joined())
         let bands = Array(bands(for: blocks, outerPadding: outerPadding).joined())
         return spansByStyle(lines: lines.map(\.runs), bands: bands).map { highlight in
@@ -75,7 +78,7 @@ enum HighlightOutline {
             for bridge in bridges(between: chains, padding: padding, cornerRadius: cornerRadius) {
                 path.addPath(self.path(of: bridge, cornerRadius: 0))
             }
-            return (highlight.style, path)
+            return (highlight.style, path, dimmedArea(of: chains, padding: padding))
         }
     }
 
@@ -132,6 +135,9 @@ enum HighlightOutline {
         return chain.map { span in
             var span = span
             if span.isLeadingEdgeFlush {
+                if let first = span.dimmedRanges.first, first.lowerBound <= span.minX + tolerance {
+                    span.dimmedRanges[0] = leadingEdge...first.upperBound
+                }
                 span.minX = leadingEdge
             }
             return span
@@ -180,6 +186,32 @@ enum HighlightOutline {
         return bridges
     }
 
+    static func dimmedArea(of chains: [[HighlightSpan]], padding: CGFloat) -> Path {
+        var dimmed = Path()
+        var undimmed = Path()
+        for span in chains.joined() {
+            let edges = paddedEdges(of: span, padding: padding)
+            let height = span.band.upperBound - span.band.lowerBound
+            var cursor = edges.minX
+            for range in span.dimmedRanges {
+                let start = range.lowerBound <= span.minX + tolerance ? edges.minX : range.lowerBound
+                let end = range.upperBound >= span.maxX - tolerance ? edges.maxX : range.upperBound
+                if start > cursor {
+                    undimmed.addRect(CGRect(x: cursor, y: span.band.lowerBound, width: start - cursor, height: height))
+                }
+                dimmed.addRect(
+                    CGRect(x: start, y: span.band.lowerBound, width: end - start, height: height)
+                        .insetBy(dx: -dimmedAreaBleed, dy: -dimmedAreaBleed)
+                )
+                cursor = end
+            }
+            if cursor < edges.maxX {
+                undimmed.addRect(CGRect(x: cursor, y: span.band.lowerBound, width: edges.maxX - cursor, height: height))
+            }
+        }
+        return dimmed.isEmpty ? dimmed : dimmed.subtracting(undimmed)
+    }
+
     static func path(of corners: [CGPoint], cornerRadius: CGFloat) -> Path {
         var path = Path()
         guard corners.count >= 3 else {
@@ -211,10 +243,19 @@ enum HighlightOutline {
         for run in resolvingWhitespace(runs) {
             if let last = merged.last, last.style == run.style, run.minX <= last.span.maxX + tolerance {
                 merged[merged.count - 1].span.maxX = max(last.span.maxX, run.maxX)
+                if run.isDimmed {
+                    merged[merged.count - 1].span.dimmedRanges = adding(run.minX...run.maxX, to: last.span.dimmedRanges)
+                }
             } else {
                 merged.append((
                     run.style,
-                    HighlightSpan(minX: run.minX, maxX: run.maxX, band: band, isLeadingEdgeFlush: run.isAtLineStart)
+                    HighlightSpan(
+                        minX: run.minX,
+                        maxX: run.maxX,
+                        band: band,
+                        isLeadingEdgeFlush: run.isAtLineStart,
+                        dimmedRanges: run.isDimmed ? [run.minX...run.maxX] : []
+                    )
                 ))
             }
         }
@@ -249,17 +290,27 @@ enum HighlightOutline {
             let previous = result.last.flatMap { $0.maxX >= minX - tolerance ? $0 : nil }
             let next = end + 1 < sorted.endIndex && sorted[end + 1].minX <= maxX + tolerance ? sorted[end + 1] : nil
             if let previous, let next {
-                if previous.style == next.style {
-                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: maxX))
+                if previous.style == next.style && previous.isDimmed == next.isDimmed {
+                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: maxX, isDimmed: previous.isDimmed))
                 } else {
                     let middle = (minX + maxX) / 2
-                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: middle))
-                    result.append(HighlightRun(style: next.style, minX: middle, maxX: maxX))
+                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: middle, isDimmed: previous.isDimmed))
+                    result.append(HighlightRun(style: next.style, minX: middle, maxX: maxX, isDimmed: next.isDimmed))
                 }
             }
             index = end + 1
         }
         return result
+    }
+
+    private static func adding(
+        _ range: ClosedRange<CGFloat>,
+        to ranges: [ClosedRange<CGFloat>]
+    ) -> [ClosedRange<CGFloat>] {
+        guard let last = ranges.last, range.lowerBound <= last.upperBound + tolerance else {
+            return ranges + [range]
+        }
+        return ranges.dropLast() + [last.lowerBound...max(last.upperBound, range.upperBound)]
     }
 
     private static func paddedEdges(of span: HighlightSpan, padding: CGFloat) -> (minX: CGFloat, maxX: CGFloat) {

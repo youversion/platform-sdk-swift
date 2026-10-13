@@ -1,11 +1,6 @@
 import SwiftUI
 
 extension BibleTextView {
-    struct HighlightStyle: Equatable {
-        let color: Color
-        let isDimmed: Bool
-    }
-
     @ViewBuilder
     func withHighlights(_ content: some View, textOptions: BibleTextOptions) -> some View {
         if #available(iOS 18.0, *) {
@@ -55,7 +50,8 @@ extension BibleTextView {
                     for highlight in highlights {
                         Self.fill(
                             highlight.path,
-                            style: highlight.style,
+                            dimmedArea: highlight.dimmedArea,
+                            color: highlight.style,
                             dimProgress: dimProgress,
                             dimmedHighlightOpacity: dimmedHighlightOpacity,
                             in: &context
@@ -68,7 +64,7 @@ extension BibleTextView {
             .accessibilityHidden(true)
         }
 
-        private func blocks(in proxy: GeometryProxy) -> [[HighlightLine<HighlightStyle>]] {
+        private func blocks(in proxy: GeometryProxy) -> [[HighlightLine<Color>]] {
             layouts
                 .map { anchored in
                     let origin = proxy[anchored.origin]
@@ -79,17 +75,18 @@ extension BibleTextView {
                             .min()
                         return HighlightLine(
                             bounds: line.typographicBounds.rect.offsetBy(dx: origin.x, dy: origin.y),
-                            runs: line.compactMap { run -> HighlightRun<HighlightStyle>? in
+                            runs: line.compactMap { run -> HighlightRun<Color>? in
                                 guard let attrs = run[RenderHowAttribute.self],
                                       let highlightColor = attrs.highlightColor else { return nil }
                                 let runRect = run.typographicBounds.rect
                                 let isAtLineStart = contentMinX.map { abs(runRect.minX - $0) <= 0.5 } ?? false
                                 return HighlightRun(
-                                    style: HighlightStyle(color: highlightColor, isDimmed: attrs.isDimmed),
+                                    style: highlightColor,
                                     minX: runRect.minX + origin.x,
                                     maxX: runRect.maxX + origin.x,
                                     isAtLineStart: isAtLineStart,
-                                    isWhitespace: attrs.isWhitespace
+                                    isWhitespace: attrs.isWhitespace,
+                                    isDimmed: attrs.isDimmed
                                 )
                             }
                         )
@@ -101,23 +98,21 @@ extension BibleTextView {
 
         private static func fill(
             _ path: Path,
-            style: HighlightStyle,
+            dimmedArea: Path,
+            color: Color,
             dimProgress: CGFloat,
             dimmedHighlightOpacity: CGFloat,
             in context: inout GraphicsContext
         ) {
-            if style.isDimmed && dimProgress > 0 {
-                if dimProgress < 1 {
-                    var fullColorContext = context
-                    fullColorContext.opacity = 1 - dimProgress
-                    fullColorContext.fill(path, with: .color(style.color))
-                }
-                context.drawLayer { layer in
-                    layer.opacity = dimProgress
-                    layer.fill(path, with: .color(style.color.opacity(dimmedHighlightOpacity)))
-                }
-            } else {
-                context.fill(path, with: .color(style.color))
+            guard dimProgress > 0, !dimmedArea.isEmpty else {
+                context.fill(path, with: .color(color))
+                return
+            }
+            context.drawLayer { layer in
+                layer.fill(path, with: .color(color))
+                layer.blendMode = .destinationOut
+                layer.opacity = dimProgress * (1 - dimmedHighlightOpacity)
+                layer.fill(dimmedArea, with: .color(.black))
             }
         }
     }

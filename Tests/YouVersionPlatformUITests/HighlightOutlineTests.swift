@@ -362,6 +362,86 @@ import Testing
         #expect(path?.contains(CGPoint(x: 50, y: 18)) == false)
     }
 
+    @Test
+    func dimmedRunTouchingAnUndimmedRunOfTheSameStyleStaysOneSpan() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "yellow", minX: 40, maxX: 80, isDimmed: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.count == 1)
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 80, band: 0...20, dimmedRanges: [40...80])]])
+    }
+
+    @Test
+    func whitespaceBetweenDimmedAndUndimmedRunsIsSplitAtItsMiddle() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                HighlightRun(style: "yellow", minX: 40, maxX: 46, isWhitespace: true),
+                HighlightRun(style: "yellow", minX: 46, maxX: 80, isDimmed: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 80, band: 0...20, dimmedRanges: [43...80])]])
+    }
+
+    @Test
+    func flushAlignmentCarriesALeadingDimmedRangeWithTheEdge() {
+        let chain = HighlightOutline.flushAligned([
+            HighlightSpan(minX: 16, maxX: 100, band: 0...20, isLeadingEdgeFlush: true),
+            HighlightSpan(minX: 32, maxX: 100, band: 20...40, isLeadingEdgeFlush: true, dimmedRanges: [32...60])
+        ])
+
+        #expect(chain.last?.dimmedRanges == [16...60])
+    }
+
+    @Test
+    func dimmedAreaCoversOnlyTheDimmedPartOfTheShape() {
+        let highlights = HighlightOutline.paths(
+            for: [[
+                HighlightLine(
+                    bounds: CGRect(x: 0, y: 0, width: 100, height: 20),
+                    runs: [
+                        HighlightRun(style: "yellow", minX: 0, maxX: 50),
+                        HighlightRun(style: "yellow", minX: 50, maxX: 100, isDimmed: true)
+                    ]
+                ),
+                HighlightLine(
+                    bounds: CGRect(x: 0, y: 28, width: 100, height: 20),
+                    runs: [HighlightRun(style: "yellow", minX: 0, maxX: 100)]
+                )
+            ]],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        #expect(highlights.count == 1)
+        let dimmedArea = highlights.first?.dimmedArea
+        #expect(dimmedArea?.contains(CGPoint(x: 75, y: 10)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 101, y: 10)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 75, y: -4.5)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 49, y: 10)) == false)
+        #expect(dimmedArea?.contains(CGPoint(x: 75, y: 24.5)) == false)
+    }
+
+    @Test
+    func undimmedHighlightHasNoDimmedArea() {
+        let highlights = HighlightOutline.paths(
+            for: [[line(y: 0, highlighted: true)]],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        #expect(highlights.first?.dimmedArea.isEmpty == true)
+    }
+
     private func line(y: CGFloat, minX: CGFloat = 0, highlighted: Bool) -> HighlightLine<String> {
         HighlightLine(
             bounds: CGRect(x: minX, y: y, width: 100, height: 20),
