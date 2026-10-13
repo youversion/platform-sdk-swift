@@ -216,7 +216,7 @@ import Testing
     @Test
     func runAtLineStartMakesItsSpanFlush() {
         let groups = HighlightOutline.spansByStyle(
-            lines: [[HighlightRun(style: "yellow", minX: 0, maxX: 40, isAtLineStart: true)]],
+            lines: [[HighlightRun(style: "yellow", minX: 0, maxX: 40, isLeadingEdgeFlush: true)]],
             bands: [0...20]
         )
 
@@ -232,6 +232,32 @@ import Testing
         ])
 
         #expect(chain.map(\.minX) == [30, 16, 16])
+    }
+
+    @Test
+    func runAtRightToLeftLineStartMakesItsSpanTrailingEdgeFlush() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 60, maxX: 80),
+                HighlightRun(style: "yellow", minX: 80, maxX: 100, isTrailingEdgeFlush: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines.first?.first?.isTrailingEdgeFlush == true)
+        #expect(groups.first?.lines.first?.first?.isLeadingEdgeFlush == false)
+    }
+
+    @Test
+    func trailingFlushSpansInAChainShareTheRightMostTrailingEdge() {
+        let chain = HighlightOutline.flushAligned([
+            HighlightSpan(minX: 0, maxX: 70, band: 0...20),
+            HighlightSpan(minX: 0, maxX: 84, band: 20...40, isTrailingEdgeFlush: true),
+            HighlightSpan(minX: 40, maxX: 68, band: 40...60, isTrailingEdgeFlush: true)
+        ])
+
+        #expect(chain.map(\.minX) == [0, 0, 40])
+        #expect(chain.map(\.maxX) == [70, 84, 84])
     }
 
     @Test
@@ -427,6 +453,16 @@ import Testing
         ])
 
         #expect(chain.last?.dimmedRanges == [16...60])
+    }
+
+    @Test
+    func flushAlignmentCarriesATrailingDimmedRangeWithTheEdge() {
+        let chain = HighlightOutline.flushAligned([
+            HighlightSpan(minX: 0, maxX: 84, band: 0...20, isTrailingEdgeFlush: true),
+            HighlightSpan(minX: 0, maxX: 68, band: 20...40, isTrailingEdgeFlush: true, dimmedRanges: [40...68])
+        ])
+
+        #expect(chain.last?.dimmedRanges == [40...84])
     }
 
     @Test
