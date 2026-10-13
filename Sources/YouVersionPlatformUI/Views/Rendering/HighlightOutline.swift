@@ -4,7 +4,8 @@ struct HighlightRun<Style: Equatable> {
     let style: Style
     let minX: CGFloat
     let maxX: CGFloat
-    var isAtLineStart = false
+    var isLeadingEdgeFlush = false
+    var isTrailingEdgeFlush = false
     var isWhitespace = false
     var isDimmed = false
 }
@@ -21,6 +22,7 @@ struct HighlightSpan: Equatable {
     var isLeadingEdgeShared = false
     var isTrailingEdgeShared = false
     var isLeadingEdgeFlush = false
+    var isTrailingEdgeFlush = false
     var dimmedRanges: [ClosedRange<CGFloat>] = []
 }
 
@@ -129,16 +131,21 @@ enum HighlightOutline {
     }
 
     static func flushAligned(_ chain: [HighlightSpan]) -> [HighlightSpan] {
-        guard let leadingEdge = chain.filter(\.isLeadingEdgeFlush).map(\.minX).min() else {
-            return chain
-        }
+        let leadingEdge = chain.filter(\.isLeadingEdgeFlush).map(\.minX).min()
+        let trailingEdge = chain.filter(\.isTrailingEdgeFlush).map(\.maxX).max()
         return chain.map { span in
             var span = span
-            if span.isLeadingEdgeFlush {
+            if span.isLeadingEdgeFlush, let leadingEdge {
                 if let first = span.dimmedRanges.first, first.lowerBound <= span.minX + tolerance {
                     span.dimmedRanges[0] = leadingEdge...first.upperBound
                 }
                 span.minX = leadingEdge
+            }
+            if span.isTrailingEdgeFlush, let trailingEdge {
+                if let last = span.dimmedRanges.last, last.upperBound >= span.maxX - tolerance {
+                    span.dimmedRanges[span.dimmedRanges.count - 1] = last.lowerBound...trailingEdge
+                }
+                span.maxX = trailingEdge
             }
             return span
         }
@@ -243,6 +250,7 @@ enum HighlightOutline {
         for run in resolvingWhitespace(runs) {
             if let last = merged.last, last.style == run.style, run.minX <= last.span.maxX + tolerance {
                 merged[merged.count - 1].span.maxX = max(last.span.maxX, run.maxX)
+                merged[merged.count - 1].span.isTrailingEdgeFlush = last.span.isTrailingEdgeFlush || run.isTrailingEdgeFlush
                 if run.isDimmed {
                     merged[merged.count - 1].span.dimmedRanges = adding(run.minX...run.maxX, to: last.span.dimmedRanges)
                 }
@@ -253,7 +261,8 @@ enum HighlightOutline {
                         minX: run.minX,
                         maxX: run.maxX,
                         band: band,
-                        isLeadingEdgeFlush: run.isAtLineStart,
+                        isLeadingEdgeFlush: run.isLeadingEdgeFlush,
+                        isTrailingEdgeFlush: run.isTrailingEdgeFlush,
                         dimmedRanges: run.isDimmed ? [run.minX...run.maxX] : []
                     )
                 ))

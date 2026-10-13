@@ -28,6 +28,7 @@ extension BibleTextView {
         let cornerRadius: CGFloat
         let dimmedHighlightOpacity: CGFloat
         var dimProgress: CGFloat
+        @Environment(\.layoutDirection) private var layoutDirection
 
         nonisolated var animatableData: CGFloat {
             get { dimProgress }
@@ -69,22 +70,26 @@ extension BibleTextView {
                 .map { anchored in
                     let origin = proxy[anchored.origin]
                     return anchored.layout.map { line in
-                        let contentMinX = line
+                        let contentRects = line
                             .filter { $0[RenderHowAttribute.self]?.isIndent != true }
-                            .map { $0.typographicBounds.rect.minX }
-                            .min()
+                            .map(\.typographicBounds.rect)
+                        let contentMinX = contentRects.map(\.minX).min()
+                        let contentMaxX = contentRects.map(\.maxX).max()
                         return HighlightLine(
                             bounds: line.typographicBounds.rect.offsetBy(dx: origin.x, dy: origin.y),
                             runs: line.compactMap { run -> HighlightRun<Color>? in
                                 guard let attrs = run[RenderHowAttribute.self],
                                       let highlightColor = attrs.highlightColor else { return nil }
                                 let runRect = run.typographicBounds.rect
-                                let isAtLineStart = contentMinX.map { abs(runRect.minX - $0) <= 0.5 } ?? false
+                                let isAtLineStart = layoutDirection == .rightToLeft
+                                    ? contentMaxX.map { abs(runRect.maxX - $0) <= 0.5 } ?? false
+                                    : contentMinX.map { abs(runRect.minX - $0) <= 0.5 } ?? false
                                 return HighlightRun(
                                     style: highlightColor,
                                     minX: runRect.minX + origin.x,
                                     maxX: runRect.maxX + origin.x,
-                                    isAtLineStart: isAtLineStart,
+                                    isLeadingEdgeFlush: isAtLineStart && layoutDirection == .leftToRight,
+                                    isTrailingEdgeFlush: isAtLineStart && layoutDirection == .rightToLeft,
                                     isWhitespace: attrs.isWhitespace,
                                     isDimmed: attrs.isDimmed
                                 )
