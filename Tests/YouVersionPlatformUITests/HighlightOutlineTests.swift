@@ -391,6 +391,35 @@ import Testing
     }
 
     @Test
+    func separateDimmedRunsKeepSeparateRangesAndTouchingOnesMerge() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 20, isDimmed: true),
+                HighlightRun(style: "yellow", minX: 20, maxX: 50),
+                HighlightRun(style: "yellow", minX: 50, maxX: 80, isDimmed: true),
+                HighlightRun(style: "yellow", minX: 80, maxX: 100, isDimmed: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 100, band: 0...20, dimmedRanges: [0...20, 50...100])]])
+    }
+
+    @Test
+    func whitespaceBetweenTwoDimmedRunsStaysDimmed() {
+        let groups = HighlightOutline.spansByStyle(
+            lines: [[
+                HighlightRun(style: "yellow", minX: 0, maxX: 40, isDimmed: true),
+                HighlightRun(style: "yellow", minX: 40, maxX: 46, isWhitespace: true),
+                HighlightRun(style: "yellow", minX: 46, maxX: 80, isDimmed: true)
+            ]],
+            bands: [0...20]
+        )
+
+        #expect(groups.first?.lines == [[HighlightSpan(minX: 0, maxX: 80, band: 0...20, dimmedRanges: [0...80])]])
+    }
+
+    @Test
     func flushAlignmentCarriesALeadingDimmedRangeWithTheEdge() {
         let chain = HighlightOutline.flushAligned([
             HighlightSpan(minX: 16, maxX: 100, band: 0...20, isLeadingEdgeFlush: true),
@@ -428,6 +457,34 @@ import Testing
         #expect(dimmedArea?.contains(CGPoint(x: 75, y: -4.5)) == true)
         #expect(dimmedArea?.contains(CGPoint(x: 49, y: 10)) == false)
         #expect(dimmedArea?.contains(CGPoint(x: 75, y: 24.5)) == false)
+    }
+
+    @Test
+    func dimmedAreaLeavesTheUndimmedGapBetweenDimmedRangesAndReachesThePaddedEdges() {
+        let highlights = HighlightOutline.paths(
+            for: [[
+                HighlightLine(
+                    bounds: CGRect(x: 0, y: 0, width: 100, height: 20),
+                    runs: [
+                        HighlightRun(style: "yellow", minX: 0, maxX: 30, isDimmed: true),
+                        HighlightRun(style: "yellow", minX: 30, maxX: 70),
+                        HighlightRun(style: "yellow", minX: 70, maxX: 100, isDimmed: true)
+                    ]
+                )
+            ]],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        let dimmedArea = highlights.first?.dimmedArea
+        #expect(dimmedArea?.contains(CGPoint(x: -1, y: 10)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 29, y: 10)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 31, y: 10)) == false)
+        #expect(dimmedArea?.contains(CGPoint(x: 50, y: 10)) == false)
+        #expect(dimmedArea?.contains(CGPoint(x: 69, y: 10)) == false)
+        #expect(dimmedArea?.contains(CGPoint(x: 85, y: 10)) == true)
+        #expect(dimmedArea?.contains(CGPoint(x: 101, y: 10)) == true)
     }
 
     @Test
