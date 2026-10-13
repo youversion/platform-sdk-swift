@@ -52,7 +52,7 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
   - `docs`, `style`, `refactor`, `test`, `build`, `ci`, `chore`, `revert` → **no release**
   - Any commit with `!` after the type/scope, **or** a `BREAKING CHANGE:` footer → **major** bump (e.g. `5.2.2` → `6.0.0`)
 
-  > **PRs that introduce a breaking change require an explicit human signoff before merge.** When any commit on the PR carries a `BREAKING CHANGE:` footer or a `!` after the type/scope, the `major-release-signoff` status check blocks merging until a *different* write-access collaborator (not the PR author) posts a single comment containing the verbatim affirmation phrase from the bot's blocking comment, the precise next version (e.g. `v6.0.0`), and a 🚀. See [RELEASING.md → Major Release Signoff](./RELEASING.md#major-release-signoff) for the exact comment format.
+  > **PRs that introduce a breaking change require an explicit human signoff before merge.** When any commit on the PR carries a `BREAKING CHANGE:` footer or a `!` after the type/scope, the `major-release-signoff` status check blocks merging until a _different_ write-access collaborator (not the PR author) posts a single comment containing the verbatim affirmation phrase from the bot's blocking comment, the precise next version (e.g. `v6.0.0`), the full commit hash being approved, and a 🚀. See [RELEASING.md → Major Release Signoff](./RELEASING.md#major-release-signoff) for the exact comment format.
 
   **Examples (annotated with the bump each one would trigger):**
 
@@ -83,6 +83,7 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
   ```
 
   Keep the subject in the imperative mood ("add", "fix", "rename" — not "added"/"fixes"). Use a `scope` (e.g. `reader`, `core`, `ui`, `api`) when the change is localized; omit it when the change is repo-wide.
+
 - Run `swiftlint` before submitting PRs
 - Prefer `async`/`await` over completion handlers
 - Use protocol-oriented programming patterns

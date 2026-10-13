@@ -86,6 +86,40 @@ elif [ "$VALIDATION_CODE" -ne 0 ] && [ "$VALIDATION_CODE" -ne 12 ]; then
   exit 1
 fi
 
+# --- Authorize a major release -----------------------------------------------
+#
+# Merge-time signoff binds to a PR head SHA and cannot see the version a human
+# types into the dispatch input, so a major could otherwise be published with no
+# breaking change ever signed off.
+#
+# The base is the tag this release supersedes, which is not always $CURRENT_TAG:
+# on a resume the tag for $VERSION already exists, so `git describe` returns
+# $VERSION itself. Comparing against that makes every major look like no bump at
+# all and skips the check entirely on the one path that exists to retry a
+# release. Use the tag preceding $VERSION instead, the same one the notes
+# regeneration below uses.
+if [ "$RESUME" = "1" ]; then
+  SIGNOFF_BASE=$(git describe --tags --abbrev=0 "refs/tags/$VERSION^" 2>/dev/null || echo "")
+  if [ -z "$SIGNOFF_BASE" ]; then
+    echo "❌ Could not derive the tag preceding $VERSION; cannot authorize the release." >&2
+    exit 1
+  fi
+  SIGNOFF_HEAD="refs/tags/$VERSION"
+else
+  SIGNOFF_BASE=$CURRENT_TAG
+  # The resolved commit, not the literal "HEAD": the compare API would resolve
+  # that server-side to the default branch tip, which is only the same thing
+  # when the dispatch ran from main.
+  SIGNOFF_HEAD=$(git rev-parse HEAD)
+fi
+
+SIGNOFF_REPO="${GITHUB_REPOSITORY:-$(git remote get-url origin 2>/dev/null \
+  | sed -E 's#(git@github\.com:|https://github\.com/)##; s#\.git$##')}"
+echo
+echo "Authorizing $VERSION against $SIGNOFF_BASE..."
+RECORDS=$(bash scripts/collect-release-signoffs.sh "$SIGNOFF_REPO" "$SIGNOFF_BASE" "$SIGNOFF_HEAD")
+node scripts/release-check-signoff.mjs "$VERSION" "$SIGNOFF_BASE" <<<"$RECORDS" || exit 1
+
 # --- Compute calculated version (informational only) -------------------------
 
 PREVIEW_JSON=$(node scripts/preview-release.mjs --base "$CURRENT_TAG" --head HEAD 2>/dev/null || echo '{}')

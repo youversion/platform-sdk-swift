@@ -43,6 +43,9 @@ current report hash. To clear the gate:
    - You must not be the PR author.
    - The reply must quote the report hash from the current comment — a new push that changes the
      addition set changes the hash and invalidates prior acknowledgments.
+   - On a PR that changes the gate's own tooling, the hash also covers the head commit, so **any**
+     push invalidates prior acknowledgments. Such a PR is acknowledged on its diff rather than on
+     the symbol list, and the list alone cannot show that the diff changed.
 3. The status flips to success and records who acknowledged. Deleting the acknowledgment comment
    re-fails the status.
 
@@ -62,6 +65,18 @@ case, and acknowledgment is required regardless of the reported count. **Verify 
 External contributions are gated identically. Detection runs unprivileged on the fork's code; all
 comment and status writes run from trusted default-branch code. Nothing extra is required from the
 contributor — a maintainer acknowledges the same way.
+
+## Re-running the gate on a merged PR
+
+The release-time check refuses to publish a major when a PR in the range carries no
+`major-release-signoff` status, because a PR the gate never evaluated is not evidence of
+anything. That can happen to a PR merged before the gate existed, or one whose run died
+before posting.
+
+To produce the missing status after the fact, comment on the merged PR. Both signoff
+workflows trigger on `issue_comment` with no filter on PR state, and they resolve the PR
+through the API rather than from the event payload, so a merged PR re-evaluates and
+re-posts its status to the same head SHA. Then re-dispatch the release.
 
 ## What the gate does not do
 
@@ -89,7 +104,9 @@ Pieces and their responsibilities:
 
 - `.github/workflows/api-additions-signoff.yml` — **detect** (unprivileged, `contents: read`):
   runs on `pull_request` for every PR including forks, builds and diffs the API surface, uploads
-  report + count + hash as an artifact.
+  report + count + hash as an artifact. It runs on every PR so the status is never absent; a
+  cheap `scope` job first decides whether the surface could have changed, and only then pays for
+  the macOS build.
 - `.github/workflows/api-additions-signoff-gate.yml` — **gate** (privileged): handles both
   `workflow_run` completion and `issue_comment` re-evaluation from default-branch code; downloads
   the artifact, searches for acknowledgment, upserts the PR comment, posts the commit status.

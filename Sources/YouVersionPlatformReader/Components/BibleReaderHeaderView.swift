@@ -10,6 +10,7 @@ public struct BibleReaderHeaderView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let showChrome: Bool
+    let isSearchHidden: Bool
     let onSelectionChange: ((Int, String, Int?, String?) -> Void)?
     let onCompactTap: (() -> Void)?
 
@@ -17,10 +18,12 @@ public struct BibleReaderHeaderView: View {
 
     init(
         showChrome: Bool = true,
+        isSearchHidden: Bool = false,
         onSelectionChange: ((Int, String, Int?, String?) -> Void)? = nil,
         onCompactTap: (() -> Void)? = nil
     ) {
         self.showChrome = showChrome
+        self.isSearchHidden = isSearchHidden
         self.onSelectionChange = onSelectionChange
         self.onCompactTap = onCompactTap
     }
@@ -34,6 +37,16 @@ public struct BibleReaderHeaderView: View {
                 HStack {
                     halfPillPickers
                     Spacer()
+                    if !isSearchHidden {
+                        Button(action: viewModel.openSearch) {
+                            Image(systemName: "magnifyingglass")
+                                .imageScale(.large)
+                                .foregroundStyle(viewModel.readerTextPrimaryColor)
+                                .padding(8)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(String.localized("generic.search"))
+                    }
                     BibleReaderHeaderMenuView()
                 }
                 .transition(reduceMotion ? .identity : .opacity)

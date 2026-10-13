@@ -170,7 +170,7 @@ struct BibleReaderFontSettingsView: View {
         let closestOptionIndex = ReaderFonts.lineSpacingOptions.indices.min {
             abs(ReaderFonts.lineSpacingOptions[$0] - currentSpacing) < abs(ReaderFonts.lineSpacingOptions[$1] - currentSpacing)
         }
-        return CGFloat((closestOptionIndex ?? 0) * 2 + 1)
+        return CGFloat((closestOptionIndex ?? 0) * 2 + 4)
     }
 }
 

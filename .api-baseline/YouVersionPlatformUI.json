@@ -206,6 +206,43 @@
           },
           {
             "kind": "Var",
+            "name": "font083emItalic",
+            "printedName": "font083emItalic",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO15font083emItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO15font083emItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
             "name": "font100em",
             "printedName": "font100em",
             "children": [
@@ -354,6 +391,80 @@
           },
           {
             "kind": "Var",
+            "name": "font100em700",
+            "printedName": "font100em700",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO12font100em700yA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO12font100em700yA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font108emItalic",
+            "printedName": "font108emItalic",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO15font108emItalicyA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO15font108emItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
             "name": "font117em500",
             "printedName": "font117em500",
             "children": [
@@ -424,6 +535,43 @@
             "declKind": "EnumElement",
             "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO18font117em500ItalicyA2CmF",
             "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO18font117em500ItalicyA2CmF",
+            "moduleName": "YouVersionPlatformUI"
+          },
+          {
+            "kind": "Var",
+            "name": "font117em700",
+            "printedName": "font117em700",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(YouVersionPlatformUI.BibleTextFontOption.Type) -> YouVersionPlatformUI.BibleTextFontOption",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleTextFontOption",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                    "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "YouVersionPlatformUI.BibleTextFontOption.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleTextFontOption",
+                        "printedName": "YouVersionPlatformUI.BibleTextFontOption",
+                        "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:20YouVersionPlatformUI19BibleTextFontOptionO12font117em700yA2CmF",
+            "mangledName": "$s20YouVersionPlatformUI19BibleTextFontOptionO12font117em700yA2CmF",
             "moduleName": "YouVersionPlatformUI"
           },
           {

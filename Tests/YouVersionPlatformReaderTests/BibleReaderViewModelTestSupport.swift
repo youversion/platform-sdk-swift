@@ -134,7 +134,7 @@ enum BibleReaderViewModelTestSupport {
         }
     }
 
-    static func makeBibleVersion(id: Int) -> BibleVersion {
+    static func makeBibleVersion(id: Int, bookTitle: String = "John") -> BibleVersion {
         BibleVersion(
             id: id,
             abbreviation: "TEST",
@@ -151,9 +151,9 @@ enum BibleReaderViewModelTestSupport {
             books: [
                 BibleBook(
                     id: "JHN",
-                    title: "John",
-                    fullTitle: "John",
-                    abbreviation: "John",
+                    title: bookTitle,
+                    fullTitle: bookTitle,
+                    abbreviation: bookTitle,
                     canon: "nt",
                     chapters: (1...3).map { chapter in
                         BibleChapter(id: "JHN.\(chapter)", passageId: nil, title: "\(chapter)", verses: nil)

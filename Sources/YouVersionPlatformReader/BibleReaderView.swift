@@ -19,6 +19,7 @@ public struct BibleReaderView: View {
     private let externalSelectedVerses: Binding<Set<BibleReference>>?
     private let audioActiveReference: BibleReference?
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
+    private(set) var isSearchHidden = false
 
     /// Creates a Bible reader view displaying `reference`.
     ///
@@ -178,6 +179,15 @@ public struct BibleReaderView: View {
         return copy
     }
 
+    /// Returns a reader that hides or shows the search button in its header.
+    /// Use it when the host app provides its own Bible search. The reader shows
+    /// the search button by default.
+    public func searchHidden(_ isHidden: Bool = true) -> BibleReaderView {
+        var copy = self
+        copy.isSearchHidden = isHidden
+        return copy
+    }
+
     /// Creates a Bible reader view.
     ///
     /// - Parameters:
@@ -316,7 +326,8 @@ public struct BibleReaderView: View {
                     externalSelectedVerses: externalSelectedVerses,
                     audioActiveReference: audioActiveReference,
                     readerNavigation: readerNavigation,
-                    chapterHeader: chapterHeaderBuilder
+                    chapterHeader: chapterHeaderBuilder,
+                    isSearchHidden: isSearchHidden
                 )
             } else {
                 Color.clear
@@ -358,6 +369,7 @@ private struct ReaderContent: View {
     let audioActiveReference: BibleReference?
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+    let isSearchHidden: Bool
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -379,13 +391,15 @@ private struct ReaderContent: View {
         externalSelectedVerses: Binding<Set<BibleReference>>?,
         audioActiveReference: BibleReference?,
         readerNavigation: BibleReaderNavigation?,
-        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
+        isSearchHidden: Bool
     ) {
         self.viewModel = viewModel
         self.externalSelectedVerses = externalSelectedVerses
         self.audioActiveReference = audioActiveReference
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
+        self.isSearchHidden = isSearchHidden
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
@@ -412,14 +426,6 @@ private struct ReaderContent: View {
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
-        .alert(
-            viewModel.textForGenericAlertTitle,
-            isPresented: $viewModel.showGenericAlert
-        ) {
-            Button(viewModel.textForGenericAlertOKButton) { }
-        } message: {
-            Text(viewModel.textForGenericAlertBody)
-        }
         .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation
@@ -467,11 +473,11 @@ private struct ReaderContent: View {
         .sheet(isPresented: $viewModel.showingSignInSheet) {
             signInView
         }
-        .sheet(isPresented: $viewModel.showingVersionsStack) {
-            BibleVersionsStack()
-                .environment(viewModel.versionsViewModel)
-                .presentationDragIndicator(.visible)
+        .sheet(isPresented: $viewModel.showingSearchSheet) {
+            BibleReaderSearchView()
+                .environment(viewModel)
                 .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
         .onChange(of: viewModel.startSignInFlow) { _, newValue in
             // TODO: move this to the viewModel
@@ -533,6 +539,7 @@ private struct ReaderContent: View {
             if viewModel.version != nil {
                 BibleReaderHeaderView(
                     showChrome: true,
+                    isSearchHidden: isSearchHidden,
                     onSelectionChange: { version, book, chapter, passageId in
                         Task {
                             let reference = BibleReference(versionId: version, bookId: book, chapter: chapter ?? 1)

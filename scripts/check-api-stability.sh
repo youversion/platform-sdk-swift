@@ -59,11 +59,21 @@ fi
 
 cd "$REPO_ROOT"
 
-echo "Building package for API digest..."
-swift build -c release >/dev/null
+# Isolate each digest build so switching build systems cannot select stale modules.
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+BUILD_DIR="$WORK_DIR/build"
 
-BIN_PATH="$(swift build -c release --show-bin-path)"
+echo "Building package for API digest..."
+swift build -c release --scratch-path "$BUILD_DIR" >/dev/null
+
+BIN_PATH="$(swift build -c release --scratch-path "$BUILD_DIR" --show-bin-path)"
 MODULES_DIR="$BIN_PATH/Modules"
+# Swift Build places modules directly in the products directory; older SwiftPM
+# versions using the native build system place them in a Modules subdirectory.
+if compgen -G "$BIN_PATH/*.swiftmodule" >/dev/null; then
+  MODULES_DIR="$BIN_PATH"
+fi
 
 if [[ ! -d "$MODULES_DIR" ]]; then
   echo "Expected modules directory not found: $MODULES_DIR" >&2
@@ -109,9 +119,6 @@ if [[ "$MODE" == "update" ]]; then
   echo "Baselines updated. Review the diff and commit the changes."
   exit 0
 fi
-
-WORK_DIR="$(mktemp -d)"
-trap 'rm -rf "$WORK_DIR"' EXIT
 
 if [[ "$MODE" == "additions" ]]; then
   for module in "${MODULES[@]}"; do
