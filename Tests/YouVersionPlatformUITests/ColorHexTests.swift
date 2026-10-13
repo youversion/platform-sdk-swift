@@ -30,12 +30,12 @@ import UIKit
         #expect(components.alpha.isApproximatelyEqual(to: 128.0 / 255.0) == true)
     }
 
-    @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF", "fff", "80DDAAFF"])
+    @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF", "fff", "80DDAAFF", "10000000", "#40000000"])
     func lightHighlightHexIsNotDark(hex: String) {
         #expect(Color.isDarkHighlightHex(hex) == false)
     }
 
-    @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a", "#000", "FF000000"])
+    @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a", "#000", "FF000000", "C0000000"])
     func darkHighlightHexIsDark(hex: String) {
         #expect(Color.isDarkHighlightHex(hex) == true)
     }

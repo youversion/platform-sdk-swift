@@ -57,12 +57,15 @@ public extension Color {
     }
 
     static func isDarkHighlightHex(_ hex: String) -> Bool {
-        guard let hex = rgbHex(hex), let value = UInt64(hex, radix: 16) else {
+        guard let rgb = rgbHex(hex), let value = UInt64(rgb, radix: 16) else {
             return false
         }
-        let red = Double((value >> 16) & 0xFF)
-        let green = Double((value >> 8) & 0xFF)
-        let blue = Double(value & 0xFF)
+        let digits = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let alpha = digits.count == 8 ? Double(UInt64(digits.prefix(2), radix: 16) ?? 0xFF) / 255 : 1
+        let overWhitePage = { (channel: UInt64) in alpha * Double(channel & 0xFF) + (1 - alpha) * 255 }
+        let red = overWhitePage(value >> 16)
+        let green = overWhitePage(value >> 8)
+        let blue = overWhitePage(value)
         return (0.299 * red + 0.587 * green + 0.114 * blue) / 255 < 0.5
     }
 
