@@ -32,7 +32,8 @@ the red/yellow/green window controls.
 Ordinary windows use custom controls at every width. Previous and next remain
 inside the chapter capsule, with a separate version capsule. The navigation
 stays visible when scrolling. An opaque upper background shields controls from
-scrolled scripture; bottom navigation has a gradient behind it.
+scrolled scripture; bottom navigation has a gradient behind it that reaches full opacity halfway
+down and stays opaque through the bottom safe area.
 
 Native vertical-toolbar mode puts chapter/version into one horizontal toolbar
 item. Previous/next form a native ControlGroup and the menu is native, allowing
@@ -48,11 +49,18 @@ Optional actions preserve their configured order and ignore duplicates:
 - Default order: Audio, Search. Audio deliberately does nothing in this iteration.
 - Search uses the existing reader search flow. An empty array removes optional actions.
 
-Custom top pickers center in the whole window when there is room for the
-picker budget plus symmetric clearance for corners and trailing actions. With
-standard text and Search, the transition is about 624 pt; it adapts to corner
-geometry and Dynamic Type. Below it, all six controls share one row and the
-picker labels divide the remaining width.
+Custom top pickers align to the outer leading edge of the centered reading
+column, plus 16 pt, excluding the scripture's horizontal padding. On full-width
+phone layouts this is 16 pt from the safe content edge. Corner reservations take
+precedence so window controls remain clear. Search/menu remain trailing; picker
+labels share the available width up to their bounded budget. Bottom navigation
+remains centered. The preceding centered-top experiment is saved at `d76d943`.
+
+When the host reports top tabs, the upper Search/menu row overlays the top safe
+area rather than reserving another row below it. Its 60 pt height and 12 pt gap
+above reading content align the action centers with the floating iPad tabs.
+The overlay extends its hit-testing region through that safe area; native Duo
+toolbars and bottom-tab layouts retain their existing presentation.
 
 Labels have bounded budgets independent of their localized contents.
 Overlong labels truncate rather than causing a different arrangement or pushing

@@ -17,7 +17,7 @@ struct ReaderPickerPresentationModifier: ViewModifier {
             ) {
                 if let version = viewModel.version,
                    let books = version.books,
-                    !books.isEmpty {
+                   !books.isEmpty {
                     BibleReaderBookAndChapterPickerView(
                         expandedBookCode: $viewModel.headerExpandedBookCode,
                         isPresented: $viewModel.showingBookPicker,

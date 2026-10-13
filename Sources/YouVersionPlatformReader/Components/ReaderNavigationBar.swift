@@ -4,6 +4,12 @@ import YouVersionPlatformUI
 
 /// Custom navigation in ordinary windows; its contents do not depend on a width breakpoint.
 struct ReaderNavigationBar: View {
+    private static let leadingPadding: CGFloat = 16
+    private static let verticalPadding: CGFloat = 8
+    static let actionRowHeight: CGFloat = 44 + 2 * verticalPadding
+    // Visual spacing below the floating iPad tab row, verified in simulator captures.
+    static let topTabRowBottomSpacing: CGFloat = 12
+
     @Environment(BibleReaderViewModel.self) private var viewModel
     let layout: ReaderNavigationLayout
     let isUpperBar: Bool
@@ -32,45 +38,42 @@ struct ReaderNavigationBar: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, Self.verticalPadding)
         .background {
             if isUpperBar {
                 viewModel.readerCanvasPrimaryColor
             } else {
                 LinearGradient(
-                    colors: [viewModel.readerCanvasPrimaryColor.opacity(0), viewModel.readerCanvasPrimaryColor],
+                    stops: [
+                        Gradient.Stop(color: viewModel.readerCanvasPrimaryColor.opacity(0), location: 0),
+                        Gradient.Stop(color: viewModel.readerCanvasPrimaryColor, location: 0.5),
+                        Gradient.Stop(color: viewModel.readerCanvasPrimaryColor, location: 1)
+                    ],
                     startPoint: .top, endPoint: .bottom
                 )
+                .ignoresSafeArea(.container, edges: .bottom)
             }
         }
     }
 
     private var upperBar: some View {
-        let leading = max(12, cornerInsets.leading)
+        let columnLeading = max(0, (width - viewModel.readerMaxWidth - 2 * viewModel.readerHorizontalPadding) / 2)
+        let leading = max(columnLeading + Self.leadingPadding, cornerInsets.leading)
         let trailing = max(12, cornerInsets.trailing)
         let actionsWidth: CGFloat = layout.upperAction == nil ? 44 : 96
-        // Center in the whole window only when both sides have enough clearance.
-        let centeredWidth = width - 2 * max(leading, trailing + actionsWidth + 8)
         return Group {
             if layout.placement == .bottomBar {
                 upperActions.frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(.leading, leading)
                     .padding(.trailing, trailing)
-            } else if centeredWidth >= preferredPickerWidth {
-                ReaderNavigationPickers(
-                    width: preferredPickerWidth, includesArrows: true, usesNativeBackground: false
-                )
-                .frame(maxWidth: .infinity)
-                .overlay(alignment: .trailing) {
-                    upperActions.padding(.trailing, trailing)
-                }
             } else {
                 HStack(spacing: 8) {
                     ReaderNavigationPickers(
-                        width: max(0, width - leading - trailing - actionsWidth - 8),
+                        width: min(preferredPickerWidth, max(0, width - leading - trailing - actionsWidth - 8)),
                         includesArrows: true, usesNativeBackground: false,
                         fillsAvailableWidth: true
                     )
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     upperActions
                 }
                 .padding(.leading, leading)
@@ -84,7 +87,7 @@ struct ReaderNavigationBar: View {
             if let action = layout.upperAction {
                 ReaderNavigationActionButton(action: action)
             }
-            ReaderNavigationMenu(actions: layout.menuActions)
+            BibleReaderHeaderMenuView(actions: layout.menuActions)
         }
     }
 
@@ -137,7 +140,7 @@ struct ReaderNavigationPickers: View {
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(isStacked ? 2 : 1)
                     .truncationMode(.middle)
-                    .frame(width: isStacked ? min(versionMaximumWidth, width - 16) : versionWidth)
+                    .frame(width: isStacked ? min(versionMaximumWidth, max(0, width - 16)) : versionWidth)
                     .frame(minHeight: 44)
                     .padding(.horizontal, 8)
                     .contentShape(Rectangle())
@@ -202,8 +205,9 @@ struct ReaderNavigationActionButton: View {
 
     var body: some View {
         Button {
-            if action == .search {
-                viewModel.openSearch()
+            switch action {
+            case .search: viewModel.openSearch()
+            case .audio: break // Playback is intentionally a placeholder.
             }
         } label: {
             if isMenuItem {
@@ -218,11 +222,21 @@ struct ReaderNavigationActionButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)
-        .accessibilityIdentifier(action == .search ? "searchBtn" : "audioBtn")
+        .accessibilityIdentifier(actionIdentifier)
     }
 
     private var systemImage: String {
-        action == .search ? "magnifyingglass" : "play.fill"
+        switch action {
+        case .search: "magnifyingglass"
+        case .audio: "play.fill"
+        }
+    }
+
+    private var actionIdentifier: String {
+        switch action {
+        case .search: "searchBtn"
+        case .audio: "audioBtn"
+        }
     }
 
     private var title: String {
@@ -231,13 +245,5 @@ struct ReaderNavigationActionButton: View {
         // Audio is an explicitly requested placeholder. Add its upstream catalog key with playback.
         case .audio: String(localized: "Audio", bundle: .module)
         }
-    }
-}
-
-struct ReaderNavigationMenu: View {
-    let actions: [BibleReaderNavigationAction]
-
-    var body: some View {
-        BibleReaderHeaderMenuView(actions: actions)
     }
 }

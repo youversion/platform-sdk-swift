@@ -13,7 +13,7 @@ struct ReaderDuoToolbar: ToolbarContent {
                 if let action = layout.primaryAction {
                     ReaderNavigationActionButton(action: action)
                 }
-                ReaderNavigationPickers(width: min(width - 100, 380), includesArrows: false, usesNativeBackground: true)
+                ReaderNavigationPickers(width: max(0, min(width - 100, 380)), includesArrows: false, usesNativeBackground: true)
             }
             .buttonStyle(.plain)
         }
@@ -34,7 +34,7 @@ struct ReaderDuoToolbar: ToolbarContent {
             if let action = layout.upperAction {
                 ReaderNavigationActionButton(action: action, isMenuItem: true)
             }
-            ReaderNavigationMenu(actions: layout.menuActions)
+            BibleReaderHeaderMenuView(actions: layout.menuActions)
         }
     }
 

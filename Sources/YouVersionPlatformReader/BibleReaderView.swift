@@ -270,12 +270,13 @@ private struct ReaderContent: View {
         let layout = ReaderNavigationLayout(
             options: navigationOptions, tabLocation: tabLocation, hasVerticalToolbar: hasVerticalToolbar
         )
+        let sharesTopTabRow = tabLocation == .top && !layout.usesSystemToolbar
         NavigationStack {
             GeometryReader { geometry in
                 mainScroller
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .safeAreaInset(edge: .top, spacing: 0) {
-                        if !layout.usesSystemToolbar {
+                        if !layout.usesSystemToolbar && !sharesTopTabRow {
                             ReaderNavigationBar(
                                 layout: layout, isUpperBar: true, width: geometry.size.width,
                                 cornerInsets: navigationCornerInsets(geometry)
@@ -304,6 +305,26 @@ private struct ReaderContent: View {
                             .offset(y: -geometry.safeAreaInsets.top)
                             .allowsHitTesting(false)
                             .accessibilityHidden(true)
+                    }
+                    .overlay {
+                        if sharesTopTabRow {
+                            // Extend the overlay's hit-testing region into the host's top safe area.
+                            // Keep the action row immediately above the reading content, beside the tabs.
+                            VStack(spacing: 0) {
+                                Color.clear
+                                    .frame(height: max(
+                                        0, geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
+                                            - ReaderNavigationBar.topTabRowBottomSpacing
+                                    ))
+                                    .allowsHitTesting(false)
+                                ReaderNavigationBar(
+                                    layout: layout, isUpperBar: true, width: geometry.size.width,
+                                    cornerInsets: navigationCornerInsets(geometry)
+                                )
+                                Spacer(minLength: 0)
+                            }
+                            .ignoresSafeArea(.container, edges: .top)
+                        }
                     }
             }
             .foregroundStyle(viewModel.readerTextPrimaryColor)
@@ -546,7 +567,7 @@ private struct ReaderContent: View {
                     }
                     .frame(maxWidth: viewModel.readerMaxWidth)
                     .padding(.vertical)
-                    .padding(.horizontal, 30)
+                    .padding(.horizontal, viewModel.readerHorizontalPadding)
                     .id("topOfContent")
                     // Hide the content until the verse scroll lands
                     // to avoid flashing.
