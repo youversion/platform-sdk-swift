@@ -22,10 +22,8 @@ struct BibleReaderHeaderMenuView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .imageScale(.large)
-                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
+                .readerIconButton()
         }
         .accessibilityIdentifier("readerMenuBtn")
         .task {

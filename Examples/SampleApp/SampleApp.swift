@@ -18,11 +18,8 @@ struct SampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            let options = BibleReaderNavigationOptions(
-                placement: ProcessInfo.processInfo.arguments.contains("--reader-top") ? .topBar : .bottomBar,
-                actions: ProcessInfo.processInfo.arguments.contains("--reader-search-only") ? [.search] : [.audio, .search]
-            )
-            let reader = BibleReaderView.restoringLastPassage(navigationOptions: options, readerNavigation: readerNavigation)
+            let reader = BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
+                .navigationPlacement(ProcessInfo.processInfo.arguments.contains("--reader-top") ? .topBar : .bottomBar)
             Group {
                 if ProcessInfo.processInfo.arguments.contains("--reader-no-tabs") {
                     reader

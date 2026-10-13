@@ -90,6 +90,8 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
 - Make access controls as strict as possible (`private`, `fileprivate`, etc.)
 - Prefer structs over classes
 - Avoid abbreviations; prefer clarity over brevity
+- Avoid adding initializer or factory-method variants to public views for optional configuration. Use custom view modifiers instead, following the `BibleReaderView(reference: ...).chapterHeader { ... }` pattern. Preserve established public initializers and factory methods for API compatibility.
+- Never introduce an enum in the SDK's public API. Adding cases can break source compatibility for consumers with exhaustive switches. Follow the `VerseSelectionStyle` pattern instead: a public struct with named static presets. Keep any enum used to represent those presets internal or private. Preserve existing public enums; this rule applies to new API design.
 
 See [CLAUDE.md](./CLAUDE.md) and [.swiftlint.yml](./.swiftlint.yml) for detailed style rules.
 

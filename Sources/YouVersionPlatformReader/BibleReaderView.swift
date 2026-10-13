@@ -11,7 +11,8 @@ public struct BibleReaderView: View {
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
-    private var navigationOptions = BibleReaderNavigationOptions()
+    private var preferredNavigationPlacement = BibleReaderNavigationPlacement.bottomBar
+    private var usesHostToolbar = false
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
@@ -80,34 +81,23 @@ public struct BibleReaderView: View {
         )
     }
 
-    /// Creates a reader with explicit navigation preferences and ordered optional actions.
-    public init(
-        reference: BibleReference,
-        navigationOptions: BibleReaderNavigationOptions,
-        verseSelectionStyle: VerseSelectionStyle = .solid,
-        onVerseTap: ((BibleReference) -> Void)? = nil,
-        showsFullChapter: Bool = false,
-        readerNavigation: BibleReaderNavigation? = nil
-    ) {
-        self.init(
-            reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap,
-            showsFullChapter: showsFullChapter, readerNavigation: readerNavigation
-        )
-        self.navigationOptions = navigationOptions
+    /// Sets the preferred navigation edge when horizontal host tab placement is absent or unavailable.
+    /// The default is `.bottomBar`. Detected top or bottom tabs take precedence:
+    /// the reader places its controls on the opposite edge.
+    public func navigationPlacement(_ placement: BibleReaderNavigationPlacement) -> BibleReaderView {
+        var copy = self
+        copy.preferredNavigationPlacement = placement
+        return copy
     }
 
-    /// Restores the last passage with explicit navigation preferences.
-    public static func restoringLastPassage(
-        navigationOptions: BibleReaderNavigationOptions,
-        verseSelectionStyle: VerseSelectionStyle = .solid,
-        onVerseTap: ((BibleReference) -> Void)? = nil,
-        readerNavigation: BibleReaderNavigation? = nil
-    ) -> BibleReaderView {
-        var reader = restoringLastPassage(
-            verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, readerNavigation: readerNavigation
-        )
-        reader.navigationOptions = navigationOptions
-        return reader
+    /// Allows native reader toolbar items when the system provides a vertical toolbar arrangement.
+    /// Defaults to false. When enabled, the host must supply a navigation container,
+    /// such as `NavigationStack`. The reader never creates its own stack for its main
+    /// content or changes the host's navigation bar visibility or minimization.
+    public func usesHostNavigationToolbar(_ usesHostNavigationToolbar: Bool) -> BibleReaderView {
+        var copy = self
+        copy.usesHostToolbar = usesHostNavigationToolbar
+        return copy
     }
 
     /// Returns a reader that renders `header` at the top of each chapter, above
@@ -205,7 +195,8 @@ public struct BibleReaderView: View {
             if let viewModel {
                 ReaderContent(
                     viewModel: viewModel, readerNavigation: readerNavigation,
-                    chapterHeader: chapterHeaderBuilder, navigationOptions: navigationOptions
+                    chapterHeader: chapterHeaderBuilder, preferredNavigationPlacement: preferredNavigationPlacement,
+                    usesHostToolbar: usesHostToolbar
                 )
                     .modifier(ReaderNavigationEnvironmentModifier())
             } else {
@@ -236,7 +227,8 @@ private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
-    let navigationOptions: BibleReaderNavigationOptions
+    let preferredNavigationPlacement: BibleReaderNavigationPlacement
+    let usesHostToolbar: Bool
     @Environment(\.readerTabLocation) private var tabLocation
     @Environment(\.readerHasVerticalToolbar) private var hasVerticalToolbar
 #if !os(tvOS)
@@ -257,79 +249,75 @@ private struct ReaderContent: View {
         viewModel: BibleReaderViewModel,
         readerNavigation: BibleReaderNavigation?,
         chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
-        navigationOptions: BibleReaderNavigationOptions
+        preferredNavigationPlacement: BibleReaderNavigationPlacement,
+        usesHostToolbar: Bool
     ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
-        self.navigationOptions = navigationOptions
+        self.preferredNavigationPlacement = preferredNavigationPlacement
+        self.usesHostToolbar = usesHostToolbar
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
     var body: some View {
         let layout = ReaderNavigationLayout(
-            options: navigationOptions, tabLocation: tabLocation, hasVerticalToolbar: hasVerticalToolbar
+            preferredPlacement: preferredNavigationPlacement, usesHostNavigationToolbar: usesHostToolbar,
+            tabLocation: tabLocation, hasVerticalToolbar: hasVerticalToolbar
         )
         let sharesTopTabRow = tabLocation == .top && !layout.usesSystemToolbar
-        NavigationStack {
-            GeometryReader { geometry in
-                mainScroller
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .safeAreaInset(edge: .top, spacing: 0) {
-                        if !layout.usesSystemToolbar && !sharesTopTabRow {
+        GeometryReader { geometry in
+            mainScroller
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    if !layout.usesSystemToolbar && !sharesTopTabRow {
+                        ReaderNavigationBar(
+                            layout: layout, isUpperBar: true, width: geometry.size.width,
+                            cornerInsets: navigationCornerInsets(geometry)
+                        )
+                    }
+                }
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    if viewModel.showingVerseActionsDrawer {
+                        verseActionDrawer.frame(maxWidth: viewModel.readerMaxWidth)
+                    } else if layout.placement == .bottomBar && !layout.usesSystemToolbar {
+                        ReaderNavigationBar(
+                            layout: layout, isUpperBar: false, width: geometry.size.width
+                        )
+                    }
+                }
+                .modifier(ReaderToolbarModifier(layout: layout, width: geometry.size.width))
+                .modifier(ReaderPickerPresentationModifier())
+                .overlay(alignment: .top) {
+                    viewModel.readerCanvasPrimaryColor
+                        .frame(height: geometry.safeAreaInsets.top)
+                        .offset(y: -geometry.safeAreaInsets.top)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+                .overlay {
+                    if sharesTopTabRow {
+                        // Extend the overlay's hit-testing region into the host's top safe area.
+                        // Keep the action row immediately above the reading content, beside the tabs.
+                        VStack(spacing: 0) {
+                            Color.clear
+                                .frame(height: max(
+                                    0, geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
+                                        - ReaderNavigationBar.topTabRowBottomSpacing
+                                ))
+                                .allowsHitTesting(false)
                             ReaderNavigationBar(
                                 layout: layout, isUpperBar: true, width: geometry.size.width,
                                 cornerInsets: navigationCornerInsets(geometry)
                             )
+                            Spacer(minLength: 0)
                         }
+                        .ignoresSafeArea(.container, edges: .top)
                     }
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        if viewModel.showingVerseActionsDrawer {
-                            verseActionDrawer.frame(maxWidth: viewModel.readerMaxWidth)
-                        } else if layout.placement == .bottomBar && !layout.usesSystemToolbar {
-                            ReaderNavigationBar(
-                                layout: layout, isUpperBar: false, width: geometry.size.width
-                            )
-                        }
-                    }
-                    .toolbar {
-                        if layout.usesSystemToolbar {
-                            ReaderDuoToolbar(layout: layout, width: geometry.size.width)
-                        }
-                    }
-                    .modifier(ReaderToolbarVisibilityModifier(layout: layout))
-                    .modifier(ReaderPickerPresentationModifier())
-                    .overlay(alignment: .top) {
-                        viewModel.readerCanvasPrimaryColor
-                            .frame(height: geometry.safeAreaInsets.top)
-                            .offset(y: -geometry.safeAreaInsets.top)
-                            .allowsHitTesting(false)
-                            .accessibilityHidden(true)
-                    }
-                    .overlay {
-                        if sharesTopTabRow {
-                            // Extend the overlay's hit-testing region into the host's top safe area.
-                            // Keep the action row immediately above the reading content, beside the tabs.
-                            VStack(spacing: 0) {
-                                Color.clear
-                                    .frame(height: max(
-                                        0, geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
-                                            - ReaderNavigationBar.topTabRowBottomSpacing
-                                    ))
-                                    .allowsHitTesting(false)
-                                ReaderNavigationBar(
-                                    layout: layout, isUpperBar: true, width: geometry.size.width,
-                                    cornerInsets: navigationCornerInsets(geometry)
-                                )
-                                Spacer(minLength: 0)
-                            }
-                            .ignoresSafeArea(.container, edges: .top)
-                        }
-                    }
-            }
-            .foregroundStyle(viewModel.readerTextPrimaryColor)
-            .background(viewModel.readerCanvasPrimaryColor)
+                }
         }
+        .foregroundStyle(viewModel.readerTextPrimaryColor)
+        .background(viewModel.readerCanvasPrimaryColor)
         .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation

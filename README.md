@@ -155,22 +155,29 @@ BibleReaderView(
 )
 ```
 
-#### Reader navigation placement and actions
+#### Reader navigation placement
 
-The reader places its navigation opposite the host's horizontal tab bar. Without a horizontal tab bar, it defaults to the bottom. To choose another preference or change the optional actions:
+The reader places its navigation opposite the host's horizontal tab bar on iOS 18 and later. When horizontal tab placement is absent or unavailable, including iOS 17, it defaults to the bottom. Set a fallback preference with a modifier:
 
 ```swift
-BibleReaderView.restoringLastPassage(
-    navigationOptions: BibleReaderNavigationOptions(
-        placement: .topBar,
-        actions: [.search]
-    )
-)
+BibleReaderView.restoringLastPassage()
+    .navigationPlacement(.topBar)
 ```
 
-The default actions are `[.audio, .search]`. Audio is currently a placeholder and does nothing. At the bottom, the first action appears beside the chapter picker and the second appears at the top beside the menu. With custom top navigation, Search stays beside the upper-right menu and other optional actions appear inside it. An empty array hides all optional actions.
+Use `.topBar` for a reader inside a bottom `TabView` on iOS 17. On newer systems, detected tab placement takes precedence.
 
-Ordinary windows use custom chapter and version controls, with previous/next buttons surrounding the chapter picker. When SwiftUI provides a vertical toolbar edge, the reader uses native toolbar items so the system can move previous/next and the menu into its vertical toolbar.
+The reader controls Search placement internally. With bottom navigation, Search appears beside the chapter picker. With custom top navigation, Search stays beside the upper-right menu.
+
+Ordinary windows use custom chapter and version controls, with previous/next buttons surrounding the chapter picker. The reader does not create a `NavigationStack` or change the host navigation bar's visibility. To allow native items in a system vertical-toolbar arrangement, provide a host navigation container and opt in:
+
+```swift
+NavigationStack {
+    BibleReaderView.restoringLastPassage()
+        .usesHostNavigationToolbar(true)
+}
+```
+
+If the reader is already a destination in your stack, apply the modifier without adding another stack. See [Reader Navigation](docs/reader-navigation-guide.md) for configuration details.
 
 #### Navigating the reader from elsewhere in your app
 
