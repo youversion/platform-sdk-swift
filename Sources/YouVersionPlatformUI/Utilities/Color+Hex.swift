@@ -64,9 +64,9 @@ public extension Color {
             return nil
         }
 
-        let r = Int(red * 255)
-        let g = Int(green * 255)
-        let b = Int(blue * 255)
+        let r = Int((red * 255).rounded())
+        let g = Int((green * 255).rounded())
+        let b = Int((blue * 255).rounded())
 
         return String(format: "%02X%02X%02X", r, g, b)
 #else
