@@ -166,7 +166,7 @@ struct BibleReaderSearchView: View {
                 ForEach(Array(filteredResults.enumerated()), id: \.element.passageId) { index, result in
                     resultButton(result)
                         .id(result.passageId)
-                        .task(id: viewModel.nextSearchPageToken) {
+                        .task(id: viewModel.nextSearchPageLoadTrigger) {
                             let loadThreshold = max(0, filteredResults.count - 5)
                             guard index >= loadThreshold else {
                                 return
@@ -178,7 +178,7 @@ struct BibleReaderSearchView: View {
                 if filteredResults.isEmpty {
                     Color.clear
                         .frame(height: 1)
-                        .task(id: viewModel.nextSearchPageToken) {
+                        .task(id: viewModel.nextSearchPageLoadTrigger) {
                             await viewModel.loadNextSearchPageIfNeeded()
                         }
                 }

@@ -24,6 +24,13 @@ extension BibleReaderViewModel {
         }
     }
 
+    var nextSearchPageLoadTrigger: SearchPageLoadTrigger {
+        SearchPageLoadTrigger(
+            pageToken: nextSearchPageToken,
+            interruptionCount: interruptedSearchPageLoadCount
+        )
+    }
+
     var hasNextSearchPage: Bool {
         !(nextSearchPageToken ?? "").isEmpty
     }
@@ -195,10 +202,11 @@ extension BibleReaderViewModel {
             searchResults.append(contentsOf: newResults)
             nextSearchPageToken = results.nextPageToken
         } catch {
-            guard !isCancellation(error) else {
+            guard requestID == nextSearchPageRequestID else {
                 return
             }
-            guard requestID == nextSearchPageRequestID else {
+            guard !isCancellation(error) else {
+                interruptedSearchPageLoadCount += 1
                 return
             }
             hasNextSearchPageLoadError = true

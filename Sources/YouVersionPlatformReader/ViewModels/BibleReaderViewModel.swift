@@ -29,6 +29,11 @@ enum SearchStatus: Equatable {
     case failed
 }
 
+struct SearchPageLoadTrigger: Equatable {
+    let pageToken: String?
+    let interruptionCount: Int
+}
+
 enum SearchCanonFilter: CaseIterable {
     case oldTestament
     case newTestament
@@ -124,6 +129,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
     var hasNextSearchPageLoadError = false
+    var interruptedSearchPageLoadCount = 0
     var searchCanonFilter: SearchCanonFilter = .both
 
     // MARK: - Font settings

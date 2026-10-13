@@ -178,6 +178,7 @@ import Testing
         viewModel.completedSearchQuery = "joy"
         viewModel.completedSearchVersionID = viewModel.reference.versionId
         viewModel.hasNextSearchPageLoadError = true
+        let triggerBeforeLoad = viewModel.nextSearchPageLoadTrigger
         let searchTask = Task {
             await viewModel.loadNextSearchPageIfNeeded()
         }
@@ -190,6 +191,7 @@ import Testing
         #expect(viewModel.nextSearchPageRequestID == nil)
         #expect(!viewModel.isLoadingNextSearchPage)
         #expect(!viewModel.hasNextSearchPageLoadError)
+        #expect(viewModel.nextSearchPageLoadTrigger != triggerBeforeLoad)
     }
 
     @Test
