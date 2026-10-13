@@ -11,6 +11,7 @@ public struct BibleReaderView: View {
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
+    private var navigationOptions = BibleReaderNavigationOptions()
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
@@ -77,6 +78,36 @@ public struct BibleReaderView: View {
             showsFullChapter: false,
             readerNavigation: readerNavigation
         )
+    }
+
+    /// Creates a reader with explicit navigation preferences and ordered optional actions.
+    public init(
+        reference: BibleReference,
+        navigationOptions: BibleReaderNavigationOptions,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        showsFullChapter: Bool = false,
+        readerNavigation: BibleReaderNavigation? = nil
+    ) {
+        self.init(
+            reference: reference, verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap,
+            showsFullChapter: showsFullChapter, readerNavigation: readerNavigation
+        )
+        self.navigationOptions = navigationOptions
+    }
+
+    /// Restores the last passage with explicit navigation preferences.
+    public static func restoringLastPassage(
+        navigationOptions: BibleReaderNavigationOptions,
+        verseSelectionStyle: VerseSelectionStyle = .solid,
+        onVerseTap: ((BibleReference) -> Void)? = nil,
+        readerNavigation: BibleReaderNavigation? = nil
+    ) -> BibleReaderView {
+        var reader = restoringLastPassage(
+            verseSelectionStyle: verseSelectionStyle, onVerseTap: onVerseTap, readerNavigation: readerNavigation
+        )
+        reader.navigationOptions = navigationOptions
+        return reader
     }
 
     /// Returns a reader that renders `header` at the top of each chapter, above
@@ -172,7 +203,11 @@ public struct BibleReaderView: View {
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation, chapterHeader: chapterHeaderBuilder)
+                ReaderContent(
+                    viewModel: viewModel, readerNavigation: readerNavigation,
+                    chapterHeader: chapterHeaderBuilder, navigationOptions: navigationOptions
+                )
+                    .modifier(ReaderNavigationEnvironmentModifier())
             } else {
                 Color.clear
             }
@@ -201,6 +236,9 @@ private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+    let navigationOptions: BibleReaderNavigationOptions
+    @Environment(\.readerTabLocation) private var tabLocation
+    @Environment(\.readerHasVerticalToolbar) private var hasVerticalToolbar
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -218,37 +256,59 @@ private struct ReaderContent: View {
     init(
         viewModel: BibleReaderViewModel,
         readerNavigation: BibleReaderNavigation?,
-        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
+        navigationOptions: BibleReaderNavigationOptions
     ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
+        self.navigationOptions = navigationOptions
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Spacer()
-                .frame(height: 4)
-            Divider()
-                .frame(height: 1)
-            ZStack {
-                VStack {
-                    mainScroller
-                    Spacer(minLength: 0)
-                }
-                BibleReaderNavButtons()
-                    .opacity(viewModel.showingVerseActionsDrawer ? 0 : 1)
-                if viewModel.showingVerseActionsDrawer {
-                    verseActionDrawer
-                        .frame(maxWidth: viewModel.readerMaxWidth, maxHeight: .infinity, alignment: .bottom)
-                        .transition(reduceMotion ? .opacity : .move(edge: .bottom))
-                }
+        let layout = ReaderNavigationLayout(
+            options: navigationOptions, tabLocation: tabLocation, hasVerticalToolbar: hasVerticalToolbar
+        )
+        NavigationStack {
+            GeometryReader { geometry in
+                mainScroller
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        if !layout.usesSystemToolbar {
+                            ReaderNavigationBar(
+                                layout: layout, isUpperBar: true, width: geometry.size.width,
+                                cornerInsets: navigationCornerInsets(geometry)
+                            )
+                        }
+                    }
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        if viewModel.showingVerseActionsDrawer {
+                            verseActionDrawer.frame(maxWidth: viewModel.readerMaxWidth)
+                        } else if layout.placement == .bottomBar && !layout.usesSystemToolbar {
+                            ReaderNavigationBar(
+                                layout: layout, isUpperBar: false, width: geometry.size.width
+                            )
+                        }
+                    }
+                    .toolbar {
+                        if layout.usesSystemToolbar {
+                            ReaderDuoToolbar(layout: layout, width: geometry.size.width)
+                        }
+                    }
+                    .modifier(ReaderToolbarVisibilityModifier(layout: layout))
+                    .modifier(ReaderPickerPresentationModifier())
+                    .overlay(alignment: .top) {
+                        viewModel.readerCanvasPrimaryColor
+                            .frame(height: geometry.safeAreaInsets.top)
+                            .offset(y: -geometry.safeAreaInsets.top)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                    }
             }
+            .foregroundStyle(viewModel.readerTextPrimaryColor)
+            .background(viewModel.readerCanvasPrimaryColor)
         }
-        .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .background(viewModel.readerCanvasPrimaryColor)
         .alert(
             String.localized("signOut.question"),
             isPresented: $viewModel.showSignOutConfirmation
@@ -348,25 +408,20 @@ private struct ReaderContent: View {
             .padding(.vertical, 48)
     }
 
-    private var header: some View {
-        HStack {
-            if viewModel.version != nil {
-                BibleReaderHeaderView(
-                    showChrome: viewModel.showChrome,
-                    onSelectionChange: { version, book, chapter, passageId in
-                        Task {
-                            let reference = BibleReference(versionId: version, bookId: book, chapter: chapter ?? 1)
-                            await viewModel.onHeaderSelectionChange(reference, showIntro: chapter == nil)
-                        }
-                    },
-                    onCompactTap: {
-                        viewModel.showChrome = true
-                    }
-                )
-            }
-            Spacer(minLength: 0)
+    private func navigationCornerInsets(_ geometry: GeometryProxy) -> EdgeInsets {
+#if compiler(>=6.2)
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, visionOS 26.0, *) {
+            let corners = geometry.containerCornerInsets
+            let safe = geometry.safeAreaInsets
+            return EdgeInsets(
+                top: 0,
+                leading: corners.topLeading.height > safe.top ? max(0, corners.topLeading.width - safe.leading) : 0,
+                bottom: 0,
+                trailing: corners.topTrailing.height > safe.top ? max(0, corners.topTrailing.width - safe.trailing) : 0
+            )
         }
-        .padding(.leading, 8)
+#endif
+        return EdgeInsets()
     }
 
     private var fontSettingsSheet: some View {

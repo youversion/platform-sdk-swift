@@ -4,9 +4,13 @@ import YouVersionPlatformCore
 struct BibleReaderHeaderMenuView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @State private var observedIsSignedIn: Bool?
+    var actions: [BibleReaderNavigationAction] = []
 
     var body: some View {
         Menu {
+            ForEach(actions, id: \.self) { action in
+                ReaderNavigationActionButton(action: action, isMenuItem: true)
+            }
             Button(String.localized("menu.fontSettings"), action: openFontSettings)
             if YouVersionPlatformConfiguration.isSignInEnabled {
                 if isSignedIn {
@@ -18,9 +22,12 @@ struct BibleReaderHeaderMenuView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .imageScale(.large)
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
-                .padding()
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
         }
+        .accessibilityIdentifier("readerMenuBtn")
         .task {
             await updateSignInState()
         }

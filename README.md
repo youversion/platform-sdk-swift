@@ -155,6 +155,23 @@ BibleReaderView(
 )
 ```
 
+#### Reader navigation placement and actions
+
+The reader places its navigation opposite the host's horizontal tab bar. Without a horizontal tab bar, it defaults to the bottom. To choose another preference or change the optional actions:
+
+```swift
+BibleReaderView.restoringLastPassage(
+    navigationOptions: BibleReaderNavigationOptions(
+        placement: .topBar,
+        actions: [.search]
+    )
+)
+```
+
+The default actions are `[.audio, .search]`. Audio is currently a placeholder and does nothing. At the bottom, the first action appears beside the chapter picker and the second appears at the top beside the menu. With custom top navigation, Search stays beside the upper-right menu and other optional actions appear inside it. An empty array hides all optional actions.
+
+Ordinary windows use custom chapter and version controls, with previous/next buttons surrounding the chapter picker. When SwiftUI provides a vertical toolbar edge, the reader uses native toolbar items so the system can move previous/next and the menu into its vertical toolbar.
+
 #### Navigating the reader from elsewhere in your app
 
 To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.
