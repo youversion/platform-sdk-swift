@@ -6,9 +6,15 @@ import YouVersionPlatformUI
 /// The compact overlay retains the expanded pickers' size so collapsing chrome
 /// does not itself move the scroll content and reverse the scroll-driven state.
 struct ReaderNavigationPickers: View {
+    private enum FocusedControl: Hashable {
+        case compactNavigation
+        case chapterPicker
+    }
+
     @Environment(BibleReaderViewModel.self) private var viewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AccessibilityFocusState(for: .voiceOver) private var focusedControl: FocusedControl?
     @ScaledMetric(relativeTo: .subheadline) private var chapterMaximumWidth = 200
     @ScaledMetric(relativeTo: .subheadline) private var versionMaximumWidth = 80
     let width: CGFloat
@@ -40,6 +46,7 @@ struct ReaderNavigationPickers: View {
                         .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier("bookAndChapterPickerBtn")
+                .accessibilityFocused($focusedControl, equals: .chapterPicker)
                 if includesArrows {
                     chapterArrow(isNext: true)
                 }
@@ -75,8 +82,13 @@ struct ReaderNavigationPickers: View {
 
     private var compactNavigation: some View {
         Button {
-            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) {
+            let shouldRestoreFocus = focusedControl == .compactNavigation
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3), completionCriteria: .removed) {
                 viewModel.showChrome = true
+            } completion: {
+                if shouldRestoreFocus {
+                    focusedControl = .chapterPicker
+                }
             }
         } label: {
             HStack(spacing: 32) {
@@ -94,6 +106,8 @@ struct ReaderNavigationPickers: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("readerCompactNavigationBtn")
+        .accessibilityLabel(Text(verbatim: "\(chapterTitle), \(versionTitle)"))
+        .accessibilityFocused($focusedControl, equals: .compactNavigation)
     }
 
     private func chapterArrow(isNext: Bool) -> some View {
