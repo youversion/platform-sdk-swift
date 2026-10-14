@@ -89,10 +89,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
-    @available(*, deprecated, message: "Layout belongs to the view. Use BibleReaderView.contentHorizontalPadding.")
-    let readerHorizontalPadding = BibleReaderView.contentHorizontalPadding
-    @available(*, deprecated, message: "Layout belongs to the view. Use BibleReaderView.contentMaximumWidth.")
-    let readerMaxWidth = BibleReaderView.contentMaximumWidth
 
     // MARK: - Search
 
