@@ -306,7 +306,7 @@ private struct ReaderContent: View {
                             Color.clear
                                 .frame(height: max(
                                     0, geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
-                                        - ReaderNavigationBar.topTabRowBottomSpacing
+                                        - ReaderNavigationBar.assumedTopTabRowBottomSpacing
                                 ))
                                 .allowsHitTesting(false)
                             ReaderNavigationBar(

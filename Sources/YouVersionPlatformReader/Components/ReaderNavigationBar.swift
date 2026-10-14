@@ -7,8 +7,12 @@ struct ReaderNavigationBar: View {
     private static let leadingPadding: CGFloat = 16
     private static let verticalPadding: CGFloat = 8
     static let actionRowHeight: CGFloat = 44 + 2 * verticalPadding
-    // Visual spacing below the floating iPad tab row, verified in simulator captures.
-    static let topTabRowBottomSpacing: CGFloat = 12
+    // Assumed gap between the floating iPad tab row and the bottom of the top safe area,
+    // calibrated from simulator captures rather than a documented system metric.
+    // Subtracting this gap and our action-row height from the top safe-area inset aligns
+    // Search/Menu beside the tabs. This assumes that inset represents the system tab area
+    // without additional host headers or banners; those or changed system metrics can shift alignment.
+    static let assumedTopTabRowBottomSpacing: CGFloat = 12
 
     @Environment(BibleReaderViewModel.self) private var viewModel
     let layout: ReaderNavigationLayout
