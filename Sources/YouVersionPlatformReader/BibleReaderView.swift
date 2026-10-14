@@ -197,8 +197,10 @@ public struct BibleReaderView: View {
         Group {
             if let viewModel {
                 ReaderContent(
-                    viewModel: viewModel, readerNavigation: readerNavigation,
-                    chapterHeader: chapterHeaderBuilder, preferredNavigationPlacement: preferredNavigationPlacement,
+                    viewModel: viewModel,
+                    readerNavigation: readerNavigation,
+                    chapterHeader: chapterHeaderBuilder,
+                    preferredNavigationPlacement: preferredNavigationPlacement,
                     usesHostToolbar: usesHostToolbar
                 )
                     .modifier(ReaderNavigationEnvironmentModifier())
@@ -265,8 +267,10 @@ private struct ReaderContent: View {
 
     var body: some View {
         let layout = ReaderNavigationLayout(
-            preferredPlacement: preferredNavigationPlacement, usesHostNavigationToolbar: usesHostToolbar,
-            tabLocation: tabLocation, hasVerticalToolbar: hasVerticalToolbar
+            preferredPlacement: preferredNavigationPlacement,
+            usesHostNavigationToolbar: usesHostToolbar,
+            tabLocation: tabLocation,
+            hasVerticalToolbar: hasVerticalToolbar
         )
         let sharesTopTabRow = tabLocation == .top && !layout.usesSystemToolbar
         GeometryReader { geometry in
@@ -275,8 +279,7 @@ private struct ReaderContent: View {
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if layout.placement == .topBar || (!layout.usesSystemToolbar && !sharesTopTabRow) {
                         ReaderNavigationBar(
-                            layout: layout, isUpperBar: true, width: geometry.size.width,
-                            cornerInsets: navigationCornerInsets(geometry)
+                            layout: layout, isUpperBar: true, width: geometry.size.width, cornerInsets: navigationCornerInsets(geometry)
                         )
                     }
                 }
@@ -284,9 +287,7 @@ private struct ReaderContent: View {
                     if viewModel.showingVerseActionsDrawer {
                         verseActionDrawer.frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     } else if layout.placement == .bottomBar {
-                        ReaderNavigationBar(
-                            layout: layout, isUpperBar: false, width: geometry.size.width
-                        )
+                        ReaderNavigationBar(layout: layout, isUpperBar: false, width: geometry.size.width)
                     }
                 }
                 .modifier(ReaderToolbarModifier(layout: layout))
@@ -300,18 +301,16 @@ private struct ReaderContent: View {
                 }
                 .overlay {
                     if sharesTopTabRow {
-                        // Extend the overlay's hit-testing region into the host's top safe area.
-                        // Keep the action row immediately above the reading content, beside the tabs.
+                        let actionRowTopSpacing = geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
+                            - ReaderNavigationBar.assumedTopTabRowBottomSpacing
+                        // Extends the overlay's hit-testing region into the host's top safe area.
+                        // Keeps the action row immediately above the reading content, beside the tabs.
                         VStack(spacing: 0) {
                             Color.clear
-                                .frame(height: max(
-                                    0, geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
-                                        - ReaderNavigationBar.assumedTopTabRowBottomSpacing
-                                ))
+                                .frame(height: max(0, actionRowTopSpacing))
                                 .allowsHitTesting(false)
                             ReaderNavigationBar(
-                                layout: layout, isUpperBar: true, width: geometry.size.width,
-                                cornerInsets: navigationCornerInsets(geometry)
+                                layout: layout, isUpperBar: true, width: geometry.size.width, cornerInsets: navigationCornerInsets(geometry)
                             )
                             Spacer(minLength: 0)
                         }

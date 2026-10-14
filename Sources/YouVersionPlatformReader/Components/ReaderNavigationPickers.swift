@@ -36,7 +36,9 @@ struct ReaderNavigationPickers: View {
                 if includesArrows {
                     chapterArrow(isNext: false)
                 }
-                Button { viewModel.showingBookPicker = true } label: {
+                Button {
+                    viewModel.showingBookPicker = true
+                } label: {
                     Text(chapterTitle)
                         .font(.subheadline.weight(.semibold))
                         .lineLimit(isStacked ? 2 : 1)
