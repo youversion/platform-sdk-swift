@@ -57,7 +57,7 @@ struct ReaderNavigationBar: View {
     }
 
     private var upperBar: some View {
-        let columnLeading = max(0, (width - viewModel.readerMaxWidth - 2 * viewModel.readerHorizontalPadding) / 2)
+        let columnLeading = max(0, (width - BibleReaderView.contentMaximumWidth - 2 * BibleReaderView.contentHorizontalPadding) / 2)
         let leading = max(columnLeading + Self.leadingPadding, cornerInsets.leading)
         let trailing = max(12, cornerInsets.trailing)
         let actionsWidth: CGFloat = layout.usesSystemToolbar ? 0 : (layout.upperAction == nil ? 44 : 96)
@@ -73,7 +73,7 @@ struct ReaderNavigationBar: View {
                         includesArrows: !layout.usesSystemToolbar,
                         fillsAvailableWidth: true,
                         compactAlignment: .leading,
-                        compactLeadingPadding: max(0, columnLeading + viewModel.readerHorizontalPadding - leading)
+                        compactLeadingPadding: max(0, columnLeading + BibleReaderView.contentHorizontalPadding - leading)
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
                     if !layout.usesSystemToolbar {

@@ -82,7 +82,7 @@ struct BibleReaderSearchView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .frame(maxWidth: viewModel.readerMaxWidth)
+            .frame(maxWidth: BibleReaderView.contentMaximumWidth)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
@@ -125,7 +125,7 @@ struct BibleReaderSearchView: View {
                 }
             }
             .scrollTargetLayout()
-            .frame(maxWidth: viewModel.readerMaxWidth)
+            .frame(maxWidth: BibleReaderView.contentMaximumWidth)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)

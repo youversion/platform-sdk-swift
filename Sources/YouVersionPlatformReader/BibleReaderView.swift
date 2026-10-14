@@ -4,6 +4,9 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
+    static let contentHorizontalPadding: CGFloat = 30
+    static let contentMaximumWidth: CGFloat = 700
+
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
@@ -279,7 +282,7 @@ private struct ReaderContent: View {
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     if viewModel.showingVerseActionsDrawer {
-                        verseActionDrawer.frame(maxWidth: viewModel.readerMaxWidth)
+                        verseActionDrawer.frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     } else if layout.placement == .bottomBar {
                         ReaderNavigationBar(
                             layout: layout, isUpperBar: false, width: geometry.size.width
@@ -550,12 +553,12 @@ private struct ReaderContent: View {
                         }
                         VStack(alignment: .center) {
                             bibleCopyrightBlock
-                                .frame(maxWidth: viewModel.readerMaxWidth)
+                                .frame(maxWidth: BibleReaderView.contentMaximumWidth)
                         }
                     }
-                    .frame(maxWidth: viewModel.readerMaxWidth)
+                    .frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     .padding(.vertical)
-                    .padding(.horizontal, viewModel.readerHorizontalPadding)
+                    .padding(.horizontal, BibleReaderView.contentHorizontalPadding)
                     .id("topOfContent")
                     // Hide the content until the verse scroll lands
                     // to avoid flashing.

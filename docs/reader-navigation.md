@@ -74,6 +74,11 @@ native presentation. Established public initializer signatures remain intact;
 reader modifiers configure placement and host-toolbar participation. Search
 placement is reader-owned.
 
+`BibleReaderHeaderView` is a deprecated, empty compatibility shell. Its public
+identity remains until a major release permits removal; it never had a public
+initializer. Use `BibleReaderView` for reader navigation. The full reader owns
+picker presentation through `ReaderPickerPresentationModifier`.
+
 The sample app accepts `--reader-no-tabs` and `--reader-top`
 for scenario testing, plus `--reader-width-debug` for a
 centered width badge in debug builds. Add `--reader-host-toolbar` to supply a
