@@ -2,8 +2,10 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-/// Custom pickers in every window, with actions supplied by the system rail when available.
+/// Provides the custom picker and action-button content for a reader navigation bar.
+/// ReaderContent positions the bar above or below the reading area.
 struct ReaderNavigationBar: View {
+    private static let bottomBarMaximumWidth: CGFloat = 600
     private static let leadingPadding: CGFloat = 16
     private static let verticalPadding: CGFloat = 8
     static let actionRowHeight: CGFloat = 44 + 2 * verticalPadding
@@ -27,19 +29,7 @@ struct ReaderNavigationBar: View {
             if isUpperBar {
                 upperBar
             } else {
-                HStack(spacing: 8) {
-                    if viewModel.showChrome, let action = layout.primaryAction {
-                        ReaderNavigationActionButton(action: action)
-                            .modifier(ReaderNavigationCapsule())
-                    }
-                    ReaderNavigationPickers(
-                        width: min(width, 600) - 24 - (layout.primaryAction == nil ? 0 : 52),
-                        includesArrows: !layout.usesSystemToolbar
-                    )
-                }
-                .padding(.horizontal, 12)
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                lowerBar
             }
         }
         .padding(.vertical, viewModel.showChrome ? Self.verticalPadding : 0)
@@ -67,7 +57,8 @@ struct ReaderNavigationBar: View {
         let actionsWidth: CGFloat = layout.usesSystemToolbar ? 0 : (layout.upperAction == nil ? 44 : 96)
         return Group {
             if layout.placement == .bottomBar {
-                upperActions.frame(maxWidth: .infinity, alignment: .trailing)
+                upperActions
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(.leading, leading)
                     .padding(.trailing, trailing)
             } else {
@@ -90,6 +81,22 @@ struct ReaderNavigationBar: View {
         }
     }
 
+    private var lowerBar: some View {
+        HStack(spacing: 8) {
+            if viewModel.showChrome, let action = layout.primaryAction {
+                ReaderNavigationActionButton(action: action)
+                    .modifier(ReaderNavigationCapsule())
+            }
+            ReaderNavigationPickers(
+                width: min(width, Self.bottomBarMaximumWidth) - 24 - (layout.primaryAction == nil ? 0 : 52),
+                includesArrows: !layout.usesSystemToolbar
+            )
+        }
+        .padding(.horizontal, 12)
+        .frame(maxWidth: Self.bottomBarMaximumWidth)
+        .frame(maxWidth: .infinity)
+    }
+
     private var upperActions: some View {
         HStack(spacing: 8) {
             if let action = layout.upperAction {
@@ -102,16 +109,4 @@ struct ReaderNavigationBar: View {
         .accessibilityHidden(!viewModel.showChrome)
     }
 
-}
-
-struct ReaderNavigationCapsule: ViewModifier {
-    @Environment(BibleReaderViewModel.self) private var viewModel
-
-    func body(content: Content) -> some View {
-        content.background {
-            Capsule()
-                .fill(viewModel.readerButtonPrimaryColor)
-                .shadow(color: viewModel.readerDropShadowColor.opacity(0.25), radius: 8, y: 3)
-        }
-    }
 }
