@@ -79,7 +79,7 @@ For a custom tab bar that SwiftUI does not report, set the reader's preferred po
 
 ### Use a Host Navigation Stack
 
-The reader does not create a navigation stack for its main content. You can display it independently or push it onto your app's existing stack. It does not hide the host's navigation bar or Back button, or change the host's toolbar visibility or minimization settings.
+The reader does not create a navigation stack for its main content. You can display it independently or push it onto your app's existing stack. It does not hide the host's navigation bar or Back button, or change the host's toolbar visibility. When native reader toolbar items are active, it disables navigation bar minimization so those actions remain available while the custom reader bar is collapsed.
 
 By default, the reader uses custom controls even inside a navigation stack. To allow native controls in a system vertical-toolbar arrangement, opt in and provide the navigation container:
 

@@ -96,7 +96,9 @@ public struct BibleReaderView: View {
     /// Allows native reader toolbar items when the system provides a vertical toolbar arrangement.
     /// Defaults to false. When enabled, the host must supply a navigation container,
     /// such as `NavigationStack`. The reader never creates its own stack for its main
-    /// content or changes the host's navigation bar visibility or minimization.
+    /// content or changes the host's navigation bar visibility. When native reader
+    /// toolbar items are active, it disables navigation bar minimization so those
+    /// actions remain available while the custom reader bar is collapsed.
     public func usesHostNavigationToolbar(_ usesHostNavigationToolbar: Bool) -> BibleReaderView {
         var copy = self
         copy.usesHostToolbar = usesHostNavigationToolbar
