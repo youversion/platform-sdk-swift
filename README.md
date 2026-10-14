@@ -157,7 +157,7 @@ BibleReaderView(
 
 #### Reader navigation placement
 
-The reader places its navigation opposite the host's horizontal tab bar on iOS 18 and later. When horizontal tab placement is absent or unavailable, including iOS 17, it defaults to the bottom. Set a fallback preference with a modifier:
+The reader places its navigation (the book and chapter and Bible version buttons) opposite the host's horizontal tab bar on iOS 18 and later. When horizontal tab placement is absent or unavailable, including iOS 17, it defaults to the bottom. Set a fallback preference with a modifier:
 
 ```swift
 BibleReaderView.restoringLastPassage()
@@ -166,9 +166,7 @@ BibleReaderView.restoringLastPassage()
 
 Use `.topBar` for a reader inside a bottom `TabView` on iOS 17. On newer systems, detected tab placement takes precedence.
 
-The reader controls Search placement internally. With bottom navigation, Search appears beside the chapter picker. With custom top navigation, Search stays beside the upper-right menu.
-
-Ordinary windows use custom chapter and version controls, with previous/next buttons surrounding the chapter picker. The reader does not create a `NavigationStack` or change the host navigation bar's visibility. To allow native items in a system vertical-toolbar arrangement, provide a host navigation container and opt in:
+The reader does not create a `NavigationStack` or change the host navigation bar's visibility. To allow native items in a system vertical-toolbar arrangement (e.g. for iPhone Duo), provide a host navigation container and opt into using system components, so it will move buttons into that vertical toolbar when appropriate:
 
 ```swift
 NavigationStack {
