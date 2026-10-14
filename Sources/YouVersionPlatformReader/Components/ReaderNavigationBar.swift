@@ -38,7 +38,7 @@ struct ReaderNavigationBar: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(.vertical, Self.verticalPadding)
+        .padding(.vertical, viewModel.showChrome ? Self.verticalPadding : 0)
         .background {
             if isUpperBar {
                 viewModel.readerCanvasPrimaryColor
@@ -71,7 +71,9 @@ struct ReaderNavigationBar: View {
                     ReaderNavigationPickers(
                         width: min(preferredPickerWidth, max(0, width - leading - trailing - actionsWidth - 8)),
                         includesArrows: true, usesNativeBackground: false,
-                        fillsAvailableWidth: true
+                        fillsAvailableWidth: true,
+                        compactAlignment: .leading,
+                        compactLeadingPadding: max(0, columnLeading + viewModel.readerHorizontalPadding - leading)
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
                     upperActions

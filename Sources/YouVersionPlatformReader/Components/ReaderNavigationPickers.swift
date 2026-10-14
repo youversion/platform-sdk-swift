@@ -15,6 +15,8 @@ struct ReaderNavigationPickers: View {
     let includesArrows: Bool
     let usesNativeBackground: Bool
     var fillsAvailableWidth = false
+    var compactAlignment: Alignment = .center
+    var compactLeadingPadding: CGFloat = 0
 
     var body: some View {
         let isStacked = dynamicTypeSize.isAccessibilitySize && !usesNativeBackground
@@ -78,15 +80,17 @@ struct ReaderNavigationPickers: View {
                 viewModel.showChrome = true
             }
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 32) {
                 Text(chapterTitle)
-                Divider().frame(height: 14)
+                    .accessibilityIdentifier("readerCompactChapterLabel")
                 Text(versionTitle)
+                    .accessibilityIdentifier("readerCompactVersionLabel")
             }
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
             .truncationMode(.middle)
-            .frame(maxWidth: .infinity, minHeight: 44)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: compactAlignment)
+            .padding(.leading, compactLeadingPadding)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

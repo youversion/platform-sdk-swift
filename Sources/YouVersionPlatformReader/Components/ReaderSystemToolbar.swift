@@ -13,7 +13,10 @@ struct ReaderSystemToolbar: ToolbarContent {
                 if viewModel.showChrome, let action = layout.primaryAction {
                     ReaderNavigationActionButton(action: action)
                 }
-                ReaderNavigationPickers(width: max(0, min(width - 100, 380)), includesArrows: false, usesNativeBackground: true)
+                ReaderNavigationPickers(
+                    width: max(0, min(width - 100, 380)), includesArrows: false, usesNativeBackground: true,
+                    compactAlignment: layout.placement == .topBar ? .leading : .center
+                )
             }
             .buttonStyle(.plain)
         }
