@@ -143,6 +143,13 @@ extension BibleTextView {
                 context.fill(Path(iconRect), with: .color(dimmedTextColor))
             }
 
+            func drawDimmedNoteIcon(in context: inout GraphicsContext, iconRect: CGRect) {
+                context.clipToLayer { mask in
+                    mask.draw(noteIndicatorImage, in: iconRect)
+                }
+                context.fill(Path(iconRect), with: .color(dimmedTextColor))
+            }
+
             func drawDimmedRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext) {
                 context.clipToLayer { mask in
                     mask.draw(run)
@@ -239,7 +246,19 @@ extension BibleTextView {
                             width: size,
                             height: size
                         )
-                        context.draw(noteIndicatorImage, in: rect)
+                        if attrs?.isDimmed == true && dimProgress > 0 {
+                            if dimProgress < 1 {
+                                var dimContext = context
+                                dimContext.opacity = 1 - dimProgress
+                                dimContext.draw(noteIndicatorImage, in: rect)
+                            }
+                            context.drawLayer { layer in
+                                layer.opacity = dimProgress
+                                drawDimmedNoteIcon(in: &layer, iconRect: rect)
+                            }
+                        } else {
+                            context.draw(noteIndicatorImage, in: rect)
+                        }
                     } else if attrs?.footnoteImage == true {
                         let iconRect = footnoteIconRect(for: runRect)
                         if attrs?.isDimmed == true && dimProgress > 0 {
@@ -328,7 +347,8 @@ extension BibleTextView {
                 let boxColor = hasHighlight
                     ? textOptions.noteIndicatorBoxHighlightColor
                     : textOptions.noteIndicatorBoxColor
-                let highlightColor = highlightFor(reference: reference)
+                let highlightColor = highlightFor(reference: reference)?.opacity(darkMode ? 0.3 : 1.0)
+                let isDimmed = isReferenceDimmed(reference, category: category)
                 let noteURL = URL(string: "\(BibleVersionRendering.LinkSchemes.noteIndicator.rawValue)://\(reference.versionId)/\(reference.asUSFM)")
 
                 // Trailing word joiner (U+2060) glues this run to the spacer/verse-number
@@ -336,13 +356,17 @@ extension BibleTextView {
                 var pencilAttr = AttributedString("\u{2003}\u{2060}")
                 pencilAttr.link = noteURL
                 pencilAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
-                pencilAttr.backgroundColor = highlightColor
+                if !rendererPaintsHighlight {
+                    pencilAttr.backgroundColor = highlightColor
+                }
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(pencilAttr).customAttribute(
                     RenderHowAttribute(
                         noteIndicatorImage: true,
                         noteIndicatorBox: true,
-                        noteIndicatorBoxColor: boxColor
+                        noteIndicatorBoxColor: boxColor,
+                        isDimmed: isDimmed,
+                        highlightColor: highlightColor
                     )
                 )
 
@@ -350,22 +374,31 @@ extension BibleTextView {
                 var spacerAttr = AttributedString("\u{2009}\u{2060}")
                 spacerAttr.link = noteURL
                 spacerAttr.foregroundColor = textOptions.verseNumberColor ?? .secondary
-                spacerAttr.backgroundColor = highlightColor
+                if !rendererPaintsHighlight {
+                    spacerAttr.backgroundColor = highlightColor
+                }
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(spacerAttr).customAttribute(
                     RenderHowAttribute(
                         noteIndicatorBox: true,
-                        noteIndicatorBoxColor: boxColor
+                        noteIndicatorBoxColor: boxColor,
+                        isDimmed: isDimmed,
+                        highlightColor: highlightColor
                     )
                 )
 
                 var verseAttr = t
                 verseAttr.link = noteURL
+                if !rendererPaintsHighlight {
+                    verseAttr.backgroundColor = highlightColor
+                }
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + Text(verseAttr).customAttribute(
                     RenderHowAttribute(
                         noteIndicatorBox: true,
-                        noteIndicatorBoxColor: boxColor
+                        noteIndicatorBoxColor: boxColor,
+                        isDimmed: isDimmed,
+                        highlightColor: highlightColor
                     )
                 )
 
