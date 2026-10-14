@@ -110,6 +110,8 @@ With a visible host navigation bar, custom reader controls can appear below it. 
 
 In the standard layout, top navigation aligns toward the leading edge of the reading area and leaves space for window controls. Bottom navigation is centered. The controls adapt to available width, localized labels, and Dynamic Type; long labels may truncate, and accessibility text sizes can stack the chapter and version controls.
 
-When `.usesHostNavigationToolbar(true)` is applied and the system provides a vertical toolbar arrangement, the reader uses native toolbar controls for previous chapter, next chapter, and the menu. Book, chapter, and version selection remain together in a horizontal toolbar item. In this arrangement, Search for top navigation appears inside the menu. The host does not need to identify a device model or choose a toolbar breakpoint.
+When `.usesHostNavigationToolbar(true)` is applied and the system provides a vertical toolbar arrangement, the reader uses native toolbar controls for previous chapter, next chapter, and the menu. Book, chapter, and version selection use the same custom bar as other layouts, without duplicate chapter arrows. In this arrangement, Search for top navigation appears inside the menu. The host does not need to identify a device model or choose a toolbar breakpoint.
+
+While scrolling, the chapter and version controls collapse to labels. Native toolbar actions remain available, and tapping the labels restores the selection controls. In this arrangement, the reader prevents the native navigation toolbar from minimizing on scroll so those actions remain visible.
 
 When validating your integration, check both tab positions, a reader without tabs, narrow and wide windows, and larger text sizes. Include iOS 17 if your app supports it, since that version relies on the supplied placement preference.

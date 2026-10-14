@@ -270,7 +270,7 @@ private struct ReaderContent: View {
             mainScroller
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    if !layout.usesSystemToolbar && !sharesTopTabRow {
+                    if layout.placement == .topBar || (!layout.usesSystemToolbar && !sharesTopTabRow) {
                         ReaderNavigationBar(
                             layout: layout, isUpperBar: true, width: geometry.size.width,
                             cornerInsets: navigationCornerInsets(geometry)
@@ -280,13 +280,13 @@ private struct ReaderContent: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     if viewModel.showingVerseActionsDrawer {
                         verseActionDrawer.frame(maxWidth: viewModel.readerMaxWidth)
-                    } else if layout.placement == .bottomBar && !layout.usesSystemToolbar {
+                    } else if layout.placement == .bottomBar {
                         ReaderNavigationBar(
                             layout: layout, isUpperBar: false, width: geometry.size.width
                         )
                     }
                 }
-                .modifier(ReaderToolbarModifier(layout: layout, width: geometry.size.width))
+                .modifier(ReaderToolbarModifier(layout: layout))
                 .modifier(ReaderPickerPresentationModifier())
                 .overlay(alignment: .top) {
                     viewModel.readerCanvasPrimaryColor

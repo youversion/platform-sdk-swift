@@ -16,10 +16,22 @@ struct SampleApp: App {
         )
     }
 
+    @ViewBuilder
+    private var readerContent: some View {
+        let reader = BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
+            .navigationPlacement(ProcessInfo.processInfo.arguments.contains("--reader-top") ? .topBar : .bottomBar)
+        if true { //ProcessInfo.processInfo.arguments.contains("--reader-host-toolbar") {
+            NavigationStack {
+                reader.usesHostNavigationToolbar(true)
+            }
+        } else {
+            reader
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
-            let reader = BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
-                .navigationPlacement(ProcessInfo.processInfo.arguments.contains("--reader-top") ? .topBar : .bottomBar)
+            let reader = readerContent
             Group {
                 if ProcessInfo.processInfo.arguments.contains("--reader-no-tabs") {
                     reader

@@ -13,13 +13,12 @@ struct ReaderNavigationPickers: View {
     @ScaledMetric(relativeTo: .subheadline) private var versionMaximumWidth = 80
     let width: CGFloat
     let includesArrows: Bool
-    let usesNativeBackground: Bool
     var fillsAvailableWidth = false
     var compactAlignment: Alignment = .center
     var compactLeadingPadding: CGFloat = 0
 
     var body: some View {
-        let isStacked = dynamicTypeSize.isAccessibilitySize && !usesNativeBackground
+        let isStacked = dynamicTypeSize.isAccessibilitySize
         let layout = isStacked ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(spacing: 8))
         let arrowsWidth: CGFloat = includesArrows ? 88 : 0
         let availableWidth = max(0, width - arrowsWidth - 24)
@@ -46,7 +45,7 @@ struct ReaderNavigationPickers: View {
                 }
             }
             .padding(.horizontal, includesArrows ? 0 : 8)
-            .modifier(ReaderNavigationCapsule(isEnabled: !usesNativeBackground))
+            .modifier(ReaderNavigationCapsule())
             Button {
                 viewModel.versionsViewModel.openVersionsStack(currentBibleLanguage: viewModel.version?.languageTag ?? "en")
             } label: {
@@ -60,7 +59,7 @@ struct ReaderNavigationPickers: View {
                     .contentShape(Rectangle())
             }
             .accessibilityIdentifier("versionPickerBtn")
-            .modifier(ReaderNavigationCapsule(isEnabled: !usesNativeBackground))
+            .modifier(ReaderNavigationCapsule())
         }
         .buttonStyle(.plain)
         .opacity(viewModel.showChrome ? 1 : 0)

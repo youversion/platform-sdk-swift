@@ -2,7 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-/// Custom navigation in ordinary windows; its contents do not depend on a width breakpoint.
+/// Custom pickers in every window, with actions supplied by the system rail when available.
 struct ReaderNavigationBar: View {
     private static let leadingPadding: CGFloat = 16
     private static let verticalPadding: CGFloat = 8
@@ -30,7 +30,7 @@ struct ReaderNavigationBar: View {
                     }
                     ReaderNavigationPickers(
                         width: min(width, 600) - 24 - (layout.primaryAction == nil ? 0 : 52),
-                        includesArrows: true, usesNativeBackground: false
+                        includesArrows: !layout.usesSystemToolbar
                     )
                 }
                 .padding(.horizontal, 12)
@@ -60,7 +60,7 @@ struct ReaderNavigationBar: View {
         let columnLeading = max(0, (width - viewModel.readerMaxWidth - 2 * viewModel.readerHorizontalPadding) / 2)
         let leading = max(columnLeading + Self.leadingPadding, cornerInsets.leading)
         let trailing = max(12, cornerInsets.trailing)
-        let actionsWidth: CGFloat = layout.upperAction == nil ? 44 : 96
+        let actionsWidth: CGFloat = layout.usesSystemToolbar ? 0 : (layout.upperAction == nil ? 44 : 96)
         return Group {
             if layout.placement == .bottomBar {
                 upperActions.frame(maxWidth: .infinity, alignment: .trailing)
@@ -70,13 +70,15 @@ struct ReaderNavigationBar: View {
                 HStack(spacing: 8) {
                     ReaderNavigationPickers(
                         width: min(preferredPickerWidth, max(0, width - leading - trailing - actionsWidth - 8)),
-                        includesArrows: true, usesNativeBackground: false,
+                        includesArrows: !layout.usesSystemToolbar,
                         fillsAvailableWidth: true,
                         compactAlignment: .leading,
                         compactLeadingPadding: max(0, columnLeading + viewModel.readerHorizontalPadding - leading)
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    upperActions
+                    if !layout.usesSystemToolbar {
+                        upperActions
+                    }
                 }
                 .padding(.leading, leading)
                 .padding(.trailing, trailing)
@@ -100,15 +102,12 @@ struct ReaderNavigationBar: View {
 
 struct ReaderNavigationCapsule: ViewModifier {
     @Environment(BibleReaderViewModel.self) private var viewModel
-    var isEnabled = true
 
     func body(content: Content) -> some View {
         content.background {
-            if isEnabled {
-                Capsule()
-                    .fill(viewModel.readerButtonPrimaryColor)
-                    .shadow(color: viewModel.readerDropShadowColor.opacity(0.25), radius: 8, y: 3)
-            }
+            Capsule()
+                .fill(viewModel.readerButtonPrimaryColor)
+                .shadow(color: viewModel.readerDropShadowColor.opacity(0.25), radius: 8, y: 3)
         }
     }
 }

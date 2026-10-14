@@ -34,9 +34,11 @@ chapter/version control; scrolling up or tapping that control restores them. An 
 scrolled scripture; bottom navigation has a gradient behind it that reaches full opacity halfway
 down and stays opaque through the bottom safe area.
 
-Native vertical-toolbar mode puts chapter/version into one horizontal toolbar
-item. Previous/next form a native ControlGroup and the menu is native, allowing
-the system to place them on its vertical edge. Picker sheets are attached to
+Vertical-toolbar mode uses the same custom chapter/version capsules and collapse
+behavior, without arrows inside the chapter capsule. Previous/next form a native
+ControlGroup and the menu is native, allowing the system to place them on its
+vertical edge. These native actions remain visible when the custom bar collapses.
+Picker sheets are attached to
 stable reader content so changing presentation does not remove their presenter.
 
 The reader owns action placement; there is no external visibility or ordering configuration:
@@ -74,7 +76,12 @@ placement is reader-owned.
 
 The sample app accepts `--reader-no-tabs` and `--reader-top`
 for scenario testing, plus `--reader-width-debug` for a
-centered width badge in debug builds.
+centered width badge in debug builds. Add `--reader-host-toolbar` to supply a
+host `NavigationStack` and opt into system toolbars on supported vertical-toolbar
+layouts. System toolbar actions stay available while the chapter/version labels
+are collapsed. The chapter/version bar always uses custom capsules; native mode moves its
+chapter arrows and menu into the system rail. In this opted-in mode, the reader
+disables native navigation toolbar minimization so its actions remain visible.
 
 Use Xcode 27.1 RC for the open Duo. Its active inner display must be captured with
 `simctl io <device> screenshot --display=primary-1`; the default display can be
