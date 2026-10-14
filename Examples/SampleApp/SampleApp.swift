@@ -10,81 +10,45 @@ struct SampleApp: App {
     init() {
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
-            appKey: "<#Your App Key#>", // prod SampleApp
+            appKey: "0l11yjhHCGe1vmAGoceT7yFhXdDu4O7UZTxToqOAfiqjsIA9", // prod SampleApp
             appName: String(localized: "app.name"),
             signInPromptMessage: String(localized: "app.sign_in_prompt")
         )
     }
 
-    @ViewBuilder
-    private var readerContent: some View {
-        let reader = BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
-            .navigationPlacement(ProcessInfo.processInfo.arguments.contains("--reader-top") ? .topBar : .bottomBar)
-        if true { //ProcessInfo.processInfo.arguments.contains("--reader-host-toolbar") {
-            NavigationStack {
-                reader.usesHostNavigationToolbar(true)
-            }
-        } else {
-            reader
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
-            let reader = readerContent
-            Group {
-                if ProcessInfo.processInfo.arguments.contains("--reader-no-tabs") {
-                    reader
-                } else {
-                    TabView(selection: $selectedTab) {
-                        reader
-                            .tabItem {
-                                Label("tab.bible", systemImage: "book.closed.fill")
-                            }
-                            .tag(0)
-
-                        NavigateView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
-                            .tabItem {
-                                Label("tab.navigate", systemImage: "arrow.uturn.right")
-                            }
-                            .tag(1)
-
-                        VotdContainerView()
-                            .tabItem {
-                                Label("tab.votd", systemImage: "sun.max.fill")
-                            }
-                            .tag(2)
-
-                        CardView()
-                            .tabItem {
-                                Label("tab.card", systemImage: "doc.plaintext")
-                            }
-                            .tag(3)
-
-                        ProfileView()
-                            .tabItem {
-                                Label("tab.profile", systemImage: "person.fill")
-                            }
-                            .tag(4)
-                    }
+            TabView(selection: $selectedTab) {
+                BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
+                .tabItem {
+                    Label("tab.bible", systemImage: "book.closed.fill")
                 }
-            }
-#if DEBUG
-            .overlay {
-                if ProcessInfo.processInfo.arguments.contains("--reader-width-debug") {
-                    GeometryReader { geometry in
-                        Text(verbatim: String(format: "Width: %.2f pt", geometry.size.width))
-                            .font(.caption.monospacedDigit())
-                            .padding(8)
-                            .foregroundStyle(.white)
-                            .background(.black.opacity(0.8), in: Capsule())
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tag(0)
+
+                NavigateView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
+                    .tabItem {
+                        Label("tab.navigate", systemImage: "arrow.uturn.right")
                     }
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-                }
+                    .tag(1)
+
+                VotdContainerView()
+                    .tabItem {
+                        Label("tab.votd", systemImage: "sun.max.fill")
+                    }
+                    .tag(2)
+
+                CardView()
+                    .tabItem {
+                        Label("tab.card", systemImage: "doc.plaintext")
+                    }
+                    .tag(3)
+
+                ProfileView()
+                    .tabItem {
+                        Label("tab.profile", systemImage: "person.fill")
+                    }
+                    .tag(4)
             }
-#endif
         }
     }
 }
