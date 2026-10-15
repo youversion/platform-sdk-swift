@@ -10,11 +10,10 @@ Consumer docs: README.md and https://developers.youversion.com/sdks/swift.
 - `YouVersionPlatformReader`: drop-in Bible reader.
 - Core tests must run where SwiftUI is unavailable. See CONTRIBUTING.md, Linux.
 
-## Read these, do not copy them
+## Follow these documents
 
 - Branches, commits, lint, tests, Linux, the Sample App app key, and review preferences: CONTRIBUTING.md
-- Versions and publishing: RELEASING.md
-- Failed release recovery: RELEASE-RUNBOOK.md
+- For SDK maintainers only: RELEASING.md and RELEASE-RUNBOOK.md
 - CI: the `.github/workflows` directory
 - User-facing strings: open a pull request in platform-localization that edits `sources/common/en.json`. Do not edit `Localizable.xcstrings` here. Details: docs/localization-guardrails.md
 
