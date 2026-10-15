@@ -67,9 +67,13 @@ enum HighlightOutline {
         let lines = Array(blocks.joined())
         let bands = Array(bands(for: blocks, outerPadding: outerPadding).joined())
         return spansByStyle(lines: lines.map(\.runs), bands: bands).map { highlight in
+            let chains = chains(highlight.lines, padding: padding).map(flushAligned)
             var path = Path()
-            for chain in chains(highlight.lines, padding: padding) {
-                path.addPath(self.path(of: corners(of: flushAligned(chain), padding: padding), cornerRadius: cornerRadius))
+            for chain in chains {
+                path.addPath(self.path(of: corners(of: chain, padding: padding), cornerRadius: cornerRadius))
+            }
+            for bridge in bridges(between: chains, padding: padding, cornerRadius: cornerRadius) {
+                path.addPath(self.path(of: bridge, cornerRadius: 0))
             }
             return (highlight.style, path)
         }
@@ -146,6 +150,34 @@ enum HighlightOutline {
             corners.append(CGPoint(x: edge.minX, y: span.band.lowerBound))
         }
         return simplified(corners)
+    }
+
+    static func bridges(between chains: [[HighlightSpan]], padding: CGFloat, cornerRadius: CGFloat) -> [[CGPoint]] {
+        let spans = chains.indices.flatMap { chainIndex in
+            chains[chainIndex].indices.map { (chain: chainIndex, position: $0, span: chains[chainIndex][$0]) }
+        }
+        var bridges: [[CGPoint]] = []
+        for upper in spans {
+            for lower in spans where touches(upper.span, lower.span, padding: padding) {
+                guard upper.chain != lower.chain || upper.position + 1 != lower.position else {
+                    continue
+                }
+                let upperEdges = paddedEdges(of: upper.span, padding: padding)
+                let lowerEdges = paddedEdges(of: lower.span, padding: padding)
+                let minX = max(upperEdges.minX, lowerEdges.minX)
+                let maxX = min(upperEdges.maxX, lowerEdges.maxX)
+                let join = upper.span.band.upperBound
+                let top = max(upper.span.band.lowerBound, join - cornerRadius)
+                let bottom = min(lower.span.band.upperBound, join + cornerRadius)
+                bridges.append([
+                    CGPoint(x: maxX, y: top),
+                    CGPoint(x: maxX, y: bottom),
+                    CGPoint(x: minX, y: bottom),
+                    CGPoint(x: minX, y: top)
+                ])
+            }
+        }
+        return bridges
     }
 
     static func path(of corners: [CGPoint], cornerRadius: CGFloat) -> Path {

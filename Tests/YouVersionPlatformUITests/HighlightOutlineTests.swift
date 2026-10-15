@@ -308,6 +308,60 @@ import Testing
         #expect(path?.contains(CGPoint(x: 50, y: 38)) == true)
     }
 
+    @Test
+    func spanBranchingIntoTwoSpansOnTheNextLineLeavesNoGapAtTheJoin() {
+        let highlights = HighlightOutline.paths(
+            for: [[
+                line(y: 0, highlighted: true),
+                HighlightLine(
+                    bounds: CGRect(x: 0, y: 28, width: 100, height: 20),
+                    runs: [
+                        HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                        HighlightRun(style: "yellow", minX: 60, maxX: 100)
+                    ]
+                )
+            ]],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        let path = highlights.first?.path
+        #expect(path?.contains(CGPoint(x: -1.5, y: 23.5)) == true)
+        #expect(path?.contains(CGPoint(x: -1.5, y: 24.5)) == true)
+        #expect(path?.contains(CGPoint(x: 41.5, y: 24.5)) == true)
+        #expect(path?.contains(CGPoint(x: 58.5, y: 24.5)) == true)
+        #expect(path?.contains(CGPoint(x: 101.5, y: 23.5)) == true)
+        #expect(path?.contains(CGPoint(x: 101.5, y: 24.5)) == true)
+        #expect(path?.contains(CGPoint(x: 50, y: 30)) == false)
+    }
+
+    @Test
+    func twoSpansMergingIntoOneSpanOnTheNextLineLeaveNoGapAtTheJoin() {
+        let highlights = HighlightOutline.paths(
+            for: [[
+                HighlightLine(
+                    bounds: CGRect(x: 0, y: 0, width: 100, height: 20),
+                    runs: [
+                        HighlightRun(style: "yellow", minX: 0, maxX: 40),
+                        HighlightRun(style: "yellow", minX: 60, maxX: 100)
+                    ]
+                ),
+                line(y: 28, highlighted: true)
+            ]],
+            outerPadding: 4,
+            padding: 2,
+            cornerRadius: 4
+        )
+
+        let path = highlights.first?.path
+        #expect(path?.contains(CGPoint(x: -1.5, y: 23.5)) == true)
+        #expect(path?.contains(CGPoint(x: 41.5, y: 23.5)) == true)
+        #expect(path?.contains(CGPoint(x: 58.5, y: 23.5)) == true)
+        #expect(path?.contains(CGPoint(x: 101.5, y: 24.5)) == true)
+        #expect(path?.contains(CGPoint(x: 50, y: 18)) == false)
+    }
+
     private func line(y: CGFloat, minX: CGFloat = 0, highlighted: Bool) -> HighlightLine<String> {
         HighlightLine(
             bounds: CGRect(x: minX, y: y, width: 100, height: 20),
