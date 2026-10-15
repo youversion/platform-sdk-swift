@@ -65,7 +65,7 @@ struct ReaderNavigationBar: View {
                 HStack(spacing: 8) {
                     ReaderNavigationPickers(
                         width: min(preferredPickerWidth, max(0, width - leading - trailing - actionsWidth - 8)),
-                        includesArrows: !layout.usesSystemToolbar,
+                        includesArrows: !layout.usesSystemChapterNavigation,
                         fillsAvailableWidth: true,
                         compactAlignment: .leading,
                         compactLeadingPadding: max(0, columnLeading + BibleReaderView.contentHorizontalPadding - leading)
@@ -89,7 +89,7 @@ struct ReaderNavigationBar: View {
             }
             ReaderNavigationPickers(
                 width: min(width, Self.bottomBarMaximumWidth) - 24 - (layout.primaryAction == nil ? 0 : 52),
-                includesArrows: !layout.usesSystemToolbar
+                includesArrows: !layout.usesSystemChapterNavigation
             )
         }
         .padding(.horizontal, 12)

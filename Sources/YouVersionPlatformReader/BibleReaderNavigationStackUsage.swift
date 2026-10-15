@@ -13,7 +13,7 @@ public struct BibleReaderNavigationStackUsage: Equatable, Sendable {
     /// A navigation stack is not required. An existing host bar remains under host control.
     public static let none = BibleReaderNavigationStackUsage(usage: .none)
 
-    /// Adds native reader actions when the system uses a vertical toolbar.
+    /// Adds reader actions to the host toolbar, with chapter arrows on vertical toolbars.
     /// Requires a host-provided stack and preserves its bar visibility and minimization.
     /// The host is responsible for keeping the bar visible to expose native reader actions.
     public static let shared = BibleReaderNavigationStackUsage(usage: .shared)

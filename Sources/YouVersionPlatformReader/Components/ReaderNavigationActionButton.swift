@@ -7,6 +7,18 @@ struct ReaderNavigationActionButton: View {
     var isMenuItem = false
 
     var body: some View {
+        Group {
+            if isMenuItem {
+                actionButton
+            } else {
+                actionButton.buttonStyle(.plain)
+            }
+        }
+        .accessibilityLabel(title)
+        .accessibilityIdentifier(actionIdentifier)
+    }
+
+    private var actionButton: some View {
         Button {
             switch action {
             case .search: viewModel.openSearch()
@@ -20,9 +32,6 @@ struct ReaderNavigationActionButton: View {
                     .readerIconButton()
             }
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(title)
-        .accessibilityIdentifier(actionIdentifier)
     }
 
     private var systemImage: String {

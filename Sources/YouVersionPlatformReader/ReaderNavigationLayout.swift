@@ -21,14 +21,15 @@ enum BibleReaderNavigationAction: Equatable, Sendable {
 struct ReaderNavigationLayout: Equatable {
     let placement: BibleReaderNavigationPlacement
     let usesSystemToolbar: Bool
+    let usesSystemChapterNavigation: Bool
     let navigationStackUsage: BibleReaderNavigationStackUsage
     let actions: [BibleReaderNavigationAction] = [.search]
 
     /// Horizontal tabs take precedence so reader navigation stays on the opposite edge.
     /// Without a detected horizontal tab bar, use the host's preference. This also lets
     /// iOS 17 hosts request top controls explicitly when their tabs are at the bottom.
-    /// Native items require both host consent (the host supplies the navigation container)
-    /// and a system vertical toolbar. Width alone must not change navigation ownership.
+    /// Shared stacks host reader actions in any layout. Dedicated stacks use native
+    /// actions only on a vertical toolbar. Chapter arrows move there only in vertical layouts.
     init(preferredPlacement: BibleReaderNavigationPlacement = .bottomBar,
          navigationStackUsage: BibleReaderNavigationStackUsage = .none,
          tabLocation: ReaderTabLocation,
@@ -39,25 +40,31 @@ struct ReaderNavigationLayout: Equatable {
         case .none, .other: placement = preferredPlacement
         }
         self.navigationStackUsage = navigationStackUsage
-        usesSystemToolbar = navigationStackUsage != .none && hasVerticalToolbar
+        usesSystemChapterNavigation = navigationStackUsage != .none && hasVerticalToolbar
+        usesSystemToolbar = navigationStackUsage == .shared || usesSystemChapterNavigation
     }
 
     var primaryAction: BibleReaderNavigationAction? {
-        placement == .bottomBar ? actions.first : nil
+        !usesSystemToolbar && placement == .bottomBar ? actions.first : nil
     }
 
-    /// Bottom navigation reserves its first action for the picker row. Custom top
-    /// navigation keeps Search beside the menu; native top navigation puts it in the
-    /// menu so the system can arrange the remaining toolbar controls on the vertical edge.
+    /// Custom bottom navigation reserves its first action for the picker row.
+    /// Custom top navigation keeps Search beside the menu. Native toolbars own all actions.
     var upperAction: BibleReaderNavigationAction? {
+        if usesSystemToolbar {
+            return nil
+        }
         if placement == .bottomBar {
             return actions.dropFirst().first
         }
-        return !usesSystemToolbar && actions.contains(.search) ? .search : nil
+        return actions.contains(.search) ? .search : nil
     }
 
     var menuActions: [BibleReaderNavigationAction] {
-        placement == .topBar ? actions.filter { $0 != upperAction } : Array(actions.dropFirst(2))
+        if usesSystemToolbar {
+            return []
+        }
+        return placement == .topBar ? actions.filter { $0 != upperAction } : Array(actions.dropFirst(2))
     }
 
 }

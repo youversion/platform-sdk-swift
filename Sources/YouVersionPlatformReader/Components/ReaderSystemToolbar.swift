@@ -1,31 +1,58 @@
 import SwiftUI
 import YouVersionPlatformCore
 
-/// Chapter arrows and actions participate in the system rail; pickers use the custom bar.
+/// Actions participate in the host toolbar; chapter arrows join them on a vertical edge.
 struct ReaderSystemToolbar: ToolbarContent {
     @Environment(BibleReaderViewModel.self) private var viewModel
     let layout: ReaderNavigationLayout
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
-            ControlGroup {
-                Button(action: viewModel.goToPreviousChapter) {
-                    Label(String.localized("previousChapterAriaLabel"), systemImage: "chevron.backward")
-                }
-                .accessibilityIdentifier("previousChapterBtn")
-                Button(action: viewModel.goToNextChapter) {
-                    Label(String.localized("nextChapterAriaLabel"), systemImage: "chevron.forward")
-                }
-                .accessibilityIdentifier("nextChapterBtn")
-            } label: {
-                Label(chapterNavigationTitle, systemImage: "arrow.left.arrow.right")
+            if layout.usesSystemChapterNavigation {
+                chapterNavigation
             }
-            .disabled(viewModel.version == nil)
-            if let action = layout.upperAction {
+            ForEach(layout.actions, id: \.self) { action in
                 ReaderNavigationActionButton(action: action, isMenuItem: true)
             }
-            BibleReaderHeaderMenuView(actions: layout.menuActions)
         }
+#if compiler(>=6.4) && os(iOS)
+        if #available(iOS 27.0, *) {
+            ToolbarOverflowMenu {
+                ReaderMenuItems()
+            }
+        } else {
+            fallbackMenu
+        }
+#else
+        fallbackMenu
+#endif
+    }
+
+    private var fallbackMenu: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                ReaderMenuItems()
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .accessibilityIdentifier("readerMenuBtn")
+        }
+    }
+
+    private var chapterNavigation: some View {
+        ControlGroup {
+            Button(action: viewModel.goToPreviousChapter) {
+                Label(String.localized("previousChapterAriaLabel"), systemImage: "chevron.backward")
+            }
+            .accessibilityIdentifier("previousChapterBtn")
+            Button(action: viewModel.goToNextChapter) {
+                Label(String.localized("nextChapterAriaLabel"), systemImage: "chevron.forward")
+            }
+            .accessibilityIdentifier("nextChapterBtn")
+        } label: {
+            Label(chapterNavigationTitle, systemImage: "arrow.left.arrow.right")
+        }
+        .disabled(viewModel.version == nil)
     }
 
     private var chapterNavigationTitle: String {
@@ -40,17 +67,13 @@ struct ReaderToolbarModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         Group {
-#if compiler(>=6.4) && os(iOS)
-            if #available(iOS 27.1, *), layout.usesSystemToolbar {
+            if layout.usesSystemToolbar {
                 content.toolbar {
                     ReaderSystemToolbar(layout: layout)
                 }
             } else {
                 content
             }
-#else
-            content
-#endif
         }
         .modifier(ReaderNavigationBarOwnershipModifier(layout: layout))
     }

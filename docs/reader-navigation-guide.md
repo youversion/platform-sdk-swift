@@ -84,10 +84,10 @@ The reader does not create a navigation stack for its main content. Use `.usingN
 | Option | Behavior |
 | --- | --- |
 | `.none` (default) | Uses custom reader controls. Does not add native toolbar items or change the host’s navigation bar. A stack is not required. |
-| `.shared` | Adds native reader actions e.g. when the system uses a vertical toolbar. Preserves the host’s navigation-bar visibility and minimization settings. |
+| `.shared` | Places Search and the menu in the host toolbar. Chapter arrows join them on vertical toolbars. Preserves the host’s navigation-bar visibility and minimization settings. |
 | `.justForReader` | Adds native reader actions and keeps the vertical toolbar visible, even when custom reader controls collapse. May hide the horizontal navigation bar to avoid an empty row above the custom controls. |
 
-Both `.shared` and `.justForReader` require a host-provided navigation stack. These options do not force native controls in ordinary horizontal layouts. Navigation-bar visibility management applies on iOS and iPadOS.
+Both `.shared` and `.justForReader` require a host-provided navigation stack. In horizontal layouts, `.shared` uses native action buttons while `.justForReader` keeps custom controls. On iOS 27 and later, native settings and sign-in actions use the system overflow menu; Search can overflow there when space is limited. Earlier systems use a regular toolbar menu. Navigation-bar visibility management applies on iOS and iPadOS.
 
 For a stack dedicated to the reader, such as the root of a Bible tab:
 

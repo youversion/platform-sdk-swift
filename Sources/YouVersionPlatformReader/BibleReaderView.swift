@@ -96,7 +96,7 @@ public struct BibleReaderView: View {
     /// Describes how the reader may use a navigation stack supplied by your app.
     /// This modifier never creates a navigation stack. The default, `.none`, uses
     /// custom controls without changing the host's navigation bar.
-    /// Use `.shared` to contribute native actions in vertical-toolbar layouts while
+    /// Use `.shared` to contribute native actions to the host toolbar while
     /// preserving the host's visibility and minimization settings. Use `.justForReader`
     /// for a dedicated stack: the reader hides the horizontal navigation bar and keeps
     /// the vertical toolbar visible, including when its custom controls collapse.
