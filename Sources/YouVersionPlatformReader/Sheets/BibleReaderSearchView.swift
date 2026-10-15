@@ -2,6 +2,11 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
+private var magnifyingGlassImage: Image {
+    Image("magnifying-glass", bundle: .YouVersionUIBundle)
+        .renderingMode(.template)
+}
+
 struct BibleReaderSearchView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @FocusState private var isSearchFieldFocused: Bool
@@ -131,30 +136,19 @@ struct BibleReaderSearchView: View {
         } label: {
             HStack(spacing: 12) {
                 icon
-                    .foregroundStyle(
-                        viewModel.colorForScheme(
-                            light: viewModel.readerTextPrimaryColor,
-                            dark: viewModel.readerTextMutedColor
-                        )
-                    )
                     .frame(width: 36, height: 36)
                     .background(viewModel.readerSurfaceTertiaryColor, in: Circle())
                     .accessibilityHidden(true)
                 Text(query)
                     .font(.body)
-                    .foregroundStyle(viewModel.readerTextPrimaryColor)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
+            .foregroundStyle(viewModel.readerTextPrimaryColor)
             .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    private var magnifyingGlassImage: Image {
-        Image("magnifying-glass", bundle: .YouVersionUIBundle)
-            .renderingMode(.template)
     }
 
     private var searchResultsScrollView: some View {
@@ -358,8 +352,7 @@ private struct BibleReaderSearchHeaderView: View {
 
         return HStack(spacing: 12) {
             HStack(spacing: 8) {
-                Image("magnifying-glass", bundle: .YouVersionUIBundle)
-                    .renderingMode(.template)
+                magnifyingGlassImage
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()
