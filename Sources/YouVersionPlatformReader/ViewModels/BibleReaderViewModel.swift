@@ -429,8 +429,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func updateSignInState() async {
-        _ = await authentication.hasValidToken()
+    @discardableResult
+    func updateSignInState() async -> Bool {
+        await authentication.hasValidToken()
     }
 
     /// Continues a pending highlight action after the user has completed sign-in.

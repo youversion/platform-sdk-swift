@@ -252,6 +252,7 @@ private struct ReaderContent: View {
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
+    @State private var isSignedIn = false
 
     init(
         viewModel: BibleReaderViewModel,
@@ -411,8 +412,24 @@ private struct ReaderContent: View {
                 viewModel.handleNavigationRequest(from: readerNavigation)
             }
         }
+        .task {
+            await updateSignInState()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)
+        ) { _ in
+            Task {
+                await updateSignInState()
+            }
+        }
+        .environment(\.readerIsSignedIn, isSignedIn)
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
+    }
+
+    /// Keeps both menu presentations current even while their contents are not mounted.
+    private func updateSignInState() async {
+        isSignedIn = await viewModel.updateSignInState()
     }
 
     // MARK: - Helper views
