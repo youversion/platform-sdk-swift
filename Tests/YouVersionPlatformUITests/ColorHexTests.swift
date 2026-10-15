@@ -30,19 +30,28 @@ import UIKit
         #expect(components.alpha.isApproximatelyEqual(to: 128.0 / 255.0) == true)
     }
 
-    @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF"])
+    @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF", "fff", "80DDAAFF"])
     func lightHighlightHexIsNotDark(hex: String) {
         #expect(Color.isDarkHighlightHex(hex) == false)
     }
 
-    @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a"])
+    @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a", "#000", "FF000000"])
     func darkHighlightHexIsDark(hex: String) {
         #expect(Color.isDarkHighlightHex(hex) == true)
     }
 
-    @Test(arguments: ["", "fff", "zzzzzz", "80DDAAFF"])
+    @Test(arguments: ["", "ff", "zzzzzz", "12345"])
     func malformedHighlightHexIsNotDark(hex: String) {
         #expect(Color.isDarkHighlightHex(hex) == false)
+    }
+
+    @Test
+    func rgbHexNormalizesEveryFormatColorHexReads() {
+        #expect(Color.rgbHex("#FA3") == "ffaa33")
+        #expect(Color.rgbHex("DDAAFF") == "ddaaff")
+        #expect(Color.rgbHex("#80DDAAFF") == "ddaaff")
+        #expect(Color.rgbHex("#") == nil)
+        #expect(Color.rgbHex("zzzzzz") == nil)
     }
 
     private func colorComponents(for color: Color) throws -> ColorComponents? {

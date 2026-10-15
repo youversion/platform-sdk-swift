@@ -163,6 +163,15 @@ import Testing
         #expect(viewModel.isSameHexColor("#DDAAFF", "#AABBCC") == false)
     }
 
+    @Test
+    func isSameHexColorMatchesShortAndArgbFormsOfTheSameColor() {
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.isSameHexColor("#FA3", "FFAA33"))
+        #expect(viewModel.isSameHexColor("#80DDAAFF", "DDAAFF"))
+        #expect(viewModel.normalizedHighlightHex("#FA3") == "ffaa33")
+    }
+
 #if !canImport(UIKit)
     @Test
     func highlightColorActionsNoOpWhenColorCannotBeConverted() {
