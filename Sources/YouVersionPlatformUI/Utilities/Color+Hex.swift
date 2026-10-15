@@ -39,9 +39,25 @@ public extension Color {
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 
+    static func rgbHex(_ hex: String) -> String? {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted).lowercased()
+        guard hex.allSatisfy(\.isHexDigit) else {
+            return nil
+        }
+        switch hex.count {
+        case 3:
+            return hex.map { "\($0)\($0)" }.joined()
+        case 6:
+            return hex
+        case 8:
+            return String(hex.dropFirst(2))
+        default:
+            return nil
+        }
+    }
+
     static func isDarkHighlightHex(_ hex: String) -> Bool {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        guard hex.count == 6, let value = UInt64(hex, radix: 16) else {
+        guard let hex = rgbHex(hex), let value = UInt64(hex, radix: 16) else {
             return false
         }
         let red = Double((value >> 16) & 0xFF)

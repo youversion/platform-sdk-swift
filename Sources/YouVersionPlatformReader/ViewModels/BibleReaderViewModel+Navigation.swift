@@ -167,6 +167,9 @@ extension BibleReaderViewModel {
     }
 
     func isSameHexColor(_ a: String, _ b: String) -> Bool {
+        if let rgbA = normalizedHighlightHex(a), let rgbB = normalizedHighlightHex(b) {
+            return rgbA == rgbB
+        }
         let cleanA = hexColorValueForComparison(a)
         let cleanB = hexColorValueForComparison(b)
         return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
@@ -191,11 +194,7 @@ extension BibleReaderViewModel {
     }
 
     func normalizedHighlightHex(_ color: String) -> String? {
-        let hex = hexColorValueForComparison(color).lowercased()
-        guard hex.count == 6, hex.allSatisfy(\.isHexDigit) else {
-            return nil
-        }
-        return hex
+        Color.rgbHex(color)
     }
 
     func removeVerseColor(_ color: Color) {
