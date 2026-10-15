@@ -561,6 +561,8 @@ private struct ReaderContent: View {
                     .frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     .padding(.vertical)
                     .padding(.horizontal, BibleReaderView.contentHorizontalPadding)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                     .id("topOfContent")
                     // Hide the content until the verse scroll lands
                     // to avoid flashing.
@@ -585,6 +587,7 @@ private struct ReaderContent: View {
                     progressView
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .coordinateSpace(.named("scrollView"))
             .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
                 verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
