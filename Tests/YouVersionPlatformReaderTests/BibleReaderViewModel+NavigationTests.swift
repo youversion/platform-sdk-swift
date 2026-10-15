@@ -365,6 +365,18 @@ let previousChapterCases: [PreviousChapterCase] = [
         #expect(viewModel.highlightColorsOnSelectedVerses == [Color(hex: "ffec5b"), Color(hex: "fffe00")])
     }
 
+    @Test
+    func highlightColorsOnSelectedVersesKeepsSavedAlpha() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let reference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        viewModel.selectedVerses = [reference]
+        viewModel.highlightsViewModel.addHighlights(references: [reference], color: "#40000000")
+
+        #expect(viewModel.highlightColorsOnSelectedVerses == [Color(hex: "#40000000")])
+    }
+
 #if canImport(UIKit)
     @Test
     func removeVerseColorRemovesLegacyColorFromSelectedVersesOnly() {
