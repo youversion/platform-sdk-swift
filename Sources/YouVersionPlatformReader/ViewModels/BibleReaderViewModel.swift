@@ -29,6 +29,25 @@ enum SearchStatus: Equatable {
     case failed
 }
 
+struct SearchPageLoadTrigger: Equatable {
+    let pageToken: String?
+    let interruptionCount: Int
+}
+
+enum SearchCanonFilter: CaseIterable {
+    case oldTestament
+    case newTestament
+    case both
+
+    var canons: Set<String>? {
+        switch self {
+        case .oldTestament: ["ot", "old_testament"]
+        case .newTestament: ["nt", "new_testament"]
+        case .both: nil
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -95,6 +114,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     var searchQuery = ""
     var suggestedSearchQueries: [YouVersionSearchQuery] = []
+    var trendingSearchQueries: [YouVersionSearchQuery] = []
+    var recentSearchQueries: [String] = []
     var searchResults: [BibleReference] = []
     var searchVersion: BibleVersion?
     var isLoadingSearchQueries = false
@@ -108,6 +129,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
     var hasNextSearchPageLoadError = false
+    var interruptedSearchPageLoadCount = 0
+    var searchCanonFilter: SearchCanonFilter = .both
 
     // MARK: - Font settings
 
