@@ -34,17 +34,46 @@ struct ReaderSystemToolbar: ToolbarContent {
 }
 
 /// Contributes items only when the host opts into system toolbar integration.
-/// Native actions remain available while the custom bar is collapsed.
+/// Visibility and minimization remain host-owned unless its stack is dedicated to the reader.
 struct ReaderToolbarModifier: ViewModifier {
     let layout: ReaderNavigationLayout
 
     func body(content: Content) -> some View {
+        Group {
 #if compiler(>=6.4) && os(iOS)
-        if #available(iOS 27.1, *), layout.usesSystemToolbar {
-            content.toolbar {
-                ReaderSystemToolbar(layout: layout)
+            if #available(iOS 27.1, *), layout.usesSystemToolbar {
+                content.toolbar {
+                    ReaderSystemToolbar(layout: layout)
+                }
+            } else {
+                content
             }
-            .toolbarMinimizationBehavior(.never, for: .navigationBar)
+#else
+            content
+#endif
+        }
+        .modifier(ReaderNavigationBarOwnershipModifier(layout: layout))
+    }
+}
+
+/// Only a dedicated host stack grants permission to hide or pin the system navigation bar.
+private struct ReaderNavigationBarOwnershipModifier: ViewModifier {
+    let layout: ReaderNavigationLayout
+
+    func body(content: Content) -> some View {
+#if os(iOS)
+        if layout.navigationStackUsage == .justForReader {
+#if compiler(>=6.4)
+            if #available(iOS 27.1, *), layout.usesSystemToolbar {
+                content
+                    .toolbarVisibility(.visible, for: .navigationBar)
+                    .toolbarMinimizationBehavior(.never, for: .navigationBar)
+            } else {
+                content.toolbar(.hidden, for: .navigationBar)
+            }
+#else
+            content.toolbar(.hidden, for: .navigationBar)
+#endif
         } else {
             content
         }

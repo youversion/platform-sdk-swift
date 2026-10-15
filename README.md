@@ -166,16 +166,16 @@ BibleReaderView.restoringLastPassage()
 
 Use `.topBar` for a reader inside a bottom `TabView` on iOS 17. On newer systems, detected tab placement takes precedence.
 
-The reader does not create a `NavigationStack` or change the host navigation bar's visibility. To allow native items in a system vertical-toolbar arrangement (e.g. for iPhone Duo), provide a host navigation container and opt into using system components, so it will move buttons into that vertical toolbar when appropriate:
+The reader does not create a `NavigationStack`. For a stack dedicated to the reader, use `.usingNavigationStack(.justForReader)`. This lets the reader show native actions in a vertical toolbar (e.g. on iPhone Duo) and hide the unused horizontal navigation bar:
 
 ```swift
 NavigationStack {
     BibleReaderView.restoringLastPassage()
-        .usesHostNavigationToolbar(true)
+        .usingNavigationStack(.justForReader)
 }
 ```
 
-If the reader is already a destination in your stack, apply the modifier without adding another stack. See [Reader Navigation](docs/reader-navigation-guide.md) for configuration details.
+If your stack has its own navigation title, Back button, or toolbar items, use `.usingNavigationStack(.shared)` to add native reader actions while preserving your bar's visibility and minimization settings. Apply it without adding another stack. The default, `.none`, uses only custom reader controls and leaves any host navigation bar untouched. See [Reader Navigation](docs/reader-navigation-guide.md) for configuration details.
 
 #### Navigating the reader from elsewhere in your app
 

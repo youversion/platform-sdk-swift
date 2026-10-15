@@ -21,6 +21,7 @@ enum BibleReaderNavigationAction: Equatable, Sendable {
 struct ReaderNavigationLayout: Equatable {
     let placement: BibleReaderNavigationPlacement
     let usesSystemToolbar: Bool
+    let navigationStackUsage: BibleReaderNavigationStackUsage
     let actions: [BibleReaderNavigationAction] = [.search]
 
     /// Horizontal tabs take precedence so reader navigation stays on the opposite edge.
@@ -29,7 +30,7 @@ struct ReaderNavigationLayout: Equatable {
     /// Native items require both host consent (the host supplies the navigation container)
     /// and a system vertical toolbar. Width alone must not change navigation ownership.
     init(preferredPlacement: BibleReaderNavigationPlacement = .bottomBar,
-         usesHostNavigationToolbar: Bool = false,
+         navigationStackUsage: BibleReaderNavigationStackUsage = .none,
          tabLocation: ReaderTabLocation,
          hasVerticalToolbar: Bool) {
         switch tabLocation {
@@ -37,7 +38,8 @@ struct ReaderNavigationLayout: Equatable {
         case .bottom: placement = .topBar
         case .none, .other: placement = preferredPlacement
         }
-        usesSystemToolbar = usesHostNavigationToolbar && hasVerticalToolbar
+        self.navigationStackUsage = navigationStackUsage
+        usesSystemToolbar = navigationStackUsage != .none && hasVerticalToolbar
     }
 
     var primaryAction: BibleReaderNavigationAction? {

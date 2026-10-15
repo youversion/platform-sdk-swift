@@ -23,7 +23,7 @@ import Testing
     }
 
     @Test func onlyVerticalToolbarEnablesNativeControls() {
-        let layout = ReaderNavigationLayout(usesHostNavigationToolbar: true,
+        let layout = ReaderNavigationLayout(navigationStackUsage: .shared,
                                             tabLocation: .bottom, hasVerticalToolbar: true)
         #expect(layout.usesSystemToolbar)
         #expect(layout.upperAction == nil)
@@ -31,14 +31,14 @@ import Testing
         #expect(layout.placement == .topBar)
     }
 
-    @Test(arguments: [false, true], [false, true])
-    func nativeControlsRequireHostConsentAndVerticalPlacement(hostConsent: Bool, verticalPlacement: Bool) {
+    @Test(arguments: [BibleReaderNavigationStackUsage.none, .shared, .justForReader], [false, true])
+    func nativeControlsRequireHostStackAndVerticalPlacement(usage: BibleReaderNavigationStackUsage, verticalPlacement: Bool) {
         let layout = ReaderNavigationLayout(
-            usesHostNavigationToolbar: hostConsent,
+            navigationStackUsage: usage,
             tabLocation: .bottom,
             hasVerticalToolbar: verticalPlacement
         )
-        #expect(layout.usesSystemToolbar == (hostConsent && verticalPlacement))
+        #expect(layout.usesSystemToolbar == (usage != .none && verticalPlacement))
         #expect(layout.placement == .topBar)
         if !layout.usesSystemToolbar {
             #expect(layout.upperAction == .search)

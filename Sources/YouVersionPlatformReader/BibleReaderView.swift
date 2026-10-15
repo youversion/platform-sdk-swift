@@ -15,7 +15,7 @@ public struct BibleReaderView: View {
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
     private var preferredNavigationPlacement = BibleReaderNavigationPlacement.bottomBar
-    private var usesHostToolbar = false
+    private var navigationStackUsage = BibleReaderNavigationStackUsage.none
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
@@ -93,15 +93,16 @@ public struct BibleReaderView: View {
         return copy
     }
 
-    /// Allows native reader toolbar items when the system provides a vertical toolbar arrangement.
-    /// Defaults to false. When enabled, the host must supply a navigation container,
-    /// such as `NavigationStack`. The reader never creates its own stack for its main
-    /// content or changes the host's navigation bar visibility. When native reader
-    /// toolbar items are active, it disables navigation bar minimization so those
-    /// actions remain available while the custom reader bar is collapsed.
-    public func usesHostNavigationToolbar(_ usesHostNavigationToolbar: Bool) -> BibleReaderView {
+    /// Describes how the reader may use a navigation stack supplied by your app.
+    /// This modifier never creates a navigation stack. The default, `.none`, uses
+    /// custom controls without changing the host's navigation bar.
+    /// Use `.shared` to contribute native actions in vertical-toolbar layouts while
+    /// preserving the host's visibility and minimization settings. Use `.justForReader`
+    /// for a dedicated stack: the reader hides the horizontal navigation bar and keeps
+    /// the vertical toolbar visible, including when its custom controls collapse.
+    public func usingNavigationStack(_ usage: BibleReaderNavigationStackUsage) -> BibleReaderView {
         var copy = self
-        copy.usesHostToolbar = usesHostNavigationToolbar
+        copy.navigationStackUsage = usage
         return copy
     }
 
@@ -203,7 +204,7 @@ public struct BibleReaderView: View {
                     readerNavigation: readerNavigation,
                     chapterHeader: chapterHeaderBuilder,
                     preferredNavigationPlacement: preferredNavigationPlacement,
-                    usesHostToolbar: usesHostToolbar
+                    navigationStackUsage: navigationStackUsage
                 )
                     .modifier(ReaderNavigationEnvironmentModifier())
             } else {
@@ -235,7 +236,7 @@ private struct ReaderContent: View {
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
     let preferredNavigationPlacement: BibleReaderNavigationPlacement
-    let usesHostToolbar: Bool
+    let navigationStackUsage: BibleReaderNavigationStackUsage
     @Environment(\.readerTabLocation) private var tabLocation
     @Environment(\.readerHasVerticalToolbar) private var hasVerticalToolbar
 #if !os(tvOS)
@@ -257,20 +258,20 @@ private struct ReaderContent: View {
         readerNavigation: BibleReaderNavigation?,
         chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
         preferredNavigationPlacement: BibleReaderNavigationPlacement,
-        usesHostToolbar: Bool
+        navigationStackUsage: BibleReaderNavigationStackUsage
     ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
         self.preferredNavigationPlacement = preferredNavigationPlacement
-        self.usesHostToolbar = usesHostToolbar
+        self.navigationStackUsage = navigationStackUsage
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
     var body: some View {
         let layout = ReaderNavigationLayout(
             preferredPlacement: preferredNavigationPlacement,
-            usesHostNavigationToolbar: usesHostToolbar,
+            navigationStackUsage: navigationStackUsage,
             tabLocation: tabLocation,
             hasVerticalToolbar: hasVerticalToolbar
         )
