@@ -101,7 +101,7 @@ struct BibleReaderSearchView: View {
                     icon: magnifyingGlassImage
                 )
             }
-            .frame(maxWidth: viewModel.readerMaxWidth)
+            .frame(maxWidth: BibleReaderView.contentMaximumWidth)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
@@ -196,7 +196,7 @@ struct BibleReaderSearchView: View {
                 }
             }
             .scrollTargetLayout()
-            .frame(maxWidth: viewModel.readerMaxWidth)
+            .frame(maxWidth: BibleReaderView.contentMaximumWidth)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
@@ -242,7 +242,7 @@ struct BibleReaderSearchView: View {
                 .padding(.vertical, -6)
             }
         }
-        .frame(maxWidth: viewModel.readerMaxWidth)
+        .frame(maxWidth: BibleReaderView.contentMaximumWidth)
         .padding(.horizontal, 20)
         .padding(.top, 8)
         .padding(.bottom, showsSearchFilters ? 16 : 0)

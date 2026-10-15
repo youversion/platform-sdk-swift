@@ -155,6 +155,28 @@ BibleReaderView(
 )
 ```
 
+#### Reader navigation placement
+
+The reader places its navigation (the book and chapter and Bible version buttons) opposite the host's horizontal tab bar on iOS 18 and later. When horizontal tab placement is absent or unavailable, including iOS 17, it defaults to the bottom. Set a fallback preference with a modifier:
+
+```swift
+BibleReaderView.restoringLastPassage()
+    .navigationPlacement(.topBar)
+```
+
+Use `.topBar` for a reader inside a bottom `TabView` on iOS 17. On newer systems, detected tab placement takes precedence.
+
+The reader does not create a `NavigationStack`. For a stack dedicated to the reader, use `.usingNavigationStack(.justForReader)`. This lets the reader show native actions in a vertical toolbar (e.g. on iPhone Duo) and hide the unused horizontal navigation bar:
+
+```swift
+NavigationStack {
+    BibleReaderView.restoringLastPassage()
+        .usingNavigationStack(.justForReader)
+}
+```
+
+If your stack has its own navigation title, Back button, or toolbar items, use `.usingNavigationStack(.shared)` to add native reader actions while preserving your bar's visibility and minimization settings. Apply it without adding another stack. The default, `.none`, uses only custom reader controls and leaves any host navigation bar untouched. See [Reader Navigation](docs/reader-navigation-guide.md) for configuration details.
+
 #### Navigating the reader from elsewhere in your app
 
 To move the reader to a new passage from another screen — for example, a "Read" button in a different tab — share a `BibleReaderNavigation` object and call `request(_:showsFullChapter:)`. This sets the passage the reader moves to; bringing the reader on screen (switching tabs, pushing it) is still up to your app. The reader moves in place; you don't recreate it.

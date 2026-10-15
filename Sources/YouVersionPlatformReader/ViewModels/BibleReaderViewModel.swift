@@ -108,7 +108,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
-    let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
 
     // MARK: - Search
 
@@ -453,8 +452,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func updateSignInState() async {
-        _ = await authentication.hasValidToken()
+    @discardableResult
+    func updateSignInState() async -> Bool {
+        await authentication.hasValidToken()
     }
 
     /// Continues a pending highlight action after the user has completed sign-in.
