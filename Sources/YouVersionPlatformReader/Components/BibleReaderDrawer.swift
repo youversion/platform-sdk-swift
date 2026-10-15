@@ -68,10 +68,10 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        let paletteHexes = Set(highlightColors.compactMap { $0.hexString.flatMap(viewModel.normalizedHighlightHex) })
+        let paletteHexes = Set(highlightColors.compactMap(\.hexString))
         let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
             + viewModel.highlightColorsOnSelectedVerses.filter { color in
-                guard let hex = color.hexString.flatMap(viewModel.normalizedHighlightHex) else {
+                guard let hex = color.hexString else {
                     return false
                 }
                 return !paletteHexes.contains(hex)

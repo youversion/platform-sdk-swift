@@ -159,20 +159,11 @@ extension BibleReaderViewModel {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }
 
-    func hexColorValueForComparison(_ color: String) -> String {
-        guard color.starts(with: "#") else {
-            return color
-        }
-        return String(color.dropFirst())
-    }
-
     func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        if let rgbA = normalizedHighlightHex(a), let rgbB = normalizedHighlightHex(b) {
-            return rgbA == rgbB
+        guard let hexA = Color.rgbHex(a) else {
+            return false
         }
-        let cleanA = hexColorValueForComparison(a)
-        let cleanB = hexColorValueForComparison(b)
-        return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
+        return hexA == Color.rgbHex(b)
     }
 
     func addVerseColor(_ color: Color) {
@@ -187,14 +178,10 @@ extension BibleReaderViewModel {
         Set(
             selectedVerses
                 .flatMap { highlightsViewModel.highlights(for: $0) }
-                .compactMap { normalizedHighlightHex($0.color) }
+                .compactMap { Color.rgbHex($0.color) }
         )
         .sorted()
         .map { Color(hex: $0) }
-    }
-
-    func normalizedHighlightHex(_ color: String) -> String? {
-        Color.rgbHex(color)
     }
 
     func removeVerseColor(_ color: Color) {

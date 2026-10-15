@@ -145,15 +145,6 @@ import Testing
     }
 
     @Test
-    func hexColorValueForComparisonRemovesLeadingHash() {
-        let viewModel = Support.makeViewModel()
-
-        #expect(viewModel.hexColorValueForComparison("#") == "")
-        #expect(viewModel.hexColorValueForComparison("#DDAAFF") == "DDAAFF")
-        #expect(viewModel.hexColorValueForComparison("DDAAFF") == "DDAAFF")
-    }
-
-    @Test
     func isSameHexColorComparesColorsWithoutLeadingHashes() {
         let viewModel = Support.makeViewModel()
 
@@ -161,6 +152,7 @@ import Testing
         #expect(viewModel.isSameHexColor("ddaaff", "#DDAAFF"))
         #expect(viewModel.isSameHexColor("#", "DDAAFF") == false)
         #expect(viewModel.isSameHexColor("#DDAAFF", "#AABBCC") == false)
+        #expect(viewModel.isSameHexColor("nope", "nope") == false)
     }
 
     @Test
@@ -169,7 +161,6 @@ import Testing
 
         #expect(viewModel.isSameHexColor("#FA3", "FFAA33"))
         #expect(viewModel.isSameHexColor("#80DDAAFF", "DDAAFF"))
-        #expect(viewModel.normalizedHighlightHex("#FA3") == "ffaa33")
     }
 
 #if !canImport(UIKit)
