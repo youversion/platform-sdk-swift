@@ -45,6 +45,14 @@ import UIKit
         #expect(Color.isDarkHighlightHex(hex) == false)
     }
 
+#if canImport(UIKit)
+    @Test
+    func argbHexStringKeepsAlpha() {
+        #expect(Color(hex: "#40000000").argbHexString == "40000000")
+        #expect(Color(hex: "DDAAFF").argbHexString == "FFDDAAFF")
+    }
+#endif
+
     @Test
     func rgbHexNormalizesEveryFormatColorHexReads() {
         #expect(Color.rgbHex("#FA3") == "ffaa33")

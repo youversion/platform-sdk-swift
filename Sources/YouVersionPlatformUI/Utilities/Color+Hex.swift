@@ -92,4 +92,16 @@ public extension Color {
         return nil
 #endif
     }
+
+    var argbHexString: String? {
+#if canImport(UIKit)
+        var alpha: CGFloat = 0
+        guard let hex = hexString, UIColor(self).getRed(nil, green: nil, blue: nil, alpha: &alpha) else {
+            return nil
+        }
+        return String(format: "%02X", Int((alpha * 255).rounded())) + hex
+#else
+        return nil
+#endif
+    }
 }

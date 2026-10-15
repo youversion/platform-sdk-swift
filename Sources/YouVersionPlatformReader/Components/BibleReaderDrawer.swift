@@ -104,7 +104,7 @@ struct BibleReaderDrawer: View {
     }
 
     private func checkmarkColor(for color: Color) -> Color {
-        let isDarkHighlight = color.hexString.map(Color.isDarkHighlightHex) ?? false
+        let isDarkHighlight = color.argbHexString.map(Color.isDarkHighlightHex) ?? false
         return viewModel.colorScheme == .dark || isDarkHighlight ? .white : Color(hex: "#121212")
     }
 

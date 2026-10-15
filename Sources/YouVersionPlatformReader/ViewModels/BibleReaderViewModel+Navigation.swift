@@ -175,13 +175,14 @@ extension BibleReaderViewModel {
     }
 
     var highlightColorsOnSelectedVerses: [Color] {
-        Set(
-            selectedVerses
-                .flatMap { highlightsViewModel.highlights(for: $0) }
-                .compactMap { Color.rgbHex($0.color) }
-        )
-        .sorted()
-        .map { Color(hex: $0) }
+        var savedHexesByRGBHex: [String: String] = [:]
+        for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
+            guard let rgbHex = Color.rgbHex(highlight.color), savedHexesByRGBHex[rgbHex] == nil else {
+                continue
+            }
+            savedHexesByRGBHex[rgbHex] = highlight.color
+        }
+        return savedHexesByRGBHex.keys.sorted().compactMap { savedHexesByRGBHex[$0] }.map { Color(hex: $0) }
     }
 
     func removeVerseColor(_ color: Color) {
