@@ -160,10 +160,10 @@ extension BibleReaderViewModel {
     }
 
     func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        guard let hexA = Color.rgbHex(a) else {
+        guard let rgbA = Color.rgbValue(fromHex: a) else {
             return false
         }
-        return hexA == Color.rgbHex(b)
+        return rgbA == Color.rgbValue(fromHex: b)
     }
 
     func addVerseColor(_ color: Color) {
@@ -175,14 +175,14 @@ extension BibleReaderViewModel {
     }
 
     var highlightColorsOnSelectedVerses: [Color] {
-        var savedHexesByRGBHex: [String: String] = [:]
+        var savedHexesByRGB: [UInt32: String] = [:]
         for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
-            guard let rgbHex = Color.rgbHex(highlight.color), savedHexesByRGBHex[rgbHex] == nil else {
+            guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
                 continue
             }
-            savedHexesByRGBHex[rgbHex] = highlight.color
+            savedHexesByRGB[rgb] = highlight.color
         }
-        return savedHexesByRGBHex.keys.sorted().compactMap { savedHexesByRGBHex[$0] }.map { Color(hex: $0) }
+        return savedHexesByRGB.keys.sorted().compactMap { savedHexesByRGB[$0] }.map { Color(hex: $0) }
     }
 
     func removeVerseColor(_ color: Color) {

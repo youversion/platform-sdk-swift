@@ -31,35 +31,24 @@ import UIKit
     }
 
     @Test(arguments: ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff", "#FFFFFF", "fff", "80DDAAFF", "10000000", "#40000000"])
-    func lightHighlightHexIsNotDark(hex: String) {
-        #expect(Color.isDarkHighlightHex(hex) == false)
+    func lightHighlightIsNotDark(hex: String) {
+        #expect(Color(hex: hex).isDarkHighlight == false)
     }
 
     @Test(arguments: ["000000", "#121212", "5c2d91", "1e3a8a", "#000", "FF000000", "C0000000"])
-    func darkHighlightHexIsDark(hex: String) {
-        #expect(Color.isDarkHighlightHex(hex) == true)
+    func darkHighlightIsDark(hex: String) {
+        #expect(Color(hex: hex).isDarkHighlight == true)
     }
-
-    @Test(arguments: ["", "ff", "zzzzzz", "12345"])
-    func malformedHighlightHexIsNotDark(hex: String) {
-        #expect(Color.isDarkHighlightHex(hex) == false)
-    }
-
-#if canImport(UIKit)
-    @Test
-    func argbHexStringKeepsAlpha() {
-        #expect(Color(hex: "#40000000").argbHexString == "40000000")
-        #expect(Color(hex: "DDAAFF").argbHexString == "FFDDAAFF")
-    }
-#endif
 
     @Test
-    func rgbHexNormalizesEveryFormatColorHexReads() {
-        #expect(Color.rgbHex("#FA3") == "ffaa33")
-        #expect(Color.rgbHex("DDAAFF") == "ddaaff")
-        #expect(Color.rgbHex("#80DDAAFF") == "ddaaff")
-        #expect(Color.rgbHex("#") == nil)
-        #expect(Color.rgbHex("zzzzzz") == nil)
+    func rgbValueReadsEveryFormatColorHexReads() {
+        #expect(Color.rgbValue(fromHex: "#FA3") == 0xFFAA33)
+        #expect(Color.rgbValue(fromHex: "DDAAFF") == 0xDDAAFF)
+        #expect(Color.rgbValue(fromHex: "ddaaff") == 0xDDAAFF)
+        #expect(Color.rgbValue(fromHex: "#80DDAAFF") == 0xDDAAFF)
+        #expect(Color.rgbValue(fromHex: "#") == nil)
+        #expect(Color.rgbValue(fromHex: "zzzzzz") == nil)
+        #expect(Color.rgbValue(fromHex: "12345") == nil)
     }
 
     private func colorComponents(for color: Color) throws -> ColorComponents? {

@@ -212,6 +212,7 @@ extension BibleTextView {
             rendererPaintsHighlight = false
         }
         let resolvedTextColor = textOptions.textColor ?? .primary
+        let darkModeHighlightOpacity = 0.2
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -222,11 +223,9 @@ extension BibleTextView {
             var highlightColor: Color?
             var textColorOverride: Color?
             if let reference {
-                let highlightHex = highlightHexFor(reference: reference)
-                highlightColor = highlightHex.map { Color(hex: $0) }?
-                    .opacity(darkMode ? Self.darkModeHighlightOpacity : 1.0)
-                if let highlightHex, let highlightColor {
-                    if !darkMode && Color.isDarkHighlightHex(highlightHex) {
+                if let highlight = highlightFor(reference: reference) {
+                    highlightColor = highlight.opacity(darkMode ? darkModeHighlightOpacity : 1.0)
+                    if !darkMode && highlight.isDarkHighlight {
                         if category == .scripture || category == .verseLabel || category == .footnoteImage {
                             textColorOverride = .white
                         }
@@ -410,10 +409,6 @@ extension BibleTextView {
     }
 
     private func highlightFor(reference: BibleReference) -> Color? {
-        highlightHexFor(reference: reference).map { Color(hex: $0) }
-    }
-
-    private func highlightHexFor(reference: BibleReference) -> String? {
         // Rendered runs carry a single-verse reference. A STORED highlight
         // may cover a range (e.g. v1–v5), so match by inclusion in
         // [verseStart, verseEnd] — not verseStart equality, which would
@@ -426,7 +421,7 @@ extension BibleTextView {
                   let start = highlight.reference.verseStart else { continue }
             let end = highlight.reference.verseEnd ?? start
             if refVerse >= start && refVerse <= end {
-                return highlight.color
+                return Color(hex: highlight.color)
             }
         }
         return nil
