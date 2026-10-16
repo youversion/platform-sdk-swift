@@ -29,6 +29,9 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  # Read-only: scripts/release.sh reads the `major-release-signoff` status the
+  # gate wrote on each released PR's head. Nothing here writes statuses.
+  statuses: read
 
 jobs:
   test:

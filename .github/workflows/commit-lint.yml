@@ -30,9 +30,10 @@ jobs:
         run: npm ci
 
       - name: Test release scripts
-        # Exercises scripts/release-validate.mjs and
-        # scripts/release-warn-version-jump.mjs — the version-validation
-        # paths called by scripts/release.sh at release time. Running
+        # Exercises scripts/release-validate.mjs,
+        # scripts/release-warn-version-jump.mjs, and
+        # scripts/release-check-signoff.mjs — the validation and
+        # authorization paths called at release time. Running
         # here on every PR catches Node / OS / shell regressions before
         # they reach a live release dispatch. This job runs Node 20 on
         # ubuntu-latest; release.yml runs Node lts/* on macos-26 — the

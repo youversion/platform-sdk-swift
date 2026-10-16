@@ -96,6 +96,16 @@ import Testing
         #expect(viewModel.highlightsViewModel.highlights(for: reference).isEmpty)
     }
 
+    @Test(arguments: [false, true])
+    func menuSignInStateUsesTokenValidationDespiteStoredToken(isValid: Bool) async {
+        Support.clearReaderDefaults()
+        let viewModel = Support.makeViewModel(isSignedIn: true, validateToken: { isValid })
+
+        let isSignedInForMenu = await viewModel.updateSignInState()
+
+        #expect(isSignedInForMenu == isValid)
+    }
+
     @Test
     func updateSignInStateUsesAuthenticationState() async {
         Support.clearReaderDefaults()

@@ -81,6 +81,7 @@ enum BibleReaderViewModelTestSupport {
     static let displayIntroKey = "bible-reader-view--displayintro"
     static let showsFullChapterKey = "bible-reader-view--showsfullchapter"
     static let readerSettingsKey = "bible-reader-view--readersettings"
+    static let recentSearchesKey = "bible-reader-view--recentsearches"
 
     @MainActor
     static func makeViewModel(
@@ -131,7 +132,7 @@ enum BibleReaderViewModelTestSupport {
         }
     }
 
-    static func makeBibleVersion(id: Int) -> BibleVersion {
+    static func makeBibleVersion(id: Int, bookTitle: String = "John") -> BibleVersion {
         BibleVersion(
             id: id,
             abbreviation: "TEST",
@@ -148,9 +149,9 @@ enum BibleReaderViewModelTestSupport {
             books: [
                 BibleBook(
                     id: "JHN",
-                    title: "John",
-                    fullTitle: "John",
-                    abbreviation: "John",
+                    title: bookTitle,
+                    fullTitle: bookTitle,
+                    abbreviation: bookTitle,
                     canon: "nt",
                     chapters: (1...3).map { chapter in
                         BibleChapter(id: "JHN.\(chapter)", passageId: nil, title: "\(chapter)", verses: nil)
@@ -167,6 +168,10 @@ enum BibleReaderViewModelTestSupport {
         UserDefaults.standard.removeObject(forKey: displayIntroKey)
         UserDefaults.standard.removeObject(forKey: showsFullChapterKey)
         UserDefaults.standard.removeObject(forKey: readerSettingsKey)
+    }
+
+    static func clearRecentSearches() {
+        UserDefaults.standard.removeObject(forKey: recentSearchesKey)
     }
 
 }
