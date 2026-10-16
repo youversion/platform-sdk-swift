@@ -25,18 +25,21 @@ struct ReaderNavigationActionButton: View {
             }
         } label: {
             if isMenuItem {
-                Label(title, systemImage: systemImage)
+                Label {
+                    Text(title)
+                } icon: {
+                    actionImage
+                }
             } else {
-                Image(systemName: systemImage)
-                    .font(.title3)
+                ReaderNavigationActionIcon(image: actionImage)
                     .readerIconButton()
             }
         }
     }
 
-    private var systemImage: String {
+    private var actionImage: Image {
         switch action {
-        case .search: "magnifyingglass"
+        case .search: Image.magnifyingGlass
         }
     }
 
@@ -50,5 +53,16 @@ struct ReaderNavigationActionButton: View {
         switch action {
         case .search: String.localized("generic.search")
         }
+    }
+}
+
+private struct ReaderNavigationActionIcon: View {
+    let image: Image
+    @ScaledMetric(relativeTo: .title3) private var size = 24
+
+    var body: some View {
+        image
+            .resizable()
+            .frame(width: size, height: size)
     }
 }
