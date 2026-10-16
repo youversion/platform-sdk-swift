@@ -95,6 +95,10 @@ public struct BibleTextView: View {
         self.sourceHTML = sourceHTML
     }
 
+    var versionLayoutDirection: LayoutDirection {
+        isVersionRightToLeft ? .rightToLeft : .leftToRight
+    }
+
     private static func blocks(
         parsedFrom html: String,
         reference: BibleReference,
@@ -133,7 +137,7 @@ public struct BibleTextView: View {
             }
         }
         .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
-        .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
+        .environment(\.layoutDirection, versionLayoutDirection)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
