@@ -98,6 +98,8 @@ This project follows idiomatic Swift conventions as outlined in [Swift API Desig
 - Use descriptive Boolean names such as `hasResource`.
 - Do not add a helper for a single obvious one-line operation.
 - Apply DRY when it centralizes a real rule or a repeated magic value. Leave a short, obvious expression local.
+- Avoid adding initializer or factory-method variants to public views for optional configuration. Use custom view modifiers instead, following the `BibleReaderView(reference: ...).chapterHeader { ... }` pattern. Preserve established public initializers and factory methods for API compatibility.
+- Never introduce an enum in the SDK's public API. Adding cases can break source compatibility for consumers with exhaustive switches. Follow the `VerseSelectionStyle` pattern instead: a public struct with named static presets. Keep any enum used to represent those presets internal or private. Preserve existing public enums; this rule applies to new API design.
 
 See [.swiftlint.yml](./.swiftlint.yml) for detailed style rules.
 

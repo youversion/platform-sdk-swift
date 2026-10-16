@@ -4,8 +4,39 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 extension BibleReaderViewModel {
+    private static let userDefaultsKeyForRecentSearches = "bible-reader-view--recentsearches"
+    private static let maximumRecentSearchCount = 3
+    private static let maximumTrendingSearchCount = 3
+
     var isLoadingNextSearchPage: Bool {
         nextSearchPageRequestID != nil
+    }
+
+    var filteredSearchResults: [BibleReference] {
+        guard let canons = searchCanonFilter.canons else {
+            return searchResults
+        }
+        return searchResults.filter { result in
+            guard let canon = searchVersion?.book(with: result.bookId)?.canon else {
+                return false
+            }
+            return canons.contains(canon)
+        }
+    }
+
+    var nextSearchPageLoadTrigger: SearchPageLoadTrigger {
+        SearchPageLoadTrigger(
+            pageToken: nextSearchPageToken,
+            interruptionCount: interruptedSearchPageLoadCount
+        )
+    }
+
+    var hasNextSearchPage: Bool {
+        !(nextSearchPageToken ?? "").isEmpty
+    }
+
+    var recentSearches: [String] {
+        UserDefaults.standard.stringArray(forKey: Self.userDefaultsKeyForRecentSearches) ?? []
     }
 
     func openSearch() {
@@ -22,6 +53,7 @@ extension BibleReaderViewModel {
         let requestID = UUID()
         clearSearchResults()
         clearSuggestedSearchQueries()
+        recentSearchQueries = query.isEmpty ? recentSearches : []
         submittedSearchQuery = nil
         searchQueryRequestID = requestID
 
@@ -53,7 +85,11 @@ extension BibleReaderViewModel {
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
             }
-            suggestedSearchQueries = queries
+            if query.isEmpty {
+                trendingSearchQueries = Array(queries.prefix(Self.maximumTrendingSearchCount))
+            } else {
+                suggestedSearchQueries = queries
+            }
             isLoadingSearchQueries = false
         } catch {
             if isCancellation(error) {
@@ -66,7 +102,10 @@ extension BibleReaderViewModel {
                   query == searchQuery.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return
             }
-            clearSuggestedSearchQueries()
+            suggestedSearchQueries = []
+            trendingSearchQueries = []
+            isLoadingSearchQueries = false
+            searchQueryRequestID = nil
             YouVersionPlatformLogger.error("Search query suggestions failed: \(error)", category: "Reader")
         }
     }
@@ -81,6 +120,7 @@ extension BibleReaderViewModel {
         submittedSearchQuery = query
         searchQuery = query
         clearSuggestedSearchQueries()
+        recordRecentSearch(query)
         guard query != completedSearchQuery || versionID != completedSearchVersionID else {
             return
         }
@@ -162,10 +202,11 @@ extension BibleReaderViewModel {
             searchResults.append(contentsOf: newResults)
             nextSearchPageToken = results.nextPageToken
         } catch {
-            guard !isCancellation(error) else {
+            guard requestID == nextSearchPageRequestID else {
                 return
             }
-            guard requestID == nextSearchPageRequestID else {
+            guard !isCancellation(error) else {
+                interruptedSearchPageLoadCount += 1
                 return
             }
             hasNextSearchPageLoadError = true
@@ -176,8 +217,8 @@ extension BibleReaderViewModel {
         }
     }
 
-    func search(for suggestedQuery: YouVersionSearchQuery) async {
-        searchQuery = suggestedQuery.text
+    func search(for query: String) async {
+        searchQuery = query
         await search()
     }
 
@@ -206,15 +247,30 @@ extension BibleReaderViewModel {
         await goToReference(result, showsFullChapter: true, shouldFocus: true)
     }
 
+    func recordRecentSearch(_ query: String) {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else {
+            return
+        }
+        let olderSearches = recentSearches.filter {
+            $0.caseInsensitiveCompare(trimmedQuery) != .orderedSame
+        }
+        let updatedSearches = [trimmedQuery] + olderSearches.prefix(Self.maximumRecentSearchCount - 1)
+        UserDefaults.standard.set(updatedSearches, forKey: Self.userDefaultsKeyForRecentSearches)
+    }
+
     private func resetSearch() {
         searchQuery = ""
         submittedSearchQuery = nil
+        searchCanonFilter = .both
         clearSuggestedSearchQueries()
         clearSearchResults()
     }
 
     private func clearSuggestedSearchQueries() {
         suggestedSearchQueries = []
+        trendingSearchQueries = []
+        recentSearchQueries = []
         isLoadingSearchQueries = false
         searchQueryRequestID = nil
     }

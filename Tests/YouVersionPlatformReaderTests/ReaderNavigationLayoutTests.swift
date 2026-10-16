@@ -1,0 +1,80 @@
+import Testing
+@testable import YouVersionPlatformReader
+
+@Suite struct ReaderNavigationLayoutTests {
+    @Test func defaultsToBottomWithSearchBesidePickers() {
+        let layout = ReaderNavigationLayout(tabLocation: .none, hasVerticalToolbar: false)
+        #expect(layout.placement == .bottomBar)
+        #expect(layout.primaryAction == .search)
+        #expect(layout.upperAction == nil)
+        #expect(layout.menuActions.isEmpty)
+        #expect(!layout.usesSystemToolbar)
+    }
+
+    @Test func horizontalTabsOverridePreferredEdge() {
+        let topTabs = ReaderNavigationLayout(preferredPlacement: .topBar,
+                                             tabLocation: .top, hasVerticalToolbar: false)
+        let bottomTabs = ReaderNavigationLayout(tabLocation: .bottom, hasVerticalToolbar: false)
+        #expect(topTabs.placement == .bottomBar)
+        #expect(bottomTabs.placement == .topBar)
+        #expect(bottomTabs.primaryAction == nil)
+        #expect(bottomTabs.upperAction == .search)
+        #expect(bottomTabs.menuActions.isEmpty)
+    }
+
+    @Test func verticalToolbarMovesChapterArrowsOutOfCustomBar() {
+        let layout = ReaderNavigationLayout(navigationStackUsage: .shared,
+                                            tabLocation: .bottom, hasVerticalToolbar: true)
+        #expect(layout.usesSystemToolbar)
+        #expect(layout.upperAction == nil)
+        #expect(layout.menuActions.isEmpty)
+        #expect(layout.usesSystemChapterNavigation)
+        #expect(layout.placement == .topBar)
+    }
+
+    @Test(arguments: [BibleReaderNavigationStackUsage.none, .shared, .justForReader], [false, true])
+    func sharedStacksHostActionsWhileOnlyVerticalToolbarsHostChapterArrows(usage: BibleReaderNavigationStackUsage, verticalPlacement: Bool) {
+        let layout = ReaderNavigationLayout(
+            navigationStackUsage: usage,
+            tabLocation: .bottom,
+            hasVerticalToolbar: verticalPlacement
+        )
+        #expect(layout.usesSystemToolbar == (usage == .shared || (usage != .none && verticalPlacement)))
+        #expect(layout.usesSystemChapterNavigation == (usage != .none && verticalPlacement))
+        #expect(layout.placement == .topBar)
+        if layout.usesSystemToolbar {
+            #expect(layout.primaryAction == nil)
+            #expect(layout.upperAction == nil)
+            #expect(layout.menuActions.isEmpty)
+            #expect(layout.actions == [.search])
+        } else {
+            #expect(layout.upperAction == .search)
+            #expect(layout.menuActions.isEmpty)
+        }
+    }
+
+    @Test(arguments: [ReaderTabLocation.none, .top, .bottom])
+    func sharedActionsStayInHostToolbarRegardlessOfPickerEdge(tabLocation: ReaderTabLocation) {
+        let layout = ReaderNavigationLayout(navigationStackUsage: .shared,
+                                            tabLocation: tabLocation, hasVerticalToolbar: false)
+        #expect(layout.usesSystemToolbar)
+        #expect(!layout.usesSystemChapterNavigation)
+        #expect(layout.primaryAction == nil)
+        #expect(layout.upperAction == nil)
+        #expect(layout.menuActions.isEmpty)
+        #expect(layout.actions == [.search])
+    }
+
+    @Test func verticalPlacementKeepsCustomControlsByDefault() {
+        let layout = ReaderNavigationLayout(tabLocation: .none, hasVerticalToolbar: true)
+        #expect(!layout.usesSystemToolbar)
+        #expect(layout.primaryAction == .search)
+    }
+
+    @Test func otherTabPlacementHonorsPreference() {
+        let layout = ReaderNavigationLayout(preferredPlacement: .topBar,
+                                            tabLocation: .other, hasVerticalToolbar: false)
+        #expect(layout.placement == .topBar)
+    }
+
+}

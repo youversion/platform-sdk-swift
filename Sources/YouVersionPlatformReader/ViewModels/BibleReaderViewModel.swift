@@ -29,6 +29,25 @@ enum SearchStatus: Equatable {
     case failed
 }
 
+struct SearchPageLoadTrigger: Equatable {
+    let pageToken: String?
+    let interruptionCount: Int
+}
+
+enum SearchCanonFilter: CaseIterable {
+    case oldTestament
+    case newTestament
+    case both
+
+    var canons: Set<String>? {
+        switch self {
+        case .oldTestament: ["ot", "old_testament"]
+        case .newTestament: ["nt", "new_testament"]
+        case .both: nil
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
@@ -89,12 +108,13 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     private var showingChapterPicker = false
     var headerExpandedBookCode: String?
     var footnotesToDisplay: [BibleFootnote] = []
-    let readerMaxWidth = CGFloat(700)  // of the reader and the verse action drawer, maybe others
 
     // MARK: - Search
 
     var searchQuery = ""
     var suggestedSearchQueries: [YouVersionSearchQuery] = []
+    var trendingSearchQueries: [YouVersionSearchQuery] = []
+    var recentSearchQueries: [String] = []
     var searchResults: [BibleReference] = []
     var searchVersion: BibleVersion?
     var isLoadingSearchQueries = false
@@ -108,6 +128,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var nextSearchPageToken: String?
     var nextSearchPageRequestID: UUID?
     var hasNextSearchPageLoadError = false
+    var interruptedSearchPageLoadCount = 0
+    var searchCanonFilter: SearchCanonFilter = .both
 
     // MARK: - Font settings
 
@@ -430,8 +452,9 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         saveUserSettingsToStorage()
     }
 
-    func updateSignInState() async {
-        _ = await authentication.hasValidToken()
+    @discardableResult
+    func updateSignInState() async -> Bool {
+        await authentication.hasValidToken()
     }
 
     /// Continues a pending highlight action after the user has completed sign-in.

@@ -4,6 +4,9 @@ import YouVersionPlatformCore
 import YouVersionPlatformUI
 
 public struct BibleReaderView: View {
+    static let contentHorizontalPadding: CGFloat = 30
+    static let contentMaximumWidth: CGFloat = 700
+
     @State private var viewModel: BibleReaderViewModel?
 
     private let initialReference: BibleReference?
@@ -11,6 +14,8 @@ public struct BibleReaderView: View {
     private let showsFullChapter: Bool
     private let verseSelectionStyle: VerseSelectionStyle
     private let onVerseTap: ((BibleReference) -> Void)?
+    private var preferredNavigationPlacement = BibleReaderNavigationPlacement.bottomBar
+    private var navigationStackUsage = BibleReaderNavigationStackUsage.none
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
@@ -77,6 +82,28 @@ public struct BibleReaderView: View {
             showsFullChapter: false,
             readerNavigation: readerNavigation
         )
+    }
+
+    /// Sets the preferred navigation edge when horizontal host tab placement is absent or unavailable.
+    /// The default is `.bottomBar`. Detected top or bottom tabs take precedence:
+    /// the reader places its controls on the opposite edge.
+    public func navigationPlacement(_ placement: BibleReaderNavigationPlacement) -> BibleReaderView {
+        var copy = self
+        copy.preferredNavigationPlacement = placement
+        return copy
+    }
+
+    /// Describes how the reader may use a navigation stack supplied by your app.
+    /// This modifier never creates a navigation stack. The default, `.none`, uses
+    /// custom controls without changing the host's navigation bar.
+    /// Use `.shared` to contribute native actions to the host toolbar while
+    /// preserving the host's visibility and minimization settings. Use `.justForReader`
+    /// for a dedicated stack: the reader hides the horizontal navigation bar and keeps
+    /// the vertical toolbar visible, including when its custom controls collapse.
+    public func usingNavigationStack(_ usage: BibleReaderNavigationStackUsage) -> BibleReaderView {
+        var copy = self
+        copy.navigationStackUsage = usage
+        return copy
     }
 
     /// Returns a reader that renders `header` at the top of each chapter, above
@@ -172,7 +199,14 @@ public struct BibleReaderView: View {
     public var body: some View {
         Group {
             if let viewModel {
-                ReaderContent(viewModel: viewModel, readerNavigation: readerNavigation, chapterHeader: chapterHeaderBuilder)
+                ReaderContent(
+                    viewModel: viewModel,
+                    readerNavigation: readerNavigation,
+                    chapterHeader: chapterHeaderBuilder,
+                    preferredNavigationPlacement: preferredNavigationPlacement,
+                    navigationStackUsage: navigationStackUsage
+                )
+                    .modifier(ReaderNavigationEnvironmentModifier())
             } else {
                 Color.clear
             }
@@ -201,6 +235,10 @@ private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+    let preferredNavigationPlacement: BibleReaderNavigationPlacement
+    let navigationStackUsage: BibleReaderNavigationStackUsage
+    @Environment(\.readerTabLocation) private var tabLocation
+    @Environment(\.readerHasVerticalToolbar) private var hasVerticalToolbar
 #if !os(tvOS)
     @State private var contextProvider = ContextProvider()
 #endif
@@ -214,38 +252,75 @@ private struct ReaderContent: View {
     @State private var selectedDetent = PresentationDetent.height(360)
     @State private var detents: Set<PresentationDetent> = [.height(360), .height(480)]
     @State private var verseScrollCoordinator: VerseScrollCoordinator
+    @State private var isSignedIn = false
 
     init(
         viewModel: BibleReaderViewModel,
         readerNavigation: BibleReaderNavigation?,
-        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+        chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
+        preferredNavigationPlacement: BibleReaderNavigationPlacement,
+        navigationStackUsage: BibleReaderNavigationStackUsage
     ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
+        self.preferredNavigationPlacement = preferredNavigationPlacement
+        self.navigationStackUsage = navigationStackUsage
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Spacer()
-                .frame(height: 4)
-            Divider()
-                .frame(height: 1)
-            ZStack {
-                VStack {
-                    mainScroller
-                    Spacer(minLength: 0)
+        let layout = ReaderNavigationLayout(
+            preferredPlacement: preferredNavigationPlacement,
+            navigationStackUsage: navigationStackUsage,
+            tabLocation: tabLocation,
+            hasVerticalToolbar: hasVerticalToolbar
+        )
+        let sharesTopTabRow = tabLocation == .top && !layout.usesSystemToolbar
+        GeometryReader { geometry in
+            mainScroller
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    if layout.placement == .topBar || (!layout.usesSystemToolbar && !sharesTopTabRow) {
+                        ReaderNavigationBar(
+                            layout: layout, isUpperBar: true, width: geometry.size.width, cornerInsets: navigationCornerInsets(geometry)
+                        )
+                    }
                 }
-                BibleReaderNavButtons()
-                    .opacity(viewModel.showingVerseActionsDrawer ? 0 : 1)
-                if viewModel.showingVerseActionsDrawer {
-                    verseActionDrawer
-                        .frame(maxWidth: viewModel.readerMaxWidth, maxHeight: .infinity, alignment: .bottom)
-                        .transition(reduceMotion ? .opacity : .move(edge: .bottom))
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    if viewModel.showingVerseActionsDrawer {
+                        verseActionDrawer.frame(maxWidth: BibleReaderView.contentMaximumWidth)
+                    } else if layout.placement == .bottomBar {
+                        ReaderNavigationBar(layout: layout, isUpperBar: false, width: geometry.size.width)
+                    }
                 }
-            }
+                .modifier(ReaderToolbarModifier(layout: layout))
+                .modifier(ReaderPickerPresentationModifier())
+                .overlay(alignment: .top) {
+                    viewModel.readerCanvasPrimaryColor
+                        .frame(height: geometry.safeAreaInsets.top)
+                        .offset(y: -geometry.safeAreaInsets.top)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+                .overlay {
+                    if sharesTopTabRow {
+                        let actionRowTopSpacing = geometry.safeAreaInsets.top - ReaderNavigationBar.actionRowHeight
+                            - ReaderNavigationBar.assumedTopTabRowBottomSpacing
+                        // Extends the overlay's hit-testing region into the host's top safe area.
+                        // Keeps the action row immediately above the reading content, beside the tabs.
+                        VStack(spacing: 0) {
+                            Color.clear
+                                .frame(height: max(0, actionRowTopSpacing))
+                                .allowsHitTesting(false)
+                            ReaderNavigationBar(
+                                layout: layout, isUpperBar: true, width: geometry.size.width, cornerInsets: navigationCornerInsets(geometry)
+                            )
+                            Spacer(minLength: 0)
+                        }
+                        .ignoresSafeArea(.container, edges: .top)
+                    }
+                }
         }
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
@@ -337,8 +412,24 @@ private struct ReaderContent: View {
                 viewModel.handleNavigationRequest(from: readerNavigation)
             }
         }
+        .task {
+            await updateSignInState()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)
+        ) { _ in
+            Task {
+                await updateSignInState()
+            }
+        }
+        .environment(\.readerIsSignedIn, isSignedIn)
         .environment(viewModel)
         .environment(\.colorScheme, viewModel.colorTheme?.colorScheme ?? .dark)
+    }
+
+    /// Keeps both menu presentations current even while their contents are not mounted.
+    private func updateSignInState() async {
+        isSignedIn = await viewModel.updateSignInState()
     }
 
     // MARK: - Helper views
@@ -348,25 +439,20 @@ private struct ReaderContent: View {
             .padding(.vertical, 48)
     }
 
-    private var header: some View {
-        HStack {
-            if viewModel.version != nil {
-                BibleReaderHeaderView(
-                    showChrome: viewModel.showChrome,
-                    onSelectionChange: { version, book, chapter, passageId in
-                        Task {
-                            let reference = BibleReference(versionId: version, bookId: book, chapter: chapter ?? 1)
-                            await viewModel.onHeaderSelectionChange(reference, showIntro: chapter == nil)
-                        }
-                    },
-                    onCompactTap: {
-                        viewModel.showChrome = true
-                    }
-                )
-            }
-            Spacer(minLength: 0)
+    private func navigationCornerInsets(_ geometry: GeometryProxy) -> EdgeInsets {
+#if compiler(>=6.2)
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, visionOS 26.0, *) {
+            let corners = geometry.containerCornerInsets
+            let safe = geometry.safeAreaInsets
+            return EdgeInsets(
+                top: 0,
+                leading: corners.topLeading.height > safe.top ? max(0, corners.topLeading.width - safe.leading) : 0,
+                bottom: 0,
+                trailing: corners.topTrailing.height > safe.top ? max(0, corners.topTrailing.width - safe.trailing) : 0
+            )
         }
-        .padding(.leading, 8)
+#endif
+        return EdgeInsets()
     }
 
     private var fontSettingsSheet: some View {
@@ -486,12 +572,14 @@ private struct ReaderContent: View {
                         }
                         VStack(alignment: .center) {
                             bibleCopyrightBlock
-                                .frame(maxWidth: viewModel.readerMaxWidth)
+                                .frame(maxWidth: BibleReaderView.contentMaximumWidth)
                         }
                     }
-                    .frame(maxWidth: viewModel.readerMaxWidth)
+                    .frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     .padding(.vertical)
-                    .padding(.horizontal, 30)
+                    .padding(.horizontal, BibleReaderView.contentHorizontalPadding)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                     .id("topOfContent")
                     // Hide the content until the verse scroll lands
                     // to avoid flashing.
@@ -516,6 +604,7 @@ private struct ReaderContent: View {
                     progressView
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .coordinateSpace(.named("scrollView"))
             .onPreferenceChange(ChapterScrollAnchorsKey.self) { anchors in
                 verseScrollCoordinator.handleAnchors(anchors, proxy: scrollProxy)
