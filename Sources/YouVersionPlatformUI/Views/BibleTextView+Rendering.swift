@@ -232,7 +232,7 @@ extension BibleTextView {
                     } else if category == .verseLabel {
                         textColorOverride = resolvedTextColor
                     }
-                    if let textColorOverride {
+                    if let textColorOverride, category != .footnoteImage {
                         t.foregroundColor = textColorOverride
                     }
                     if !rendererPaintsHighlight && (category == .scripture || category == .verseLabel) {
