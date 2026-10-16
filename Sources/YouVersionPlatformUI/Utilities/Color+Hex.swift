@@ -39,36 +39,6 @@ public extension Color {
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 
-    static func rgbHex(_ hex: String) -> String? {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted).lowercased()
-        guard hex.allSatisfy(\.isHexDigit) else {
-            return nil
-        }
-        switch hex.count {
-        case 3:
-            return hex.map { "\($0)\($0)" }.joined()
-        case 6:
-            return hex
-        case 8:
-            return String(hex.dropFirst(2))
-        default:
-            return nil
-        }
-    }
-
-    static func isDarkHighlightHex(_ hex: String) -> Bool {
-        guard let rgb = rgbHex(hex), let value = UInt64(rgb, radix: 16) else {
-            return false
-        }
-        let digits = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        let alpha = digits.count == 8 ? Double(UInt64(digits.prefix(2), radix: 16) ?? 0xFF) / 255 : 1
-        let overWhitePage = { (channel: UInt64) in alpha * Double(channel & 0xFF) + (1 - alpha) * 255 }
-        let red = overWhitePage(value >> 16)
-        let green = overWhitePage(value >> 8)
-        let blue = overWhitePage(value)
-        return (0.299 * red + 0.587 * green + 0.114 * blue) / 255 < 0.5
-    }
-
     /// returns e.g. "DDAAFF" indicating RGB. Conversion maybe be impossible and if so this will return nil.
     var hexString: String? {
 #if canImport(UIKit)
@@ -92,16 +62,43 @@ public extension Color {
         return nil
 #endif
     }
+}
 
-    var argbHexString: String? {
-#if canImport(UIKit)
-        var alpha: CGFloat = 0
-        guard let hex = hexString, UIColor(self).getRed(nil, green: nil, blue: nil, alpha: &alpha) else {
+extension Color {
+    private static let redLumaWeight = 0.299
+    private static let greenLumaWeight = 0.587
+    private static let blueLumaWeight = 0.114
+    private static let darkLumaThreshold = 0.5
+
+    package static func rgbValue(fromHex hex: String) -> UInt32? {
+        let digits = hex.hasPrefix("#") ? hex.dropFirst() : Substring(hex)
+        guard digits.allSatisfy(\.isHexDigit), let value = UInt32(digits, radix: 16) else {
             return nil
         }
-        return String(format: "%02X", Int((alpha * 255).rounded())) + hex
-#else
-        return nil
-#endif
+        switch digits.count {
+        case 3:
+            let red = (value >> 8) & 0xF
+            let green = (value >> 4) & 0xF
+            let blue = value & 0xF
+            return (red * 0x11) << 16 | (green * 0x11) << 8 | blue * 0x11
+        case 6:
+            return value
+        case 8:
+            return value & 0xFFFFFF
+        default:
+            return nil
+        }
+    }
+
+    package var isDarkHighlight: Bool {
+        let resolved = resolve(in: EnvironmentValues())
+        let opacity = Double(resolved.opacity)
+        func overWhitePage(_ channel: Float) -> Double {
+            opacity * Double(channel) + 1 - opacity
+        }
+        let luma = Self.redLumaWeight * overWhitePage(resolved.red)
+            + Self.greenLumaWeight * overWhitePage(resolved.green)
+            + Self.blueLumaWeight * overWhitePage(resolved.blue)
+        return luma < Self.darkLumaThreshold
     }
 }

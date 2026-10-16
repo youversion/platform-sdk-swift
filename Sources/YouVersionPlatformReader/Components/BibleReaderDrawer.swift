@@ -10,6 +10,7 @@ struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     private let buttonHeight = CGFloat(55)
+    private let darkModeHighlightOpacity = 0.2
 
     var body: some View {
         VStack {
@@ -104,14 +105,13 @@ struct BibleReaderDrawer: View {
     }
 
     private func checkmarkColor(for color: Color) -> Color {
-        let isDarkHighlight = color.argbHexString.map(Color.isDarkHighlightHex) ?? false
-        return viewModel.colorScheme == .dark || isDarkHighlight ? .white : Color(hex: "#121212")
+        viewModel.colorScheme == .dark || color.isDarkHighlight ? .white : Color(hex: "#121212")
     }
 
     private func coloredCircle(with color: Color) -> some View {
         let isDark = viewModel.colorScheme == .dark
         return Circle()
-            .fill(color.opacity(isDark ? BibleTextView.darkModeHighlightOpacity : 1))
+            .fill(color.opacity(isDark ? darkModeHighlightOpacity : 1))
             .overlay(
                 Circle().strokeBorder(isDark ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
             )
