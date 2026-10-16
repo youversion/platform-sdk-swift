@@ -8,10 +8,17 @@ struct CachedBibleContent<Value: Sendable>: Sendable {
     let expirationDate: Date?
 }
 
-struct BibleContentResponse<Value: Sendable>: Sendable {
-    let value: Value
-    let expirationDate: Date
-    let isCacheable: Bool
+/// A piece of Bible content and how long it may be cached, as the response that carried it said.
+public struct BibleContentResponse<Value: Sendable>: Sendable {
+    public let value: Value
+    public let expirationDate: Date
+    public let isCacheable: Bool
+
+    public init(value: Value, expirationDate: Date, isCacheable: Bool) {
+        self.value = value
+        self.expirationDate = expirationDate
+        self.isCacheable = isCacheable
+    }
 }
 
 enum BibleContentCachePolicy {
