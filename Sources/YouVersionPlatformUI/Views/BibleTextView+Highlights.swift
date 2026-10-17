@@ -1,22 +1,38 @@
 import SwiftUI
+import YouVersionPlatformCore
+
+extension View {
+    func highlightLayer(textOptions: BibleTextOptions, lineSpacing: CGFloat, focusedReference: BibleReference?) -> some View {
+        modifier(BibleTextView.HighlightLayerModifier(
+            textOptions: textOptions,
+            lineSpacing: lineSpacing,
+            focusedReference: focusedReference
+        ))
+    }
+}
 
 extension BibleTextView {
-    @ViewBuilder
-    func withHighlights(_ content: some View, textOptions: BibleTextOptions) -> some View {
-        if #available(iOS 18.0, *) {
-            content.backgroundPreferenceValue(Text.LayoutKey.self) { layouts in
-                HighlightLayer(
-                    layouts: layouts,
-                    lineSpacing: fontRelativeLineSpacing(textOptions: textOptions),
-                    padding: textOptions.fontSize * 0.2,
-                    cornerRadius: textOptions.fontSize * 0.25,
-                    dimmedHighlightOpacity: Self.dimmedTextOpacity,
-                    dimProgress: focusedReference == nil ? 0 : 1
-                )
-                .animation(Self.focusAnimation, value: focusedReference)
+    struct HighlightLayerModifier: ViewModifier {
+        let textOptions: BibleTextOptions
+        let lineSpacing: CGFloat
+        let focusedReference: BibleReference?
+
+        func body(content: Content) -> some View {
+            if #available(iOS 18.0, *) {
+                content.backgroundPreferenceValue(Text.LayoutKey.self) { layouts in
+                    HighlightLayer(
+                        layouts: layouts,
+                        lineSpacing: lineSpacing,
+                        padding: textOptions.fontSize * 0.2,
+                        cornerRadius: textOptions.fontSize * 0.25,
+                        dimmedHighlightOpacity: BibleTextView.dimmedTextOpacity,
+                        dimProgress: focusedReference == nil ? 0 : 1
+                    )
+                    .animation(BibleTextView.focusAnimation, value: focusedReference)
+                }
+            } else {
+                content
             }
-        } else {
-            content
         }
     }
 
@@ -70,13 +86,17 @@ extension BibleTextView {
                 .map { anchored in
                     let origin = proxy[anchored.origin]
                     return anchored.layout.map { line in
-                        let contentRects = line
+                        let bounds = line.typographicBounds.rect.offsetBy(dx: origin.x, dy: origin.y)
+                        guard line.contains(where: { $0[RenderHowAttribute.self]?.highlightColor != nil }) else {
+                            return HighlightLine<Color>(bounds: bounds, runs: [])
+                        }
+                        let contentRects = line.lazy
                             .filter { $0[RenderHowAttribute.self]?.isIndent != true }
                             .map(\.typographicBounds.rect)
                         let contentMinX = contentRects.map(\.minX).min()
                         let contentMaxX = contentRects.map(\.maxX).max()
                         return HighlightLine(
-                            bounds: line.typographicBounds.rect.offsetBy(dx: origin.x, dy: origin.y),
+                            bounds: bounds,
                             runs: line.compactMap { run -> HighlightRun<Color>? in
                                 guard let attrs = run[RenderHowAttribute.self],
                                       let highlightColor = attrs.highlightColor else { return nil }

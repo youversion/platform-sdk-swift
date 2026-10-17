@@ -166,31 +166,24 @@ enum HighlightOutline {
     }
 
     static func bridges(between chains: [[HighlightSpan]], padding: CGFloat, cornerRadius: CGFloat) -> [[CGPoint]] {
-        let spans = chains.indices.flatMap { chainIndex in
-            chains[chainIndex].indices.map { (chain: chainIndex, position: $0, span: chains[chainIndex][$0]) }
-        }
-        var bridges: [[CGPoint]] = []
-        for upper in spans {
-            for lower in spans where touches(upper.span, lower.span, padding: padding) {
-                guard upper.chain != lower.chain || upper.position + 1 != lower.position else {
-                    continue
-                }
-                let upperEdges = paddedEdges(of: upper.span, padding: padding)
-                let lowerEdges = paddedEdges(of: lower.span, padding: padding)
+        let heads = chains.compactMap(\.first)
+        return chains.compactMap(\.last).flatMap { upper in
+            heads.filter { touches(upper, $0, padding: padding) }.map { lower in
+                let upperEdges = paddedEdges(of: upper, padding: padding)
+                let lowerEdges = paddedEdges(of: lower, padding: padding)
                 let minX = max(upperEdges.minX, lowerEdges.minX)
                 let maxX = min(upperEdges.maxX, lowerEdges.maxX)
-                let join = upper.span.band.upperBound
-                let top = max(upper.span.band.lowerBound, join - cornerRadius)
-                let bottom = min(lower.span.band.upperBound, join + cornerRadius)
-                bridges.append([
+                let join = upper.band.upperBound
+                let top = max(upper.band.lowerBound, join - cornerRadius)
+                let bottom = min(lower.band.upperBound, join + cornerRadius)
+                return [
                     CGPoint(x: maxX, y: top),
                     CGPoint(x: maxX, y: bottom),
                     CGPoint(x: minX, y: bottom),
                     CGPoint(x: minX, y: top)
-                ])
+                ]
             }
         }
-        return bridges
     }
 
     static func dimmedArea(of chains: [[HighlightSpan]], padding: CGFloat) -> Path {

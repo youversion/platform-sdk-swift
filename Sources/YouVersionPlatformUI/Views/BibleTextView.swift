@@ -118,7 +118,12 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        withHighlights(blockStack, textOptions: textOptions)
+        blockStack
+        .highlightLayer(
+            textOptions: textOptions,
+            lineSpacing: fontRelativeLineSpacing(textOptions: textOptions),
+            focusedReference: focusedReference
+        )
         .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
         .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.openURL, OpenURLAction(handler: { url in
