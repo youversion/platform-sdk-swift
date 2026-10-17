@@ -65,10 +65,10 @@ public extension Color {
 }
 
 extension Color {
-    private static let redLumaWeight = 0.299
-    private static let greenLumaWeight = 0.587
-    private static let blueLumaWeight = 0.114
-    private static let darkLumaThreshold = 0.5
+    private static let redLumaWeight: Float = 0.299
+    private static let greenLumaWeight: Float = 0.587
+    private static let blueLumaWeight: Float = 0.114
+    private static let darkLumaThreshold: Float = 0.5
 
     package static func rgbValue(fromHex hex: String) -> UInt32? {
         let digits = hex.hasPrefix("#") ? hex.dropFirst() : Substring(hex)
@@ -92,9 +92,9 @@ extension Color {
 
     package var isDarkHighlight: Bool {
         let resolved = resolve(in: EnvironmentValues())
-        let opacity = Double(resolved.opacity)
-        func overWhitePage(_ channel: Float) -> Double {
-            opacity * Double(channel) + 1 - opacity
+        let opacity = resolved.opacity
+        func overWhitePage(_ channel: Float) -> Float {
+            opacity * channel + 1 - opacity
         }
         let luma = Self.redLumaWeight * overWhitePage(resolved.red)
             + Self.greenLumaWeight * overWhitePage(resolved.green)
