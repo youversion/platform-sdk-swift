@@ -104,11 +104,7 @@ extension BibleTextView {
                 )
             }
 
-            func drawFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect, color: Color?) {
-                guard let color else {
-                    context.draw(footnoteImage, in: iconRect)
-                    return
-                }
+            func drawFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect, color: Color) {
                 context.drawLayer { layer in
                     layer.clipToLayer { mask in
                         mask.draw(footnoteImage, in: iconRect)
@@ -117,11 +113,7 @@ extension BibleTextView {
                 }
             }
 
-            func drawRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext, color: Color?) {
-                guard let color else {
-                    context.draw(run)
-                    return
-                }
+            func drawRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext, color: Color) {
                 context.drawLayer { layer in
                     layer.clipToLayer { mask in
                         mask.draw(run)
@@ -174,28 +166,44 @@ extension BibleTextView {
                             if dimProgress < 1 {
                                 var fullColorContext = context
                                 fullColorContext.opacity = 1 - dimProgress
-                                drawFootnoteIcon(in: &fullColorContext, iconRect: iconRect, color: textColor)
+                                if let textColor {
+                                    drawFootnoteIcon(in: &fullColorContext, iconRect: iconRect, color: textColor)
+                                } else {
+                                    fullColorContext.draw(footnoteImage, in: iconRect)
+                                }
                             }
                             context.drawLayer { layer in
                                 layer.opacity = dimProgress
                                 drawFootnoteIcon(in: &layer, iconRect: iconRect, color: dimmedTextColor)
                             }
                         } else {
-                            drawFootnoteIcon(in: &context, iconRect: iconRect, color: textColor)
+                            if let textColor {
+                                drawFootnoteIcon(in: &context, iconRect: iconRect, color: textColor)
+                            } else {
+                                context.draw(footnoteImage, in: iconRect)
+                            }
                         }
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
                             var fullColorContext = context
                             fullColorContext.opacity = 1 - dimProgress
-                            drawRun(run, lineRect: lineRect, in: &fullColorContext, color: textColor)
+                            if let textColor {
+                                drawRun(run, lineRect: lineRect, in: &fullColorContext, color: textColor)
+                            } else {
+                                fullColorContext.draw(run)
+                            }
                         }
                         context.drawLayer { layer in
                             layer.opacity = dimProgress
                             drawRun(run, lineRect: lineRect, in: &layer, color: dimmedTextColor)
                         }
                     } else {
-                        drawRun(run, lineRect: lineRect, in: &context, color: textColor)
+                        if let textColor {
+                            drawRun(run, lineRect: lineRect, in: &context, color: textColor)
+                        } else {
+                            context.draw(run)
+                        }
                     }
                 }
             }
