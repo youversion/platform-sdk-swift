@@ -104,16 +104,19 @@ struct BibleReaderDrawer: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
     }
 
+    private var isDarkTheme: Bool {
+        (viewModel.colorTheme?.colorScheme ?? .dark) == .dark
+    }
+
     private func checkmarkColor(for color: Color) -> Color {
-        viewModel.colorScheme == .dark || color.isDarkHighlight ? .white : Color(hex: "#121212")
+        isDarkTheme || color.isDarkHighlight ? .white : Color(hex: "#121212")
     }
 
     private func coloredCircle(with color: Color) -> some View {
-        let isDark = viewModel.colorScheme == .dark
-        return Circle()
-            .fill(color.opacity(isDark ? darkModeHighlightOpacity : 1))
+        Circle()
+            .fill(color.opacity(isDarkTheme ? darkModeHighlightOpacity : 1))
             .overlay(
-                Circle().strokeBorder(isDark ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
+                Circle().strokeBorder(isDarkTheme ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
             )
             .frame(width: 36, height: 36)
     }
