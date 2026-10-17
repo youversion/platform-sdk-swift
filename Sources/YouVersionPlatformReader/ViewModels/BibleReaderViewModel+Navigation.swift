@@ -6,6 +6,17 @@ import YouVersionPlatformUI
 private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
+    var highlightColorsOnSelectedVerses: [Color] {
+        var savedHexesByRGB: [UInt32: String] = [:]
+        for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
+            guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
+                continue
+            }
+            savedHexesByRGB[rgb] = highlight.color
+        }
+        return savedHexesByRGB.keys.sorted().compactMap { savedHexesByRGB[$0] }.map { Color(hex: $0) }
+    }
+
     func goToPreviousChapter() {
         guard let version else {
             return
@@ -172,17 +183,6 @@ extension BibleReaderViewModel {
             return
         }
         addHighlightOrStartPermissionFlow(references: selectedVerses, color: hex)
-    }
-
-    var highlightColorsOnSelectedVerses: [Color] {
-        var savedHexesByRGB: [UInt32: String] = [:]
-        for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
-            guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
-                continue
-            }
-            savedHexesByRGB[rgb] = highlight.color
-        }
-        return savedHexesByRGB.keys.sorted().compactMap { savedHexesByRGB[$0] }.map { Color(hex: $0) }
     }
 
     func removeVerseColor(_ color: Color) {

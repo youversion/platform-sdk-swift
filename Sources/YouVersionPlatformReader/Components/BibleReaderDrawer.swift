@@ -50,6 +50,10 @@ struct BibleReaderDrawer: View {
         ]
     }
 
+    private var isDarkTheme: Bool {
+        (viewModel.colorTheme?.colorScheme ?? .dark) == .dark
+    }
+
     /// Cross-platform color-name lookup. UIColor is UIKit-only, so guard
     /// per platform: iOS/tvOS/watchOS get UIColor, macOS gets NSColor.
     /// The output funnels into `.accessibilityIdentifier` — a
@@ -102,10 +106,6 @@ struct BibleReaderDrawer: View {
         .background(RoundedRectangle(cornerRadius: 12)
             .fill(viewModel.readerSurfaceTertiaryColor))
         .foregroundStyle(viewModel.readerTextPrimaryColor)
-    }
-
-    private var isDarkTheme: Bool {
-        (viewModel.colorTheme?.colorScheme ?? .dark) == .dark
     }
 
     private func checkmarkColor(for color: Color) -> Color {
