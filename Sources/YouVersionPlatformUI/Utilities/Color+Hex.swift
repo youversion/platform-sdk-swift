@@ -70,6 +70,13 @@ extension Color {
     private static let blueLumaWeight: Float = 0.114
     private static let darkLumaThreshold: Float = 0.5
 
+    /// Returns the 24-bit RGB value of a hex color string, ignoring any alpha byte.
+    ///
+    /// Accepts `RGB`, `RRGGBB`, and `AARRGGBB`, each with or without a leading `#`.
+    /// Use it to compare colors saved in different formats.
+    ///
+    /// - Parameter hex: The hex color string to read.
+    /// - Returns: The color as `0xRRGGBB`, or `nil` if `hex` isn't one of the accepted formats.
     package static func rgbValue(fromHex hex: String) -> UInt32? {
         let digits = hex.hasPrefix("#") ? hex.dropFirst() : Substring(hex)
         guard digits.allSatisfy(\.isHexDigit), let value = UInt32(digits, radix: 16) else {
@@ -90,6 +97,9 @@ extension Color {
         }
     }
 
+    /// Whether the color is dark enough that text over it should be white.
+    ///
+    /// Translucent colors are blended over a white page before their luma is measured.
     package var isDarkHighlight: Bool {
         let resolved = resolve(in: EnvironmentValues())
         let opacity = resolved.opacity
