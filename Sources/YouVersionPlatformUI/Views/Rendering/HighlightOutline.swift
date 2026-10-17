@@ -30,6 +30,14 @@ enum HighlightOutline {
     private static let tolerance: CGFloat = 0.5
     private static let dimmedAreaBleed: CGFloat = 1
 
+    /// Returns the vertical band each line's highlight fills, so neighboring lines meet with no gap.
+    ///
+    /// Adjacent lines split the space between them at the midpoint. The first and last lines
+    /// extend `outerPadding` beyond their bounds.
+    /// - Parameters:
+    ///   - lineBounds: The typographic bounds of each line, top to bottom, in one coordinate space.
+    ///   - outerPadding: The distance the first line's band extends above it and the last line's band extends below it.
+    /// - Returns: One `minY...maxY` range per line, in the same coordinate space as `lineBounds`.
     static func bands(for lineBounds: [CGRect], outerPadding: CGFloat) -> [ClosedRange<CGFloat>] {
         lineBounds.indices.map { index in
             let line = lineBounds[index]
@@ -43,6 +51,14 @@ enum HighlightOutline {
         }
     }
 
+    /// Returns the vertical bands for every line in every block, joining highlighted lines across block boundaries.
+    ///
+    /// When the last line of one block and the first line of the next both hold highlights, their
+    /// bands meet at the midpoint between them instead of each extending by `outerPadding`.
+    /// - Parameters:
+    ///   - blocks: The lines of each text block, top to bottom, in one coordinate space.
+    ///   - outerPadding: The distance a block's outer bands extend beyond its first and last lines.
+    /// - Returns: One `minY...maxY` range per line, grouped the same way as `blocks`.
     static func bands<Style: Equatable>(
         for blocks: [[HighlightLine<Style>]],
         outerPadding: CGFloat
@@ -55,7 +71,9 @@ enum HighlightOutline {
                   !lower.runs.isEmpty,
                   upper.bounds.maxY <= lower.bounds.minY + tolerance,
                   let upperBand = bandsByBlock[index - 1].last,
-                  let lowerBand = bandsByBlock[index].first else { continue }
+                  let lowerBand = bandsByBlock[index].first else {
+                continue
+            }
             let meetingPoint = (upper.bounds.maxY + lower.bounds.minY) / 2
             bandsByBlock[index - 1][bandsByBlock[index - 1].count - 1] = upperBand.lowerBound...max(upperBand.lowerBound, meetingPoint)
             bandsByBlock[index][0] = min(meetingPoint, lowerBand.upperBound)...lowerBand.upperBound
@@ -63,6 +81,14 @@ enum HighlightOutline {
         return bandsByBlock
     }
 
+    /// Returns one rounded outline per highlight style that covers every highlighted run with no gaps between lines.
+    /// - Parameters:
+    ///   - blocks: The lines of each text block, top to bottom, with run positions in one coordinate space.
+    ///   - outerPadding: The distance a block's outer bands extend beyond its first and last lines.
+    ///   - padding: The distance an outline extends past the leading and trailing edges of its runs,
+    ///     except where it meets a highlight of another style.
+    ///   - cornerRadius: The radius of the outline's rounded corners.
+    /// - Returns: For each style, the outline to fill and the part of it that covers dimmed runs.
     static func paths<Style: Equatable>(
         for blocks: [[HighlightLine<Style>]],
         outerPadding: CGFloat,
@@ -73,24 +99,25 @@ enum HighlightOutline {
         let bands = Array(bands(for: blocks, outerPadding: outerPadding).joined())
         return spansByStyle(lines: lines.map(\.runs), bands: bands).map { highlight in
             let chains = chains(highlight.lines, padding: padding).map(flushAligned)
-            var path = Path()
-            for chain in chains {
-                path.addPath(self.path(of: corners(of: chain, padding: padding), cornerRadius: cornerRadius))
-            }
-            for bridge in bridges(between: chains, padding: padding, cornerRadius: cornerRadius) {
-                path.addPath(self.path(of: bridge, cornerRadius: 0))
-            }
+            let outlines = chains.map { self.path(of: corners(of: $0, padding: padding), cornerRadius: cornerRadius) }
+            let joins = bridges(between: chains, padding: padding, cornerRadius: cornerRadius).map { self.path(of: $0, cornerRadius: 0) }
+            let path = (outlines + joins).reduce(into: Path()) { $0.addPath($1) }
             return (highlight.style, path, dimmedArea(of: chains, padding: padding))
         }
     }
 
+    /// Merges each line's runs into spans and groups them by style.
+    /// - Parameters:
+    ///   - lines: The highlighted runs on each line, top to bottom.
+    ///   - bands: The vertical band of each line, from `bands(for:outerPadding:)`.
+    /// - Returns: For each style, in order of first appearance, the spans of that style on each line.
+    ///   Every style has one entry per line, which is empty when the line has no span of that style.
     static func spansByStyle<Style: Equatable>(
         lines: [[HighlightRun<Style>]],
         bands: [ClosedRange<CGFloat>]
     ) -> [(style: Style, lines: [[HighlightSpan]])] {
         let lineCount = min(lines.count, bands.count)
-        var result: [(style: Style, lines: [[HighlightSpan]])] = []
-        for lineIndex in 0..<lineCount {
+        return (0..<lineCount).reduce(into: []) { result, lineIndex in
             for (style, span) in mergedSpans(lines[lineIndex], band: bands[lineIndex]) {
                 if let index = result.firstIndex(where: { $0.style == style }) {
                     result[index].lines[lineIndex].append(span)
@@ -101,35 +128,42 @@ enum HighlightOutline {
                 }
             }
         }
-        return result
     }
 
+    /// Groups spans on consecutive lines into chains that can be drawn as one outline.
+    ///
+    /// A span continues the chain above it only when the two spans touch and neither touches any other
+    /// span on the other's line. Every other span starts a new chain.
+    /// - Parameters:
+    ///   - lines: The spans of one style on each line, top to bottom.
+    ///   - padding: The distance a span extends past its leading and trailing edges when checking whether spans touch.
+    /// - Returns: The chains, each listing its spans top to bottom.
     static func chains(_ lines: [[HighlightSpan]], padding: CGFloat = 0) -> [[HighlightSpan]] {
-        var finished: [[HighlightSpan]] = []
-        var open: [[HighlightSpan]] = []
-        for line in lines {
-            var consumed = Set<Int>()
-            var continuing: [[HighlightSpan]] = []
-            for span in line {
+        let result = lines.reduce(into: (finished: [[HighlightSpan]](), open: [[HighlightSpan]]())) { state, line in
+            let open = state.open
+            let continuations = line.map { span -> (chain: [HighlightSpan], consumed: Int?) in
                 let predecessors = open.indices.filter { index in
                     open[index].last.map { touches($0, span, padding: padding) } ?? false
                 }
-                if predecessors.count == 1,
-                   let index = predecessors.first,
-                   let tail = open[index].last,
-                   line.filter({ touches(tail, $0, padding: padding) }).count == 1 {
-                    continuing.append(open[index] + [span])
-                    consumed.insert(index)
-                } else {
-                    continuing.append([span])
+                guard predecessors.count == 1,
+                      let index = predecessors.first,
+                      let tail = open[index].last,
+                      line.filter({ touches(tail, $0, padding: padding) }).count == 1 else {
+                    return ([span], nil)
                 }
+                return (open[index] + [span], index)
             }
-            finished += open.indices.filter { !consumed.contains($0) }.map { open[$0] }
-            open = continuing
+            let consumed = Set(continuations.compactMap(\.consumed))
+            state.finished += open.indices.filter { !consumed.contains($0) }.map { open[$0] }
+            state.open = continuations.map(\.chain)
         }
-        return finished + open
+        return result.finished + result.open
     }
 
+    /// Aligns the flush edges of a chain's spans so lines that start at the text edge share one straight side.
+    /// - Parameter chain: The spans of one chain, top to bottom.
+    /// - Returns: The chain with each flush leading edge moved to the chain's leftmost flush edge and each
+    ///   flush trailing edge moved to its rightmost, extending dimmed ranges that touch those edges.
     static func flushAligned(_ chain: [HighlightSpan]) -> [HighlightSpan] {
         let leadingEdge = chain.filter(\.isLeadingEdgeFlush).map(\.minX).min()
         let trailingEdge = chain.filter(\.isTrailingEdgeFlush).map(\.maxX).max()
@@ -151,21 +185,24 @@ enum HighlightOutline {
         }
     }
 
+    /// Returns the corners of the outline around a chain, clockwise from its top-right corner.
+    /// - Parameters:
+    ///   - chain: The spans of one chain, top to bottom.
+    ///   - padding: The distance the outline extends past each span's leading and trailing edges,
+    ///     except where the span meets a highlight of another style.
+    /// - Returns: The outline's corners, without duplicate or collinear points.
     static func corners(of chain: [HighlightSpan], padding: CGFloat) -> [CGPoint] {
-        let edges = chain.map { paddedEdges(of: $0, padding: padding) }
-        var corners: [CGPoint] = []
-        for (span, edge) in zip(chain, edges) {
-            corners.append(CGPoint(x: edge.maxX, y: span.band.lowerBound))
-            corners.append(CGPoint(x: edge.maxX, y: span.band.upperBound))
+        let edges = zip(chain, chain.map { paddedEdges(of: $0, padding: padding) })
+        let trailingSide = edges.flatMap { span, edge in
+            [CGPoint(x: edge.maxX, y: span.band.lowerBound), CGPoint(x: edge.maxX, y: span.band.upperBound)]
         }
-        for (span, edge) in zip(chain, edges).reversed() {
-            corners.append(CGPoint(x: edge.minX, y: span.band.upperBound))
-            corners.append(CGPoint(x: edge.minX, y: span.band.lowerBound))
+        let leadingSide = edges.reversed().flatMap { span, edge in
+            [CGPoint(x: edge.minX, y: span.band.upperBound), CGPoint(x: edge.minX, y: span.band.lowerBound)]
         }
-        return simplified(corners)
+        return simplified(trailingSide + leadingSide)
     }
 
-    static func bridges(between chains: [[HighlightSpan]], padding: CGFloat, cornerRadius: CGFloat) -> [[CGPoint]] {
+    private static func bridges(between chains: [[HighlightSpan]], padding: CGFloat, cornerRadius: CGFloat) -> [[CGPoint]] {
         let heads = chains.compactMap(\.first)
         return chains.compactMap(\.last).flatMap { upper in
             heads.filter { touches(upper, $0, padding: padding) }.map { lower in
@@ -186,7 +223,7 @@ enum HighlightOutline {
         }
     }
 
-    static func dimmedArea(of chains: [[HighlightSpan]], padding: CGFloat) -> Path {
+    private static func dimmedArea(of chains: [[HighlightSpan]], padding: CGFloat) -> Path {
         var dimmed = Path()
         var undimmed = Path()
         for span in chains.joined() {
@@ -212,6 +249,12 @@ enum HighlightOutline {
         return dimmed.isEmpty ? dimmed : dimmed.subtracting(undimmed)
     }
 
+    /// Returns a closed path through the given corners, rounding each one.
+    /// - Parameters:
+    ///   - corners: The polygon's corners in drawing order.
+    ///   - cornerRadius: The largest radius to round each corner by. A corner's radius is limited to half the
+    ///     length of the shorter edge beside it, and a radius of `0` keeps the corners sharp.
+    /// - Returns: The rounded path, or an empty path when there are fewer than three corners.
     static func path(of corners: [CGPoint], cornerRadius: CGFloat) -> Path {
         var path = Path()
         guard corners.count >= 3 else {
@@ -239,9 +282,8 @@ enum HighlightOutline {
         _ runs: [HighlightRun<Style>],
         band: ClosedRange<CGFloat>
     ) -> [(style: Style, span: HighlightSpan)] {
-        var merged: [(style: Style, span: HighlightSpan)] = []
-        for run in resolvingWhitespace(runs) {
-            if let last = merged.last, last.style == run.style, run.minX <= last.span.maxX + tolerance {
+        var merged = resolvingWhitespace(runs).reduce(into: [(style: Style, span: HighlightSpan)]()) { merged, run in
+            if let last = merged.last, last.style == run.style && run.minX <= last.span.maxX + tolerance {
                 merged[merged.count - 1].span.maxX = max(last.span.maxX, run.maxX)
                 merged[merged.count - 1].span.isTrailingEdgeFlush = last.span.isTrailingEdgeFlush || run.isTrailingEdgeFlush
                 if run.isDimmed {
@@ -272,37 +314,37 @@ enum HighlightOutline {
     }
 
     private static func resolvingWhitespace<Style: Equatable>(_ runs: [HighlightRun<Style>]) -> [HighlightRun<Style>] {
-        let sorted = runs.sorted { $0.minX < $1.minX }
-        var result: [HighlightRun<Style>] = []
-        var index = sorted.startIndex
-        while index < sorted.endIndex {
-            guard sorted[index].isWhitespace else {
-                result.append(sorted[index])
-                index += 1
-                continue
+        let groups = runs.sorted { $0.minX < $1.minX }.reduce(into: [[HighlightRun<Style>]]()) { groups, run in
+            if run.isWhitespace,
+               let last = groups.last?.last,
+               last.isWhitespace && run.minX <= last.maxX + tolerance {
+                groups[groups.count - 1].append(run)
+            } else {
+                groups.append([run])
             }
-            var end = index
-            while end + 1 < sorted.endIndex,
-                  sorted[end + 1].isWhitespace,
-                  sorted[end + 1].minX <= sorted[end].maxX + tolerance {
-                end += 1
-            }
-            let minX = sorted[index].minX
-            let maxX = sorted[end].maxX
-            let previous = result.last.flatMap { $0.maxX >= minX - tolerance ? $0 : nil }
-            let next = end + 1 < sorted.endIndex && sorted[end + 1].minX <= maxX + tolerance ? sorted[end + 1] : nil
-            if let previous, let next {
-                if previous.style == next.style && previous.isDimmed == next.isDimmed {
-                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: maxX, isDimmed: previous.isDimmed))
-                } else {
-                    let middle = (minX + maxX) / 2
-                    result.append(HighlightRun(style: previous.style, minX: minX, maxX: middle, isDimmed: previous.isDimmed))
-                    result.append(HighlightRun(style: next.style, minX: middle, maxX: maxX, isDimmed: next.isDimmed))
-                }
-            }
-            index = end + 1
         }
-        return result
+        return groups.indices.reduce(into: []) { result, index in
+            guard let first = groups[index].first, let last = groups[index].last, first.isWhitespace else {
+                result += groups[index]
+                return
+            }
+            let minX = first.minX
+            let maxX = last.maxX
+            let previous = result.last.flatMap { $0.maxX >= minX - tolerance ? $0 : nil }
+            let next = groups.indices.contains(index + 1)
+                ? groups[index + 1].first.flatMap { $0.minX <= maxX + tolerance ? $0 : nil }
+                : nil
+            guard let previous, let next else {
+                return
+            }
+            if previous.style == next.style && previous.isDimmed == next.isDimmed {
+                result.append(HighlightRun(style: previous.style, minX: minX, maxX: maxX, isDimmed: previous.isDimmed))
+            } else {
+                let middle = (minX + maxX) / 2
+                result.append(HighlightRun(style: previous.style, minX: minX, maxX: middle, isDimmed: previous.isDimmed))
+                result.append(HighlightRun(style: next.style, minX: middle, maxX: maxX, isDimmed: next.isDimmed))
+            }
+        }
     }
 
     private static func adding(

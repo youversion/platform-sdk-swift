@@ -2,6 +2,13 @@ import SwiftUI
 import YouVersionPlatformCore
 
 extension View {
+    /// Draws the highlights of the Bible text in this view behind it, dimming highlights outside the focused verse.
+    ///
+    /// On iOS 17 and earlier, this returns the view unchanged.
+    /// - Parameters:
+    ///   - textOptions: The text options whose font size sets the highlights' padding and corner radius.
+    ///   - lineSpacing: The space between lines, half of which a highlight extends above its first line and below its last.
+    ///   - focusedReference: The focused verse, or `nil` to show every highlight at full strength.
     func highlightLayer(textOptions: BibleTextOptions, lineSpacing: CGFloat, focusedReference: BibleReference?) -> some View {
         modifier(BibleTextView.HighlightLayerModifier(
             textOptions: textOptions,
@@ -99,7 +106,9 @@ extension BibleTextView {
                             bounds: bounds,
                             runs: line.compactMap { run -> HighlightRun<Color>? in
                                 guard let attrs = run[RenderHowAttribute.self],
-                                      let highlightColor = attrs.highlightColor else { return nil }
+                                      let highlightColor = attrs.highlightColor else {
+                                    return nil
+                                }
                                 let runRect = run.typographicBounds.rect
                                 let isAtLineStart = layoutDirection == .rightToLeft
                                     ? contentMaxX.map { abs(runRect.maxX - $0) <= 0.5 } ?? false
@@ -129,7 +138,7 @@ extension BibleTextView {
             dimmedHighlightOpacity: CGFloat,
             in context: inout GraphicsContext
         ) {
-            guard dimProgress > 0, !dimmedArea.isEmpty else {
+            guard dimProgress > 0 && !dimmedArea.isEmpty else {
                 context.fill(path, with: .color(color))
                 return
             }
