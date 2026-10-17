@@ -6,6 +6,17 @@ import YouVersionPlatformUI
 private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
+    var highlightColorsOnSelectedVerses: [Color] {
+        var savedHexesByRGB: [UInt32: String] = [:]
+        for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
+            guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
+                continue
+            }
+            savedHexesByRGB[rgb] = highlight.color
+        }
+        return savedHexesByRGB.keys.sorted().compactMap { savedHexesByRGB[$0] }.map { Color(hex: $0) }
+    }
+
     func goToPreviousChapter() {
         guard let version else {
             return
@@ -159,17 +170,11 @@ extension BibleReaderViewModel {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }
 
-    func hexColorValueForComparison(_ color: String) -> String {
-        guard color.starts(with: "#") else {
-            return color
-        }
-        return String(color.dropFirst())
-    }
-
     func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = hexColorValueForComparison(a)
-        let cleanB = hexColorValueForComparison(b)
-        return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
+        guard let rgbA = Color.rgbValue(fromHex: a) else {
+            return false
+        }
+        return rgbA == Color.rgbValue(fromHex: b)
     }
 
     func addVerseColor(_ color: Color) {
