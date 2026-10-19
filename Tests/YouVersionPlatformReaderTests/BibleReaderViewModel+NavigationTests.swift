@@ -348,7 +348,7 @@ let previousChapterCases: [PreviousChapterCase] = [
     }
 
     @Test
-    func highlightColorsOnSelectedVersesIncludesNonPaletteColorsNormalized() {
+    func highlightHexesOnSelectedVersesDedupesByRGB() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             highlightsRepository: MockBibleHighlightsRepository()
         )
@@ -356,17 +356,19 @@ let previousChapterCases: [PreviousChapterCase] = [
         let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
         let invalidReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
         let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 19)
-        viewModel.selectedVerses = [firstReference, secondReference, invalidReference]
+        let duplicateReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 20)
+        viewModel.selectedVerses = [firstReference, secondReference, invalidReference, duplicateReference]
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#FFFE00")
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ffec5b")
+        viewModel.highlightsViewModel.addHighlights(references: [duplicateReference], color: "#80fffe00")
         viewModel.highlightsViewModel.addHighlights(references: [invalidReference], color: "nope")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "00D6FF")
 
-        #expect(viewModel.highlightColorsOnSelectedVerses == [Color(hex: "ffec5b"), Color(hex: "fffe00")])
+        #expect(viewModel.highlightHexesOnSelectedVerses.compactMap(Color.rgbValue(fromHex:)) == [0xFFEC5B, 0xFFFE00])
     }
 
     @Test
-    func highlightColorsOnSelectedVersesKeepsSavedAlpha() {
+    func highlightHexesOnSelectedVersesKeepsSavedAlpha() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             highlightsRepository: MockBibleHighlightsRepository()
         )
@@ -374,7 +376,7 @@ let previousChapterCases: [PreviousChapterCase] = [
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "#40000000")
 
-        #expect(viewModel.highlightColorsOnSelectedVerses == [Color(hex: "#40000000")])
+        #expect(viewModel.highlightHexesOnSelectedVerses == ["#40000000"])
     }
 
 #if canImport(UIKit)

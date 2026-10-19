@@ -11,6 +11,7 @@ struct BibleReaderDrawer: View {
 
     private let buttonHeight = CGFloat(55)
     private let darkModeHighlightOpacity = 0.2
+    private let highlightHexes = ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff"]
 
     var body: some View {
         VStack {
@@ -40,14 +41,7 @@ struct BibleReaderDrawer: View {
     }
     
     private var highlightColors: [Color] {
-        [
-            Color(hex: "ffec5b"),
-            Color(hex: "b4ffc1"),
-            Color(hex: "bbf4ff"),
-            Color(hex: "ffdca7"),
-            Color(hex: "ffcff8"),
-            Color(hex: "dfdcff")
-        ]
+        highlightHexes.map { Color(hex: $0) }
     }
 
     private var isDarkTheme: Bool {
@@ -73,14 +67,16 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        let paletteHexes = Set(highlightColors.compactMap(\.hexString))
+        let paletteRGBs = Set(highlightHexes.compactMap(Color.rgbValue(fromHex:)))
         let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
-            + viewModel.highlightColorsOnSelectedVerses.filter { color in
-                guard let hex = color.hexString else {
-                    return false
+            + viewModel.highlightHexesOnSelectedVerses
+                .filter { hex in
+                    guard let rgb = Color.rgbValue(fromHex: hex) else {
+                        return false
+                    }
+                    return !paletteRGBs.contains(rgb)
                 }
-                return !paletteHexes.contains(hex)
-            }
+                .map { Color(hex: $0) }
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
         return HStack {
             ForEach(colorsToRemove, id: \.self) { color in

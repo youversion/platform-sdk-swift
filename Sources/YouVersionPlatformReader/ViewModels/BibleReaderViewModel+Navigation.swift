@@ -6,7 +6,7 @@ import YouVersionPlatformUI
 private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
-    var highlightColorsOnSelectedVerses: [Color] {
+    var highlightHexesOnSelectedVerses: [String] {
         var savedHexesByRGB: [UInt32: String] = [:]
         for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
             guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
@@ -14,7 +14,7 @@ extension BibleReaderViewModel {
             }
             savedHexesByRGB[rgb] = highlight.color
         }
-        return savedHexesByRGB.keys.sorted().compactMap { savedHexesByRGB[$0] }.map { Color(hex: $0) }
+        return savedHexesByRGB.sorted { $0.key < $1.key }.map(\.value)
     }
 
     func goToPreviousChapter() {
