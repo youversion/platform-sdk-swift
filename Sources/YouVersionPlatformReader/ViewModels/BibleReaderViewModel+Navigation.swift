@@ -193,6 +193,11 @@ extension BibleReaderViewModel {
         removeVerseColor(hex: hex)
     }
 
+    /// Removes highlights from the selected verses whose RGB matches the given hex color, ignoring alpha.
+    ///
+    /// Clears the verse selection afterward.
+    ///
+    /// - Parameter hex: A color in `RGB`, `RRGGBB`, or `AARRGGBB` format, with or without a leading `#`.
     func removeVerseColor(hex: String) {
         for reference in selectedVerses {
             let highlights = highlightsViewModel.highlights(for: reference)
