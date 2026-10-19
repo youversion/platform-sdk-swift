@@ -34,10 +34,19 @@ public struct YouVersionTopicSearchResults: Sendable {
     public let searchInsteadFor: String?
 }
 
-/// Bible references, related topics, and query metadata returned by a unified search.
+/// A lightweight verse-art search result. Resolve `id` with the Images API for full metadata.
+public struct YouVersionSearchImage: Sendable {
+    /// The opaque image identifier returned by the API.
+    public let id: String
+    /// The verse or verse range illustrated by the image, such as `JHN.3.16`.
+    public let passageID: String
+}
+
+/// Bible references, related topics, images, and query metadata returned by a unified search.
 public struct YouVersionSearchResults: Sendable {
     public let references: [BibleReference]
     public let topics: [YouVersionSearchTopic]
+    public let images: [YouVersionSearchImage]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
     public let searchInsteadFor: String?
@@ -116,6 +125,7 @@ private struct TopicSearchResultResponse: Decodable {
 private struct SearchResultsResponse: Decodable {
     let references: [VerseSearchResultResponse]
     let topics: [TopicSearchResultResponse]
+    let images: [SearchImageResponse]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
@@ -123,9 +133,30 @@ private struct SearchResultsResponse: Decodable {
     enum CodingKeys: String, CodingKey {
         case references = "verses"
         case topics
+        case images
         case userIntent = "user_intent"
         case didYouMean = "did_you_mean"
         case searchInsteadFor = "search_instead_for"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        references = try container.decode([VerseSearchResultResponse].self, forKey: .references)
+        topics = try container.decode([TopicSearchResultResponse].self, forKey: .topics)
+        images = try container.decodeIfPresent([SearchImageResponse].self, forKey: .images) ?? []
+        userIntent = try container.decodeIfPresent(String.self, forKey: .userIntent)
+        didYouMean = try container.decode([String].self, forKey: .didYouMean)
+        searchInsteadFor = try container.decodeIfPresent(String.self, forKey: .searchInsteadFor)
+    }
+}
+
+private struct SearchImageResponse: Decodable {
+    let id: String
+    let passageID: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case passageID = "passage_id"
     }
 }
 
@@ -174,7 +205,7 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    /// Returns a unified set of Bible references and topics matching `query`.
+    /// Returns a unified set of Bible references, topics, and images matching `query`.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -182,10 +213,10 @@ public extension YouVersionAPI.Search {
     ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
     ///     or `*` to match all languages.
     ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
-    ///   - fields: Result kinds to include. Pass `verses`, `topics`, or both. Defaults to all kinds.
+    ///   - fields: Result kinds to include: `verses`, `topics`, and/or `images`. Defaults to all kinds.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
-    /// - Returns: The matching Bible references, topics, and query metadata supplied by the API.
+    /// - Returns: The matching Bible references, topics, images, and query metadata supplied by the API.
     /// - Throws:
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or
     ///     `languageRanges` is outside the range accepted by the API.
@@ -203,6 +234,33 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionSearchResults {
+        try await unified(
+            matching: query,
+            bibleID: bibleID,
+            languageRanges: languageRanges,
+            userIntent: userIntent,
+            fields: fields,
+            useBetaAPI: false,
+            accessToken: providedToken,
+            session: session
+        )
+    }
+
+    /// Returns unified search results using the beta API when `useBetaAPI` is `true`.
+    ///
+    /// Image results contain an opaque ID and a passage ID. Resolve the image ID with the Images API
+    /// when full image metadata is needed. Use `fields: ["images"]` for images alone, or
+    /// `fields: ["images", "verses"]` to include verse results.
+    static func unified(
+        matching query: String,
+        bibleID: Int,
+        languageRanges: [String],
+        userIntent: YouVersionSearchUserIntent = .unknown,
+        fields: [String] = [],
+        useBetaAPI: Bool,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionSearchResults {
         guard (1...100).contains(query.count) &&
               bibleID > 0 &&
               Int32(exactly: bibleID) != nil &&
@@ -216,7 +274,8 @@ public extension YouVersionAPI.Search {
             bibleID: bibleID,
             languageRanges: languageRanges,
             userIntent: userIntent,
-            fields: fields
+            fields: fields,
+            useBetaAPI: useBetaAPI
         ) else {
             throw URLError(.badURL)
         }
@@ -229,6 +288,7 @@ public extension YouVersionAPI.Search {
             topics: response.topics.map {
                 YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
             },
+            images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
             userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
             didYouMean: response.didYouMean,
             searchInsteadFor: response.searchInsteadFor
@@ -391,12 +451,13 @@ public extension YouVersionAPI.Search {
         bibleID: Int,
         languageRanges: [String],
         userIntent: YouVersionSearchUserIntent,
-        fields: [String]
+        fields: [String],
+        useBetaAPI: Bool
     ) -> URL? {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1/search-unified"
+        components.path = useBetaAPI ? "/v1-beta/search-unified" : "/v1/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))

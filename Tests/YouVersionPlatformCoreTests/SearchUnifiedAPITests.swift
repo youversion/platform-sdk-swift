@@ -75,6 +75,7 @@ import Testing
         #expect(results.topics.first?.subtopics == ["kindness", "patience"])
         #expect(results.topics.last?.subtopics == [])
         #expect(results.references.allSatisfy { $0.versionId == 111 })
+        #expect(results.images.isEmpty)
         #expect(results.userIntent == .topical)
         #expect(results.didYouMean == ["loved"])
         #expect(results.searchInsteadFor == "love")
@@ -119,6 +120,118 @@ import Testing
         let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "unknown")) == true)
         #expect(components.queryItems?.contains(where: { $0.name == "fields[]" }) == false)
+    }
+
+    @Test(arguments: [["images"], ["images", "verses"], ["images", "verses", "topics"]], [false, true])
+    func imageResultsPreserveOpaqueIDsAndPassageRanges(fields: [String], useBetaAPI: Bool) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+
+        let hasVerses = fields.contains("verses")
+        let hasTopics = fields.contains("topics")
+        let json = """
+        {
+          "verses": \(hasVerses ? "[{\"reference\":\"1CO.13.4\"}]" : "[]"),
+          "topics": \(hasTopics ? "[{\"id\":42,\"text\":\"Love\",\"subtopics\":[]}]" : "[]"),
+          "images": [
+            {"id":"opaque+/=image.token","passage_id":"1CO.13.4-8"},
+            {"id":"another-image","passage_id":"JHN.3.16"}
+          ],
+          "user_intent": "topical",
+          "did_you_mean": ["loved"],
+          "search_instead_for": "love"
+        }
+        """.data(using: .utf8)!
+
+        var capturedRequest: URLRequest?
+        HTTPMocking.setHandler(token: token) { request in
+            capturedRequest = request
+            return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.unified(
+            matching: "love",
+            bibleID: 111,
+            languageRanges: ["en"],
+            fields: fields,
+            useBetaAPI: useBetaAPI,
+            accessToken: "swift-test-suite",
+            session: session
+        )
+
+        let request = try #require(capturedRequest)
+        let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+        #expect(components.path == (useBetaAPI ? "/v1-beta/search-unified" : "/v1/search-unified"))
+        #expect(components.queryItems?.filter { $0.name == "fields[]" }.compactMap(\.value) == fields)
+        #expect(results.images.map(\.id) == ["opaque+/=image.token", "another-image"])
+        #expect(results.images.map(\.passageID) == ["1CO.13.4-8", "JHN.3.16"])
+        #expect(results.references.map(\.passageId) == (hasVerses ? ["1CO.13.4"] : []))
+        #expect(results.topics.map(\.text) == (hasTopics ? ["Love"] : []))
+        #expect(results.userIntent == .topical)
+        #expect(results.didYouMean == ["loved"])
+        #expect(results.searchInsteadFor == "love")
+    }
+
+    @Test
+    func nullImagesDecodeAsEmptyCollection() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = """
+        {"verses":[],"topics":[],"images":null,"did_you_mean":[]}
+        """.data(using: .utf8)!
+        HTTPMocking.setHandler(token: token) { request in
+            (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.unified(
+            matching: "love", bibleID: 111, languageRanges: ["en"],
+            accessToken: "swift-test-suite", session: session
+        )
+        #expect(results.images.isEmpty)
+    }
+
+    @Test(arguments: [
+        #"{"verses":[],"topics":[],"images":[{"passage_id":"JHN.3.16"}],"did_you_mean":[]}"#,
+        #"{"verses":[],"topics":[],"images":[{"id":"opaque-id"}],"did_you_mean":[]}"#,
+        #"{"verses":[],"topics":[],"images":[{"id":123,"passage_id":"JHN.3.16"}],"did_you_mean":[]}"#,
+        #"{"verses":[],"topics":[],"images":{},"did_you_mean":[]}"#,
+        #"{"topics":[],"images":[],"did_you_mean":[]}"#,
+        #"{"verses":[],"images":[],"did_you_mean":[]}"#,
+    ])
+    func malformedImageResultsThrowDecodingError(json: String) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(json.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        await #expect(throws: DecodingError.self) {
+            try await YouVersionAPI.Search.unified(
+                matching: "love", bibleID: 111, languageRanges: ["en"], fields: ["images"],
+                useBetaAPI: true, accessToken: "swift-test-suite", session: session
+            )
+        }
+    }
+
+    @Test(arguments: [401, 403, 500])
+    func imageSearchPropagatesHTTPFailures(statusCode: Int) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!)
+        }
+
+        await #expect {
+            try await YouVersionAPI.Search.unified(
+                matching: "love", bibleID: 111, languageRanges: ["en"], fields: ["images"],
+                useBetaAPI: true, accessToken: "swift-test-suite", session: session
+            )
+        } throws: { error in
+            if statusCode == 401 || statusCode == 403 {
+                return (error as? YouVersionAPIError) == .notPermitted
+            }
+            return (error as? YouVersionAPIError) == .cannotDownload
+        }
     }
 
     @Test(arguments: [

@@ -50,3 +50,28 @@ language ranges, or empty detail IDs throw `YouVersionAPIRequestError` with
 Malformed metadata throws a decoding error.
 
 Contract: [YPE-6182](https://lifechurch.atlassian.net/browse/YPE-6182).
+
+## Images in unified search
+
+```swift
+let results = try await YouVersionAPI.Search.unified(
+    matching: "love",
+    bibleID: 111,
+    languageRanges: ["en"],
+    fields: ["images", "verses"],
+    useBetaAPI: true
+)
+
+for hit in results.images {
+    let image = try await YouVersionAPI.Images.image(id: hit.id, useBetaAPI: true)
+    print(hit.passageID, image.imageURL)
+}
+```
+
+Use `fields: ["images"]` for image results alone, or omit `fields` to request all kinds.
+Unified search is unpaginated. Each image hit contains only `id` and `passageID`, which
+can identify a verse range; resolve full artwork metadata through Images detail.
+Older production responses without an `images` section remain supported and expose an
+empty array. Malformed image records throw a decoding error, following the Core API's
+strict decoding pattern. Existing unified-search calls retain their original signature
+and production route.
