@@ -26,7 +26,7 @@ public extension YouVersionAPI {
         /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes or
         ///   language ranges; `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
-        static func images(
+        public static func images(
             passageID: String? = nil,
             languageRanges: [String] = [],
             pageSize: Int? = nil,
@@ -72,7 +72,7 @@ public extension YouVersionAPI {
         /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for an empty identifier;
         ///   `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
-        static func image(
+        public static func image(
             id: String,
             useBetaAPI: Bool = false,
             accessToken providedToken: String? = nil,
