@@ -2,6 +2,7 @@ import SwiftUI
 import YouVersionPlatformCore
 
 public struct BibleVersionsListView: View {
+    @ScaledMetric(relativeTo: .body) private var searchIconSize = 17
     @Environment(BibleVersionsViewModel.self) private var viewModel
     @State private var searchText = ""
 
@@ -73,8 +74,10 @@ public struct BibleVersionsListView: View {
 
     private var searchInput: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .imageScale(.medium)
+            Image.magnifyingGlass
+                .resizable()
+                .frame(width: searchIconSize, height: searchIconSize)
+                .accessibilityHidden(true)
                 .foregroundStyle(.secondary)
             TextField(
                 "",

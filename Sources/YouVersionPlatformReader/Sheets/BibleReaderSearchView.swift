@@ -2,11 +2,6 @@ import SwiftUI
 import YouVersionPlatformCore
 import YouVersionPlatformUI
 
-private var magnifyingGlassImage: Image {
-    Image("magnifying-glass", bundle: .YouVersionUIBundle)
-        .renderingMode(.template)
-}
-
 struct BibleReaderSearchView: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
     @FocusState private var isSearchFieldFocused: Bool
@@ -57,14 +52,14 @@ struct BibleReaderSearchView: View {
                         && viewModel.searchResults.isEmpty
                         && !viewModel.hasNextSearchPage {
                 searchStateView(
-                    image: magnifyingGlassImage,
+                    image: Image.magnifyingGlass,
                     title: String.localized("noBibleSearchResults")
                 )
             } else if viewModel.searchStatus == .completed {
                 searchResultsHeader
                 if viewModel.filteredSearchResults.isEmpty && !viewModel.hasNextSearchPage {
                     searchStateView(
-                        image: magnifyingGlassImage,
+                        image: Image.magnifyingGlass,
                         title: String.localized("noBibleSearchResults")
                     )
                 } else {
@@ -98,7 +93,7 @@ struct BibleReaderSearchView: View {
                 searchQuerySection(
                     heading: nil,
                     queries: isSearchQueryBlank ? [] : viewModel.suggestedSearchQueries.map(\.text),
-                    icon: magnifyingGlassImage
+                    icon: Image.magnifyingGlass
                 )
             }
             .frame(maxWidth: BibleReaderView.contentMaximumWidth)
@@ -352,7 +347,7 @@ private struct BibleReaderSearchHeaderView: View {
 
         return HStack(spacing: 12) {
             HStack(spacing: 8) {
-                magnifyingGlassImage
+                Image.magnifyingGlass
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()

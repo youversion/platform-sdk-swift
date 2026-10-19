@@ -11,6 +11,8 @@ struct BibleVersionsLanguagesView: View {
         var id: String { rawValue }
     }
 
+    @ScaledMetric(relativeTo: .body) private var searchIconSize = 16
+
     @State private var selectedSegment: Segment = .suggested
     @State private var searchText = ""
     @FocusState private var searchFieldIsFocused
@@ -19,8 +21,10 @@ struct BibleVersionsLanguagesView: View {
         VStack(alignment: .leading) {
             if selectedSegment == .searching {
                 HStack {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 16, weight: .semibold))
+                    Image.magnifyingGlass
+                        .resizable()
+                        .frame(width: searchIconSize, height: searchIconSize)
+                        .accessibilityHidden(true)
                         .padding(.leading)
                     TextField(String.localized("generic.search"), text: $searchText)
                         .textFieldStyle(.plain)
@@ -111,8 +115,9 @@ struct BibleVersionsLanguagesView: View {
                     searchFieldIsFocused = true
                     selectedSegment = .searching
                 } label: {
-                    Image(systemName: "magnifyingglass")
+                    Image.magnifyingGlass
                 }
+                .accessibilityLabel(String.localized("generic.search"))
             }
         }
         .background(viewModel.readerCanvasPrimaryColor)
