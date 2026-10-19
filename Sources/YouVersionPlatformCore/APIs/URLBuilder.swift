@@ -2,6 +2,42 @@ import Foundation
 
 public enum URLBuilder {
 
+    /// Returns a collection URL while preserving the caller's filter order and opaque page token.
+    static func imagesURL(
+        passageID: String?,
+        languageRanges: [String],
+        pageSize: Int?,
+        pageToken: String?,
+        useBetaAPI: Bool
+    ) -> URL? {
+        var components = baseURLComponents
+        components.path = useBetaAPI ? "/v1-beta/images" : "/v1/images"
+        var queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
+        if let passageID {
+            queryItems.append(URLQueryItem(name: "passage_id", value: passageID))
+        }
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize)))
+        }
+        if let pageToken {
+            queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
+        }
+        components.queryItems = queryItems.isEmpty ? nil : queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        return components.url
+    }
+
+    /// Returns a detail URL with the opaque identifier encoded as a single path segment.
+    static func imageURL(id: String, useBetaAPI: Bool) -> URL? {
+        var components = baseURLComponents
+        let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
+        guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
+            return nil
+        }
+        components.percentEncodedPath = (useBetaAPI ? "/v1-beta/images/" : "/v1/images/") + encodedID
+        return components.url
+    }
+
     private static var baseURLComponents: URLComponents {
         var components = URLComponents()
         components.scheme = "https"
