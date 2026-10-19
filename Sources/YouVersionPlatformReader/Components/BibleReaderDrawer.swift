@@ -51,7 +51,7 @@ struct BibleReaderDrawer: View {
     }
 
     private var isDarkTheme: Bool {
-        (viewModel.colorTheme?.colorScheme ?? .dark) == .dark
+        viewModel.colorTheme?.colorScheme == .dark
     }
 
     /// Cross-platform color-name lookup. UIColor is UIKit-only, so guard
