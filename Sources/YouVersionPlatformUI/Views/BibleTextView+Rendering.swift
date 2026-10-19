@@ -182,8 +182,21 @@ extension BibleTextView {
         return segments.filter { !$0.text.characters.isEmpty }
     }
 
+    /// Gives headings the version's base direction when their first character belongs
+    /// to another script, as in NIV Psalm 119's Hebrew acrostic letters.
+    /// Opposite-script-only headings also use the version's paragraph direction.
+    /// The mark is display-only so stored text and Reader copy/share data stay unchanged.
+    static func textForDisplay(_ text: AttributedString, layoutDirection: LayoutDirection) -> AttributedString {
+        guard let firstRun = text.runs.first, firstRun.bibleTextCategory == .header else {
+            return text
+        }
+        var directionMark = AttributedString(layoutDirection == .rightToLeft ? "\u{200f}" : "\u{200e}")
+        directionMark.setAttributes(firstRun.attributes)
+        return directionMark + text
+    }
+
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
-        let string = double.asAttributedString
+        let string = Self.textForDisplay(double.asAttributedString, layoutDirection: versionLayoutDirection)
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
