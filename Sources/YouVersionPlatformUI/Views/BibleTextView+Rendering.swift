@@ -198,6 +198,7 @@ extension BibleTextView {
 
     /// Gives headings the version's base direction when their first character belongs
     /// to another script, as in NIV Psalm 119's Hebrew acrostic letters.
+    /// Opposite-script-only headings also use the version's paragraph direction.
     /// The mark is display-only so stored text and Reader copy/share data stay unchanged.
     static func textForDisplay(_ text: AttributedString, layoutDirection: LayoutDirection) -> AttributedString {
         guard let firstRun = text.runs.first, firstRun.bibleTextCategory == .header else {
