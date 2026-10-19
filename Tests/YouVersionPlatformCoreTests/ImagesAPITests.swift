@@ -3,7 +3,7 @@ import Foundation
 import FoundationNetworking
 #endif
 import Testing
-@testable import YouVersionPlatformCore
+import YouVersionPlatformCore
 
 struct ImagesAPITests {
     private let imageJSON = """
