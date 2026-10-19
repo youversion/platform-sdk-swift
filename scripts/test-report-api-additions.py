@@ -6,11 +6,13 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import platform
 import subprocess
 import sys
 import tempfile
+import textwrap
 import unittest
 
 
@@ -43,6 +45,57 @@ def report(base: Path, head: Path, sources: Path, module: str, count: Path) -> s
          module, "--count-file", str(count)],
         check=True, capture_output=True, text=True,
     ).stdout
+
+
+class ToolingGateTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        workflows = REPORTER_PATH.parent.parent / ".github/workflows"
+
+        def shell_condition(filename: str, beginning: str) -> str:
+            lines = (workflows / filename).read_text().splitlines()
+            start = next(index for index, line in enumerate(lines)
+                         if line.lstrip().startswith(beginning))
+            indentation = len(lines[start]) - len(lines[start].lstrip())
+            end = next(index for index in range(start + 1, len(lines))
+                       if lines[index] == " " * indentation + "fi")
+            return textwrap.dedent("\n".join(lines[start:end + 1]))
+
+        cls.conditions = "\n".join([
+            shell_condition("api-additions-signoff.yml", "if grep -qE"),
+            shell_condition("api-additions-signoff-gate.yml", "if gh api"),
+            shell_condition("api-additions-signoff-gate.yml", 'if [ "$COUNT"'),
+        ])
+
+    def evaluate(self, paths: list[str], count: int = 0) -> tuple[int, int, int]:
+        # Stub only GitHub's file listing; execute the actual scope and gate conditions.
+        shell = ('gh() { printf "%s\\n" "$CHANGED"; }\n' + self.conditions
+                 + '\nprintf "%s %s %s" "$RELEVANT" "$TOOLING" "$GATED"')
+        result = subprocess.run(
+            ["bash", "-eu", "-c", shell], check=True, capture_output=True, text=True,
+            env={"PATH": os.defpath, "CHANGED": "\n".join(paths), "COUNT": str(count),
+                 "REPO": "local/fixture", "PR_NUMBER": "1"},
+        )
+        return tuple(int(value) for value in result.stdout.split())
+
+    def test_test_script_changes_require_acknowledgment_even_with_zero_count(self):
+        test_script = "scripts/test-report-api-additions.py"
+        for paths in ([test_script], [test_script, "Sources/Example.swift"]):
+            with self.subTest(paths=paths):
+                self.assertEqual(self.evaluate(paths), (1, 1, 1))
+
+    def test_existing_tooling_and_source_only_behavior(self):
+        for path in ("Package.swift", ".github/workflows/api-additions-signoff.yml",
+                     ".github/workflows/api-additions-signoff-gate.yml",
+                     "scripts/check-api-stability.sh", "scripts/report-api-additions.py",
+                     "scripts/find-api-additions-acknowledgment.sh",
+                     "scripts/find-api-additions-comment.sh"):
+            with self.subTest(path=path):
+                self.assertEqual(self.evaluate([path]), (1, 1, 1))
+        self.assertEqual(self.evaluate(["Sources/Example.swift"]), (1, 0, 0))
+        self.assertEqual(self.evaluate(["Sources/Example.swift"], count=1), (1, 0, 1))
+        self.assertEqual(self.evaluate(["docs/test-report-api-additions.py"]), (0, 0, 0))
+        self.assertEqual(self.evaluate(["scripts/test-report-api-additions.py.bak"]), (1, 0, 0))
 
 
 class DeclarationTests(unittest.TestCase):
