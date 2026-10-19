@@ -68,7 +68,7 @@ struct BibleReaderDrawer: View {
 
     private var highlightColorButtons: some View {
         let paletteRGBs = Set(highlightHexes.compactMap(Color.rgbValue(fromHex:)))
-        let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
+        let hexesToRemove = highlightHexes.filter { viewModel.isColorPresentOnAnySelectedVerses(Color(hex: $0)) }
             + viewModel.highlightHexesOnSelectedVerses
                 .filter { hex in
                     guard let rgb = Color.rgbValue(fromHex: hex) else {
@@ -76,11 +76,11 @@ struct BibleReaderDrawer: View {
                     }
                     return !paletteRGBs.contains(rgb)
                 }
-                .map { Color(hex: $0) }
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
         return HStack {
-            ForEach(colorsToRemove, id: \.self) { color in
-                Button(action: { viewModel.removeVerseColor(color) }) {
+            ForEach(hexesToRemove, id: \.self) { hex in
+                let color = Color(hex: hex)
+                Button(action: { viewModel.removeVerseColor(hex: hex) }) {
                     coloredCircle(with: color)
                         .overlay(
                             Image("highlight_checkmark", bundle: .YouVersionUIBundle)

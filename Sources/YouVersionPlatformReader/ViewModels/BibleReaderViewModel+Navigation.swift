@@ -190,6 +190,10 @@ extension BibleReaderViewModel {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
             return
         }
+        removeVerseColor(hex: hex)
+    }
+
+    func removeVerseColor(hex: String) {
         for reference in selectedVerses {
             let highlights = highlightsViewModel.highlights(for: reference)
             for highlight in highlights where isSameHexColor(highlight.color, hex) {
