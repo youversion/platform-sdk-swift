@@ -151,8 +151,9 @@ jobs:
             # Package.swift counts as tooling: it is executable build code the
             # detector runs, and can exclude sources (even conditionally on CI
             # environment) so new public declarations never reach the dump.
+            # The reporter test script also executes PR code before detection.
             if gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename' \
-              | grep -qE '^(Package\.swift|\.github/workflows/api-additions-signoff(-gate)?\.yml|scripts/(check-api-stability\.sh|report-api-additions\.py|find-api-additions-(acknowledgment|comment)\.sh))$'; then
+              | grep -qE '^(Package\.swift|\.github/workflows/api-additions-signoff(-gate)?\.yml|scripts/(check-api-stability\.sh|(test-)?report-api-additions\.py|find-api-additions-(acknowledgment|comment)\.sh))$'; then
               TOOLING=1
             else
               TOOLING=0
