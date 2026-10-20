@@ -403,6 +403,18 @@ if let image = page.images.first {
 }
 ```
 
+Search for artwork by keyword and resolve an image hit to its full metadata:
+
+```swift
+let results = try await YouVersionAPI.Search.unified(
+    matching: "love", bibleID: 111, languageRanges: ["en"], fields: ["images"]
+)
+if let hit = results.images.first {
+    let image = try await YouVersionAPI.Images.image(id: hit.id)
+    print(image.imageURL, image.attribution)
+}
+```
+
 ## Sample App
 
 Explore the [Examples directory](./Examples) for a complete sample app demonstrating:
