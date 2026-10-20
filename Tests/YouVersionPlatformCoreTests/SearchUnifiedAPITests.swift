@@ -131,8 +131,8 @@ import Testing
         let hasTopics = fields.contains("topics")
         let json = """
         {
-          "verses": \(hasVerses ? "[{\"reference\":\"1CO.13.4\"}]" : "[]"),
-          "topics": \(hasTopics ? "[{\"id\":42,\"text\":\"Love\",\"subtopics\":[]}]" : "[]"),
+          \(hasVerses ? #""verses":[{"reference":"1CO.13.4"}],"# : "")
+          \(hasTopics ? #""topics":[{"id":42,"text":"Love","subtopics":[]}],"# : "")
           "images": [
             {"id":"opaque+/=image.token","passage_id":"1CO.13.4-8"},
             {"id":"another-image","passage_id":"JHN.3.16"}
@@ -171,22 +171,25 @@ import Testing
         #expect(results.searchInsteadFor == "love")
     }
 
-    @Test
-    func nullImagesDecodeAsEmptyCollection() async throws {
+    @Test(arguments: [
+        #"{}"#,
+        #"{"verses":null,"topics":null,"images":null,"did_you_mean":null}"#,
+    ])
+    func missingOrNullArraysDecodeAsEmptyCollections(json: String) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-        let json = """
-        {"verses":[],"topics":[],"images":null,"did_you_mean":[]}
-        """.data(using: .utf8)!
         HTTPMocking.setHandler(token: token) { request in
-            (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+            (Data(json.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
 
         let results = try await YouVersionAPI.Search.unified(
             matching: "love", bibleID: 111, languageRanges: ["en"],
             accessToken: "swift-test-suite", session: session
         )
+        #expect(results.references.isEmpty)
+        #expect(results.topics.isEmpty)
         #expect(results.images.isEmpty)
+        #expect(results.didYouMean.isEmpty)
     }
 
     @Test(arguments: [
@@ -194,10 +197,11 @@ import Testing
         #"{"verses":[],"topics":[],"images":[{"id":"opaque-id"}],"did_you_mean":[]}"#,
         #"{"verses":[],"topics":[],"images":[{"id":123,"passage_id":"JHN.3.16"}],"did_you_mean":[]}"#,
         #"{"verses":[],"topics":[],"images":{},"did_you_mean":[]}"#,
-        #"{"topics":[],"images":[],"did_you_mean":[]}"#,
-        #"{"verses":[],"images":[],"did_you_mean":[]}"#,
+        #"{"verses":{}}"#,
+        #"{"topics":{}}"#,
+        #"{"did_you_mean":{}}"#,
     ])
-    func malformedImageResultsThrowDecodingError(json: String) async {
+    func malformedResultsThrowDecodingError(json: String) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in

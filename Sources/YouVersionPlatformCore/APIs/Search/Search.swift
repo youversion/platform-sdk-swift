@@ -141,11 +141,11 @@ private struct SearchResultsResponse: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        references = try container.decode([VerseSearchResultResponse].self, forKey: .references)
-        topics = try container.decode([TopicSearchResultResponse].self, forKey: .topics)
+        references = try container.decodeIfPresent([VerseSearchResultResponse].self, forKey: .references) ?? []
+        topics = try container.decodeIfPresent([TopicSearchResultResponse].self, forKey: .topics) ?? []
         images = try container.decodeIfPresent([SearchImageResponse].self, forKey: .images) ?? []
         userIntent = try container.decodeIfPresent(String.self, forKey: .userIntent)
-        didYouMean = try container.decode([String].self, forKey: .didYouMean)
+        didYouMean = try container.decodeIfPresent([String].self, forKey: .didYouMean) ?? []
         searchInsteadFor = try container.decodeIfPresent(String.self, forKey: .searchInsteadFor)
     }
 }
