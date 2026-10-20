@@ -58,12 +58,12 @@ let results = try await YouVersionAPI.Search.unified(
     matching: "love",
     bibleID: 111,
     languageRanges: ["en"],
-    fields: ["images", "verses"],
-    useBetaAPI: true
+    isBetaAPIEnabled: true,
+    fields: ["images", "verses"]
 )
 
 for hit in results.images {
-    let image = try await YouVersionAPI.Images.image(id: hit.id, useBetaAPI: true)
+    let image = try await YouVersionAPI.Images.image(id: hit.id, isBetaAPIEnabled: true)
     print(hit.passageID, image.imageURL)
 }
 ```
