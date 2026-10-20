@@ -91,10 +91,19 @@ struct ImagesAPITests {
     }
 
     @Test(arguments: ["", "en--US", "en*", "en\n", "abcdefghi", "en/US"])
-    func invalidLanguageRangesFailBeforeNetworking(languageRange: String) async {
+    func languageRangesAreForwardedAndServerRejectionsPropagate(languageRange: String) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == [languageRange])
+            return (Data(), HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!)
+        }
         await #expect {
-            try await YouVersionAPI.Images.images(languageRanges: [languageRange])
-        } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
+            try await YouVersionAPI.Images.images(
+                languageRanges: [languageRange], accessToken: "images-tests", session: session
+            )
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @Test
