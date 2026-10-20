@@ -7,12 +7,11 @@ The API returns metadata; download the artwork separately from `imageURL`.
 let page = try await YouVersionAPI.Images.images(
     passageID: "JHN.3.16",
     languageRanges: ["en", "es"],
-    pageSize: 25,
-    isBetaAPIEnabled: true
+    pageSize: 25
 )
 
 if let first = page.images.first {
-    let image = try await YouVersionAPI.Images.image(id: first.id, isBetaAPIEnabled: true)
+    let image = try await YouVersionAPI.Images.image(id: first.id)
     print(image.passageID, image.attribution, image.imageURL)
 }
 
@@ -21,15 +20,13 @@ if let token = page.nextPageToken {
         passageID: "JHN.3.16",
         languageRanges: ["en", "es"],
         pageSize: 25,
-        pageToken: token,
-        isBetaAPIEnabled: true
+        pageToken: token
     )
     print(nextPage.images.count)
 }
 ```
 
-`isBetaAPIEnabled: true` selects `/v1-beta`; the default is the production `/v1` route.
-Use the same route and filters on every page. Image IDs and continuation tokens are opaque;
+Use the same filters on every page. Image IDs and continuation tokens are opaque;
 pass them unchanged. Language ranges retain their order and are sent as repeated
 `language_ranges[]` parameters. Omit filters to browse all images. `pageSize` must be
 between 1 and 99; omitting it uses the server default of 25.
