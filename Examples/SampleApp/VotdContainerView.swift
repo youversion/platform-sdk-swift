@@ -98,7 +98,7 @@ struct VotdContainerView: View {
             guard !Task.isCancelled && request == requested else {
                 return
             }
-            errorMessage = "Check your connection and try again."
+            errorMessage = String(localized: "Check your connection and try again.")
         }
     }
 
@@ -185,7 +185,9 @@ private struct VotdImageGallery: View {
             if !images.isEmpty {
                 VotdImageStack(images: images, selectedID: $selectedID, passageTitle: passageTitle)
 
-                Text("\(selectedIndex + 1) of \(images.count)\(images.count > 1 ? " · Tap or swipe for more" : "")")
+                Text(images.count > 1
+                     ? String(localized: "\(selectedIndex + 1) of \(images.count) · Tap or swipe for more")
+                     : String(localized: "\(selectedIndex + 1) of \(images.count)"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -251,7 +253,7 @@ private struct VotdImageGallery: View {
             guard !Task.isCancelled && pageRequest == requested else {
                 return
             }
-            errorMessage = "Check your connection and try again."
+            errorMessage = String(localized: "Check your connection and try again.")
             isLoading = false
         }
     }
@@ -268,6 +270,7 @@ private struct VotdImageStack: View {
     let passageTitle: String
 
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
+    @GestureState private var isDragging = false
     @State private var dragOffset = CGSize.zero
     @State private var flightsByID: [String: CardFlight] = [:]
     @State private var shuffleCount = 0
@@ -333,6 +336,13 @@ private struct VotdImageStack: View {
             }
             .accessibilityHidden(true)
         }
+        .onChange(of: isDragging) {
+            if !isDragging {
+                withAnimation(reducesMotion ? nil : .spring(duration: 0.3)) {
+                    dragOffset = .zero
+                }
+            }
+        }
         .onDisappear {
             flightsByID.removeAll()
             dragOffset = .zero
@@ -346,6 +356,9 @@ private struct VotdImageStack: View {
 
     private func swipeGesture(for id: String, width: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 16, coordinateSpace: .global)
+            .updating($isDragging) { _, isDragging, _ in
+                isDragging = true
+            }
             .onChanged { value in
                 guard selectedID == id && abs(value.translation.width) > abs(value.translation.height) else {
                     return
@@ -359,10 +372,6 @@ private struct VotdImageStack: View {
                 let horizontalDistance = value.predictedEndTranslation.width
                 if abs(value.translation.width) > abs(value.translation.height) && abs(horizontalDistance) > width * 0.25 {
                     shuffle(toward: horizontalDistance < 0 ? -1 : 1, width: width)
-                } else {
-                    withAnimation(reducesMotion ? nil : .spring(duration: 0.3)) {
-                        dragOffset = .zero
-                    }
                 }
             }
     }
@@ -439,30 +448,46 @@ private struct VotdArtwork: View {
 
     var body: some View {
         AsyncImage(url: renditionURL) { phase in
-            switch phase {
-            case .success(let artwork):
-                Button(action: advanceImage) {
-                    artwork.resizable().scaledToFit()
-                }
-                .buttonStyle(VotdArtworkButtonStyle())
-                .disabled(!canAdvance)
-                .accessibilityLabel("Verse artwork for \(passageTitle)")
-                .accessibilityHint(canAdvance ? "Tap or swipe for more images" : "")
-            case .failure:
-                VStack(spacing: 12) {
-                    Image(systemName: "photo")
-                        .font(.largeTitle)
-                        .accessibilityHidden(true)
-                    Text("Image couldn't load")
-                        .font(.callout)
-                    Button("Retry image") { retryCount += 1 }
-                        .buttonStyle(.bordered)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            default:
-                ProgressView()
+            Group {
+                switch phase {
+                case .success(let artwork):
+                    Button(action: advanceImage) {
+                        artwork.resizable().scaledToFit()
+                    }
+                    .buttonStyle(VotdArtworkButtonStyle())
+                    .disabled(!canAdvance)
+                    .accessibilityLabel("Verse artwork for \(passageTitle)")
+                    .accessibilityHint(canAdvance ? "Tap or swipe for more images" : "")
+                case .failure:
+                    VStack(spacing: 12) {
+                        Image(systemName: "photo")
+                            .font(.largeTitle)
+                            .accessibilityHidden(true)
+                        Text("Image couldn't load")
+                            .font(.callout)
+                        Button("Retry image") { retryCount += 1 }
+                            .buttonStyle(.bordered)
+                    }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .accessibilityLabel("Loading artwork")
+                default:
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .accessibilityLabel("Loading artwork")
+                }
+            }
+            .accessibilityRepresentation {
+                VStack {
+                    Text("Verse artwork for \(passageTitle)")
+                    if phase.error != nil {
+                        Text("Image couldn't load")
+                        Button("Retry image") { retryCount += 1 }
+                    } else if phase.image == nil {
+                        Text("Loading artwork")
+                    }
+                    if canAdvance {
+                        Button("Next image", action: advanceImage)
+                    }
+                }
             }
         }
         .id(retryCount)
