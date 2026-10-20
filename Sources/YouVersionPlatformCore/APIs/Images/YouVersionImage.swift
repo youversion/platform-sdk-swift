@@ -19,7 +19,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// Native width divided by height, rounded by the server to three decimal places.
     public let aspectRatio: Double
 
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case id, attribution, width, height
         case imageURL = "image_url"
         case passageID = "passage_id"
@@ -36,7 +36,7 @@ public struct YouVersionImageCollection: Codable, Equatable, Sendable {
     /// An opaque continuation token to pass unchanged to the next collection request.
     public let nextPageToken: String?
 
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case images = "data"
         case totalSize = "total_size"
         case nextPageToken = "next_page_token"

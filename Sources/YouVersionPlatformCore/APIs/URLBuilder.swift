@@ -2,16 +2,23 @@ import Foundation
 
 public enum URLBuilder {
 
+    private static var baseURLComponents: URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = YouVersionPlatformConfiguration.apiHost
+        return components
+    }
+
     /// Returns a collection URL while preserving the caller's filter order and opaque page token.
     static func imagesURL(
         passageID: String?,
         languageRanges: [String],
         pageSize: Int?,
         pageToken: String?,
-        useBetaAPI: Bool
+        isBetaAPIEnabled: Bool
     ) -> URL? {
         var components = baseURLComponents
-        components.path = useBetaAPI ? "/v1-beta/images" : "/v1/images"
+        components.path = isBetaAPIEnabled ? "/v1-beta/images" : "/v1/images"
         var queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
         if let passageID {
             queryItems.append(URLQueryItem(name: "passage_id", value: passageID))
@@ -28,21 +35,14 @@ public enum URLBuilder {
     }
 
     /// Returns a detail URL with the opaque identifier encoded as a single path segment.
-    static func imageURL(id: String, useBetaAPI: Bool) -> URL? {
+    static func imageURL(id: String, isBetaAPIEnabled: Bool) -> URL? {
         var components = baseURLComponents
         let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
         guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
             return nil
         }
-        components.percentEncodedPath = (useBetaAPI ? "/v1-beta/images/" : "/v1/images/") + encodedID
+        components.percentEncodedPath = (isBetaAPIEnabled ? "/v1-beta/images/" : "/v1/images/") + encodedID
         return components.url
-    }
-
-    private static var baseURLComponents: URLComponents {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = YouVersionPlatformConfiguration.apiHost
-        return components
     }
 
     static func userURL(accessToken: String) -> URL? {

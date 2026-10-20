@@ -18,7 +18,7 @@ public extension YouVersionAPI {
         ///     an empty array omits the language filter.
         ///   - pageSize: The number of results, from 1 through 99. Omit to use the server default of 25.
         ///   - pageToken: The opaque continuation token from a previous page.
-        ///   - useBetaAPI: Routes this request to `/v1-beta/images` instead of `/v1/images` for beta testing.
+        ///   - isBetaAPIEnabled: Routes this request to `/v1-beta/images` instead of `/v1/images` for beta testing.
         ///   - accessToken: An optional access token. Defaults to the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full image records, an optional total, and an optional continuation token.
@@ -31,11 +31,11 @@ public extension YouVersionAPI {
             languageRanges: [String] = [],
             pageSize: Int? = nil,
             pageToken: String? = nil,
-            useBetaAPI: Bool = false,
+            isBetaAPIEnabled: Bool = false,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionImageCollection {
-            guard pageSize.map({ (1...99).contains($0) }) ?? true,
+            guard (pageSize.map({ (1...99).contains($0) }) ?? true) &&
                   languageRanges.allSatisfy({ range in
                       range.range(
                           of: #"^(\*|[A-Za-z0-9]{1,8}([-_][A-Za-z0-9]{1,8})*)\z"#,
@@ -49,7 +49,7 @@ public extension YouVersionAPI {
                 languageRanges: languageRanges,
                 pageSize: pageSize,
                 pageToken: pageToken,
-                useBetaAPI: useBetaAPI
+                isBetaAPIEnabled: isBetaAPIEnabled
             ) else {
                 throw URLError(.badURL)
             }
@@ -65,7 +65,7 @@ public extension YouVersionAPI {
         ///
         /// - Parameters:
         ///   - id: The opaque image ID returned by the Images, search, or Verse of the Day APIs.
-        ///   - useBetaAPI: Routes this request to `/v1-beta/images/{image_id}` for beta testing.
+        ///   - isBetaAPIEnabled: Routes this request to `/v1-beta/images/{image_id}` for beta testing.
         ///   - accessToken: An optional access token. Defaults to the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full metadata including the CDN URL, passage, attribution, language, and dimensions.
@@ -74,14 +74,14 @@ public extension YouVersionAPI {
         ///   or `DecodingError` for malformed metadata.
         public static func image(
             id: String,
-            useBetaAPI: Bool = false,
+            isBetaAPIEnabled: Bool = false,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionImage {
             guard !id.isEmpty else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)
             }
-            guard let url = URLBuilder.imageURL(id: id, useBetaAPI: useBetaAPI) else {
+            guard let url = URLBuilder.imageURL(id: id, isBetaAPIEnabled: isBetaAPIEnabled) else {
                 throw URLError(.badURL)
             }
             let data = try await YouVersionAPI.data(
