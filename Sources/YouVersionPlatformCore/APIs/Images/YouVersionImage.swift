@@ -1,10 +1,10 @@
 import Foundation
 
-/// Full verse-art metadata. Image bytes are served separately by the Platform CDN.
+/// Full verse-art metadata.
 public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// An opaque identifier; do not decode or construct it.
     public let id: String
-    /// The CDN URL, including any query parameters required to access the image.
+    /// The image URL, including any query parameters required to access it.
     public let imageURL: URL
     /// The illustrated passage, as a verse or verse range identifier.
     public let passageID: String

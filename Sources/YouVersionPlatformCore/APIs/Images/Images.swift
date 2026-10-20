@@ -57,7 +57,7 @@ public extension YouVersionAPI {
         ///   - id: The opaque image ID returned by the Images, search, or Verse of the Day APIs.
         ///   - accessToken: An optional access token. Defaults to the configured access token.
         ///   - session: The URL session used to perform the request.
-        /// - Returns: Full metadata including the CDN URL, passage, attribution, language, and dimensions.
+        /// - Returns: Full metadata including the image URL, passage, attribution, language, and dimensions.
         /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for an empty identifier;
         ///   `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
