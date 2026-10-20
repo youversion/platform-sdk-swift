@@ -238,15 +238,15 @@ public extension YouVersionAPI.Search {
             matching: query,
             bibleID: bibleID,
             languageRanges: languageRanges,
+            isBetaAPIEnabled: false,
             userIntent: userIntent,
             fields: fields,
-            useBetaAPI: false,
             accessToken: providedToken,
             session: session
         )
     }
 
-    /// Returns unified search results using the beta API when `useBetaAPI` is `true`.
+    /// Returns unified search results using the beta API when `isBetaAPIEnabled` is `true`.
     ///
     /// Image results contain an opaque ID and a passage ID. Resolve the image ID with the Images API
     /// when full image metadata is needed. Use `fields: ["images"]` for images alone, or
@@ -255,9 +255,9 @@ public extension YouVersionAPI.Search {
         matching query: String,
         bibleID: Int,
         languageRanges: [String],
+        isBetaAPIEnabled: Bool,
         userIntent: YouVersionSearchUserIntent = .unknown,
         fields: [String] = [],
-        useBetaAPI: Bool,
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionSearchResults {
@@ -275,7 +275,7 @@ public extension YouVersionAPI.Search {
             languageRanges: languageRanges,
             userIntent: userIntent,
             fields: fields,
-            useBetaAPI: useBetaAPI
+            isBetaAPIEnabled: isBetaAPIEnabled
         ) else {
             throw URLError(.badURL)
         }
@@ -452,12 +452,12 @@ public extension YouVersionAPI.Search {
         languageRanges: [String],
         userIntent: YouVersionSearchUserIntent,
         fields: [String],
-        useBetaAPI: Bool
+        isBetaAPIEnabled: Bool
     ) -> URL? {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = useBetaAPI ? "/v1-beta/search-unified" : "/v1/search-unified"
+        components.path = isBetaAPIEnabled ? "/v1-beta/search-unified" : "/v1/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))
