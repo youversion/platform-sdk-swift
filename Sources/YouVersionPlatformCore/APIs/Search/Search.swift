@@ -218,8 +218,8 @@ public extension YouVersionAPI.Search {
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching Bible references, topics, images, and query metadata supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or
-    ///     `languageRanges` is outside the range accepted by the API.
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `bibleID` is outside the accepted range,
+    ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
@@ -237,8 +237,7 @@ public extension YouVersionAPI.Search {
         guard (1...100).contains(query.count) &&
               bibleID > 0 &&
               Int32(exactly: bibleID) != nil &&
-              !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+              !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -277,8 +276,8 @@ public extension YouVersionAPI.Search {
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching topics and query metadata supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `languageRanges`
-    ///     is outside the range accepted by the API.
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` is outside the accepted range
+    ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
@@ -291,8 +290,7 @@ public extension YouVersionAPI.Search {
         session: URLSession = .shared
     ) async throws -> YouVersionTopicSearchResults {
         guard (1...100).contains(query.count) &&
-              !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+              !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -376,8 +374,7 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String?,
         session: URLSession
     ) async throws -> [YouVersionSearchQuery] {
-        guard !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+        guard !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
         guard let url = URLBuilder.searchQueriesURL(
@@ -398,13 +395,6 @@ public extension YouVersionAPI.Search {
         }
         let response = try JSONDecoder().decode(SearchQueriesResponse.self, from: data)
         return response.data.map { YouVersionSearchQuery(text: $0.text, source: $0.source) }
-    }
-
-    private static func isValidLanguageRange(_ languageRange: String) -> Bool {
-        languageRange == "*" || languageRange.range(
-            of: #"^[A-Za-z]{1,8}(-[0-9A-Za-z]{1,8})*\z"#,
-            options: .regularExpression
-        ) != nil
     }
 
     private static func searchTopicsURL(query: String, languageRanges: [String]) -> URL? {

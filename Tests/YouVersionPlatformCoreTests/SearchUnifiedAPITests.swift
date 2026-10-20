@@ -234,18 +234,19 @@ import Testing
     }
 
     @Test(arguments: [
-        "en\n", "en-US\r", "en-US\r\n", "en\u{2028}", "en\u{2029}",
+        "", "en--US", "en\n", "en-US\r", "en-US\r\n", "en\u{2028}", "en\u{2029}",
         "en_US", "zh_Hant_TW", "zh-Hant_TW",
         "en[US", #"en\US"#, "en]US", "en^US", "en`US", "_en",
         "en-U[S", #"en-U\S"#, "en-U]S", "en-U^S", "en-U`S",
     ])
-    func punctuationInLanguageRangesIsRejectedBeforeRequest(languageRange: String) async {
+    func languageRangesAreForwardedAndServerRejectionsPropagate(languageRange: String) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
-        HTTPMocking.setHandler(token: token) { _ in
-            Issue.record("Invalid language ranges must not send a request")
-            throw URLError(.badURL)
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == [languageRange])
+            return (Data(), HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!)
         }
 
         await #expect {
@@ -257,7 +258,7 @@ import Testing
                 session: session
             )
         } throws: { error in
-            (error as? YouVersionAPIRequestError)?.code == .invalidParameter
+            (error as? YouVersionAPIError) == .cannotDownload
         }
     }
 
@@ -288,12 +289,6 @@ import Testing
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: [])
-        }
-        await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: [""])
-        }
-        await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.unified(matching: "love", bibleID: 111, languageRanges: ["en--US"])
         }
     }
 }
