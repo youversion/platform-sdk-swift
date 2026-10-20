@@ -14,11 +14,10 @@ public enum URLBuilder {
         passageID: String?,
         languageRanges: [String],
         pageSize: Int?,
-        pageToken: String?,
-        isBetaAPIEnabled: Bool
+        pageToken: String?
     ) -> URL? {
         var components = baseURLComponents
-        components.path = isBetaAPIEnabled ? "/v1-beta/images" : "/v1/images"
+        components.path = "/v1-beta/images"
         var queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
         if let passageID {
             queryItems.append(URLQueryItem(name: "passage_id", value: passageID))
@@ -35,13 +34,13 @@ public enum URLBuilder {
     }
 
     /// Returns a detail URL with the opaque identifier encoded as a single path segment.
-    static func imageURL(id: String, isBetaAPIEnabled: Bool) -> URL? {
+    static func imageURL(id: String) -> URL? {
         var components = baseURLComponents
         let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
         guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
             return nil
         }
-        components.percentEncodedPath = (isBetaAPIEnabled ? "/v1-beta/images/" : "/v1/images/") + encodedID
+        components.percentEncodedPath = "/v1-beta/images/" + encodedID
         return components.url
     }
 

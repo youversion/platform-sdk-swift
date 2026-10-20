@@ -12,8 +12,8 @@ struct ImagesAPITests {
     "width":1080,"height":1920,"aspect_ratio":0.562}
     """
 
-    @Test(arguments: [false, true])
-    func collectionPreservesFiltersAndPagination(isBetaAPIEnabled: Bool) async throws {
+    @Test
+    func collectionPreservesFiltersAndPagination() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         let pageToken = "a+b/c==&?% fragment"
@@ -22,7 +22,7 @@ struct ImagesAPITests {
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.httpMethod == "GET")
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer images-tests")
-            #expect(components.path == (isBetaAPIEnabled ? "/v1-beta/images" : "/v1/images"))
+            #expect(components.path == "/v1-beta/images")
             #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == ["en_US", "es", "*"])
             #expect(components.queryItems?.contains(URLQueryItem(name: "passage_id", value: "1CO.13.4-7")) == true)
             #expect(components.queryItems?.contains(URLQueryItem(name: "page_size", value: "99")) == true)
@@ -32,7 +32,7 @@ struct ImagesAPITests {
         }
         let result = try await YouVersionAPI.Images.images(
             passageID: "1CO.13.4-7", languageRanges: ["en_US", "es", "*"], pageSize: 99,
-            pageToken: pageToken, isBetaAPIEnabled: isBetaAPIEnabled, accessToken: "images-tests", session: session
+            pageToken: pageToken, accessToken: "images-tests", session: session
         )
         #expect(result.totalSize == 41)
         #expect(result.nextPageToken == "next+opaque/=")
@@ -61,14 +61,14 @@ struct ImagesAPITests {
         #expect(result.nextPageToken == nil)
     }
 
-    @Test(arguments: ["id/with?query#fragment%2F +é", ".", ".."], [false, true])
-    func detailTreatsOpaqueIdentifierAsSingleSegment(id: String, isBetaAPIEnabled: Bool) async throws {
+    @Test(arguments: ["id/with?query#fragment%2F +é", ".", ".."])
+    func detailTreatsOpaqueIdentifierAsSingleSegment(id: String) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         let json = Data(imageJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-            let prefix = isBetaAPIEnabled ? "/v1-beta/images/" : "/v1/images/"
+            let prefix = "/v1-beta/images/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
             #expect(!segment.contains("/"))
@@ -78,7 +78,7 @@ struct ImagesAPITests {
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let image = try await YouVersionAPI.Images.image(
-            id: id, isBetaAPIEnabled: isBetaAPIEnabled, accessToken: "images-tests", session: session
+            id: id, accessToken: "images-tests", session: session
         )
         #expect(image.id == "opaque.image-id")
     }

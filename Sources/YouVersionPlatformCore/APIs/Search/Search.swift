@@ -234,33 +234,6 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionSearchResults {
-        try await unified(
-            matching: query,
-            bibleID: bibleID,
-            languageRanges: languageRanges,
-            isBetaAPIEnabled: false,
-            userIntent: userIntent,
-            fields: fields,
-            accessToken: providedToken,
-            session: session
-        )
-    }
-
-    /// Returns unified search results using the beta API when `isBetaAPIEnabled` is `true`.
-    ///
-    /// Image results contain an opaque ID and a passage ID. Resolve the image ID with the Images API
-    /// when full image metadata is needed. Use `fields: ["images"]` for images alone, or
-    /// `fields: ["images", "verses"]` to include verse results.
-    static func unified(
-        matching query: String,
-        bibleID: Int,
-        languageRanges: [String],
-        isBetaAPIEnabled: Bool,
-        userIntent: YouVersionSearchUserIntent = .unknown,
-        fields: [String] = [],
-        accessToken providedToken: String? = nil,
-        session: URLSession = .shared
-    ) async throws -> YouVersionSearchResults {
         guard (1...100).contains(query.count) &&
               bibleID > 0 &&
               Int32(exactly: bibleID) != nil &&
@@ -274,8 +247,7 @@ public extension YouVersionAPI.Search {
             bibleID: bibleID,
             languageRanges: languageRanges,
             userIntent: userIntent,
-            fields: fields,
-            isBetaAPIEnabled: isBetaAPIEnabled
+            fields: fields
         ) else {
             throw URLError(.badURL)
         }
@@ -451,13 +423,12 @@ public extension YouVersionAPI.Search {
         bibleID: Int,
         languageRanges: [String],
         userIntent: YouVersionSearchUserIntent,
-        fields: [String],
-        isBetaAPIEnabled: Bool
+        fields: [String]
     ) -> URL? {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = isBetaAPIEnabled ? "/v1-beta/search-unified" : "/v1/search-unified"
+        components.path = "/v1-beta/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))
