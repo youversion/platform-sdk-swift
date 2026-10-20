@@ -7,14 +7,8 @@ private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
     var highlightHexesOnSelectedVerses: [String] {
-        var savedHexesByRGB: [UInt32: String] = [:]
-        for highlight in selectedVerses.flatMap({ highlightsViewModel.highlights(for: $0) }) {
-            guard let rgb = Color.rgbValue(fromHex: highlight.color), savedHexesByRGB[rgb] == nil else {
-                continue
-            }
-            savedHexesByRGB[rgb] = highlight.color
-        }
-        return savedHexesByRGB.sorted { $0.key < $1.key }.map(\.value)
+        Set(selectedVerses.flatMap { highlightsViewModel.highlights(for: $0) }.map { $0.color.lowercased() })
+            .sorted()
     }
 
     func goToPreviousChapter() {

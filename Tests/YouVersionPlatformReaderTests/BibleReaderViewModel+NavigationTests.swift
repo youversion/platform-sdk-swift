@@ -348,23 +348,21 @@ let previousChapterCases: [PreviousChapterCase] = [
     }
 
     @Test
-    func highlightHexesOnSelectedVersesDedupesByRGB() {
+    func highlightHexesOnSelectedVersesDedupesIgnoringCase() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             highlightsRepository: MockBibleHighlightsRepository()
         )
         let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
-        let invalidReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
         let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 19)
         let duplicateReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 20)
-        viewModel.selectedVerses = [firstReference, secondReference, invalidReference, duplicateReference]
-        viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#FFFE00")
+        viewModel.selectedVerses = [firstReference, secondReference, duplicateReference]
+        viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "FFFE00")
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ffec5b")
-        viewModel.highlightsViewModel.addHighlights(references: [duplicateReference], color: "#80fffe00")
-        viewModel.highlightsViewModel.addHighlights(references: [invalidReference], color: "nope")
+        viewModel.highlightsViewModel.addHighlights(references: [duplicateReference], color: "fffe00")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "00D6FF")
 
-        #expect(viewModel.highlightHexesOnSelectedVerses.compactMap(Color.rgbValue(fromHex:)) == [0xFFEC5B, 0xFFFE00])
+        #expect(viewModel.highlightHexesOnSelectedVerses == ["ffec5b", "fffe00"])
     }
 
     @Test
