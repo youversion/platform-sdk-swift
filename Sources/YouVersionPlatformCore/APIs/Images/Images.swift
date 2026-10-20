@@ -22,8 +22,7 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full image records, an optional total, and an optional continuation token.
         ///   Filters matching nothing produce an empty `images` array.
-        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes or
-        ///   language ranges; `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
+        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes; `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
         public static func images(
             passageID: String? = nil,
@@ -33,13 +32,7 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionImageCollection {
-            guard (pageSize.map({ (1...99).contains($0) }) ?? true) &&
-                  languageRanges.allSatisfy({ range in
-                      range.range(
-                          of: #"^(\*|[A-Za-z0-9]{1,8}([-_][A-Za-z0-9]{1,8})*)\z"#,
-                          options: .regularExpression
-                      ) != nil
-                  }) else {
+            guard pageSize.map({ (1...99).contains($0) }) ?? true else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)
             }
             guard let url = URLBuilder.imagesURL(
