@@ -55,12 +55,11 @@ let results = try await YouVersionAPI.Search.unified(
     matching: "love",
     bibleID: 111,
     languageRanges: ["en"],
-    isBetaAPIEnabled: true,
     fields: ["images", "verses"]
 )
 
 for hit in results.images {
-    let image = try await YouVersionAPI.Images.image(id: hit.id, isBetaAPIEnabled: true)
+    let image = try await YouVersionAPI.Images.image(id: hit.id)
     print(hit.passageID, image.imageURL)
 }
 ```
@@ -68,7 +67,5 @@ for hit in results.images {
 Use `fields: ["images"]` for image results alone, or omit `fields` to request all kinds.
 Unified search is unpaginated. Each image hit contains only `id` and `passageID`, which
 can identify a verse range; resolve full artwork metadata through Images detail.
-Older production responses without an `images` section remain supported and expose an
-empty array. Malformed image records throw a decoding error, following the Core API's
-strict decoding pattern. Existing unified-search calls retain their original signature
-and production route.
+Responses without an `images` section remain supported and expose an empty array. Malformed image records throw a decoding error, following the Core API's
+strict decoding pattern. Existing unified-search calls retain their original signature.

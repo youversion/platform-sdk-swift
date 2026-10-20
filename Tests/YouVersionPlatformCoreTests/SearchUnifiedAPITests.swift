@@ -63,7 +63,7 @@ import Testing
         let fields = components.queryItems?
             .filter { $0.name == "fields[]" }
             .compactMap(\.value)
-        #expect(components.path == "/v1/search-unified")
+        #expect(components.path == "/v1-beta/search-unified")
         #expect(components.queryItems?.contains(URLQueryItem(name: "query", value: "luv")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "bible_id", value: "111")) == true)
         #expect(components.queryItems?.contains(URLQueryItem(name: "user_intent", value: "topical")) == true)
@@ -122,8 +122,8 @@ import Testing
         #expect(components.queryItems?.contains(where: { $0.name == "fields[]" }) == false)
     }
 
-    @Test(arguments: [["images"], ["images", "verses"], ["images", "verses", "topics"]], [false, true])
-    func imageResultsPreserveOpaqueIDsAndPassageRanges(fields: [String], isBetaAPIEnabled: Bool) async throws {
+    @Test(arguments: [["images"], ["images", "verses"], ["images", "verses", "topics"]])
+    func imageResultsPreserveOpaqueIDsAndPassageRanges(fields: [String]) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -153,7 +153,6 @@ import Testing
             matching: "love",
             bibleID: 111,
             languageRanges: ["en"],
-            isBetaAPIEnabled: isBetaAPIEnabled,
             fields: fields,
             accessToken: "swift-test-suite",
             session: session
@@ -161,7 +160,7 @@ import Testing
 
         let request = try #require(capturedRequest)
         let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-        #expect(components.path == (isBetaAPIEnabled ? "/v1-beta/search-unified" : "/v1/search-unified"))
+        #expect(components.path == "/v1-beta/search-unified")
         #expect(components.queryItems?.filter { $0.name == "fields[]" }.compactMap(\.value) == fields)
         #expect(results.images.map(\.id) == ["opaque+/=image.token", "another-image"])
         #expect(results.images.map(\.passageID) == ["1CO.13.4-8", "JHN.3.16"])
@@ -207,7 +206,7 @@ import Testing
 
         await #expect(throws: DecodingError.self) {
             try await YouVersionAPI.Search.unified(
-                matching: "love", bibleID: 111, languageRanges: ["en"], isBetaAPIEnabled: true,
+                matching: "love", bibleID: 111, languageRanges: ["en"],
                 fields: ["images"], accessToken: "swift-test-suite", session: session
             )
         }
@@ -223,7 +222,7 @@ import Testing
 
         await #expect {
             try await YouVersionAPI.Search.unified(
-                matching: "love", bibleID: 111, languageRanges: ["en"], isBetaAPIEnabled: true,
+                matching: "love", bibleID: 111, languageRanges: ["en"],
                 fields: ["images"], accessToken: "swift-test-suite", session: session
             )
         } throws: { error in
