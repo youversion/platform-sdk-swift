@@ -231,8 +231,7 @@ private struct VotdImageGallery: View {
                 passageID: passageID,
                 languageRanges: [Locale.current.language.languageCode?.identifier ?? "en"],
                 pageSize: 99,
-                pageToken: requested.token,
-                isBetaAPIEnabled: true
+                pageToken: requested.token
             )
             try Task.checkCancellation()
             guard pageRequest == requested else {
