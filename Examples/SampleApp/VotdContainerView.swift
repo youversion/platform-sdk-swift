@@ -159,6 +159,7 @@ private struct VotdDatePickerView: View {
                 showsDatePicker = true
             } label: {
                 Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
+                    .fontWeight(.bold)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .contentShape(.rect)
             }
