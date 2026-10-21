@@ -6,6 +6,11 @@ import YouVersionPlatformUI
 private let userScrollThreshold: CGFloat = 2
 
 extension BibleReaderViewModel {
+    var highlightHexesOnSelectedVerses: [String] {
+        Set(selectedVerses.flatMap { highlightsViewModel.highlights(for: $0) }.map { $0.color.lowercased() })
+            .sorted()
+    }
+
     func goToPreviousChapter() {
         guard let version else {
             return
@@ -151,25 +156,15 @@ extension BibleReaderViewModel {
         })
     }
 
-    func isColorPresentOnAnySelectedVerses(_ color: Color) -> Bool {
-        !selectedVersesWithColor(color).isEmpty
-    }
-
     func isColorPresentOnAllSelectedVerses(_ color: Color) -> Bool {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }
 
-    func hexColorValueForComparison(_ color: String) -> String {
-        guard color.starts(with: "#") else {
-            return color
-        }
-        return String(color.dropFirst())
-    }
-
     func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = hexColorValueForComparison(a)
-        let cleanB = hexColorValueForComparison(b)
-        return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
+        guard let rgbA = Color.rgbValue(fromHex: a) else {
+            return false
+        }
+        return rgbA == Color.rgbValue(fromHex: b)
     }
 
     func addVerseColor(_ color: Color) {
@@ -185,6 +180,15 @@ extension BibleReaderViewModel {
             YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
             return
         }
+        removeVerseColor(hex: hex)
+    }
+
+    /// Removes highlights from the selected verses whose RGB matches the given hex color, ignoring alpha.
+    ///
+    /// Clears the verse selection afterward.
+    ///
+    /// - Parameter hex: A color in `RGB`, `RRGGBB`, or `AARRGGBB` format, with or without a leading `#`.
+    func removeVerseColor(hex: String) {
         for reference in selectedVerses {
             let highlights = highlightsViewModel.highlights(for: reference)
             for highlight in highlights where isSameHexColor(highlight.color, hex) {

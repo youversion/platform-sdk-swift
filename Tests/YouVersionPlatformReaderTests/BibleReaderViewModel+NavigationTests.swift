@@ -347,7 +347,87 @@ let previousChapterCases: [PreviousChapterCase] = [
         assertNavigationSideEffects(on: vm)
     }
 
+    @Test
+    func highlightHexesOnSelectedVersesDedupesIgnoringCase() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 19)
+        let duplicateReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 20)
+        viewModel.selectedVerses = [firstReference, secondReference, duplicateReference]
+        viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "FFFE00")
+        viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ffec5b")
+        viewModel.highlightsViewModel.addHighlights(references: [duplicateReference], color: "fffe00")
+        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "00D6FF")
+
+        #expect(viewModel.highlightHexesOnSelectedVerses == ["ffec5b", "fffe00"])
+    }
+
+    @Test
+    func highlightHexesOnSelectedVersesKeepsSavedAlpha() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let reference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        viewModel.selectedVerses = [reference]
+        viewModel.highlightsViewModel.addHighlights(references: [reference], color: "#40000000")
+
+        #expect(viewModel.highlightHexesOnSelectedVerses == ["#40000000"])
+    }
+
+    @Test
+    func removeVerseColorHexRemovesMatchingRGBFromSelectedVersesOnly() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let legacyReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let paletteReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
+        viewModel.selectedVerses = [legacyReference, paletteReference]
+        viewModel.highlightsViewModel.addHighlights(references: [legacyReference], color: "#80FFFE00")
+        viewModel.highlightsViewModel.addHighlights(references: [paletteReference], color: "ffec5b")
+        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "fffe00")
+
+        viewModel.removeVerseColor(hex: "#FFFE00")
+
+        #expect(viewModel.selectedVerses.isEmpty)
+        #expect(viewModel.highlightsViewModel.highlights(for: legacyReference).isEmpty)
+        #expect(viewModel.highlightsViewModel.highlights(for: paletteReference) == [
+            BibleHighlight(paletteReference, color: "ffec5b"),
+        ])
+        #expect(viewModel.highlightsViewModel.highlights(for: unselectedReference) == [
+            BibleHighlight(unselectedReference, color: "fffe00"),
+        ])
+    }
+
 #if canImport(UIKit)
+    @Test
+    func removeVerseColorRemovesLegacyColorFromSelectedVersesOnly() {
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
+            highlightsRepository: MockBibleHighlightsRepository()
+        )
+        let legacyReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        let paletteReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
+        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
+        viewModel.selectedVerses = [legacyReference, paletteReference]
+        viewModel.highlightsViewModel.addHighlights(references: [legacyReference], color: "#FFFE00")
+        viewModel.highlightsViewModel.addHighlights(references: [paletteReference], color: "ffec5b")
+        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "fffe00")
+
+        viewModel.removeVerseColor(Color(hex: "fffe00"))
+
+        #expect(viewModel.selectedVerses.isEmpty)
+        #expect(viewModel.highlightsViewModel.highlights(for: legacyReference).isEmpty)
+        #expect(viewModel.highlightsViewModel.highlights(for: paletteReference) == [
+            BibleHighlight(paletteReference, color: "ffec5b"),
+        ])
+        #expect(viewModel.highlightsViewModel.highlights(for: unselectedReference) == [
+            BibleHighlight(unselectedReference, color: "fffe00"),
+        ])
+    }
+
     @Test
     func selectedVerseColorPresenceMatchesHexCaseInsensitivelyAndIgnoresHashPrefix() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
@@ -361,12 +441,10 @@ let previousChapterCases: [PreviousChapterCase] = [
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
 
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
     }
 
