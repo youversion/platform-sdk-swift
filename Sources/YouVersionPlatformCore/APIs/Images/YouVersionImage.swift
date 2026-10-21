@@ -1,14 +1,14 @@
 import Foundation
 
-/// Full verse-art metadata.
+/// YouVersion Image metadata.
 public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
-    /// An opaque identifier; do not decode or construct it.
+    /// An opaque identifier, set by the YouVersion server.
     public let id: String
     /// The image URL, including any query parameters required to access it.
     public let imageURL: URL
-    /// The illustrated passage, as a verse or verse range identifier.
+    /// The verse or verse range to which the image corresponds (e.g. JHN.3.16).
     public let passageID: String
-    /// The credit line to display with the image.
+    /// The credit line which may be displayed with the image.
     public let attribution: String
     /// The BCP 47 language tag of the art's text.
     public let languageTag: String
@@ -19,14 +19,14 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// Native width divided by height, rounded by the server to three decimal places.
     public let aspectRatio: Double
 
-    /// Creates verse-art metadata from the supplied values.
+    /// Creates YouVersion Image metadata from the supplied values.
     ///
     /// - Parameters:
-    ///   - id: The opaque image identifier returned by the API.
+    ///   - id: An opaque image identifier.
     ///   - imageURL: The image URL, including any query parameters required to access it.
-    ///   - passageID: The illustrated verse or verse range identifier.
-    ///   - attribution: The credit line to display with the image.
-    ///   - languageTag: The BCP 47 language tag of the art's text.
+    ///   - passageID: The verse or verse range to which the image corresponds (e.g. JHN.3.16).
+    ///   - attribution: The credit line which can be displayed with the image.
+    ///   - languageTag: The BCP 47 language tag of the image's text.
     ///   - width: The native image width in pixels.
     ///   - height: The native image height in pixels.
     ///   - aspectRatio: The native width divided by height, as returned by the API.
@@ -59,7 +59,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
-/// One page of verse-art images and the server's pagination metadata.
+/// One page of images and the server's pagination metadata.
 public struct YouVersionImageCollection: Codable, Equatable, Sendable {
     public let images: [YouVersionImage]
     /// The total across every page, when known. Typically available only for passage-filtered requests.
