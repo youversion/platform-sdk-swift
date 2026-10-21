@@ -170,11 +170,9 @@ private struct VotdImageGallery: View {
 
     @State private var images: [YouVersionImage] = []
     @State private var selectedID = ""
-    @State private var nextPageToken: String?
-    @State private var totalSize: Int?
     @State private var isLoading = true
     @State private var errorMessage: String?
-    @State private var pageRequest = PageRequest()
+    @State private var retryCount = 0
 
     private var selectedIndex: Int {
         images.firstIndex { $0.id == selectedID } ?? 0
@@ -194,73 +192,46 @@ private struct VotdImageGallery: View {
 
             if isLoading {
                 ProgressView("Loading images…")
-                    .frame(maxWidth: .infinity, minHeight: images.isEmpty ? 200 : 44)
+                    .frame(maxWidth: .infinity, minHeight: 200)
             } else if let errorMessage {
                 ContentUnavailableView {
                     Label("Couldn't load images", systemImage: "wifi.exclamationmark")
                 } description: {
                     Text(errorMessage)
                 } actions: {
-                    Button("Try again") { pageRequest.retryCount += 1 }
+                    Button("Try again") { retryCount += 1 }
                 }
             } else if images.isEmpty {
                 Text("(No images are available)")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, minHeight: 200)
-            } else if let nextPageToken {
-                if let totalSize {
-                    Text("\(images.count) of \(totalSize) images loaded")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Button("Load more images") {
-                    pageRequest = PageRequest(token: nextPageToken)
-                }
-                .buttonStyle(.bordered)
             }
         }
-        .task(id: pageRequest) {
-            await loadImages(for: pageRequest)
+        .task(id: retryCount) {
+            await loadImages()
         }
     }
 
-    private func loadImages(for requested: PageRequest) async {
+    private func loadImages() async {
         isLoading = true
         errorMessage = nil
         do {
-            let page = try await YouVersionAPI.Images.images(
+            let collection = try await YouVersionAPI.Images.images(
                 passageID: passageID,
-                languageRanges: [Locale.current.language.languageCode?.identifier ?? "en"],
-                pageSize: 99,
-                pageToken: requested.token
+                languageRanges: [Locale.current.language.languageCode?.identifier ?? "en"]
             )
             try Task.checkCancellation()
-            guard pageRequest == requested else {
-                return
-            }
-            if requested.token == nil {
-                images = page.images
-                selectedID = page.images.first?.id ?? ""
-            } else {
-                let existingIDs = Set(images.map(\.id))
-                images += page.images.filter { !existingIDs.contains($0.id) }
-            }
-            nextPageToken = page.nextPageToken
-            totalSize = page.totalSize
+            images = collection.images
+            selectedID = images.first?.id ?? ""
             isLoading = false
         } catch {
-            guard !Task.isCancelled && pageRequest == requested else {
+            guard !Task.isCancelled else {
                 return
             }
             errorMessage = String(localized: "Check your connection and try again.")
             isLoading = false
         }
-    }
-
-    private struct PageRequest: Equatable {
-        var token: String?
-        var retryCount = 0
     }
 }
 
