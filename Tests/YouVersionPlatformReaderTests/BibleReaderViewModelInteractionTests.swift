@@ -126,7 +126,6 @@ import Testing
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
 
         viewModel.selectedVerses = [firstReference, secondReference]
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(color))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(color))
 
         viewModel.removeVerseColor(color)
@@ -145,15 +144,6 @@ import Testing
     }
 
     @Test
-    func hexColorValueForComparisonRemovesLeadingHash() {
-        let viewModel = Support.makeViewModel()
-
-        #expect(viewModel.hexColorValueForComparison("#") == "")
-        #expect(viewModel.hexColorValueForComparison("#DDAAFF") == "DDAAFF")
-        #expect(viewModel.hexColorValueForComparison("DDAAFF") == "DDAAFF")
-    }
-
-    @Test
     func isSameHexColorComparesColorsWithoutLeadingHashes() {
         let viewModel = Support.makeViewModel()
 
@@ -161,6 +151,15 @@ import Testing
         #expect(viewModel.isSameHexColor("ddaaff", "#DDAAFF"))
         #expect(viewModel.isSameHexColor("#", "DDAAFF") == false)
         #expect(viewModel.isSameHexColor("#DDAAFF", "#AABBCC") == false)
+        #expect(viewModel.isSameHexColor("nope", "nope") == false)
+    }
+
+    @Test
+    func isSameHexColorMatchesShortAndArgbFormsOfTheSameColor() {
+        let viewModel = Support.makeViewModel()
+
+        #expect(viewModel.isSameHexColor("#FA3", "FFAA33"))
+        #expect(viewModel.isSameHexColor("#80DDAAFF", "DDAAFF"))
     }
 
 #if !canImport(UIKit)
@@ -174,7 +173,6 @@ import Testing
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(color) == false)
         #expect(viewModel.isColorPresentOnAllSelectedVerses(color) == false)
 
         viewModel.addVerseColor(color)

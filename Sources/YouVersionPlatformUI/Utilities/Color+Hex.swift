@@ -53,13 +53,62 @@ public extension Color {
             return nil
         }
 
-        let r = Int(red * 255)
-        let g = Int(green * 255)
-        let b = Int(blue * 255)
+        let r = Int((red * 255).rounded())
+        let g = Int((green * 255).rounded())
+        let b = Int((blue * 255).rounded())
 
         return String(format: "%02X%02X%02X", r, g, b)
 #else
         return nil
 #endif
+    }
+}
+
+extension Color {
+    private static let redLumaWeight: Float = 0.299
+    private static let greenLumaWeight: Float = 0.587
+    private static let blueLumaWeight: Float = 0.114
+    private static let darkLumaThreshold: Float = 0.5
+
+    /// Returns the 24-bit RGB value of a hex color string, ignoring any alpha byte.
+    ///
+    /// Accepts `RGB`, `RRGGBB`, and `AARRGGBB`, each with or without a leading `#`.
+    /// Use it to compare colors saved in different formats.
+    ///
+    /// - Parameter hex: The hex color string to read.
+    /// - Returns: The color as `0xRRGGBB`, or `nil` if `hex` isn't one of the accepted formats.
+    package static func rgbValue(fromHex hex: String) -> UInt32? {
+        let digits = hex.hasPrefix("#") ? hex.dropFirst() : Substring(hex)
+        guard digits.allSatisfy(\.isHexDigit), let value = UInt32(digits, radix: 16) else {
+            return nil
+        }
+        switch digits.count {
+        case 3:
+            let red = (value >> 8) & 0xF
+            let green = (value >> 4) & 0xF
+            let blue = value & 0xF
+            return (red * 0x11) << 16 | (green * 0x11) << 8 | blue * 0x11
+        case 6:
+            return value
+        case 8:
+            return value & 0xFFFFFF
+        default:
+            return nil
+        }
+    }
+
+    /// Whether the color is dark enough that text over it should be white.
+    ///
+    /// Translucent colors are blended over a white page before their luma is measured.
+    package var isDarkHighlight: Bool {
+        let resolved = resolve(in: EnvironmentValues())
+        let opacity = resolved.opacity
+        func overWhitePage(_ channel: Float) -> Float {
+            opacity * channel + 1 - opacity
+        }
+        let luma = Self.redLumaWeight * overWhitePage(resolved.red)
+            + Self.greenLumaWeight * overWhitePage(resolved.green)
+            + Self.blueLumaWeight * overWhitePage(resolved.blue)
+        return luma < Self.darkLumaThreshold
     }
 }
