@@ -7,6 +7,7 @@ import YouVersionPlatformCore
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @GestureState private var isDragging = false
     @State private var dragOffset = CGSize.zero
     @State private var flightsByID: [String: CardFlight] = [:]
@@ -82,7 +83,7 @@ struct VotdImageStackView: View {
         }
         .onChange(of: isDragging) {
             if !isDragging {
-                withAnimation(.spring(duration: 0.3)) {
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.3)) {
                     dragOffset = .zero
                 }
             }
@@ -104,7 +105,7 @@ struct VotdImageStackView: View {
                 isDragging = true
             }
             .onChanged { value in
-                guard selectedID == id && abs(value.translation.width) > abs(value.translation.height) else {
+                guard !reduceMotion && selectedID == id && abs(value.translation.width) > abs(value.translation.height) else {
                     return
                 }
                 dragOffset = CGSize(width: value.translation.width, height: value.translation.height * 0.15)
@@ -126,17 +127,25 @@ struct VotdImageStackView: View {
         }
         let currentID = selectedID
         let nextIndex = (selectedIndex + 1) % images.count
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        if reduceMotion {
+            withTransaction(transaction) {
+                flightsByID.removeAll()
+                dragOffset = .zero
+                selectedIndex = nextIndex
+            }
+            return
+        }
         let nextID = images[nextIndex].id
         let flightID = UUID()
         shuffleCount += 1
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
         withTransaction(transaction) {
             flightsByID[nextID] = nil
             flightsByID[currentID] = CardFlight(id: flightID, order: shuffleCount, offset: dragOffset)
             dragOffset = .zero
         }
-        withAnimation(.easeOut(duration: 0.2), completionCriteria: .removed) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2), completionCriteria: .removed) {
             selectedIndex = nextIndex
             flightsByID[currentID]?.offset = CGSize(width: direction * (width + 24), height: 12)
         } completion: {
@@ -146,7 +155,7 @@ struct VotdImageStackView: View {
             withTransaction(transaction) {
                 flightsByID[currentID]?.isReturning = true
             }
-            withAnimation(.spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
+            withAnimation(reduceMotion ? nil : .spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
                 flightsByID[currentID]?.offset = .zero
             } completion: {
                 guard flightsByID[currentID]?.id == flightID else {
