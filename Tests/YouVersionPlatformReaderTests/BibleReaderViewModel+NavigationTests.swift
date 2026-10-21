@@ -441,12 +441,10 @@ let previousChapterCases: [PreviousChapterCase] = [
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
 
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
     }
 

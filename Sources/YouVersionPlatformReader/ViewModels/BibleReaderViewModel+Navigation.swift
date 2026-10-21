@@ -156,10 +156,6 @@ extension BibleReaderViewModel {
         })
     }
 
-    func isColorPresentOnAnySelectedVerses(_ color: Color) -> Bool {
-        !selectedVersesWithColor(color).isEmpty
-    }
-
     func isColorPresentOnAllSelectedVerses(_ color: Color) -> Bool {
         !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
     }

@@ -126,7 +126,6 @@ import Testing
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
 
         viewModel.selectedVerses = [firstReference, secondReference]
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(color))
         #expect(viewModel.isColorPresentOnAllSelectedVerses(color))
 
         viewModel.removeVerseColor(color)
@@ -174,7 +173,6 @@ import Testing
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(color) == false)
         #expect(viewModel.isColorPresentOnAllSelectedVerses(color) == false)
 
         viewModel.addVerseColor(color)
