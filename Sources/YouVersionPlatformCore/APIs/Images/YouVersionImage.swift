@@ -19,6 +19,17 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// Native width divided by height, rounded by the server to three decimal places.
     public let aspectRatio: Double
 
+    /// Creates verse-art metadata from the supplied values.
+    ///
+    /// - Parameters:
+    ///   - id: The opaque image identifier returned by the API.
+    ///   - imageURL: The image URL, including any query parameters required to access it.
+    ///   - passageID: The illustrated verse or verse range identifier.
+    ///   - attribution: The credit line to display with the image.
+    ///   - languageTag: The BCP 47 language tag of the art's text.
+    ///   - width: The native image width in pixels.
+    ///   - height: The native image height in pixels.
+    ///   - aspectRatio: The native width divided by height, as returned by the API.
     public init(
         id: String,
         imageURL: URL,
