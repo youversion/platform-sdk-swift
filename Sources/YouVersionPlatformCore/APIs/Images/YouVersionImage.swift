@@ -19,6 +19,26 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// Native width divided by height, rounded by the server to three decimal places.
     public let aspectRatio: Double
 
+    public init(
+        id: String,
+        imageURL: URL,
+        passageID: String,
+        attribution: String,
+        languageTag: String,
+        width: Int,
+        height: Int,
+        aspectRatio: Double
+    ) {
+        self.id = id
+        self.imageURL = imageURL
+        self.passageID = passageID
+        self.attribution = attribution
+        self.languageTag = languageTag
+        self.width = width
+        self.height = height
+        self.aspectRatio = aspectRatio
+    }
+
     private enum CodingKeys: String, CodingKey {
         case id, attribution, width, height
         case imageURL = "image_url"

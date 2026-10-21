@@ -1,6 +1,9 @@
 import SwiftUI
 import YouVersionPlatformCore
 
+/// A moderately complex example widget that lets users tap or swipe through several images in a shuffling stack.
+/// It makes no YouVersionPlatform API calls; it demonstrates a SwiftUI approach to presenting supplied image data,
+/// using `VotdImageView` for each image on the stack. Supply a nonempty image array.
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
 

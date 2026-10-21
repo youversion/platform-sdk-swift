@@ -1,35 +1,28 @@
 import SwiftUI
 import YouVersionPlatformCore
 
+/// Displays a supplied verse image with loading and retry states, preserving its aspect ratio.
+/// Use it on its own, or provide `onImageTap` to handle taps when browsing several images.
 struct VotdImageView: View {
     let image: YouVersionImage
-    let onAdvance: (() -> Void)?
+    let onImageTap: (() -> Void)?
 
     @State private var retryCount = 0
 
-    init(image: YouVersionImage, onAdvance: (() -> Void)? = nil) {
+    init(image: YouVersionImage, onImageTap: (() -> Void)? = nil) {
         self.image = image
-        self.onAdvance = onAdvance
-    }
-
-    /// Requests the API's `card` rendition for this example, preserving the URL's other query parameters.
-    /// Choose `thumb`, `card`, or `full` to suit your app's image size needs, or omit `size` for full size.
-    private var renditionURL: URL? {
-        var components = URLComponents(url: image.imageURL, resolvingAgainstBaseURL: false)
-        let queryItems = components?.percentEncodedQueryItems?.filter { $0.name != "size" } ?? []
-        components?.percentEncodedQueryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
-        return components?.url
+        self.onImageTap = onImageTap
     }
 
     var body: some View {
-        AsyncImage(url: renditionURL) { phase in
+        AsyncImage(url: image.imageURL) { phase in
             switch phase {
             case .success(let artwork):
-                if onAdvance == nil {
+                if onImageTap == nil {
                     artwork.resizable().scaledToFit()
                 } else {
                     Button {
-                        onAdvance?()
+                        onImageTap?()
                     } label: {
                         artwork.resizable().scaledToFit()
                     }
@@ -51,7 +44,7 @@ struct VotdImageView: View {
             }
         }
         .id(retryCount)
-        .aspectRatio(CGFloat(max(image.width, 1)) / CGFloat(max(image.height, 1)), contentMode: .fit)
+        .aspectRatio(CGFloat(image.aspectRatio), contentMode: .fit)
         .background(.quaternary)
         .compositingGroup()
         .clipShape(.rect(cornerRadius: 18))

@@ -108,7 +108,18 @@ private struct VotdImagesView: View {
             }
             artwork = (
                 bibleVersion.displayTitle(for: reference, includesVersionAbbreviation: false),
-                collection.images
+                collection.images.map { image in
+                    YouVersionImage(
+                        id: image.id,
+                        imageURL: renditionURL(for: image.imageURL),
+                        passageID: image.passageID,
+                        attribution: image.attribution,
+                        languageTag: image.languageTag,
+                        width: image.width,
+                        height: image.height,
+                        aspectRatio: image.aspectRatio
+                    )
+                }
             )
         } catch {
             guard !Task.isCancelled && selectedDate == date else {
@@ -116,6 +127,15 @@ private struct VotdImagesView: View {
             }
             errorMessage = String(localized: "Check your connection and try again.")
         }
+    }
+
+    /// Requests the API's `card` rendition for this example, preserving the URL's other query parameters.
+    /// Choose `thumb`, `card`, or `full` to suit your app's image size needs, or omit `size` for full size.
+    private func renditionURL(for imageURL: URL) -> URL {
+        var components = URLComponents(url: imageURL, resolvingAgainstBaseURL: false)
+        let queryItems = components?.percentEncodedQueryItems?.filter { $0.name != "size" } ?? []
+        components?.percentEncodedQueryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
+        return components?.url ?? imageURL
     }
 }
 
