@@ -1,14 +1,18 @@
 import SwiftUI
-import YouVersionPlatform
+import YouVersionPlatformCore
 
-struct VotdArtworkView: View {
+struct VotdImageView: View {
     let image: YouVersionImage
-    let canAdvance: Bool
-    let onAdvance: () -> Void
+    let onAdvance: (() -> Void)?
 
     @State private var retryCount = 0
 
-    /// Requests the API's `card` rendition for this stack, preserving the URL's other query parameters.
+    init(image: YouVersionImage, onAdvance: (() -> Void)? = nil) {
+        self.image = image
+        self.onAdvance = onAdvance
+    }
+
+    /// Requests the API's `card` rendition for this example, preserving the URL's other query parameters.
     /// Choose `thumb`, `card`, or `full` to suit your app's image size needs, or omit `size` for full size.
     private var renditionURL: URL? {
         var components = URLComponents(url: image.imageURL, resolvingAgainstBaseURL: false)
@@ -21,11 +25,16 @@ struct VotdArtworkView: View {
         AsyncImage(url: renditionURL) { phase in
             switch phase {
             case .success(let artwork):
-                Button(action: onAdvance) {
+                if onAdvance == nil {
                     artwork.resizable().scaledToFit()
+                } else {
+                    Button {
+                        onAdvance?()
+                    } label: {
+                        artwork.resizable().scaledToFit()
+                    }
+                    .buttonStyle(VotdImageButtonStyle())
                 }
-                .buttonStyle(VotdArtworkButtonStyle())
-                .disabled(!canAdvance)
             case .failure:
                 VStack(spacing: 12) {
                     Image(systemName: "photo")
@@ -49,7 +58,7 @@ struct VotdArtworkView: View {
     }
 }
 
-private struct VotdArtworkButtonStyle: PrimitiveButtonStyle {
+private struct VotdImageButtonStyle: PrimitiveButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {

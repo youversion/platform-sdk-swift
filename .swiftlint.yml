@@ -553,7 +553,7 @@ custom_rules:
 
   reduce_motion_guard: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Tests?\\.swift|Examples/SampleApp/VotdContainerView\\.swift" # regex that defines paths to exclude during linting. optional
+    excluded: ".*Tests?\\.swift|Examples/SampleApp/VotdImageStackView\\.swift" # regex that defines paths to exclude during linting. optional
     name: "Reduce Motion Guard" # rule name. optional.
     regex: "(withAnimation\\s*\\(\\s*\\.|\\.animation\\s*\\(\\s*\\.|\\.transition\\s*\\(\\s*\\.|Transaction\\s*\\(\\s*animation:\\s*\\.)" # matching pattern - a literal animation (dot-prefixed) passed directly to the call is a hint it's unguarded; guarded forms pass a ternary or derived property.
     capture_group: 1
