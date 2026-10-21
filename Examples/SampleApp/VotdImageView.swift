@@ -16,8 +16,8 @@ struct VotdImageView: View {
     /// Choose `thumb`, `card`, or `full` to suit your app's image size needs, or omit `size` for full size.
     private var renditionURL: URL? {
         var components = URLComponents(url: image.imageURL, resolvingAgainstBaseURL: false)
-        let queryItems = components?.queryItems?.filter { $0.name != "size" } ?? []
-        components?.queryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
+        let queryItems = components?.percentEncodedQueryItems?.filter { $0.name != "size" } ?? []
+        components?.percentEncodedQueryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
         return components?.url
     }
 
