@@ -12,6 +12,7 @@ struct VotdContainerView: View {
                     Text("VOTD Image").tag(true)
                 }
                 .pickerStyle(.segmented)
+                .accessibilityIdentifier("votd.presentation")
 
                 if showsImages {
                     VotdImagesView()
@@ -45,10 +46,9 @@ private struct VotdImagesView: View {
                     }
                 }
                 .font(.headline)
-                .accessibilityAddTraits(.isHeader)
             }
 
-            VotdDatePicker(selectedDate: $selectedDate)
+            VotdDatePickerView(selectedDate: $selectedDate)
 
             if let artwork {
                 if artwork.images.isEmpty {
@@ -57,7 +57,7 @@ private struct VotdImagesView: View {
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, minHeight: 200)
                 } else {
-                    VotdImageStack(images: artwork.images, passageTitle: artwork.title)
+                    VotdImageStackView(images: artwork.images)
                         .id(selectedDate)
                 }
             } else if let errorMessage {
@@ -112,7 +112,7 @@ private struct VotdImagesView: View {
     }
 }
 
-private struct VotdDatePicker: View {
+private struct VotdDatePickerView: View {
     @Binding var selectedDate: Date
     @State private var showsDatePicker = false
 
@@ -126,6 +126,7 @@ private struct VotdDatePicker: View {
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(.rect)
             }
+            .accessibilityIdentifier("votd.previousDay")
 
             Button {
                 showsDatePicker = true
@@ -134,8 +135,7 @@ private struct VotdDatePicker: View {
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .contentShape(.rect)
             }
-            .accessibilityLabel("Verse of the Day date")
-            .accessibilityValue(selectedDate.formatted(date: .abbreviated, time: .omitted))
+            .accessibilityIdentifier("votd.date")
             .popover(isPresented: $showsDatePicker) {
                 DatePicker("Date", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
                     .datePickerStyle(.graphical)
@@ -156,6 +156,7 @@ private struct VotdDatePicker: View {
                     .contentShape(.rect)
             }
             .disabled(Calendar.current.isDateInToday(selectedDate))
+            .accessibilityIdentifier("votd.nextDay")
         }
         .buttonStyle(.plain)
         .background(.quaternary, in: .capsule)
@@ -168,11 +169,9 @@ private struct VotdDatePicker: View {
     }
 }
 
-private struct VotdImageStack: View {
+private struct VotdImageStackView: View {
     let images: [YouVersionImage]
-    let passageTitle: String
 
-    @Environment(\.accessibilityReduceMotion) private var reducesMotion
     @GestureState private var isDragging = false
     @State private var dragOffset = CGSize.zero
     @State private var flightsByID: [String: CardFlight] = [:]
@@ -205,7 +204,7 @@ private struct VotdImageStack: View {
                         let stackDepth = flight?.isReturning == false ? 0 : min(cardDepth, Self.visibleCardCount - 1)
                         let restingAngle = (images.firstIndex { $0.id == image.id } ?? 0).isMultiple(of: 2) ? 4.0 : -5.0
                         let isOnTop = cardDepth == 0 || flight?.isReturning == false
-                        VotdArtwork(image: image, passageTitle: passageTitle, canAdvance: images.count > 1) {
+                        VotdArtworkView(image: image, canAdvance: images.count > 1) {
                             guard selectedID == image.id && dragOffset == .zero else {
                                 return
                             }
@@ -214,7 +213,7 @@ private struct VotdImageStack: View {
                             .frame(width: max(geometry.size.width - 48, 1), height: geometry.size.height - 40)
                             .scaleEffect(1 - Double(stackDepth) * 0.035)
                             .rotationEffect(.degrees(
-                                isOnTop ? (reducesMotion ? 0 : Double(offset.width / 24)) : restingAngle
+                                isOnTop ? Double(offset.width / 24) : restingAngle
                             ))
                             .offset(
                                 x: offset.width + (stackDepth == 1 ? 7 : -Double(stackDepth) * 3),
@@ -223,7 +222,7 @@ private struct VotdImageStack: View {
                             .shadow(color: .black.opacity(0.18), radius: 12, y: 8)
                             .zIndex(flight?.zIndex ?? -Double(cardDepth))
                             .allowsHitTesting(cardDepth == 0)
-                            .accessibilityHidden(cardDepth != 0)
+                            .accessibilityIdentifier("votd.image.\(cardDepth)")
                             .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
                     }
                 }
@@ -238,17 +237,17 @@ private struct VotdImageStack: View {
                         .frame(width: 6, height: 6)
                 }
             }
-            .accessibilityHidden(true)
 
             Text(images.count > 1
                  ? String(localized: "\(selectedIndex + 1) of \(images.count) · Tap or swipe for more")
                  : String(localized: "\(selectedIndex + 1) of \(images.count)"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("votd.imagePosition")
         }
         .onChange(of: isDragging) {
             if !isDragging {
-                withAnimation(reducesMotion ? nil : .spring(duration: 0.3)) {
+                withAnimation(.spring(duration: 0.3)) {
                     dragOffset = .zero
                 }
             }
@@ -293,12 +292,6 @@ private struct VotdImageStack: View {
         let currentID = selectedID
         let nextIndex = (selectedIndex + 1) % images.count
         let nextID = images[nextIndex].id
-        if reducesMotion {
-            flightsByID.removeAll()
-            selectedIndex = nextIndex
-            dragOffset = .zero
-            return
-        }
         let flightID = UUID()
         shuffleCount += 1
         var transaction = Transaction()
@@ -308,7 +301,7 @@ private struct VotdImageStack: View {
             flightsByID[currentID] = CardFlight(id: flightID, order: shuffleCount, offset: dragOffset)
             dragOffset = .zero
         }
-        withAnimation(reducesMotion ? nil : .easeOut(duration: 0.2), completionCriteria: .removed) {
+        withAnimation(.easeOut(duration: 0.2), completionCriteria: .removed) {
             selectedIndex = nextIndex
             flightsByID[currentID]?.offset = CGSize(width: direction * (width + 24), height: 12)
         } completion: {
@@ -318,7 +311,7 @@ private struct VotdImageStack: View {
             withTransaction(transaction) {
                 flightsByID[currentID]?.isReturning = true
             }
-            withAnimation(reducesMotion ? nil : .spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
+            withAnimation(.spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
                 flightsByID[currentID]?.offset = .zero
             } completion: {
                 guard flightsByID[currentID]?.id == flightID else {
@@ -336,68 +329,40 @@ private struct VotdImageStack: View {
         var isReturning = false
 
         var zIndex: Double {
-            isReturning ? -Double(order + VotdImageStack.visibleCardCount) : Double(order)
+            isReturning ? -Double(order + VotdImageStackView.visibleCardCount) : Double(order)
         }
     }
-
 }
 
-private struct VotdArtwork: View {
+private struct VotdArtworkView: View {
     let image: YouVersionImage
-    let passageTitle: String
     let canAdvance: Bool
-    let advanceImage: () -> Void
+    let onAdvance: () -> Void
 
     @State private var retryCount = 0
 
-    private var renditionURL: URL? {
-        var components = URLComponents(url: image.imageURL, resolvingAgainstBaseURL: false)
-        let queryItems = components?.queryItems?.filter { $0.name != "size" } ?? []
-        components?.queryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
-        return components?.url
-    }
-
     var body: some View {
-        AsyncImage(url: renditionURL) { phase in
-            Group {
-                switch phase {
-                case .success(let artwork):
-                    Button(action: advanceImage) {
-                        artwork.resizable().scaledToFit()
-                    }
-                    .buttonStyle(VotdArtworkButtonStyle())
-                    .disabled(!canAdvance)
-                    .accessibilityLabel("Verse artwork for \(passageTitle)")
-                case .failure:
-                    VStack(spacing: 12) {
-                        Image(systemName: "photo")
-                            .font(.largeTitle)
-                            .accessibilityHidden(true)
-                        Text("Image couldn't load")
-                            .font(.callout)
-                        Button("Retry image") { retryCount += 1 }
-                            .buttonStyle(.bordered)
-                    }
+        AsyncImage(url: image.imageURL) { phase in
+            switch phase {
+            case .success(let artwork):
+                Button(action: onAdvance) {
+                    artwork.resizable().scaledToFit()
+                }
+                .buttonStyle(VotdArtworkButtonStyle())
+                .disabled(!canAdvance)
+            case .failure:
+                VStack(spacing: 12) {
+                    Image(systemName: "photo")
+                        .font(.largeTitle)
+                    Text("Image couldn't load")
+                        .font(.callout)
+                    Button("Retry image") { retryCount += 1 }
+                        .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            default:
+                ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                default:
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .accessibilityLabel("Loading artwork")
-                }
-            }
-            .accessibilityRepresentation {
-                VStack {
-                    Text("Verse artwork for \(passageTitle)")
-                    if phase.error != nil {
-                        Text("Image couldn't load")
-                        Button("Retry image") { retryCount += 1 }
-                    } else if phase.image == nil {
-                        Text("Loading artwork")
-                    }
-                    if canAdvance {
-                        Button("Next image", action: advanceImage)
-                    }
-                }
             }
         }
         .id(retryCount)
@@ -415,11 +380,6 @@ private struct VotdArtworkButtonStyle: PrimitiveButtonStyle {
         configuration.label
             .contentShape(.rect)
             .onTapGesture {
-                if isEnabled {
-                    configuration.trigger()
-                }
-            }
-            .accessibilityAction {
                 if isEnabled {
                     configuration.trigger()
                 }
