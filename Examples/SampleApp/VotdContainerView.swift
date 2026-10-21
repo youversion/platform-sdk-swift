@@ -457,7 +457,6 @@ private struct VotdArtwork: View {
                     .buttonStyle(VotdArtworkButtonStyle())
                     .disabled(!canAdvance)
                     .accessibilityLabel("Verse artwork for \(passageTitle)")
-                    .accessibilityHint(canAdvance ? "Tap or swipe for more images" : "")
                 case .failure:
                     VStack(spacing: 12) {
                         Image(systemName: "photo")
