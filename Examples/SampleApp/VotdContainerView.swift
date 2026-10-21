@@ -8,8 +8,8 @@ struct VotdContainerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 Picker("Verse of the Day presentation", selection: $showsImages) {
-                    Text("VOTD Card").tag(false)
-                    Text("VOTD Image").tag(true)
+                    Text("VotdView").tag(false)
+                    Text("Verse Images").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .accessibilityIdentifier("votd.presentation")
@@ -52,7 +52,9 @@ private struct VotdImagesView: View {
 
             if let artwork {
                 if let firstImage = artwork.images.first {
-                    if false {
+                    // Choose for your app whether you want to display a single image like VotdImageView does,
+                    // or if you want to show all the available images like VotdImageStackView does.
+                    if true {
                         VotdImageStackView(images: artwork.images)
                             .id(selectedDate)
                     } else {
