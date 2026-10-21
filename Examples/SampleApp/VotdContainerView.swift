@@ -2,18 +2,7 @@ import SwiftUI
 import YouVersionPlatform
 
 struct VotdContainerView: View {
-    @State private var selectedDate = Date()
     @State private var showsImages = false
-    @State private var reference: BibleReference?
-    @State private var passageID = ""
-    @State private var title = ""
-    @State private var errorMessage: String?
-    @State private var retryCount = 0
-    @ScaledMetric(relativeTo: .title2) private var verseFontSize = 24
-
-    private var request: VerseRequest {
-        VerseRequest(date: selectedDate, retryCount: retryCount)
-    }
 
     var body: some View {
         ScrollView {
@@ -24,87 +13,102 @@ struct VotdContainerView: View {
                 }
                 .pickerStyle(.segmented)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("VERSE OF THE DAY")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                    Text(title.isEmpty ? "Verse of the Day" : title)
-                        .font(.headline)
-                        .accessibilityAddTraits(.isHeader)
-                }
-
-                VotdDatePicker(selectedDate: $selectedDate)
-
-                if let reference {
-                    if showsImages {
-                        VotdImageGallery(passageID: passageID, passageTitle: title)
-                            .id(passageID)
-                    } else {
-                        BibleTextView(
-                            reference,
-                            textOptions: BibleTextOptions(
-                                fontSize: verseFontSize, renderHeadlines: false, renderVerseNumbers: false
-                            )
-                        )
-                        .id(passageID)
-                        .padding(24)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.quaternary, in: .rect(cornerRadius: 20))
-                        .textSelection(.enabled)
-                    }
-                } else if let errorMessage {
-                    ContentUnavailableView {
-                        Label("Couldn't load verse", systemImage: "wifi.exclamationmark")
-                    } description: {
-                        Text(errorMessage)
-                    } actions: {
-                        Button("Try again") { retryCount += 1 }
-                    }
+                if showsImages {
+                    VotdImagesView()
                 } else {
-                    ProgressView("Loading verse…")
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    VotdView()
                 }
             }
             .frame(maxWidth: 520)
             .padding(24)
             .frame(maxWidth: .infinity)
         }
-        .task(id: request) {
-            await loadVerse(for: request)
+    }
+}
+
+private struct VotdImagesView: View {
+    @State private var selectedDate = Date()
+    @State private var artwork: (title: String, images: [YouVersionImage])?
+    @State private var errorMessage: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("VERSE OF THE DAY")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Group {
+                    if let artwork {
+                        Text(artwork.title)
+                    } else {
+                        Text("Verse of the Day")
+                    }
+                }
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            }
+
+            VotdDatePicker(selectedDate: $selectedDate)
+
+            if let artwork {
+                if artwork.images.isEmpty {
+                    Text("(No images are available)")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 200)
+                } else {
+                    VotdImageStack(images: artwork.images, passageTitle: artwork.title)
+                        .id(selectedDate)
+                }
+            } else if let errorMessage {
+                ContentUnavailableView {
+                    Label("Couldn't load images", systemImage: "wifi.exclamationmark")
+                } description: {
+                    Text(errorMessage)
+                } actions: {
+                    Button("Try again") {
+                        Task { await loadImages(for: selectedDate) }
+                    }
+                }
+            } else {
+                ProgressView("Loading images…")
+                    .frame(maxWidth: .infinity, minHeight: 200)
+            }
+        }
+        .task(id: selectedDate) {
+            await loadImages(for: selectedDate)
         }
     }
 
-    private func loadVerse(for requested: VerseRequest) async {
-        reference = nil
-        passageID = ""
-        title = ""
+    private func loadImages(for date: Date) async {
+        artwork = nil
         errorMessage = nil
         do {
-            let day = Calendar.current.ordinality(of: .day, in: .year, for: requested.date) ?? 1
+            let day = Calendar.current.ordinality(of: .day, in: .year, for: date) ?? 1
             async let verse = YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: day)
-            async let version = BibleVersionRepository.shared.version(withId: 111)
+            async let version = BibleVersionRepository.shared.version(withId: 3034)
             let (verseData, bibleVersion) = try await (verse, version)
-            try Task.checkCancellation()
-            guard request == requested else {
-                return
-            }
-            guard let bibleReference = bibleVersion.reference(with: verseData.passageId) else {
+            guard let reference = bibleVersion.reference(with: verseData.passageId) else {
                 throw YouVersionAPIError.invalidResponse
             }
-            title = bibleVersion.displayTitle(for: bibleReference, includesVersionAbbreviation: false)
-            passageID = verseData.passageId
-            reference = bibleReference
+            let collection = try await YouVersionAPI.Images.images(
+                passageID: verseData.passageId,
+                languageRanges: [Locale.current.language.languageCode?.identifier ?? "en"]
+            )
+            try Task.checkCancellation()
+            guard selectedDate == date else {
+                return
+            }
+            artwork = (
+                bibleVersion.displayTitle(for: reference, includesVersionAbbreviation: false),
+                collection.images
+            )
         } catch {
-            guard !Task.isCancelled && request == requested else {
+            guard !Task.isCancelled && selectedDate == date else {
                 return
             }
             errorMessage = String(localized: "Check your connection and try again.")
         }
-    }
-
-    private struct VerseRequest: Equatable {
-        let date: Date
-        let retryCount: Int
     }
 }
 
@@ -164,80 +168,8 @@ private struct VotdDatePicker: View {
     }
 }
 
-private struct VotdImageGallery: View {
-    let passageID: String
-    let passageTitle: String
-
-    @State private var images: [YouVersionImage] = []
-    @State private var selectedID = ""
-    @State private var isLoading = true
-    @State private var errorMessage: String?
-    @State private var retryCount = 0
-
-    private var selectedIndex: Int {
-        images.firstIndex { $0.id == selectedID } ?? 0
-    }
-
-    var body: some View {
-        VStack(spacing: 12) {
-            if !images.isEmpty {
-                VotdImageStack(images: images, selectedID: $selectedID, passageTitle: passageTitle)
-
-                Text(images.count > 1
-                     ? String(localized: "\(selectedIndex + 1) of \(images.count) · Tap or swipe for more")
-                     : String(localized: "\(selectedIndex + 1) of \(images.count)"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            if isLoading {
-                ProgressView("Loading images…")
-                    .frame(maxWidth: .infinity, minHeight: 200)
-            } else if let errorMessage {
-                ContentUnavailableView {
-                    Label("Couldn't load images", systemImage: "wifi.exclamationmark")
-                } description: {
-                    Text(errorMessage)
-                } actions: {
-                    Button("Try again") { retryCount += 1 }
-                }
-            } else if images.isEmpty {
-                Text("(No images are available)")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 200)
-            }
-        }
-        .task(id: retryCount) {
-            await loadImages()
-        }
-    }
-
-    private func loadImages() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            let collection = try await YouVersionAPI.Images.images(
-                passageID: passageID,
-                languageRanges: [Locale.current.language.languageCode?.identifier ?? "en"]
-            )
-            try Task.checkCancellation()
-            images = collection.images
-            selectedID = images.first?.id ?? ""
-            isLoading = false
-        } catch {
-            guard !Task.isCancelled else {
-                return
-            }
-            errorMessage = String(localized: "Check your connection and try again.")
-            isLoading = false
-        }
-    }
-}
-
 private struct VotdImageStack: View {
     let images: [YouVersionImage]
-    @Binding var selectedID: String
     let passageTitle: String
 
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
@@ -245,11 +177,12 @@ private struct VotdImageStack: View {
     @State private var dragOffset = CGSize.zero
     @State private var flightsByID: [String: CardFlight] = [:]
     @State private var shuffleCount = 0
+    @State private var selectedIndex = 0
 
     private static let visibleCardCount = 3
 
-    private var selectedIndex: Int {
-        images.firstIndex { $0.id == selectedID } ?? 0
+    private var selectedID: String {
+        images[selectedIndex].id
     }
 
     private var visibleImages: [YouVersionImage] {
@@ -306,6 +239,12 @@ private struct VotdImageStack: View {
                 }
             }
             .accessibilityHidden(true)
+
+            Text(images.count > 1
+                 ? String(localized: "\(selectedIndex + 1) of \(images.count) · Tap or swipe for more")
+                 : String(localized: "\(selectedIndex + 1) of \(images.count)"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .onChange(of: isDragging) {
             if !isDragging {
@@ -351,11 +290,12 @@ private struct VotdImageStack: View {
         guard images.count > 1 else {
             return
         }
-        let currentID = images[selectedIndex].id
-        let nextID = images[(selectedIndex + 1) % images.count].id
+        let currentID = selectedID
+        let nextIndex = (selectedIndex + 1) % images.count
+        let nextID = images[nextIndex].id
         if reducesMotion {
             flightsByID.removeAll()
-            selectedID = nextID
+            selectedIndex = nextIndex
             dragOffset = .zero
             return
         }
@@ -369,7 +309,7 @@ private struct VotdImageStack: View {
             dragOffset = .zero
         }
         withAnimation(reducesMotion ? nil : .easeOut(duration: 0.2), completionCriteria: .removed) {
-            selectedID = nextID
+            selectedIndex = nextIndex
             flightsByID[currentID]?.offset = CGSize(width: direction * (width + 24), height: 12)
         } completion: {
             guard flightsByID[currentID]?.id == flightID else {
