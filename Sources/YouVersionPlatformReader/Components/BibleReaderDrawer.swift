@@ -67,15 +67,9 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        let paletteRGBs = Set(highlightHexes.compactMap(Color.rgbValue(fromHex:)))
-        let hexesToRemove = highlightHexes.filter { viewModel.isColorPresentOnAnySelectedVerses(Color(hex: $0)) }
-            + viewModel.highlightHexesOnSelectedVerses
-                .filter { hex in
-                    guard let rgb = Color.rgbValue(fromHex: hex) else {
-                        return false
-                    }
-                    return !paletteRGBs.contains(rgb)
-                }
+        let hexesToRemove = viewModel.highlightHexesOnSelectedVerses
+            .filter { Color.rgbValue(fromHex: $0) != nil }
+            .sorted { (highlightHexes.firstIndex(of: $0) ?? .max, $0) < (highlightHexes.firstIndex(of: $1) ?? .max, $1) }
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
         return HStack {
             ForEach(hexesToRemove, id: \.self) { hex in
