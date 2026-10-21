@@ -341,8 +341,17 @@ private struct VotdArtworkView: View {
 
     @State private var retryCount = 0
 
+    /// Requests the API's `card` rendition for this stack, preserving the URL's other query parameters.
+    /// Choose `thumb`, `card`, or `full` to suit your app's image size needs, or omit `size` for full size.
+    private var renditionURL: URL? {
+        var components = URLComponents(url: image.imageURL, resolvingAgainstBaseURL: false)
+        let queryItems = components?.queryItems?.filter { $0.name != "size" } ?? []
+        components?.queryItems = queryItems + [URLQueryItem(name: "size", value: "card")]
+        return components?.url
+    }
+
     var body: some View {
-        AsyncImage(url: image.imageURL) { phase in
+        AsyncImage(url: renditionURL) { phase in
             switch phase {
             case .success(let artwork):
                 Button(action: onAdvance) {
