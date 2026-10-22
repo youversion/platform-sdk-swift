@@ -15,7 +15,7 @@ struct VotdImageView: View {
     }
 
     var body: some View {
-        AsyncImage(url: image.imageURL) { phase in
+        AsyncImage(url: image.url) { phase in
             switch phase {
             case .success(let artwork):
                 if onImageTap == nil {

@@ -399,7 +399,7 @@ let page = try await YouVersionAPI.Images.images(
     languageRanges: ["en"]
 )
 if let image = page.images.first {
-    print(image.imageURL, image.attribution)
+    print(image.url, image.attribution)
 }
 ```
 
@@ -411,7 +411,7 @@ let results = try await YouVersionAPI.Search.unified(
 )
 if let hit = results.images.first {
     let image = try await YouVersionAPI.Images.image(id: hit.id)
-    print(image.imageURL, image.attribution)
+    print(image.url, image.attribution)
 }
 ```
 

@@ -38,7 +38,7 @@ struct ImagesAPITests {
         #expect(result.nextPageToken == "next+opaque/=")
         let image = try #require(result.images.first)
         #expect(image.id == "opaque.image-id")
-        #expect(image.imageURL.absoluteString == "https://cdn.youversion.com/art.jpg?app_key=example&other=1")
+        #expect(image.url.absoluteString == "https://cdn.youversion.com/art.jpg?app_key=example&other=1")
         #expect(image.passageID == "1CO.13.4-7")
         #expect(image.attribution == "© YouVersion")
         #expect(image.languageTag == "en-US")

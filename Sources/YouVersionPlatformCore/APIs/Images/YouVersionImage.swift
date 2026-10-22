@@ -5,7 +5,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     /// An opaque identifier, set by the YouVersion server.
     public let id: String
     /// The image URL, including any query parameters required to access it.
-    public let imageURL: URL
+    public let url: URL
     /// The verse or verse range to which the image corresponds (e.g. JHN.3.16).
     public let passageID: String
     /// The credit line which may be displayed with the image.
@@ -23,7 +23,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     ///
     /// - Parameters:
     ///   - id: An opaque image identifier.
-    ///   - imageURL: The image URL, including any query parameters required to access it.
+    ///   - url: The image URL, including any query parameters required to access it.
     ///   - passageID: The verse or verse range to which the image corresponds (e.g. JHN.3.16).
     ///   - attribution: The credit line which can be displayed with the image.
     ///   - languageTag: The BCP 47 language tag of the image's text.
@@ -32,7 +32,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
     ///   - aspectRatio: The native width divided by height, as returned by the API.
     public init(
         id: String,
-        imageURL: URL,
+        url: URL,
         passageID: String,
         attribution: String,
         languageTag: String,
@@ -41,7 +41,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
         aspectRatio: Double
     ) {
         self.id = id
-        self.imageURL = imageURL
+        self.url = url
         self.passageID = passageID
         self.attribution = attribution
         self.languageTag = languageTag
@@ -52,7 +52,7 @@ public struct YouVersionImage: Codable, Equatable, Identifiable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case id, attribution, width, height
-        case imageURL = "image_url"
+        case url = "image_url"
         case passageID = "passage_id"
         case languageTag = "language_tag"
         case aspectRatio = "aspect_ratio"

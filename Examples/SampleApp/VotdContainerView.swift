@@ -111,7 +111,7 @@ private struct VotdImagesView: View {
                 collection.images.map { image in
                     YouVersionImage(
                         id: image.id,
-                        imageURL: renditionURL(for: image.imageURL),
+                        url: renditionURL(for: image.url),
                         passageID: image.passageID,
                         attribution: image.attribution,
                         languageTag: image.languageTag,
