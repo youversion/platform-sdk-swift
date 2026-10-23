@@ -443,6 +443,13 @@ public enum BibleVersionRendering {
                 }
             }
         }
+        if node.classes.contains("b") && stateUp.rendering &&
+            node.children.allSatisfy({ $0.type == .text && $0.text.allSatisfy(\.isWhitespace) }) {
+            stateUp.clearText()
+            let spacerText = BibleAttributedString("\u{00a0}")
+            spacerText.setFont(.font100em, from: stateIn.fonts)
+            stateUp.text = spacerText
+        }
         if !stateUp.isTextEmpty {
             ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
             stateUp.clearText()

@@ -30,6 +30,28 @@ import Testing
         return try #require(blocks)
     }
 
+    @Test func emptyStanzaBreaksProduceUnlinkedBlankLines() async throws {
+        let blocks = try await renderBlocks(
+            html: "<div><div class=\"b\"></div><div class=\"b\"> \n </div></div>",
+            reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        )
+        #expect(blocks.count == 2)
+        for block in blocks {
+            #expect(block.text.characters == "\u{00a0}")
+            #expect(block.text.asAttributedString.runs.allSatisfy { $0.link == nil })
+            #expect(block.text.asAttributedString.runs.allSatisfy { $0.bibleReference == nil })
+        }
+    }
+
+    @Test func stanzaBreakPreservesTextAndRespectsVerseRange() async throws {
+        let html = "<div><div class=\"b\"></div><div class=\"b\"><span class=\"yv-v\" v=\"1\"></span>First verse.</div><div class=\"b\"></div><div class=\"p\"><span class=\"yv-v\" v=\"2\"></span>Second verse.</div><div class=\"b\"></div></div>"
+        let chapterBlocks = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1))
+        #expect(chapterBlocks.contains { $0.text.characters == "First verse." })
+        let selectedBlocks = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 2, verseEnd: 2))
+        #expect(!selectedBlocks.contains { $0.text.characters.contains("First verse.") })
+        #expect(selectedBlocks.first?.text.characters == "Second verse.")
+    }
+
     private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
         let html = """
         <div>
@@ -608,6 +630,18 @@ import Testing
     }
 
     @Test func testPhaseThreeBlockStyles() async throws {
+        let fourthLevelTitle = try await singleStyledBlock(blockClass: "imt4")
+        #expect(fourthLevelTitle.text.characters == "Styled text")
+        #expect(hasHeaderContaining([fourthLevelTitle], text: "Styled text"))
+        #expect(fourthLevelTitle.alignment == .center)
+        #expect(fourthLevelTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100emItalic))
+        let thirdLevelTitle = try await singleStyledBlock(blockClass: "imt3")
+        #expect(fourthLevelTitle.marginTop == thirdLevelTitle.marginTop)
+        #expect(fourthLevelTitle.marginBottom == thirdLevelTitle.marginBottom)
+        let thirdLevelOutline = try await singleStyledBlock(blockClass: "io3")
+        let fourthLevelOutline = try await singleStyledBlock(blockClass: "io4")
+        #expect(fourthLevelOutline.headIndent == thirdLevelOutline.headIndent + 1)
+
         let introductionTitle = try await singleStyledBlock(blockClass: "imt3")
         #expect(introductionTitle.text.characters == "Styled text")
         #expect(hasHeaderContaining([introductionTitle], text: "Styled text"))
