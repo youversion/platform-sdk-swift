@@ -443,13 +443,12 @@ public enum BibleVersionRendering {
                 }
             }
         }
-        if node.classes.contains("b"), stateUp.rendering,
-           node.children.allSatisfy({ $0.type == .text && $0.text.allSatisfy(\.isWhitespace) }) {
-            // Preserve an empty stanza break as one natural line, without a verse link.
+        if node.classes.contains("b") && stateUp.rendering &&
+            node.children.allSatisfy({ $0.type == .text && $0.text.allSatisfy(\.isWhitespace) }) {
             stateUp.clearText()
-            let spacer = BibleAttributedString("\u{00a0}")
-            spacer.setFont(.font100em, from: stateIn.fonts)
-            stateUp.text = spacer
+            let spacerText = BibleAttributedString("\u{00a0}")
+            spacerText.setFont(.font100em, from: stateIn.fonts)
+            stateUp.text = spacerText
         }
         if !stateUp.isTextEmpty {
             ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))

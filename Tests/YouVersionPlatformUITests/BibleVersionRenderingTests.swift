@@ -45,11 +45,11 @@ import Testing
 
     @Test func stanzaBreakPreservesTextAndRespectsVerseRange() async throws {
         let html = "<div><div class=\"b\"></div><div class=\"b\"><span class=\"yv-v\" v=\"1\"></span>First verse.</div><div class=\"b\"></div><div class=\"p\"><span class=\"yv-v\" v=\"2\"></span>Second verse.</div><div class=\"b\"></div></div>"
-        let whole = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1))
-        #expect(whole.contains { $0.text.characters == "First verse." })
-        let selected = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 2, verseEnd: 2))
-        #expect(!selected.contains { $0.text.characters.contains("First verse.") })
-        #expect(selected.first?.text.characters == "Second verse.")
+        let chapterBlocks = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1))
+        #expect(chapterBlocks.contains { $0.text.characters == "First verse." })
+        let selectedBlocks = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 2, verseEnd: 2))
+        #expect(!selectedBlocks.contains { $0.text.characters.contains("First verse.") })
+        #expect(selectedBlocks.first?.text.characters == "Second verse.")
     }
 
     private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
