@@ -418,7 +418,7 @@ public extension YouVersionAPI.Search {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1-beta/search-unified"
+        components.path = "/v1/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))

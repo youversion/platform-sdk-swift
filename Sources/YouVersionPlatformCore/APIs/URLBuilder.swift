@@ -17,7 +17,7 @@ public enum URLBuilder {
         pageToken: String?
     ) -> URL? {
         var components = baseURLComponents
-        components.path = "/v1-beta/images"
+        components.path = "/v1/images"
         var queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
         if let passageID {
             queryItems.append(URLQueryItem(name: "passage_id", value: passageID))
@@ -40,7 +40,7 @@ public enum URLBuilder {
         guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
             return nil
         }
-        components.percentEncodedPath = "/v1-beta/images/" + encodedID
+        components.percentEncodedPath = "/v1/images/" + encodedID
         return components.url
     }
 

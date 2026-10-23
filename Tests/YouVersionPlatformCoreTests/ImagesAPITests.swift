@@ -22,7 +22,7 @@ struct ImagesAPITests {
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.httpMethod == "GET")
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer images-tests")
-            #expect(components.path == "/v1-beta/images")
+            #expect(components.path == "/v1/images")
             #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == ["en_US", "es", "*"])
             #expect(components.queryItems?.contains(URLQueryItem(name: "passage_id", value: "1CO.13.4-7")) == true)
             #expect(components.queryItems?.contains(URLQueryItem(name: "page_size", value: "99")) == true)
@@ -68,7 +68,7 @@ struct ImagesAPITests {
         let json = Data(imageJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-            let prefix = "/v1-beta/images/"
+            let prefix = "/v1/images/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
             #expect(!segment.contains("/"))
