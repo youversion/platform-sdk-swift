@@ -630,6 +630,18 @@ import Testing
     }
 
     @Test func testPhaseThreeBlockStyles() async throws {
+        let fourthLevelTitle = try await singleStyledBlock(blockClass: "imt4")
+        #expect(fourthLevelTitle.text.characters == "Styled text")
+        #expect(hasHeaderContaining([fourthLevelTitle], text: "Styled text"))
+        #expect(fourthLevelTitle.alignment == .center)
+        #expect(fourthLevelTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100emItalic))
+        let thirdLevelTitle = try await singleStyledBlock(blockClass: "imt3")
+        #expect(fourthLevelTitle.marginTop == thirdLevelTitle.marginTop)
+        #expect(fourthLevelTitle.marginBottom == thirdLevelTitle.marginBottom)
+        let thirdLevelOutline = try await singleStyledBlock(blockClass: "io3")
+        let fourthLevelOutline = try await singleStyledBlock(blockClass: "io4")
+        #expect(fourthLevelOutline.headIndent == thirdLevelOutline.headIndent + 1)
+
         let introductionTitle = try await singleStyledBlock(blockClass: "imt3")
         #expect(introductionTitle.text.characters == "Styled text")
         #expect(hasHeaderContaining([introductionTitle], text: "Styled text"))

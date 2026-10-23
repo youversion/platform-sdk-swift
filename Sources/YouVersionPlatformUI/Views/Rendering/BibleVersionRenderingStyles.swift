@@ -80,6 +80,13 @@ final class BibleVersionRenderingStyles {
                 stateDown.marginTop = 0.15 * fontSize
                 stateDown.marginBottom = 0.15 * fontSize
 
+            case "imt4":
+                stateDown.textCategory = .header
+                stateDown.currentFont = .font100emItalic
+                stateDown.alignment = .center
+                stateDown.marginTop = 0.15 * fontSize
+                stateDown.marginBottom = 0.15 * fontSize
+
             case "imte", "imte1":
                 stateDown.textCategory = .header
                 stateDown.currentFont = .font100em700
@@ -102,6 +109,9 @@ final class BibleVersionRenderingStyles {
 
             case "io3":
                 stateUp.headIndent = 4
+
+            case "io4":
+                stateUp.headIndent = 5
 
             case "ior":
                 break
@@ -378,17 +388,6 @@ final class BibleVersionRenderingStyles {
                 if !stateIn.renderHeadlines {
                     stateUp.rendering = false
                 }
-
-            // The tags below here are not yet adjusted for our new
-            // typography standards; they may or may not reflect the new way.
-            case "io4":
-                stateUp.headIndent = 4
-
-            case "imt4":
-                stateDown.textCategory = .header
-                stateDown.currentFont = .font100em500
-                stateDown.alignment = .center
-                stateDown.marginTop = fontSize / 3
 
             default:
                 BibleVersionRendering.assertionFailed("interpretBlockClasses: unexpected class: \(c)")
