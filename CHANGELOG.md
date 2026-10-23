@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.6.0](https://github.com/youversion/platform-sdk-swift/compare/5.5.0...5.6.0) (2026-10-23)
+
+
+### Features
+
+* add search APIs and UI ([36de8cd](https://github.com/youversion/platform-sdk-swift/commit/36de8cd2784fd0b423cf259201a3d56468f8856e))
+* Add verse image APIs and sample code ([06f13ec](https://github.com/youversion/platform-sdk-swift/commit/06f13ec5ca985962ee70c1fcd911ad1502253844))
+* **ci:** gate public API additions behind human signoff ([#235](https://github.com/youversion/platform-sdk-swift/issues/235)) ([676cfa3](https://github.com/youversion/platform-sdk-swift/commit/676cfa34c9a81a2ce77956b81ac87efcf8afa6bf))
+* **reader:** add chapterHeader view-specific modifier BL-1910 ([#169](https://github.com/youversion/platform-sdk-swift/issues/169)) ([c371e0f](https://github.com/youversion/platform-sdk-swift/commit/c371e0f7b51a0bbc16292cb7c9e3a6fffbd6d844))
+* **reader:** draw adjacent highlights as one gapless block (YPE-6252) ([c95f70e](https://github.com/youversion/platform-sdk-swift/commit/c95f70ee53b41396f883033c05e55fa1ebeb1322))
+* **reader:** improved navigation and tab bars ([56c2d8a](https://github.com/youversion/platform-sdk-swift/commit/56c2d8a170d1223fea9c1337a11bc6527f12635e))
+* **reader:** match React SDK highlight colors (YPE-6251) ([be25cca](https://github.com/youversion/platform-sdk-swift/commit/be25cca06f4b465d289067c3cd0e0a49fb93224b))
+* **reader:** recent and trending searches in the search sheet ([84073f6](https://github.com/youversion/platform-sdk-swift/commit/84073f65282791c5202ebc202dadf24c73e0b9e8))
+* support 30 new typography and layout classes ([7b9d042](https://github.com/youversion/platform-sdk-swift/commit/7b9d042b0f661ca3fc83d0b3fb162c6e975f5802))
+
+
+### Bug Fixes
+
+* adjust spacing on the lineSpacing button ([a3eb7dd](https://github.com/youversion/platform-sdk-swift/commit/a3eb7ddfbdc93a06db37f49b7582e702b99c642e))
+* **ci:** exclude package declarations from API additions (YPE-6236) ([94083a5](https://github.com/youversion/platform-sdk-swift/commit/94083a587a78a11e66b45eb859f1868c560f8efd))
+* **ci:** spell out acknowledgment rules in API signoff comment ([#256](https://github.com/youversion/platform-sdk-swift/issues/256)) ([bee1d39](https://github.com/youversion/platform-sdk-swift/commit/bee1d392ba080bc8c1ce8d70c01fe6439dd5a680))
+* disable the font size buttons when appropriate ([227732c](https://github.com/youversion/platform-sdk-swift/commit/227732cc58de2ecf9538d316844d4a957a846233))
+* highlight color should extend behind the footnote icons ([efd0346](https://github.com/youversion/platform-sdk-swift/commit/efd0346f1ad6be15732f77857fdd936cd5869674))
+* **i18n:** sync swift localization ([906dd9f](https://github.com/youversion/platform-sdk-swift/commit/906dd9fe8ae1143316cf1bdcc0a8ab9f77e2773a))
+* **i18n:** sync swift localization from platform-localization ([545e393](https://github.com/youversion/platform-sdk-swift/commit/545e393b88b7111edebc2b5a78bb785d45a48c71))
+* **i18n:** sync swift localization from platform-localization ([8a0e7a0](https://github.com/youversion/platform-sdk-swift/commit/8a0e7a00ec4fe160b0c1ec118c161784010d4545))
+* **i18n:** sync swift localization from platform-localization ([6312655](https://github.com/youversion/platform-sdk-swift/commit/6312655ddcf4dd3077412ccf6f6e9df63e36a4f3))
+* **i18n:** sync swift localization from platform-localization ([2120189](https://github.com/youversion/platform-sdk-swift/commit/21201890ec2477698393721de247d1263fafaea2))
+* **i18n:** sync swift localization from platform-localization ([#252](https://github.com/youversion/platform-sdk-swift/issues/252)) ([d9bb097](https://github.com/youversion/platform-sdk-swift/commit/d9bb0976d938df37c6d004edebf4ab5f56e7cf39))
+* **i18n:** sync swift localization from platform-localization ([#255](https://github.com/youversion/platform-sdk-swift/issues/255)) ([79c5d6a](https://github.com/youversion/platform-sdk-swift/commit/79c5d6a071be181d060e71e4cfeab9606816fd3d))
+* **i18n:** sync swift localization from platform-localization ([#259](https://github.com/youversion/platform-sdk-swift/issues/259)) ([e453670](https://github.com/youversion/platform-sdk-swift/commit/e453670bb7a12356d4501ac92f134a79a53b889f))
+* **i18n:** sync swift localization from platform-localization ([#260](https://github.com/youversion/platform-sdk-swift/issues/260)) ([4e040f4](https://github.com/youversion/platform-sdk-swift/commit/4e040f45edfd9252e248f3ecbffcc384c5abee0b))
+* **i18n:** sync swift localization from platform-localization ([#270](https://github.com/youversion/platform-sdk-swift/issues/270)) ([a04af85](https://github.com/youversion/platform-sdk-swift/commit/a04af85dfcdaa9748765865cd4d35bd02e44354b))
+* **i18n:** sync swift localization from platform-localization ([#279](https://github.com/youversion/platform-sdk-swift/issues/279)) ([12733f4](https://github.com/youversion/platform-sdk-swift/commit/12733f476a4b0768c3d5fd4885b23f03d970e9f6))
+* **reader:** use custom search icons consistently ([ad174cf](https://github.com/youversion/platform-sdk-swift/commit/ad174cfa1bd2c11a52a746c7c6f3149a0ccc82fc))
+* support Swift Build module paths in API stability checks ([f47814a](https://github.com/youversion/platform-sdk-swift/commit/f47814ad3efc22b1ae453258f70b1894a03d9beb))
+* **ui:** align default poetry indentation ([242f4fc](https://github.com/youversion/platform-sdk-swift/commit/242f4fccaddb10f92472aee98fd5bb3967c5aa22))
+* **ui:** constrain Bible Card width on wide screens ([7bf7e33](https://github.com/youversion/platform-sdk-swift/commit/7bf7e33a0e3577d36b4370f44d1d2eea0f58dccb))
+* **ui:** correct Hebrew acrostic heading direction in some versions ([29784da](https://github.com/youversion/platform-sdk-swift/commit/29784da8106006b362f5503e76183590dcb71aae))
+* **ui:** normalize tiny-font line spacing ([31d1161](https://github.com/youversion/platform-sdk-swift/commit/31d11610123dd51ad9b1be0b552c7e16141c5460))
+* **versions:** improve search empty state ([9e96667](https://github.com/youversion/platform-sdk-swift/commit/9e96667cb5505a61d26e63fa84b114de358c390b))
+* **versions:** request permitted versions once per view model ([#248](https://github.com/youversion/platform-sdk-swift/issues/248)) ([f072807](https://github.com/youversion/platform-sdk-swift/commit/f07280734ea10a3a7f4c8cdba7bef549d3b8c978))
+
 ## [5.5.0](https://github.com/youversion/platform-sdk-swift/compare/5.4.0...5.5.0) (2026-08-13)
 
 

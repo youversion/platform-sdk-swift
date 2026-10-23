@@ -21,6 +21,7 @@ A Swift SDK for integrating with the YouVersion Platform, to display Bible conte
   - [Implementing Sign In](#implementing-sign-in)
   - [Fetching User Data](#fetching-user-data)
   - [Displaying Verse of the Day](#displaying-verse-of-the-day)
+  - [Finding Verse Images](#finding-verse-images)
 - [Sample App](#sample-app)
 - [For Different Use Cases](#-for-different-use-cases)
 - [Documentation](#documentation)
@@ -386,6 +387,32 @@ Or fetch VOTD data for custom UI:
 let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: Date())!
 let votd = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: dayOfYear)
 // Use votd.reference with BibleTextView
+```
+
+### Finding Verse Images
+
+Find artwork for a passage and language. Results include the image URL and attribution:
+
+```swift
+let page = try await YouVersionAPI.Images.images(
+    passageID: "JHN.3.16",
+    languageRanges: ["en"]
+)
+if let image = page.images.first {
+    print(image.url, image.attribution)
+}
+```
+
+Search for artwork by keyword and resolve an image hit to its full metadata:
+
+```swift
+let results = try await YouVersionAPI.Search.unified(
+    matching: "love", bibleID: 111, languageRanges: ["en"], fields: ["images"]
+)
+if let hit = results.images.first {
+    let image = try await YouVersionAPI.Images.image(id: hit.id)
+    print(image.url, image.attribution)
+}
 ```
 
 ## Sample App

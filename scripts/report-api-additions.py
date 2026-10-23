@@ -101,6 +101,11 @@ def collect_declarations(
     if not isinstance(node, dict):
         return declarations
 
+    # The digester marks all access below public, including package, isInternal.
+    # Prune descendants too: public members of a package type are not public API.
+    if node.get("isInternal", False):
+        return declarations
+
     kind = node.get("kind")
     node_module = node.get("moduleName", module)
     if kind in DECLARATION_KINDS and node.get("usr") and node_module == module:
