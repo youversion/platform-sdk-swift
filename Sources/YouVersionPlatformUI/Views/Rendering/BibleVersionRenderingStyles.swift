@@ -16,6 +16,9 @@ final class BibleVersionRenderingStyles {
         for c in classes {
             switch c {
                 
+            case "b":
+                break
+
             case "cd":
                 stateDown.currentFont = classes.contains("yv-h") ? .font100em500Italic : .font100emItalic
 
@@ -386,9 +389,6 @@ final class BibleVersionRenderingStyles {
                 stateDown.currentFont = .font100em500
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize / 3
-
-            case "b":
-                break
 
             default:
                 BibleVersionRendering.assertionFailed("interpretBlockClasses: unexpected class: \(c)")

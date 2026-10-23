@@ -30,6 +30,28 @@ import Testing
         return try #require(blocks)
     }
 
+    @Test func emptyStanzaBreaksProduceUnlinkedBlankLines() async throws {
+        let blocks = try await renderBlocks(
+            html: "<div><div class=\"b\"></div><div class=\"b\"> \n </div></div>",
+            reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        )
+        #expect(blocks.count == 2)
+        for block in blocks {
+            #expect(block.text.characters == "\u{00a0}")
+            #expect(block.text.asAttributedString.runs.allSatisfy { $0.link == nil })
+            #expect(block.text.asAttributedString.runs.allSatisfy { $0.bibleReference == nil })
+        }
+    }
+
+    @Test func stanzaBreakPreservesTextAndRespectsVerseRange() async throws {
+        let html = "<div><div class=\"b\"></div><div class=\"b\"><span class=\"yv-v\" v=\"1\"></span>First verse.</div><div class=\"b\"></div><div class=\"p\"><span class=\"yv-v\" v=\"2\"></span>Second verse.</div><div class=\"b\"></div></div>"
+        let whole = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1))
+        #expect(whole.contains { $0.text.characters == "First verse." })
+        let selected = try await renderBlocks(html: html, reference: BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verseStart: 2, verseEnd: 2))
+        #expect(!selected.contains { $0.text.characters.contains("First verse.") })
+        #expect(selected.first?.text.characters == "Second verse.")
+    }
+
     private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
         let html = """
         <div>
