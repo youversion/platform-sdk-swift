@@ -52,6 +52,71 @@ import Testing
         #expect(selectedBlocks.first?.text.characters == "Second verse.")
     }
 
+    /// Retains standalone musical directions with their verse and existing presentation.
+    @Test(arguments: ["q1", "qr"])
+    func standaloneSelahRetainsTextStyleAndVerse(blockClass: String) async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="17"></span>Verse text.</div><div class="\#(blockClass)"><span class="qs">higgajon, sela</span></div></div>"#
+        let reference = BibleReference(versionId: 328, bookId: "PSA", chapter: 9, verse: 17)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.map { $0.text.characters } == ["Verse text.", "higgajon, sela"])
+        let selah = try #require(blocks.last)
+        #expect(selah.alignment == .trailing)
+        #expect(selah.firstVerse == 17)
+        for run in selah.text.asAttributedString.runs {
+            #expect(run.font == fonts.font(for: .font100emItalic))
+            #expect(run.bibleReference == reference)
+            #expect(run.bibleTextCategory == .scripture)
+        }
+    }
+
+    /// Retains consecutive directions even when intervening nodes add no text.
+    @Test(arguments: ["", #"<span class="yv-n x">Ignored cross-reference</span>"#,
+                      #"<span class="yv-n f"><span class="ft">Musical direction</span></span>"#], [false, true])
+    func consecutiveSelahSurvivesEmptyPendingText(separator: String, showsNotes: Bool) async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="16"></span>Verse text.<span class="qs">Higgaion</span>\#(separator)<span class="qs">Selah</span>Continuation.</div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 16)
+        let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: showsNotes ? .letters : .none)
+        let directions = blocks.filter { $0.alignment == .trailing }
+        #expect(directions.map { $0.text.characters } == ["Higgaion", "Selah"])
+        #expect(directions.allSatisfy { $0.firstVerse == 16 })
+        #expect(blocks.first?.text.characters == "Verse text.")
+        #expect(blocks.last?.text.characters == "Continuation.")
+        #expect(blocks.last?.alignment == .leading)
+        #expect(!blocks.contains { $0.text.characters.contains("Ignored cross-reference") })
+        let notes = blocks.flatMap(\.footnotes)
+        #expect(notes.count == (showsNotes && separator.contains("yv-n f") ? 1 : 0))
+    }
+
+    /// Omits out-of-range directions and empty spans without emitting empty blocks.
+    @Test func selahRespectsVerseSelectionAndDoesNotCreateEmptyBlocks() async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="1"></span>Excluded first.<span class="qs">Excluded Selah</span></div><div class="q1"><span class="yv-v" v="2"></span><span class="qs"></span><span class="qs">Selected Selah</span></div><div class="q1"><span class="yv-v" v="3"></span><span class="qs">Excluded last</span></div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 2)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.count == 1)
+        let selah = try #require(blocks.first)
+        #expect(selah.text.characters == "Selected Selah")
+        #expect(selah.firstVerse == 2)
+        #expect(selah.alignment == .trailing)
+    }
+
+    /// Traverses nested verse markers and preserves lexical styles and following prose.
+    @Test func selahTraversesVerseMarkersAndPreservesLexicalFormatting() async throws {
+        let html = #"<div><div class="q1"><span class="qs"><span class="yv-v" v="2"></span>Selah <span class="wj">spoken</span> <span class="bd">bold</span></span>Ordinary.</div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 2)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        #expect(blocks.map { $0.text.characters } == ["Selah spoken bold", "Ordinary."])
+        let selah = try #require(blocks.first)
+        #expect(selah.alignment == .trailing)
+        let runs = selah.text.asAttributedString.runs
+        #expect(runs.allSatisfy { $0.bibleReference == reference })
+        let spoken = try #require(runs.first { String(selah.text.asAttributedString[$0.range].characters) == "spoken" })
+        #expect(spoken.foregroundColor == .red)
+        #expect(spoken.font == fonts.font(for: .font100emItalic))
+        let bold = try #require(runs.first { String(selah.text.asAttributedString[$0.range].characters) == "bold" })
+        #expect(bold.font == fonts.font(for: .font100em700))
+        #expect(blocks.last?.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em))
+    }
+
     private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
         let html = """
         <div>

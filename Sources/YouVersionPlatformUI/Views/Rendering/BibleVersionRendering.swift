@@ -430,14 +430,16 @@ public enum BibleVersionRendering {
                     if !stateUp.isTextEmpty {
                         if stateUp.rendering {
                             ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
-                            stateUp.clearText()
-                            handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
-                            var tmpStateDown = stateDown
-                            tmpStateDown.alignment = .trailing
-                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))
                         }
                         stateUp.clearText()
                     }
+                    handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
+                    if stateUp.rendering && !stateUp.isTextEmpty {
+                        var tmpStateDown = stateDown
+                        tmpStateDown.alignment = .trailing
+                        ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))
+                    }
+                    stateUp.clearText()
                 } else {
                     handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                 }
