@@ -19064,13 +19064,13 @@
       "comment" : "Error body when selected Bible version cannot be accessed."
     },
     "recentlyUsedVersionsHeading" : {
-      "comment" : "Section heading for recently used Bible versions.",
+      "comment" : "Section heading for Bible versions the reader opened lately. This wording is shared across Bible apps.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recently Used Versions"
+            "value" : "Recent Versions"
           }
         },
         "af" : {
@@ -19808,13 +19808,13 @@
       }
     },
     "searchLanguages" : {
-      "comment" : "Spoken label for language search field.",
+      "comment" : "Text for Bible language search headings and controls. This wording is shared across Bible apps. Keep the title casing.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search languages"
+            "value" : "Search Languages"
           }
         },
         "af" : {
@@ -19994,13 +19994,13 @@
       }
     },
     "searchVersions" : {
-      "comment" : "Search placeholder in Bible version list.",
+      "comment" : "Label for searching Bible versions. This wording is shared across Bible apps. Keep the title casing.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search versions"
+            "value" : "Search Versions"
           }
         },
         "af" : {
