@@ -7,9 +7,9 @@ struct VotdContainerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Picker("Verse of the Day presentation", selection: $showsImages) {
-                    Text("VotdView").tag(false)
-                    Text("Verse Images").tag(true)
+                Picker("votd.presentation", selection: $showsImages) {
+                    Text("votd.view").tag(false)
+                    Text("votd.verse_images").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .accessibilityIdentifier("votd.presentation")
@@ -35,14 +35,14 @@ private struct VotdImagesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("VERSE OF THE DAY")
+                Text("votd.heading")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Group {
                     if let artwork {
                         Text(artwork.title)
                     } else {
-                        Text("Verse of the Day")
+                        Text("votd.title")
                     }
                 }
                 .font(.headline)
@@ -62,23 +62,23 @@ private struct VotdImagesView: View {
                             .accessibilityIdentifier("votd.image")
                     }
                 } else {
-                    Text("(No images are available)")
+                    Text("votd.no_images")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, minHeight: 200)
                 }
             } else if let errorMessage {
                 ContentUnavailableView {
-                    Label("Couldn't load images", systemImage: "wifi.exclamationmark")
+                    Label("votd.images_load_failed", systemImage: "wifi.exclamationmark")
                 } description: {
                     Text(errorMessage)
                 } actions: {
-                    Button("Try again") {
+                    Button("votd.try_again") {
                         Task { await loadImages(for: selectedDate) }
                     }
                 }
             } else {
-                ProgressView("Loading images…")
+                ProgressView("votd.loading_images")
                     .frame(maxWidth: .infinity, minHeight: 200)
             }
         }
@@ -125,7 +125,7 @@ private struct VotdImagesView: View {
             guard !Task.isCancelled && selectedDate == date else {
                 return
             }
-            errorMessage = String(localized: "Check your connection and try again.")
+            errorMessage = String(localized: "votd.check_connection")
         }
     }
 
@@ -148,7 +148,7 @@ private struct VotdDatePickerView: View {
             Button {
                 changeDate(by: -1)
             } label: {
-                Label("Previous day", systemImage: "chevron.left")
+                Label("votd.previous_day", systemImage: "chevron.left")
                     .labelStyle(.iconOnly)
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(.rect)
@@ -165,7 +165,7 @@ private struct VotdDatePickerView: View {
             }
             .accessibilityIdentifier("votd.date")
             .popover(isPresented: $showsDatePicker) {
-                DatePicker("Date", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
+                DatePicker("votd.date", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .frame(width: 320)
                     .padding(12)
@@ -178,7 +178,7 @@ private struct VotdDatePickerView: View {
             Button {
                 changeDate(by: 1)
             } label: {
-                Label("Next day", systemImage: "chevron.right")
+                Label("votd.next_day", systemImage: "chevron.right")
                     .labelStyle(.iconOnly)
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(.rect)

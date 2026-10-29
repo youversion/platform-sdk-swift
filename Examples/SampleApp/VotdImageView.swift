@@ -32,9 +32,9 @@ struct VotdImageView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "photo")
                         .font(.largeTitle)
-                    Text("Image couldn't load")
+                    Text("votd.image_load_failed")
                         .font(.callout)
-                    Button("Retry image") { retryCount += 1 }
+                    Button("votd.retry_image") { retryCount += 1 }
                         .buttonStyle(.bordered)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
