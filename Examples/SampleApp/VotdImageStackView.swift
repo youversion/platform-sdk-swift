@@ -74,9 +74,13 @@ struct VotdImageStackView: View {
                 }
             }
 
-            Text(images.count > 1
-                 ? String(localized: "\(selectedIndex + 1) of \(images.count) · Tap or swipe for more")
-                 : String(localized: "\(selectedIndex + 1) of \(images.count)"))
+            Text(String(
+                format: images.count > 1
+                    ? String(localized: "votd.image_position_hint")
+                    : String(localized: "votd.image_position"),
+                selectedIndex + 1,
+                images.count
+            ))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("votd.imagePosition")
