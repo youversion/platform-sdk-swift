@@ -428,9 +428,7 @@ public enum BibleVersionRendering {
             } else {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
                     if !stateUp.isTextEmpty {
-                        if stateUp.rendering {
-                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
-                        }
+                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                         stateUp.clearText()
                     }
                     handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)

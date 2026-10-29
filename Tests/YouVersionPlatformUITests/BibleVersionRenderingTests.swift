@@ -119,6 +119,51 @@ import Testing
         }
     }
 
+    /// Emits selected prose and its note before an excluded direction without leaking note state.
+    @Test func selahFlushPreservesSelectedPrefixAndFootnote() async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="1"></span>Selected prose<span class="yv-n f"><span class="ft">Selected note</span></span><span class="yv-v" v="2"></span><span class="qs">Excluded direction</span><span class="yv-v" v="1"></span><span class="qs">Selected direction</span></div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 1)
+        let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: .letters)
+        #expect(blocks.count == 2)
+        let prose = try #require(blocks.first)
+        #expect(prose.text.characters.hasPrefix("Selected prose"))
+        #expect(prose.alignment == .leading)
+        let note = try #require(prose.footnotes.first)
+        #expect(prose.footnotes.count == 1)
+        #expect(note.text.characters == "Selected note")
+        #expect(note.reference == reference)
+        let direction = try #require(blocks.last)
+        #expect(direction.text.characters == "Selected direction")
+        #expect(direction.alignment == .trailing)
+        #expect(direction.footnotes.isEmpty)
+        #expect(blocks.allSatisfy { $0.firstVerse == 1 })
+    }
+
+    /// Preserves the parent layout for isolated directions, inline splits, and following prose.
+    @Test(arguments: ["q2", "qr"], ["", "Before"])
+    func selahPreservesInheritedLayout(blockClass: String, prefix: String) async throws {
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 1)
+        let baseline = try await renderBlocks(
+            html: #"<div><div class="\#(blockClass)"><span class="yv-v" v="1"></span>Baseline</div></div>"#,
+            reference: reference
+        )
+        let parent = try #require(baseline.first)
+        let html = #"<div><div class="\#(blockClass)"><span class="yv-v" v="1"></span>\#(prefix)<span class="qs">Selah</span>After</div></div>"#
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let expectedPrefix = prefix.isEmpty ? [] : [prefix]
+        #expect(blocks.map { $0.text.characters } == expectedPrefix + ["Selah", "After"])
+        for block in blocks {
+            #expect(block.firstLineHeadIndent == parent.firstLineHeadIndent)
+            #expect(block.headIndent == parent.headIndent)
+            #expect(block.marginTop == parent.marginTop)
+            #expect(block.marginBottom == parent.marginBottom)
+        }
+        let direction = try #require(blocks.first { $0.text.characters == "Selah" })
+        #expect(direction.alignment == .trailing)
+        #expect(blocks.last?.alignment == parent.alignment)
+        #expect(blocks.last?.text.asAttributedString.runs.first?.font == parent.text.asAttributedString.runs.first?.font)
+    }
+
     /// Traverses nested verse markers and preserves lexical styles and following prose.
     @Test func selahTraversesVerseMarkersAndPreservesLexicalFormatting() async throws {
         let html = #"<div><div class="q1"><span class="qs"><span class="yv-v" v="2"></span>Selah <span class="wj">spoken</span> <span class="bd">bold</span></span>Ordinary.</div></div>"#
