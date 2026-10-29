@@ -428,16 +428,16 @@ public enum BibleVersionRendering {
             } else {
                 if child.type == .span && child.classes.contains("qs") {  // Selah. Force a line break and right-alignment.
                     if !stateUp.isTextEmpty {
-                        if stateUp.rendering {
-                            ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
-                            stateUp.clearText()
-                            handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
-                            var tmpStateDown = stateDown
-                            tmpStateDown.alignment = .trailing
-                            ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))
-                        }
+                        ret.append(createBlock(stateDown: stateDown, stateUp: &stateUp))
                         stateUp.clearText()
                     }
+                    handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
+                    if !stateUp.isTextEmpty {
+                        var selahStateDown = stateDown
+                        selahStateDown.alignment = .trailing
+                        ret.append(createBlock(stateDown: selahStateDown, stateUp: &stateUp))
+                    }
+                    stateUp.clearText()
                 } else {
                     handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
                 }
