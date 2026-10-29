@@ -99,6 +99,26 @@ import Testing
         #expect(selah.alignment == .trailing)
     }
 
+    /// Excludes an earlier verse's direction when extracting only a later verse.
+    @Test(arguments: [false, true])
+    func selahBeforeSelectedVerseIsExcluded(isStandalone: Bool) async throws {
+        let direction = #"<span class="qs">Selah</span>"#
+        let firstVerse = isStandalone
+            ? #"<div class="q1"><span class="yv-v" v="1"></span>First verse.</div><div class="qr">\#(direction)</div>"#
+            : #"<div class="q1"><span class="yv-v" v="1"></span>First verse.\#(direction)</div>"#
+        let html = #"<div>\#(firstVerse)<div class="p"><span class="yv-v" v="2"></span>Second verse.</div><div class="p"><span class="yv-v" v="3"></span>Third verse.</div></div>"#
+        let chapterReference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9)
+        let chapterBlocks = try await renderBlocks(html: html, reference: chapterReference)
+        #expect(chapterBlocks.contains { $0.text.characters == "Selah" })
+        let selectedReference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 3)
+        let selectedBlocks = try await renderBlocks(html: html, reference: selectedReference)
+        #expect(selectedBlocks.map { $0.text.characters } == ["Third verse."])
+        #expect(selectedBlocks.first?.firstVerse == 3)
+        #expect(selectedBlocks.first?.text.asAttributedString.runs.allSatisfy {
+            $0.bibleReference == selectedReference
+        } == true)
+    }
+
     /// Keeps collected directions when a later nested verse marker changes the selection state.
     @Test(arguments: ["", "Verse text."], [1, 2])
     func selahPreservesSelectedTextAcrossNestedVerseBoundary(prefix: String, selectedVerse: Int) async throws {
