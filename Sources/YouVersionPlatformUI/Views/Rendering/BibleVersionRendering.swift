@@ -434,7 +434,7 @@ public enum BibleVersionRendering {
                         stateUp.clearText()
                     }
                     handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
-                    if stateUp.rendering && !stateUp.isTextEmpty {
+                    if !stateUp.isTextEmpty {
                         var tmpStateDown = stateDown
                         tmpStateDown.alignment = .trailing
                         ret.append(createBlock(stateDown: tmpStateDown, stateUp: &stateUp))

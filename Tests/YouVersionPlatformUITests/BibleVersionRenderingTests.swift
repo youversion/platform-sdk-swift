@@ -99,6 +99,26 @@ import Testing
         #expect(selah.alignment == .trailing)
     }
 
+    /// Keeps collected directions when a later nested verse marker changes the selection state.
+    @Test(arguments: ["", "Verse text."], [1, 2])
+    func selahPreservesSelectedTextAcrossNestedVerseBoundary(prefix: String, selectedVerse: Int) async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="1"></span>\#(prefix)<span class="qs">First direction<span class="yv-v" v="2"></span>Second direction</span>Following verse two.</div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: selectedVerse)
+        let blocks = try await renderBlocks(html: html, reference: reference)
+        let expectedDirection = selectedVerse == 1 ? "First direction" : "Second direction"
+        let expectedPrefix = selectedVerse == 1 && !prefix.isEmpty ? [prefix] : []
+        let expectedSuffix = selectedVerse == 2 ? ["Following verse two."] : []
+        #expect(blocks.map { $0.text.characters } == expectedPrefix + [expectedDirection] + expectedSuffix)
+        let direction = try #require(blocks.first { $0.text.characters == expectedDirection })
+        #expect(direction.alignment == .trailing)
+        #expect(direction.firstVerse == selectedVerse)
+        for run in direction.text.asAttributedString.runs {
+            #expect(run.bibleReference == reference)
+            #expect(run.bibleTextCategory == .scripture)
+            #expect(run.font == fonts.font(for: .font100emItalic))
+        }
+    }
+
     /// Traverses nested verse markers and preserves lexical styles and following prose.
     @Test func selahTraversesVerseMarkersAndPreservesLexicalFormatting() async throws {
         let html = #"<div><div class="q1"><span class="qs"><span class="yv-v" v="2"></span>Selah <span class="wj">spoken</span> <span class="bd">bold</span></span>Ordinary.</div></div>"#
