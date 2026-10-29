@@ -164,6 +164,31 @@ import Testing
         #expect(blocks.last?.text.asAttributedString.runs.first?.font == parent.text.asAttributedString.runs.first?.font)
     }
 
+    /// Keeps a note-only direction from attaching collected notes to following prose.
+    @Test func selahContainingOnlyFootnoteDoesNotLeakNotes() async throws {
+        let html = #"<div><div class="q1"><span class="yv-v" v="1"></span><span class="qs"><span class="yv-n f"><span class="ft">Only note</span></span></span>Following prose</div></div>"#
+        let reference = BibleReference(versionId: 1, bookId: "PSA", chapter: 9, verse: 1)
+        for mode in [BibleTextFootnoteMode.none, .inline, .letters, .image, .marker] {
+            let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: mode)
+            let prose = try #require(blocks.last)
+            #expect(prose.text.characters == "Following prose")
+            #expect(prose.alignment == .leading)
+            #expect(prose.footnotes.isEmpty)
+            switch mode {
+            case .letters, .image:
+                let direction = try #require(blocks.first)
+                #expect(direction.alignment == .trailing)
+                #expect(direction.footnotes.count == 1)
+                #expect(direction.footnotes.first?.text.characters == "Only note")
+            case .inline, .marker:
+                #expect(blocks.first?.text.characters == "Only note")
+                #expect(blocks.allSatisfy { $0.footnotes.isEmpty })
+            case .none:
+                #expect(blocks.count == 1)
+            }
+        }
+    }
+
     /// Traverses nested verse markers and preserves lexical styles and following prose.
     @Test func selahTraversesVerseMarkersAndPreservesLexicalFormatting() async throws {
         let html = #"<div><div class="q1"><span class="qs"><span class="yv-v" v="2"></span>Selah <span class="wj">spoken</span> <span class="bd">bold</span></span>Ordinary.</div></div>"#
