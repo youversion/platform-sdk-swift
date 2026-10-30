@@ -36,57 +36,35 @@ public struct BibleTextFont: Hashable, Sendable {
 
     private let preset: Preset
 
-    /// Italic text at 0.76 times the base size.
     public static let font076emItalic = BibleTextFont(preset: .font076emItalic)
 
-    /// Italic text at 0.83 times the base size.
     public static let font083emItalic = BibleTextFont(preset: .font083emItalic)
 
-    /// Regular text at the base size.
     public static let font100em = BibleTextFont(preset: .font100em)
 
-    /// Italic text at the base size.
     public static let font100emItalic = BibleTextFont(preset: .font100emItalic)
 
-    /// Medium-weight text at the base size.
     public static let font100em500 = BibleTextFont(preset: .font100em500)
 
-    /// Medium-weight italic text at the base size.
     public static let font100em500Italic = BibleTextFont(preset: .font100em500Italic)
 
-    /// Bold text at the base size.
     public static let font100em700 = BibleTextFont(preset: .font100em700)
 
-    /// Italic text at 1.08 times the base size.
     public static let font108emItalic = BibleTextFont(preset: .font108emItalic)
 
-    /// Medium-weight text at 1.17 times the base size.
     public static let font117em500 = BibleTextFont(preset: .font117em500)
 
-    /// Medium-weight italic text at 1.17 times the base size.
     public static let font117em500Italic = BibleTextFont(preset: .font117em500Italic)
 
-    /// Bold text at 1.17 times the base size.
     public static let font117em700 = BibleTextFont(preset: .font117em700)
 
-    /// Italic text at 1.3 times the base size.
     public static let font130emItalic = BibleTextFont(preset: .font130emItalic)
 
-    /// Bold text at 1.6 times the base size.
     public static let font160em700 = BibleTextFont(preset: .font160em700)
 
-    /// Footnote text at 0.8 times the base size.
     public static let footnote = BibleTextFont(preset: .footnote)
 
-    /// Small-cap verse labels at 0.65 times the base size.
     public static let verseNumFont = BibleTextFont(preset: .verseNumFont)
-
-    private static let legacyBold = BibleTextFont(preset: .legacyBold)
-    private static let legacySmallCaps = BibleTextFont(preset: .legacySmallCaps)
-    private static let legacyHeading = BibleTextFont(preset: .legacyHeading)
-    private static let legacyHeadingBold = BibleTextFont(preset: .legacyHeadingBold)
-    private static let legacyHeadingItalic = BibleTextFont(preset: .legacyHeadingItalic)
-    private static let legacySmallHeading = BibleTextFont(preset: .legacySmallHeading)
 
     /// Preserves the font represented by an existing enum option, including deprecated options.
     public init(_ option: BibleTextFontOption) {
@@ -105,17 +83,14 @@ public struct BibleTextFont: Hashable, Sendable {
         case .footnote: .footnote
         case .verseNumFont: .verseNumFont
         case .textFont: .font100em
-        case .textFontBold: .legacyBold
+        case .textFontBold, .header: BibleTextFont(preset: .legacyBold)
         case .textFontItalic: .font100emItalic
-        case .smallCaps: .legacySmallCaps
-        case .header: .legacyBold
-        case .headerItalic: .legacyHeadingItalic
-        case .headerSmaller: .legacySmallHeading
+        case .smallCaps, .font100emSmallCaps: BibleTextFont(preset: .legacySmallCaps)
+        case .headerItalic: BibleTextFont(preset: .legacyHeadingItalic)
+        case .headerSmaller: BibleTextFont(preset: .legacySmallHeading)
         case .headerSmallerItalic: .font076emItalic
-        case .header2: .legacyHeadingBold
-        case .header3: .legacyHeading
-        case .header4: .legacyHeading
-        case .font100emSmallCaps: .legacySmallCaps
+        case .header2: BibleTextFont(preset: .legacyHeadingBold)
+        case .header3, .header4: BibleTextFont(preset: .legacyHeading)
         }
     }
 
