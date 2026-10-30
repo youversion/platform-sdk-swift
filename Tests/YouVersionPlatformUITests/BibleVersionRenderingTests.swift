@@ -12,7 +12,9 @@ import Testing
         html: String,
         reference: BibleReference,
         renderHeadlines: Bool = true,
-        footnotesMode: BibleTextFootnoteMode = .none
+        footnotesMode: BibleTextFootnoteMode = .none,
+        renderVerseNumbers: Bool = true,
+        footnoteMarker: BibleAttributedString? = nil
     ) async throws -> [BibleTextBlock] {
         let node = try BibleTextNode(html: html)
 
@@ -20,14 +22,116 @@ import Testing
             from: node,
             reference: reference,
             renderHeadlines: renderHeadlines,
-            renderVerseNumbers: true,
+            renderVerseNumbers: renderVerseNumbers,
             footnotesMode: footnotesMode,
+            footnoteMarker: footnoteMarker,
             textColor: .black,
             wocColor: .red,
             fonts: fonts
         )
 
         return try #require(blocks)
+    }
+
+    /// Presents endnotes consistently with footnotes in every supported note mode.
+    @Test(arguments: 0..<5)
+    func endnotesUseFootnotePresentation(modeIndex: Int) async throws {
+        let mode: BibleTextFootnoteMode = [.none, .inline, .marker, .letters, .image][modeIndex]
+        let reference = BibleReference(versionId: 1485, bookId: "REV", chapter: 5, verse: 1)
+        let marker = mode == .marker ? BibleAttributedString("*") : nil
+        let note = #"<span class="fr">5.1 </span><span class="ft">Endnote text.</span>"#
+        let html = #"<div><div class="p"><span class="yv-v" v="1"></span>Before<span class="yv-n fe">\#(note)</span>After</div></div>"#
+        let standardHTML = html.replacingOccurrences(of: "yv-n fe", with: "yv-n f")
+        let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: mode, footnoteMarker: marker)
+        let standardBlocks = try await renderBlocks(html: standardHTML, reference: reference, footnotesMode: mode, footnoteMarker: marker)
+        let rendered = try #require(blocks.first)
+        let standard = try #require(standardBlocks.first)
+        #expect(rendered.text.asAttributedString == standard.text.asAttributedString)
+        #expect(rendered.footnotes.map { $0.text.characters } == standard.footnotes.map { $0.text.characters })
+        if mode == .inline {
+            #expect(rendered.text.characters == "Before5.1 Endnote text.After")
+            #expect(rendered.footnotes.isEmpty)
+        } else {
+            #expect(!rendered.text.characters.contains("Endnote text."))
+            #expect(rendered.footnotes.count == (mode == .none ? 0 : 1))
+            if mode != .none {
+                let endnote = try #require(rendered.footnotes.first)
+                #expect(endnote.text.characters == "5.1 Endnote text.")
+                #expect(endnote.reference == reference)
+            }
+        }
+    }
+
+    /// Shares linked marker numbering across note types while excluding unselected verses.
+    @Test func endnotesShareMarkerSequenceAndRespectVerseSelection() async throws {
+        let html = #"<div><div class="p"><span class="yv-v" v="1"></span>Excluded<span class="yv-n fe"><span class="ft">Excluded note</span></span><span class="yv-v" v="2"></span>Selected<span class="yv-n f"><span class="ft">Footnote</span></span><span class="yv-n fe"><span class="ft">Endnote</span></span>After.</div></div>"#
+        let reference = BibleReference(versionId: 1485, bookId: "REV", chapter: 5, verse: 2)
+        let blocks = try await renderBlocks(html: html, reference: reference, footnotesMode: .letters)
+        let rendered = try #require(blocks.first)
+        #expect(!rendered.text.characters.contains("Excluded"))
+        #expect(rendered.footnotes.map { $0.text.characters } == ["Footnote", "Endnote"])
+        #expect(rendered.footnotes.allSatisfy { $0.reference == reference })
+        let attributed = rendered.text.asAttributedString
+        let markers = attributed.runs.filter { $0.bibleTextCategory == .footnoteMarker }
+        #expect(markers.map { String(attributed[$0.range].characters) } == ["\u{00a0}a ", "\u{00a0}b "])
+        #expect(markers.map { $0.link?.fragment } == rendered.footnotes.map { Optional($0.id) })
+        #expect(markers.allSatisfy { $0.link?.scheme == "footnote" && $0.bibleReference == reference })
+    }
+
+    /// Applies verse-label styling and visibility without changing the selected scripture.
+    @Test(arguments: [false, true], ["2 (a)", #"<span>2</span> (a)"#])
+    func publishedVerseLabelsRespectVisibilityAndVerseSelection(showsNumbers: Bool, labelHTML: String) async throws {
+        let html = #"<div><div class="p"><span class="yv-v" v="1"></span><span class="vp">Excluded</span>First verse.<span class="yv-v" v="2"></span><span class="yv-vlbl">2</span>Before <span class="vp">\#(labelHTML)</span>After.</div></div>"#
+        let reference = BibleReference(versionId: 3953, bookId: "EST", chapter: 5, verse: 2)
+        let blocks = try await renderBlocks(html: html, reference: reference, renderVerseNumbers: showsNumbers)
+        let rendered = try #require(blocks.first)
+        #expect(!rendered.text.characters.contains("Excluded"))
+        #expect(!rendered.text.characters.contains("First verse."))
+        #expect(rendered.text.characters.contains("Before"))
+        #expect(rendered.text.characters.contains("After."))
+        #expect(rendered.firstVerse == 2)
+        #expect(rendered.text.characters.contains("2 (a)") == showsNumbers)
+        let labels = rendered.text.asAttributedString.runs.filter { $0.bibleTextCategory == .verseLabel }
+        #expect(labels.isEmpty == !showsNumbers)
+        if showsNumbers {
+            let published = try #require(labels.first {
+                String(rendered.text.asAttributedString[$0.range].characters).contains("2 (a)")
+            })
+            #expect(published.font == fonts.font(for: BibleTextFont.verseNumFont))
+            #expect(published.baselineOffset == fonts.verseNumBaselineOffset)
+            #expect(published.foregroundColor == .secondary)
+            #expect(published.bibleReference == reference)
+        }
+    }
+
+    /// Sizes end titles independently of existing presets while retaining their layout and text.
+    @Test(arguments: ["imte", "imte1", "imte2"], ["", "bd", "it", "bdit", "pn"])
+    func introductionEndTitlesUseIntendedSizeAndPreserveLayout(style: String, inlineClass: String) async throws {
+        let title = !inlineClass.isEmpty
+            ? #"<span class="\#(inlineClass)">Duwe Jesú zʉnekuane shalda gaune</span>"#
+            : "Duwe Jesú zʉnekuane shalda gaune"
+        let html = #"<div><div class="\#(style)">\#(title)</div></div>"#
+        let reference = BibleReference(versionId: 1505, bookId: "MAT", chapter: 1)
+        let rendered = try #require(try await renderBlocks(html: html, reference: reference).first)
+        let isSubtitle = style == "imte2"
+        let titleFont = Font.custom("Times New Roman", fixedSize: fonts.baseSize * (isSubtitle ? 1.3 : 1.6))
+        let expectedFont = switch inlineClass {
+        case "bd": titleFont.weight(.bold)
+        case "it": titleFont.italic()
+        case "bdit": titleFont.weight(.medium).italic()
+        case "pn": titleFont
+        default: isSubtitle ? titleFont.italic() : titleFont.weight(.bold)
+        }
+        #expect(rendered.text.characters == "Duwe Jesú zʉnekuane shalda gaune")
+        #expect(rendered.text.asAttributedString.runs.first?.font == expectedFont)
+        #expect(rendered.text.asAttributedString.runs.first?.bibleTextCategory == .header)
+        #expect(rendered.alignment == .center)
+        #expect(rendered.firstLineHeadIndent == 0)
+        #expect(rendered.headIndent == 0)
+        #expect(rendered.marginTop == fonts.baseSize * (isSubtitle ? 0.5 : 1))
+        #expect(rendered.marginBottom == fonts.baseSize * (isSubtitle ? 0.15 : 0.25))
+        let hiddenHeadlines = try await renderBlocks(html: html, reference: reference, renderHeadlines: false)
+        #expect(hiddenHeadlines.map { $0.text.characters } == [rendered.text.characters])
     }
 
     @Test func emptyStanzaBreaksProduceUnlinkedBlankLines() async throws {
@@ -63,7 +167,7 @@ import Testing
         #expect(selah.alignment == .trailing)
         #expect(selah.firstVerse == 17)
         for run in selah.text.asAttributedString.runs {
-            #expect(run.font == fonts.font(for: .font100emItalic))
+            #expect(run.font == fonts.font(for: BibleTextFont.font100emItalic))
             #expect(run.bibleReference == reference)
             #expect(run.bibleTextCategory == .scripture)
         }
@@ -135,7 +239,7 @@ import Testing
         for run in direction.text.asAttributedString.runs {
             #expect(run.bibleReference == reference)
             #expect(run.bibleTextCategory == .scripture)
-            #expect(run.font == fonts.font(for: .font100emItalic))
+            #expect(run.font == fonts.font(for: BibleTextFont.font100emItalic))
         }
     }
 
@@ -221,10 +325,10 @@ import Testing
         #expect(runs.allSatisfy { $0.bibleReference == reference })
         let spoken = try #require(runs.first { String(selah.text.asAttributedString[$0.range].characters) == "spoken" })
         #expect(spoken.foregroundColor == .red)
-        #expect(spoken.font == fonts.font(for: .font100emItalic))
+        #expect(spoken.font == fonts.font(for: BibleTextFont.font100emItalic))
         let bold = try #require(runs.first { String(selah.text.asAttributedString[$0.range].characters) == "bold" })
-        #expect(bold.font == fonts.font(for: .font100em700))
-        #expect(blocks.last?.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em))
+        #expect(bold.font == fonts.font(for: BibleTextFont.font100em700))
+        #expect(blocks.last?.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font100em))
     }
 
     private func singleBlock(verseCount: Int) async throws -> BibleTextBlock {
@@ -755,12 +859,12 @@ import Testing
         #expect(introTitle.alignment == .center)
         #expect(introTitle.marginTop == fonts.baseSize)
         #expect(introTitle.marginBottom == 0.25 * fonts.baseSize)
-        #expect(introTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em700))
+        #expect(introTitle.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font117em700))
 
         let introSubtitle = try await singleStyledBlock(blockClass: "imt2")
         #expect(introSubtitle.alignment == .center)
         #expect(introSubtitle.marginBottom == 0.25 * fonts.baseSize)
-        #expect(introSubtitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font108emItalic))
+        #expect(introSubtitle.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font108emItalic))
 
         let majorTitle = try await singleStyledBlock(blockClass: "mt1")
         #expect(majorTitle.alignment == .center)
@@ -777,7 +881,7 @@ import Testing
     }
 
     @Test func testPhaseTwoInlineFontStyles() async throws {
-        let expectedFonts: [(classes: [String], font: BibleTextFontOption)] = [
+        let expectedFonts: [(classes: [String], font: BibleTextFont)] = [
             (["bd"], .font100em700),
             (["em", "qac", "sig"], .font100emItalic),
             (["fk", "fl"], .font100em500Italic),
@@ -809,7 +913,7 @@ import Testing
         #expect(fourthLevelTitle.text.characters == "Styled text")
         #expect(hasHeaderContaining([fourthLevelTitle], text: "Styled text"))
         #expect(fourthLevelTitle.alignment == .center)
-        #expect(fourthLevelTitle.text.asAttributedString.runs.first?.font == fonts.font(for: .font100emItalic))
+        #expect(fourthLevelTitle.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font100emItalic))
         let thirdLevelTitle = try await singleStyledBlock(blockClass: "imt3")
         #expect(fourthLevelTitle.marginTop == thirdLevelTitle.marginTop)
         #expect(fourthLevelTitle.marginBottom == thirdLevelTitle.marginBottom)
@@ -825,7 +929,7 @@ import Testing
         #expect(introductionHeading.alignment == .center)
         #expect(introductionHeading.marginTop == 0.50 * fonts.baseSize)
         #expect(introductionHeading.marginBottom == 0.50 * fonts.baseSize)
-        #expect(introductionHeading.text.asAttributedString.runs.first?.font == fonts.font(for: .font117em700))
+        #expect(introductionHeading.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font117em700))
 
         let listHeader = try await singleStyledBlock(blockClass: "lh")
         #expect(listHeader.firstLineHeadIndent == 1)
@@ -839,12 +943,12 @@ import Testing
         let parallelReferences = try await singleStyledBlock(blockClass: "r")
         #expect(parallelReferences.alignment == .center)
         #expect(parallelReferences.marginBottom == 0.25 * fonts.baseSize)
-        #expect(parallelReferences.text.asAttributedString.runs.first?.font == fonts.font(for: .font100emItalic))
+        #expect(parallelReferences.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font100emItalic))
 
         let sectionRange = try await singleStyledBlock(blockClass: "sr")
         #expect(sectionRange.alignment == .center)
         #expect(sectionRange.marginBottom == 0.25 * fonts.baseSize)
-        #expect(sectionRange.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500))
+        #expect(sectionRange.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font100em500))
 
         let outlineLevelOne = try await singleStyledBlock(blockClass: "io1")
         let outlineLevelTwo = try await singleStyledBlock(blockClass: "io2")
@@ -854,16 +958,16 @@ import Testing
 
     @Test func testPhaseThreeInlineStyles() async throws {
         let listTotal = try await singleStyledRun(inlineClass: "litl")
-        #expect(listTotal.font == fonts.font(for: .font100emItalic))
+        #expect(listTotal.font == fonts.font(for: BibleTextFont.font100emItalic))
 
         let properName = try await singleStyledRun(inlineClass: "pn")
-        #expect(properName.font == fonts.font(for: .font100em))
+        #expect(properName.font == fonts.font(for: BibleTextFont.font100em))
     }
 
     @Test(arguments: ["r yv-h", "yv-h r"])
     func testParallelReferenceHeadingUsesOverrideWeight(blockClass: String) async throws {
         let heading = try await singleStyledBlock(blockClass: blockClass)
-        #expect(heading.text.asAttributedString.runs.first?.font == fonts.font(for: .font100em500Italic))
+        #expect(heading.text.asAttributedString.runs.first?.font == fonts.font(for: BibleTextFont.font100em500Italic))
         #expect(heading.alignment == .center)
         #expect(heading.firstLineHeadIndent == 0)
         #expect(heading.headIndent == 0)
@@ -904,6 +1008,6 @@ import Testing
         let referenceRun = try #require(block.text.asAttributedString.runs.first { run in
             String(block.text.asAttributedString[run.range].characters).contains("Deuteronomy")
         })
-        #expect(referenceRun.font == fonts.font(for: .font083emItalic))
+        #expect(referenceRun.font == fonts.font(for: BibleTextFont.font083emItalic))
     }
 }
