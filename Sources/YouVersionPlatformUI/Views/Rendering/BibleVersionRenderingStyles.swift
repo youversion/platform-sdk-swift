@@ -89,14 +89,14 @@ final class BibleVersionRenderingStyles {
 
             case "imte", "imte1":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font100em700
+                stateDown.currentFont = .font160em700
                 stateDown.alignment = .center
                 stateDown.marginTop = fontSize
                 stateDown.marginBottom = 0.25 * fontSize
 
             case "imte2":
                 stateDown.textCategory = .header
-                stateDown.currentFont = .font100emItalic
+                stateDown.currentFont = .font130emItalic
                 stateDown.alignment = .center
                 stateDown.marginTop = 0.50 * fontSize
                 stateDown.marginBottom = 0.15 * fontSize
@@ -442,8 +442,8 @@ final class BibleVersionRenderingStyles {
                 stateDown.baselineOffset = stateIn.fonts.verseNumBaselineOffset
 
             default:
-                if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fp", "fr", "ft",
-                     "w", "ior", "ref", "va", "wg", "wh", "x", "xta"].contains(c) {
+                if !["yv-v", "verse", "yv-vlbl", "vlbl", "yv-n", "f", "fe", "fp", "fr", "ft",
+                     "w", "ior", "ref", "va", "vp", "wg", "wh", "x", "xta"].contains(c) {
                     BibleVersionRendering.assertionFailed("interpretTextAttr: unexpected ", string: c)
                 }
             }
