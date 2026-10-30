@@ -18,6 +18,14 @@ public struct BibleTextFont: Hashable, Sendable {
         case font160em700
         case footnote
         case verseNumFont
+        case font130em
+        case font130em500
+        case font130em500Italic
+        case font130em700
+        case font160em
+        case font160emItalic
+        case font160em500
+        case font160em500Italic
         case legacyBold
         case legacySmallCaps
         case legacyHeading
@@ -115,6 +123,36 @@ public struct BibleTextFont: Hashable, Sendable {
         self.preset = preset
     }
 
+    /// Retains introduction-title sizing when an inline span selects a different text style.
+    func preservingSize(of inheritedFont: BibleTextFont) -> BibleTextFont {
+        let isSmallerTitle: Bool
+        switch inheritedFont.preset {
+        case .font130em, .font130emItalic, .font130em500, .font130em500Italic, .font130em700:
+            isSmallerTitle = true
+        case .font160em, .font160emItalic, .font160em500, .font160em500Italic, .font160em700:
+            isSmallerTitle = false
+        default:
+            return self
+        }
+
+        let resizedPreset: Preset
+        switch preset {
+        case .font100em:
+            resizedPreset = isSmallerTitle ? .font130em : .font160em
+        case .font100emItalic:
+            resizedPreset = isSmallerTitle ? .font130emItalic : .font160emItalic
+        case .font100em500:
+            resizedPreset = isSmallerTitle ? .font130em500 : .font160em500
+        case .font100em500Italic:
+            resizedPreset = isSmallerTitle ? .font130em500Italic : .font160em500Italic
+        case .font100em700:
+            resizedPreset = isSmallerTitle ? .font130em700 : .font160em700
+        default:
+            return self
+        }
+        return BibleTextFont(preset: resizedPreset)
+    }
+
     /// Creates the complete font table for the selected family and base size.
     static func fonts(familyName: String, baseSize: CGFloat) -> [BibleTextFont: Font] {
         let italicFamilyName: String
@@ -143,6 +181,14 @@ public struct BibleTextFont: Hashable, Sendable {
             case .font160em700: Self.font(familyName: familyName, size: baseSize * 1.6).weight(.bold)
             case .footnote: Self.font(familyName: familyName, size: baseSize * 0.8)
             case .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps()
+            case .font130em: Self.font(familyName: familyName, size: baseSize * 1.3)
+            case .font130em500: Self.font(familyName: familyName, size: baseSize * 1.3).weight(.medium)
+            case .font130em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.3).weight(.medium).italic()
+            case .font130em700: Self.font(familyName: familyName, size: baseSize * 1.3).weight(.bold)
+            case .font160em: Self.font(familyName: familyName, size: baseSize * 1.6)
+            case .font160emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.6).italic()
+            case .font160em500: Self.font(familyName: familyName, size: baseSize * 1.6).weight(.medium)
+            case .font160em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.6).weight(.medium).italic()
             case .legacyBold: Self.font(familyName: familyName, size: baseSize).bold()
             case .legacySmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps()
             case .legacyHeading: Self.font(familyName: familyName, size: baseSize * 1.1)

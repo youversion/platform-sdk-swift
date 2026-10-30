@@ -51,17 +51,6 @@ public struct BibleTextFonts {
     public let baseSize: CGFloat
     public let verseNumBaselineOffset: CGFloat
 
-    /// Returns the font for an existing enum option.
-    public func font(for option: BibleTextFontOption) -> Font {
-        font(for: BibleTextFont(option))
-    }
-
-    /// Returns the font for a Bible text preset.
-    @_disfavoredOverload
-    public func font(for preset: BibleTextFont) -> Font {
-        fonts[preset]!
-    }
-
     public init(familyName: String, baseSize origBaseSize: CGFloat? = nil) {
 #if canImport(UIKit)
         let baseSize = origBaseSize ?? UIFont.preferredFont(forTextStyle: .body).pointSize
@@ -71,5 +60,16 @@ public struct BibleTextFonts {
         self.baseSize = baseSize
         verseNumBaselineOffset = baseSize * 0.2
         fonts = BibleTextFont.fonts(familyName: familyName, baseSize: baseSize)
+    }
+
+    /// Returns the font for an existing enum option.
+    public func font(for option: BibleTextFontOption) -> Font {
+        font(for: BibleTextFont(option))
+    }
+
+    /// Returns the font for a Bible text preset.
+    @_disfavoredOverload
+    public func font(for preset: BibleTextFont) -> Font {
+        fonts[preset]!
     }
 }

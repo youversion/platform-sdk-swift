@@ -105,15 +105,23 @@ import Testing
     }
 
     /// Sizes end titles independently of existing presets while retaining their layout and text.
-    @Test(arguments: ["imte", "imte1", "imte2"])
-    func introductionEndTitlesUseIntendedSizeAndPreserveLayout(style: String) async throws {
-        let html = #"<div><div class="\#(style)">Duwe Jesú zʉnekuane shalda gaune</div></div>"#
+    @Test(arguments: ["imte", "imte1", "imte2"], ["", "bd", "it", "bdit", "pn"])
+    func introductionEndTitlesUseIntendedSizeAndPreserveLayout(style: String, inlineClass: String) async throws {
+        let title = !inlineClass.isEmpty
+            ? #"<span class="\#(inlineClass)">Duwe Jesú zʉnekuane shalda gaune</span>"#
+            : "Duwe Jesú zʉnekuane shalda gaune"
+        let html = #"<div><div class="\#(style)">\#(title)</div></div>"#
         let reference = BibleReference(versionId: 1505, bookId: "MAT", chapter: 1)
         let rendered = try #require(try await renderBlocks(html: html, reference: reference).first)
         let isSubtitle = style == "imte2"
-        let expectedFont = isSubtitle
-            ? Font.custom("Times New Roman", fixedSize: fonts.baseSize * 1.3).italic()
-            : Font.custom("Times New Roman", fixedSize: fonts.baseSize * 1.6).weight(.bold)
+        let titleFont = Font.custom("Times New Roman", fixedSize: fonts.baseSize * (isSubtitle ? 1.3 : 1.6))
+        let expectedFont = switch inlineClass {
+        case "bd": titleFont.weight(.bold)
+        case "it": titleFont.italic()
+        case "bdit": titleFont.weight(.medium).italic()
+        case "pn": titleFont
+        default: isSubtitle ? titleFont.italic() : titleFont.weight(.bold)
+        }
         #expect(rendered.text.characters == "Duwe Jesú zʉnekuane shalda gaune")
         #expect(rendered.text.asAttributedString.runs.first?.font == expectedFont)
         #expect(rendered.text.asAttributedString.runs.first?.bibleTextCategory == .header)

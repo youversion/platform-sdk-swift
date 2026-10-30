@@ -405,6 +405,7 @@ final class BibleVersionRenderingStyles {
         stateDown: inout BibleVersionRendering.StateDown,
         stateUp: inout BibleVersionRendering.StateUp
     ) {
+        let inheritedFont = stateDown.currentFont
         for c in node.classes {
             switch c {
 
@@ -448,6 +449,7 @@ final class BibleVersionRenderingStyles {
                 }
             }
         }
+        stateDown.currentFont = stateDown.currentFont.preservingSize(of: inheritedFont)
         if node.classes.contains("fp") && stateDown.textCategory == .footnoteText && !stateUp.isTextEmpty {
             let paragraphBreak = BibleAttributedString("\n")
             paragraphBreak.setFont(stateDown.currentFont, from: stateIn.fonts)
