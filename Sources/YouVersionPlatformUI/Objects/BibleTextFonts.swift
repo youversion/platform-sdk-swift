@@ -63,6 +63,7 @@ public struct BibleTextFonts {
     }
 
     /// Returns the font for an existing enum option.
+    @available(*, deprecated, message: "Use a BibleTextFont preset instead.")
     public func font(for option: BibleTextFontOption) -> Font {
         font(for: BibleTextFont(option))
     }
