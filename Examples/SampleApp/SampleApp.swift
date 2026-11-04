@@ -29,6 +29,12 @@ struct SampleApp: App {
                 }
                 .tag(0)
 
+                ContentLibraryView()
+                    .tabItem {
+                        Label("Content Library", systemImage: "play.rectangle.fill")
+                    }
+                    .tag(1)
+
                 ProfileView()
                     .tabItem {
                         Label("tab.profile", systemImage: "person.fill")

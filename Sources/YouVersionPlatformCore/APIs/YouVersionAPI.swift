@@ -24,29 +24,47 @@ public enum YouVersionAPI {
         return await accessTokenProvider.accessToken(session: session)
     }
 
-    static func data(at url: URL, accessToken: String?, session: URLSession) async throws -> Data {
-        try await responseData(at: url, accessToken: accessToken, session: session).value
+    static func data(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession,
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        headers: [String: String] = [:]
+    ) async throws -> Data {
+        try await responseData(at: url, accessToken: accessToken, session: session, cachePolicy: cachePolicy, headers: headers).value
     }
 
-    static func dataIfPresent(at url: URL, accessToken: String?, session: URLSession) async throws -> Data? {
+    static func dataIfPresent(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession,
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        headers: [String: String] = [:]
+    ) async throws -> Data? {
         try await response(
             at: url,
             accessToken: accessToken,
             session: session,
-            allowsNoContent: true
+            allowsNoContent: true,
+            cachePolicy: cachePolicy,
+            headers: headers
         ).data
     }
 
     static func responseData(
         at url: URL,
         accessToken: String?,
-        session: URLSession
+        session: URLSession,
+        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
+        headers: [String: String] = [:]
     ) async throws -> BibleContentResponse<Data> {
         let response = try await response(
             at: url,
             accessToken: accessToken,
             session: session,
-            allowsNoContent: false
+            allowsNoContent: false,
+            cachePolicy: cachePolicy,
+            headers: headers
         )
         guard let data = response.data else {
             throw YouVersionAPIError.cannotDownload
@@ -62,9 +80,14 @@ public enum YouVersionAPI {
         at url: URL,
         accessToken: String?,
         session: URLSession,
-        allowsNoContent: Bool
+        allowsNoContent: Bool,
+        cachePolicy: URLRequest.CachePolicy,
+        headers: [String: String]
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
-        let request = urlRequest(with: url, accessToken: accessToken, session: session)
+        var request = urlRequest(with: url, accessToken: accessToken, session: session, cachePolicy: cachePolicy)
+        for (field, value) in headers {
+            request.setValue(value, forHTTPHeaderField: field)
+        }
         let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
