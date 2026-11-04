@@ -42,7 +42,7 @@ import Testing
     }
 
     @MainActor
-    @Test func votdServerErrorThrowsCannotDownload() async throws {
+    @Test func votdServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

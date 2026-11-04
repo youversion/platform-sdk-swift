@@ -45,7 +45,7 @@ import Testing
     }
 
     @MainActor
-    @Test func metadataUnexpectedStatusThrowsCannotDownload() async throws {
+    @Test func metadataServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

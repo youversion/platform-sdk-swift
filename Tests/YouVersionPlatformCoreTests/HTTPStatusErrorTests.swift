@@ -13,6 +13,42 @@ import Testing
         case languages
     }
 
+    private enum ExpectedError: Sendable {
+        case notPermitted
+        case cannotDownload
+        case response(YouVersionAPIResponseError.Code)
+
+        func matches(_ error: any Error) -> Bool {
+            switch self {
+            case .notPermitted:
+                (error as? YouVersionAPIError) == .notPermitted
+            case .cannotDownload:
+                (error as? YouVersionAPIError) == .cannotDownload
+            case .response(let code):
+                (error as? YouVersionAPIResponseError)?.code == code
+            }
+        }
+    }
+
+    private static let expectedErrors: [Int: ExpectedError] = [
+        200: .cannotDownload,
+        204: .cannotDownload,
+        400: .response(.requestRejected),
+        401: .notPermitted,
+        403: .notPermitted,
+        404: .response(.requestRejected),
+        429: .response(.rateLimited),
+        500: .response(.serverError),
+        503: .response(.serverError),
+    ]
+
+    /// Returns whether `error` is the error an endpoint should throw for an HTTP `statusCode`.
+    ///
+    /// Returns `false` for status codes that have no expected error in this suite.
+    static func isExpectedError(_ error: any Error, forStatusCode statusCode: Int) -> Bool {
+        expectedErrors[statusCode]?.matches(error) ?? false
+    }
+
     @Test(arguments: [400, 404, 409, 422])
     func clientErrorMapsToRequestRejected(statusCode: Int) {
         let error = YouVersionAPI.error(forStatusCode: statusCode)
@@ -55,7 +91,7 @@ import Testing
         await #expect {
             try await response(from: endpoint, session: session)
         } throws: { error in
-            Self.error(error, matchesStatusCode: statusCode)
+            Self.isExpectedError(error, forStatusCode: statusCode)
         }
     }
 
@@ -71,38 +107,5 @@ import Testing
         case .languages:
             _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
-    }
-
-    enum ExpectedError: Sendable {
-        case notPermitted
-        case cannotDownload
-        case response(YouVersionAPIResponseError.Code)
-
-        func matches(_ error: any Error) -> Bool {
-            switch self {
-            case .notPermitted:
-                (error as? YouVersionAPIError) == .notPermitted
-            case .cannotDownload:
-                (error as? YouVersionAPIError) == .cannotDownload
-            case .response(let code):
-                (error as? YouVersionAPIResponseError)?.code == code
-            }
-        }
-    }
-
-    static let expectedErrors: [Int: ExpectedError] = [
-        200: .cannotDownload,
-        204: .cannotDownload,
-        400: .response(.requestRejected),
-        401: .notPermitted,
-        403: .notPermitted,
-        404: .response(.requestRejected),
-        429: .response(.rateLimited),
-        500: .response(.serverError),
-        503: .response(.serverError),
-    ]
-
-    static func error(_ error: any Error, matchesStatusCode statusCode: Int) -> Bool {
-        expectedErrors[statusCode]?.matches(error) ?? false
     }
 }

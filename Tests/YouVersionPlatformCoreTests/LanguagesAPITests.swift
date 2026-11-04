@@ -146,7 +146,7 @@ import Testing
     }
 
     @MainActor
-    @Test func languagesUnexpectedStatusThrowsCannotDownload() async throws {
+    @Test func languagesServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

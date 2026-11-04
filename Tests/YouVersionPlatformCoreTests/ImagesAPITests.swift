@@ -156,7 +156,7 @@ struct ImagesAPITests {
                 _ = try await YouVersionAPI.Images.images(accessToken: "images-tests", session: session)
             }
         } throws: { error in
-            HTTPStatusErrorTests.error(error, matchesStatusCode: status)
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: status)
         }
     }
 

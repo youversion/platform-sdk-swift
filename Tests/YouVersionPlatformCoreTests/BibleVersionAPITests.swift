@@ -260,7 +260,7 @@ import Testing
     }
 
     @MainActor
-    @Test func chapter500ThrowsCannotDownload() async throws {
+    @Test func chapter500ThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

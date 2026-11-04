@@ -275,7 +275,8 @@ public enum YouVersionAPIError: Error, Sendable {
 ///
 /// Use ``code`` to decide how to recover. ``Code-swift.struct/rateLimited`` and
 /// ``Code-swift.struct/serverError`` are temporary, so a later retry can succeed.
-/// ``Code-swift.struct/requestRejected`` is permanent, so retrying the same request fails again.
+/// ``Code-swift.struct/requestRejected`` usually means the request itself is wrong, so retrying
+/// it unchanged typically fails again.
 public struct YouVersionAPIResponseError: Error, Sendable {
     /// The kind of failure the server reported.
     public struct Code: Equatable, Sendable {
@@ -283,7 +284,8 @@ public struct YouVersionAPIResponseError: Error, Sendable {
         public static let rateLimited = Self(rawValue: "rate_limited")
         /// The server failed to handle the request. A later retry can succeed.
         public static let serverError = Self(rawValue: "server_error")
-        /// The server rejected the request, such as a resource that doesn't exist. Retrying won't help.
+        /// The server rejected the request, such as a resource that doesn't exist.
+        /// Retrying unchanged usually fails again, though a few rejections, such as a request timeout, are temporary.
         public static let requestRejected = Self(rawValue: "request_rejected")
 
         /// A stable identifier for the failure kind.

@@ -106,7 +106,7 @@ import Testing
     }
 
     @MainActor
-    @Test func organizationServerErrorThrowsCannotDownload() async throws {
+    @Test func organizationServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 

@@ -112,7 +112,7 @@ extension ConfigurationStateTests {
         }
         
         @MainActor
-        @Test func tokenUnexpectedStatusThrowsCannotDownload() async throws {
+        @Test func tokenServerStatusThrowsServerError() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
             YouVersionPlatformConfiguration.configure(appKey: "test-app-key")
             defer {
@@ -160,7 +160,7 @@ extension ConfigurationStateTests {
                     session: session
                 )
             } throws: { error in
-                HTTPStatusErrorTests.error(error, matchesStatusCode: statusCode)
+                HTTPStatusErrorTests.isExpectedError(error, forStatusCode: statusCode)
             }
         }
 

@@ -230,7 +230,7 @@ import Testing
                 fields: ["images"], accessToken: "swift-test-suite", session: session
             )
         } throws: { error in
-            HTTPStatusErrorTests.error(error, matchesStatusCode: statusCode)
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: statusCode)
         }
     }
 

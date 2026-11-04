@@ -138,7 +138,7 @@ import Testing
     }
 
     @MainActor
-    @Test func permittedVersionsUnexpectedStatusThrowsCannotDownload() async throws {
+    @Test func permittedVersionsServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -183,7 +183,7 @@ import Testing
     }
 
     @MainActor
-    @Test func versionsUnexpectedStatusThrowsCannotDownload() async throws {
+    @Test func versionsServerStatusThrowsServerError() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
