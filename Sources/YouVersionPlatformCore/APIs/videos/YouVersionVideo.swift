@@ -29,6 +29,8 @@ public struct YouVersionVideo: Codable, Equatable, Sendable {
             return Double(width) / Double(height)
         }
 
+        // TODO: When the API supplies a plain thumbnail URL, remove urlTemplate and the substitutions below;
+        // update the model, callers, tests, and documentation to use that URL directly.
         /// Resolves the image-proxy placeholders to the requested pixel dimensions.
         public func url(width: Int, height: Int) -> URL? {
             guard let urlTemplate, width > 0 && height > 0 else {

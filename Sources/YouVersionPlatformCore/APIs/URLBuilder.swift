@@ -16,7 +16,7 @@ public enum URLBuilder {
             return nil
         }
         var components = baseURLComponents
-        components.percentEncodedPath = "/\(encodedSegments.joined(separator: "/"))"
+        components.percentEncodedPath = "/" + encodedSegments.joined(separator: "/")
         components.queryItems = queryItems.isEmpty ? nil : queryItems
         components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         return components.url

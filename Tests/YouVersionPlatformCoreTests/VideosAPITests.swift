@@ -6,6 +6,7 @@ import Testing
 import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
+    // TODO: Remove the forced-cache-policy assertions here once the CDN caching fix restores default video caching.
     @Suite(.serialized)
     struct VideosAPITests {
         private let videoJSON = """

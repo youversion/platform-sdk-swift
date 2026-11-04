@@ -12,6 +12,8 @@ public extension YouVersionAPI {
             "Accept-Language": "en"
         ]
 
+        // TODO: Once CDN caching is fixed, remove every reloadIgnoringLocalAndRemoteCacheData override in this type,
+        // the corresponding request-cache documentation, and the cache-policy assertions in VideosAPITests.
         private init() {}
 
         /// Returns one page of playlists for an organization, or an empty page for HTTP 204.
