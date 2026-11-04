@@ -221,7 +221,8 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `bibleID` is outside the accepted range,
     ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
-    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.missingAuthentication` if the request is unauthorized.
+    ///   - `YouVersionAPIError.notPermitted` if the request is forbidden.
     ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
@@ -280,7 +281,8 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` is outside the accepted range
     ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
-    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.missingAuthentication` if the request is unauthorized.
+    ///   - `YouVersionAPIError.notPermitted` if the request is forbidden.
     ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
@@ -327,7 +329,8 @@ public extension YouVersionAPI.Search {
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
     ///     is outside the range accepted by the API.
     ///   - `URLError` if the request URL is invalid or the network request fails.
-    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.missingAuthentication` if the request is unauthorized.
+    ///   - `YouVersionAPIError.notPermitted` if the request is forbidden.
     ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.

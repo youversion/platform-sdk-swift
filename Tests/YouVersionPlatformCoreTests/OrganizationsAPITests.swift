@@ -76,7 +76,7 @@ import Testing
     }
 
     @MainActor
-    @Test func organizationUnauthorizedThrowsNotPermitted() async throws {
+    @Test func organizationUnauthorizedThrowsMissingAuthentication() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -85,7 +85,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.missingAuthentication) {
             _ = try await YouVersionAPI.Organizations.organization(id: "org-123", session: session)
         }
     }

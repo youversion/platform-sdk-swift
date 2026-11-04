@@ -108,7 +108,7 @@ import Testing
     }
 
     @MainActor
-    @Test func permittedVersionsUnauthorizedThrowsNotPermitted() async throws {
+    @Test func permittedVersionsUnauthorizedThrowsMissingAuthentication() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -117,7 +117,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.missingAuthentication) {
             _ = try await YouVersionAPI.Bible.permittedVersions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
@@ -168,7 +168,7 @@ import Testing
     }
 
     @MainActor
-    @Test func versionsUnauthorizedThrowsNotPermitted() async throws {
+    @Test func versionsUnauthorizedThrowsMissingAuthentication() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -177,7 +177,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.notPermitted) {
+        await #expect(throws: YouVersionAPIError.missingAuthentication) {
             _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }

@@ -248,7 +248,7 @@ public struct BibleTextView: View {
             } else {
                 loadingPhase = .failed
             }
-        } catch YouVersionAPIError.notPermitted {
+        } catch YouVersionAPIError.notPermitted, YouVersionAPIError.missingAuthentication {
             loadingPhase = .notPermitted
         } catch is CancellationError {
             loadingPhase = .inactive

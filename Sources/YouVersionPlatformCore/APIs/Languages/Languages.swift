@@ -117,7 +117,7 @@ public extension YouVersionAPI {
 
                 guard httpResponse.statusCode == 200 else {
                     YouVersionPlatformLogger.error("error in languages: \(httpResponse.statusCode)", category: "Languages")
-                    throw YouVersionAPI.error(forStatusCode: httpResponse.statusCode)
+                    throw YouVersionAPI.error(for: httpResponse, data: data)
                 }
 
                 let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)
