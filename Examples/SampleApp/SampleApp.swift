@@ -22,35 +22,24 @@ struct SampleApp: App {
                 NavigationStack {
                     BibleReaderView.restoringLastPassage(readerNavigation: readerNavigation)
                         .usingNavigationStack(.justForReader)
+                        .navigationPlacement(.topBar)
                 }
                 .tabItem {
                     Label("tab.bible", systemImage: "book.closed.fill")
                 }
                 .tag(0)
 
-                NavigateView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
-                    .tabItem {
-                        Label("tab.navigate", systemImage: "arrow.uturn.right")
-                    }
-                    .tag(1)
-
-                VotdContainerView()
-                    .tabItem {
-                        Label("tab.votd", systemImage: "sun.max.fill")
-                    }
-                    .tag(2)
-
-                CardView()
-                    .tabItem {
-                        Label("tab.card", systemImage: "doc.plaintext")
-                    }
-                    .tag(3)
-
                 ProfileView()
                     .tabItem {
                         Label("tab.profile", systemImage: "person.fill")
                     }
                     .tag(4)
+
+                MoreView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
+                    .tabItem {
+                        Label("More", systemImage: "ellipsis")
+                    }
+                    .tag(3)
             }
         }
     }
