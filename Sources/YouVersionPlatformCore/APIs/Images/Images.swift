@@ -22,7 +22,8 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full image records, an optional total, and an optional continuation token.
         ///   Filters matching nothing produce an empty `images` array.
-        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes; `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
+        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes;
+        ///   `URLError` for URL or transport failures; `YouVersionAPIError` or `YouVersionAPIResponseError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
         public static func images(
             passageID: String? = nil,
@@ -59,7 +60,7 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full metadata including the image URL, passage, attribution, language, and dimensions.
         /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for an empty identifier;
-        ///   `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
+        ///   `URLError` for URL or transport failures; `YouVersionAPIError` or `YouVersionAPIResponseError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
         public static func image(
             id: String,

@@ -103,7 +103,7 @@ struct ImagesAPITests {
             try await YouVersionAPI.Images.images(
                 languageRanges: [languageRange], accessToken: "images-tests", session: session
             )
-        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .requestRejected }
     }
 
     @Test
@@ -156,9 +156,7 @@ struct ImagesAPITests {
                 _ = try await YouVersionAPI.Images.images(accessToken: "images-tests", session: session)
             }
         } throws: { error in
-            if case YouVersionAPIError.notPermitted = error { return status == 401 || status == 403 }
-            if case YouVersionAPIError.cannotDownload = error { return status != 401 && status != 403 }
-            return false
+            HTTPStatusErrorTests.error(error, matchesStatusCode: status)
         }
     }
 

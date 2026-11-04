@@ -147,9 +147,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.Bible.permittedVersions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
     }
 
     @MainActor
@@ -192,9 +192,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
     }
 
     @MainActor

@@ -72,20 +72,31 @@ public enum YouVersionAPI {
             throw YouVersionAPIError.invalidResponse
         }
 
-        if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
-            YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
-            throw YouVersionAPIError.notPermitted
-        }
-
         if httpResponse.statusCode == 204 && allowsNoContent {
             return (nil, httpResponse)
         }
 
         guard httpResponse.statusCode == 200 else {
             YouVersionPlatformLogger.error("from server: \(httpResponse.statusCode)", category: "API")
-            throw YouVersionAPIError.cannotDownload
+            throw error(forStatusCode: httpResponse.statusCode)
         }
         return (data, httpResponse)
+    }
+
+    /// Returns the error that describes an unsuccessful HTTP status code.
+    static func error(forStatusCode statusCode: Int) -> any Error {
+        switch statusCode {
+        case 401, 403:
+            YouVersionAPIError.notPermitted
+        case 429:
+            YouVersionAPIResponseError(code: .rateLimited)
+        case 400..<500:
+            YouVersionAPIResponseError(code: .requestRejected)
+        case 500..<600:
+            YouVersionAPIResponseError(code: .serverError)
+        default:
+            YouVersionAPIError.cannotDownload
+        }
     }
 
     static func urlRequest(
@@ -258,6 +269,29 @@ public enum YouVersionAPIError: Error, Sendable {
     case cannotDownload
     case invalidDownload
     case invalidResponse
+}
+
+/// An error the YouVersion Platform API returns for a request it did not complete.
+///
+/// Use ``code`` to decide how to recover. ``Code-swift.struct/rateLimited`` and
+/// ``Code-swift.struct/serverError`` are temporary, so a later retry can succeed.
+/// ``Code-swift.struct/requestRejected`` is permanent, so retrying the same request fails again.
+public struct YouVersionAPIResponseError: Error, Sendable {
+    /// The kind of failure the server reported.
+    public struct Code: Equatable, Sendable {
+        /// The app sent too many requests. Wait before retrying.
+        public static let rateLimited = Self(rawValue: "rate_limited")
+        /// The server failed to handle the request. A later retry can succeed.
+        public static let serverError = Self(rawValue: "server_error")
+        /// The server rejected the request, such as a resource that doesn't exist. Retrying won't help.
+        public static let requestRejected = Self(rawValue: "request_rejected")
+
+        /// A stable identifier for the failure kind.
+        public let rawValue: String
+    }
+
+    /// The kind of failure the server reported.
+    public let code: Code
 }
 
 public struct YouVersionAPIRequestError: Error, Sendable {

@@ -222,6 +222,7 @@ public extension YouVersionAPI.Search {
     ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.
@@ -280,6 +281,7 @@ public extension YouVersionAPI.Search {
     ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.
@@ -326,6 +328,7 @@ public extension YouVersionAPI.Search {
     ///     is outside the range accepted by the API.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
     ///   - `DecodingError` if the response body is malformed.

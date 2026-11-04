@@ -17,6 +17,8 @@ public extension YouVersionAPI {
         /// - Throws:
         ///   - `URLError.badURL` if the URL could not be constructed.
         ///   - `URLError.badServerResponse` if the server response could not be decoded.
+        ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+        ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
         public static func verseOfTheDay(dayOfYear: Int, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> YouVersionVerseOfTheDay {
             guard let url = URLBuilder.votdURL(dayOfYear: dayOfYear) else {
                 throw URLError(.badURL)

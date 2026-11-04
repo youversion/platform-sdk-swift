@@ -155,9 +155,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
     }
 
     @MainActor

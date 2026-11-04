@@ -115,14 +115,9 @@ public extension YouVersionAPI {
                     throw YouVersionAPIError.invalidResponse
                 }
 
-                if httpResponse.statusCode == 401 {
-                    YouVersionPlatformLogger.error("error 401: unauthorized. Check your appKey", category: "Languages")
-                    throw YouVersionAPIError.notPermitted
-                }
-
                 guard httpResponse.statusCode == 200 else {
                     YouVersionPlatformLogger.error("error in languages: \(httpResponse.statusCode)", category: "Languages")
-                    throw YouVersionAPIError.cannotDownload
+                    throw YouVersionAPI.error(forStatusCode: httpResponse.statusCode)
                 }
 
                 let responseObject = try JSONDecoder().decode(LanguagesResponse.self, from: data)

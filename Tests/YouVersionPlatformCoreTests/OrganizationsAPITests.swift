@@ -115,9 +115,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.Organizations.organization(id: "org-123", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
     }
 
     @MainActor

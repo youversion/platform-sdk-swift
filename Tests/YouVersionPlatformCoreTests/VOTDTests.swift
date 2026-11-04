@@ -51,9 +51,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
     }
 
     @MainActor
