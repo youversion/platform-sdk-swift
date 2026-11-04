@@ -87,7 +87,7 @@ extension ConfigurationStateTests {
         }
         
         @MainActor
-        @Test func tokenUnauthorizedThrowsNotPermitted() async throws {
+        @Test func tokenUnauthorizedThrowsMissingAuthentication() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
             YouVersionPlatformConfiguration.configure(appKey: "test-app-key")
             defer {
@@ -102,7 +102,7 @@ extension ConfigurationStateTests {
                 return (Data(), response)
             }
             
-            await #expect(throws: YouVersionAPIError.notPermitted) {
+            await #expect(throws: YouVersionAPIError.missingAuthentication) {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
                     permissions: ["highlights"],
                     accessToken: "access-token",

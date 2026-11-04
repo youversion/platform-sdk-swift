@@ -74,7 +74,8 @@ extension YouVersionAPI.Bible {
     ///
     /// - Throws:
     ///   - `URLError` if the URL is invalid.
-    ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
+    ///   - `YouVersionAPIError.missingAuthentication` if the server does not recognize the app key.
+    ///   - `YouVersionAPIError.notPermitted` if the app key lacks permission.
     ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
@@ -150,7 +151,7 @@ extension YouVersionAPI.Bible {
 
         guard httpResponse.statusCode == 200 else {
             YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while fetching an html chapter", category: "BibleVersion")
-            throw YouVersionAPI.error(forStatusCode: httpResponse.statusCode)
+            throw YouVersionAPI.error(for: httpResponse, data: data)
         }
 
         let object = try JSONSerialization.jsonObject(with: data, options: [])
