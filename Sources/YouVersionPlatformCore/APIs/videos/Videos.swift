@@ -34,7 +34,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
             guard let data = try await YouVersionAPI.dataIfPresent(
-                at: url, accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken, session: session,
+                at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
                 cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             ) else {
@@ -60,7 +60,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
             let data = try await YouVersionAPI.data(
-                at: url, accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken, session: session,
+                at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
                 cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             )
@@ -84,7 +84,7 @@ public extension YouVersionAPI {
                 throw URLError(.badURL)
             }
             let data = try await YouVersionAPI.data(
-                at: url, accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken, session: session,
+                at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
                 cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             )

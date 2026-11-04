@@ -5,16 +5,22 @@ import FoundationNetworking
 import Testing
 import YouVersionPlatformCore
 
-struct VideosAPITests {
-    private let videoJSON = """
-    {"id":"opaque.video-id","title":"What Is The Bible?","description":"A video description.",
-    "references":["GEN.1","EXO.20.1+EXO.20.2"],"language_tag":"en","runtime":315,"orientation":"landscape",
-    "thumbnail":{"url":"https://images.example.com/{width}x{height}/image.jpg?token=opaque","width":1280,"height":720},
-    "playback_sources":[{"url":"https://cdn.example.com/video.m3u8?token=opaque","format":"hls"}],
-    "playback_preview_sources":[{"url":"https://cdn.example.com/preview.mp4","format":"mp4"}],
-    "share_url":"https://www.bible.com/en/videos/25439"}
-    """
+extension ConfigurationStateTests {
+    @Suite(.serialized)
+    struct VideosAPITests {
+        private let videoJSON = """
+        {"id":"opaque.video-id","title":"What Is The Bible?","description":"A video description.",
+        "references":["GEN.1","EXO.20.1+EXO.20.2"],"language_tag":"en","runtime":315,"orientation":"landscape",
+        "thumbnail":{"url":"https://images.example.com/{width}x{height}/image.jpg?token=opaque","width":1280,"height":720},
+        "playback_sources":[{"url":"https://cdn.example.com/video.m3u8?token=opaque","format":"hls"}],
+        "playback_preview_sources":[{"url":"https://cdn.example.com/preview.mp4","format":"mp4"}],
+        "share_url":"https://www.bible.com/en/videos/25439"}
+        """
+    }
+}
 
+extension ConfigurationStateTests.VideosAPITests {
+    /// Verifies playlist order, opaque pagination tokens, and configured request headers.
     @Test func playlistPagePreservesOrderPaginationAndRequestHeaders() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -49,6 +55,7 @@ struct VideosAPITests {
         #expect(page.nextPageToken == "next+opaque/=")
     }
 
+    /// Preserves an explicitly empty continuation token instead of omitting it.
     @Test func explicitInitialCursorIsPreserved() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -62,6 +69,7 @@ struct VideosAPITests {
         #expect(page.playlists.isEmpty)
     }
 
+    /// Requests a single playlist within its organization and decodes its metadata.
     @Test func playlistResourceUsesOrganizationContextAndRequestHeaders() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -90,6 +98,7 @@ struct VideosAPITests {
         #expect(try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: JSONEncoder().encode(playlist)) == playlist)
     }
 
+    /// Accepts the documented page-size boundaries and omits the server default.
     @Test(arguments: [1, 99, nil])
     func playlistPageSizeBoundariesAndServerDefault(pageSize: Int?) async throws {
         let (session, token) = HTTPMocking.makeSession()
@@ -108,6 +117,7 @@ struct VideosAPITests {
         #expect(page.nextPageToken == nil)
     }
 
+    /// Rejects playlists with missing or null required fields.
     @Test(arguments: ["id", "title", "type", "total", "videos"])
     func requiredPlaylistFieldsCannotBeMissingOrNull(field: String) throws {
         let original: [String: Any] = ["id": 3669, "title": "Teaching Clips", "type": "TEACHING_CLIPS", "total": 0, "videos": []]
@@ -121,6 +131,7 @@ struct VideosAPITests {
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: nullData) }
     }
 
+    /// Preserves video metadata, opaque IDs, and playback and thumbnail URLs.
     @Test func videoPreservesOpaqueIDMetadataAndPlaybackURLs() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -157,11 +168,13 @@ struct VideosAPITests {
         #expect(roundTrip == video)
     }
 
+    /// Allows nullable scripture references in video metadata.
     @Test func videoAllowsNullReferences() throws {
         let json = videoJSON.replacingOccurrences(of: "[\"GEN.1\",\"EXO.20.1+EXO.20.2\"]", with: "null")
         #expect(try JSONDecoder().decode(YouVersionVideo.self, from: Data(json.utf8)).references == nil)
     }
 
+    /// Decodes optional video metadata whether absent or explicitly null.
     @Test(arguments: [false, true])
     func nullableMetadataCanBeAbsentOrNull(explicitNulls: Bool) throws {
         var object: [String: Any] = ["id": "latest-id", "playback_sources": [], "playback_preview_sources": []]
@@ -185,6 +198,7 @@ struct VideosAPITests {
         #expect(video.playbackPreviewSources.isEmpty)
     }
 
+    /// Avoids deriving dimensions or URLs from incomplete thumbnail metadata.
     @Test(arguments: ["{}", "{\"url\":null,\"width\":null,\"height\":null}", "{\"width\":640}",
                       "{\"width\":640,\"height\":0}", "{\"width\":-1,\"height\":360}"])
     func incompleteThumbnailHasNoInventedDimensions(json: String) throws {
@@ -193,6 +207,7 @@ struct VideosAPITests {
         #expect(thumbnail.url(width: 300, height: 168) == nil)
     }
 
+    /// Accepts a concrete thumbnail URL without template placeholders or dimensions.
     @Test func concreteThumbnailURLNeedsNoTemplateOrNativeDimensions() throws {
         let thumbnail = try JSONDecoder().decode(YouVersionVideo.Thumbnail.self, from: Data("""
         {"url":"https://images.example.com/image.jpg?token=opaque"}
@@ -201,6 +216,7 @@ struct VideosAPITests {
         #expect(thumbnail.aspectRatio == nil)
     }
 
+    /// Rejects videos with missing or null required fields.
     @Test(arguments: ["id", "playback_sources", "playback_preview_sources"])
     func requiredFieldsCannotBeMissingOrNull(field: String) throws {
         let original = try #require(JSONSerialization.jsonObject(with: Data(videoJSON.utf8)) as? [String: Any])
@@ -214,6 +230,7 @@ struct VideosAPITests {
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideo.self, from: nullData) }
     }
 
+    /// Preserves each documented playback format without restricting API metadata.
     @Test(arguments: ["hls", "webm", "mp4", "mp3"])
     func documentedSourceFormatsArePreserved(format: String) throws {
         let data = try JSONSerialization.data(withJSONObject: ["url": "https://cdn.example.com/asset", "format": format])
@@ -221,6 +238,7 @@ struct VideosAPITests {
         #expect(source.format == format)
     }
 
+    /// Rejects playback sources missing their required URL or format.
     @Test(arguments: ["url", "format"])
     func playbackSourcesRequireURLAndFormat(field: String) throws {
         var object = ["url": "https://cdn.example.com/asset", "format": "hls"]
@@ -229,11 +247,13 @@ struct VideosAPITests {
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideo.PlaybackSource.self, from: data) }
     }
 
+    /// Rejects a fractional runtime rather than silently rounding it.
     @Test func runtimeIsAnIntegerNumberOfSeconds() throws {
         let json = videoJSON.replacingOccurrences(of: "\"runtime\":315", with: "\"runtime\":315.5")
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideo.self, from: Data(json.utf8)) }
     }
 
+    /// Accepts the returned video ID unchanged in a subsequent request.
     @Test func subsequentRequestsUseTheLatestResponseIdentifier() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -253,6 +273,7 @@ struct VideosAPITests {
         #expect(second.id == "next-response-id")
     }
 
+    /// Maps HTTP 204 to an empty playlist page without a continuation token.
     @Test func noContentReturnsEmptyPlaylistPage() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -264,6 +285,7 @@ struct VideosAPITests {
         #expect(page.nextPageToken == nil)
     }
 
+    /// Uses the shared HTTP error mapping for all video API accessors.
     @Test(arguments: [401, 403, 404, 500])
     func httpFailuresPropagate(status: Int) async {
         let (session, token) = HTTPMocking.makeSession()
@@ -277,6 +299,7 @@ struct VideosAPITests {
         await #expect(throws: expected) { try await YouVersionAPI.Videos.playlist(organizationID: "org", id: 3669, session: session) }
     }
 
+    /// Rejects empty resource IDs before sending a request.
     @Test func emptyIdentifiersFailBeforeNetworking() async {
         await #expect {
             try await YouVersionAPI.Videos.playlist(organizationID: "", id: 3669)
@@ -289,6 +312,7 @@ struct VideosAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
+    /// Rejects page sizes outside the documented range before networking.
     @Test(arguments: [0, -1, 100, Int.max])
     func invalidPageSizesFailBeforeNetworking(pageSize: Int) async {
         await #expect {
@@ -296,6 +320,7 @@ struct VideosAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
+    /// Keeps the temporary cache workaround despite session language preferences.
     @Test func temporaryLanguageOverrideWinsOverSessionPreferences() async throws {
         let (baseSession, token) = HTTPMocking.makeSession()
         let configuration = baseSession.configuration
@@ -318,6 +343,56 @@ struct VideosAPITests {
         _ = try await YouVersionAPI.Videos.video(id: "video", session: session)
     }
 
+    /// Refreshes expired default credentials while preserving explicit token overrides in every accessor.
+    @Test(arguments: ["playlists", "playlist", "video"], [false, true])
+    func tokenResolutionRefreshesOnlyDefaultCredentials(endpoint: String, usesExplicitToken: Bool) async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        await YouVersionPlatformConfiguration.configure(appKey: "video-refresh-tests")
+        await YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "expired-video-token", refreshToken: "video-refresh-token", idToken: nil,
+            expiryDate: Date(timeIntervalSinceNow: -60)
+        )
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let resourceData: Data
+        switch endpoint {
+        case "video": resourceData = Data(videoJSON.utf8)
+        case "playlist": resourceData = Data("{\"id\":3669,\"title\":\"Test\",\"type\":\"VIDEOS\",\"total\":0,\"videos\":[]}".utf8)
+        default: resourceData = Data("{\"data\":[]}".utf8)
+        }
+        let expectedToken = usesExplicitToken ? "explicit-video-token" : "refreshed-video-token"
+        HTTPMocking.setHandler(token: token) { request in
+            let data: Data
+            if request.url?.path == "/auth/token" {
+                #expect(!usesExplicitToken)
+                #expect(request.httpMethod == "POST")
+                data = Data("""
+                {"access_token":"refreshed-video-token","refresh_token":"new-video-refresh","expires_in":"7200","scope":""}
+                """.utf8)
+            } else {
+                #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer \(expectedToken)")
+                data = resourceData
+            }
+            return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        do {
+            let accessToken = usesExplicitToken ? expectedToken : nil
+            switch endpoint {
+            case "playlists": _ = try await YouVersionAPI.Videos.playlists(organizationID: "org", accessToken: accessToken, session: session)
+            case "playlist": _ = try await YouVersionAPI.Videos.playlist(organizationID: "org", id: 3669, accessToken: accessToken, session: session)
+            default: _ = try await YouVersionAPI.Videos.video(id: "video", accessToken: accessToken, session: session)
+            }
+            #expect(YouVersionPlatformConfiguration.accessToken == (usesExplicitToken ? "expired-video-token" : expectedToken))
+        } catch {
+            await YouVersionPlatformConfiguration.clearAuthTokens()
+            await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+            throw error
+        }
+        await YouVersionPlatformConfiguration.clearAuthTokens()
+        await YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+    }
+
+    /// Propagates decoding failures instead of reporting an empty collection.
     @Test func malformedMetadataIsNotReportedAsAnEmptyCollection() async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }

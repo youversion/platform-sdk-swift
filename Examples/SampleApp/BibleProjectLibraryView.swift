@@ -5,6 +5,7 @@ struct BibleProjectLibraryView: View {
     @State private var playlists: [YouVersionVideoPlaylist] = []
     @State private var errorMessage: String?
     @State private var isLoading = true
+    @State private var retryID = UUID()
 
     private let organizationID = "6a4552c4-96eb-4df9-aa89-b2cae8db310d"
 
@@ -14,9 +15,12 @@ struct BibleProjectLibraryView: View {
                 .font(.title.bold())
                 .padding(.horizontal, 20)
             if let errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 20)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(errorMessage).foregroundStyle(.secondary)
+                    Button("Retry") { retryID = UUID() }
+                        .accessibilityIdentifier("library.retryPlaylists")
+                }
+                .padding(.horizontal, 20)
             } else if isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity)
@@ -29,7 +33,7 @@ struct BibleProjectLibraryView: View {
                 VideoPlaylistView(playlist: playlist)
             }
         }
-        .task {
+        .task(id: retryID) {
             guard playlists.isEmpty else {
                 return
             }
@@ -80,6 +84,7 @@ private struct VideoThumbnailView: View {
     @Environment(\.displayScale) private var displayScale
     @State private var video: YouVersionVideo?
     @State private var errorMessage: String?
+    @State private var retryID = UUID()
 
     var body: some View {
         Group {
@@ -105,17 +110,22 @@ private struct VideoThumbnailView: View {
                 .accessibilityLabel(video.title ?? "Video")
                 .accessibilityIdentifier("library.video.\(videoID)")
             } else if let errorMessage {
-                Image(systemName: "exclamationmark.triangle")
-                    .frame(width: 100, height: 56)
-                    .accessibilityLabel(errorMessage)
+                Button { retryID = UUID() } label: {
+                    Label("Retry", systemImage: "arrow.clockwise")
+                        .frame(width: 100, height: 56)
+                }
+                .accessibilityLabel("Retry loading video")
+                .accessibilityHint(errorMessage)
+                .accessibilityIdentifier("library.retryVideoMetadata.\(videoID)")
             } else {
                 ProgressView().frame(width: 100, height: 56)
             }
         }
-        .task(id: videoID) {
+        .task(id: retryID) {
             guard video == nil else {
                 return
             }
+            errorMessage = nil
             do {
                 let resolved = try await YouVersionAPI.Videos.video(id: videoID)
                 try Task.checkCancellation()
