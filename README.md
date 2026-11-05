@@ -425,7 +425,7 @@ if let hit = results.images.first {
 }
 ```
 
-To page through every image hit, send each `nextPageToken` back with the same query, Bible ID, and page size. Image IDs are issued per response, so resolve them as you need them rather than storing or rebuilding them:
+To page through every image hit, send each `nextPageToken` back with the same query, Bible ID, and page size:
 
 ```swift
 var pageToken: String?

@@ -24,10 +24,9 @@ public extension YouVersionAPI {
         /// Retrieves the Verse of the Day for a day of the year, including a reference to its verse art.
         ///
         /// Resolve the returned `imageID` with ``YouVersionAPI/Images/image(id:accessToken:session:)``.
-        /// Image IDs are issued per response, so don't persist, compare, or reconstruct them.
         ///
         /// - Parameters:
-        ///   - dayOfYear: The day of the year, from 1 through 366. The server rejects other days.
+        ///   - dayOfYear: The day of the year, from 1 through 366.
         ///   - languageRanges: Ordered basic language ranges that select the art's language.
         ///     Use `*` to select English; an empty array omits the parameter and `imageID` is `nil`.
         ///   - accessToken: An optional access token. Defaults to the configured access token.
@@ -59,9 +58,6 @@ public extension YouVersionAPI {
         }
 
         /// Retrieves the Verse of the Day calendar for an entire year, with one item per day.
-        ///
-        /// Resolve an item's `imageID` with ``YouVersionAPI/Images/image(id:accessToken:session:)``.
-        /// Image IDs are issued per response, so don't persist, compare, or reconstruct them.
         ///
         /// - Parameters:
         ///   - languageRanges: Ordered basic language ranges that select the art's language.

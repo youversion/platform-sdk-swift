@@ -44,7 +44,6 @@ public enum URLBuilder {
         return components.url
     }
 
-    /// Returns an image search URL, keeping `+` in the query and opaque page token intact.
     static func searchImagesURL(
         query: String,
         bibleID: Int,
