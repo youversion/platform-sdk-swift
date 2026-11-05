@@ -389,6 +389,16 @@ let votd = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: dayOfYear)
 // Use votd.reference with BibleTextView
 ```
 
+Pass language ranges to also get the day's verse art. `imageID` is `nil` when you omit them or no art matches. Use `versesOfTheDay(languageRanges:)` to get the whole year:
+
+```swift
+let votd = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: dayOfYear, languageRanges: ["en"])
+if let imageID = votd.imageID {
+    let image = try await YouVersionAPI.Images.image(id: imageID)
+    print(image.url, image.attribution)
+}
+```
+
 ### Finding Verse Images
 
 Find artwork for a passage and language. Results include the image URL and attribution:
@@ -413,6 +423,21 @@ if let hit = results.images.first {
     let image = try await YouVersionAPI.Images.image(id: hit.id)
     print(image.url, image.attribution)
 }
+```
+
+To page through every image hit, send each `nextPageToken` back with the same query, Bible ID, and page size. Image IDs are issued per response, so resolve them as you need them rather than storing or rebuilding them:
+
+```swift
+var pageToken: String?
+repeat {
+    let page = try await YouVersionAPI.Search.images(
+        query: "love", bibleID: 111, pageSize: 25, pageToken: pageToken
+    )
+    for hit in page.images {
+        print(hit.id, hit.passageID)
+    }
+    pageToken = page.nextPageToken
+} while pageToken != nil
 ```
 
 ## Sample App

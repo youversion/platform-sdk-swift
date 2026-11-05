@@ -44,6 +44,30 @@ public enum URLBuilder {
         return components.url
     }
 
+    /// Returns an image search URL, keeping `+` in the query and opaque page token intact.
+    static func searchImagesURL(
+        query: String,
+        bibleID: Int,
+        pageSize: Int?,
+        pageToken: String?
+    ) -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1/search-images"
+        var queryItems = [
+            URLQueryItem(name: "query", value: query),
+            URLQueryItem(name: "bible_id", value: String(bibleID))
+        ]
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize)))
+        }
+        if let pageToken {
+            queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
+        }
+        components.queryItems = queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        return components.url
+    }
+
     static func userURL(accessToken: String) -> URL? {
         var components = baseURLComponents
         components.path = "/auth/me"
@@ -100,8 +124,25 @@ public enum URLBuilder {
     }
 
     public static func votdURL(dayOfYear: Int) -> URL? {
+        votdURL(dayOfYear: dayOfYear, languageRanges: [])
+    }
+
+    /// Returns a single-day URL that sends each language range as a repeated `language_ranges[]` item.
+    static func votdURL(dayOfYear: Int, languageRanges: [String]) -> URL? {
+        votdURL(path: "/v1/verse-of-the-days/\(dayOfYear)", languageRanges: languageRanges)
+    }
+
+    /// Returns a full-year URL that sends each language range as a repeated `language_ranges[]` item.
+    static func votdCollectionURL(languageRanges: [String]) -> URL? {
+        votdURL(path: "/v1/verse-of-the-days", languageRanges: languageRanges)
+    }
+
+    private static func votdURL(path: String, languageRanges: [String]) -> URL? {
         var components = baseURLComponents
-        components.path = "/v1/verse_of_the_days/\(dayOfYear)"
+        components.path = path
+        let queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
+        components.queryItems = queryItems.isEmpty ? nil : queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         return components.url
     }
 
