@@ -91,7 +91,7 @@ private struct VideoThumbnailView: View {
             if let video {
                 let width = 56 * video.displayAspectRatio
                 NavigationLink {
-                    LibraryVideoView(video: video)
+                    ContentLibraryVideoView(video: video)
                 } label: {
                     let url = video.thumbnail?.url(width: Int((width * displayScale).rounded(.up)), height: Int(56 * displayScale))
                     AsyncImage(url: url) { phase in

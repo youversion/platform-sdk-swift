@@ -2,7 +2,7 @@ import AVKit
 import SwiftUI
 import YouVersionPlatform
 
-struct LibraryVideoView: View {
+struct ContentLibraryVideoView: View {
     let video: YouVersionVideo
     @State private var player: AVPlayer?
     @State private var playbackError: String?
