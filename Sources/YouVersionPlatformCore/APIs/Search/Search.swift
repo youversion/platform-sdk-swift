@@ -456,7 +456,13 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionImageSearchResults(images: [], nextPageToken: nil)
+        }
         let response = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
         return YouVersionImageSearchResults(
             images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
