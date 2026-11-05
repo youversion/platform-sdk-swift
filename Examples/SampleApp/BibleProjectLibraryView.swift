@@ -47,7 +47,7 @@ struct BibleProjectLibraryView: View {
                     let page = try await YouVersionAPI.Videos.playlists(organizationID: organizationID, pageSize: 99, pageToken: pageToken)
                     try Task.checkCancellation()
                     loadedPlaylists += page.playlists
-                    pageToken = page.playlists.isEmpty ? nil : page.nextPageToken
+                    pageToken = page.nextPageToken
                 } while pageToken != nil
                 playlists = loadedPlaylists
             } catch {

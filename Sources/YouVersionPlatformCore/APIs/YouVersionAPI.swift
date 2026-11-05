@@ -28,17 +28,15 @@ public enum YouVersionAPI {
         at url: URL,
         accessToken: String?,
         session: URLSession,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
         headers: [String: String] = [:]
     ) async throws -> Data {
-        try await responseData(at: url, accessToken: accessToken, session: session, cachePolicy: cachePolicy, headers: headers).value
+        try await responseData(at: url, accessToken: accessToken, session: session, headers: headers).value
     }
 
     static func dataIfPresent(
         at url: URL,
         accessToken: String?,
         session: URLSession,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
         headers: [String: String] = [:]
     ) async throws -> Data? {
         try await response(
@@ -46,7 +44,6 @@ public enum YouVersionAPI {
             accessToken: accessToken,
             session: session,
             allowsNoContent: true,
-            cachePolicy: cachePolicy,
             headers: headers
         ).data
     }
@@ -55,7 +52,6 @@ public enum YouVersionAPI {
         at url: URL,
         accessToken: String?,
         session: URLSession,
-        cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy,
         headers: [String: String] = [:]
     ) async throws -> BibleContentResponse<Data> {
         let response = try await response(
@@ -63,7 +59,6 @@ public enum YouVersionAPI {
             accessToken: accessToken,
             session: session,
             allowsNoContent: false,
-            cachePolicy: cachePolicy,
             headers: headers
         )
         guard let data = response.data else {
@@ -81,10 +76,9 @@ public enum YouVersionAPI {
         accessToken: String?,
         session: URLSession,
         allowsNoContent: Bool,
-        cachePolicy: URLRequest.CachePolicy,
         headers: [String: String]
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
-        var request = urlRequest(with: url, accessToken: accessToken, session: session, cachePolicy: cachePolicy)
+        var request = urlRequest(with: url, accessToken: accessToken, session: session)
         for (field, value) in headers {
             request.setValue(value, forHTTPHeaderField: field)
         }

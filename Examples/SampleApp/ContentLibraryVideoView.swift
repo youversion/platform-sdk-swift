@@ -38,7 +38,7 @@ struct ContentLibraryVideoView: View {
         .navigationTitle(video.title ?? "Video")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .task(id: PlaybackRequest(url: playbackURL, retryID: retryID)) {
+        .task(id: retryID) {
             guard let playbackURL else {
                 return
             }
@@ -56,11 +56,6 @@ struct ContentLibraryVideoView: View {
             }
         }
         .onDisappear { player?.pause() }
-    }
-
-    private struct PlaybackRequest: Equatable {
-        let url: URL?
-        let retryID: UUID
     }
 
     private var playbackURL: URL? {
