@@ -11,14 +11,15 @@ public struct YouVersionVideo: Codable, Equatable, Sendable {
     public let languageTag: String?
     public let runtime: Int?
     public let orientation: String?
-    public let thumbnail: Thumbnail?
+    public internal(set) var thumbnail: Thumbnail?
     public let playbackSources: [PlaybackSource]
     public let playbackPreviewSources: [PlaybackSource]
     public let shareURL: URL?
 
-    /// An image-proxy template and the source image's native dimensions.
+    /// A thumbnail URL and the source image’s native dimensions.
     public struct Thumbnail: Codable, Equatable, Sendable {
-        public let urlTemplate: String?
+        /// The thumbnail URL, ready to use after `YouVersionAPI.Videos.video` adds the configured app key and requested size.
+        public internal(set) var url: URL?
         public let width: Int?
         public let height: Int?
 
@@ -27,23 +28,6 @@ public struct YouVersionVideo: Codable, Equatable, Sendable {
                 return nil
             }
             return Double(width) / Double(height)
-        }
-
-        // TODO: When the API supplies a plain thumbnail URL, remove urlTemplate and the substitutions below;
-        // update the model, callers, tests, and documentation to use that URL directly.
-        /// Resolves the image-proxy placeholders to the requested pixel dimensions.
-        public func url(width: Int, height: Int) -> URL? {
-            guard let urlTemplate, width > 0 && height > 0 else {
-                return nil
-            }
-            return URL(string: urlTemplate
-                .replacingOccurrences(of: "{width}", with: String(width))
-                .replacingOccurrences(of: "{height}", with: String(height)))
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case urlTemplate = "url"
-            case width, height
         }
     }
 

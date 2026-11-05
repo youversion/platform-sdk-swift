@@ -81,7 +81,6 @@ private struct VideoPlaylistView: View {
 
 private struct VideoThumbnailView: View {
     let videoID: String
-    @Environment(\.displayScale) private var displayScale
     @State private var video: YouVersionVideo?
     @State private var errorMessage: String?
     @State private var retryID = UUID()
@@ -93,7 +92,7 @@ private struct VideoThumbnailView: View {
                 NavigationLink {
                     ContentLibraryVideoView(video: video)
                 } label: {
-                    let url = video.thumbnail?.url(width: Int((width * displayScale).rounded(.up)), height: Int(56 * displayScale))
+                    let url = video.thumbnail?.url
                     AsyncImage(url: url) { phase in
                         if let image = phase.image {
                             image.resizable().scaledToFit()
@@ -127,7 +126,7 @@ private struct VideoThumbnailView: View {
             }
             errorMessage = nil
             do {
-                let resolved = try await YouVersionAPI.Videos.video(id: videoID)
+                let resolved = try await YouVersionAPI.Videos.video(id: videoID, size: "thumb")
                 try Task.checkCancellation()
                 video = resolved
             } catch {

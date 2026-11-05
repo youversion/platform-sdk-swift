@@ -71,6 +71,7 @@ public enum YouVersionAPI {
         )
     }
 
+    // TODO: Remove the temporary playlist cache bypass, Accept-Language override, and HTTP 204 diagnostics before merging to main.
     private static func response(
         at url: URL,
         accessToken: String?,
@@ -79,6 +80,10 @@ public enum YouVersionAPI {
         headers: [String: String]
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
         var request = urlRequest(with: url, accessToken: accessToken, session: session)
+        if url.path.hasPrefix("/v1/organizations/") && url.path.hasSuffix("/playlists") {
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            request.setValue("en", forHTTPHeaderField: "Accept-Language")
+        }
         for (field, value) in headers {
             request.setValue(value, forHTTPHeaderField: field)
         }
@@ -95,7 +100,6 @@ public enum YouVersionAPI {
         }
 
         if httpResponse.statusCode == 204 && allowsNoContent {
-            // TODO: Remove temporary playlist HTTP 204 diagnostics before merging to main.
             if url.path.hasPrefix("/v1/organizations/") && url.path.hasSuffix("/playlists") {
                 YouVersionPlatformLogger.error(
                     "Playlist HTTP 204: request URL=\(url.absoluteString); response URL=\(httpResponse.url?.absoluteString ?? "nil"); "

@@ -11,7 +11,7 @@ extension ConfigurationStateTests {
         private let videoJSON = """
         {"id":"opaque.video-id","title":"What Is The Bible?","description":"A video description.",
         "references":["GEN.1","EXO.20.1+EXO.20.2"],"language_tag":"en","runtime":315,"orientation":"landscape",
-        "thumbnail":{"url":"https://images.example.com/{width}x{height}/image.jpg?token=opaque","width":1280,"height":720},
+        "thumbnail":{"url":"https://cdn.example.com/video-images/image.jpg","width":1280,"height":720},
         "playback_sources":[{"url":"https://cdn.example.com/video.m3u8?token=opaque","format":"hls"}],
         "playback_preview_sources":[{"url":"https://cdn.example.com/preview.mp4","format":"mp4"}],
         "share_url":"https://www.bible.com/en/videos/25439"}
@@ -33,9 +33,9 @@ extension ConfigurationStateTests.VideosAPITests {
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.httpMethod == "GET")
-            #expect(request.cachePolicy == .useProtocolCachePolicy)
+            #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer video-tests")
             #expect(components.path == "/v1/organizations/\(organizationID)/playlists")
             #expect(components.percentEncodedPath.contains("organization%2Fid%20%3F%23"))
@@ -132,7 +132,11 @@ extension ConfigurationStateTests.VideosAPITests {
     }
 
     /// Preserves video metadata, opaque IDs, and playback and thumbnail URLs.
+    @MainActor
     @Test func videoPreservesOpaqueIDMetadataAndPlaybackURLs() async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(appKey: "thumbnail-tests")
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         let id = "opaque/id+?%# fragment"
@@ -141,8 +145,8 @@ extension ConfigurationStateTests.VideosAPITests {
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
-            let prefix = "/v1/videos/"
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            let prefix = "/v1-beta/videos/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
             #expect(!segment.contains("/"))
@@ -161,11 +165,77 @@ extension ConfigurationStateTests.VideosAPITests {
         #expect(video.shareURL?.absoluteString == "https://www.bible.com/en/videos/25439")
         let thumbnail = try #require(video.thumbnail)
         #expect(abs(try #require(thumbnail.aspectRatio) - 16.0 / 9) < 0.0001)
-        #expect(thumbnail.url(width: 300, height: 168)?.absoluteString
-            == "https://images.example.com/300x168/image.jpg?token=opaque")
-        #expect(thumbnail.url(width: 0, height: 168) == nil)
+        let thumbnailURL = try #require(thumbnail.url)
+        #expect(thumbnailURL.host == "cdn.example.com")
+        #expect(thumbnailURL.path == "/video-images/image.jpg")
+        #expect(URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false)?.queryItems
+            == [URLQueryItem(name: "app_key", value: "thumbnail-tests")])
         let roundTrip = try JSONDecoder().decode(YouVersionVideo.self, from: JSONEncoder().encode(video))
         #expect(roundTrip == video)
+    }
+
+    /// Returns ready-to-use thumbnails while preserving unrelated encoded query parameters.
+    @MainActor
+    @Test(arguments: ["thumb", "card", "full", nil])
+    func videoConfiguresThumbnailURL(size: String?) async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        let appKey = "thumbnail+key&=/"
+        YouVersionPlatformConfiguration.configure(appKey: appKey)
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let thumbnailURL = "https://cdn.example.com/video-images/image.jpg?token=a%2Bb%2Fc%3D&app_key=old&size=full&app_key=older&size=card#image"
+        let data = Data(videoJSON.replacingOccurrences(
+            of: "https://cdn.example.com/video-images/image.jpg", with: thumbnailURL
+        ).utf8)
+        HTTPMocking.setHandler(token: token) { request in
+            #expect(request.url?.query == nil)
+            return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        let video = try await YouVersionAPI.Videos.video(id: "video", size: size, accessToken: "test", session: session)
+        let url = try #require(video.thumbnail?.url)
+        let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        #expect(components.percentEncodedQuery?.hasPrefix("token=a%2Bb%2Fc%3D&") == true)
+        #expect(components.fragment == "image")
+        #expect(components.queryItems?.filter { $0.name == "app_key" } == [URLQueryItem(name: "app_key", value: appKey)])
+        let sizeItems = components.queryItems?.filter { $0.name == "size" } ?? []
+        if let size {
+            #expect(sizeItems == [URLQueryItem(name: "size", value: size)])
+        } else {
+            #expect(sizeItems.isEmpty)
+        }
+        #expect(video.playbackSources.first?.url.query == "token=opaque")
+    }
+
+    /// Rejects unsupported thumbnail sizes before networking.
+    @Test(arguments: ["", "small", "THUMB"])
+    func invalidThumbnailSizesFailBeforeNetworking(size: String) async {
+        await #expect {
+            try await YouVersionAPI.Videos.video(id: "video", size: size)
+        } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
+    }
+
+    /// Requires an app key only when the response contains a thumbnail URL to authenticate.
+    @MainActor
+    @Test(arguments: [true, false])
+    func thumbnailAuthenticationRequiresConfiguredAppKey(hasThumbnail: Bool) async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(appKey: nil)
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let data = Data((hasThumbnail ? videoJSON : "{\"id\":\"video\",\"playback_sources\":[],\"playback_preview_sources\":[]}").utf8)
+        HTTPMocking.setHandler(token: token) { request in
+            (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        if hasThumbnail {
+            await #expect(throws: YouVersionAPIError.missingAuthentication) {
+                try await YouVersionAPI.Videos.video(id: "video", accessToken: "test", session: session)
+            }
+        } else {
+            let video = try await YouVersionAPI.Videos.video(id: "video", accessToken: "test", session: session)
+            #expect(video.thumbnail == nil)
+        }
     }
 
     /// Allows nullable scripture references in video metadata.
@@ -204,15 +274,15 @@ extension ConfigurationStateTests.VideosAPITests {
     func incompleteThumbnailHasNoInventedDimensions(json: String) throws {
         let thumbnail = try JSONDecoder().decode(YouVersionVideo.Thumbnail.self, from: Data(json.utf8))
         #expect(thumbnail.aspectRatio == nil)
-        #expect(thumbnail.url(width: 300, height: 168) == nil)
+        #expect(thumbnail.url == nil)
     }
 
-    /// Accepts a concrete thumbnail URL without template placeholders or dimensions.
-    @Test func concreteThumbnailURLNeedsNoTemplateOrNativeDimensions() throws {
+    /// Preserves a supplied thumbnail URL even when native dimensions are absent.
+    @Test func thumbnailURLDoesNotRequireNativeDimensions() throws {
         let thumbnail = try JSONDecoder().decode(YouVersionVideo.Thumbnail.self, from: Data("""
         {"url":"https://images.example.com/image.jpg?token=opaque"}
         """.utf8))
-        #expect(thumbnail.url(width: 300, height: 168)?.absoluteString == "https://images.example.com/image.jpg?token=opaque")
+        #expect(thumbnail.url?.absoluteString == "https://images.example.com/image.jpg?token=opaque")
         #expect(thumbnail.aspectRatio == nil)
     }
 
@@ -254,19 +324,23 @@ extension ConfigurationStateTests.VideosAPITests {
     }
 
     /// Accepts the returned video ID unchanged in a subsequent request.
+    @MainActor
     @Test func subsequentRequestsUseTheLatestResponseIdentifier() async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(appKey: "thumbnail-tests")
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         let originalData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.url?.path == "/v1/videos/52186")
+            #expect(request.url?.path == "/v1-beta/videos/52186")
             return (originalData, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let first = try await YouVersionAPI.Videos.video(id: "52186", session: session)
         #expect(first.id == "opaque.video-id")
         let updatedData = Data(videoJSON.replacingOccurrences(of: "opaque.video-id", with: "next-response-id").utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.url?.path == "/v1/videos/opaque.video-id")
+            #expect(request.url?.path == "/v1-beta/videos/opaque.video-id")
             return (updatedData, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let second = try await YouVersionAPI.Videos.video(id: first.id, session: session)
@@ -322,8 +396,12 @@ extension ConfigurationStateTests.VideosAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
-    /// Preserves the caller’s session language preferences.
-    @Test func sessionLanguagePreferencesArePreserved() async throws {
+    /// Applies the temporary English overrides to playlist collections and video metadata.
+    @MainActor
+    @Test func temporaryEnglishOverridesSessionLanguagePreferences() async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(appKey: "thumbnail-tests")
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
         let (baseSession, token) = HTTPMocking.makeSession()
         let configuration = baseSession.configuration
         var headers = configuration.httpAdditionalHeaders ?? [:]
@@ -337,8 +415,9 @@ extension ConfigurationStateTests.VideosAPITests {
         }
         let videoData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en-US,en;q=0.9")
-            let data = request.url!.path.hasPrefix("/v1/videos/") ? videoData : Data("{\"data\":[]}".utf8)
+            let isVideo = request.url!.path.hasPrefix("/v1-beta/videos/")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            let data = isVideo ? videoData : Data("{\"data\":[]}".utf8)
             return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         _ = try await YouVersionAPI.Videos.playlists(organizationID: "org", session: session)

@@ -59,16 +59,21 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: data)
         }
 
+        // TODO: Remove the temporary English video-language override once the API video-language lookup issue is fixed.
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
+        /// The optional thumbnail size is `thumb`, `card`, or `full`; omit it for full size.
+        /// Returned thumbnail URLs include the configured app key and can be used directly.
+        /// A thumbnail requires a configured app key; otherwise `YouVersionAPIError.missingAuthentication` is thrown.
         /// An unknown ID (HTTP 404) throws `YouVersionAPIError.cannotDownload`.
         /// Uses the configured app key and optional access token.
         /// HTTP and decoding failures are thrown.
         public static func video(
             id: String,
+            size: String? = nil,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionVideo {
-            guard !id.isEmpty else {
+            guard !id.isEmpty && (size.map { ["thumb", "card", "full"].contains($0) } ?? true) else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)
             }
             guard let url = URLBuilder.videoURL(id: id) else {
@@ -76,9 +81,30 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
-                headers: requestHeaders
+                headers: ["Accept": "application/json", "Accept-Language": "en"]
             )
-            return try JSONDecoder().decode(YouVersionVideo.self, from: data)
+            var video = try JSONDecoder().decode(YouVersionVideo.self, from: data)
+            guard let thumbnailURL = video.thumbnail?.url else {
+                return video
+            }
+            guard let appKey = YouVersionPlatformConfiguration.appKey, !appKey.isEmpty else {
+                throw YouVersionAPIError.missingAuthentication
+            }
+            guard let encodedAppKey = appKey.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
+                  var components = URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false) else {
+                throw URLError(.badURL)
+            }
+            var queryItems = components.percentEncodedQueryItems?.filter { $0.name != "size" && $0.name != "app_key" } ?? []
+            queryItems.append(URLQueryItem(name: "app_key", value: encodedAppKey))
+            if let size {
+                queryItems.append(URLQueryItem(name: "size", value: size))
+            }
+            components.percentEncodedQueryItems = queryItems
+            guard let url = components.url else {
+                throw URLError(.badURL)
+            }
+            video.thumbnail?.url = url
+            return video
         }
     }
 }
