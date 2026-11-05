@@ -385,7 +385,7 @@ public extension YouVersionAPI.Search {
     /// Returns one page of verse-art hits matching `query`.
     ///
     /// Send the returned `nextPageToken` as `pageToken` with the same `query`, `bibleID`, and `pageSize`
-    /// to load the next page. Resolve a hit's `id` with ``YouVersionAPI/Images/image(id:accessToken:session:)``.
+    /// to load the next page.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
