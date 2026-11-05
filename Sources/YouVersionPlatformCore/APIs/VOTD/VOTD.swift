@@ -23,8 +23,6 @@ public extension YouVersionAPI {
 
         /// Retrieves the Verse of the Day for a day of the year, including a reference to its verse art.
         ///
-        /// Resolve the returned `imageID` with ``YouVersionAPI/Images/image(id:accessToken:session:)``.
-        ///
         /// - Parameters:
         ///   - dayOfYear: The day of the year, from 1 through 366.
         ///   - languageRanges: Ordered basic language ranges that select the art's language.
