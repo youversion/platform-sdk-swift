@@ -20,8 +20,9 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: A data exchange token.
         /// - Throws:
-        ///   - `YouVersionAPIError.missingAuthentication` when the access token or app key is missing.
-        ///   - `YouVersionAPIError.notPermitted` when the server returns `401`.
+        ///   - `YouVersionAPIError.missingAuthentication` when the access token or app key is missing, or the request is unauthorized.
+        ///   - `YouVersionAPIError.notPermitted` when the request is forbidden.
+        ///   - `YouVersionAPIResponseError` when the server rate limits, fails, or rejects the request.
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
         public static func updateToken(
@@ -50,11 +51,8 @@ public extension YouVersionAPI {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw YouVersionAPIError.invalidResponse
             }
-            if httpResponse.statusCode == 401 {
-                throw YouVersionAPIError.notPermitted
-            }
             guard httpResponse.statusCode == 201 else {
-                throw YouVersionAPIError.cannotDownload
+                throw YouVersionAPI.error(for: httpResponse, data: data)
             }
 
             return try JSONDecoder().decode(DataExchangeTokenResponse.self, from: data).token
