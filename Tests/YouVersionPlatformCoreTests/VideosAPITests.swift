@@ -6,7 +6,6 @@ import Testing
 import YouVersionPlatformCore
 
 extension ConfigurationStateTests {
-    // TODO: Remove the forced-cache-policy assertions here once the CDN caching fix restores default video caching.
     @Suite(.serialized)
     struct VideosAPITests {
         private let videoJSON = """
@@ -34,9 +33,9 @@ extension ConfigurationStateTests.VideosAPITests {
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.httpMethod == "GET")
-            #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
+            #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer video-tests")
             #expect(components.path == "/v1/organizations/\(organizationID)/playlists")
             #expect(components.percentEncodedPath.contains("organization%2Fid%20%3F%23"))
@@ -82,9 +81,9 @@ extension ConfigurationStateTests.VideosAPITests {
             #expect(request.httpMethod == "GET")
             #expect(request.url?.path == "/v1/organizations/\(organizationID)/playlists/3669")
             #expect(request.url?.query == nil)
-            #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
+            #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer playlist-tests")
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
@@ -140,9 +139,9 @@ extension ConfigurationStateTests.VideosAPITests {
         let data = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-            #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
+            #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
             let prefix = "/v1/videos/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
@@ -275,13 +274,15 @@ extension ConfigurationStateTests.VideosAPITests {
     }
 
     /// Maps HTTP 204 to an empty playlist page without a continuation token.
-    @Test func noContentReturnsEmptyPlaylistPage() async throws {
+    @Test(arguments: ["", "unexpected response body"])
+    func noContentReturnsEmptyPlaylistPage(responseBody: String) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in
-            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+            (Data(responseBody.utf8), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil,
+                                                    headerFields: ["X-Request-ID": "playlist-204-test"])!)
         }
-        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", session: session)
+        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: 99, pageToken: "diagnostics", session: session)
         #expect(page.playlists.isEmpty)
         #expect(page.nextPageToken == nil)
     }
@@ -321,8 +322,8 @@ extension ConfigurationStateTests.VideosAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
-    /// Keeps the temporary cache workaround despite session language preferences.
-    @Test func temporaryLanguageOverrideWinsOverSessionPreferences() async throws {
+    /// Preserves the caller’s session language preferences.
+    @Test func sessionLanguagePreferencesArePreserved() async throws {
         let (baseSession, token) = HTTPMocking.makeSession()
         let configuration = baseSession.configuration
         var headers = configuration.httpAdditionalHeaders ?? [:]
@@ -336,7 +337,7 @@ extension ConfigurationStateTests.VideosAPITests {
         }
         let videoData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en-US,en;q=0.9")
             let data = request.url!.path.hasPrefix("/v1/videos/") ? videoData : Data("{\"data\":[]}".utf8)
             return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }

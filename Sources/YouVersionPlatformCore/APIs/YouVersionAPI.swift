@@ -101,6 +101,15 @@ public enum YouVersionAPI {
         }
 
         if httpResponse.statusCode == 204 && allowsNoContent {
+            // TODO: Remove temporary playlist HTTP 204 diagnostics before merging to main.
+            if url.path.hasPrefix("/v1/organizations/") && url.path.hasSuffix("/playlists") {
+                YouVersionPlatformLogger.error(
+                    "Playlist HTTP 204: request URL=\(url.absoluteString); response URL=\(httpResponse.url?.absoluteString ?? "nil"); "
+                        + "response headers=\(httpResponse.allHeaderFields); response bytes=\(data.count); "
+                        + "response body=\(String(data: data, encoding: .utf8) ?? "base64: " + data.base64EncodedString())",
+                    category: "API"
+                )
+            }
             return (nil, httpResponse)
         }
 

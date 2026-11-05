@@ -6,21 +6,14 @@ import FoundationNetworking
 public extension YouVersionAPI {
     /// Organization playlists and video metadata.
     struct Videos {
-        private static let requestHeaders = [
-            "Accept": "application/json",
-            // TODO: Remove this Accept-Language workaround once the server-side caching bug is fixed.
-            "Accept-Language": "en"
-        ]
+        private static let requestHeaders = ["Accept": "application/json"]
 
-        // TODO: Once CDN caching is fixed, remove every reloadIgnoringLocalAndRemoteCacheData override in this type,
-        // the corresponding request-cache documentation, and the cache-policy assertions in VideosAPITests.
         private init() {}
 
         /// Returns one page of playlists for an organization, or an empty page for HTTP 204.
         /// Pass a returned continuation token unchanged to retrieve the next page.
         /// An optional page size from 1 through 99 requests how many playlists to return; omit for the server default of 25.
         /// Uses the configured app key and optional access token.
-        /// Requests use `.reloadIgnoringLocalAndRemoteCacheData`.
         /// HTTP and decoding failures are thrown.
         public static func playlists(
             organizationID: String,
@@ -37,7 +30,6 @@ public extension YouVersionAPI {
             }
             guard let data = try await YouVersionAPI.dataIfPresent(
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
-                cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             ) else {
                 return YouVersionVideoPlaylistCollection(playlists: [], nextPageToken: nil)
@@ -47,7 +39,6 @@ public extension YouVersionAPI {
 
         /// Returns one playlist in its organization context.
         /// Uses the configured app key and optional access token.
-        /// Requests use `.reloadIgnoringLocalAndRemoteCacheData`.
         /// HTTP and decoding failures are thrown.
         public static func playlist(
             organizationID: String,
@@ -63,7 +54,6 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
-                cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             )
             return try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: data)
@@ -72,7 +62,6 @@ public extension YouVersionAPI {
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
         /// An unknown ID (HTTP 404) throws `YouVersionAPIError.cannotDownload`.
         /// Uses the configured app key and optional access token.
-        /// Requests use `.reloadIgnoringLocalAndRemoteCacheData`.
         /// HTTP and decoding failures are thrown.
         public static func video(
             id: String,
@@ -87,7 +76,6 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
-                cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
                 headers: requestHeaders
             )
             return try JSONDecoder().decode(YouVersionVideo.self, from: data)
