@@ -9,18 +9,7 @@ struct SampleApp: App {
     @State private var readerNavigation = BibleReaderNavigation()
 
     init() {
-        let tabColor = UIColor(red: 242.0 / 255, green: 59.0 / 255, blue: 34.0 / 255, alpha: 1)
-        let tabAppearance = UITabBarAppearance()
-        for itemAppearance in [
-            tabAppearance.stackedLayoutAppearance,
-            tabAppearance.inlineLayoutAppearance,
-            tabAppearance.compactInlineLayoutAppearance
-        ] {
-            itemAppearance.selected.iconColor = tabColor
-            itemAppearance.selected.titleTextAttributes = [.foregroundColor: tabColor]
-        }
-        UITabBar.appearance().standardAppearance = tabAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+        Self.setTabBarColor(UIColor(red: 242.0 / 255, green: 59.0 / 255, blue: 34.0 / 255, alpha: 1))
 
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
@@ -67,5 +56,19 @@ struct SampleApp: App {
                     .tag(4)
             }
         }
+    }
+
+    private static func setTabBarColor(_ color: UIColor) {
+        let tabAppearance = UITabBarAppearance()
+        for itemAppearance in [
+            tabAppearance.stackedLayoutAppearance,
+            tabAppearance.inlineLayoutAppearance,
+            tabAppearance.compactInlineLayoutAppearance
+        ] {
+            itemAppearance.selected.iconColor = color
+            itemAppearance.selected.titleTextAttributes = [.foregroundColor: color]
+        }
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     }
 }
