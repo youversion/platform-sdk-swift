@@ -103,6 +103,25 @@ import Testing
     }
 
     @Test
+    func noContentReturnsEmptyResults() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.verses(
+            query: "love", bibleID: 111,
+            accessToken: "swift-test-suite", session: session
+        )
+        #expect(results.references.isEmpty)
+        #expect(results.userIntent == nil)
+        #expect(results.didYouMean.isEmpty)
+        #expect(results.searchInsteadFor == nil)
+        #expect(results.nextPageToken == nil)
+    }
+
+    @Test
     func invalidParametersReturnInvalidParameterError() async {
         await #expect(throws: YouVersionAPIRequestError.self) {
             try await YouVersionAPI.Search.verses(query: "", bibleID: 111)

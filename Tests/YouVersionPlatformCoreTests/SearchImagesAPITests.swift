@@ -57,6 +57,22 @@ struct SearchImagesAPITests {
     }
 
     @Test
+    func noContentReturnsEmptyPage() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.images(
+            query: "love", bibleID: 3034, accessToken: "images-tests", session: session
+        )
+
+        #expect(results.images.isEmpty)
+        #expect(results.nextPageToken == nil)
+    }
+
+    @Test
     func finalPageHasHitsAndNoContinuationToken() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -133,10 +149,9 @@ struct SearchImagesAPITests {
         (status: 400, expected: YouVersionAPIError.cannotDownload),
         (status: 404, expected: YouVersionAPIError.cannotDownload),
         (status: 429, expected: YouVersionAPIError.cannotDownload),
-        (status: 500, expected: YouVersionAPIError.cannotDownload),
-        (status: 204, expected: YouVersionAPIError.cannotDownload)
+        (status: 500, expected: YouVersionAPIError.cannotDownload)
     ])
-    func httpFailuresUseSharedErrorMappingAndNoContentIsNotAnEmptyPage(status: Int, expected: YouVersionAPIError) async {
+    func httpFailuresUseSharedErrorMapping(status: Int, expected: YouVersionAPIError) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in

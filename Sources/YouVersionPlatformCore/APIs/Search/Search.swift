@@ -270,7 +270,20 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionSearchResults(
+                references: [],
+                topics: [],
+                images: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil
+            )
+        }
         let response = try JSONDecoder().decode(SearchResultsResponse.self, from: data)
         return YouVersionSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
@@ -317,7 +330,13 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionTopicSearchResults(topics: [], didYouMean: [], searchInsteadFor: nil)
+        }
         let response = try JSONDecoder().decode(TopicSearchResponse.self, from: data)
         return YouVersionTopicSearchResults(
             topics: response.topics.map {
@@ -371,7 +390,19 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionVerseSearchResults(
+                references: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil,
+                nextPageToken: nil
+            )
+        }
         let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
         return YouVersionVerseSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
@@ -425,7 +456,13 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionImageSearchResults(images: [], nextPageToken: nil)
+        }
         let response = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
         return YouVersionImageSearchResults(
             images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
