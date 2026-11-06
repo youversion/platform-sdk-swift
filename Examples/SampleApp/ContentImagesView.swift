@@ -20,8 +20,8 @@ struct ContentImagesView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField("Search by verse reference", text: $query)
-                        .textInputAutocapitalization(.characters)
+                    TextField("Search for images", text: $query)
+                        .textInputAutocapitalization(.sentences)
                         .autocorrectionDisabled()
                         .submitLabel(.search)
                         .onSubmit { submitSearch() }
@@ -92,14 +92,14 @@ struct ContentImagesView: View {
     }
 
     private func submitSearch() {
-        let passageID = query.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        guard passageID.isEmpty || passageID.range(of: #"^[A-Z0-9]+\.[0-9]+\.[0-9]+(?:-[0-9]+)?$"#, options: .regularExpression) != nil else {
-            validationMessage = String(localized: "Enter a verse or verse range such as GEN.1.2 or GEN.1.3-5.")
+        let searchQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard searchQuery.count <= 100 else {
+            validationMessage = String(localized: "Enter a search of 100 characters or fewer.")
             return
         }
         validationMessage = nil
         isFirstPage = true
-        submittedQuery = passageID
+        submittedQuery = searchQuery
         retryID = UUID()
     }
 
@@ -116,18 +116,38 @@ struct ContentImagesView: View {
             if requestID == retryID { isLoading = false }
         }
         do {
-            let page = try await YouVersionAPI.Images.images(
-                passageID: requestQuery.isEmpty ? nil : requestQuery,
-                pageSize: 30,
-                pageToken: isFirstPage ? nil : nextPageToken
-            )
+            let pageImages: [YouVersionImage]
+            let pageToken: String?
+            if requestQuery.isEmpty {
+                let page = try await YouVersionAPI.Images.images(
+                    pageSize: 30,
+                    pageToken: isFirstPage ? nil : nextPageToken
+                )
+                pageImages = page.images
+                pageToken = page.nextPageToken
+            } else {
+                let page = try await YouVersionAPI.Search.images(
+                    query: requestQuery,
+                    bibleID: 3034,
+                    pageSize: 30,
+                    pageToken: isFirstPage ? nil : nextPageToken
+                )
+                pageImages = try await withThrowingTaskGroup(of: (Int, YouVersionImage).self) { group in
+                    for (index, hit) in page.images.enumerated() {
+                        group.addTask { (index, try await YouVersionAPI.Images.image(id: hit.id)) }
+                    }
+                    let resolved = try await group.reduce(into: [(Int, YouVersionImage)]()) { $0.append($1) }
+                    return resolved.sorted { $0.0 < $1.0 }.map(\.1)
+                }
+                pageToken = page.nextPageToken
+            }
             try Task.checkCancellation()
             guard requestID == retryID && requestQuery == submittedQuery else {
                 return
             }
             let existingIDs = Set(images.map(\.id))
-            images += page.images.filter { !existingIDs.contains($0.id) }
-            nextPageToken = page.nextPageToken
+            images += pageImages.filter { !existingIDs.contains($0.id) }
+            nextPageToken = pageToken
             completedRequestID = requestID
         } catch {
             if !Task.isCancelled && requestID == retryID { errorMessage = error.localizedDescription }
