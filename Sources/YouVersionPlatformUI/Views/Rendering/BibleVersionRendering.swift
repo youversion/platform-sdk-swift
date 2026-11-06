@@ -80,7 +80,7 @@ public enum BibleVersionRendering {
         let verseStart = reference.verseStart ?? 1
         let verseEnd = reference.verseEnd ?? 999
 
-        footnoteMarker?.setFont(.footnote, from: fonts)
+        footnoteMarker?.setFont(BibleTextFont.footnote, from: fonts)
         footnoteMarker?.markWithTextCategory(.footnoteMarker)
         let stateIn = StateIn(
             versionId: reference.versionId,
@@ -202,19 +202,17 @@ public enum BibleVersionRendering {
         }
 
         if stateUp.rendering &&
-            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") || node.classes.contains("va"))
-            && node.children.count == 1 && node.children.first?.type == .text {
-            if let t = node.children.first?.text {
-                if stateIn.renderVerseNumbers {
-                    let maybeSpace = stateUp.isTextEmpty || stateUp.endsWithASpace ? "" : " "
-                    let vn = BibleAttributedString(maybeSpace + t + "\u{00a0}\u{00a0}")  // nonbreaking space
-                    vn.setFont(.verseNumFont, from: stateIn.fonts)
-                    vn.setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
-                    vn.setColor(stateIn.verseNumColor)
-                    stateUp.append(vn, category: .verseLabel)
-                }
+            (node.classes.contains("yv-vlbl") || node.classes.contains("vlbl") || node.classes.contains("va") || node.classes.contains("vp")) {
+            let labelText = verseLabelText(in: node)
+            if stateIn.renderVerseNumbers && !labelText.isEmpty {
+                let maybeSpace = stateUp.isTextEmpty || stateUp.endsWithASpace ? "" : " "
+                let vn = BibleAttributedString(maybeSpace + labelText + "\u{00a0}\u{00a0}")  // nonbreaking space
+                vn.setFont(BibleTextFont.verseNumFont, from: stateIn.fonts)
+                vn.setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
+                vn.setColor(stateIn.verseNumColor)
+                stateUp.append(vn, category: .verseLabel)
             }
-        } else if node.classes.contains("yv-n") && node.classes.contains("f") {
+        } else if node.classes.contains("yv-n") && (node.classes.contains("f") || node.classes.contains("fe")) {
             if stateUp.rendering && stateIn.footnotesMode != .none {
                 handleFootnoteNode(node, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
             }
@@ -225,6 +223,10 @@ public enum BibleVersionRendering {
                 handleBlockChild(child, stateIn: stateIn, stateDown: stateDown, stateUp: &stateUp)
             }
         }
+    }
+
+    private static func verseLabelText(in node: BibleTextNode) -> String {
+        node.text + node.children.map { verseLabelText(in: $0) }.joined()
     }
 
     private static func handleFootnoteNode(
@@ -241,10 +243,10 @@ public enum BibleVersionRendering {
         switch stateIn.footnotesMode {
         case .image:
             marker = BibleAttributedString("xm")  // for spacing purposes; won't be rendered.
-                .setFont(.footnote, from: stateIn.fonts)
+                .setFont(BibleTextFont.footnote, from: stateIn.fonts)
         case .letters:
             marker = stateUp.nextFootnoteMarker
-                .setFont(.footnote, from: stateIn.fonts)
+                .setFont(BibleTextFont.footnote, from: stateIn.fonts)
                 .setColor(stateIn.verseNumColor)
                 .setBaselineOffset(stateIn.fonts.verseNumBaselineOffset)
         default:
@@ -447,7 +449,7 @@ public enum BibleVersionRendering {
             node.children.allSatisfy({ $0.type == .text && $0.text.allSatisfy(\.isWhitespace) }) {
             stateUp.clearText()
             let spacerText = BibleAttributedString("\u{00a0}")
-            spacerText.setFont(.font100em, from: stateIn.fonts)
+            spacerText.setFont(BibleTextFont.font100em, from: stateIn.fonts)
             stateUp.text = spacerText
         }
         if !stateUp.isTextEmpty {
@@ -527,7 +529,7 @@ public enum BibleVersionRendering {
         var woc = false
         var smallcaps = false
         var alignment = TextAlignment.leading
-        var currentFont: BibleTextFontOption
+        var currentFont: BibleTextFont
         var baselineOffset: CGFloat = 0
         var textCategory: BibleTextCategory
         var nodeDepth: Int  // for debugging purposes mostly
