@@ -107,4 +107,157 @@ import Testing
         let req = try #require(captured)
         #expect(req.url?.absoluteString.contains("/99") == true)
     }
+
+    @Test func dayRouteSendsRepeatedLanguageRangesAndExposesImageID() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = Data("{\"day\":1,\"passage_id\":\"ISA.43.18-19\",\"image_id\":\"opaque.image+id/=\"}".utf8)
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.path == "/v1/verse-of-the-days/1")
+            #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == ["es-MX", "es", "*"])
+            return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verse = try await YouVersionAPI.VOTD.verseOfTheDay(
+            dayOfYear: 1, languageRanges: ["es-MX", "es", "*"], accessToken: "swift-test-suite", session: session
+        )
+
+        #expect(verse.imageID == "opaque.image+id/=")
+        #expect(verse.passageId == "ISA.43.18-19")
+        #expect(verse.day == 1)
+    }
+
+    @Test func dayRouteImageIDResolvesThroughImageDetailUnchanged() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let imageID = "opaque.image+id/="
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            let body: String
+            if components.path == "/v1/verse-of-the-days/1" {
+                body = "{\"day\":1,\"passage_id\":\"JHN.3.16\",\"image_id\":\"\(imageID)\"}"
+            } else {
+                #expect(components.percentEncodedPath.removingPercentEncoding == "/v1/images/\(imageID)")
+                body = """
+                {"id":"reissued","image_url":"https://cdn.youversion.com/art.jpg","passage_id":"JHN.3.16",
+                "attribution":"© YouVersion","language_tag":"en","width":1080,"height":1920,"aspect_ratio":0.562}
+                """
+            }
+            return (Data(body.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verse = try await YouVersionAPI.VOTD.verseOfTheDay(
+            dayOfYear: 1, languageRanges: ["en"], accessToken: "swift-test-suite", session: session
+        )
+        let image = try await YouVersionAPI.Images.image(
+            id: try #require(verse.imageID), accessToken: "swift-test-suite", session: session
+        )
+
+        #expect(image.attribution == "© YouVersion")
+    }
+
+    @Test(arguments: [
+        "{\"day\":2,\"passage_id\":\"JHN.3.16\"}",
+        "{\"day\":2,\"passage_id\":\"JHN.3.16\",\"image_id\":null}"
+    ])
+    func dayRouteOmitsLanguageRangesWhenAbsentAndToleratesNoImage(json: String) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.path == "/v1/verse-of-the-days/2")
+            #expect(components.query == nil)
+            return (Data(json.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verse = try await YouVersionAPI.VOTD.verseOfTheDay(
+            dayOfYear: 2, accessToken: "swift-test-suite", session: session
+        )
+
+        #expect(verse.imageID == nil)
+        #expect(verse.passageId == "JHN.3.16")
+        #expect(verse.day == 2)
+    }
+
+    @Test func yearRouteSendsRepeatedLanguageRangesAndPreservesEachDay() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = Data("""
+        {"data":[{"day":1,"passage_id":"ISA.43.18-19","image_id":"opaque.image+id/="},
+        {"day":2,"passage_id":"JHN.3.16","image_id":null},{"day":3,"passage_id":"PSA.23.1"}]}
+        """.utf8)
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.path == "/v1/verse-of-the-days")
+            #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == ["es-MX", "es"])
+            return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verses = try await YouVersionAPI.VOTD.versesOfTheDay(
+            languageRanges: ["es-MX", "es"], accessToken: "swift-test-suite", session: session
+        )
+
+        #expect(verses.map(\.day) == [1, 2, 3])
+        #expect(verses.map(\.passageId) == ["ISA.43.18-19", "JHN.3.16", "PSA.23.1"])
+        #expect(verses.map(\.imageID) == ["opaque.image+id/=", nil, nil])
+    }
+
+    @Test func yearRouteOmitsLanguageRangesWhenAbsent() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            #expect(request.url?.path == "/v1/verse-of-the-days")
+            #expect(request.url?.query == nil)
+            return (Data("{\"data\":[]}".utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verses = try await YouVersionAPI.VOTD.versesOfTheDay(accessToken: "swift-test-suite", session: session)
+
+        #expect(verses.isEmpty)
+    }
+
+    @Test func yearRouteNoContentReturnsNoVerses() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let verses = try await YouVersionAPI.VOTD.versesOfTheDay(accessToken: "swift-test-suite", session: session)
+
+        #expect(verses.isEmpty)
+    }
+
+    @Test(arguments: [
+        (status: 401, expected: YouVersionAPIError.notPermitted),
+        (status: 403, expected: YouVersionAPIError.notPermitted),
+        (status: 400, expected: YouVersionAPIError.cannotDownload),
+        (status: 404, expected: YouVersionAPIError.cannotDownload),
+        (status: 429, expected: YouVersionAPIError.cannotDownload),
+        (status: 500, expected: YouVersionAPIError.cannotDownload)
+    ])
+    func yearRouteHTTPFailuresUseSharedErrorMapping(status: Int, expected: YouVersionAPIError) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
+        }
+
+        await #expect(throws: expected) {
+            try await YouVersionAPI.VOTD.versesOfTheDay(accessToken: "swift-test-suite", session: session)
+        }
+    }
+
+    @Test func yearRouteMalformedJSONThrowsBadServerResponse() async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data("{}".utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        await #expect {
+            try await YouVersionAPI.VOTD.versesOfTheDay(accessToken: "swift-test-suite", session: session)
+        } throws: { ($0 as? URLError)?.code == .badServerResponse }
+    }
 }

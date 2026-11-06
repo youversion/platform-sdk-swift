@@ -44,7 +44,7 @@ struct URLBuilderTests {
         // Configure using defaults (no host environment)
 
         let votd = try #require(URLBuilder.votdURL(dayOfYear: 5))
-        #expect(votd.absoluteString == "https://api.youversion.com/v1/verse_of_the_days/5")
+        #expect(votd.absoluteString == "https://api.youversion.com/v1/verse-of-the-days/5")
     }
 
     @Test
