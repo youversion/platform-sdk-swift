@@ -46,7 +46,8 @@ struct BibleReaderSearchView: View {
             if viewModel.searchStatus == .failed {
                 searchStateView(
                     image: Image(systemName: "exclamationmark.circle"),
-                    title: String.localized("generic.error")
+                    title: String.localized("generic.error"),
+                    message: String.localized("generic.requestErrorBody")
                 )
             } else if viewModel.searchStatus == .completed
                         && viewModel.searchResults.isEmpty
@@ -179,13 +180,18 @@ struct BibleReaderSearchView: View {
                         .accessibilityLabel(String.localized("generic.search"))
                         .padding(.vertical, 16)
                 } else if viewModel.hasNextSearchPageLoadError {
-                    Button {
-                        Task {
-                            await viewModel.loadNextSearchPageIfNeeded()
+                    VStack(spacing: 12) {
+                        Text(String.localized("generic.requestErrorBody"))
+                            .multilineTextAlignment(.center)
+                        Button {
+                            Task {
+                                await viewModel.loadNextSearchPageIfNeeded()
+                            }
+                        } label: {
+                            Label(String.localized("retry"), systemImage: "arrow.clockwise")
                         }
-                    } label: {
-                        Label(String.localized("generic.error"), systemImage: "arrow.clockwise")
                     }
+                    .font(.body)
                     .foregroundStyle(viewModel.readerTextMutedColor)
                     .padding(.vertical, 16)
                 }
@@ -283,13 +289,18 @@ struct BibleReaderSearchView: View {
         }
     }
 
-    private func searchStateView(image: Image, title: String) -> some View {
+    private func searchStateView(image: Image, title: String, message: String? = nil) -> some View {
         VStack(spacing: 12) {
             image
                 .font(.title2)
             Text(title)
                 .font(.body)
                 .multilineTextAlignment(.center)
+            if let message {
+                Text(message)
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+            }
         }
         .foregroundStyle(viewModel.readerTextMutedColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

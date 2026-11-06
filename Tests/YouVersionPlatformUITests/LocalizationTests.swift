@@ -49,6 +49,16 @@ import YouVersionPlatformUI
     }
 
     @Test
+    func requestFailureCopyIsAvailableInEnglish() {
+        #expect(
+            localizedString(forKey: "generic.requestErrorBody", languageCode: "en") ==
+                "This request can’t be completed right now."
+        )
+        #expect(localizedString(forKey: "retry", languageCode: "en") == "Retry")
+        #expect(localizedString(forKey: "generic.error", languageCode: "en") == "Error")
+    }
+
+    @Test
     func genericOkIsTranslatedInEnglish() {
         #expect(
             localizedString(forKey: "generic.ok", languageCode: "en") == "OK"
