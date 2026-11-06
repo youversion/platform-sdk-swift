@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import YouVersionPlatform
 
 @main
@@ -8,6 +9,19 @@ struct SampleApp: App {
     @State private var readerNavigation = BibleReaderNavigation()
 
     init() {
+        let tabColor = UIColor(red: 242.0 / 255, green: 59.0 / 255, blue: 34.0 / 255, alpha: 1)
+        let tabAppearance = UITabBarAppearance()
+        for itemAppearance in [
+            tabAppearance.stackedLayoutAppearance,
+            tabAppearance.inlineLayoutAppearance,
+            tabAppearance.compactInlineLayoutAppearance
+        ] {
+            itemAppearance.selected.iconColor = tabColor
+            itemAppearance.selected.titleTextAttributes = [.foregroundColor: tabColor]
+        }
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+
         // Get your app key from https://platform.youversion.com/
         YouVersionPlatformConfiguration.configure(
             appKey: <#Your App Key#>,
@@ -25,27 +39,32 @@ struct SampleApp: App {
                         .navigationPlacement(.topBar)
                 }
                 .tabItem {
-                    Label("tab.bible", systemImage: "book.closed.fill")
+                    Label {
+                        Text("tab.bible")
+                    } icon: {
+                        Image(selectedTab == 0 ? "bible_filled" : "bible_stroked")
+                            .renderingMode(.template)
+                    }
                 }
                 .tag(0)
 
-                ContentLibraryView()
+                ContentView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
                     .tabItem {
-                        Label("Content Library", systemImage: "play.rectangle.fill")
+                        Label("Content", image: "box-video-stack_stroked")
                     }
                     .tag(1)
+
+                ExamplesView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
+                    .tabItem {
+                        Label("Examples", systemImage: "square.grid.2x2")
+                    }
+                    .tag(3)
 
                 ProfileView()
                     .tabItem {
                         Label("tab.profile", systemImage: "person.fill")
                     }
                     .tag(4)
-
-                MoreView(navigation: readerNavigation, onNavigate: { selectedTab = 0 })
-                    .tabItem {
-                        Label("More", systemImage: "ellipsis")
-                    }
-                    .tag(3)
             }
         }
     }

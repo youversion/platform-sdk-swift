@@ -83,9 +83,9 @@ public extension YouVersionAPI {
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
                 headers: ["Accept": "application/json", "Accept-Language": "en"]
             )
-            var video = try JSONDecoder().decode(YouVersionVideo.self, from: data)
-            guard let thumbnailURL = video.thumbnail?.url else {
-                return video
+            var result = try JSONDecoder().decode(YouVersionVideo.self, from: data)
+            guard let thumbnailURL = result.thumbnail?.url else {
+                return result
             }
             guard let appKey = YouVersionPlatformConfiguration.appKey, !appKey.isEmpty else {
                 throw YouVersionAPIError.missingAuthentication
@@ -103,8 +103,8 @@ public extension YouVersionAPI {
             guard let url = components.url else {
                 throw URLError(.badURL)
             }
-            video.thumbnail?.url = url
-            return video
+            result.thumbnail?.url = url
+            return result
         }
     }
 }

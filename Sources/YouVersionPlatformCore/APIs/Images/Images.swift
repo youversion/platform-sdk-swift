@@ -8,7 +8,7 @@ public extension YouVersionAPI {
     struct Images {
         private init() {}
 
-        /// Returns a page of images matching all supplied filters.
+        /// Returns a page of images matching all supplied filters, or an empty page for HTTP 204.
         ///
         /// Configure a valid app key before calling this API. This returns metadata rather than image bytes.
         /// - Parameters:
@@ -43,11 +43,13 @@ public extension YouVersionAPI {
             ) else {
                 throw URLError(.badURL)
             }
-            let data = try await YouVersionAPI.data(
+            guard let data = try await YouVersionAPI.dataIfPresent(
                 at: url,
                 accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
                 session: session
-            )
+            ) else {
+                return YouVersionImageCollection(images: [], totalSize: 0, nextPageToken: nil)
+            }
             return try JSONDecoder().decode(YouVersionImageCollection.self, from: data)
         }
 

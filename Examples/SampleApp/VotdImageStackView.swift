@@ -6,6 +6,7 @@ import YouVersionPlatformCore
 /// using `VotdImageView` for each image on the stack. Supply a nonempty image array.
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
+    var onImageTap: ((YouVersionImage) -> Void)?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @GestureState private var isDragging = false
@@ -44,7 +45,11 @@ struct VotdImageStackView: View {
                             guard selectedID == image.id && dragOffset == .zero else {
                                 return
                             }
-                            shuffle(toward: -1, width: geometry.size.width)
+                            if let onImageTap {
+                                onImageTap(image)
+                            } else {
+                                shuffle(toward: -1, width: geometry.size.width)
+                            }
                         }
                             .frame(width: max(geometry.size.width - 48, 1), height: geometry.size.height - 40)
                             .scaleEffect(1 - Double(stackDepth) * 0.035)

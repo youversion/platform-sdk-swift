@@ -142,7 +142,7 @@ struct ImagesAPITests {
         )
     }
 
-    @Test(arguments: [401, 403, 400, 404, 429, 500, 204], [false, true])
+    @Test(arguments: [401, 403, 400, 404, 429, 500], [false, true])
     func httpFailuresUseSharedErrorMapping(status: Int, isDetail: Bool) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -159,6 +159,28 @@ struct ImagesAPITests {
             if case YouVersionAPIError.notPermitted = error { return status == 401 || status == 403 }
             if case YouVersionAPIError.cannotDownload = error { return status != 401 && status != 403 }
             return false
+        }
+    }
+
+    /// Treats HTTP 204 as an empty list while preserving the missing-detail error.
+    @Test(arguments: [false, true])
+    func noContentReturnsEmptyCollectionButFailsForDetail(isDetail: Bool) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+        if isDetail {
+            await #expect {
+                try await YouVersionAPI.Images.image(id: "opaque", accessToken: "images-tests", session: session)
+            } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
+        } else {
+            let result = try await YouVersionAPI.Images.images(
+                passageID: "GEN.15.1", accessToken: "images-tests", session: session
+            )
+            #expect(result.images.isEmpty)
+            #expect(result.totalSize == 0)
+            #expect(result.nextPageToken == nil)
         }
     }
 

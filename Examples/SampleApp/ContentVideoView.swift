@@ -2,42 +2,47 @@ import AVKit
 import SwiftUI
 import YouVersionPlatform
 
-struct ContentLibraryVideoView: View {
+struct ContentVideoView: View {
     let video: YouVersionVideo
     @State private var player: AVPlayer?
     @State private var playbackError: String?
     @State private var retryID = UUID()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            if let playbackError {
-                ContentUnavailableView {
-                    Label("Video unavailable", systemImage: "video.slash")
-                } description: {
-                    Text(playbackError)
-                } actions: {
-                    Button("Retry") { retryID = UUID() }
-                        .accessibilityIdentifier("library.retryPlayback")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if let playbackError {
+                    ContentUnavailableView {
+                        Label("Video unavailable", systemImage: "video.slash")
+                    } description: {
+                        Text(playbackError)
+                    } actions: {
+                        Button("Retry") { retryID = UUID() }
+                            .accessibilityIdentifier("library.retryPlayback")
+                    }
+                } else if playbackURL != nil {
+                    VideoPlayer(player: player)
+                        .aspectRatio(video.displayAspectRatio, contentMode: .fit)
+                        .accessibilityIdentifier("library.videoPlayer")
+                } else {
+                    ContentUnavailableView("Video unavailable", systemImage: "video.slash")
                 }
-            } else if playbackURL != nil {
-                VideoPlayer(player: player)
-                    .aspectRatio(video.displayAspectRatio, contentMode: .fit)
-                    .accessibilityIdentifier("library.videoPlayer")
-            } else {
-                ContentUnavailableView("Video unavailable", systemImage: "video.slash")
+                if let title = video.title {
+                    Text(title).font(.title2.bold()).padding(.horizontal, 20)
+                }
+                if let description = video.description {
+                    Text(description).font(.body).padding(.horizontal, 20)
+                }
             }
-            if let title = video.title {
-                Text(title).font(.title2.bold())
-            }
-            if let description = video.description {
-                Text(description).font(.body)
-            }
-            Spacer()
         }
-        .padding()
-        .navigationTitle(video.title ?? "Video")
+        .navigationTitle(Text(verbatim: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            if let shareURL = video.shareURL {
+                ShareLink(item: shareURL)
+            }
+        }
         .task(id: retryID) {
             guard let playbackURL else {
                 return
