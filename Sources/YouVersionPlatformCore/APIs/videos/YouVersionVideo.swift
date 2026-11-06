@@ -18,7 +18,7 @@ public struct YouVersionVideo: Codable, Equatable, Sendable {
 
     /// A thumbnail URL and the source image’s native dimensions.
     public struct Thumbnail: Codable, Equatable, Sendable {
-        /// The thumbnail URL, ready to use after `YouVersionAPI.Videos.video` adds the configured app key and requested size.
+        /// The thumbnail URL, ready to use after `YouVersionAPI.Videos.video` resolves sizing and required CDN parameters.
         public internal(set) var url: URL?
         public let width: Int?
         public let height: Int?

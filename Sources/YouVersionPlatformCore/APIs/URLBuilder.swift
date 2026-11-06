@@ -61,9 +61,8 @@ public enum URLBuilder {
     }
 
     /// Returns a video URL with the ID encoded as a single path segment.
-    /// The CDN thumbnail contract currently ships on the beta channel.
     static func videoURL(id: String) -> URL? {
-        url(pathSegments: ["v1-beta", "videos", id])
+        url(pathSegments: ["v1", "videos", id])
     }
 
     static func searchImagesURL(

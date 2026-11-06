@@ -62,7 +62,7 @@ public extension YouVersionAPI {
         // TODO: Remove the temporary English video-language override once the API video-language lookup issue is fixed.
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
         /// The optional thumbnail size is `thumb`, `card`, or `full`; omit it for full size.
-        /// Returned thumbnail URLs include the configured app key and can be used directly.
+        /// Returned thumbnail URLs have sizing resolved and any required CDN app-key parameters added.
         /// A thumbnail requires a configured app key; otherwise `YouVersionAPIError.missingAuthentication` is thrown.
         /// An unknown ID (HTTP 404) throws `YouVersionAPIError.cannotDownload`.
         /// Uses the configured app key and optional access token.
@@ -94,12 +94,20 @@ public extension YouVersionAPI {
                   var components = URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false) else {
                 throw URLError(.badURL)
             }
-            var queryItems = components.percentEncodedQueryItems?.filter { $0.name != "size" && $0.name != "app_key" } ?? []
-            queryItems.append(URLQueryItem(name: "app_key", value: encodedAppKey))
-            if let size {
-                queryItems.append(URLQueryItem(name: "size", value: size))
+            // TODO this is temporary code: do not merge this to main.
+            if components.path.contains("{width}") || components.path.contains("{height}") {
+                let width = size == "thumb" ? 320 : size == "card" ? 1200 : 0
+                components.path = components.path
+                    .replacingOccurrences(of: "{width}", with: String(width))
+                    .replacingOccurrences(of: "{height}", with: "0")
+            } else {
+                var queryItems = components.percentEncodedQueryItems?.filter { $0.name != "size" && $0.name != "app_key" } ?? []
+                queryItems.append(URLQueryItem(name: "app_key", value: encodedAppKey))
+                if let size {
+                    queryItems.append(URLQueryItem(name: "size", value: size))
+                }
+                components.percentEncodedQueryItems = queryItems
             }
-            components.percentEncodedQueryItems = queryItems
             guard let url = components.url else {
                 throw URLError(.badURL)
             }

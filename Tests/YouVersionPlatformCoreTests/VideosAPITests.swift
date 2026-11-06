@@ -146,7 +146,7 @@ extension ConfigurationStateTests.VideosAPITests {
             #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
             #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
-            let prefix = "/v1-beta/videos/"
+            let prefix = "/v1/videos/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
             #expect(!segment.contains("/"))
@@ -323,6 +323,32 @@ extension ConfigurationStateTests.VideosAPITests {
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideo.self, from: Data(json.utf8)) }
     }
 
+    /// Resolves production thumbnail templates while preserving aspect ratio for each requested size.
+    @MainActor
+    @Test(arguments: [nil, "thumb", "card", "full"] as [String?])
+    func productionThumbnailTemplatesResolveSize(size: String?) async throws {
+        let originalAppKey = YouVersionPlatformConfiguration.appKey
+        YouVersionPlatformConfiguration.configure(appKey: "thumbnail-tests")
+        defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = videoJSON.replacingOccurrences(
+            of: "https://cdn.example.com/video-images/image.jpg",
+            with: "https://images.example.com/{width}x{height}/https://assets.example.com/videos/image.jpg"
+        )
+        HTTPMocking.setHandler(token: token) { request in
+            #expect(request.url?.path.hasPrefix("/v1/videos/") == true)
+            return (Data(json.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        let video = try await YouVersionAPI.Videos.video(id: "opaque.video-id", size: size, session: session)
+        let thumbnailURL = try #require(video.thumbnail?.url)
+        let expectedWidth = size == "thumb" ? 320 : size == "card" ? 1200 : 0
+        #expect(thumbnailURL.host == "images.example.com")
+        #expect(thumbnailURL.path == "/\(expectedWidth)x0/https://assets.example.com/videos/image.jpg")
+        #expect(thumbnailURL.query == nil)
+        #expect(!thumbnailURL.absoluteString.contains("%7B"))
+    }
+
     /// Accepts the returned video ID unchanged in a subsequent request.
     @MainActor
     @Test func subsequentRequestsUseTheLatestResponseIdentifier() async throws {
@@ -333,14 +359,14 @@ extension ConfigurationStateTests.VideosAPITests {
         defer { HTTPMocking.clear(token: token) }
         let originalData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.url?.path == "/v1-beta/videos/52186")
+            #expect(request.url?.path == "/v1/videos/52186")
             return (originalData, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let first = try await YouVersionAPI.Videos.video(id: "52186", session: session)
         #expect(first.id == "opaque.video-id")
         let updatedData = Data(videoJSON.replacingOccurrences(of: "opaque.video-id", with: "next-response-id").utf8)
         HTTPMocking.setHandler(token: token) { request in
-            #expect(request.url?.path == "/v1-beta/videos/opaque.video-id")
+            #expect(request.url?.path == "/v1/videos/opaque.video-id")
             return (updatedData, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let second = try await YouVersionAPI.Videos.video(id: first.id, session: session)
@@ -415,7 +441,7 @@ extension ConfigurationStateTests.VideosAPITests {
         }
         let videoData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
-            let isVideo = request.url!.path.hasPrefix("/v1-beta/videos/")
+            let isVideo = request.url!.path.hasPrefix("/v1/videos/")
             #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
             let data = isVideo ? videoData : Data("{\"data\":[]}".utf8)
             return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
