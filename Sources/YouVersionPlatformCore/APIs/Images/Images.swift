@@ -48,7 +48,7 @@ public extension YouVersionAPI {
                 accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
                 session: session
             ) else {
-                return YouVersionImageCollection(images: [], totalSize: 0, nextPageToken: nil)
+                return YouVersionImageCollection(images: [], totalSize: nil, nextPageToken: nil)
             }
             return try JSONDecoder().decode(YouVersionImageCollection.self, from: data)
         }

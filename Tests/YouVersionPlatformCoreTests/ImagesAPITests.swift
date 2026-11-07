@@ -142,6 +142,33 @@ struct ImagesAPITests {
         )
     }
 
+    @Test
+    func collectionReturnsEmptyPageForNoContent() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+        let result = try await YouVersionAPI.Images.images(
+            passageID: "JHN.3.16", languageRanges: ["zh"], accessToken: "images-tests", session: session
+        )
+        #expect(result.images.isEmpty)
+        #expect(result.totalSize == nil)
+        #expect(result.nextPageToken == nil)
+    }
+
+    @Test
+    func detailTreatsNoContentAsFailure() async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+        await #expect {
+            try await YouVersionAPI.Images.image(id: "opaque", accessToken: "images-tests", session: session)
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
+    }
+
     @Test(arguments: [401, 403, 400, 404, 429, 500], [false, true])
     func httpFailuresUseSharedErrorMapping(status: Int, isDetail: Bool) async {
         let (session, token) = HTTPMocking.makeSession()
@@ -179,7 +206,7 @@ struct ImagesAPITests {
                 passageID: "GEN.15.1", accessToken: "images-tests", session: session
             )
             #expect(result.images.isEmpty)
-            #expect(result.totalSize == 0)
+            #expect(result.totalSize == nil)
             #expect(result.nextPageToken == nil)
         }
     }
