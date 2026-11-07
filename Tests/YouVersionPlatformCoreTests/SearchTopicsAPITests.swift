@@ -57,6 +57,23 @@ import Testing
         #expect(results.searchInsteadFor == "faith")
     }
 
+    @Test
+    func noContentReturnsEmptyResults() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.topics(
+            matching: "love", languageRanges: ["en"],
+            accessToken: "swift-test-suite", session: session
+        )
+        #expect(results.topics.isEmpty)
+        #expect(results.didYouMean.isEmpty)
+        #expect(results.searchInsteadFor == nil)
+    }
+
     @Test(arguments: [
         "", "en--US", "en\n", "en-US\r", "en-US\r\n", "en\u{2028}", "en\u{2029}",
         "en_US", "zh_Hant_TW", "zh-Hant_TW",

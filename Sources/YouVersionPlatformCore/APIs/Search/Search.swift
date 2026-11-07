@@ -42,6 +42,14 @@ public struct YouVersionSearchImage: Sendable {
     public let passageID: String
 }
 
+/// One page of verse-art hits returned by an image search.
+public struct YouVersionImageSearchResults: Sendable {
+    /// The hits on this page. Resolve each `id` with the Images API for full metadata.
+    public let images: [YouVersionSearchImage]
+    /// The opaque token for the next page, or `nil` on the final page.
+    public let nextPageToken: String?
+}
+
 /// Bible references, related topics, images, and query metadata returned by a unified search.
 public struct YouVersionSearchResults: Sendable {
     public let references: [BibleReference]
@@ -160,6 +168,16 @@ private struct SearchImageResponse: Decodable {
     }
 }
 
+private struct ImageSearchResponse: Decodable {
+    let images: [SearchImageResponse]
+    let nextPageToken: String?
+
+    enum CodingKeys: String, CodingKey {
+        case images
+        case nextPageToken = "next_page_token"
+    }
+}
+
 public extension YouVersionAPI {
     enum Search {}
 }
@@ -252,7 +270,20 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionSearchResults(
+                references: [],
+                topics: [],
+                images: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil
+            )
+        }
         let response = try JSONDecoder().decode(SearchResultsResponse.self, from: data)
         return YouVersionSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
@@ -299,7 +330,13 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionTopicSearchResults(topics: [], didYouMean: [], searchInsteadFor: nil)
+        }
         let response = try JSONDecoder().decode(TopicSearchResponse.self, from: data)
         return YouVersionTopicSearchResults(
             topics: response.topics.map {
@@ -338,10 +375,7 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionVerseSearchResults {
-        guard (1...100).contains(query.count) &&
-              bibleID > 0 &&
-              Int32(exactly: bibleID) != nil &&
-              pageSize.map({ (1...99).contains($0) }) ?? true else {
+        guard hasValidSearchParameters(query: query, bibleID: bibleID, pageSize: pageSize) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -356,7 +390,19 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionVerseSearchResults(
+                references: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil,
+                nextPageToken: nil
+            )
+        }
         let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
         return YouVersionVerseSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
@@ -365,6 +411,70 @@ public extension YouVersionAPI.Search {
             searchInsteadFor: response.searchInsteadFor,
             nextPageToken: response.nextPageToken
         )
+    }
+
+    /// Returns one page of verse-art hits matching `query`.
+    ///
+    /// Send the returned `nextPageToken` as `pageToken` with the same `query`, `bibleID`, and `pageSize`
+    /// to load the next page.
+    ///
+    /// - Parameters:
+    ///   - query: The search text. Must contain between 1 and 100 characters.
+    ///   - bibleID: The identifier of the Bible version to search, which determines the language searched.
+    ///   - pageSize: The maximum number of results to return. When supplied, must be between 1 and 99.
+    ///   - pageToken: A continuation token returned by a previous image search.
+    ///   - accessToken: An optional access token. Defaults to the configured access token.
+    ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
+    /// - Returns: The page's image hits and any continuation token. A search matching nothing returns an empty `images` array.
+    /// - Throws:
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
+    ///     is outside the range accepted by the API.
+    ///   - `URLError` if the request URL is invalid or the network request fails.
+    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
+    ///   - `DecodingError` if the response body is malformed.
+    static func images(
+        query: String,
+        bibleID: Int,
+        pageSize: Int? = nil,
+        pageToken: String? = nil,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionImageSearchResults {
+        guard hasValidSearchParameters(query: query, bibleID: bibleID, pageSize: pageSize) else {
+            throw YouVersionAPIRequestError(code: .invalidParameter)
+        }
+
+        guard let url = URLBuilder.searchImagesURL(
+            query: query,
+            bibleID: bibleID,
+            pageSize: pageSize,
+            pageToken: pageToken
+        ) else {
+            throw URLError(.badURL)
+        }
+
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionImageSearchResults(images: [], nextPageToken: nil)
+        }
+        let response = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
+        return YouVersionImageSearchResults(
+            images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
+            nextPageToken: response.nextPageToken
+        )
+    }
+
+    private static func hasValidSearchParameters(query: String, bibleID: Int, pageSize: Int?) -> Bool {
+        (1...100).contains(query.count) &&
+            bibleID > 0 &&
+            Int32(exactly: bibleID) != nil &&
+            pageSize.map({ (1...99).contains($0) }) ?? true
     }
 
     private static func queries(
