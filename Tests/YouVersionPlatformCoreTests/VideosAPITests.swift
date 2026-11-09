@@ -33,7 +33,7 @@ extension ConfigurationStateTests.VideosAPITests {
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.httpMethod == "GET")
-            #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
+            #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
             #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer video-tests")

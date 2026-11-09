@@ -71,7 +71,7 @@ public enum YouVersionAPI {
         )
     }
 
-    // TODO: Remove the temporary playlist cache bypass, Accept-Language override, and HTTP 204 diagnostics before merging to main.
+    // TODO: Remove the temporary playlist Accept-Language override and HTTP 204 diagnostics before merging to main.
     private static func response(
         at url: URL,
         accessToken: String?,
@@ -83,7 +83,6 @@ public enum YouVersionAPI {
         let isPlaylistCollection = ["/v1/organizations/", "/v1-beta/organizations/"].contains(where: url.path.hasPrefix)
             && url.path.hasSuffix("/playlists")
         if isPlaylistCollection {
-            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.setValue("en", forHTTPHeaderField: "Accept-Language")
         }
         for (field, value) in headers {

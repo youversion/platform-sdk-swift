@@ -62,7 +62,7 @@ extension ConfigurationStateTests {
                 #expect(components.queryItems?.first { $0.name == "page_size" }?.value == pageSize)
                 #expect(components.queryItems?.first { $0.name == "page_token" }?.value == cursor)
                 #expect(components.path == "/v1-beta/organizations/org/id/playlists")
-                #expect(request.cachePolicy == .reloadIgnoringLocalAndRemoteCacheData)
+                #expect(request.cachePolicy == .useProtocolCachePolicy)
                 #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
                 #expect(components.percentEncodedPath.contains("org%2Fid"))
                 #expect(components.percentEncodedQuery?.contains("a%2Bb") == true)
