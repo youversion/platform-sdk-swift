@@ -44,7 +44,7 @@ extension ConfigurationStateTests.VideosAPITests {
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let page = try await YouVersionAPI.Videos.playlists(
-            organizationID: organizationID, pageSize: 50, pageToken: pageToken, accessToken: "video-tests", session: session
+            organizationID: organizationID, pageSize: "50", pageToken: pageToken, accessToken: "video-tests", session: session
         )
         let playlist = try #require(page.playlists.first)
         #expect(playlist.title == "How To Read The Bible")
@@ -65,7 +65,7 @@ extension ConfigurationStateTests.VideosAPITests {
             #expect(components.percentEncodedQuery?.hasSuffix("page_token=") == true)
             return (Data("{\"data\":[]}".utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
-        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: 99, pageToken: "", session: session)
+        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: "99", pageToken: "", session: session)
         #expect(page.playlists.isEmpty)
     }
 
@@ -99,14 +99,14 @@ extension ConfigurationStateTests.VideosAPITests {
     }
 
     /// Accepts the documented page-size boundaries and omits the server default.
-    @Test(arguments: [1, 99, nil])
-    func playlistPageSizeBoundariesAndServerDefault(pageSize: Int?) async throws {
+    @Test(arguments: ["1", "99", nil])
+    func playlistPageSizeBoundariesAndServerDefault(pageSize: String?) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             if let pageSize {
-                #expect(components.queryItems == [URLQueryItem(name: "page_size", value: String(pageSize))])
+                #expect(components.queryItems == [URLQueryItem(name: "page_size", value: pageSize)])
             } else {
                 #expect(components.queryItems == nil)
             }
@@ -117,18 +117,17 @@ extension ConfigurationStateTests.VideosAPITests {
         #expect(page.nextPageToken == nil)
     }
 
-    /// Rejects playlists with missing or null required fields.
+    /// Allows field selection to omit any playlist property or return a null value.
     @Test(arguments: ["id", "title", "type", "total", "videos"])
-    func requiredPlaylistFieldsCannotBeMissingOrNull(field: String) throws {
+    func playlistFieldsCanBeMissingOrNull(field: String) throws {
         let original: [String: Any] = ["id": 3669, "title": "Teaching Clips", "type": "TEACHING_CLIPS", "total": 0, "videos": []]
         var missing = original
         missing.removeValue(forKey: field)
-        let missingData = try JSONSerialization.data(withJSONObject: missing)
-        #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: missingData) }
         var null = original
         null[field] = NSNull()
-        let nullData = try JSONSerialization.data(withJSONObject: null)
-        #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: nullData) }
+        let missingPlaylist = try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: JSONSerialization.data(withJSONObject: missing))
+        let nullPlaylist = try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: JSONSerialization.data(withJSONObject: null))
+        #expect(missingPlaylist == nullPlaylist)
     }
 
     /// Preserves video metadata, opaque IDs, and playback and thumbnail URLs.
@@ -382,7 +381,7 @@ extension ConfigurationStateTests.VideosAPITests {
             (Data(responseBody.utf8), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil,
                                                     headerFields: ["X-Request-ID": "playlist-204-test"])!)
         }
-        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: 99, pageToken: "diagnostics", session: session)
+        let page = try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: "99", pageToken: "diagnostics", session: session)
         #expect(page.playlists.isEmpty)
         #expect(page.nextPageToken == nil)
     }
@@ -418,7 +417,7 @@ extension ConfigurationStateTests.VideosAPITests {
     @Test(arguments: [0, -1, 100, Int.max])
     func invalidPageSizesFailBeforeNetworking(pageSize: Int) async {
         await #expect {
-            try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: pageSize)
+            try await YouVersionAPI.Videos.playlists(organizationID: "org", pageSize: String(pageSize))
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 

@@ -50,11 +50,17 @@ public struct YouVersionImageSearchResults: Sendable {
     public let nextPageToken: String?
 }
 
-/// Bible references, related topics, images, and query metadata returned by a unified search.
+/// A video search hit. Resolve `id` with the Videos API for metadata and playback URLs.
+public struct YouVersionSearchVideo: Codable, Equatable, Sendable {
+    public let id: String
+}
+
+/// Bible references, related topics, images, videos, and query metadata returned by a unified search.
 public struct YouVersionSearchResults: Sendable {
     public let references: [BibleReference]
     public let topics: [YouVersionSearchTopic]
     public let images: [YouVersionSearchImage]
+    public let videos: [YouVersionSearchVideo]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
     public let searchInsteadFor: String?
@@ -134,6 +140,7 @@ private struct SearchResultsResponse: Decodable {
     let references: [VerseSearchResultResponse]
     let topics: [TopicSearchResultResponse]
     let images: [SearchImageResponse]
+    let videos: [YouVersionSearchVideo]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
@@ -142,6 +149,7 @@ private struct SearchResultsResponse: Decodable {
         case references = "verses"
         case topics
         case images
+        case videos
         case userIntent = "user_intent"
         case didYouMean = "did_you_mean"
         case searchInsteadFor = "search_instead_for"
@@ -152,6 +160,7 @@ private struct SearchResultsResponse: Decodable {
         references = try container.decodeIfPresent([VerseSearchResultResponse].self, forKey: .references) ?? []
         topics = try container.decodeIfPresent([TopicSearchResultResponse].self, forKey: .topics) ?? []
         images = try container.decodeIfPresent([SearchImageResponse].self, forKey: .images) ?? []
+        videos = try container.decodeIfPresent([YouVersionSearchVideo].self, forKey: .videos) ?? []
         userIntent = try container.decodeIfPresent(String.self, forKey: .userIntent)
         didYouMean = try container.decodeIfPresent([String].self, forKey: .didYouMean) ?? []
         searchInsteadFor = try container.decodeIfPresent(String.self, forKey: .searchInsteadFor)
@@ -223,7 +232,8 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    /// Returns a unified set of Bible references, topics, and images matching `query`.
+    // TODO: Return unified search to /v1 once stable supports video results.
+    /// Returns a unified set of Bible references, topics, images, and videos matching `query`.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -231,10 +241,10 @@ public extension YouVersionAPI.Search {
     ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
     ///     or `*` to match all languages.
     ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
-    ///   - fields: Result kinds to include: `verses`, `topics`, and/or `images`. Defaults to all kinds.
+    ///   - fields: Result kinds to include: `verses`, `topics`, `images`, and/or `videos`. Defaults to all kinds.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
-    /// - Returns: The matching Bible references, topics, images, and query metadata supplied by the API.
+    /// - Returns: The matching Bible references, topics, images, videos, and query metadata supplied by the API.
     /// - Throws:
     ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `bibleID` is outside the accepted range,
     ///     or `languageRanges` is empty.
@@ -279,6 +289,7 @@ public extension YouVersionAPI.Search {
                 references: [],
                 topics: [],
                 images: [],
+                videos: [],
                 userIntent: nil,
                 didYouMean: [],
                 searchInsteadFor: nil
@@ -291,6 +302,7 @@ public extension YouVersionAPI.Search {
                 YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
             },
             images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
+            videos: response.videos,
             userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
             didYouMean: response.didYouMean,
             searchInsteadFor: response.searchInsteadFor
@@ -528,7 +540,7 @@ public extension YouVersionAPI.Search {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1/search-unified"
+        components.path = "/v1-beta/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))

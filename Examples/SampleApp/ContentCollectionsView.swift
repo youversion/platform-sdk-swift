@@ -31,10 +31,12 @@ struct ContentCollectionsView: View {
                             ContentCollectionView(collection: featured)
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
-                                ContentCollectionThumbnailView(videoID: featured.videoIDs.first)
+                                ContentCollectionThumbnailView(videoID: featured.videoIDs?.first)
                                     .aspectRatio(16.0 / 9, contentMode: .fit)
-                                Text(featured.title).font(.headline)
-                                Text("\(featured.total) videos").font(.caption).foregroundStyle(.secondary)
+                                Text(featured.title ?? "Collection").font(.headline)
+                                if let total = featured.total {
+                                    Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
+                                }
                             }
                         }
                         .buttonStyle(.plain)
@@ -45,11 +47,13 @@ struct ContentCollectionsView: View {
                             ContentCollectionView(collection: collection)
                         } label: {
                             HStack(spacing: 12) {
-                                ContentCollectionThumbnailView(videoID: collection.videoIDs.first)
+                                ContentCollectionThumbnailView(videoID: collection.videoIDs?.first)
                                     .frame(width: 112, height: 64)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(collection.title).font(.headline)
-                                    Text("\(collection.total) videos").font(.caption).foregroundStyle(.secondary)
+                                    Text(collection.title ?? "Collection").font(.headline)
+                                    if let total = collection.total {
+                                        Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
+                                    }
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right").foregroundStyle(.secondary)
@@ -75,12 +79,12 @@ struct ContentCollectionsView: View {
             var loaded: [YouVersionVideoPlaylist] = []
             var pageToken: String?
             repeat {
-                let page = try await YouVersionAPI.Videos.playlists(organizationID: organizationID, pageSize: 99, pageToken: pageToken)
+                let page = try await YouVersionAPI.Videos.playlists(organizationID: organizationID, pageSize: "99", pageToken: pageToken)
                 try Task.checkCancellation()
                 loaded += page.playlists
                 pageToken = page.nextPageToken
             } while pageToken != nil
-            collections = loaded.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+            collections = loaded.sorted { ($0.title ?? "").localizedStandardCompare($1.title ?? "") == .orderedAscending }
         } catch {
             if !Task.isCancelled { errorMessage = error.localizedDescription }
         }

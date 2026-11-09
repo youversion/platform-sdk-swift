@@ -1,16 +1,16 @@
 import Foundation
 
-/// An organization's ordered playlist.
+/// An organization's ordered playlist. Fields omitted by field selection remain `nil`.
 public struct YouVersionVideoPlaylist: Codable, Equatable, Identifiable, Sendable {
-    public let id: Int
-    public let title: String
-    public let type: String
-    public let total: Int
-    /// Ordered video IDs in the playlist.
-    public let videoIDs: [String]
+    public let id: Int?
+    public let title: String?
+    public let description: String?
+    public let type: String?
+    public let total: Int?
+    public let videoIDs: [String]?
 
     private enum CodingKeys: String, CodingKey {
-        case id, title, type, total
+        case id, title, description, type, total
         case videoIDs = "videos"
     }
 }

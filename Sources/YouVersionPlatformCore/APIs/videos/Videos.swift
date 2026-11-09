@@ -10,22 +10,32 @@ public extension YouVersionAPI {
 
         private init() {}
 
-        /// Returns one page of playlists for an organization, or an empty page for HTTP 204.
-        /// Pass a returned continuation token unchanged to retrieve the next page.
-        /// An optional page size from 1 through 99 requests how many playlists to return; omit for the server default of 25.
-        /// Uses the configured app key and optional access token.
-        /// HTTP and decoding failures are thrown.
+        /// Returns one page of playlists, optionally limited to selected fields.
+        /// Supported fields are `id`, `title`, `description`, `type`, `total`, and `videos`.
+        /// Pass `nil` for `fields` to request all the fields. Omitted fields remain `nil`.
+        /// Pass a numeric page size from `"1"` through `"99"`, or `"*"` with at most three fields
+        /// to request all remaining playlists. A continuation token may be supplied with either form.
+        /// Omit the page size to receive the server default. HTTP and decoding failures are thrown.
         public static func playlists(
             organizationID: String,
-            pageSize: Int? = nil,
+            fields: [String]? = nil,
+            pageSize: String? = nil,
             pageToken: String? = nil,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionVideoPlaylistCollection {
-            guard !organizationID.isEmpty && (pageSize.map { (1...99).contains($0) } ?? true) else {
+            let allowedFields: Set<String> = ["id", "title", "description", "type", "total", "videos"]
+            let isValidFields = fields.map { !$0.isEmpty && $0.allSatisfy(allowedFields.contains) } ?? true
+            let isValidPageSize = pageSize.map { value in
+                value == "*" ? (fields.map { !$0.isEmpty && $0.count <= 3 } ?? false)
+                    : (Int(value).map { (1...99).contains($0) && String($0) == value } ?? false)
+            } ?? true
+            guard !organizationID.isEmpty && isValidFields && isValidPageSize else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)
             }
-            guard let url = URLBuilder.videoPlaylistsURL(organizationID: organizationID, pageSize: pageSize, pageToken: pageToken) else {
+            guard let url = URLBuilder.videoPlaylistsURL(
+                organizationID: organizationID, fields: fields, pageSize: pageSize, pageToken: pageToken
+            ) else {
                 throw URLError(.badURL)
             }
             guard let data = try await YouVersionAPI.dataIfPresent(

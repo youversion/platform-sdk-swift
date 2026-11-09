@@ -80,7 +80,9 @@ public enum YouVersionAPI {
         headers: [String: String]
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
         var request = urlRequest(with: url, accessToken: accessToken, session: session)
-        if url.path.hasPrefix("/v1/organizations/") && url.path.hasSuffix("/playlists") {
+        let isPlaylistCollection = ["/v1/organizations/", "/v1-beta/organizations/"].contains(where: url.path.hasPrefix)
+            && url.path.hasSuffix("/playlists")
+        if isPlaylistCollection {
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.setValue("en", forHTTPHeaderField: "Accept-Language")
         }
@@ -100,7 +102,7 @@ public enum YouVersionAPI {
         }
 
         if httpResponse.statusCode == 204 && allowsNoContent {
-            if url.path.hasPrefix("/v1/organizations/") && url.path.hasSuffix("/playlists") {
+            if isPlaylistCollection {
                 YouVersionPlatformLogger.error(
                     "Playlist HTTP 204: request URL=\(url.absoluteString); response URL=\(httpResponse.url?.absoluteString ?? "nil"); "
                         + "response headers=\(httpResponse.allHeaderFields); response bytes=\(data.count); "

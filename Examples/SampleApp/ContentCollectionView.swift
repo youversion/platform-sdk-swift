@@ -21,12 +21,14 @@ struct ContentCollectionView: View {
                     }
                     .accessibilityLabel("Play \(first.title ?? "video")")
                 } else {
-                    ContentVideoThumbnailView(videoID: collection.videoIDs.first)
+                    ContentVideoThumbnailView(videoID: collection.videoIDs?.first)
                         .aspectRatio(16.0 / 9, contentMode: .fit)
                 }
-                Text(collection.title).font(.title2.bold())
+                Text(collection.title ?? "Collection").font(.title2.bold())
                 HStack(alignment: .top, spacing: 12) {
-                    ContentMetadataView(title: "Videos", value: String(collection.total))
+                    if let total = collection.total {
+                        ContentMetadataView(title: "Videos", value: String(total))
+                    }
                     if let duration {
                         ContentMetadataView(title: "Duration", value: duration)
                     }
@@ -69,13 +71,13 @@ struct ContentCollectionView: View {
         .navigationTitle("Collection")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ShareLink(item: ([collection.title] + videos.compactMap { $0.shareURL?.absoluteString }).joined(separator: "\n"))
+            ShareLink(item: ([collection.title].compactMap { $0 } + videos.compactMap { $0.shareURL?.absoluteString }).joined(separator: "\n"))
         }
         .task(id: retryID) { await loadVideos() }
     }
 
     private var duration: String? {
-        guard !videos.isEmpty && videos.count == collection.videoIDs.count && videos.allSatisfy({ $0.runtime != nil }) else {
+        guard !videos.isEmpty && videos.count == collection.videoIDs?.count && videos.allSatisfy({ $0.runtime != nil }) else {
             return nil
         }
         return Duration.seconds(videos.reduce(0) { $0 + ($1.runtime ?? 0) }).formatted(.time(pattern: .hourMinuteSecond))
@@ -94,7 +96,7 @@ struct ContentCollectionView: View {
         defer { isLoading = false }
         do {
             let resolved = try await withThrowingTaskGroup(of: (Int, YouVersionVideo).self) { group in
-                for (index, id) in collection.videoIDs.enumerated() {
+                for (index, id) in (collection.videoIDs ?? []).enumerated() {
                     group.addTask { (index, try await YouVersionAPI.Videos.video(id: id, size: "card")) }
                 }
                 let results = try await group.reduce(into: [(Int, YouVersionVideo)]()) { $0.append($1) }

@@ -47,12 +47,16 @@ public enum URLBuilder {
         url(pathSegments: ["v1", "images", id])
     }
 
-    /// Returns an organization's playlist URL, preserving an opaque continuation token.
-    static func videoPlaylistsURL(organizationID: String, pageSize: Int?, pageToken: String?) -> URL? {
-        var queryItems: [URLQueryItem] = []
-        if let pageSize { queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize))) }
+    // TODO: Use /v1 for selected playlist fields once stable applies fields[] filtering.
+    /// Returns a playlist field-selection URL with an optional numeric or wildcard page size.
+    static func videoPlaylistsURL(organizationID: String, fields: [String]? = nil, pageSize: String?, pageToken: String?) -> URL? {
+        var queryItems = (fields ?? []).map { URLQueryItem(name: "fields[]", value: $0) }
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: pageSize))
+        }
         if let pageToken { queryItems.append(URLQueryItem(name: "page_token", value: pageToken)) }
-        return url(pathSegments: ["v1", "organizations", organizationID, "playlists"], queryItems: queryItems)
+        let channel = (fields?.isEmpty ?? true) ? "v1" : "v1-beta"
+        return url(pathSegments: [channel, "organizations", organizationID, "playlists"], queryItems: queryItems)
     }
 
     /// Returns a playlist resource URL within its organization.
