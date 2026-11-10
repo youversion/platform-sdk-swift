@@ -13,9 +13,10 @@ public extension YouVersionAPI {
         /// Returns one page of playlists, optionally limited to selected fields.
         /// Supported fields are `id`, `title`, `description`, `type`, `total`, and `videos`.
         /// Pass `nil` for `fields` to request all the fields. Omitted fields remain `nil`.
-        /// Pass a numeric page size from `"1"` through `"99"`, or `"*"` with at most three fields
+        /// Pass a numeric page size from `"1"` through `"99"`, or `"*"` with one to three selected fields
         /// to request all remaining playlists. A continuation token may be supplied with either form.
-        /// Omit the page size to receive the server default. HTTP and decoding failures are thrown.
+        /// Omit the page size to receive the server default. Keep the same fields and page size when continuing a page.
+        /// HTTP and decoding failures are thrown.
         public static func playlists(
             organizationID: String,
             fields: [String]? = nil,
@@ -69,6 +70,7 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: data)
         }
 
+        // TODO this is temporary code: do not merge this to main.
         // TODO: Remove the temporary English video-language override once the API video-language lookup issue is fixed.
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
         /// The optional thumbnail size is `thumb`, `card`, or `full`; omit it for full size.
@@ -104,7 +106,6 @@ public extension YouVersionAPI {
                   var components = URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false) else {
                 throw URLError(.badURL)
             }
-            // TODO this is temporary code: do not merge this to main.
             if components.path.contains("{width}") || components.path.contains("{height}") {
                 let width = size == "thumb" ? 320 : size == "card" ? 1200 : 0
                 components.path = components.path

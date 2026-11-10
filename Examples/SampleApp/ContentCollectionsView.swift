@@ -42,7 +42,7 @@ struct ContentCollectionsView: View {
                         .buttonStyle(.plain)
                     }
                     Text("All collections").font(.title3.bold())
-                    ForEach(collections) { collection in
+                    ForEach(collections, id: \.id) { collection in
                         NavigationLink {
                             ContentCollectionView(collection: collection)
                         } label: {

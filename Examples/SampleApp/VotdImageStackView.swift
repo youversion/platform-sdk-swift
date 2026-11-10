@@ -49,13 +49,12 @@ struct VotdImageStackView: View {
                             guard selectedID == image.id && dragOffset == .zero else {
                                 return
                             }
-                            if let onImageTap {
-                                onImageTap(image)
+                            if onImageTap != nil {
+                                onImageTap?(image)
                             } else {
                                 shuffle(toward: -1, width: geometry.size.width)
                             }
                         }
-                            .frame(width: max(geometry.size.width - 48, 1), height: geometry.size.height - 40)
                             .scaleEffect(1 - Double(stackDepth) * 0.035)
                             .rotationEffect(.degrees(
                                 isOnTop ? Double(offset.width / 24) : restingAngle
@@ -71,6 +70,8 @@ struct VotdImageStackView: View {
                             .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 20)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(0.85, contentMode: .fit)

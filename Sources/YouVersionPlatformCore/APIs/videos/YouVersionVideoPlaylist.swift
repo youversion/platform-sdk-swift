@@ -1,7 +1,7 @@
 import Foundation
 
 /// An organization's ordered playlist. Fields omitted by field selection remain `nil`.
-public struct YouVersionVideoPlaylist: Codable, Equatable, Identifiable, Sendable {
+public struct YouVersionVideoPlaylist: Codable, Equatable, Sendable {
     public let id: Int?
     public let title: String?
     public let description: String?

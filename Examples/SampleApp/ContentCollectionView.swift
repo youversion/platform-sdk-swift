@@ -88,25 +88,33 @@ struct ContentCollectionView: View {
     }
 
     private func loadVideos() async {
-        guard videos.isEmpty else {
+        let loadedIDs = Set(videos.map(\.id))
+        let pendingIDs = (collection.videoIDs ?? []).filter { !loadedIDs.contains($0) }
+        guard !pendingIDs.isEmpty else {
+            isLoading = false
             return
         }
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
-        do {
-            let resolved = try await withThrowingTaskGroup(of: (Int, YouVersionVideo).self) { group in
-                for (index, id) in (collection.videoIDs ?? []).enumerated() {
-                    group.addTask { (index, try await YouVersionAPI.Videos.video(id: id, size: "card")) }
+        let results = await withTaskGroup(of: (YouVersionVideo?, String?).self) { group in
+            for id in pendingIDs {
+                group.addTask {
+                    do {
+                        return (try await YouVersionAPI.Videos.video(id: id, size: "card"), nil)
+                    } catch {
+                        return (nil, error.localizedDescription)
+                    }
                 }
-                let results = try await group.reduce(into: [(Int, YouVersionVideo)]()) { $0.append($1) }
-                return results.sorted { $0.0 < $1.0 }.map(\.1)
             }
-            try Task.checkCancellation()
-            videos = resolved
-        } catch {
-            if !Task.isCancelled { errorMessage = error.localizedDescription }
+            return await group.reduce(into: [(YouVersionVideo?, String?)]()) { $0.append($1) }
         }
+        guard !Task.isCancelled else {
+            return
+        }
+        let resolved = videos + results.compactMap(\.0)
+        videos = (collection.videoIDs ?? []).compactMap { id in resolved.first { $0.id == id } }
+        errorMessage = results.compactMap(\.1).first
     }
 }
 

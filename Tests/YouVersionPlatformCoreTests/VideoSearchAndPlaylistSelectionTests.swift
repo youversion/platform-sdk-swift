@@ -8,19 +8,19 @@ import Testing
 extension ConfigurationStateTests {
     @Suite(.serialized)
     struct VideoSearchAndPlaylistSelectionTests {
-        @Test
-        func unifiedPreservesVideoIDsAndRequestsVideoFields() async throws {
+        @Test(arguments: [["videos"], ["videos", "verses"]])
+        func unifiedPreservesVideoIDsAndRequestsVideoFields(fields: [String]) async throws {
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }
             HTTPMocking.setHandler(token: token) { request in
                 let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
                 #expect(components.path == "/v1-beta/search-unified")
-                #expect(components.queryItems?.filter { $0.name == "fields[]" }.compactMap(\.value) == ["videos"])
+                #expect(components.queryItems?.filter { $0.name == "fields[]" }.compactMap(\.value) == fields)
                 let json = #"{"videos":[{"id":"opaque.+/=?&"},{"id":"second"}]}"#
                 return (Data(json.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
             }
             let result = try await YouVersionAPI.Search.unified(
-                matching: "love", bibleID: 111, languageRanges: ["en"], fields: ["videos"], session: session
+                matching: "love", bibleID: 111, languageRanges: ["en"], fields: fields, session: session
             )
             #expect(result.videos.map(\.id) == ["opaque.+/=?&", "second"])
             #expect(result.references.isEmpty)

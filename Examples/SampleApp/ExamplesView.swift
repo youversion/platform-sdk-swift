@@ -22,7 +22,7 @@ struct ExamplesView: View {
                         Label {
                             Text("tab.navigate")
                         } icon: {
-                            Image(systemName: "arrow.uturn.right").foregroundStyle(.black)
+                            Image(systemName: "arrow.uturn.right").foregroundStyle(.primary)
                         }
                     }
                     .listRowBackground(Color(uiColor: .systemGroupedBackground))
@@ -35,7 +35,7 @@ struct ExamplesView: View {
                         Label {
                             Text("tab.votd")
                         } icon: {
-                            Image(systemName: "sun.max.fill").foregroundStyle(.black)
+                            Image(systemName: "sun.max.fill").foregroundStyle(.primary)
                         }
                     }
                     .listRowBackground(Color(uiColor: .systemGroupedBackground))
@@ -48,7 +48,7 @@ struct ExamplesView: View {
                         Label {
                             Text("tab.card")
                         } icon: {
-                            Image(systemName: "doc.plaintext").foregroundStyle(.black)
+                            Image(systemName: "doc.plaintext").foregroundStyle(.primary)
                         }
                     }
                     .listRowBackground(Color(uiColor: .systemGroupedBackground))
