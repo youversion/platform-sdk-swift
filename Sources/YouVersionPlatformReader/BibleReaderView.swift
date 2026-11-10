@@ -16,6 +16,7 @@ public struct BibleReaderView: View {
     private let onVerseTap: ((BibleReference) -> Void)?
     private var preferredNavigationPlacement = BibleReaderNavigationPlacement.bottomBar
     private var navigationStackUsage = BibleReaderNavigationStackUsage.none
+    private var verseActions: [BibleReaderVerseAction] = [.highlight, .save, .copy, .share]
     private var chapterHeaderBuilder: ((BibleChapterDescriptor) -> AnyView)?
 
     /// Creates a Bible reader view displaying `reference`.
@@ -121,6 +122,20 @@ public struct BibleReaderView: View {
         return copy
     }
 
+    /// Replaces the verse drawer's actions with the supplied ordered list.
+    /// Use built-in presets to reorder or hide actions, and custom actions to add your own buttons.
+    /// IDs must be unique. Omitting `.save` hides the built-in Notes composer entry point.
+    ///
+    /// ```swift
+    /// reader.verseActions([.highlight, .save, .copy])
+    /// ```
+    public func verseActions(_ actions: [BibleReaderVerseAction]) -> BibleReaderView {
+        precondition(Set(actions.map(\.id)).count == actions.count, "Verse action IDs must be unique")
+        var copy = self
+        copy.verseActions = actions
+        return copy
+    }
+
     /// Creates a Bible reader view.
     ///
     /// - Parameters:
@@ -203,6 +218,7 @@ public struct BibleReaderView: View {
                     viewModel: viewModel,
                     readerNavigation: readerNavigation,
                     chapterHeader: chapterHeaderBuilder,
+                    verseActions: verseActions,
                     preferredNavigationPlacement: preferredNavigationPlacement,
                     navigationStackUsage: navigationStackUsage
                 )
@@ -235,12 +251,13 @@ private struct ReaderContent: View {
     @Bindable var viewModel: BibleReaderViewModel
     let readerNavigation: BibleReaderNavigation?
     let chapterHeader: ((BibleChapterDescriptor) -> AnyView)?
+    let verseActions: [BibleReaderVerseAction]
     let preferredNavigationPlacement: BibleReaderNavigationPlacement
     let navigationStackUsage: BibleReaderNavigationStackUsage
     @Environment(\.readerTabLocation) private var tabLocation
     @Environment(\.readerHasVerticalToolbar) private var hasVerticalToolbar
 #if !os(tvOS)
-    @State private var contextProvider = ContextProvider()
+    @State private var contextProvider = ReaderAuthenticationContextProvider()
 #endif
 
     @Environment(\.openURL) private var openURL
@@ -258,12 +275,14 @@ private struct ReaderContent: View {
         viewModel: BibleReaderViewModel,
         readerNavigation: BibleReaderNavigation?,
         chapterHeader: ((BibleChapterDescriptor) -> AnyView)?,
+        verseActions: [BibleReaderVerseAction],
         preferredNavigationPlacement: BibleReaderNavigationPlacement,
         navigationStackUsage: BibleReaderNavigationStackUsage
     ) {
         self.viewModel = viewModel
         self.readerNavigation = readerNavigation
         self.chapterHeader = chapterHeader
+        self.verseActions = verseActions
         self.preferredNavigationPlacement = preferredNavigationPlacement
         self.navigationStackUsage = navigationStackUsage
         self._verseScrollCoordinator = State(initialValue: VerseScrollCoordinator(viewModel: viewModel))
@@ -288,7 +307,7 @@ private struct ReaderContent: View {
                     }
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
-                    if viewModel.showingVerseActionsDrawer {
+                    if viewModel.showingVerseActionsDrawer && !verseActions.isEmpty {
                         verseActionDrawer.frame(maxWidth: BibleReaderView.contentMaximumWidth)
                     } else if layout.placement == .bottomBar {
                         ReaderNavigationBar(layout: layout, isUpperBar: false, width: geometry.size.width)
@@ -351,6 +370,16 @@ private struct ReaderContent: View {
         } message: {
             Text(String.localized("dataExchange.highlights.explanation"))
         }
+        .sheet(item: $viewModel.noteDraft, onDismiss: {
+            if viewModel.noteDraft == nil {
+                viewModel.removeVerseSelection()
+            }
+        }) { draft in
+            BibleReaderNotesDrawer(draft: draft)
+                .environment(viewModel)
+                .presentationDragIndicator(.visible)
+                .presentationBackground(viewModel.readerCanvasPrimaryColor)
+        }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
         })
@@ -368,7 +397,7 @@ private struct ReaderContent: View {
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.height(250), .medium, .large])
         })
-        .sheet(isPresented: $viewModel.showingSignInSheet) {
+        .sheet(isPresented: $viewModel.showingSignInSheet, onDismiss: { viewModel.cancelSignInPrompt() }) {
             signInView
         }
         .sheet(isPresented: $viewModel.showingSearchSheet) {
@@ -496,7 +525,7 @@ private struct ReaderContent: View {
     }
 
     private var verseActionDrawer: some View {
-        BibleReaderDrawer()
+        BibleReaderDrawer(actions: verseActions)
             .presentationDetents([PresentationDetent.height(160)])
         .presentationDragIndicator(.visible)
         .presentationBackground(viewModel.readerCanvasPrimaryColor)
@@ -631,23 +660,6 @@ private struct ReaderContent: View {
         }
     }
 
-#if !os(tvOS)
-    final class ContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
-        func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-#if canImport(UIKit)
-            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let window = scene.windows.first
-            else {
-                return ASPresentationAnchor()
-            }
-            return window
-#else
-            return ASPresentationAnchor()
-#endif
-        }
-    }
-#endif
-
 }
 
 #Preview {
@@ -656,3 +668,20 @@ private struct ReaderContent: View {
     )
     .environment(BibleReaderViewModel.preview)
 }
+
+#if !os(tvOS)
+final class ReaderAuthenticationContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+#if canImport(UIKit)
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first
+        else {
+            return ASPresentationAnchor()
+        }
+        return window
+#else
+        return ASPresentationAnchor()
+#endif
+    }
+}
+#endif

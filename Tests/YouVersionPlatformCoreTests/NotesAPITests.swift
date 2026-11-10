@@ -173,6 +173,43 @@ struct NotesAPITests {
     }
 
     @Test
+    func nonconsecutivePassageSurvivesCreateReadUpdateAndList() async throws {
+        let references = [1, 3, 5].map { BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: $0) }
+        let passage = try #require(YouVersionNote.Passage(references: references))
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = Data(noteJSON.replacingOccurrences(of: "JHN.3.16-18", with: passage.passageID).utf8)
+        HTTPMocking.setHandler(token: token) { request in
+            if request.httpMethod == "POST" || request.httpMethod == "PATCH" {
+                let body = try #require(request.bodyStreamAsJSON() as? [String: Any])
+                let attachment = try #require(body["passage"] as? [String: Any])
+                #expect(attachment["bible_id"] as? Int == 3034)
+                #expect(attachment["passage_id"] as? String == "GEN.1.1+GEN.1.3+GEN.1.5")
+            }
+            let isList = request.httpMethod == "GET" && request.url?.path == "/v1-beta/notes"
+            if isList {
+                let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+                #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: passage.passageID)])
+                #expect(components.percentEncodedQuery == "passage_id=GEN.1.1%2BGEN.1.3%2BGEN.1.5")
+            }
+            let response = isList ? Data("{\"data\":[\(String(decoding: json, as: UTF8.self))]}".utf8) : json
+            return (response, HTTPURLResponse(url: request.url!, statusCode: request.httpMethod == "POST" ? 201 : 200, httpVersion: nil, headerFields: nil)!)
+        }
+        let created = try await YouVersionAPI.Notes.createNote(
+            YouVersionNoteCreateRequest(content: "Reflection", status: .private, passage: passage),
+            accessToken: "notes-tests", session: session
+        )
+        let read = try await YouVersionAPI.Notes.note(id: "40638", accessToken: "notes-tests", session: session)
+        let updated = try await YouVersionAPI.Notes.updateNote(
+            id: "40638", update: YouVersionNoteUpdate(passage: .value(passage)), accessToken: "notes-tests", session: session
+        )
+        let page = try await YouVersionAPI.Notes.notes(passageID: passage.passageID, accessToken: "notes-tests", session: session)
+        for note in [created, read, updated] + page.notes {
+            #expect(note.passage?.references == references)
+        }
+    }
+
+    @Test
     func creationEncodesContractAndRetainsIdempotencyOnRetry() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }

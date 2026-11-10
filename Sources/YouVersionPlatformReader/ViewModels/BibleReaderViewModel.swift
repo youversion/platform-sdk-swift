@@ -52,6 +52,9 @@ enum SearchCanonFilter: CaseIterable {
 @Observable
 final class BibleReaderViewModel: ReaderThemeProviding {
     private static let highlightsPermission = "highlights"
+    // TODO: Use writeNotesPermission once Notes-specific consent is operational on the beta API.
+    static let notesPermission = highlightsPermission
+    static let dataExchangePermissions: Set<String> = [highlightsPermission, notesPermission]
 
     private let userDefaultsKeyForBibleReference = "bible-reader-view--reference"
     private let userDefaultsKeyForBibleDisplayIntro = "bible-reader-view--displayintro"
@@ -101,6 +104,8 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showingFootnotes = false
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
+    var noteDraft: BibleReaderNoteDraft?
+    var pendingNoteDraft: BibleReaderNoteDraft?
     var showingSearchSheet = false
     var isReduceMotionEnabled = false
     var selectedVerses: Set<BibleReference> = []
@@ -161,6 +166,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     // MARK: - Sign In & Out
 
     var startSignInFlow = false
+    private var isSigningIn = false
     var showingDataExchangeConfirmation = false
     var startDataExchangeFlow = false
     var showSignOutConfirmation = false
@@ -485,7 +491,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             do {
                 startDataExchangeFlow = false
                 let permissions = try await session.requestDataExchange(
-                    permissions: [Self.highlightsPermission]
+                    permissions: Self.dataExchangePermissions
                 )
                 completeDataExchangeFlow(with: permissions)
             } catch {
@@ -497,16 +503,17 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Confirms the just-in-time data exchange prompt and starts the browser flow.
     func confirmDataExchangePrompt() {
-        guard pendingHighlight != nil, isSignedIn else {
+        guard isSignedIn && (pendingHighlight != nil || pendingNoteDraft != nil) else {
             return
         }
         showingDataExchangeConfirmation = false
         startDataExchangeFlow = true
     }
 
-    /// Cancels the just-in-time data exchange prompt without changing highlights.
+    /// Cancels consent without applying a pending highlight or opening Notes.
     func cancelDataExchangePrompt() {
         clearPendingHighlight()
+        cancelPendingNote()
     }
 
     /// Completes the just-in-time data exchange browser flow.
@@ -519,24 +526,56 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         } else {
             clearPendingHighlight()
         }
+        continuePendingNote(with: grantedPermissions)
+    }
+
+    var hasNotesPermission: Bool {
+        authentication.hasPermission(Self.notesPermission)
+    }
+
+    static var signInPermissions: [String] {
+        Set(YouVersionPlatformConfiguration.authData?.permissionValues ?? [])
+            .subtracting([YouVersionAPI.Users.readNotesPermission, YouVersionAPI.Users.writeNotesPermission])
+            .union(dataExchangePermissions)
+            .union([YouVersionAPI.Users.readNotesPermission, YouVersionAPI.Users.writeNotesPermission])
+            .union(["profile"])
+            .sorted()
+    }
+
+    /// Resumes only reader actions whose permission was granted during sign-in.
+    func completeSignInFlow(with grantedPermissions: [String]) {
+        if grantedPermissions.contains(Self.highlightsPermission) {
+            continuePendingHighlightAfterSignIn()
+        } else {
+            clearPendingHighlight()
+        }
+        continuePendingNote(with: grantedPermissions)
+    }
+
+    /// Clears deferred actions when the sign-in prompt is dismissed without starting login.
+    func cancelSignInPrompt() {
+        guard !isSigningIn else {
+            return
+        }
+        clearPendingHighlight()
+        cancelPendingNote()
     }
 
 #if !os(tvOS)
     func startSignIn(contextProvider: ASWebAuthenticationPresentationContextProviding) {
         Task {
+            defer { isSigningIn = false }
             do {
                 startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
-                    permissions: ["profile", Self.highlightsPermission],
+                    permissions: Self.signInPermissions,
                     contextProvider: contextProvider
                 )
                 await updateSignInState()
-                if result.permissionValues.contains(Self.highlightsPermission) {
-                    continuePendingHighlightAfterSignIn()
-                } else {
-                    clearPendingHighlight()
-                }
+                completeSignInFlow(with: result.permissionValues)
             } catch {
+                clearPendingHighlight()
+                cancelPendingNote()
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
         }
@@ -544,18 +583,17 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 #else
     func startSignIn() {
         Task {
+            defer { isSigningIn = false }
             do {
                 startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
-                    permissions: ["profile", Self.highlightsPermission]
+                    permissions: Self.signInPermissions
                 )
                 await updateSignInState()
-                if result.permissionValues.contains(Self.highlightsPermission) {
-                    continuePendingHighlightAfterSignIn()
-                } else {
-                    clearPendingHighlight()
-                }
+                completeSignInFlow(with: result.permissionValues)
             } catch {
+                clearPendingHighlight()
+                cancelPendingNote()
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
         }
@@ -566,6 +604,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         if isSignedIn {
             return
         }
+        isSigningIn = true
         startSignInFlow = true
     }
 
@@ -581,6 +620,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.signOut()
         highlightsViewModel.reset()
         clearPendingHighlight()
+        cancelPendingNote()
     }
 
     func confirmPendingHighlightsSignOut() {

@@ -9,9 +9,10 @@ public extension YouVersionAPI {
         /// Returns one page of the signed-in user's notes, newest first. Requires `read_notes`.
         ///
         /// Set `passageID` to a verse (`JHN.3.16`), a verse range within one chapter (`JHN.3.16-18`),
-        /// or a chapter (`JHN.3`) to return notes whose attached passage overlaps it, regardless of
-        /// Bible version. Nil returns notes without a passage filter. Multiple passages or malformed
-        /// selectors are rejected by the server with HTTP 400.
+        /// same-chapter selections joined with `+` (`JHN.3.16+JHN.3.18`), or a chapter (`JHN.3`)
+        /// to return notes whose attached passage overlaps it, regardless of Bible version.
+        /// Nil returns notes without a passage filter. Cross-chapter or malformed selectors
+        /// are rejected by the server with HTTP 400.
         /// Set `bibleID` to restrict results to that Bible translation. Notes without a passage
         /// do not match. When both filters are set, a note must match both.
         ///

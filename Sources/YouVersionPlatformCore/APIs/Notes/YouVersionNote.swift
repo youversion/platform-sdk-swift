@@ -26,7 +26,9 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
         }
     }
 
-    /// The single verse or contiguous verse range within one chapter attached to a note.
+    /// The verses attached to a note in one Bible, book, and chapter.
+    /// Nonconsecutive selections use one `passage_id` string joined with `+`, such as
+    /// `GEN.1.1+GEN.1.3+GEN.1.5`.
     public struct Passage: Codable, Equatable, Sendable {
         public let bibleID: Int
         public let passageID: String
@@ -35,6 +37,51 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
         public init(bibleID: Int, passageID: String) {
             self.bibleID = bibleID
             self.passageID = passageID
+        }
+
+        /// Creates an attachment from selected verses or verse ranges in one Bible and chapter.
+        /// Sorts and merges adjacent or overlapping ranges without filling gaps, and encodes ranges
+        /// in the API's compact form (`GEN.1.1-3`). Returns nil for an empty selection, chapter-only
+        /// references, invalid references, or selections spanning Bibles, books, or chapters.
+        public init?(references: [BibleReference]) {
+            guard let first = references.first,
+                  first.chapter > 0,
+                  first.bookId.wholeMatch(of: /[A-Z0-9]{3}/) != nil else {
+                return nil
+            }
+            guard references.allSatisfy({ reference in
+                guard let start = reference.verseStart, let end = reference.verseEnd else {
+                    return false
+                }
+                return reference.versionId == first.versionId && reference.bookId == first.bookId &&
+                    reference.chapter == first.chapter && start > 0 && end >= start && end < Int.max
+            }) else {
+                return nil
+            }
+            let passageIDs = BibleReference.referencesByMerging(references: references).map { reference in
+                let start = reference.verseStart!
+                let end = reference.verseEnd!
+                let verseID = "\(reference.chapterPassageId).\(start)"
+                return start == end ? verseID : "\(verseID)-\(end)"
+            }
+            self.init(bibleID: first.versionId, passageID: passageIDs.joined(separator: "+"))
+        }
+
+        /// The verse or range references represented by the API string, using this attachment's Bible.
+        /// Returns nil for malformed or unsupported strings, including cross-chapter selections.
+        /// Conversion is all-or-nothing; an invalid component never produces a partial selection.
+        public var references: [BibleReference]? {
+            let passageIDs = passageID.components(separatedBy: "+")
+            let references = passageIDs.compactMap { value -> BibleReference? in
+                guard value.wholeMatch(of: /[A-Z0-9]{3}\.[1-9][0-9]*\.[1-9][0-9]*(?:-[1-9][0-9]*)?/) != nil else {
+                    return nil
+                }
+                return BibleReference.unvalidatedReference(with: value, versionId: bibleID)
+            }
+            guard references.count == passageIDs.count && Self(references: references) != nil else {
+                return nil
+            }
+            return references
         }
 
         private enum CodingKeys: String, CodingKey {

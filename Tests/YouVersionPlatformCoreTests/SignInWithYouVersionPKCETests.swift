@@ -45,7 +45,7 @@ import Testing
 
         let request = try SignInWithYouVersionPKCEAuthorizationRequestBuilder.make(
             appKey: "test-app",
-            permissions: ["profile", "highlights", "notes"],
+            permissions: ["profile", "highlights", YouVersionAPI.Users.readNotesPermission, YouVersionAPI.Users.writeNotesPermission],
             redirectURL: redirectURL
         )
 
@@ -54,6 +54,6 @@ import Testing
         let queryItems = Dictionary(uniqueKeysWithValues: queryItemsArray.map { ($0.name, $0.value ?? "") })
 
         #expect(queryItems["scope"] == "openid profile")
-        #expect(queryItems["requested_permissions"] == "highlights,notes")
+        #expect(queryItems["requested_permissions"] == "highlights,read_notes,write_notes")
     }
 }
