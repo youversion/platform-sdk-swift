@@ -69,6 +69,7 @@ public enum URLBuilder {
         url(pathSegments: ["v1", "videos", id])
     }
 
+    /// Returns an image-search URL with optional page size and continuation token.
     static func searchImagesURL(
         query: String,
         bibleID: Int,

@@ -3,8 +3,8 @@ import YouVersionPlatform
 
 struct ContentCollectionView: View {
     let collection: YouVersionVideoPlaylist
-    @State private var videos: [YouVersionVideo] = []
-    @State private var isLoading = true
+    @State private var videosByRequestedID: [String: YouVersionVideo] = [:]
+    @State private var activeLoadID: UUID?
     @State private var errorMessage: String?
     @State private var retryID = UUID()
 
@@ -76,6 +76,14 @@ struct ContentCollectionView: View {
         .task(id: retryID) { await loadVideos() }
     }
 
+    private var isLoading: Bool {
+        activeLoadID != nil
+    }
+
+    private var videos: [YouVersionVideo] {
+        (collection.videoIDs ?? []).compactMap { videosByRequestedID[$0] }
+    }
+
     private var duration: String? {
         guard !videos.isEmpty && videos.count == collection.videoIDs?.count && videos.allSatisfy({ $0.runtime != nil }) else {
             return nil
@@ -88,33 +96,40 @@ struct ContentCollectionView: View {
     }
 
     private func loadVideos() async {
-        let loadedIDs = Set(videos.map(\.id))
-        let pendingIDs = (collection.videoIDs ?? []).filter { !loadedIDs.contains($0) }
-        guard !pendingIDs.isEmpty else {
-            isLoading = false
-            return
-        }
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-        let results = await withTaskGroup(of: (YouVersionVideo?, String?).self) { group in
-            for id in pendingIDs {
-                group.addTask {
-                    do {
-                        return (try await YouVersionAPI.Videos.video(id: id, size: "card"), nil)
-                    } catch {
-                        return (nil, error.localizedDescription)
-                    }
-                }
-            }
-            return await group.reduce(into: [(YouVersionVideo?, String?)]()) { $0.append($1) }
-        }
         guard !Task.isCancelled else {
             return
         }
-        let resolved = videos + results.compactMap(\.0)
-        videos = (collection.videoIDs ?? []).compactMap { id in resolved.first { $0.id == id } }
-        errorMessage = results.compactMap(\.1).first
+        let loadID = UUID()
+        activeLoadID = loadID
+        defer {
+            if activeLoadID == loadID { activeLoadID = nil }
+        }
+        let pendingIDs = (collection.videoIDs ?? []).filter { videosByRequestedID[$0] == nil }
+        guard !pendingIDs.isEmpty else {
+            return
+        }
+        errorMessage = nil
+        let results = await withTaskGroup(of: (String, YouVersionVideo?, String?).self) { group in
+            for id in pendingIDs {
+                group.addTask {
+                    do {
+                        return (id, try await YouVersionAPI.Videos.video(id: id, size: "card"), nil)
+                    } catch {
+                        return (id, nil, error.localizedDescription)
+                    }
+                }
+            }
+            return await group.reduce(into: [(String, YouVersionVideo?, String?)]()) { $0.append($1) }
+        }
+        guard !Task.isCancelled && activeLoadID == loadID else {
+            return
+        }
+        videosByRequestedID = results.reduce(into: videosByRequestedID) { resolved, result in
+            if let video = result.1 {
+                resolved[result.0] = video
+            }
+        }
+        errorMessage = results.compactMap(\.2).first
     }
 }
 
