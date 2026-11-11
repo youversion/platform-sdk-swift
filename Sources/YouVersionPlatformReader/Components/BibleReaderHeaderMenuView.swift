@@ -17,6 +17,7 @@ struct BibleReaderHeaderMenuView: View {
                 .foregroundStyle(viewModel.readerTextPrimaryColor)
                 .readerIconButton()
         }
+        .accessibilityLabel(String.localized("moreMenuAriaLabel"))
         .accessibilityIdentifier("readerMenuBtn")
     }
 }

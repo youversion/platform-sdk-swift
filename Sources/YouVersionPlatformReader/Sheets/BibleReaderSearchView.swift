@@ -184,7 +184,7 @@ struct BibleReaderSearchView: View {
                             await viewModel.loadNextSearchPageIfNeeded()
                         }
                     } label: {
-                        Label(String.localized("error"), systemImage: "arrow.clockwise")
+                        Label(String.localized("retry"), systemImage: "arrow.clockwise")
                     }
                     .foregroundStyle(viewModel.readerTextMutedColor)
                     .padding(.vertical, 16)
@@ -372,7 +372,7 @@ private struct BibleReaderSearchHeaderView: View {
                             .foregroundStyle(viewModel.readerTextMutedColor)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(String.localized("cancel"))
+                    .accessibilityLabel(String.localized("bibleSearchClearAriaLabel"))
                 }
             }
             .padding(.horizontal, 12)

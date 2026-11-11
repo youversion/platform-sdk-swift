@@ -115,6 +115,7 @@ struct BibleReaderFontSettingsView: View {
                 )
                 .opacity(viewModel.canDecreaseFontSize ? 1 : 0.4)
                 .disabled(!viewModel.canDecreaseFontSize)
+                .accessibilityLabel(String.localized("decreaseFontSizeAriaLabel"))
 
                 Rectangle()
                     .frame(width: 2, height: 40)
@@ -137,6 +138,7 @@ struct BibleReaderFontSettingsView: View {
                 )
                 .opacity(viewModel.canIncreaseFontSize ? 1 : 0.4)
                 .disabled(!viewModel.canIncreaseFontSize)
+                .accessibilityLabel(String.localized("increaseFontSizeAriaLabel"))
             }
 
             Spacer()
@@ -161,7 +163,7 @@ struct BibleReaderFontSettingsView: View {
                 )
             }
             .buttonStyle(.plain)
-
+            .accessibilityLabel(String.localized("changeLineSpacingAriaLabel"))
         }
     }
 
