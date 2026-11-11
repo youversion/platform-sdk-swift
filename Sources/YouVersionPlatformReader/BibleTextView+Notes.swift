@@ -43,7 +43,7 @@ private struct NoteIndicators: View {
         .task(id: LoadKey(reference: textView.reference.chapterReference, revision: revision)) {
             await model.load(textView.reference.chapterReference)
         }
-        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification).receive(on: RunLoop.main)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification).receive(on: RunLoop.main)) { _ in
             model.clear()
             revision = UUID()
         }

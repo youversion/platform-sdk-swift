@@ -88,17 +88,13 @@ struct BibleReaderNotesTests {
     @Test
     func privacyAndColorEditsEnableSaveWithoutInventingText() {
         let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
-        #expect(!draft.hasChanges)
         #expect(!draft.canSave)
         draft.isPublic = true
-        #expect(draft.hasChanges)
         #expect(!draft.hasTextChanges)
         #expect(draft.canSave)
         draft.isPublic = false
-        #expect(!draft.hasChanges)
         #expect(!draft.canSave)
         draft.colorHex = "ffec5b"
-        #expect(draft.hasChanges)
         #expect(draft.canSave)
         draft.colorHex = nil
         #expect(!draft.canSave)
@@ -183,7 +179,7 @@ struct BibleReaderNotesTests {
     }
 
     @Test
-    func dismissalConfirmsOnlyChangedTextAndDiscardClearsSelection() {
+    func dismissalConfirmsAllChangedFieldsAndDiscardClearsSelection() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
@@ -202,7 +198,176 @@ struct BibleReaderNotesTests {
         viewModel.startNote()
         viewModel.noteDraft?.isPublic = true
         viewModel.requestDismissNote()
+        #expect(viewModel.noteDraft?.showingDiscardConfirmation == true)
+        viewModel.discardNote()
+        viewModel.selectedVerses = [first]
+        viewModel.startNote()
+        viewModel.noteDraft?.colorHex = "ffec5b"
+        viewModel.requestDismissNote()
+        #expect(viewModel.noteDraft?.showingDiscardConfirmation == true)
+        viewModel.noteDraft?.colorHex = nil
+        viewModel.noteDraft?.showingDiscardConfirmation = false
+        viewModel.requestDismissNote()
         #expect(viewModel.noteDraft == nil)
+    }
+
+    @Test
+    func indicatorOpensBlankComposerForTappedVerseWithSavedNotes() throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Original text","status":"public","color":"ffec5b",
+         "passage":{"bible_id":3034,"passage_id":"JHN.3.16-17"}}
+        """.utf8))
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in false })
+        viewModel.showingVerseActionsDrawer = true
+        viewModel.showNotes(for: second, notes: [note])
+        let draft = try #require(viewModel.noteDraft)
+        #expect(!viewModel.showingVerseActionsDrawer)
+        #expect(draft.savedNotes == [note])
+        #expect(draft.references == [second])
+        #expect(draft.content.isEmpty)
+        #expect(!draft.isPublic)
+        #expect(draft.colorHex == nil)
+        #expect(!draft.canSave)
+    }
+
+    @Test
+    func savingCopiedTextCreatesNewNoteWithoutChangingOriginal() async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Original text","status":"public","color":"ffec5b"}
+        """.utf8))
+        var created: YouVersionNoteCreateRequest?
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note]) { created = $0 }
+        draft.copyText(from: note)
+        #expect(!draft.canSave)
+        draft.content += " with a new reflection"
+        #expect(await draft.save())
+        #expect(created?.content == "Original text with a new reflection")
+        #expect(created?.status == .private)
+        #expect(created?.color == nil)
+        #expect(draft.savedNotes == [note])
+        #expect(note.content == "Original text")
+    }
+
+    @Test
+    func copiedTextRequiresAnEditAndRevertingItDisablesSave() throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Saved reflection","status":"private"}
+        """.utf8))
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
+        draft.copyText(from: note)
+        #expect(!draft.canSave)
+        #expect(!draft.hasChanges)
+        draft.content += " edited"
+        #expect(draft.canSave)
+        draft.content = note.content
+        #expect(!draft.canSave)
+        draft.isPublic = true
+        #expect(draft.canSave)
+        draft.isPublic = false
+        #expect(!draft.canSave)
+        draft.colorHex = "ffec5b"
+        #expect(draft.canSave)
+        draft.colorHex = nil
+        #expect(!draft.canSave)
+        #expect(!draft.hasChanges)
+    }
+
+    @Test
+    func copyingStartsBaselineFromCurrentVisibilityAndColor() throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Saved reflection","status":"private"}
+        """.utf8))
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
+        draft.isPublic = true
+        draft.colorHex = "ffec5b"
+        draft.copyText(from: note)
+        #expect(draft.isPublic)
+        #expect(draft.colorHex == "ffec5b")
+        #expect(!draft.canSave)
+        #expect(!draft.hasChanges)
+        draft.isPublic = false
+        #expect(draft.canSave)
+        draft.isPublic = true
+        #expect(!draft.canSave)
+        draft.colorHex = nil
+        #expect(draft.canSave)
+        draft.colorHex = "ffec5b"
+        #expect(!draft.canSave)
+    }
+
+    @Test
+    func deletionRemovesOnlyTheConfirmedNoteAndKeepsComposerText() async throws {
+        let data = Data("""
+        [{"id":"first","content":"Saved text","status":"private"},
+         {"id":"second","content":"Another note","status":"public"}]
+        """.utf8)
+        let notes = try JSONDecoder().decode([YouVersionNote].self, from: data)
+        var deletedIDs: [String] = []
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: notes,
+            deleteNote: { deletedIDs.append($0) }
+        )
+        draft.content = "Unsaved reflection"
+        draft.isPublic = true
+        #expect(await draft.delete(notes[0]))
+        #expect(deletedIDs == ["first"])
+        #expect(draft.savedNotes == [notes[1]])
+        #expect(draft.content == "Unsaved reflection")
+        #expect(draft.isPublic)
+        #expect(!draft.isBusy)
+        #expect(await draft.delete(notes[0]) == false)
+        #expect(deletedIDs == ["first"])
+    }
+
+    @Test(arguments: [true, false])
+    func failedDeletionRetainsSavedNoteAndDraft(failsAuthorization: Bool) async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Saved text","status":"private"}
+        """.utf8))
+        var didDelete = false
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note],
+            deleteNote: { _ in
+                didDelete = true
+                throw URLError(.notConnectedToInternet)
+            }
+        )
+        draft.content = "Keep this draft"
+        let deleted = await draft.delete(note, authorize: {
+            if failsAuthorization { throw YouVersionAPIError.notPermitted }
+        })
+        #expect(!deleted)
+        #expect(didDelete == !failsAuthorization)
+        #expect(draft.savedNotes == [note])
+        #expect(draft.content == "Keep this draft")
+        #expect(draft.showingSaveError)
+        #expect(!draft.isBusy)
+    }
+
+    @Test
+    func deletionBlocksConcurrentSaveDeleteAndDismissal() async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Saved text","status":"private"}
+        """.utf8))
+        var continuation: CheckedContinuation<Void, Never>?
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note],
+            deleteNote: { _ in await withCheckedContinuation { continuation = $0 } }
+        )
+        draft.content = "Keep me"
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true)
+        viewModel.noteDraft = draft
+        let task = Task { await draft.delete(note) }
+        while continuation == nil { await Task.yield() }
+        #expect(draft.isDeleting)
+        #expect(!draft.canSave)
+        #expect(await draft.save() == false)
+        #expect(await draft.delete(note) == false)
+        viewModel.requestDismissNote()
+        viewModel.discardNote()
+        #expect(viewModel.noteDraft === draft)
+        continuation?.resume()
+        #expect(await task.value)
     }
 
     @Test

@@ -104,6 +104,22 @@ struct BibleNoteIndicatorsTests {
         #expect(!model.loadFailed)
     }
 
+    @Test(arguments: [YouVersionAPIError.notPermitted, .missingAuthentication])
+    func authorizationFailureClearsCachedPrivateNotes(error: YouVersionAPIError) async throws {
+        let page = try collection([note("private", passage: "GEN.1.3")])
+        let failure = AccessState()
+        let model = BibleNoteIndicatorsModel(hasAccess: { true }) { _, _ in
+            if !failure.isAllowed { throw error }
+            return page
+        }
+        await model.load(chapter)
+        #expect(model.hasNotes(for: verse(3)))
+        failure.isAllowed = false
+        await model.load(chapter)
+        #expect(model.loadFailed)
+        #expect(!model.hasNotes(for: verse(3)))
+    }
+
     @Test
     func repeatedContinuationTokenStopsInsteadOfLooping() async throws {
         let page = try collection([], next: "repeat")

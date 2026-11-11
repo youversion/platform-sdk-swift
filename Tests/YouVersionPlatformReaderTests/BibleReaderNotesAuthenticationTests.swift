@@ -121,20 +121,6 @@ struct BibleReaderNotesAuthenticationTests {
     }
 
     @Test
-    func completingOAuthForAnExistingSessionRefreshesNoteIndicators() async {
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true)
-        await confirmation("Notes refresh after OAuth") { confirm in
-            let observer = NotificationCenter.default.addObserver(forName: .youVersionNotesChanged, object: nil, queue: nil) { notification in
-                if notification.object as? BibleReaderViewModel === viewModel {
-                    confirm()
-                }
-            }
-            defer { NotificationCenter.default.removeObserver(observer) }
-            viewModel.completeSignInFlow(with: ["read_notes", "write_notes"])
-        }
-    }
-
-    @Test
     func notesScopesAreRequestedThroughOAuthRatherThanDataExchange() {
         #expect(BibleReaderViewModel.notesPermission == YouVersionAPI.Users.writeNotesPermission)
         #expect(BibleReaderViewModel.dataExchangePermissions == ["highlights"])

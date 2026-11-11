@@ -85,6 +85,12 @@ final class BibleNoteIndicatorsModel {
             guard !Task.isCancelled && currentRequest == requestID else {
                 return
             }
+            switch error {
+            case YouVersionAPIError.notPermitted, YouVersionAPIError.missingAuthentication:
+                clear()
+            default:
+                break
+            }
             loadFailed = true
             YouVersionPlatformLogger.error("Could not load Notes indicators: \(error)", category: "BibleText")
         }

@@ -240,7 +240,7 @@ public struct BibleTextView: View {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification)) { _ in
             if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
             }

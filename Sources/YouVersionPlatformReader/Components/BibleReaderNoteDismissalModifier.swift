@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Observes attempts to dismiss a native sheet so unsaved text gets a discard confirmation.
+/// Observes attempts to dismiss a native sheet so unsaved changes get a discard confirmation.
 struct BibleReaderNoteDismissalModifier: ViewModifier {
     @Environment(BibleReaderViewModel.self) private var viewModel
     let draft: BibleReaderNoteDraft
@@ -12,13 +12,13 @@ struct BibleReaderNoteDismissalModifier: ViewModifier {
 #if canImport(UIKit) && !os(tvOS)
         content.background {
             NotesSheetDismissalObserver(
-                isDisabled: draft.hasTextChanges || draft.isSaving,
+                isDisabled: draft.hasChanges || draft.isBusy,
                 onAttempt: { viewModel.requestDismissNote() },
                 onDismiss: { viewModel.finishNote(draft) }
             )
         }
 #else
-        content.interactiveDismissDisabled(draft.hasTextChanges || draft.isSaving)
+        content.interactiveDismissDisabled(draft.hasChanges || draft.isBusy)
 #endif
     }
 }

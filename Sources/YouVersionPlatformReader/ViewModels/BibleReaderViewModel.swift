@@ -557,9 +557,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             cancelDataExchangePrompt()
         }
         continuePendingNote(with: grantedPermissions)
-        if isSignedIn {
-            NotificationCenter.default.post(name: .youVersionNotesChanged, object: self)
-        }
     }
 
     /// Pauses deferred actions when the sign-in prompt is dismissed without starting login.

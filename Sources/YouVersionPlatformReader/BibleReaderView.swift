@@ -599,10 +599,7 @@ private struct ReaderContent: View {
                                 focusedReference: viewModel.focusedReference
                             )
                             .withNoteIndicators(onSelected: { reference, notes in
-#if DEBUG
-                                debugPrint("Note indicator selected:", reference)
-                                dump(notes)
-#endif
+                                viewModel.showNotes(for: reference, notes: notes)
                             })
                         }
                         VStack(alignment: .center) {

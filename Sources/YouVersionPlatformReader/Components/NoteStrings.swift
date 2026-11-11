@@ -1,5 +1,13 @@
 // TODO: Move Notes copy to platform-localization and use String.localized after its sync.
 enum NoteStrings {
+    static let previouslySaved = "Previously Saved"
+    static let addedNote = "You added a note on"
+    static let replaceTitle = "Replace note text?"
+    static let replaceMessage = "Your unsaved text will be replaced with the saved note’s text."
+    static let replace = "Replace"
+    static let delete = "Delete"
+    static let deleteTitle = "Delete saved note?"
+    static let deleteMessage = "This note will be permanently deleted. Your unsaved note text will be kept."
     static let save = "Save"
     static let privateVisibility = "Private"
     static let publicVisibility = "Public"

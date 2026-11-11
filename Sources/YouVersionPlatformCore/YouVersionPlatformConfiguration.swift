@@ -40,6 +40,8 @@ public struct YouVersionPlatformConfiguration {
     private static let permissionsKey = "YouVersionPlatformDataExchangePermissions"
 
     public static let authStateDidChangeNotification = Notification.Name("YouVersionPlatformAuthStateDidChange")
+    /// Credentials or permissions changed, including reauthorization while already signed in.
+    package static let authDataDidChangeNotification = Notification.Name("YouVersionPlatformAuthDataDidChange")
 
     @available(*, deprecated, message: "Use hasPermission(_:) instead.")
     static var permissionEnums: [SignInWithYouVersionPermission] {
@@ -103,6 +105,8 @@ public struct YouVersionPlatformConfiguration {
         expiryDate: Date?,
         permissions: [String]? = nil
     ) {
+        let previousAuthData = Self.authData
+        let previousPermissions = storedPermissions
         let wasSignedIn = Self.accessToken != nil
         UserDefaults.standard.set(accessToken, forKey: accessTokenKey)
         UserDefaults.standard.set(refreshToken, forKey: refreshTokenKey)
@@ -112,6 +116,9 @@ public struct YouVersionPlatformConfiguration {
             savePermissions(permissions)
         }
         postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
+        if previousAuthData?.accessToken != accessToken || previousAuthData?.idToken != idToken || previousPermissions != storedPermissions {
+            NotificationCenter.default.post(name: authDataDidChangeNotification, object: nil)
+        }
     }
 
     @MainActor

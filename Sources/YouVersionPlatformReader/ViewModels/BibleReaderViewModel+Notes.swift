@@ -39,6 +39,16 @@ extension BibleReaderViewModel {
         }
     }
 
+    /// Opens a new composer for the tapped verse, alongside its previously saved notes.
+    func showNotes(for reference: BibleReference, notes: [YouVersionNote]) {
+        guard isSignedIn && !notes.isEmpty else {
+            return
+        }
+        let title = version?.displayTitle(for: reference, includesVersionAbbreviation: false) ?? reference.passageId
+        showingVerseActionsDrawer = false
+        noteDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: title, savedNotes: notes)
+    }
+
     /// Opens the captured draft when authentication granted the `write_notes` OAuth scope.
     func continuePendingNote(with grantedPermissions: [String]) {
         guard isNoteAuthorizationPending, let pendingNoteDraft else {
@@ -64,12 +74,12 @@ extension BibleReaderViewModel {
         showingVerseActionsDrawer = !selectedVerses.isEmpty
     }
 
-    /// Requests dismissal, confirming only when the user has entered text.
+    /// Requests dismissal, confirming when any composer field has changed.
     func requestDismissNote() {
-        guard let noteDraft, !noteDraft.isSaving else {
+        guard let noteDraft, !noteDraft.isBusy else {
             return
         }
-        if noteDraft.hasTextChanges {
+        if noteDraft.hasChanges {
             noteDraft.showingDiscardConfirmation = true
         } else {
             discardNote()
@@ -78,7 +88,7 @@ extension BibleReaderViewModel {
 
     /// Discards this draft and clears the verse selection.
     func discardNote() {
-        guard noteDraft?.isSaving != true else {
+        guard noteDraft?.isBusy != true else {
             return
         }
         noteDraft = nil
