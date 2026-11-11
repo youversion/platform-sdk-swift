@@ -107,7 +107,7 @@ public extension YouVersionAPI {
             )
             applySessionHeaders(from: session, to: &request)
 
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
@@ -116,7 +116,9 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
 
-            return try JSONDecoder().decode(TokenResponse.self, from: data)
+            let tokens = try JSONDecoder().decode(TokenResponse.self, from: data)
+            YouVersionPlatformLogger.debug("OAuth token response scope=\(tokens.scope); \(tokenScopeSummary(tokens.accessToken))", category: "Auth")
+            return tokens
         }
 
         static func extractSignInWithYouVersionResult(from tokens: TokenResponse, nonce: String, callbackURL: URL) throws -> SignInWithYouVersionResult {
@@ -134,6 +136,7 @@ public extension YouVersionAPI {
             if !grantedValues.isEmpty {
                 resultPermissions = Array(Set(resultPermissions).union(Set(grantedValues))).sorted()
             }
+            YouVersionPlatformLogger.debug("OAuth callback granted_permissions=\(grantedValues.sorted()); combined permissions=\(resultPermissions.sorted())", category: "Auth")
             return SignInWithYouVersionResult(
                 accessToken: tokens.accessToken,
                 expiresIn: tokens.expiresIn,
@@ -223,7 +226,7 @@ public extension YouVersionAPI {
             request.httpBody = bodyData
             applySessionHeaders(from: session, to: &request)
 
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
@@ -234,6 +237,7 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
             
+            YouVersionPlatformLogger.debug("OAuth refresh response scope=\(decodedResponse.scope); \(tokenScopeSummary(decodedResponse.accessToken))", category: "Auth")
             return SignInWithYouVersionResult(
                 accessToken: decodedResponse.accessToken,
                 expiresIn: decodedResponse.expiresIn,
@@ -265,6 +269,40 @@ public extension YouVersionAPI {
                 case refreshToken = "refresh_token"
                 case scope
             }
+        }
+
+        /// Describes only diagnostic scope claims, never tokens or user claims.
+        static func tokenScopeSummary(_ token: String) -> String {
+            guard let claims = try? decodeJWT(token), !claims.isEmpty else {
+                return "access token present; JWT scope unavailable (opaque or unreadable token)"
+            }
+            let scopes: [String]?
+            if let scope = claims["scope"] as? String {
+                scopes = permissions(from: scope)
+            } else {
+                scopes = claims["scope"] as? [String]
+            }
+            return "JWT scope claim (unverified)=\(scopes?.sorted().description ?? "<missing>")"
+        }
+
+        /// Warns at the default logger level when a token belongs to a different app.
+        static func warnIfClientIDMismatch(_ token: String?, appKey: String?) {
+            guard YouVersionPlatformLogger.level <= .error,
+                  let warning = clientIDMismatchWarning(token, appKey: appKey) else {
+                return
+            }
+            YouVersionPlatformLogger.error(warning, category: "Auth")
+        }
+
+        /// Creates a credential-free warning only for a known client mismatch.
+        static func clientIDMismatchWarning(_ token: String?, appKey: String?) -> String? {
+            guard let token, let appKey, !appKey.isEmpty,
+                  let claims = try? decodeJWT(token),
+                  let clientID = claims["client_id"] as? String, !clientID.isEmpty,
+                  clientID != appKey else {
+                return nil
+            }
+            return "AUTHENTICATION WARNING: The access token's client_id does not match the configured app key. Requests may be rejected. Sign in again using the current app key."
         }
 
         private static func permissions(from value: String) -> [String] {

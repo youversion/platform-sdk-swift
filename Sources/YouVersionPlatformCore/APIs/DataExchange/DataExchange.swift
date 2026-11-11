@@ -46,7 +46,7 @@ public extension YouVersionAPI {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(requestBody)
 
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw YouVersionAPIError.invalidResponse
             }

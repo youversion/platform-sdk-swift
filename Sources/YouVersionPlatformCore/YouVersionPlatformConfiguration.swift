@@ -115,6 +115,8 @@ public struct YouVersionPlatformConfiguration {
         if let permissions {
             savePermissions(permissions)
         }
+        YouVersionPlatformLogger.debug("Auth storage: incoming permissions=\(permissions?.sorted().description ?? "<not supplied>"); cumulative stored permissions=\(storedPermissions); \(accessToken.map(YouVersionAPI.Users.tokenScopeSummary) ?? "access token absent")", category: "Auth")
+        YouVersionAPI.Users.warnIfClientIDMismatch(accessToken, appKey: Self.appKey)
         postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
         if previousAuthData?.accessToken != accessToken || previousAuthData?.idToken != idToken || previousPermissions != storedPermissions {
             NotificationCenter.default.post(name: authDataDidChangeNotification, object: nil)
