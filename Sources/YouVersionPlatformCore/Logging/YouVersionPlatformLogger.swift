@@ -6,7 +6,10 @@ import os
 /// A lightweight logger used by the YouVersion Platform SDK.
 ///
 /// By default, only messages at ``Level/error`` or higher are emitted, keeping
-/// client consoles quiet. Lower the level (for example to ``Level/debug``) to
+/// client consoles quiet. Token/client mismatches are logged at error level.
+/// At debug level, API diagnostics include scopes, request IDs, and redacted JSON
+/// error bodies; request bodies and successful response bodies are not dumped.
+/// Lower the level (for example to ``Level/debug``) to
 /// surface more detail while debugging, or set it to ``Level/off`` to silence
 /// the SDK entirely.
 ///
