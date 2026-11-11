@@ -168,6 +168,43 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         #expect(viewModel.textForGenericAlertBody == .localized("myVersions.downloadErrorBody"))
     }
 
+    @Test
+    func pinsCurrentVersionFirstWhenOpeningToFullList() {
+        YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(true)
+        defer { YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(false) }
+        let viewModel = BibleVersionsViewModel()
+        let versions = [makeBibleVersion(id: 1), makeBibleVersion(id: 2), makeBibleVersion(id: 3)]
+        viewModel.switchToVersion(versions[2])
+
+        let ordered = viewModel.versionsPinningCurrentFirst(versions)
+
+        #expect(ordered.map(\.id) == [3, 1, 2])
+    }
+
+    @Test
+    func keepsVersionOrderWhenNotOpeningToFullList() {
+        let viewModel = BibleVersionsViewModel()
+        let versions = [makeBibleVersion(id: 1), makeBibleVersion(id: 2), makeBibleVersion(id: 3)]
+        viewModel.switchToVersion(versions[2])
+
+        let ordered = viewModel.versionsPinningCurrentFirst(versions)
+
+        #expect(ordered.map(\.id) == [1, 2, 3])
+    }
+
+    @Test
+    func keepsVersionOrderWhenCurrentVersionIsNotInTheList() {
+        YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(true)
+        defer { YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(false) }
+        let viewModel = BibleVersionsViewModel()
+        let versions = [makeBibleVersion(id: 1), makeBibleVersion(id: 2)]
+        viewModel.switchToVersion(makeBibleVersion(id: 99))
+
+        let ordered = viewModel.versionsPinningCurrentFirst(versions)
+
+        #expect(ordered.map(\.id) == [1, 2])
+    }
+
     private func makeBibleVersion(id: Int) -> BibleVersion {
         BibleVersion(
             id: id,

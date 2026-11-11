@@ -28,17 +28,24 @@ public struct BibleVersionsStack: View {
 
     @ViewBuilder
     private var rootView: some View {
-        if !viewModel.myVersions.isEmpty {
+        if YouVersionPlatformConfiguration.versionPickerOpensToAllVersions {
+            fullVersionsView
+        } else if !viewModel.myVersions.isEmpty {
             BibleVersionsMyVersionsView()
         } else {
-            ZStack {
-                BibleVersionsListView()
-                
-                if viewModel.showFullProgressViewOverlay {
-                    Color.gray.opacity(0.2)
-                    
-                    ProgressView()
-                }
+            fullVersionsView
+        }
+    }
+
+    @ViewBuilder
+    private var fullVersionsView: some View {
+        ZStack {
+            BibleVersionsListView()
+
+            if viewModel.showFullProgressViewOverlay {
+                Color.gray.opacity(0.2)
+
+                ProgressView()
             }
         }
     }

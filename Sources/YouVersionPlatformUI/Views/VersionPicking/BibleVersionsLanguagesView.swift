@@ -1,4 +1,5 @@
 import SwiftUI
+import YouVersionPlatformCore
 
 struct BibleVersionsLanguagesView: View {
     @Environment(BibleVersionsViewModel.self) private var viewModel
@@ -133,7 +134,10 @@ struct BibleVersionsLanguagesView: View {
         case .suggested:
             return viewModel.suggestedLanguageTags
         case .all:
-            return sortedUniqueLanguageTags(availableLanguageTags, languageName: viewModel.languageName)
+            return orderedLanguageTags(
+                sortedUniqueLanguageTags(availableLanguageTags, languageName: viewModel.languageName),
+                preferredFirst: YouVersionPlatformConfiguration.preferredLanguageTags
+            )
         case .searching:
             let filtered = filteredLanguageTags(availableLanguageTags, matching: searchText, languageName: viewModel.languageName)
             return sortedUniqueLanguageTags(filtered, languageName: viewModel.languageName)

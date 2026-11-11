@@ -6,6 +6,17 @@ func sortedUniqueLanguageTags(_ tags: [String], languageName: (String) -> String
     }
 }
 
+func orderedLanguageTags(_ tags: [String], preferredFirst preferred: [String]) -> [String] {
+    guard !preferred.isEmpty else {
+        return tags
+    }
+    let available = Set(tags)
+    var pinnedTags: Set<String> = []
+    let pinned = preferred.filter { available.contains($0) && pinnedTags.insert($0).inserted }
+    let rest = tags.filter { !pinnedTags.contains($0) }
+    return pinned + rest
+}
+
 func filteredLanguageTags(_ tags: [String], matching searchText: String, languageName: (String) -> String) -> [String] {
     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !query.isEmpty else {

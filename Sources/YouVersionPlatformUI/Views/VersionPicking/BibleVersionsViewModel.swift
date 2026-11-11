@@ -349,8 +349,16 @@ public final class BibleVersionsViewModel {
         }
     }
     
-    /// Language tags likely to be ones the user will want. Doesn't return any for which we have no Bible versions.
+    /// Language tags likely to be ones the user will want, the user's preferred
+    /// languages first. Doesn't return any for which we have no Bible versions.
     var suggestedLanguageTags: [String] {
+        orderedLanguageTags(
+            unorderedSuggestedLanguageTags,
+            preferredFirst: YouVersionPlatformConfiguration.preferredLanguageTags
+        )
+    }
+
+    private var unorderedSuggestedLanguageTags: [String] {
         guard !suggestedLanguages.isEmpty else {
             return ["en", "es"]
         }
@@ -358,10 +366,9 @@ public final class BibleVersionsViewModel {
         guard let versionsInfo = cachedPermittedVersions else {
             return tags
         }
-        let ret = tags.filter { tag in
+        return tags.filter { tag in
             versionsInfo.isEmpty || versionsInfo.contains(where: { $0.languageTag == tag })
         }
-        return ret
     }
 
     func languageName(_ lang: String) -> String {
