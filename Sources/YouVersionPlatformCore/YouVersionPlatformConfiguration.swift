@@ -111,7 +111,7 @@ public struct YouVersionPlatformConfiguration {
         if let permissions {
             savePermissions(permissions)
         }
-        YouVersionPlatformLogger.debug("Auth storage: incoming permissions=\(permissions?.sorted().description ?? "<not supplied>"); cumulative stored permissions=\(storedPermissions); \(YouVersionAPI.Users.tokenScopeSummary(accessToken))", category: "Auth")
+        YouVersionPlatformLogger.debug("Auth storage: incoming permissions=\(permissions?.sorted().description ?? "<not supplied>"); cumulative stored permissions=\(storedPermissions); \(accessToken.map(YouVersionAPI.Users.tokenScopeSummary) ?? "access token absent")", category: "Auth")
         YouVersionAPI.Users.warnIfClientIDMismatch(accessToken, appKey: Self.appKey)
         postAuthStateDidChangeNotificationIfNeeded(wasSignedIn: wasSignedIn)
     }

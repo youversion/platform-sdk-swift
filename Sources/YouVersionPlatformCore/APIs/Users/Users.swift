@@ -272,10 +272,7 @@ public extension YouVersionAPI {
         }
 
         /// Describes only diagnostic scope claims, never tokens or user claims.
-        static func tokenScopeSummary(_ token: String?) -> String {
-            guard let token else {
-                return "access token absent"
-            }
+        static func tokenScopeSummary(_ token: String) -> String {
             guard let claims = try? decodeJWT(token), !claims.isEmpty else {
                 return "access token present; JWT scope unavailable (opaque or unreadable token)"
             }

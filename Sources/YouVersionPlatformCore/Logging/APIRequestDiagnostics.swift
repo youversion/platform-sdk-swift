@@ -18,7 +18,7 @@ extension YouVersionAPI {
     }
 }
 
-package struct APIRequestDiagnostics {
+struct APIRequestDiagnostics {
     /// Identifies the request without exposing credentials in its URL or headers.
     static func requestSummary(_ request: URLRequest) -> String {
         var components = request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
@@ -62,7 +62,7 @@ package struct APIRequestDiagnostics {
                 let parts = value.split(separator: " ", maxSplits: 1)
                 return parts.count == 2 && ["bearer", "basic"].contains(parts[0].lowercased()) ? [value, String(parts[1])] : [value]
             } + (request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }?.queryItems ?? [])
-                .filter { isSensitive($0.name) || $0.name == "code" }.compactMap(\.value) + bodyCredentials(request.httpBody)
+                .filter { isSensitive($0.name) || $0.name == "code" }.compactMap(\.value) + (request.httpBody.map(bodyCredentials) ?? [])
             let body: String
             if data.isEmpty {
                 body = "<empty>"
@@ -81,7 +81,7 @@ package struct APIRequestDiagnostics {
     }
 
     /// Describes failure kinds and decoding paths without dumping NSError userInfo or note values.
-    package static func errorSummary(_ error: any Error) -> String {
+    static func errorSummary(_ error: any Error) -> String {
         switch error {
         case let error as YouVersionAPIError:
             return String(describing: error)
@@ -114,10 +114,7 @@ package struct APIRequestDiagnostics {
             ["password", "client_secret", "code_verifier", "content", "title", "tags", "input"].contains(name)
     }
 
-    private static func bodyCredentials(_ data: Data?) -> [String] {
-        guard let data else {
-            return []
-        }
+    private static func bodyCredentials(_ data: Data) -> [String] {
         let fields: [URLQueryItem]
         if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
             fields = object.compactMap { key, value in

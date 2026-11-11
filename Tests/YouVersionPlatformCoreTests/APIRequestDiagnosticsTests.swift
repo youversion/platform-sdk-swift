@@ -33,6 +33,16 @@ struct APIRequestDiagnosticsTests {
     }
 
     @Test
+    func requestWithoutBodyOrCredentialsUsesEmptyCredentialFallback() throws {
+        let request = URLRequest(url: URL(string: "https://example.com/resource")!)
+        #expect(APIRequestDiagnostics.requestSummary(request) == "GET https://example.com/resource")
+        let response = try #require(HTTPURLResponse(url: request.url!, statusCode: 403, httpVersion: nil, headerFields: nil))
+        let summary = APIRequestDiagnostics.responseSummary(request, data: Data("{\"message\":\"Forbidden\"}".utf8), response: response)
+        #expect(summary.contains("HTTP 403"))
+        #expect(summary.contains("Forbidden"))
+    }
+
+    @Test
     func successfulAuthenticationResponsesNeverLogBody() throws {
         let request = URLRequest(url: URL(string: "https://example.com/auth/token")!)
         let response = try #require(HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil))

@@ -22,8 +22,7 @@ extension ConfigurationStateTests {
             }
         }
 
-        @Test func scopeDiagnosticsDistinguishMissingAndOpaqueTokens() throws {
-            #expect(YouVersionAPI.Users.tokenScopeSummary(nil).contains("absent"))
+        @Test func scopeDiagnosticsDistinguishMissingScopesAndOpaqueTokens() throws {
             #expect(YouVersionAPI.Users.tokenScopeSummary("opaque-secret").contains("unavailable"))
             let missing = try makeTestJWT(claims: ["sub": "user"])
             #expect(YouVersionAPI.Users.tokenScopeSummary(missing).contains("<missing>"))
