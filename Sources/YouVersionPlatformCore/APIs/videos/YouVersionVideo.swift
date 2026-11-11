@@ -2,12 +2,14 @@ import Foundation
 
 /// Video metadata and entitled playback sources returned by the Videos API.
 public struct YouVersionVideo: Codable, Equatable, Sendable {
-    /// The video ID.
+    /// The ID issued for this response. Use the latest returned ID for subsequent requests; it is not a stable identity.
     public let id: String
     public let title: String?
     public let description: String?
     /// USFM expressions supplied by the API, including ranges and combined references.
     public let references: [String]?
+    /// The chapter, verse, or range associated with the video, when it has a single passage.
+    public let passageID: String?
     public let languageTag: String?
     public let runtime: Int?
     public let orientation: String?
@@ -39,6 +41,7 @@ public struct YouVersionVideo: Codable, Equatable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case id, title, description, references, runtime, orientation, thumbnail
+        case passageID = "passage_id"
         case languageTag = "language_tag"
         case playbackSources = "playback_sources"
         case playbackPreviewSources = "playback_preview_sources"

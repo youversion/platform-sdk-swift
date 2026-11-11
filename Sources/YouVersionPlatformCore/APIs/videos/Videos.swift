@@ -95,7 +95,12 @@ public extension YouVersionAPI {
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
                 headers: ["Accept": "application/json", "Accept-Language": "en"]
             )
-            var result = try JSONDecoder().decode(YouVersionVideo.self, from: data)
+            return try resolvedVideo(JSONDecoder().decode(YouVersionVideo.self, from: data), size: size)
+        }
+
+        /// Resolves thumbnail sizing and credentials for a video returned by either metadata or search.
+        static func resolvedVideo(_ video: YouVersionVideo, size: String? = nil) throws -> YouVersionVideo {
+            var result = video
             guard let thumbnailURL = result.thumbnail?.url else {
                 return result
             }

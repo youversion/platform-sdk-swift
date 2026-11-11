@@ -93,6 +93,20 @@ public enum URLBuilder {
         return components.url
     }
 
+    // TODO: Return video search to /v1 once the endpoint is promoted to stable.
+    /// Returns a video-search URL preserving repeated organization filters and opaque continuation tokens.
+    static func searchVideosURL(query: String, organizationIDs: [String], pageSize: Int?, pageToken: String?) -> URL? {
+        var queryItems = [URLQueryItem(name: "query", value: query)]
+            + organizationIDs.map { URLQueryItem(name: "organization_ids[]", value: $0) }
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize)))
+        }
+        if let pageToken {
+            queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
+        }
+        return url(pathSegments: ["v1-beta", "search-videos"], queryItems: queryItems)
+    }
+
     static func userURL(accessToken: String) -> URL? {
         var components = baseURLComponents
         components.path = "/auth/me"

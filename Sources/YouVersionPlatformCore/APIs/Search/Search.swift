@@ -191,7 +191,6 @@ public extension YouVersionAPI {
     enum Search {}
 }
 
-// TODO(YPE-6134): Add paginated /search-videos to this PR's Core API layer once the backend is deployed; no search UI.
 public extension YouVersionAPI.Search {
     /// Returns as-you-type search query suggestions matching `query` in the first supported language range.
     ///
