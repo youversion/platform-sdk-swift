@@ -23,6 +23,7 @@ public extension URLRequest {
             request.setValue(installId, forHTTPHeaderField: "x-yvp-installation-id")
         }
         if !omitAccessToken, let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken {
+            YouVersionAPI.Users.warnIfClientIDMismatch(accessToken, appKey: YouVersionPlatformConfiguration.appKey)
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         return request
