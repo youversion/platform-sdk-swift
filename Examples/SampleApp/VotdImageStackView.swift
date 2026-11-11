@@ -3,7 +3,7 @@ import YouVersionPlatformCore
 
 /// A moderately complex example widget that lets users tap or swipe through several images in a shuffling stack.
 /// It makes no YouVersionPlatform API calls; it demonstrates a SwiftUI approach to presenting supplied image data,
-/// using `VotdImageView` for each image on the stack. Supply a nonempty image array.
+/// using `VotdImageView` for the selected image and decorative previews behind it. Supply a nonempty image array.
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
     var onImageTap: ((YouVersionImage) -> Void)?
@@ -45,7 +45,7 @@ struct VotdImageStackView: View {
                         let stackDepth = flight?.isReturning == false ? 0 : min(cardDepth, Self.visibleCardCount - 1)
                         let restingAngle = (images.firstIndex { $0.id == image.id } ?? 0).isMultiple(of: 2) ? 4.0 : -5.0
                         let isOnTop = cardDepth == 0 || flight?.isReturning == false
-                        VotdImageView(image: image) {
+                        VotdImageView(image: image, presentation: cardDepth == 0 ? .standard : .decorative) {
                             guard selectedID == image.id && dragOffset == .zero else {
                                 return
                             }
@@ -55,19 +55,20 @@ struct VotdImageStackView: View {
                                 shuffle(toward: -1, width: geometry.size.width)
                             }
                         }
-                            .scaleEffect(1 - Double(stackDepth) * 0.035)
-                            .rotationEffect(.degrees(
-                                isOnTop ? Double(offset.width / 24) : restingAngle
-                            ))
-                            .offset(
-                                x: offset.width + (stackDepth == 1 ? 7 : -Double(stackDepth) * 3),
-                                y: offset.height + Double(stackDepth) * 6
-                            )
-                            .shadow(color: .black.opacity(0.18), radius: 12, y: 8)
-                            .zIndex(flight?.zIndex ?? -Double(cardDepth))
-                            .allowsHitTesting(cardDepth == 0)
-                            .accessibilityIdentifier("votd.image.\(cardDepth)")
-                            .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
+                        .scaleEffect(1 - Double(stackDepth) * 0.035)
+                        .rotationEffect(.degrees(
+                            isOnTop ? Double(offset.width / 24) : restingAngle
+                        ))
+                        .offset(
+                            x: offset.width + (stackDepth == 1 ? 7 : -Double(stackDepth) * 3),
+                            y: offset.height + Double(stackDepth) * 6
+                        )
+                        .shadow(color: .black.opacity(0.18), radius: 12, y: 8)
+                        .opacity(flight?.isReturning == true && cardDepth >= Self.visibleCardCount ? 0 : 1)
+                        .zIndex(flight?.zIndex ?? -Double(cardDepth))
+                        .accessibilityIdentifier("votd.image.\(cardDepth)")
+                        .accessibilityHidden(cardDepth != 0)
+                        .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -75,7 +76,7 @@ struct VotdImageStackView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(0.85, contentMode: .fit)
-
+            
             HStack(spacing: 8) {
                 ForEach(indicatorImages) { image in
                     Circle()
@@ -83,17 +84,17 @@ struct VotdImageStackView: View {
                         .frame(width: 6, height: 6)
                 }
             }
-
+            
             Text(String(
                 format: images.count > 1
-                    ? String(localized: "votd.image_position_hint")
-                    : String(localized: "votd.image_position"),
+                ? String(localized: "votd.image_position_hint")
+                : String(localized: "votd.image_position"),
                 selectedIndex + 1,
                 images.count
             ))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("votd.imagePosition")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .accessibilityIdentifier("votd.imagePosition")
         }
         .onChange(of: isDragging) {
             if !isDragging {
@@ -166,10 +167,8 @@ struct VotdImageStackView: View {
             guard flightsByID[currentID]?.id == flightID else {
                 return
             }
-            withTransaction(transaction) {
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.3), completionCriteria: .removed) {
                 flightsByID[currentID]?.isReturning = true
-            }
-            withAnimation(reduceMotion ? nil : .spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
                 flightsByID[currentID]?.offset = .zero
             } completion: {
                 guard flightsByID[currentID]?.id == flightID else {
