@@ -22,7 +22,7 @@ struct BibleReaderFontSettingsView: View {
     private var fontDisplayButton: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(String.localized("fontSettings.label"))
+                Text(String.localized("font"))
                     .font(.caption)
                     .foregroundStyle(viewModel.readerTextMutedColor)
                 let family = viewModel.textOptions.fontFamily

@@ -16,7 +16,7 @@ struct BibleVersionDownloadView: View {
                     .font(YouVersionFonts.headerSmall)
 
                 HStack {
-                    Text(String.localized("download.agreementParagraph"))
+                    Text(String.localized("offlineDownloadAgreement"))
                         .padding()
                         .font(YouVersionFonts.captionsLarge)
                     Button(action: {
@@ -28,13 +28,13 @@ struct BibleVersionDownloadView: View {
                 }
                 .padding(.horizontal, 32)
 
-                Text(String.localized("download.callToAction"))
+                Text(String.localized("offlineDownloadTagline"))
                     .font(YouVersionFonts.headerSmall)
 
                 Button(action: {
                     viewModel.versionDownloadViewAccepted(for: version)
                 }) {
-                    Text(String.localized("download.agreeButton"))
+                    Text(String.localized("agreeAndDownload"))
                         .padding()
                         .frame(width: 300)
                 }
@@ -50,7 +50,7 @@ struct BibleVersionDownloadView: View {
                 Button(action: {
                     viewModel.versionDownloadViewDismissed(for: version)
                 }) {
-                    Text(String.localized("download.disagreeButton"))
+                    Text(String.localized("maybeLater"))
                         .padding()
                         .frame(width: 300)
                 }

@@ -23,7 +23,7 @@ public struct BibleVersionsListView: View {
             Group {
                 if let versions = filteredVersions {
                     if versions.isEmpty && hasSearchText {
-                        Text(String.localized("versionList.noSearchResults"))
+                        Text(String.localized("noVersionsFound"))
                             .foregroundStyle(viewModel.readerTextMutedColor)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
@@ -98,7 +98,7 @@ public struct BibleVersionsListView: View {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(String.localized("versionList.clearSearch"))
+                .accessibilityLabel(String.localized("clearSearch"))
             }
         }
         .padding(.horizontal, 16)

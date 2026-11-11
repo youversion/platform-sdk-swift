@@ -8,12 +8,12 @@ struct ReaderMenuItems: View {
 
     var body: some View {
         Group {
-            Button(String.localized("menu.fontSettings"), action: openFontSettings)
+            Button(String.localized("fontAndSettings"), action: openFontSettings)
             if YouVersionPlatformConfiguration.isSignInEnabled {
                 if isSignedIn {
-                    Button(String.localized("menu.signOut"), role: .destructive, action: signOut)
+                    Button(String.localized("signOut"), role: .destructive, action: signOut)
                 } else {
-                    Button(String.localized("menu.signIn"), action: signIn)
+                    Button(String.localized("signIn"), action: signIn)
                 }
             }
         }
