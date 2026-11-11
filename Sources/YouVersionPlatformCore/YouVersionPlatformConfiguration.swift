@@ -40,7 +40,7 @@ public struct YouVersionPlatformConfiguration {
     /// When `true`, the version picker opens directly to the full version list for
     /// the current language, with the current version first, instead of the "my
     /// versions" summary. When `false` (the default), it opens to the summary.
-    nonisolated(unsafe) public private(set) static var versionPickerOpensToAllVersions = false
+    nonisolated(unsafe) public private(set) static var shouldOpenVersionPickerToAllVersions = false
 
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
@@ -108,10 +108,10 @@ public struct YouVersionPlatformConfiguration {
     }
 
     /// Sets whether the version picker opens to the full version list. See
-    /// ``versionPickerOpensToAllVersions``.
+    /// ``shouldOpenVersionPickerToAllVersions``.
     @MainActor
-    public static func setVersionPickerOpensToAllVersions(_ opensToAllVersions: Bool) {
-        Self.versionPickerOpensToAllVersions = opensToAllVersions
+    public static func setShouldOpenVersionPickerToAllVersions(_ shouldOpen: Bool) {
+        Self.shouldOpenVersionPickerToAllVersions = shouldOpen
     }
 
     @MainActor

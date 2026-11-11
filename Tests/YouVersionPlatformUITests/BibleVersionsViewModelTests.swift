@@ -170,8 +170,8 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 
     @Test
     func pinsCurrentVersionFirstWhenOpeningToFullList() {
-        YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(true)
-        defer { YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(false) }
+        YouVersionPlatformConfiguration.setShouldOpenVersionPickerToAllVersions(true)
+        defer { YouVersionPlatformConfiguration.setShouldOpenVersionPickerToAllVersions(false) }
         let viewModel = BibleVersionsViewModel()
         let versions = [makeBibleVersion(id: 1), makeBibleVersion(id: 2), makeBibleVersion(id: 3)]
         viewModel.switchToVersion(versions[2])
@@ -194,8 +194,8 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
 
     @Test
     func keepsVersionOrderWhenCurrentVersionIsNotInTheList() {
-        YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(true)
-        defer { YouVersionPlatformConfiguration.setVersionPickerOpensToAllVersions(false) }
+        YouVersionPlatformConfiguration.setShouldOpenVersionPickerToAllVersions(true)
+        defer { YouVersionPlatformConfiguration.setShouldOpenVersionPickerToAllVersions(false) }
         let viewModel = BibleVersionsViewModel()
         let versions = [makeBibleVersion(id: 1), makeBibleVersion(id: 2)]
         viewModel.switchToVersion(makeBibleVersion(id: 99))

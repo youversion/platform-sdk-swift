@@ -6,6 +6,8 @@ func sortedUniqueLanguageTags(_ tags: [String], languageName: (String) -> String
     }
 }
 
+/// Returns tags with preferred tags first, preserving the order of the remaining tags.
+/// Preferred tags absent from the input are skipped.
 func orderedLanguageTags(_ tags: [String], preferredFirst preferred: [String]) -> [String] {
     guard !preferred.isEmpty else {
         return tags

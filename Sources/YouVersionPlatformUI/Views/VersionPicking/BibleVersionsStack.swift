@@ -28,7 +28,7 @@ public struct BibleVersionsStack: View {
 
     @ViewBuilder
     private var rootView: some View {
-        if YouVersionPlatformConfiguration.versionPickerOpensToAllVersions {
+        if YouVersionPlatformConfiguration.shouldOpenVersionPickerToAllVersions {
             fullVersionsView
         } else if !viewModel.myVersions.isEmpty {
             BibleVersionsMyVersionsView()

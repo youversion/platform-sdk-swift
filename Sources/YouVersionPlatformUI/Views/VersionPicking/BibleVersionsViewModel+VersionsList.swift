@@ -31,7 +31,7 @@ extension BibleVersionsViewModel {
     /// unchanged, so the picker's full list leads with the version the reader is
     /// already on.
     func versionsPinningCurrentFirst(_ versions: [BibleVersion]) -> [BibleVersion] {
-        guard YouVersionPlatformConfiguration.versionPickerOpensToAllVersions,
+        guard YouVersionPlatformConfiguration.shouldOpenVersionPickerToAllVersions,
               let currentId = currentVersion?.id,
               let index = versions.firstIndex(where: { $0.id == currentId })
         else {
