@@ -189,6 +189,15 @@ extension BibleTextView {
         var textColor: Color?
     }
 
+    /// Reserves inline space with the number's attributes, so padding wraps and renders as part of the marker.
+    static func paddedVerseIndicator(_ text: AttributedString, style: BibleVerseIndicatorStyle) -> AttributedString {
+        guard style.hasInlinePadding else {
+            return text
+        }
+        let space = AttributedString("\u{00a0}", attributes: text.runs.first?.attributes ?? AttributeContainer())
+        return space + text + space
+    }
+
     private func whitespaceSegments(of string: AttributedString) -> [(text: AttributedString, isWhitespace: Bool)] {
         let characters = string.characters
         guard let first = characters.firstIndex(where: { !$0.isWhitespace }),
@@ -235,7 +244,7 @@ extension BibleTextView {
         let resolvedTextColor = textOptions.textColor ?? .primary
         let darkModeHighlightOpacity = 0.2
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
-        for run in runs {
+        for (runIndex, run) in runs.enumerated() {
             let category = run.0 // as? BibleTextCategory
             let reference: BibleReference? = run.1 // as? BibleReference
             let range = run.2
@@ -243,10 +252,12 @@ extension BibleTextView {
             var isUnderlined = false
             var highlightColor: Color?
             var textColorOverride: Color?
+            var usesWhiteHighlightText = false
             if let reference {
                 if let highlight = highlightFor(reference: reference) {
                     highlightColor = highlight.opacity(darkMode ? darkModeHighlightOpacity : 1.0)
-                    if !darkMode && highlight.isDarkHighlight {
+                    usesWhiteHighlightText = !darkMode && highlight.isDarkHighlight
+                    if usesWhiteHighlightText {
                         if category == .scripture || category == .verseLabel || category == .footnoteImage {
                             textColorOverride = .white
                         }
@@ -268,23 +279,46 @@ extension BibleTextView {
                 // repaint over the dimmed color the renderer draws.
                 t.link = nil
             }
-            let isHighlightCategory = category == .scripture || category == .verseLabel ||
-                category == .footnoteImage
-            let segments = isHighlightCategory && highlightColor != nil
+            let isHighlightCategory = category == .scripture || category == .verseLabel || category == .footnoteImage
+            let indicatorStyle = category == .verseLabel ? reference.flatMap { verseIndicatorStyle?($0) } : nil
+            let segments = (isHighlightCategory && highlightColor != nil) || indicatorStyle != nil
                 ? whitespaceSegments(of: t)
                 : [(text: t, isWhitespace: false)]
             for segment in segments {
-                // swiftlint:disable:next shorthand_operator
-                textCombo = textCombo + Text(segment.text).customAttribute(
+                var segmentText = segment.text
+                let indicator = !segment.isWhitespace ? indicatorStyle : nil
+                if let indicator, let reference {
+                    segmentText = Self.paddedVerseIndicator(segmentText, style: indicator)
+                    segmentText.foregroundColor = usesWhiteHighlightText ? .white :
+                        indicator.foregroundColor ?? textOptions.verseNumberColor ?? textColorOverride ?? resolvedTextColor
+                    if !rendererPaintsHighlight {
+                        segmentText.backgroundColor = indicator.backgroundColor
+                    }
+                    if onVerseIndicatorSelected != nil {
+                        if #available(iOS 18.0, *) {
+                            segmentText.link = nil
+                        } else {
+                            segmentText.link = URL(string: "\(Self.indicatorLinkScheme)://\(reference.versionId)/\(reference.passageId)")
+                        }
+                    }
+                }
+                var renderedSegment = Text(segmentText).customAttribute(
                     RenderHowAttribute(
                         underlined: isUnderlined,
                         footnoteImage: category == .footnoteImage,
                         isDimmed: isDimmed,
                         highlightColor: isHighlightCategory ? highlightColor : nil,
                         isWhitespace: segment.isWhitespace,
-                        textColor: textColorOverride
+                        textColor: indicator == nil ? textColorOverride : nil
                     )
                 )
+                if let indicator, let reference {
+                    renderedSegment = renderedSegment.customAttribute(IndicatorAttribute(
+                        id: IndicatorID(blockID: blockId, runIndex: runIndex), reference: reference, style: indicator, isDimmed: isDimmed
+                    ))
+                }
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + renderedSegment
             }
         }
         

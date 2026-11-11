@@ -12,7 +12,7 @@ struct BibleReaderNotesTests {
     @Test
     func capturesAndMergesSelectionBeforeOpeningComposer() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            isSignedIn: true, hasPermission: { $0 == "highlights" }
+            isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
         viewModel.selectedVerses = [first, second]
         viewModel.showingVerseActionsDrawer = true
@@ -27,9 +27,35 @@ struct BibleReaderNotesTests {
     }
 
     @Test
+    func savingConsecutiveVersesShowsTheSameNoteOnBothIndicators() async throws {
+        var savedNotes: [YouVersionNote] = []
+        let model = BibleNoteIndicatorsModel(hasAccess: { true }) { _, _ in
+            let encoded = try JSONEncoder().encode(savedNotes)
+            let data = Data("{\"data\":".utf8) + encoded + Data("}".utf8)
+            return try JSONDecoder().decode(YouVersionNoteCollection.self, from: data)
+        }
+        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16–17") { request in
+            let data = try JSONEncoder().encode(request)
+            var json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+            json["id"] = "consecutive-note"
+            savedNotes = [try JSONDecoder().decode(YouVersionNote.self, from: JSONSerialization.data(withJSONObject: json))]
+        }
+        await model.load(first.chapterReference)
+        #expect(model.notes(for: first).isEmpty)
+        #expect(model.notes(for: second).isEmpty)
+        draft.content = "Reflection on both verses"
+        #expect(await draft.save())
+        await model.load(first.chapterReference)
+        #expect(model.notes(for: first).map(\.id) == ["consecutive-note"])
+        #expect(model.notes(for: second).map(\.id) == ["consecutive-note"])
+        let neighbor = BibleReference(versionId: first.versionId, bookId: first.bookId, chapter: first.chapter, verse: 18)
+        #expect(model.notes(for: neighbor).isEmpty)
+    }
+
+    @Test
     func emptySelectionDoesNotOpenComposer() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            isSignedIn: true, hasPermission: { $0 == "highlights" }
+            isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
         viewModel.startNote()
         #expect(viewModel.noteDraft == nil)
@@ -137,7 +163,7 @@ struct BibleReaderNotesTests {
     func savingBlocksDuplicateSubmitAndDismissal() async {
         var continuation: CheckedContinuation<Void, Never>?
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            isSignedIn: true, hasPermission: { $0 == "highlights" }
+            isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
         let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { _ in
             await withCheckedContinuation { continuation = $0 }
@@ -159,7 +185,7 @@ struct BibleReaderNotesTests {
     @Test
     func dismissalConfirmsOnlyChangedTextAndDiscardClearsSelection() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            isSignedIn: true, hasPermission: { $0 == "highlights" }
+            isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
         viewModel.selectedVerses = [first]
         viewModel.startNote()
@@ -182,7 +208,7 @@ struct BibleReaderNotesTests {
     @Test
     func completedSaveCannotCloseANewerDraft() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            isSignedIn: true, hasPermission: { $0 == "highlights" }
+            isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
         let old = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
         let current = BibleReaderNoteDraft(references: [second], referenceTitle: "John 3:17")

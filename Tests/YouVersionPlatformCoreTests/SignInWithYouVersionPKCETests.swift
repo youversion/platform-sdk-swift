@@ -53,7 +53,7 @@ import Testing
         let queryItemsArray = try #require(components.queryItems)
         let queryItems = Dictionary(uniqueKeysWithValues: queryItemsArray.map { ($0.name, $0.value ?? "") })
 
-        #expect(queryItems["scope"] == "openid profile")
-        #expect(queryItems["requested_permissions"] == "highlights,read_notes,write_notes")
+        #expect(queryItems["scope"] == "openid profile read_notes write_notes")
+        #expect(queryItems["requested_permissions"] == "highlights")
     }
 }

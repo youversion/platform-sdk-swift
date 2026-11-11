@@ -8,6 +8,7 @@ import YouVersionPlatformCore
 final class BibleReaderNoteDraft: Identifiable {
     let id = UUID()
     let references: [BibleReference]
+    let selection: Set<BibleReference>
     let referenceTitle: String
     let passage: YouVersionNote.Passage?
     var content = "" {
@@ -33,6 +34,7 @@ final class BibleReaderNoteDraft: Identifiable {
             _ = try await YouVersionAPI.Notes.createNote(request)
         }
     ) {
+        selection = Set(references)
         self.references = BibleReference.referencesByMerging(references: references.sorted())
         self.referenceTitle = referenceTitle
         self.passage = YouVersionNote.Passage(references: self.references)
@@ -60,6 +62,7 @@ final class BibleReaderNoteDraft: Identifiable {
         do {
             try await authorize()
             try await createNote(request)
+            NotificationCenter.default.post(name: .youVersionNotesChanged, object: nil)
             return true
         } catch {
             showingSaveError = true

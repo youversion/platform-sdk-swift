@@ -8,7 +8,7 @@ extension BibleReaderViewModel {
         return titles.joined(separator: .localized("shareableVerse.referencesSeparator"))
     }
 
-    /// Captures the selection and opens Notes only after sign-in and the current UX permission gate are satisfied.
+    /// Captures the selection and opens Notes only after sign-in and the `write_notes` OAuth scope are satisfied.
     func startNote() {
         let references = BibleReference.referencesByMerging(references: Array(selectedVerses).sorted())
         guard !references.isEmpty else {
@@ -17,23 +17,31 @@ extension BibleReaderViewModel {
         guard isSignedIn || YouVersionPlatformConfiguration.isSignInEnabled else {
             return
         }
-        let draft = BibleReaderNoteDraft(references: references, referenceTitle: selectedVerseTitle)
+        let draft: BibleReaderNoteDraft
+        if let pendingNoteDraft, pendingNoteDraft.references == references {
+            draft = pendingNoteDraft
+        } else {
+            draft = BibleReaderNoteDraft(references: Array(selectedVerses), referenceTitle: selectedVerseTitle)
+        }
         showingVerseActionsDrawer = false
         if isSignedIn && hasNotesPermission {
+            pendingNoteDraft = nil
+            isNoteAuthorizationPending = false
             noteDraft = draft
         } else {
             pendingNoteDraft = draft
+            isNoteAuthorizationPending = true
             if isSignedIn {
-                startDataExchangeFlow = true
+                startSignInFlow = true
             } else {
                 showingSignInSheet = true
             }
         }
     }
 
-    /// Opens the captured draft when authentication and the current UX permission gate both succeeded.
+    /// Opens the captured draft when authentication granted the `write_notes` OAuth scope.
     func continuePendingNote(with grantedPermissions: [String]) {
-        guard let pendingNoteDraft else {
+        guard isNoteAuthorizationPending, let pendingNoteDraft else {
             return
         }
         guard isSignedIn && grantedPermissions.contains(Self.notesPermission) else {
@@ -41,16 +49,18 @@ extension BibleReaderViewModel {
             return
         }
         self.pendingNoteDraft = nil
+        isNoteAuthorizationPending = false
         showingVerseActionsDrawer = false
         noteDraft = pendingNoteDraft
     }
 
-    /// Drops a deferred composer after login or permission consent is cancelled or denied.
+    /// Pauses authorization while retaining the captured draft and selection for an explicit retry.
     func cancelPendingNote() {
-        guard pendingNoteDraft != nil else {
+        guard isNoteAuthorizationPending, let pendingNoteDraft else {
             return
         }
-        pendingNoteDraft = nil
+        isNoteAuthorizationPending = false
+        selectedVerses = pendingNoteDraft.selection
         showingVerseActionsDrawer = !selectedVerses.isEmpty
     }
 

@@ -598,6 +598,12 @@ private struct ReaderContent: View {
                                 },
                                 focusedReference: viewModel.focusedReference
                             )
+                            .withNoteIndicators(onSelected: { reference, notes in
+#if DEBUG
+                                debugPrint("Note indicator selected:", reference)
+                                dump(notes)
+#endif
+                            })
                         }
                         VStack(alignment: .center) {
                             bibleCopyrightBlock
