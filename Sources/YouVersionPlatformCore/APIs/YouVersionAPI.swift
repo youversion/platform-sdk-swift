@@ -88,7 +88,7 @@ public enum YouVersionAPI {
         for (field, value) in headers {
             request.setValue(value, forHTTPHeaderField: field)
         }
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await YouVersionAPI.response(for: request, session: session)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             YouVersionPlatformLogger.error("unexpected response type", category: "API")
