@@ -73,7 +73,7 @@ public enum YouVersionAPI {
         allowsNoContent: Bool
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
         let request = urlRequest(with: url, accessToken: accessToken, session: session)
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await YouVersionAPI.response(for: request, session: session)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             YouVersionPlatformLogger.error("unexpected response type", category: "API")

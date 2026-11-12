@@ -216,6 +216,26 @@ import Testing
         }
     }
 
+    @Test
+    func noContentReturnsEmptyResults() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let results = try await YouVersionAPI.Search.unified(
+            matching: "love", bibleID: 111, languageRanges: ["en"],
+            accessToken: "swift-test-suite", session: session
+        )
+        #expect(results.references.isEmpty)
+        #expect(results.topics.isEmpty)
+        #expect(results.images.isEmpty)
+        #expect(results.userIntent == nil)
+        #expect(results.didYouMean.isEmpty)
+        #expect(results.searchInsteadFor == nil)
+    }
+
     @Test(arguments: [401, 403, 404, 429, 500])
     func imageSearchPropagatesHTTPFailures(statusCode: Int) async {
         let (session, token) = HTTPMocking.makeSession()

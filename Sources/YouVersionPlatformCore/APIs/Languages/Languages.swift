@@ -108,7 +108,7 @@ public extension YouVersionAPI {
                 if let preferredLanguage {
                     request.setValue(preferredLanguage, forHTTPHeaderField: "Accept-Language")
                 }
-                let (data, response) = try await session.data(for: request)
+                let (data, response) = try await YouVersionAPI.response(for: request, session: session)
 
                 guard let httpResponse = response as? HTTPURLResponse else {
                     YouVersionPlatformLogger.error("unexpected response type", category: "Languages")

@@ -8,6 +8,43 @@ import Testing
 extension ConfigurationStateTests {
     @Suite(.serialized) struct UsersAuthHelpersTests {
 
+        @Test func scopeDiagnosticsExcludeCredentialsAndUserClaims() throws {
+            let token = try makeTestJWT(claims: [
+                "scope": "openid profile write_notes", "client_id": "previous-app-secret",
+                "sub": "private-user-id", "email": "private@example.com"
+            ])
+            let summary = YouVersionAPI.Users.tokenScopeSummary(token)
+            #expect(summary.contains("write_notes"))
+            #expect(!summary.contains("client_id"))
+            #expect(summary.contains("unverified"))
+            for secret in [token, "current-app-secret", "previous-app-secret", "private-user-id", "private@example.com"] {
+                #expect(!summary.contains(secret))
+            }
+        }
+
+        @Test func scopeDiagnosticsDistinguishMissingScopesAndOpaqueTokens() throws {
+            #expect(YouVersionAPI.Users.tokenScopeSummary("opaque-secret").contains("unavailable"))
+            let missing = try makeTestJWT(claims: ["sub": "user"])
+            #expect(YouVersionAPI.Users.tokenScopeSummary(missing).contains("<missing>"))
+            let array = try makeTestJWT(claims: ["scope": ["read_notes", "write_notes"]])
+            #expect(YouVersionAPI.Users.tokenScopeSummary(array).contains("read_notes"))
+        }
+
+        @Test func clientMismatchWarningRequiresKnownDifferentClientsAndExcludesCredentials() throws {
+            let token = try makeTestJWT(claims: ["client_id": "token-app-secret", "scope": "profile"])
+            let warning = try #require(YouVersionAPI.Users.clientIDMismatchWarning(token, appKey: "other-app-secret"))
+            #expect(warning.contains("AUTHENTICATION WARNING"))
+            #expect(!warning.contains("token-app-secret"))
+            #expect(!warning.contains("other-app-secret"))
+            #expect(!warning.contains(token))
+            #expect(YouVersionAPI.Users.clientIDMismatchWarning(token, appKey: "token-app-secret") == nil)
+            #expect(YouVersionAPI.Users.clientIDMismatchWarning(token, appKey: nil) == nil)
+            #expect(YouVersionAPI.Users.clientIDMismatchWarning(nil, appKey: "app") == nil)
+            #expect(YouVersionAPI.Users.clientIDMismatchWarning("opaque-token", appKey: "app") == nil)
+            let missing = try makeTestJWT(claims: ["scope": "profile"])
+            #expect(YouVersionAPI.Users.clientIDMismatchWarning(missing, appKey: "app") == nil)
+        }
+
         @Test func obtainCodeReturnsAuthorizationCode() throws {
             let location = "youversionauth://callback?state=xyz&code=abc123&scope=bibles"
 

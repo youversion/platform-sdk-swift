@@ -44,11 +44,13 @@ public extension YouVersionAPI {
             ) else {
                 throw URLError(.badURL)
             }
-            let data = try await YouVersionAPI.data(
+            guard let data = try await YouVersionAPI.dataIfPresent(
                 at: url,
                 accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
                 session: session
-            )
+            ) else {
+                return YouVersionImageCollection(images: [], totalSize: nil, nextPageToken: nil)
+            }
             return try JSONDecoder().decode(YouVersionImageCollection.self, from: data)
         }
 

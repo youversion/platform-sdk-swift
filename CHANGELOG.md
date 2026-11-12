@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.7.0](https://github.com/youversion/platform-sdk-swift/compare/5.6.0...5.7.0) (2026-11-09)
+
+
+### Features
+
+* **api:** add paginated image search and VOTD image support (YPE-6423) ([523a8c4](https://github.com/youversion/platform-sdk-swift/commit/523a8c472f8b9e996d15501108c130acd0cb1c9d))
+* **typography:** render agreed phase 3 styles ([5c5167f](https://github.com/youversion/platform-sdk-swift/commit/5c5167f567c5c796eff8545d8d865f92bbe1f5d3))
+
+
+### Bug Fixes
+
+* **core:** return empty results on HTTP 204 for images and search ([a473beb](https://github.com/youversion/platform-sdk-swift/commit/a473beb168385d621aa06e3e0d35d8f6fe439b5f))
+* **i18n:** sync swift localization from platform-localization ([#298](https://github.com/youversion/platform-sdk-swift/issues/298)) ([84b6b7b](https://github.com/youversion/platform-sdk-swift/commit/84b6b7b34965b2279eb474d6e73cea9ddce2a4e6))
+* **sample:** localize VOTD example strings ([297de62](https://github.com/youversion/platform-sdk-swift/commit/297de62fc33fae5354253f5c6ea5bbfd7fe83790))
+* **ui:** retain standalone and consecutive "qs" text ([21c8b2a](https://github.com/youversion/platform-sdk-swift/commit/21c8b2a7188bb85ed3727430375bebb27119006a))
+
 ## [5.6.0](https://github.com/youversion/platform-sdk-swift/compare/5.5.0...5.6.0) (2026-10-23)
 
 
