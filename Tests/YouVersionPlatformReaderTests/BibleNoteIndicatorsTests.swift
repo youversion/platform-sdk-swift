@@ -4,6 +4,7 @@ import Testing
 @testable import YouVersionPlatformReader
 
 @MainActor
+@Suite(.serialized)
 struct BibleNoteIndicatorsTests {
     private let chapter = BibleReference(versionId: 3034, bookId: "GEN", chapter: 1)
 
@@ -61,7 +62,11 @@ struct BibleNoteIndicatorsTests {
         await model.load(chapter)
         #expect(!model.notes(for: verse(1)).isEmpty)
         access.isAllowed = false
-        await model.load(chapter)
+        model.authorizationDidChange()
+        #expect(!model.canReadNotes)
+        if model.canReadNotes {
+            await model.load(chapter)
+        }
         #expect(requests == 1)
         #expect(model.notes(for: verse(1)).isEmpty)
     }
@@ -118,6 +123,131 @@ struct BibleNoteIndicatorsTests {
         await model.load(chapter)
         #expect(model.loadFailed)
         #expect(!model.hasNotes(for: verse(3)))
+    }
+
+    @Test
+    func sameAccountTokenRefreshKeepsMarkersUntilAllNewPagesArrive() async throws {
+        let original = YouVersionPlatformConfiguration.authData
+        defer {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            if let original {
+                YouVersionPlatformConfiguration.saveAuthData(
+                    accessToken: original.accessToken, refreshToken: original.refreshToken,
+                    idToken: original.idToken, expiryDate: original.expiryDate, permissions: original.permissionValues
+                )
+            }
+        }
+        let idToken = try identityToken("same-user")
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "initial-test-token", refreshToken: nil, idToken: idToken,
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        let old = try collection([note("old", passage: "GEN.1.3")])
+        let partial = try collection([note("new-first", passage: "GEN.1.4")], next: "last")
+        let final = try collection([note("new-last", passage: "GEN.1.5")])
+        var isRefreshing = false
+        var continuation: CheckedContinuation<YouVersionNoteCollection, Never>?
+        let model = BibleNoteIndicatorsModel(notesPage: { _, token in
+            if !isRefreshing { return old }
+            if token == nil { return partial }
+            return await withCheckedContinuation { continuation = $0 }
+        })
+        await model.load(chapter)
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "rotated-test-token", refreshToken: nil, idToken: idToken,
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        model.authorizationDidChange()
+        #expect(model.hasNotes(for: verse(3)))
+        isRefreshing = true
+        let task = Task { await model.load(chapter) }
+        while continuation == nil { await Task.yield() }
+        #expect(model.hasNotes(for: verse(3)))
+        #expect(!model.hasNotes(for: verse(4)))
+        continuation?.resume(returning: final)
+        await task.value
+        #expect(!model.hasNotes(for: verse(3)))
+        #expect(model.hasNotes(for: verse(4)))
+        #expect(model.hasNotes(for: verse(5)))
+    }
+
+    @Test
+    func authChangeInvalidatesAnOlderFailureWithoutDiscardingTheSnapshot() async throws {
+        let original = YouVersionPlatformConfiguration.authData
+        defer {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            if let original {
+                YouVersionPlatformConfiguration.saveAuthData(
+                    accessToken: original.accessToken, refreshToken: original.refreshToken,
+                    idToken: original.idToken, expiryDate: original.expiryDate, permissions: original.permissionValues
+                )
+            }
+        }
+        let idToken = try identityToken("same-user")
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "initial-test-token", refreshToken: nil, idToken: idToken,
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        let page = try collection([note("cached", passage: "GEN.1.3")])
+        var isRefreshing = false
+        var continuation: CheckedContinuation<YouVersionNoteCollection, any Error>?
+        let model = BibleNoteIndicatorsModel(notesPage: { _, _ in
+            if !isRefreshing { return page }
+            return try await withCheckedThrowingContinuation { continuation = $0 }
+        })
+        await model.load(chapter)
+        isRefreshing = true
+        let task = Task { await model.load(chapter) }
+        while continuation == nil { await Task.yield() }
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "rotated-test-token", refreshToken: nil, idToken: idToken,
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        model.authorizationDidChange()
+        continuation?.resume(throwing: YouVersionAPIError.notPermitted)
+        await task.value
+        #expect(model.hasNotes(for: verse(3)))
+        #expect(!model.loadFailed)
+    }
+
+    @Test(arguments: ["other-user", "signed-out", "no-access", "unknown-user"])
+    func authenticationChangesStillClearPrivateMarkers(change: String) async throws {
+        let original = YouVersionPlatformConfiguration.authData
+        defer {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            if let original {
+                YouVersionPlatformConfiguration.saveAuthData(
+                    accessToken: original.accessToken, refreshToken: original.refreshToken,
+                    idToken: original.idToken, expiryDate: original.expiryDate, permissions: original.permissionValues
+                )
+            }
+        }
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "initial-test-token", refreshToken: nil, idToken: try identityToken("first-user"),
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        let page = try collection([note("private", passage: "GEN.1.3")])
+        let model = BibleNoteIndicatorsModel(notesPage: { _, _ in page })
+        await model.load(chapter)
+        #expect(model.hasNotes(for: verse(3)))
+        YouVersionPlatformConfiguration.clearAuthTokens()
+        if change != "signed-out" {
+            let user = change == "other-user" ? "second-user" : "first-user"
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "changed-test-token", refreshToken: nil,
+                idToken: change == "unknown-user" ? nil : try identityToken(user), expiryDate: nil,
+                permissions: change == "no-access" ? [] : ["read_notes"]
+            )
+        }
+        model.authorizationDidChange()
+        #expect(!model.hasNotes(for: verse(3)))
+    }
+
+    private func identityToken(_ userID: String) throws -> String {
+        let payload = try JSONSerialization.data(withJSONObject: ["sub": userID])
+            .base64EncodedString().replacingOccurrences(of: "=", with: "")
+            .replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
+        return "header." + payload + ".signature"
     }
 
     @Test

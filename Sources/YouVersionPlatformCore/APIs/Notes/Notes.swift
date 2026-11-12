@@ -145,7 +145,7 @@ public extension YouVersionAPI {
             if body != nil {
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             }
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw YouVersionAPIError.invalidResponse
             }

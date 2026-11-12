@@ -41,10 +41,14 @@ private struct NoteIndicators: View {
             }
         }
         .task(id: LoadKey(reference: textView.reference.chapterReference, revision: revision)) {
-            await model.load(textView.reference.chapterReference)
+            if model.canReadNotes {
+                await model.load(textView.reference.chapterReference)
+            } else {
+                model.clear()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification).receive(on: RunLoop.main)) { _ in
-            model.clear()
+            model.authorizationDidChange()
             revision = UUID()
         }
         .onReceive(NotificationCenter.default.publisher(for: .youVersionNotesChanged).receive(on: RunLoop.main)) { _ in

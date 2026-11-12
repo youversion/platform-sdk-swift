@@ -6,9 +6,8 @@ import YouVersionPlatformCore
 @MainActor
 @Observable
 final class BibleNoteIndicatorsModel {
-    private var cachedNotes: [(note: YouVersionNote, references: [BibleReference])] = []
+    private var snapshot: Snapshot?
     private var requestID = UUID()
-    private var loadedChapter: BibleReference?
     private let hasAccess: @MainActor () -> Bool
     private let notesPage: @MainActor (BibleReference, String?) async throws -> YouVersionNoteCollection
     private(set) var loadFailed = false
@@ -37,32 +36,42 @@ final class BibleNoteIndicatorsModel {
     /// Drops data and invalidates in-flight results when the account changes.
     func clear() {
         requestID = UUID()
-        cachedNotes = []
-        loadedChapter = nil
+        snapshot = nil
         loadFailed = false
     }
 
-    /// Loads every page atomically, retaining the current chapter's indicators during a refresh.
-    /// Account or chapter changes clear cached notes; failed refreshes never replace them with partial results.
-    func load(_ reference: BibleReference) async {
-        let canRead = hasAccess()
-        if !canRead || loadedChapter != reference.chapterReference {
+    /// Invalidates pending requests, retaining a snapshot only while its account still has read access.
+    func authorizationDidChange() {
+        let signedInAccount = Account.signedIn
+        if !canReadNotes || signedInAccount.userID == nil || snapshot?.account != signedInAccount {
             clear()
         } else {
             requestID = UUID()
             loadFailed = false
         }
-        let currentRequest = requestID
-        guard canRead else {
-            return
+    }
+
+    /// Whether the caller may start loading Notes for the signed-in user.
+    var canReadNotes: Bool { hasAccess() }
+
+    /// Fetches every page and publishes one complete snapshot. The caller checks `canReadNotes` first.
+    /// A same-account, same-chapter refresh retains its snapshot until success, including on transient failure.
+    func load(_ reference: BibleReference) async {
+        let chapter = reference.chapterReference
+        let requestAccount = Account.signedIn
+        if let snapshot, snapshot.chapter != chapter || snapshot.account != requestAccount {
+            self.snapshot = nil
         }
+        requestID = UUID()
+        loadFailed = false
+        let loadingRequestID = requestID
         do {
             var notes: [YouVersionNote] = []
             var token: String?
             var visitedTokens: Set<String> = []
             repeat {
-                let result = try await notesPage(reference.chapterReference, token)
-                guard !Task.isCancelled && currentRequest == requestID else {
+                let result = try await notesPage(chapter, token)
+                guard !Task.isCancelled && loadingRequestID == requestID else {
                     return
                 }
                 notes += result.notes
@@ -72,7 +81,7 @@ final class BibleNoteIndicatorsModel {
                 }
             } while token != nil
             var seenIDs: Set<String> = []
-            cachedNotes = notes.filter { seenIDs.insert($0.id).inserted }.compactMap { note in
+            let cachedNotes: [(note: YouVersionNote, references: [BibleReference])] = notes.filter { seenIDs.insert($0.id).inserted }.compactMap { note in
                 guard note.passage?.bibleID == reference.versionId,
                       let references = note.passage?.references else {
                     return nil
@@ -80,9 +89,9 @@ final class BibleNoteIndicatorsModel {
                 let chapterReferences = references.filter { $0.bookId == reference.bookId && $0.chapter == reference.chapter }
                 return chapterReferences.isEmpty ? nil : (note: note, references: chapterReferences)
             }
-            loadedChapter = reference.chapterReference
+            snapshot = Snapshot(chapter: chapter, account: requestAccount, notes: cachedNotes)
         } catch {
-            guard !Task.isCancelled && currentRequest == requestID else {
+            guard !Task.isCancelled && loadingRequestID == requestID else {
                 return
             }
             switch error {
@@ -98,13 +107,34 @@ final class BibleNoteIndicatorsModel {
 
     /// Whether a verse needs an indicator, without allocating a matching-notes array during text construction.
     func hasNotes(for reference: BibleReference) -> Bool {
-        cachedNotes.contains { $0.references.contains { $0.overlaps(with: reference) } }
+        snapshot?.notes.contains { $0.references.contains { $0.overlaps(with: reference) } } ?? false
     }
 
     /// All notes whose exact attachment overlaps this rendered verse or verse bridge.
     func notes(for reference: BibleReference) -> [YouVersionNote] {
-        cachedNotes.compactMap { cached in
+        snapshot?.notes.compactMap { cached in
             cached.references.contains { $0.overlaps(with: reference) } ? cached.note : nil
+        } ?? []
+    }
+
+    private struct Snapshot {
+        let chapter: BibleReference
+        let account: Account
+        let notes: [(note: YouVersionNote, references: [BibleReference])]
+    }
+
+    private struct Account: Equatable {
+        let userID: String?
+        let appKey: String?
+        let apiHost: String
+
+        static var signedIn: Self {
+            Self(
+                userID: YouVersionAPI.Users.currentUserId,
+                appKey: YouVersionPlatformConfiguration.appKey,
+                apiHost: YouVersionPlatformConfiguration.apiHost
+            )
         }
     }
+
 }
