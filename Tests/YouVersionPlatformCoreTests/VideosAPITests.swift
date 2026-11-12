@@ -144,7 +144,7 @@ extension ConfigurationStateTests.VideosAPITests {
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
             #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
             let prefix = "/v1/videos/"
             #expect(components.percentEncodedPath.hasPrefix(prefix))
             let segment = String(components.percentEncodedPath.dropFirst(prefix.count))
@@ -421,9 +421,9 @@ extension ConfigurationStateTests.VideosAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
-    /// Applies the temporary English overrides to playlist collections and video metadata.
+    /// Preserves video language preferences while retaining the temporary playlist English override.
     @MainActor
-    @Test func temporaryEnglishOverridesSessionLanguagePreferences() async throws {
+    @Test func onlyPlaylistsOverrideSessionLanguagePreferences() async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         YouVersionPlatformConfiguration.configure(appKey: "thumbnail-tests")
         defer { YouVersionPlatformConfiguration.configure(appKey: originalAppKey) }
@@ -441,7 +441,7 @@ extension ConfigurationStateTests.VideosAPITests {
         let videoData = Data(videoJSON.utf8)
         HTTPMocking.setHandler(token: token) { request in
             let isVideo = request.url!.path.hasPrefix("/v1/videos/")
-            #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+            #expect(request.value(forHTTPHeaderField: "Accept-Language") == (isVideo ? "en-US,en;q=0.9" : "en"))
             let data = isVideo ? videoData : Data("{\"data\":[]}".utf8)
             return (data, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
@@ -450,7 +450,7 @@ extension ConfigurationStateTests.VideosAPITests {
     }
 
     /// Refreshes expired default credentials while preserving explicit token overrides in every accessor.
-    @Test(arguments: ["playlists", "playlist", "video"], [false, true])
+    @Test(arguments: ["playlists", "playlist", "video", "imageSearch", "videoSearch", "images", "image"], [false, true])
     func tokenResolutionRefreshesOnlyDefaultCredentials(endpoint: String, usesExplicitToken: Bool) async throws {
         let originalAppKey = YouVersionPlatformConfiguration.appKey
         await YouVersionPlatformConfiguration.configure(appKey: "video-refresh-tests")
@@ -463,6 +463,12 @@ extension ConfigurationStateTests.VideosAPITests {
         let resourceData: Data
         switch endpoint {
         case "video": resourceData = Data(videoJSON.utf8)
+        case "image": resourceData = Data("""
+            {"id":"art","image_url":"https://cdn.example.com/art.jpg","passage_id":"JHN.3.16",
+            "attribution":"Example","language_tag":"en","width":100,"height":100,"aspect_ratio":1}
+            """.utf8)
+        case "imageSearch": resourceData = Data("{\"images\":[]}".utf8)
+        case "videoSearch": resourceData = Data("{\"videos\":[],\"did_you_mean\":[]}".utf8)
         case "playlist": resourceData = Data("{\"id\":3669,\"title\":\"Test\",\"type\":\"VIDEOS\",\"total\":0,\"videos\":[]}".utf8)
         default: resourceData = Data("{\"data\":[]}".utf8)
         }
@@ -485,6 +491,14 @@ extension ConfigurationStateTests.VideosAPITests {
             let accessToken = usesExplicitToken ? expectedToken : nil
             switch endpoint {
             case "playlists": _ = try await YouVersionAPI.Videos.playlists(organizationID: "org", accessToken: accessToken, session: session)
+            case "images":
+                _ = try await YouVersionAPI.Images.images(accessToken: accessToken, session: session)
+            case "image":
+                _ = try await YouVersionAPI.Images.image(id: "art", accessToken: accessToken, session: session)
+            case "imageSearch":
+                _ = try await YouVersionAPI.Search.images(query: "love", bibleID: 3034, accessToken: accessToken, session: session)
+            case "videoSearch":
+                _ = try await YouVersionAPI.Search.videos(query: "love", accessToken: accessToken, session: session)
             case "playlist": _ = try await YouVersionAPI.Videos.playlist(organizationID: "org", id: 3669, accessToken: accessToken, session: session)
             default: _ = try await YouVersionAPI.Videos.video(id: "video", accessToken: accessToken, session: session)
             }

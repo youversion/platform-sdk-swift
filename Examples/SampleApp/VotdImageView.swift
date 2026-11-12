@@ -8,25 +8,26 @@ struct VotdImageView: View {
     enum Presentation: Equatable {
         case standard, decorative
     }
-    
+
     let image: YouVersionImage
     private let presentation: Presentation
     let onImageTap: (() -> Void)?
-    
+
     @State private var retryCount = 0
-    
+
     init(image: YouVersionImage, presentation: Presentation = .standard, onImageTap: (() -> Void)? = nil) {
         self.image = image
         self.presentation = presentation
         self.onImageTap = onImageTap
     }
-    
+
     var body: some View {
         AsyncImage(url: image.url) { phase in
             switch phase {
             case .success(let artwork):
                 if onImageTap == nil {
                     artwork.resizable().scaledToFit()
+                        .accessibilityLabel(Text(image.passageID))
                 } else {
                     Button {
                         onImageTap?()
@@ -34,6 +35,7 @@ struct VotdImageView: View {
                         artwork.resizable().scaledToFit()
                     }
                     .buttonStyle(VotdImageButtonStyle())
+                    .accessibilityLabel(Text(image.passageID))
                 }
             case .failure:
                 if presentation == .decorative {
@@ -73,7 +75,7 @@ struct VotdImageView: View {
 
 private struct VotdImageButtonStyle: PrimitiveButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .contentShape(.rect)

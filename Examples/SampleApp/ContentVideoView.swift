@@ -1,3 +1,4 @@
+import AVFAudio
 import AVKit
 import SwiftUI
 import YouVersionPlatform
@@ -48,6 +49,13 @@ struct ContentVideoView: View {
                 return
             }
             playbackError = nil
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+                try AVAudioSession.sharedInstance().setActive(true)
+            } catch {
+                playbackError = error.localizedDescription
+                return
+            }
             if player == nil { player = AVPlayer() }
             guard let player else {
                 return
@@ -60,7 +68,10 @@ struct ContentVideoView: View {
                 await observeFailure(of: item)
             }
         }
-        .onDisappear { player?.pause() }
+        .onDisappear {
+            player?.pause()
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
     }
 
     private var playbackURL: URL? {

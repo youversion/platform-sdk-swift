@@ -467,7 +467,7 @@ public extension YouVersionAPI.Search {
             throw URLError(.badURL)
         }
 
-        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session)
         guard let data = try await YouVersionAPI.dataIfPresent(
             at: url,
             accessToken: accessToken,

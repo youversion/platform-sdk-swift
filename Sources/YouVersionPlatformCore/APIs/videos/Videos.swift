@@ -70,8 +70,6 @@ public extension YouVersionAPI {
             return try JSONDecoder().decode(YouVersionVideoPlaylist.self, from: data)
         }
 
-        // TODO this is temporary code: do not merge this to main.
-        // TODO: Remove the temporary English video-language override once the API video-language lookup issue is fixed.
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
         /// The optional thumbnail size is `thumb`, `card`, or `full`; omit it for full size.
         /// Returned thumbnail URLs have sizing resolved and any required CDN app-key parameters added.
@@ -93,11 +91,12 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session), session: session,
-                headers: ["Accept": "application/json", "Accept-Language": "en"]
+                headers: requestHeaders
             )
             return try resolvedVideo(JSONDecoder().decode(YouVersionVideo.self, from: data), size: size)
         }
 
+        // TODO: Remove temporary thumbnail-template compatibility after stable CDN promotion; do not merge it to main.
         /// Resolves thumbnail sizing and credentials for a video returned by either metadata or search.
         static func resolvedVideo(_ video: YouVersionVideo, size: String? = nil) throws -> YouVersionVideo {
             var result = video

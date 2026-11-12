@@ -161,6 +161,7 @@ struct ContentImageView: View {
     let onNavigate: () -> Void
     @State private var images: [YouVersionImage] = []
     @State private var selectedImage: YouVersionImage?
+    @State private var displayedImage: YouVersionImage?
     @State private var title = ""
     @State private var errorMessage: String?
     @State private var retryID = UUID()
@@ -169,7 +170,10 @@ struct ContentImageView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
-                VotdImageStackView(images: images.isEmpty ? [image] : images) { selectedImage = $0 }
+                VotdImageStackView(
+                    images: images.isEmpty ? [image] : images,
+                    onSelectionChange: { displayedImage = $0 }
+                ) { selectedImage = $0 }
                 if let errorMessage {
                     Text(errorMessage).foregroundStyle(.secondary)
                     Button("Retry") { retryID = UUID() }
@@ -180,7 +184,7 @@ struct ContentImageView: View {
         .navigationTitle(Text(verbatim: ""))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .toolbar { ShareLink(item: image.url) }
+        .toolbar { ShareLink(item: (displayedImage ?? image).url) }
         // The suggested yvFullScreenCover modifier is not defined in this package.
         // swiftlint:disable:next swiftui_fullscreencover
         .fullScreenCover(item: $selectedImage) { selected in

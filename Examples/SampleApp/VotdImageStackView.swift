@@ -6,6 +6,7 @@ import YouVersionPlatformCore
 /// using `VotdImageView` for the selected image and decorative previews behind it. Supply a nonempty image array.
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
+    var onSelectionChange: ((YouVersionImage) -> Void)?
     var onImageTap: ((YouVersionImage) -> Void)?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -19,10 +20,6 @@ struct VotdImageStackView: View {
 
     private var selectedIndex: Int {
         images.firstIndex { $0.id == selectedImageID } ?? 0
-    }
-
-    private var selectedID: String {
-        images[selectedIndex].id
     }
 
     private var visibleImages: [YouVersionImage] {
@@ -46,7 +43,7 @@ struct VotdImageStackView: View {
                         let restingAngle = (images.firstIndex { $0.id == image.id } ?? 0).isMultiple(of: 2) ? 4.0 : -5.0
                         let isOnTop = cardDepth == 0 || flight?.isReturning == false
                         VotdImageView(image: image, presentation: cardDepth == 0 ? .standard : .decorative) {
-                            guard selectedID == image.id && dragOffset == .zero else {
+                            guard images[selectedIndex].id == image.id && dragOffset == .zero else {
                                 return
                             }
                             if onImageTap != nil {
@@ -76,17 +73,17 @@ struct VotdImageStackView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(0.85, contentMode: .fit)
-            
+
             HStack(spacing: 8) {
                 ForEach(indicatorImages) { image in
                     Circle()
-                        .fill(image.id == selectedID ? Color.primary : Color.secondary.opacity(0.3))
+                        .fill(image.id == images[selectedIndex].id ? Color.primary : Color.secondary.opacity(0.3))
                         .frame(width: 6, height: 6)
                 }
             }
             
             Text(String(
-                format: images.count > 1
+                format: images.count > 1 && onImageTap == nil
                 ? String(localized: "votd.image_position_hint")
                 : String(localized: "votd.image_position"),
                 selectedIndex + 1,
@@ -95,6 +92,9 @@ struct VotdImageStackView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
             .accessibilityIdentifier("votd.imagePosition")
+        }
+        .onChange(of: images[selectedIndex].id, initial: true) {
+            onSelectionChange?(images[selectedIndex])
         }
         .onChange(of: isDragging) {
             if !isDragging {
@@ -120,13 +120,13 @@ struct VotdImageStackView: View {
                 isDragging = true
             }
             .onChanged { value in
-                guard !reduceMotion && selectedID == id && abs(value.translation.width) > abs(value.translation.height) else {
+                guard !reduceMotion && images[selectedIndex].id == id && abs(value.translation.width) > abs(value.translation.height) else {
                     return
                 }
                 dragOffset = CGSize(width: value.translation.width, height: value.translation.height * 0.15)
             }
             .onEnded { value in
-                guard selectedID == id else {
+                guard images[selectedIndex].id == id else {
                     return
                 }
                 let horizontalDistance = value.predictedEndTranslation.width
@@ -140,7 +140,7 @@ struct VotdImageStackView: View {
         guard images.count > 1 else {
             return
         }
-        let currentID = selectedID
+        let currentID = images[selectedIndex].id
         let nextIndex = (selectedIndex + 1) % images.count
         let nextID = images[nextIndex].id
         var transaction = Transaction()
