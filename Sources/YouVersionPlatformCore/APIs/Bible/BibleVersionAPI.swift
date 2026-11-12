@@ -75,7 +75,7 @@ extension YouVersionAPI.Bible {
     /// - Throws:
     ///   - `URLError` if the URL is invalid.
     ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
-    ///   - `YouVersionAPIError.cannotDownload` if the server returns an error response.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
     public static func metadataForVersion(withId versionId: Int, accessToken: String?, session: URLSession = .shared) async throws -> BibleVersion {
         try await metadataResponseForVersion(withId: versionId, accessToken: accessToken, session: session).value
@@ -147,14 +147,9 @@ extension YouVersionAPI.Bible {
             throw YouVersionAPIError.invalidResponse
         }
 
-        if httpResponse.statusCode == 403 {
-            YouVersionPlatformLogger.error("Not permitted; check your appKey and its entitlements.", category: "BibleVersion")
-            throw YouVersionAPIError.notPermitted
-        }
-
         guard httpResponse.statusCode == 200 else {
             YouVersionPlatformLogger.error("error \(httpResponse.statusCode) while fetching an html chapter", category: "BibleVersion")
-            throw YouVersionAPIError.cannotDownload
+            throw YouVersionAPI.error(for: httpResponse, data: data)
         }
 
         let object = try JSONSerialization.jsonObject(with: data, options: [])

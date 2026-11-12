@@ -143,25 +143,20 @@ struct SearchImagesAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
-    @Test(arguments: [
-        (status: 401, expected: YouVersionAPIError.notPermitted),
-        (status: 403, expected: YouVersionAPIError.notPermitted),
-        (status: 400, expected: YouVersionAPIError.cannotDownload),
-        (status: 404, expected: YouVersionAPIError.cannotDownload),
-        (status: 429, expected: YouVersionAPIError.cannotDownload),
-        (status: 500, expected: YouVersionAPIError.cannotDownload)
-    ])
-    func httpFailuresUseSharedErrorMapping(status: Int, expected: YouVersionAPIError) async {
+    @Test(arguments: [401, 403, 400, 404, 429, 500])
+    func httpFailuresUseSharedErrorMapping(status: Int) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in
             (Data(), HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
         }
 
-        await #expect(throws: expected) {
+        await #expect {
             try await YouVersionAPI.Search.images(
                 query: "love", bibleID: 3034, accessToken: "images-tests", session: session
             )
+        } throws: { error in
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: status)
         }
     }
 
