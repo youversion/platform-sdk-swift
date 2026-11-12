@@ -39,14 +39,14 @@ struct BibleReaderSearchView: View {
                 ProgressView()
                     .controlSize(.small)
                     .tint(viewModel.readerTextMutedColor)
-                    .accessibilityLabel(String.localized("generic.search"))
+                    .accessibilityLabel(String.localized("search"))
                     .padding(.vertical, 8)
             }
 
             if viewModel.searchStatus == .failed {
                 searchStateView(
                     image: Image(systemName: "exclamationmark.circle"),
-                    title: String.localized("generic.error")
+                    title: String.localized("error")
                 )
             } else if viewModel.searchStatus == .completed
                         && viewModel.searchResults.isEmpty
@@ -176,7 +176,7 @@ struct BibleReaderSearchView: View {
                     ProgressView()
                         .controlSize(.small)
                         .tint(viewModel.readerTextMutedColor)
-                        .accessibilityLabel(String.localized("generic.search"))
+                        .accessibilityLabel(String.localized("search"))
                         .padding(.vertical, 16)
                 } else if viewModel.hasNextSearchPageLoadError {
                     Button {
@@ -184,7 +184,7 @@ struct BibleReaderSearchView: View {
                             await viewModel.loadNextSearchPageIfNeeded()
                         }
                     } label: {
-                        Label(String.localized("generic.error"), systemImage: "arrow.clockwise")
+                        Label(String.localized("retry"), systemImage: "arrow.clockwise")
                     }
                     .foregroundStyle(viewModel.readerTextMutedColor)
                     .padding(.vertical, 16)
@@ -349,7 +349,7 @@ private struct BibleReaderSearchHeaderView: View {
             HStack(spacing: 8) {
                 Image.magnifyingGlass
                     .foregroundStyle(viewModel.readerTextMutedColor)
-                TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
+                TextField(String.localized("search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()
                     .focused($isSearchFieldFocused)
                     .submitLabel(.search)
@@ -372,14 +372,14 @@ private struct BibleReaderSearchHeaderView: View {
                             .foregroundStyle(viewModel.readerTextMutedColor)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(String.localized("generic.cancel"))
+                    .accessibilityLabel(String.localized("bibleSearchClearAriaLabel"))
                 }
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 40)
             .background(viewModel.readerButtonSecondaryColor, in: Capsule())
 
-            Button(String.localized("generic.done")) {
+            Button(String.localized("done")) {
                 viewModel.showingSearchSheet = false
             }
             .font(.callout.weight(.semibold))

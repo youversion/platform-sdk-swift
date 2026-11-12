@@ -56,7 +56,7 @@ public struct SignInWithYouVersionView: View {
         VStack(spacing: 16) {
             let scale = 2.5
 
-            Text(String.localized("signIn.introducing"))
+            Text(String.localized("signInIntroducing"))
                 .font(.caption)
             Image("YouVersionPlatformLogo", bundle: .YouVersionUIBundle)
                 .resizable()
@@ -72,7 +72,7 @@ public struct SignInWithYouVersionView: View {
             Text(String(format: String.localized("signIn.paragraph"), appName))
                 .padding(.bottom, 16)
             Button(action: onSignIn) {
-                Text(String.localized("signIn.yesButton"))
+                Text(String.localized("signInYesButton"))
                     .padding()
                     .frame(width: 300)
             }
@@ -84,7 +84,7 @@ public struct SignInWithYouVersionView: View {
                 )
             )
             Button(action: onDismiss) {
-                Text(String.localized("signIn.noButton"))
+                Text(String.localized("signInNoButton"))
                     .padding()
                     .frame(width: 300)
             }

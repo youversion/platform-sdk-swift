@@ -27,7 +27,7 @@ struct BibleReaderDrawer: View {
                     copyButton
                     if let (url, title) = viewModel.shareableURLAndTitleForSelection {
                         ShareLink(item: url, message: Text(title)) {
-                            drawerButtonView(imageName: "square.and.arrow.up", text: .localized("verseActions.share"))
+                            drawerButtonView(imageName: "square.and.arrow.up", text: .localized("share"))
                         }
                     }
 #endif
@@ -132,7 +132,7 @@ struct BibleReaderDrawer: View {
     }
 
     var copyButton: some View {
-        drawerButton(imageName: "square.on.square", text: .localized("verseActions.copy")) {
+        drawerButton(imageName: "square.on.square", text: .localized("copy")) {
             viewModel.handleVerseActionCopy()
         }
     }
