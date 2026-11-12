@@ -73,7 +73,7 @@ public extension YouVersionAPI {
                 session: session,
                 cachePolicy: .reloadIgnoringLocalCacheData
             )
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await YouVersionAPI.response(for: request, session: session)
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
@@ -175,7 +175,7 @@ public extension YouVersionAPI {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(highlightRequest)
 
-            let (_, response) = try await session.data(for: request)
+            let (_, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
@@ -218,7 +218,7 @@ public extension YouVersionAPI {
             request.httpMethod = "DELETE"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-            let (_, response) = try await session.data(for: request)
+            let (_, response) = try await YouVersionAPI.response(for: request, session: session)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw URLError(.badServerResponse)
             }
