@@ -44,6 +44,31 @@ public enum URLBuilder {
         return components.url
     }
 
+    /// Returns a beta notes collection URL, preserving the opaque continuation token.
+    static func notesURL(bibleID: Int?, passageID: String?, pageSize: Int?, pageToken: String?) -> URL? {
+        var components = baseURLComponents
+        components.path = "/v1-beta/notes"
+        var queryItems: [URLQueryItem] = []
+        if let bibleID { queryItems.append(URLQueryItem(name: "bible_id", value: String(bibleID))) }
+        if let passageID { queryItems.append(URLQueryItem(name: "passage_id", value: passageID)) }
+        if let pageSize { queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize))) }
+        if let pageToken { queryItems.append(URLQueryItem(name: "page_token", value: pageToken)) }
+        components.queryItems = queryItems.isEmpty ? nil : queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        return components.url
+    }
+
+    /// Returns a beta note URL with the opaque ID encoded as a single path segment.
+    static func noteURL(id: String) -> URL? {
+        var components = baseURLComponents
+        let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
+        guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
+            return nil
+        }
+        components.percentEncodedPath = "/v1-beta/notes/" + encodedID
+        return components.url
+    }
+
     static func searchImagesURL(
         query: String,
         bibleID: Int,

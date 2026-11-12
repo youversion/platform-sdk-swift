@@ -37,7 +37,9 @@ public enum SignInWithYouVersionPKCEAuthorizationRequestBuilder {
     private static let authorizationScopePermissions: Set<String> = [
         openIDPermission,
         "profile",
-        "email"
+        "email",
+        YouVersionAPI.Users.readNotesPermission,
+        YouVersionAPI.Users.writeNotesPermission
     ]
 
     public static func make(

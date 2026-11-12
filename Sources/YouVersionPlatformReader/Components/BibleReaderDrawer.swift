@@ -1,17 +1,10 @@
 import SwiftUI
+import YouVersionPlatformCore
 import YouVersionPlatformUI
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
 
 struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
-
-    private let buttonHeight = CGFloat(55)
-    private let darkModeHighlightOpacity = 0.2
-    private let highlightHexes = ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff"]
+    var actions: [BibleReaderVerseAction] = [.highlight, .save, .copy, .share]
 
     var body: some View {
         VStack {
@@ -20,17 +13,40 @@ struct BibleReaderDrawer: View {
                 .frame(width: 30, height: 2)
                 .padding(.top, 4)
                 .padding(.bottom, 8)
-            ScrollView([.horizontal], showsIndicators: false) {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    highlightColorButtons
+                    ForEach(actions) { action in
+                        switch action.kind {
+                        case .highlight:
+                            highlightColorButtons
+                        case .save:
+                            drawerButton(imageName: "bookmark", text: NoteStrings.save) { viewModel.startNote() }
+                        case .copy:
 #if !os(tvOS)
-                    copyButton
-                    if let (url, title) = viewModel.shareableURLAndTitleForSelection {
-                        ShareLink(item: url, message: Text(title)) {
-                            drawerButtonView(imageName: "square.and.arrow.up", text: .localized("verseActions.share"))
+                            drawerButton(imageName: "square.on.square", text: .localized("verseActions.copy")) {
+                                viewModel.handleVerseActionCopy()
+                            }
+#endif
+                        case .share:
+#if !os(tvOS)
+                            if let (url, title) = viewModel.shareableURLAndTitleForSelection {
+                                ShareLink(item: url, message: Text(title)) {
+                                    VerseActionLabel(image: Image(systemName: "square.and.arrow.up"), title: Text(String.localized("verseActions.share")))
+                                }
+                            }
+#endif
+                        case .custom:
+                            if let title = action.title, let image = action.image {
+                                Button {
+                                    let references = BibleReference.referencesByMerging(references: Array(viewModel.selectedVerses).sorted())
+                                    viewModel.removeVerseSelection()
+                                    action.action?(references)
+                                } label: {
+                                    VerseActionLabel(image: image, title: Text(title))
+                                }
+                            }
                         }
                     }
-#endif
                 }
                 .padding(.horizontal, 24)
             }
@@ -39,102 +55,44 @@ struct BibleReaderDrawer: View {
         .foregroundStyle(viewModel.readerTextMutedColor)
         .background(viewModel.readerCanvasPrimaryColor)
     }
-    
-    private var highlightColors: [Color] {
-        highlightHexes.map { Color(hex: $0) }
-    }
-
-    private var isDarkTheme: Bool {
-        viewModel.colorTheme?.colorScheme == .dark
-    }
-
-    /// Cross-platform color-name lookup. UIColor is UIKit-only, so guard
-    /// per platform: iOS/tvOS/watchOS get UIColor, macOS gets NSColor.
-    /// The output funnels into `.accessibilityIdentifier` — a
-    /// UI-automation-only attribute that VoiceOver never speaks. Real
-    /// assistive-tech users hear no highlight announcement on these
-    /// buttons (matching the Bible iOS app's model — highlights are
-    /// visual affordances, not narrated inline). Automation queries
-    /// the identifier via Appium's `@name` fallback.
-    private func accessibilityColorName(for color: Color) -> String {
-        #if canImport(UIKit)
-        return UIColor(color).accessibilityName
-        #elseif canImport(AppKit)
-        return NSColor(color).accessibilityName
-        #else
-        return ""
-        #endif
-    }
 
     private var highlightColorButtons: some View {
-        let hexesToRemove = viewModel.highlightHexesOnSelectedVerses
+        let palette = BibleReaderHighlightColors.palette
+        let selectedHexes = viewModel.highlightHexesOnSelectedVerses
             .filter { Color.rgbValue(fromHex: $0) != nil }
-            .sorted { (highlightHexes.firstIndex(of: $0) ?? .max, $0) < (highlightHexes.firstIndex(of: $1) ?? .max, $1) }
-        let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
-        return HStack {
-            ForEach(hexesToRemove, id: \.self) { hex in
-                let color = Color(hex: hex)
-                Button(action: { viewModel.removeVerseColor(hex: hex) }) {
-                    coloredCircle(with: color)
-                        .overlay(
-                            Image("highlight_checkmark", bundle: .YouVersionUIBundle)
-                                .renderingMode(.template)
-                                .foregroundStyle(checkmarkColor(for: color))
-                        )
-                }
-                .accessibilityIdentifier("Remove \(accessibilityColorName(for: color)) highlight")
-            }
-            ForEach(colorsToAdd, id: \.self) { color in
-                Button(action: { viewModel.addVerseColor(color) }) {
-                    coloredCircle(with: color)
-                }
-                .accessibilityIdentifier("\(accessibilityColorName(for: color)) highlight")
-            }
-        }
-        .padding(.horizontal)
-        .frame(height: buttonHeight)
-        .background(RoundedRectangle(cornerRadius: 12)
-            .fill(viewModel.readerSurfaceTertiaryColor))
-        .foregroundStyle(viewModel.readerTextPrimaryColor)
-    }
-
-    private func checkmarkColor(for color: Color) -> Color {
-        isDarkTheme || color.isDarkHighlight ? .white : Color(hex: "#121212")
-    }
-
-    private func coloredCircle(with color: Color) -> some View {
-        Circle()
-            .fill(color.opacity(isDarkTheme ? darkModeHighlightOpacity : 1))
-            .overlay(
-                Circle().strokeBorder(isDarkTheme ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
-            )
-            .frame(width: 36, height: 36)
-    }
-
-    private func drawerButtonView(imageName: String, text: String) -> some View {
-        VStack(spacing: 0) {
-            Image(systemName: imageName)
-                .padding(.bottom, 6)
-            Text(text)
-        }
-        .padding(.horizontal, 12)
-        .frame(height: buttonHeight)
-        .background(RoundedRectangle(cornerRadius: 12)
-            .fill(viewModel.readerSurfaceTertiaryColor))
-        .foregroundStyle(viewModel.readerTextPrimaryColor)
-        .font(YouVersionFonts.labelMedium)
+            .sorted { (palette.firstIndex(of: $0) ?? .max, $0) < (palette.firstIndex(of: $1) ?? .max, $1) }
+        let availableHexes = palette.filter { !viewModel.isColorPresentOnAllSelectedVerses(Color(hex: $0)) }
+        return BibleReaderHighlightColors(
+            selectedHexes: selectedHexes, availableHexes: availableHexes,
+            onRemove: { viewModel.removeVerseColor(hex: $0) },
+            onAdd: { viewModel.addVerseColor(Color(hex: $0)) }
+        )
     }
 
     private func drawerButton(imageName: String, text: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            drawerButtonView(imageName: imageName, text: text)
+            VerseActionLabel(image: Image(systemName: imageName), title: Text(text))
         }
     }
+}
 
-    var copyButton: some View {
-        drawerButton(imageName: "square.on.square", text: .localized("verseActions.copy")) {
-            viewModel.handleVerseActionCopy()
+private struct VerseActionLabel: View {
+    @Environment(BibleReaderViewModel.self) private var viewModel
+    let image: Image
+    let title: Text
+
+    var body: some View {
+        VStack(spacing: 0) {
+            image
+                .padding(.bottom, 6)
+            title
         }
+        .padding(.horizontal, 12)
+        .frame(minWidth: 44, minHeight: 55)
+        .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 12))
+        .foregroundStyle(viewModel.readerTextPrimaryColor)
+        .font(YouVersionFonts.labelMedium)
+        .contentShape(Rectangle())
     }
 }
 

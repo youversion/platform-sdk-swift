@@ -9,12 +9,15 @@ public struct BibleTextView: View {
     static let focusAnimation: Animation = .easeInOut(duration: 0.5)
 
     let focusedReference: BibleReference?
-    private let reference: BibleReference
-    private let textOptions: BibleTextOptions
+    package let reference: BibleReference
+    package let textOptions: BibleTextOptions
     private let onVerseTap: VerseTapAction?
+    var verseIndicatorStyle: ((BibleReference) -> BibleVerseIndicatorStyle?)?
+    var onVerseIndicatorSelected: ((BibleReference) -> Void)?
     private let placeholder: ((BibleTextLoadingPhase) -> AnyView)?
     private let providedBlocks: [BibleTextBlock]?
     private let sourceHTML: String?
+    private var needsVerseNumbersInHTML = false
     @State private var isVersionRightToLeft = false
     @State private var blocks: [BibleTextBlock]
     @State private var loadingPhase: BibleTextLoadingPhase?
@@ -33,9 +36,28 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions? = nil,
         onVerseTap: VerseTapAction? = nil
     ) {
+        self.init(
+            reference, textOptions: textOptions, onVerseTap: onVerseTap,
+            verseIndicatorStyle: nil, onVerseIndicatorSelected: nil
+        )
+    }
+
+    /// Creates Bible text with optional customized verse numbers and independent indicator taps.
+    /// Returning nil from `verseIndicatorStyle` keeps the standard number and verse-tap behavior.
+    /// Expanded targets use text-layout geometry on iOS 18+; iOS 17 uses the inline number's link.
+    /// Keep the style callback synchronous and side-effect free; load external data outside this view.
+    public init(
+        _ reference: BibleReference,
+        textOptions: BibleTextOptions? = nil,
+        onVerseTap: VerseTapAction? = nil,
+        verseIndicatorStyle: ((BibleReference) -> BibleVerseIndicatorStyle?)? = nil,
+        onVerseIndicatorSelected: ((BibleReference) -> Void)? = nil
+    ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.verseIndicatorStyle = verseIndicatorStyle
+        self.onVerseIndicatorSelected = onVerseIndicatorSelected
         self._selectedVerses = .constant([])
         self.focusedReference = nil
         self.placeholder = nil
@@ -52,11 +74,32 @@ public struct BibleTextView: View {
         placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil,
         focusedReference: BibleReference? = nil
     ) {
+        self.init(
+            reference, textOptions: textOptions, selectedVerses: selectedVerses, onVerseTap: onVerseTap,
+            placeholder: placeholder, focusedReference: focusedReference,
+            verseIndicatorStyle: nil, onVerseIndicatorSelected: nil
+        )
+    }
+
+    /// Creates selectable Bible text with optional customized verse numbers and indicator taps.
+    /// A nil style preserves standard rendering. Indicator taps do not invoke `onVerseTap`.
+    public init(
+        _ reference: BibleReference,
+        textOptions: BibleTextOptions? = nil,
+        selectedVerses: Binding<Set<BibleReference>>,
+        onVerseTap: VerseTapAction? = nil,
+        placeholder: ((BibleTextLoadingPhase) -> AnyView)? = nil,
+        focusedReference: BibleReference? = nil,
+        verseIndicatorStyle: ((BibleReference) -> BibleVerseIndicatorStyle?)? = nil,
+        onVerseIndicatorSelected: ((BibleReference) -> Void)? = nil
+    ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self._selectedVerses = selectedVerses
         self.focusedReference = focusedReference
         self.onVerseTap = onVerseTap
+        self.verseIndicatorStyle = verseIndicatorStyle
+        self.onVerseIndicatorSelected = onVerseIndicatorSelected
         self.placeholder = placeholder
         self.blocks = []
         self.providedBlocks = nil
@@ -73,8 +116,29 @@ public struct BibleTextView: View {
         textOptions: BibleTextOptions = BibleTextOptions(),
         onVerseTap: VerseTapAction? = nil
     ) {
-        let blocks = Self.blocks(parsedFrom: html, reference: reference, textOptions: textOptions)
-        self.init(reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap, sourceHTML: html)
+        self.init(
+            html: html, reference: reference, textOptions: textOptions, onVerseTap: onVerseTap,
+            verseIndicatorStyle: nil, onVerseIndicatorSelected: nil
+        )
+    }
+
+    /// Renders supplied HTML with optional customized verse numbers and indicator taps.
+    public init(
+        html: String,
+        reference: BibleReference,
+        textOptions: BibleTextOptions = BibleTextOptions(),
+        onVerseTap: VerseTapAction? = nil,
+        verseIndicatorStyle: ((BibleReference) -> BibleVerseIndicatorStyle?)? = nil,
+        onVerseIndicatorSelected: ((BibleReference) -> Void)? = nil
+    ) {
+        let blocks = Self.blocks(
+            parsedFrom: html, reference: reference, textOptions: textOptions,
+            renderVerseNumbers: verseIndicatorStyle != nil && textOptions.renderVerseNumbers
+        )
+        self.init(
+            reference, blocks: blocks, textOptions: textOptions, onVerseTap: onVerseTap, sourceHTML: html,
+            verseIndicatorStyle: verseIndicatorStyle, onVerseIndicatorSelected: onVerseIndicatorSelected
+        )
     }
 
     private init(
@@ -82,17 +146,33 @@ public struct BibleTextView: View {
         blocks: [BibleTextBlock] = [],
         textOptions: BibleTextOptions? = nil,
         onVerseTap: VerseTapAction? = nil,
-        sourceHTML: String? = nil
+        sourceHTML: String? = nil,
+        verseIndicatorStyle: ((BibleReference) -> BibleVerseIndicatorStyle?)? = nil,
+        onVerseIndicatorSelected: ((BibleReference) -> Void)? = nil
     ) {
         self.reference = reference
         self.textOptions = textOptions ?? BibleTextOptions()
         self.onVerseTap = onVerseTap
+        self.verseIndicatorStyle = verseIndicatorStyle
+        self.onVerseIndicatorSelected = onVerseIndicatorSelected
         self._selectedVerses = .constant([])
         self.focusedReference = nil
         self.placeholder = nil
         self.blocks = blocks
         self.providedBlocks = blocks
         self.sourceHTML = sourceHTML
+    }
+
+    /// Configures a copy while retaining the original selection, loading, and verse-tap behavior.
+    package func withVerseIndicators(
+        style: @escaping (BibleReference) -> BibleVerseIndicatorStyle?,
+        onSelected: @escaping (BibleReference) -> Void
+    ) -> BibleTextView {
+        var copy = self
+        copy.needsVerseNumbersInHTML = sourceHTML != nil && verseIndicatorStyle == nil && textOptions.renderVerseNumbers
+        copy.verseIndicatorStyle = style
+        copy.onVerseIndicatorSelected = onSelected
+        return copy
     }
 
     var versionLayoutDirection: LayoutDirection {
@@ -102,7 +182,8 @@ public struct BibleTextView: View {
     private static func blocks(
         parsedFrom html: String,
         reference: BibleReference,
-        textOptions: BibleTextOptions
+        textOptions: BibleTextOptions,
+        renderVerseNumbers: Bool = false
     ) -> [BibleTextBlock] {
         guard let node = try? BibleTextNode(html: html), !node.children.isEmpty else {
             return []
@@ -111,7 +192,7 @@ public struct BibleTextView: View {
             parsedFrom: node,
             reference: reference,
             renderHeadlines: false,
-            renderVerseNumbers: false,
+            renderVerseNumbers: renderVerseNumbers,
             footnotesMode: textOptions.footnoteMode,
             footnoteMarker: textOptions.footnoteMarker,
             textColor: textOptions.textColor ?? Color.primary,
@@ -126,12 +207,18 @@ public struct BibleTextView: View {
         .highlightLayer(
             textOptions: textOptions,
             lineSpacing: fontRelativeLineSpacing(textOptions: textOptions),
-            focusedReference: focusedReference
+            focusedReference: focusedReference,
+            hasIndicators: verseIndicatorStyle != nil
         )
+        .modifier(IndicatorHitTargets(onSelected: onVerseIndicatorSelected))
         .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
         .environment(\.layoutDirection, versionLayoutDirection)
         .environment(\.openURL, OpenURLAction(handler: { url in
-            if let reference = parseReference(url: url) {
+            if url.scheme == Self.indicatorLinkScheme,
+               let host = url.host, let versionId = Int(host),
+               let reference = BibleReference.unvalidatedReference(with: url.lastPathComponent, versionId: versionId) {
+                onVerseIndicatorSelected?(reference)
+            } else if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
                 let footnotes = footnotesFor(reference: reference)
                 onVerseTap?(reference, url.scheme ?? BibleVersionRendering.LinkSchemes.reference.rawValue, footnotes, footnodeId)
@@ -143,7 +230,8 @@ public struct BibleTextView: View {
             fontSize: textOptions.fontSize,
             fontFamily: textOptions.fontFamily,
             textColor: textOptions.textColor,
-            sourceHTML: sourceHTML
+            sourceHTML: sourceHTML,
+            hasIndicatorStyle: verseIndicatorStyle != nil
         )) {
             await loadBlocks()
         }
@@ -152,7 +240,7 @@ public struct BibleTextView: View {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification)) { _ in
             if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
             }
@@ -227,8 +315,17 @@ public struct BibleTextView: View {
             loadingPhase = .loading
         }
         do {
-            if let providedBlocks {
-                blocks = Self.blocksForDisplay(providedBlocks)
+            let suppliedBlocks: [BibleTextBlock]?
+            if needsVerseNumbersInHTML, let sourceHTML {
+                suppliedBlocks = Self.blocks(
+                    parsedFrom: sourceHTML, reference: reference, textOptions: textOptions,
+                    renderVerseNumbers: textOptions.renderVerseNumbers
+                )
+            } else {
+                suppliedBlocks = providedBlocks
+            }
+            if let suppliedBlocks {
+                blocks = Self.blocksForDisplay(suppliedBlocks)
                 await updateVersionTextDirection()
                 loadingPhase = nil  // meaning, we've succeeded
             } else if let blocks = try await BibleVersionRendering.textBlocks(
@@ -334,6 +431,7 @@ public struct BibleTextView: View {
         let fontFamily: String
         let textColor: Color?
         let sourceHTML: String?
+        let hasIndicatorStyle: Bool
     }
 
 }
