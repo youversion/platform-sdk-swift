@@ -76,7 +76,7 @@ import Testing
     }
 
     @MainActor
-    @Test func organizationUnauthorizedThrowsMissingAuthentication() async throws {
+    @Test func organizationUnauthorizedThrowsNotPermitted() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -85,7 +85,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.missingAuthentication) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Organizations.organization(id: "org-123", session: session)
         }
     }
@@ -106,7 +106,7 @@ import Testing
     }
 
     @MainActor
-    @Test func organizationServerStatusThrowsServerError() async throws {
+    @Test func organizationServerErrorThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -117,7 +117,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.Organizations.organization(id: "org-123", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor

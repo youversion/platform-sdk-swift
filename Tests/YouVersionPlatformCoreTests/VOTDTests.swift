@@ -27,7 +27,7 @@ import Testing
     }
 
     @MainActor
-    @Test func votdUnauthorizedThrowsMissingAuthentication() async throws {
+    @Test func votdUnauthorizedThrowsNotPermitted() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -36,13 +36,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.missingAuthentication) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
-    @Test func votdServerStatusThrowsServerError() async throws {
+    @Test func votdServerErrorThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -53,7 +53,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor

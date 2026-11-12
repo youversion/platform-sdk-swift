@@ -135,7 +135,7 @@ import Testing
                 session: session
             )
         } throws: { error in
-            (error as? YouVersionAPIResponseError)?.code == .requestRejected
+            (error as? YouVersionAPIError) == .cannotDownload
         }
     }
 

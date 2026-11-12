@@ -20,9 +20,8 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: A data exchange token.
         /// - Throws:
-        ///   - `YouVersionAPIError.missingAuthentication` when the access token or app key is missing, or the request is unauthorized.
-        ///   - `YouVersionAPIError.notPermitted` when the request is forbidden.
-        ///   - `YouVersionAPIResponseError` when the server rate limits, fails, or rejects the request.
+        ///   - `YouVersionAPIError.missingAuthentication` when the access token or app key is missing.
+        ///   - `YouVersionAPIError.notPermitted` when the request is unauthorized or forbidden.
         ///   - `YouVersionAPIError.cannotDownload` when the server returns an unexpected status.
         ///   - `YouVersionAPIError.invalidResponse` when the server response is not HTTP.
         public static func updateToken(

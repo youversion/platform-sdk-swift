@@ -131,7 +131,7 @@ import Testing
     }
 
     @MainActor
-    @Test func languagesUnauthorizedThrowsMissingAuthentication() async throws {
+    @Test func languagesUnauthorizedThrowsNotPermitted() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -140,13 +140,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.missingAuthentication) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
-    @Test func languagesServerStatusThrowsServerError() async throws {
+    @Test func languagesUnexpectedStatusThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -157,7 +157,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.Languages.languages(accessToken: "swift-test-suite", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor

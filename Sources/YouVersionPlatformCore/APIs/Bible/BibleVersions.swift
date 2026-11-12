@@ -17,9 +17,7 @@ public extension YouVersionAPI.Bible {
     ///
     /// - Throws:
     ///   - `URLError` if the URL is invalid.
-    ///   - `YouVersionAPIError.missingAuthentication` if the server does not recognize the app key.
-    ///   - `YouVersionAPIError.notPermitted` if the app key lacks permission.
-    ///   - `YouVersionAPIResponseError` if the server rate limits, fails, or rejects the request.
+    ///   - `YouVersionAPIError.notPermitted` if the app key is invalid or lacks permission.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
     ///   - `YouVersionAPIError.invalidResponse` if the server response is not valid.
     static func versions(forLanguageTag languageTag: String? = nil, accessToken providedToken: String? = nil, session: URLSession = .shared) async throws -> [BibleVersion] {

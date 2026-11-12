@@ -108,7 +108,7 @@ import Testing
     }
 
     @MainActor
-    @Test func permittedVersionsUnauthorizedThrowsMissingAuthentication() async throws {
+    @Test func permittedVersionsUnauthorizedThrowsNotPermitted() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -117,7 +117,7 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.missingAuthentication) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Bible.permittedVersions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
@@ -138,7 +138,7 @@ import Testing
     }
 
     @MainActor
-    @Test func permittedVersionsServerStatusThrowsServerError() async throws {
+    @Test func permittedVersionsUnexpectedStatusThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -149,7 +149,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.Bible.permittedVersions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor
@@ -168,7 +168,7 @@ import Testing
     }
 
     @MainActor
-    @Test func versionsUnauthorizedThrowsMissingAuthentication() async throws {
+    @Test func versionsUnauthorizedThrowsNotPermitted() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -177,13 +177,13 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.missingAuthentication) {
+        await #expect(throws: YouVersionAPIError.notPermitted) {
             _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
         }
     }
 
     @MainActor
-    @Test func versionsServerStatusThrowsServerError() async throws {
+    @Test func versionsUnexpectedStatusThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -194,7 +194,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.Bible.versions(forLanguageTag: "en", accessToken: "swift-test-suite", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor

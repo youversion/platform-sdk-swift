@@ -14,21 +14,15 @@ import Testing
     }
 
     private enum ExpectedError: Sendable {
-        case missingAuthentication
         case notPermitted
         case cannotDownload
-        case response(YouVersionAPIResponseError.Code)
 
         func matches(_ error: any Error) -> Bool {
             switch self {
-            case .missingAuthentication:
-                (error as? YouVersionAPIError) == .missingAuthentication
             case .notPermitted:
                 (error as? YouVersionAPIError) == .notPermitted
             case .cannotDownload:
                 (error as? YouVersionAPIError) == .cannotDownload
-            case .response(let code):
-                (error as? YouVersionAPIResponseError)?.code == code
             }
         }
     }
@@ -36,13 +30,13 @@ import Testing
     private static let expectedErrors: [Int: ExpectedError] = [
         200: .cannotDownload,
         204: .cannotDownload,
-        400: .response(.requestRejected),
-        401: .missingAuthentication,
+        400: .cannotDownload,
+        401: .notPermitted,
         403: .notPermitted,
-        404: .response(.requestRejected),
-        429: .response(.rateLimited),
-        500: .response(.serverError),
-        503: .response(.serverError),
+        404: .cannotDownload,
+        429: .cannotDownload,
+        500: .cannotDownload,
+        503: .cannotDownload,
     ]
 
     /// Returns whether `error` is the error an endpoint should throw for an HTTP `statusCode`.
@@ -54,30 +48,26 @@ import Testing
 
     @Test(arguments: [400, 404, 409, 422])
     func clientErrorMapsToRequestRejected(statusCode: Int) {
-        let error = YouVersionAPI.error(for: Self.httpResponse(statusCode: statusCode), data: Data())
-        #expect((error as? YouVersionAPIResponseError)?.code == .requestRejected)
-        #expect((error as? YouVersionAPIResponseError)?.statusCode == statusCode)
+        let error = YouVersionAPI.responseError(for: Self.httpResponse(statusCode: statusCode), data: Data())
+        #expect(error?.code == .requestRejected)
+        #expect(error?.statusCode == statusCode)
     }
 
     @Test func tooManyRequestsMapsToRateLimited() {
-        let error = YouVersionAPI.error(for: Self.httpResponse(statusCode: 429), data: Data())
-        #expect((error as? YouVersionAPIResponseError)?.code == .rateLimited)
+        let error = YouVersionAPI.responseError(for: Self.httpResponse(statusCode: 429), data: Data())
+        #expect(error?.code == .rateLimited)
     }
 
     @Test(arguments: [500, 502, 503, 504, 599])
     func serverStatusMapsToServerError(statusCode: Int) {
+        let error = YouVersionAPI.responseError(for: Self.httpResponse(statusCode: statusCode), data: Data())
+        #expect(error?.code == .serverError)
+        #expect(error?.statusCode == statusCode)
+    }
+
+    @Test(arguments: [401, 403])
+    func authorizationStatusMapsToNotPermitted(statusCode: Int) {
         let error = YouVersionAPI.error(for: Self.httpResponse(statusCode: statusCode), data: Data())
-        #expect((error as? YouVersionAPIResponseError)?.code == .serverError)
-        #expect((error as? YouVersionAPIResponseError)?.statusCode == statusCode)
-    }
-
-    @Test func unauthorizedStatusMapsToMissingAuthentication() {
-        let error = YouVersionAPI.error(for: Self.httpResponse(statusCode: 401), data: Data())
-        #expect((error as? YouVersionAPIError) == .missingAuthentication)
-    }
-
-    @Test func forbiddenStatusMapsToNotPermitted() {
-        let error = YouVersionAPI.error(for: Self.httpResponse(statusCode: 403), data: Data())
         #expect((error as? YouVersionAPIError) == .notPermitted)
     }
 
@@ -89,14 +79,14 @@ import Testing
 
     @Test func rateLimitedErrorIncludesRetryAfterAndPlainTextMessage() throws {
         let response = Self.httpResponse(statusCode: 429, headers: ["Retry-After": "30", "Content-Type": "text/plain"])
-        let error = try #require(YouVersionAPI.error(for: response, data: Data("Rate limit exceeded.\n".utf8)) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: response, data: Data("Rate limit exceeded.\n".utf8)))
         #expect(error.retryAfterSeconds == 30)
         #expect(error.message == "Rate limit exceeded.")
     }
 
     @Test func errorIncludesMessageFromBody() throws {
         let body = Data(#"{"message": "Bible version 99999999 not found"}"#.utf8)
-        let error = try #require(YouVersionAPI.error(for: Self.httpResponse(statusCode: 404), data: body) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: Self.httpResponse(statusCode: 404), data: body))
         #expect(error.message == "Bible version 99999999 not found")
         #expect(error.retryAfterSeconds == nil)
         #expect(error.validationIssues.isEmpty)
@@ -104,13 +94,13 @@ import Testing
 
     @Test func errorIncludesFaultString() throws {
         let body = Data(#"{"fault": {"faultstring": "Quota violation", "detail": {"errorcode": "policies.ratelimit.QuotaViolation"}}}"#.utf8)
-        let error = try #require(YouVersionAPI.error(for: Self.httpResponse(statusCode: 500), data: body) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: Self.httpResponse(statusCode: 500), data: body))
         #expect(error.message == "Quota violation")
     }
 
     @Test func errorIncludesDetailString() throws {
         let body = Data(#"{"detail": "Not Found"}"#.utf8)
-        let error = try #require(YouVersionAPI.error(for: Self.httpResponse(statusCode: 404), data: body) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: Self.httpResponse(statusCode: 404), data: body))
         #expect(error.message == "Not Found")
         #expect(error.validationIssues.isEmpty)
     }
@@ -122,7 +112,7 @@ import Testing
             {"type": "too_long", "loc": ["query", "items", 3], "msg": "Too long", "input": "x"}
         ]}
         """#.utf8)
-        let error = try #require(YouVersionAPI.error(for: Self.httpResponse(statusCode: 422), data: body) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: Self.httpResponse(statusCode: 422), data: body))
         #expect(error.validationIssues == [
             YouVersionAPIResponseError.ValidationIssue(location: ["query", "language_ranges"], message: "Field required"),
             YouVersionAPIResponseError.ValidationIssue(location: ["query", "items", "3"], message: "Too long"),
@@ -132,7 +122,7 @@ import Testing
 
     @Test func unparseableBodyLeavesMessageEmpty() throws {
         let response = Self.httpResponse(statusCode: 502, headers: ["Content-Type": "text/html"])
-        let error = try #require(YouVersionAPI.error(for: response, data: Data("<html>Bad Gateway</html>".utf8)) as? YouVersionAPIResponseError)
+        let error = try #require(YouVersionAPI.responseError(for: response, data: Data("<html>Bad Gateway</html>".utf8)))
         #expect(error.message == nil)
     }
 

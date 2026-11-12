@@ -96,16 +96,35 @@ public enum YouVersionAPI {
     /// - Parameters:
     ///   - httpResponse: The response whose status code and headers describe the failure.
     ///   - data: The response body, which can carry a message from the server.
-    /// - Returns: `YouVersionAPIError.missingAuthentication` for `401`, `YouVersionAPIError.notPermitted` for `403`,
-    ///   a ``YouVersionAPIResponseError`` for other `4xx` and `5xx` statuses, and
+    /// - Returns: `YouVersionAPIError.notPermitted` for `401` and `403`, and
     ///   `YouVersionAPIError.cannotDownload` for any other status.
     static func error(for httpResponse: HTTPURLResponse, data: Data) -> any Error {
+        switch httpResponse.statusCode {
+        // TODO(next major): return `.missingAuthentication` for 401 so it's distinguishable from 403. Kept as
+        // `.notPermitted` to avoid a breaking change for callers that catch it. See YPE-6416.
+        case 401, 403:
+            return YouVersionAPIError.notPermitted
+        default:
+            // TODO(next major): throw `responseError(for:data:)` instead of `.cannotDownload`, make
+            // `YouVersionAPIResponseError` public, and document it in each endpoint's `Throws`. See YPE-6416.
+            if let message = responseError(for: httpResponse, data: data)?.message {
+                YouVersionPlatformLogger.error("\(httpResponse.statusCode): \(message)", category: "API")
+            }
+            return YouVersionAPIError.cannotDownload
+        }
+    }
+
+    /// Returns the detailed error for a rate limited, rejected, or failed HTTP response.
+    ///
+    /// - Parameters:
+    ///   - httpResponse: The response whose status code and headers describe the failure.
+    ///   - data: The response body, which can carry a message from the server.
+    /// - Returns: A ``YouVersionAPIResponseError`` for `4xx` and `5xx` statuses other than `401` and `403`, or `nil`.
+    static func responseError(for httpResponse: HTTPURLResponse, data: Data) -> YouVersionAPIResponseError? {
         let code: YouVersionAPIResponseError.Code
         switch httpResponse.statusCode {
-        case 401:
-            return YouVersionAPIError.missingAuthentication
-        case 403:
-            return YouVersionAPIError.notPermitted
+        case 401, 403:
+            return nil
         case 429:
             code = .rateLimited
         case 400..<500:
@@ -113,13 +132,10 @@ public enum YouVersionAPI {
         case 500..<600:
             code = .serverError
         default:
-            return YouVersionAPIError.cannotDownload
+            return nil
         }
 
         let body = ResponseErrorBody(data: data, contentType: httpResponse.value(forHTTPHeaderField: "Content-Type"))
-        if let message = body.message {
-            YouVersionPlatformLogger.error("\(httpResponse.statusCode): \(message)", category: "API")
-        }
         return YouVersionAPIResponseError(
             code: code,
             statusCode: httpResponse.statusCode,
@@ -329,39 +345,39 @@ public enum YouVersionAPIError: Error, Sendable {
 /// ``Code-swift.struct/serverError`` are temporary, so a later retry can succeed.
 /// ``Code-swift.struct/requestRejected`` usually means the request itself is wrong, so retrying
 /// it unchanged typically fails again.
-public struct YouVersionAPIResponseError: Error, Sendable {
+struct YouVersionAPIResponseError: Error, Sendable {
     /// The kind of failure the server reported.
-    public struct Code: Equatable, Sendable {
+    struct Code: Equatable, Sendable {
         /// The app sent too many requests. Wait before retrying.
-        public static let rateLimited = Self(rawValue: "rate_limited")
+        static let rateLimited = Self(rawValue: "rate_limited")
         /// The server failed to handle the request. A later retry can succeed.
-        public static let serverError = Self(rawValue: "server_error")
+        static let serverError = Self(rawValue: "server_error")
         /// The server rejected the request, such as a resource that doesn't exist.
         /// Retrying unchanged usually fails again, though a few rejections, such as a request timeout, are temporary.
-        public static let requestRejected = Self(rawValue: "request_rejected")
+        static let requestRejected = Self(rawValue: "request_rejected")
 
         /// A stable identifier for the failure kind.
-        public let rawValue: String
+        let rawValue: String
     }
 
     /// A request parameter the server found invalid.
-    public struct ValidationIssue: Equatable, Sendable {
+    struct ValidationIssue: Equatable, Sendable {
         /// The path to the invalid value, such as `["query", "language_ranges"]`.
-        public let location: [String]
+        let location: [String]
         /// Why the value is invalid.
-        public let message: String
+        let message: String
     }
 
     /// The kind of failure the server reported.
-    public let code: Code
+    let code: Code
     /// The HTTP status code of the response.
-    public let statusCode: Int
+    let statusCode: Int
     /// The server's description of the failure, when the response includes one.
-    public let message: String?
+    let message: String?
     /// How many seconds the server asks the app to wait before retrying, from the `Retry-After` header.
-    public let retryAfterSeconds: TimeInterval?
+    let retryAfterSeconds: TimeInterval?
     /// The invalid request parameters, when the server reports them. Empty otherwise.
-    public let validationIssues: [ValidationIssue]
+    let validationIssues: [ValidationIssue]
 }
 
 /// The error body shapes the API returns: a `message`, a gateway `fault`, a validation `detail` list, or plain text.

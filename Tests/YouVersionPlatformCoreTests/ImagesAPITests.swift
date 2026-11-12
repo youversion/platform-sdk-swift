@@ -103,7 +103,7 @@ struct ImagesAPITests {
             try await YouVersionAPI.Images.images(
                 languageRanges: [languageRange], accessToken: "images-tests", session: session
             )
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .requestRejected }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @Test

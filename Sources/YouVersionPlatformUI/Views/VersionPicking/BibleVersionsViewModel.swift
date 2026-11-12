@@ -117,7 +117,7 @@ public final class BibleVersionsViewModel {
         if let id = versionId {
             do {
                 loadedVersion = try await versionRepository.version(withId: id)
-            } catch YouVersionAPIError.notPermitted, YouVersionAPIError.missingAuthentication {
+            } catch YouVersionAPIError.notPermitted {
                 // Leave loadedVersion as nil; we'll fall back below
             } catch {
                 YouVersionPlatformLogger.error("Error loading default version: \(error)", category: "Reader")

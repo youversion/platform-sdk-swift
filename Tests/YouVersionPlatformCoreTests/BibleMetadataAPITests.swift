@@ -45,7 +45,7 @@ import Testing
     }
 
     @MainActor
-    @Test func metadataServerStatusThrowsServerError() async throws {
+    @Test func metadataUnexpectedStatusThrowsCannotDownload() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
@@ -56,7 +56,7 @@ import Testing
 
         await #expect {
             _ = try await YouVersionAPI.Bible.version(withId: 206, accessToken: "swift-test-suite", session: session)
-        } throws: { ($0 as? YouVersionAPIResponseError)?.code == .serverError }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor
