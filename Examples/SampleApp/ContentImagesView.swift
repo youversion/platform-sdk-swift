@@ -14,6 +14,9 @@ struct ContentImagesView: View {
     @State private var isLoading = false
     @State private var retryID = UUID()
     @State private var completedRequestID: UUID?
+    @State private var pendingSearchPage: YouVersionImageSearchResults?
+    @State private var searchImageIDs: [String] = []
+    @State private var searchImagesByRequestedID: [String: YouVersionImage] = [:]
 
     var body: some View {
         ScrollView {
@@ -72,7 +75,7 @@ struct ContentImagesView: View {
                             }
                         }
                     }
-                    if nextPageToken != nil && !isLoading {
+                    if nextPageToken != nil && !isLoading && errorMessage == nil {
                         Button("Load more") {
                             isFirstPage = false
                             retryID = UUID()
@@ -100,6 +103,11 @@ struct ContentImagesView: View {
         validationMessage = nil
         isFirstPage = true
         submittedQuery = searchQuery
+        images = []
+        nextPageToken = nil
+        pendingSearchPage = nil
+        searchImageIDs = []
+        searchImagesByRequestedID = [:]
         retryID = UUID()
     }
 
@@ -108,10 +116,6 @@ struct ContentImagesView: View {
         let requestQuery = submittedQuery
         isLoading = true
         errorMessage = nil
-        if isFirstPage {
-            images = []
-            nextPageToken = nil
-        }
         defer {
             if requestID == retryID { isLoading = false }
         }
@@ -126,20 +130,54 @@ struct ContentImagesView: View {
                 pageImages = page.images
                 pageToken = page.nextPageToken
             } else {
-                let page = try await YouVersionAPI.Search.images(
-                    query: requestQuery,
-                    bibleID: 3034,
-                    pageSize: 30,
-                    pageToken: isFirstPage ? nil : nextPageToken
-                )
-                pageImages = try await withThrowingTaskGroup(of: (Int, YouVersionImage).self) { group in
-                    for (index, hit) in page.images.enumerated() {
-                        group.addTask { (index, try await YouVersionAPI.Images.image(id: hit.id)) }
+                let page: YouVersionImageSearchResults
+                if let pendingSearchPage {
+                    page = pendingSearchPage
+                } else {
+                    page = try await YouVersionAPI.Search.images(
+                        query: requestQuery,
+                        bibleID: 3034,
+                        pageSize: 30,
+                        pageToken: isFirstPage ? nil : nextPageToken
+                    )
+                    try Task.checkCancellation()
+                    guard requestID == retryID && requestQuery == submittedQuery else {
+                        return
                     }
-                    let resolved = try await group.reduce(into: [(Int, YouVersionImage)]()) { $0.append($1) }
-                    return resolved.sorted { $0.0 < $1.0 }.map(\.1)
+                    pendingSearchPage = page
+                    searchImageIDs = page.images.reduce(into: searchImageIDs) { ids, hit in
+                        if !ids.contains(hit.id) { ids.append(hit.id) }
+                    }
                 }
-                pageToken = page.nextPageToken
+                let pendingIDs = page.images.map(\.id).filter { searchImagesByRequestedID[$0] == nil }
+                let results = await withTaskGroup(of: (String, YouVersionImage?, String?).self) { group in
+                    for id in pendingIDs {
+                        group.addTask {
+                            do {
+                                return (id, try await YouVersionAPI.Images.image(id: id), nil)
+                            } catch {
+                                return (id, nil, error.localizedDescription)
+                            }
+                        }
+                    }
+                    return await group.reduce(into: [(String, YouVersionImage?, String?)]()) { $0.append($1) }
+                }
+                try Task.checkCancellation()
+                guard requestID == retryID && requestQuery == submittedQuery else {
+                    return
+                }
+                searchImagesByRequestedID = results.reduce(into: searchImagesByRequestedID) { resolved, result in
+                    if let image = result.1 { resolved[result.0] = image }
+                }
+                images = searchImageIDs.compactMap { searchImagesByRequestedID[$0] }
+                if let failure = results.compactMap(\.2).first {
+                    errorMessage = failure
+                    return
+                }
+                pendingSearchPage = nil
+                nextPageToken = page.nextPageToken
+                completedRequestID = requestID
+                return
             }
             try Task.checkCancellation()
             guard requestID == retryID && requestQuery == submittedQuery else {

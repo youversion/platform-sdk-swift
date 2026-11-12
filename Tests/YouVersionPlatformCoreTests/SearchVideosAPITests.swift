@@ -12,6 +12,7 @@ extension ConfigurationStateTests {
         {"videos":[],"user_intent":null,"did_you_mean":[],"search_instead_for":null}
         """
 
+        /// Resolves full video resources while preserving filters, language, thumbnails and query metadata.
         @MainActor
         @Test func fullResourcesResolveThumbnailsAndPreserveQueryMetadata() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey
@@ -61,6 +62,7 @@ extension ConfigurationStateTests {
             #expect(page.nextPageToken == "next+opaque/=")
         }
 
+        /// Preserves continuation on an empty page and allows the next page size to change.
         @Test func emptyPageCanContinueWithDifferentPageSize() async throws {
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }
@@ -92,6 +94,7 @@ extension ConfigurationStateTests {
             #expect(second.nextPageToken == nil)
         }
 
+        /// Rejects invalid query, publisher and page-size parameters before networking.
         @Test(arguments: [
             (query: "", organizationIDs: [String](), pageSize: Int?.none),
             (query: String(repeating: "a", count: 101), organizationIDs: [], pageSize: nil),
@@ -105,6 +108,7 @@ extension ConfigurationStateTests {
             } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
         }
 
+        /// Maps video-search HTTP failures through the shared API error handling.
         @Test(arguments: [
             (status: 401, expected: YouVersionAPIError.notPermitted),
             (status: 403, expected: YouVersionAPIError.notPermitted),
@@ -123,6 +127,7 @@ extension ConfigurationStateTests {
             }
         }
 
+        /// Propagates malformed video-search responses instead of returning an empty page.
         @Test func malformedResponseIsNotSilentlyAnEmptyPage() async {
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }

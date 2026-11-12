@@ -8,6 +8,7 @@ import Testing
 extension ConfigurationStateTests {
     @Suite(.serialized)
     struct VideoSearchAndPlaylistSelectionTests {
+        /// Preserves opaque unified video IDs and the requested result fields.
         @Test(arguments: [["videos"], ["videos", "verses"]])
         func unifiedPreservesVideoIDsAndRequestsVideoFields(fields: [String]) async throws {
             let (session, token) = HTTPMocking.makeSession()
@@ -28,6 +29,7 @@ extension ConfigurationStateTests {
             #expect(result.topics.isEmpty)
         }
 
+        /// Treats omitted, null and empty video results as an empty collection.
         @Test(arguments: [#"{}"#, #"{"videos":[]}"#, #"{"videos":null}"#])
         func absentVideoResultsAreEmpty(json: String) async throws {
             let (session, token) = HTTPMocking.makeSession()
@@ -39,6 +41,7 @@ extension ConfigurationStateTests {
             #expect(result.videos.isEmpty)
         }
 
+        /// Rejects video hits without a valid string identifier.
         @Test(arguments: [#"{"videos":[{}]}"#, #"{"videos":[{"id":null}]}"#, #"{"videos":[{"id":42}]}"#])
         func malformedVideoHitsFailDecoding(json: String) async throws {
             let (session, token) = HTTPMocking.makeSession()
@@ -51,6 +54,7 @@ extension ConfigurationStateTests {
             }
         }
 
+        /// Preserves selected playlist fields, page sizes and opaque continuation tokens.
         @Test(arguments: [nil, "1", "99", "*"])
         func selectedPlaylistsPreserveFieldsAndCursor(pageSize: String?) async throws {
             let (session, token) = HTTPMocking.makeSession()
@@ -84,6 +88,7 @@ extension ConfigurationStateTests {
             #expect(page.nextPageToken == "next+token")
         }
 
+        /// Decodes every supported playlist selection field.
         @Test
         func selectedPlaylistDecodesAllSupportedFields() throws {
             let json = #"{"data":[{"id":12,"title":"Creation","description":"Description","type":"VIDEOS","total":0,"videos":[]}]}"#
@@ -97,6 +102,7 @@ extension ConfigurationStateTests {
             #expect(try JSONDecoder().decode(YouVersionVideoPlaylistCollection.self, from: JSONEncoder().encode(page)) == page)
         }
 
+        /// Leaves unselected playlist fields absent for an identifier-only response.
         @Test
         func identifierOnlySelectionLeavesOtherFieldsAbsent() throws {
             let json = #"{"data":[{"id":12}]}"#
@@ -108,6 +114,7 @@ extension ConfigurationStateTests {
             #expect(playlist.total == nil)
         }
 
+        /// Maps a no-content selection response to an empty playlist page.
         @Test
         func selectedPlaylistNoContentReturnsEmptyPage() async throws {
             let (session, token) = HTTPMocking.makeSession()
@@ -122,6 +129,7 @@ extension ConfigurationStateTests {
             #expect(search.videos.isEmpty)
         }
 
+        /// Rejects invalid numeric playlist page sizes before networking.
         @Test(arguments: ["0", "100", "-1", "", "invalid", "01", "1.5"])
         func invalidSelectionPageSizeIsRejected(pageSize: String) async {
             await #expect(throws: YouVersionAPIRequestError.self) {
@@ -129,6 +137,7 @@ extension ConfigurationStateTests {
             }
         }
 
+        /// Rejects wildcard pagination without one to three supported fields.
         @Test(arguments: [nil, [], ["unknown"], ["id", "title", "type", "total"]] as [[String]?])
         func invalidWildcardSelectionIsRejected(fields: [String]?) async {
             await #expect(throws: YouVersionAPIRequestError.self) {
