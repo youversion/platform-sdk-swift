@@ -91,6 +91,10 @@ public enum YouVersionAPI {
         return (data, httpResponse)
     }
 
+    // TODO(next major): return `.missingAuthentication` for 401 so it's distinguishable from 403. Kept as
+    // `.notPermitted` to avoid a breaking change for callers that catch it. See YPE-6416.
+    // TODO(next major): throw `responseError(for:data:)` instead of `.cannotDownload`, make
+    // `YouVersionAPIResponseError` public, and document it in each endpoint's `Throws`. See YPE-6416.
     /// Returns the error that describes an unsuccessful HTTP response.
     ///
     /// - Parameters:
@@ -100,14 +104,10 @@ public enum YouVersionAPI {
     ///   `YouVersionAPIError.cannotDownload` for any other status.
     static func error(for httpResponse: HTTPURLResponse, data: Data) -> any Error {
         switch httpResponse.statusCode {
-        // TODO(next major): return `.missingAuthentication` for 401 so it's distinguishable from 403. Kept as
-        // `.notPermitted` to avoid a breaking change for callers that catch it. See YPE-6416.
         case 401, 403:
             YouVersionPlatformLogger.error("\(httpResponse.statusCode): not permitted; check your appKey and its entitlements.", category: "API")
             return YouVersionAPIError.notPermitted
         default:
-            // TODO(next major): throw `responseError(for:data:)` instead of `.cannotDownload`, make
-            // `YouVersionAPIResponseError` public, and document it in each endpoint's `Throws`. See YPE-6416.
             return YouVersionAPIError.cannotDownload
         }
     }
