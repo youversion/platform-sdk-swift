@@ -26,23 +26,6 @@ extension BibleVersionsViewModel {
         return .notDownloadable
     }
 
-    /// `versions` with the current version moved to the front, when the version
-    /// picker is configured to open to the full list. Otherwise returns `versions`
-    /// unchanged, so the picker's full list leads with the version the reader is
-    /// already on.
-    func versionsPinningCurrentFirst(_ versions: [BibleVersion]) -> [BibleVersion] {
-        guard YouVersionPlatformConfiguration.shouldOpenVersionPickerToAllVersions,
-              let currentId = currentVersion?.id,
-              let index = versions.firstIndex(where: { $0.id == currentId })
-        else {
-            return versions
-        }
-        var reordered = versions
-        let current = reordered.remove(at: index)
-        reordered.insert(current, at: 0)
-        return reordered
-    }
-
     public func switchToVersion(_ versionId: Int) {
         Task { await switchToVersion(versionId) }
     }

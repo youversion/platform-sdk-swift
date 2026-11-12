@@ -35,12 +35,7 @@ public struct YouVersionPlatformConfiguration {
     /// first, in this order. When empty (the default), the lists keep their standard
     /// order. Update it with ``setPreferredLanguageTags(_:)`` as the user's
     /// preferences change.
-    nonisolated(unsafe) public private(set) static var preferredLanguageTags: [String] = []
-
-    /// When `true`, the version picker opens directly to the full version list for
-    /// the current language, with the current version first, instead of the "my
-    /// versions" summary. When `false` (the default), it opens to the summary.
-    nonisolated(unsafe) public private(set) static var shouldOpenVersionPickerToAllVersions = false
+    nonisolated(unsafe) package private(set) static var preferredLanguageTags: [String] = []
 
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
@@ -105,13 +100,6 @@ public struct YouVersionPlatformConfiguration {
     @MainActor
     public static func setPreferredLanguageTags(_ tags: [String]) {
         Self.preferredLanguageTags = tags
-    }
-
-    /// Sets whether the version picker opens to the full version list. See
-    /// ``shouldOpenVersionPickerToAllVersions``.
-    @MainActor
-    public static func setShouldOpenVersionPickerToAllVersions(_ shouldOpen: Bool) {
-        Self.shouldOpenVersionPickerToAllVersions = shouldOpen
     }
 
     @MainActor

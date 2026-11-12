@@ -144,7 +144,7 @@ public struct BibleVersionsListView: View {
         guard let versions = viewModel.versionsByLanguageTag[language] else {
             return nil
         }
-        return filteredBibleVersions(viewModel.versionsPinningCurrentFirst(versions), matching: searchText)
+        return filteredBibleVersions(versions, matching: searchText)
     }
 
 }
