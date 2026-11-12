@@ -27,7 +27,7 @@ public extension YouVersionAPI {
         ///   - dayOfYear: The day of the year, from 1 through 366.
         ///   - languageRanges: Ordered basic language ranges that select the art's language.
         ///     Use `*` to select English; an empty array omits the parameter and `imageID` is `nil`.
-        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - accessToken: An optional access token. Otherwise uses and refreshes the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: The day's passage and day number, plus `imageID` when art exists for the requested ranges.
         /// - Throws:
@@ -46,7 +46,7 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url,
-                accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
+                accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session),
                 session: session
             )
             guard let decodedResponse = try? JSONDecoder().decode(YouVersionVerseOfTheDay.self, from: data) else {
@@ -60,7 +60,7 @@ public extension YouVersionAPI {
         /// - Parameters:
         ///   - languageRanges: Ordered basic language ranges that select the art's language.
         ///     Use `*` to select English; an empty array omits the parameter and every `imageID` is `nil`.
-        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - accessToken: An optional access token. Otherwise uses and refreshes the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: The year's verses, or an empty array when the server has no calendar data.
         /// - Throws:
@@ -78,7 +78,7 @@ public extension YouVersionAPI {
             }
             guard let data = try await YouVersionAPI.dataIfPresent(
                 at: url,
-                accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
+                accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session),
                 session: session
             ) else {
                 return []
