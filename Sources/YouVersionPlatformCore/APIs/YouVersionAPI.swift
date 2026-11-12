@@ -103,13 +103,11 @@ public enum YouVersionAPI {
         // TODO(next major): return `.missingAuthentication` for 401 so it's distinguishable from 403. Kept as
         // `.notPermitted` to avoid a breaking change for callers that catch it. See YPE-6416.
         case 401, 403:
+            YouVersionPlatformLogger.error("\(httpResponse.statusCode): not permitted; check your appKey and its entitlements.", category: "API")
             return YouVersionAPIError.notPermitted
         default:
             // TODO(next major): throw `responseError(for:data:)` instead of `.cannotDownload`, make
             // `YouVersionAPIResponseError` public, and document it in each endpoint's `Throws`. See YPE-6416.
-            if let message = responseError(for: httpResponse, data: data)?.message {
-                YouVersionPlatformLogger.error("\(httpResponse.statusCode): \(message)", category: "API")
-            }
             return YouVersionAPIError.cannotDownload
         }
     }
