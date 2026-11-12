@@ -8,7 +8,7 @@ public extension YouVersionAPI {
     struct Images {
         private init() {}
 
-        /// Returns a page of images matching all supplied filters.
+        /// Returns a page of images matching all supplied filters, or an empty page for HTTP 204.
         ///
         /// Configure a valid app key before calling this API. This returns metadata rather than image bytes.
         /// - Parameters:
@@ -18,7 +18,7 @@ public extension YouVersionAPI {
         ///     an empty array omits the language filter.
         ///   - pageSize: The number of results, from 1 through 99. Omit to use the server default of 25.
         ///   - pageToken: The opaque continuation token from a previous page.
-        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - accessToken: An optional access token. Otherwise uses and refreshes the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full image records, an optional total, and an optional continuation token.
         ///   Filters matching nothing produce an empty `images` array.
@@ -45,7 +45,7 @@ public extension YouVersionAPI {
             }
             guard let data = try await YouVersionAPI.dataIfPresent(
                 at: url,
-                accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
+                accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session),
                 session: session
             ) else {
                 return YouVersionImageCollection(images: [], totalSize: nil, nextPageToken: nil)
@@ -57,7 +57,7 @@ public extension YouVersionAPI {
         ///
         /// - Parameters:
         ///   - id: The opaque image ID returned by the Images, search, or Verse of the Day APIs.
-        ///   - accessToken: An optional access token. Defaults to the configured access token.
+        ///   - accessToken: An optional access token. Otherwise uses and refreshes the configured access token.
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full metadata including the image URL, passage, attribution, language, and dimensions.
         /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for an empty identifier;
@@ -76,7 +76,7 @@ public extension YouVersionAPI {
             }
             let data = try await YouVersionAPI.data(
                 at: url,
-                accessToken: providedToken ?? YouVersionPlatformConfiguration.accessToken,
+                accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session),
                 session: session
             )
             return try JSONDecoder().decode(YouVersionImage.self, from: data)

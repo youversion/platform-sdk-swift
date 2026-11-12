@@ -3,21 +3,23 @@ import YouVersionPlatformCore
 
 /// A moderately complex example widget that lets users tap or swipe through several images in a shuffling stack.
 /// It makes no YouVersionPlatform API calls; it demonstrates a SwiftUI approach to presenting supplied image data,
-/// using `VotdImageView` for each image on the stack. Supply a nonempty image array.
+/// using `VotdImageView` for the selected image and decorative previews behind it. Supply a nonempty image array.
 struct VotdImageStackView: View {
     let images: [YouVersionImage]
+    var onSelectionChange: ((YouVersionImage) -> Void)?
+    var onImageTap: ((YouVersionImage) -> Void)?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @GestureState private var isDragging = false
     @State private var dragOffset = CGSize.zero
     @State private var flightsByID: [String: CardFlight] = [:]
     @State private var shuffleCount = 0
-    @State private var selectedIndex = 0
+    @State private var selectedImageID: String?
 
     private static let visibleCardCount = 3
 
-    private var selectedID: String {
-        images[selectedIndex].id
+    private var selectedIndex: Int {
+        images.firstIndex { $0.id == selectedImageID } ?? 0
     }
 
     private var visibleImages: [YouVersionImage] {
@@ -40,28 +42,34 @@ struct VotdImageStackView: View {
                         let stackDepth = flight?.isReturning == false ? 0 : min(cardDepth, Self.visibleCardCount - 1)
                         let restingAngle = (images.firstIndex { $0.id == image.id } ?? 0).isMultiple(of: 2) ? 4.0 : -5.0
                         let isOnTop = cardDepth == 0 || flight?.isReturning == false
-                        VotdImageView(image: image) {
-                            guard selectedID == image.id && dragOffset == .zero else {
+                        VotdImageView(image: image, presentation: cardDepth == 0 ? .standard : .decorative) {
+                            guard images[selectedIndex].id == image.id && dragOffset == .zero else {
                                 return
                             }
-                            shuffle(toward: -1, width: geometry.size.width)
+                            if onImageTap != nil {
+                                onImageTap?(image)
+                            } else {
+                                shuffle(toward: -1, width: geometry.size.width)
+                            }
                         }
-                            .frame(width: max(geometry.size.width - 48, 1), height: geometry.size.height - 40)
-                            .scaleEffect(1 - Double(stackDepth) * 0.035)
-                            .rotationEffect(.degrees(
-                                isOnTop ? Double(offset.width / 24) : restingAngle
-                            ))
-                            .offset(
-                                x: offset.width + (stackDepth == 1 ? 7 : -Double(stackDepth) * 3),
-                                y: offset.height + Double(stackDepth) * 6
-                            )
-                            .shadow(color: .black.opacity(0.18), radius: 12, y: 8)
-                            .zIndex(flight?.zIndex ?? -Double(cardDepth))
-                            .allowsHitTesting(cardDepth == 0)
-                            .accessibilityIdentifier("votd.image.\(cardDepth)")
-                            .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
+                        .scaleEffect(1 - Double(stackDepth) * 0.035)
+                        .rotationEffect(.degrees(
+                            isOnTop ? Double(offset.width / 24) : restingAngle
+                        ))
+                        .offset(
+                            x: offset.width + (stackDepth == 1 ? 7 : -Double(stackDepth) * 3),
+                            y: offset.height + Double(stackDepth) * 6
+                        )
+                        .shadow(color: .black.opacity(0.18), radius: 12, y: 8)
+                        .opacity(flight?.isReturning == true && cardDepth >= Self.visibleCardCount ? 0 : 1)
+                        .zIndex(flight?.zIndex ?? -Double(cardDepth))
+                        .accessibilityIdentifier("votd.image.\(cardDepth)")
+                        .accessibilityHidden(cardDepth != 0)
+                        .simultaneousGesture(cardDepth == 0 && images.count > 1 ? swipeGesture(for: image.id, width: geometry.size.width) : nil)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 20)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .aspectRatio(0.85, contentMode: .fit)
@@ -69,21 +77,24 @@ struct VotdImageStackView: View {
             HStack(spacing: 8) {
                 ForEach(indicatorImages) { image in
                     Circle()
-                        .fill(image.id == selectedID ? Color.primary : Color.secondary.opacity(0.3))
+                        .fill(image.id == images[selectedIndex].id ? Color.primary : Color.secondary.opacity(0.3))
                         .frame(width: 6, height: 6)
                 }
             }
-
+            
             Text(String(
-                format: images.count > 1
-                    ? String(localized: "votd.image_position_hint")
-                    : String(localized: "votd.image_position"),
+                format: images.count > 1 && onImageTap == nil
+                ? String(localized: "votd.image_position_hint")
+                : String(localized: "votd.image_position"),
                 selectedIndex + 1,
                 images.count
             ))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("votd.imagePosition")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .accessibilityIdentifier("votd.imagePosition")
+        }
+        .onChange(of: images[selectedIndex].id, initial: true) {
+            onSelectionChange?(images[selectedIndex])
         }
         .onChange(of: isDragging) {
             if !isDragging {
@@ -109,13 +120,13 @@ struct VotdImageStackView: View {
                 isDragging = true
             }
             .onChanged { value in
-                guard !reduceMotion && selectedID == id && abs(value.translation.width) > abs(value.translation.height) else {
+                guard !reduceMotion && images[selectedIndex].id == id && abs(value.translation.width) > abs(value.translation.height) else {
                     return
                 }
                 dragOffset = CGSize(width: value.translation.width, height: value.translation.height * 0.15)
             }
             .onEnded { value in
-                guard selectedID == id else {
+                guard images[selectedIndex].id == id else {
                     return
                 }
                 let horizontalDistance = value.predictedEndTranslation.width
@@ -129,19 +140,19 @@ struct VotdImageStackView: View {
         guard images.count > 1 else {
             return
         }
-        let currentID = selectedID
+        let currentID = images[selectedIndex].id
         let nextIndex = (selectedIndex + 1) % images.count
+        let nextID = images[nextIndex].id
         var transaction = Transaction()
         transaction.disablesAnimations = true
         if reduceMotion {
             withTransaction(transaction) {
                 flightsByID.removeAll()
                 dragOffset = .zero
-                selectedIndex = nextIndex
+                selectedImageID = nextID
             }
             return
         }
-        let nextID = images[nextIndex].id
         let flightID = UUID()
         shuffleCount += 1
         withTransaction(transaction) {
@@ -150,16 +161,14 @@ struct VotdImageStackView: View {
             dragOffset = .zero
         }
         withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2), completionCriteria: .removed) {
-            selectedIndex = nextIndex
+            selectedImageID = nextID
             flightsByID[currentID]?.offset = CGSize(width: direction * (width + 24), height: 12)
         } completion: {
             guard flightsByID[currentID]?.id == flightID else {
                 return
             }
-            withTransaction(transaction) {
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.3), completionCriteria: .removed) {
                 flightsByID[currentID]?.isReturning = true
-            }
-            withAnimation(reduceMotion ? nil : .spring(duration: 0.38, bounce: 0.12), completionCriteria: .removed) {
                 flightsByID[currentID]?.offset = .zero
             } completion: {
                 guard flightsByID[currentID]?.id == flightID else {

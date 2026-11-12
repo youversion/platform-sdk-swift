@@ -189,6 +189,28 @@ struct ImagesAPITests {
         }
     }
 
+    /// Treats HTTP 204 as an empty list while preserving the missing-detail error.
+    @Test(arguments: [false, true])
+    func noContentReturnsEmptyCollectionButFailsForDetail(isDetail: Bool) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+        }
+        if isDetail {
+            await #expect {
+                try await YouVersionAPI.Images.image(id: "opaque", accessToken: "images-tests", session: session)
+            } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
+        } else {
+            let result = try await YouVersionAPI.Images.images(
+                passageID: "GEN.15.1", accessToken: "images-tests", session: session
+            )
+            #expect(result.images.isEmpty)
+            #expect(result.totalSize == nil)
+            #expect(result.nextPageToken == nil)
+        }
+    }
+
     @Test(arguments: ["id", "image_url", "passage_id", "attribution", "language_tag", "width", "height", "aspect_ratio"])
     func everyImageFieldIsRequired(field: String) throws {
         var object = try #require(JSONSerialization.jsonObject(with: Data(imageJSON.utf8)) as? [String: Any])

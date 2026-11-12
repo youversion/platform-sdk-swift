@@ -1,0 +1,329 @@
+import SwiftUI
+import YouVersionPlatform
+
+struct ContentImagesView: View {
+    let navigation: BibleReaderNavigation
+    let onNavigate: () -> Void
+    @State private var query = ""
+    @State private var submittedQuery = ""
+    @State private var images: [YouVersionImage] = []
+    @State private var nextPageToken: String?
+    @State private var errorMessage: String?
+    @State private var validationMessage: String?
+    @State private var isFirstPage = true
+    @State private var isLoading = false
+    @State private var retryID = UUID()
+    @State private var completedRequestID: UUID?
+    @State private var pendingSearchPage: YouVersionImageSearchResults?
+    @State private var searchImageIDs: [String] = []
+    @State private var searchImagesByRequestedID: [String: YouVersionImage] = [:]
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField("Search for images", text: $query)
+                        .textInputAutocapitalization(.sentences)
+                        .autocorrectionDisabled()
+                        .submitLabel(.search)
+                        .onSubmit { submitSearch() }
+                        .accessibilityIdentifier("content.imageSearch")
+                    if !query.isEmpty {
+                        Button {
+                            query = ""
+                            submitSearch()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                        }
+                        .accessibilityLabel("Clear search")
+                    }
+                }
+                .padding(12)
+                .background(.quaternary, in: .capsule)
+                if let validationMessage {
+                    Text(validationMessage).foregroundStyle(.secondary)
+                } else {
+                    if let errorMessage {
+                        Text(errorMessage).foregroundStyle(.secondary)
+                        Button("Retry") { retryID = UUID() }
+                    }
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                        ForEach(images) { image in
+                            NavigationLink {
+                                ContentImageView(image: image, navigation: navigation, onNavigate: onNavigate)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    VotdImageView(image: image)
+                                        .frame(maxWidth: .infinity)
+                                        .aspectRatio(1, contentMode: .fit)
+                                    Label(image.passageID, systemImage: "book.closed")
+                                        .font(.caption.weight(.semibold))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    if isLoading {
+                        ProgressView().frame(maxWidth: .infinity)
+                    } else if errorMessage == nil && images.isEmpty {
+                        ContentUnavailableView {
+                            Label("No images found", systemImage: "photo.on.rectangle")
+                        } description: {
+                            if !submittedQuery.isEmpty {
+                                Text("There are no images for \(submittedQuery)")
+                            }
+                        }
+                    }
+                    if nextPageToken != nil && !isLoading && errorMessage == nil {
+                        Button("Load more") {
+                            isFirstPage = false
+                            retryID = UUID()
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+            .padding(20)
+        }
+        .task(id: retryID) {
+            guard completedRequestID != retryID else {
+                return
+            }
+            await loadImages(isFirstPage: isFirstPage)
+        }
+    }
+
+    private func submitSearch() {
+        let searchQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard searchQuery.count <= 100 else {
+            validationMessage = String(localized: "Enter a search of 100 characters or fewer.")
+            return
+        }
+        validationMessage = nil
+        isFirstPage = true
+        submittedQuery = searchQuery
+        images = []
+        nextPageToken = nil
+        pendingSearchPage = nil
+        searchImageIDs = []
+        searchImagesByRequestedID = [:]
+        retryID = UUID()
+    }
+
+    private func loadImages(isFirstPage: Bool) async {
+        let requestID = retryID
+        let requestQuery = submittedQuery
+        isLoading = true
+        errorMessage = nil
+        defer {
+            if requestID == retryID { isLoading = false }
+        }
+        do {
+            let pageImages: [YouVersionImage]
+            let pageToken: String?
+            if requestQuery.isEmpty {
+                let page = try await YouVersionAPI.Images.images(
+                    pageSize: 30,
+                    pageToken: isFirstPage ? nil : nextPageToken
+                )
+                pageImages = page.images
+                pageToken = page.nextPageToken
+            } else {
+                let page: YouVersionImageSearchResults
+                if let pendingSearchPage {
+                    page = pendingSearchPage
+                } else {
+                    page = try await YouVersionAPI.Search.images(
+                        query: requestQuery,
+                        bibleID: 3034,
+                        pageSize: 30,
+                        pageToken: isFirstPage ? nil : nextPageToken
+                    )
+                    try Task.checkCancellation()
+                    guard requestID == retryID && requestQuery == submittedQuery else {
+                        return
+                    }
+                    pendingSearchPage = page
+                    searchImageIDs = page.images.reduce(into: searchImageIDs) { ids, hit in
+                        if !ids.contains(hit.id) { ids.append(hit.id) }
+                    }
+                }
+                let pendingIDs = page.images.map(\.id).filter { searchImagesByRequestedID[$0] == nil }
+                let results = await withTaskGroup(of: (String, YouVersionImage?, String?).self) { group in
+                    for id in pendingIDs {
+                        group.addTask {
+                            do {
+                                return (id, try await YouVersionAPI.Images.image(id: id), nil)
+                            } catch {
+                                return (id, nil, error.localizedDescription)
+                            }
+                        }
+                    }
+                    return await group.reduce(into: [(String, YouVersionImage?, String?)]()) { $0.append($1) }
+                }
+                try Task.checkCancellation()
+                guard requestID == retryID && requestQuery == submittedQuery else {
+                    return
+                }
+                searchImagesByRequestedID = results.reduce(into: searchImagesByRequestedID) { resolved, result in
+                    if let image = result.1 { resolved[result.0] = image }
+                }
+                images = searchImageIDs.compactMap { searchImagesByRequestedID[$0] }
+                if let failure = results.compactMap(\.2).first {
+                    errorMessage = failure
+                    return
+                }
+                pendingSearchPage = nil
+                nextPageToken = page.nextPageToken
+                completedRequestID = requestID
+                return
+            }
+            try Task.checkCancellation()
+            guard requestID == retryID && requestQuery == submittedQuery else {
+                return
+            }
+            let existingIDs = Set(images.map(\.id))
+            images += pageImages.filter { !existingIDs.contains($0.id) }
+            nextPageToken = pageToken
+            completedRequestID = requestID
+        } catch {
+            if !Task.isCancelled && requestID == retryID { errorMessage = error.localizedDescription }
+        }
+    }
+}
+
+struct ContentImageView: View {
+    let image: YouVersionImage
+    let navigation: BibleReaderNavigation
+    let onNavigate: () -> Void
+    @State private var images: [YouVersionImage] = []
+    @State private var selectedImage: YouVersionImage?
+    @State private var displayedImage: YouVersionImage?
+    @State private var title = ""
+    @State private var errorMessage: String?
+    @State private var retryID = UUID()
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                VotdImageStackView(
+                    images: images.isEmpty ? [image] : images,
+                    onSelectionChange: { displayedImage = $0 }
+                ) { selectedImage = $0 }
+                if let errorMessage {
+                    Text(errorMessage).foregroundStyle(.secondary)
+                    Button("Retry") { retryID = UUID() }
+                }
+            }
+            .padding(20)
+        }
+        .navigationTitle(Text(verbatim: ""))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbar { ShareLink(item: (displayedImage ?? image).url) }
+        // The suggested yvFullScreenCover modifier is not defined in this package.
+        // swiftlint:disable:next swiftui_fullscreencover
+        .fullScreenCover(item: $selectedImage) { selected in
+            ContentImageViewer(image: selected, navigation: navigation, onNavigate: onNavigate)
+        }
+        .task(id: retryID) {
+            do {
+                async let version = BibleVersionRepository.shared.version(withId: 3034)
+                async let page = YouVersionAPI.Images.images(passageID: image.passageID, pageSize: 99)
+                let (bibleVersion, firstPage) = try await (version, page)
+                try Task.checkCancellation()
+                if let reference = bibleVersion.reference(with: image.passageID) {
+                    title = bibleVersion.displayTitle(for: reference, includesVersionAbbreviation: false)
+                }
+                images = [image] + firstPage.images.filter { $0.id != image.id }
+                var token = firstPage.nextPageToken
+                var visitedTokens: Set<String> = []
+                while let pageToken = token {
+                    guard visitedTokens.insert(pageToken).inserted else {
+                        throw YouVersionAPIError.invalidResponse
+                    }
+                    let next = try await YouVersionAPI.Images.images(passageID: image.passageID, pageSize: 99, pageToken: pageToken)
+                    try Task.checkCancellation()
+                    let existingIDs = Set(images.map(\.id))
+                    images += next.images.filter { !existingIDs.contains($0.id) }
+                    token = next.nextPageToken
+                }
+                errorMessage = nil
+            } catch {
+                if !Task.isCancelled { errorMessage = error.localizedDescription }
+            }
+        }
+    }
+}
+
+private struct ContentImageViewer: View {
+    let image: YouVersionImage
+    let navigation: BibleReaderNavigation
+    let onNavigate: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var reference: BibleReference?
+    @State private var title = ""
+    @State private var errorMessage: String?
+    @State private var retryID = UUID()
+
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark").frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Close image")
+                Spacer()
+                ShareLink(item: image.url)
+            }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    VotdImageView(image: image)
+                    Text("Verses in this image").font(.caption)
+                    Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                    if let reference {
+                        BibleCardView(reference: reference, fontSize: 18, showVersionPicker: false)
+                    }
+                    Text(image.attribution).font(.caption).foregroundStyle(.secondary)
+                    if let errorMessage {
+                        Text(errorMessage).font(.callout)
+                        Button("Retry") { retryID = UUID() }
+                    }
+                }
+            }
+            Button {
+                guard let reference else {
+                    return
+                }
+                navigation.request(reference, showsFullChapter: true)
+                dismiss()
+                onNavigate()
+            } label: {
+                Label("Read in Bible", systemImage: "book.closed")
+                    .frame(maxWidth: .infinity)
+                    .padding(12)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(reference == nil)
+        }
+        .padding(20)
+        .background(.black)
+        .preferredColorScheme(.dark)
+        .task(id: retryID) {
+            errorMessage = nil
+            do {
+                let version = try await BibleVersionRepository.shared.version(withId: 3034)
+                try Task.checkCancellation()
+                guard let resolved = version.reference(with: image.passageID) else {
+                    throw YouVersionAPIError.invalidResponse
+                }
+                reference = resolved
+                title = version.displayTitle(for: resolved, includesVersionAbbreviation: true)
+            } catch {
+                if !Task.isCancelled { errorMessage = error.localizedDescription }
+            }
+        }
+    }
+}

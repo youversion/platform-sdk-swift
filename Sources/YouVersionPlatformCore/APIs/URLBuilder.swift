@@ -9,6 +9,19 @@ public enum URLBuilder {
         return components
     }
 
+    private static func url(pathSegments: [String], queryItems: [URLQueryItem] = []) -> URL? {
+        let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
+        let encodedSegments = pathSegments.compactMap { $0.addingPercentEncoding(withAllowedCharacters: allowedCharacters) }
+        guard encodedSegments.count == pathSegments.count else {
+            return nil
+        }
+        var components = baseURLComponents
+        components.percentEncodedPath = "/" + encodedSegments.joined(separator: "/")
+        components.queryItems = queryItems.isEmpty ? nil : queryItems
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        return components.url
+    }
+
     /// Returns a collection URL while preserving the caller's filter order and opaque page token.
     static func imagesURL(
         passageID: String?,
@@ -16,8 +29,6 @@ public enum URLBuilder {
         pageSize: Int?,
         pageToken: String?
     ) -> URL? {
-        var components = baseURLComponents
-        components.path = "/v1/images"
         var queryItems = languageRanges.map { URLQueryItem(name: "language_ranges[]", value: $0) }
         if let passageID {
             queryItems.append(URLQueryItem(name: "passage_id", value: passageID))
@@ -28,22 +39,37 @@ public enum URLBuilder {
         if let pageToken {
             queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
         }
-        components.queryItems = queryItems.isEmpty ? nil : queryItems
-        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
-        return components.url
+        return url(pathSegments: ["v1", "images"], queryItems: queryItems)
     }
 
-    /// Returns a detail URL with the opaque identifier encoded as a single path segment.
+    /// Returns a detail URL with the ID encoded as a single path segment.
     static func imageURL(id: String) -> URL? {
-        var components = baseURLComponents
-        let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_~"))
-        guard let encodedID = id.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
-            return nil
-        }
-        components.percentEncodedPath = "/v1/images/" + encodedID
-        return components.url
+        url(pathSegments: ["v1", "images", id])
     }
 
+    // TODO: Use /v1 for selected playlist fields once stable applies fields[] filtering.
+    /// Returns a playlist field-selection URL with an optional numeric or wildcard page size.
+    static func videoPlaylistsURL(organizationID: String, fields: [String]? = nil, pageSize: String?, pageToken: String?) -> URL? {
+        var queryItems = (fields ?? []).map { URLQueryItem(name: "fields[]", value: $0) }
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: pageSize))
+        }
+        if let pageToken { queryItems.append(URLQueryItem(name: "page_token", value: pageToken)) }
+        let channel = (fields?.isEmpty ?? true) ? "v1" : "v1-beta"
+        return url(pathSegments: [channel, "organizations", organizationID, "playlists"], queryItems: queryItems)
+    }
+
+    /// Returns a playlist resource URL within its organization.
+    static func videoPlaylistURL(organizationID: String, id: Int) -> URL? {
+        url(pathSegments: ["v1", "organizations", organizationID, "playlists", String(id)])
+    }
+
+    /// Returns a video URL with the ID encoded as a single path segment.
+    static func videoURL(id: String) -> URL? {
+        url(pathSegments: ["v1", "videos", id])
+    }
+
+    /// Returns an image-search URL with optional page size and continuation token.
     static func searchImagesURL(
         query: String,
         bibleID: Int,
@@ -65,6 +91,20 @@ public enum URLBuilder {
         components.queryItems = queryItems
         components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         return components.url
+    }
+
+    // TODO: Return video search to /v1 once the endpoint is promoted to stable.
+    /// Returns a video-search URL preserving repeated organization filters and opaque continuation tokens.
+    static func searchVideosURL(query: String, organizationIDs: [String], pageSize: Int?, pageToken: String?) -> URL? {
+        var queryItems = [URLQueryItem(name: "query", value: query)]
+            + organizationIDs.map { URLQueryItem(name: "organization_ids[]", value: $0) }
+        if let pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: String(pageSize)))
+        }
+        if let pageToken {
+            queryItems.append(URLQueryItem(name: "page_token", value: pageToken))
+        }
+        return url(pathSegments: ["v1-beta", "search-videos"], queryItems: queryItems)
     }
 
     static func userURL(accessToken: String) -> URL? {
