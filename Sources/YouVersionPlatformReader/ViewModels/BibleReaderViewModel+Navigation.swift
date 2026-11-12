@@ -140,60 +140,6 @@ extension BibleReaderViewModel {
         }
     }
 
-    private func selectedVersesWithColor(_ color: Color) -> Set<BibleReference> {
-        guard let hex = color.hexString else {
-            return []
-        }
-        return Set(selectedVerses.filter { reference in
-            highlightsViewModel.highlights(for: reference).contains { highlight in
-                isSameHexColor(highlight.color, hex)
-            }
-        })
-    }
-
-    func isColorPresentOnAnySelectedVerses(_ color: Color) -> Bool {
-        !selectedVersesWithColor(color).isEmpty
-    }
-
-    func isColorPresentOnAllSelectedVerses(_ color: Color) -> Bool {
-        !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
-    }
-
-    func hexColorValueForComparison(_ color: String) -> String {
-        guard color.starts(with: "#") else {
-            return color
-        }
-        return String(color.dropFirst())
-    }
-
-    func isSameHexColor(_ a: String, _ b: String) -> Bool {
-        let cleanA = hexColorValueForComparison(a)
-        let cleanB = hexColorValueForComparison(b)
-        return cleanA.localizedCaseInsensitiveCompare(cleanB) == .orderedSame
-    }
-
-    func addVerseColor(_ color: Color) {
-        guard let hex = color.hexString else {
-            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
-            return
-        }
-        addHighlightOrStartPermissionFlow(references: selectedVerses, color: hex)
-    }
-
-    func removeVerseColor(_ color: Color) {
-        guard let hex = color.hexString else {
-            YouVersionPlatformLogger.error("Unable to convert color to hex: \(color)", category: "Reader")
-            return
-        }
-        for reference in selectedVerses {
-            let highlights = highlightsViewModel.highlights(for: reference)
-            for highlight in highlights where isSameHexColor(highlight.color, hex) {
-                highlightsViewModel.removeHighlights(references: [reference])
-            }
-        }
-        removeVerseSelection()
-    }
-
     func shareableVerseText(references: [BibleReference]) async -> String {
         guard !references.isEmpty else {
             return ""

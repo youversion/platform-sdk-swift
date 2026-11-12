@@ -95,6 +95,10 @@ public struct BibleTextView: View {
         self.sourceHTML = sourceHTML
     }
 
+    var versionLayoutDirection: LayoutDirection {
+        isVersionRightToLeft ? .rightToLeft : .leftToRight
+    }
+
     private static func blocks(
         parsedFrom html: String,
         reference: BibleReference,
@@ -118,22 +122,14 @@ public struct BibleTextView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            if let phase = loadingPhase {
-                if let placeholder {
-                    placeholder(phase)
-                } else {
-                    standardPlaceholder(phase: phase)
-                }
-            } else {
-                ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                    let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
-                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
-                }
-            }
-        }
+        blockStack
+        .highlightLayer(
+            textOptions: textOptions,
+            lineSpacing: fontRelativeLineSpacing(textOptions: textOptions),
+            focusedReference: focusedReference
+        )
         .preference(key: ChapterScrollAnchorsKey.self, value: chapterScrollAnchors)
-        .environment(\.layoutDirection, isVersionRightToLeft ? .rightToLeft : .leftToRight)
+        .environment(\.layoutDirection, versionLayoutDirection)
         .environment(\.openURL, OpenURLAction(handler: { url in
             if let reference = parseReference(url: url) {
                 let footnodeId = url.fragment()
@@ -159,6 +155,23 @@ public struct BibleTextView: View {
         .onReceive(NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)) { _ in
             if YouVersionAPI.isSignedIn && YouVersionPlatformConfiguration.hasPermission("highlights") {
                 BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(reference, forceReload: true)
+            }
+        }
+    }
+
+    private var blockStack: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let phase = loadingPhase {
+                if let placeholder {
+                    placeholder(phase)
+                } else {
+                    standardPlaceholder(phase: phase)
+                }
+            } else {
+                ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
+                    let previousMarginBottom = index == 0 ? 0.0 : blocks[index - 1].marginBottom
+                    view(for: block, textOptions: textOptions, ignoreMarginTop: index == 0, previousMarginBottom: previousMarginBottom, darkMode: colorScheme == .dark)
+                }
             }
         }
     }

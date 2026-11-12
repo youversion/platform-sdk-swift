@@ -13961,6 +13961,82 @@
                 "accessorKind": "get"
               }
             ]
+          },
+          {
+            "kind": "Function",
+            "name": "rgbValue",
+            "printedName": "rgbValue(fromHex:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.UInt32?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt32",
+                    "printedName": "Swift.UInt32",
+                    "usr": "s:s6UInt32V"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:7SwiftUI5ColorV018YouVersionPlatformB0E8rgbValue7fromHexs6UInt32VSgSS_tFZ",
+            "mangledName": "$s7SwiftUI5ColorV018YouVersionPlatformB0E8rgbValue7fromHexs6UInt32VSgSS_tFZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "isInternal": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "isDarkHighlight",
+            "printedName": "isDarkHighlight",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:7SwiftUI5ColorV018YouVersionPlatformB0E15isDarkHighlightSbvp",
+            "mangledName": "$s7SwiftUI5ColorV018YouVersionPlatformB0E15isDarkHighlightSbvp",
+            "moduleName": "YouVersionPlatformUI",
+            "isInternal": true,
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI5ColorV018YouVersionPlatformB0E15isDarkHighlightSbvg",
+                "mangledName": "$s7SwiftUI5ColorV018YouVersionPlatformB0E15isDarkHighlightSbvg",
+                "moduleName": "YouVersionPlatformUI",
+                "isInternal": true,
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
           }
         ],
         "declKind": "Struct",
@@ -14105,6 +14181,178 @@
                     "kind": "TypeNameAlias",
                     "name": "Body",
                     "printedName": "SwiftUI.Color.Body",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:7SwiftUI4ViewP",
+            "mangledName": "$s7SwiftUI4ViewP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "Image",
+        "printedName": "Image",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "magnifyingGlass",
+            "printedName": "magnifyingGlass",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Image",
+                "printedName": "SwiftUI.Image",
+                "usr": "s:7SwiftUI5ImageV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:7SwiftUI5ImageV018YouVersionPlatformB0E15magnifyingGlassACvpZ",
+            "mangledName": "$s7SwiftUI5ImageV018YouVersionPlatformB0E15magnifyingGlassACvpZ",
+            "moduleName": "YouVersionPlatformUI",
+            "static": true,
+            "isInternal": true,
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Image",
+                    "printedName": "SwiftUI.Image",
+                    "usr": "s:7SwiftUI5ImageV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI5ImageV018YouVersionPlatformB0E15magnifyingGlassACvgZ",
+                "mangledName": "$s7SwiftUI5ImageV018YouVersionPlatformB0E15magnifyingGlassACvgZ",
+                "moduleName": "YouVersionPlatformUI",
+                "static": true,
+                "isInternal": true,
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:7SwiftUI5ImageV",
+        "mangledName": "$s7SwiftUI5ImageV",
+        "moduleName": "SwiftUICore",
+        "intro_Macosx": "10.15",
+        "intro_iOS": "13.0",
+        "intro_tvOS": "13.0",
+        "intro_watchOS": "6.0",
+        "declAttributes": [
+          "Frozen",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "Available",
+          "Available",
+          "Available",
+          "Available"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Transferable",
+            "printedName": "Transferable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Representation",
+                "printedName": "Representation",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Representation",
+                    "printedName": "SwiftUI.Image.Representation",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OpaqueTypeArchetype",
+                        "printedName": "some CoreTransferable.TransferRepresentation",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "TransferRepresentation",
+                            "printedName": "CoreTransferable.TransferRepresentation",
+                            "usr": "s:16CoreTransferable22TransferRepresentationP"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:16CoreTransferable0B0P",
+            "mangledName": "$s16CoreTransferable0B0P"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "View",
+            "printedName": "View",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Body",
+                    "printedName": "SwiftUI.Image.Body",
                     "children": [
                       {
                         "kind": "TypeNominal",

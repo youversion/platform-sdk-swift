@@ -10,6 +10,8 @@ struct BibleReaderDrawer: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
 
     private let buttonHeight = CGFloat(55)
+    private let darkModeHighlightOpacity = 0.2
+    private let highlightHexes = ["ffec5b", "b4ffc1", "bbf4ff", "ffdca7", "ffcff8", "dfdcff"]
 
     var body: some View {
         VStack {
@@ -39,13 +41,11 @@ struct BibleReaderDrawer: View {
     }
     
     private var highlightColors: [Color] {
-        [
-            Color(hex: "fffe00"),
-            Color(hex: "5DFF79"),
-            Color(hex: "00D6FF"),
-            Color(hex: "FFC66F"),
-            Color(hex: "FF95EF")
-        ]
+        highlightHexes.map { Color(hex: $0) }
+    }
+
+    private var isDarkTheme: Bool {
+        viewModel.colorTheme?.colorScheme == .dark
     }
 
     /// Cross-platform color-name lookup. UIColor is UIKit-only, so guard
@@ -67,14 +67,19 @@ struct BibleReaderDrawer: View {
     }
 
     private var highlightColorButtons: some View {
-        let colorsToRemove = highlightColors.filter(viewModel.isColorPresentOnAnySelectedVerses)
+        let hexesToRemove = viewModel.highlightHexesOnSelectedVerses
+            .filter { Color.rgbValue(fromHex: $0) != nil }
+            .sorted { (highlightHexes.firstIndex(of: $0) ?? .max, $0) < (highlightHexes.firstIndex(of: $1) ?? .max, $1) }
         let colorsToAdd = highlightColors.filter { !viewModel.isColorPresentOnAllSelectedVerses($0) }
         return HStack {
-            ForEach(colorsToRemove, id: \.self) { color in
-                Button(action: { viewModel.removeVerseColor(color) }) {
+            ForEach(hexesToRemove, id: \.self) { hex in
+                let color = Color(hex: hex)
+                Button(action: { viewModel.removeVerseColor(hex: hex) }) {
                     coloredCircle(with: color)
                         .overlay(
                             Image("highlight_checkmark", bundle: .YouVersionUIBundle)
+                                .renderingMode(.template)
+                                .foregroundStyle(checkmarkColor(for: color))
                         )
                 }
                 .accessibilityIdentifier("Remove \(accessibilityColorName(for: color)) highlight")
@@ -93,11 +98,15 @@ struct BibleReaderDrawer: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
     }
 
+    private func checkmarkColor(for color: Color) -> Color {
+        isDarkTheme || color.isDarkHighlight ? .white : Color(hex: "#121212")
+    }
+
     private func coloredCircle(with color: Color) -> some View {
         Circle()
-            .fill(color)
+            .fill(color.opacity(isDarkTheme ? darkModeHighlightOpacity : 1))
             .overlay(
-                Circle().strokeBorder(Color(hex: "#121212").opacity(0.2), lineWidth: 1)
+                Circle().strokeBorder(isDarkTheme ? Color.white.opacity(0.2) : Color(hex: "#121212").opacity(0.2), lineWidth: 1)
             )
             .frame(width: 36, height: 36)
     }

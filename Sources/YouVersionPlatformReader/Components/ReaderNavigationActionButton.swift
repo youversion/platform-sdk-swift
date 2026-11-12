@@ -1,5 +1,5 @@
 import SwiftUI
-import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 struct ReaderNavigationActionButton: View {
     @Environment(BibleReaderViewModel.self) private var viewModel

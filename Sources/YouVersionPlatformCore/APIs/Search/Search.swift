@@ -34,10 +34,27 @@ public struct YouVersionTopicSearchResults: Sendable {
     public let searchInsteadFor: String?
 }
 
-/// Bible references, related topics, and query metadata returned by a unified search.
+/// A lightweight verse-art search result. Resolve `id` with the Images API for full metadata.
+public struct YouVersionSearchImage: Sendable {
+    /// The opaque image identifier returned by the API.
+    public let id: String
+    /// The verse or verse range illustrated by the image, such as `JHN.3.16`.
+    public let passageID: String
+}
+
+/// One page of verse-art hits returned by an image search.
+public struct YouVersionImageSearchResults: Sendable {
+    /// The hits on this page. Resolve each `id` with the Images API for full metadata.
+    public let images: [YouVersionSearchImage]
+    /// The opaque token for the next page, or `nil` on the final page.
+    public let nextPageToken: String?
+}
+
+/// Bible references, related topics, images, and query metadata returned by a unified search.
 public struct YouVersionSearchResults: Sendable {
     public let references: [BibleReference]
     public let topics: [YouVersionSearchTopic]
+    public let images: [YouVersionSearchImage]
     public let userIntent: YouVersionSearchUserIntent?
     public let didYouMean: [String]
     public let searchInsteadFor: String?
@@ -116,6 +133,7 @@ private struct TopicSearchResultResponse: Decodable {
 private struct SearchResultsResponse: Decodable {
     let references: [VerseSearchResultResponse]
     let topics: [TopicSearchResultResponse]
+    let images: [SearchImageResponse]
     let userIntent: String?
     let didYouMean: [String]
     let searchInsteadFor: String?
@@ -123,9 +141,40 @@ private struct SearchResultsResponse: Decodable {
     enum CodingKeys: String, CodingKey {
         case references = "verses"
         case topics
+        case images
         case userIntent = "user_intent"
         case didYouMean = "did_you_mean"
         case searchInsteadFor = "search_instead_for"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        references = try container.decodeIfPresent([VerseSearchResultResponse].self, forKey: .references) ?? []
+        topics = try container.decodeIfPresent([TopicSearchResultResponse].self, forKey: .topics) ?? []
+        images = try container.decodeIfPresent([SearchImageResponse].self, forKey: .images) ?? []
+        userIntent = try container.decodeIfPresent(String.self, forKey: .userIntent)
+        didYouMean = try container.decodeIfPresent([String].self, forKey: .didYouMean) ?? []
+        searchInsteadFor = try container.decodeIfPresent(String.self, forKey: .searchInsteadFor)
+    }
+}
+
+private struct SearchImageResponse: Decodable {
+    let id: String
+    let passageID: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case passageID = "passage_id"
+    }
+}
+
+private struct ImageSearchResponse: Decodable {
+    let images: [SearchImageResponse]
+    let nextPageToken: String?
+
+    enum CodingKeys: String, CodingKey {
+        case images
+        case nextPageToken = "next_page_token"
     }
 }
 
@@ -174,7 +223,7 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    /// Returns a unified set of Bible references and topics matching `query`.
+    /// Returns a unified set of Bible references, topics, and images matching `query`.
     ///
     /// - Parameters:
     ///   - query: The search text. Must contain between 1 and 100 characters.
@@ -182,13 +231,13 @@ public extension YouVersionAPI.Search {
     ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
     ///     or `*` to match all languages.
     ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
-    ///   - fields: Result kinds to include. Pass `verses`, `topics`, or both. Defaults to all kinds.
+    ///   - fields: Result kinds to include: `verses`, `topics`, and/or `images`. Defaults to all kinds.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
-    /// - Returns: The matching Bible references, topics, and query metadata supplied by the API.
+    /// - Returns: The matching Bible references, topics, images, and query metadata supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or
-    ///     `languageRanges` is outside the range accepted by the API.
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `bibleID` is outside the accepted range,
+    ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
@@ -206,8 +255,7 @@ public extension YouVersionAPI.Search {
         guard (1...100).contains(query.count) &&
               bibleID > 0 &&
               Int32(exactly: bibleID) != nil &&
-              !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+              !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -222,13 +270,27 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionSearchResults(
+                references: [],
+                topics: [],
+                images: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil
+            )
+        }
         let response = try JSONDecoder().decode(SearchResultsResponse.self, from: data)
         return YouVersionSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
             topics: response.topics.map {
                 YouVersionSearchTopic(id: $0.id, text: $0.text, subtopics: $0.subtopics)
             },
+            images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
             userIntent: response.userIntent.map { YouVersionSearchUserIntent(rawValue: $0) },
             didYouMean: response.didYouMean,
             searchInsteadFor: response.searchInsteadFor
@@ -245,8 +307,8 @@ public extension YouVersionAPI.Search {
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching topics and query metadata supplied by the API.
     /// - Throws:
-    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` or `languageRanges`
-    ///     is outside the range accepted by the API.
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query` is outside the accepted range
+    ///     or `languageRanges` is empty.
     ///   - `URLError` if the request URL is invalid or the network request fails.
     ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
     ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
@@ -259,8 +321,7 @@ public extension YouVersionAPI.Search {
         session: URLSession = .shared
     ) async throws -> YouVersionTopicSearchResults {
         guard (1...100).contains(query.count) &&
-              !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+              !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -269,7 +330,13 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionTopicSearchResults(topics: [], didYouMean: [], searchInsteadFor: nil)
+        }
         let response = try JSONDecoder().decode(TopicSearchResponse.self, from: data)
         return YouVersionTopicSearchResults(
             topics: response.topics.map {
@@ -308,10 +375,7 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String? = nil,
         session: URLSession = .shared
     ) async throws -> YouVersionVerseSearchResults {
-        guard (1...100).contains(query.count) &&
-              bibleID > 0 &&
-              Int32(exactly: bibleID) != nil &&
-              pageSize.map({ (1...99).contains($0) }) ?? true else {
+        guard hasValidSearchParameters(query: query, bibleID: bibleID, pageSize: pageSize) else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
 
@@ -326,7 +390,19 @@ public extension YouVersionAPI.Search {
         }
 
         let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
-        let data = try await YouVersionAPI.data(at: url, accessToken: accessToken, session: session)
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionVerseSearchResults(
+                references: [],
+                userIntent: nil,
+                didYouMean: [],
+                searchInsteadFor: nil,
+                nextPageToken: nil
+            )
+        }
         let response = try JSONDecoder().decode(VerseSearchResponse.self, from: data)
         return YouVersionVerseSearchResults(
             references: response.references.compactMap { $0.bibleReference(versionID: bibleID) },
@@ -337,6 +413,70 @@ public extension YouVersionAPI.Search {
         )
     }
 
+    /// Returns one page of verse-art hits matching `query`.
+    ///
+    /// Send the returned `nextPageToken` as `pageToken` with the same `query`, `bibleID`, and `pageSize`
+    /// to load the next page.
+    ///
+    /// - Parameters:
+    ///   - query: The search text. Must contain between 1 and 100 characters.
+    ///   - bibleID: The identifier of the Bible version to search, which determines the language searched.
+    ///   - pageSize: The maximum number of results to return. When supplied, must be between 1 and 99.
+    ///   - pageToken: A continuation token returned by a previous image search.
+    ///   - accessToken: An optional access token. Defaults to the configured access token.
+    ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
+    /// - Returns: The page's image hits and any continuation token. A search matching nothing returns an empty `images` array.
+    /// - Throws:
+    ///   - `YouVersionAPIRequestError` with code `.invalidParameter` when `query`, `bibleID`, or `pageSize`
+    ///     is outside the range accepted by the API.
+    ///   - `URLError` if the request URL is invalid or the network request fails.
+    ///   - `YouVersionAPIError.notPermitted` if the request is unauthorized or forbidden.
+    ///   - `YouVersionAPIError.cannotDownload` if the server returns an unexpected status.
+    ///   - `YouVersionAPIError.invalidResponse` if the server response is not HTTP.
+    ///   - `DecodingError` if the response body is malformed.
+    static func images(
+        query: String,
+        bibleID: Int,
+        pageSize: Int? = nil,
+        pageToken: String? = nil,
+        accessToken providedToken: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> YouVersionImageSearchResults {
+        guard hasValidSearchParameters(query: query, bibleID: bibleID, pageSize: pageSize) else {
+            throw YouVersionAPIRequestError(code: .invalidParameter)
+        }
+
+        guard let url = URLBuilder.searchImagesURL(
+            query: query,
+            bibleID: bibleID,
+            pageSize: pageSize,
+            pageToken: pageToken
+        ) else {
+            throw URLError(.badURL)
+        }
+
+        let accessToken = providedToken ?? YouVersionPlatformConfiguration.accessToken
+        guard let data = try await YouVersionAPI.dataIfPresent(
+            at: url,
+            accessToken: accessToken,
+            session: session
+        ) else {
+            return YouVersionImageSearchResults(images: [], nextPageToken: nil)
+        }
+        let response = try JSONDecoder().decode(ImageSearchResponse.self, from: data)
+        return YouVersionImageSearchResults(
+            images: response.images.map { YouVersionSearchImage(id: $0.id, passageID: $0.passageID) },
+            nextPageToken: response.nextPageToken
+        )
+    }
+
+    private static func hasValidSearchParameters(query: String, bibleID: Int, pageSize: Int?) -> Bool {
+        (1...100).contains(query.count) &&
+            bibleID > 0 &&
+            Int32(exactly: bibleID) != nil &&
+            pageSize.map({ (1...99).contains($0) }) ?? true
+    }
+
     private static func queries(
         languageRanges: [String],
         query: String?,
@@ -344,8 +484,7 @@ public extension YouVersionAPI.Search {
         accessToken providedToken: String?,
         session: URLSession
     ) async throws -> [YouVersionSearchQuery] {
-        guard !languageRanges.isEmpty &&
-              languageRanges.allSatisfy(isValidLanguageRange) else {
+        guard !languageRanges.isEmpty else {
             throw YouVersionAPIRequestError(code: .invalidParameter)
         }
         guard let url = URLBuilder.searchQueriesURL(
@@ -366,13 +505,6 @@ public extension YouVersionAPI.Search {
         }
         let response = try JSONDecoder().decode(SearchQueriesResponse.self, from: data)
         return response.data.map { YouVersionSearchQuery(text: $0.text, source: $0.source) }
-    }
-
-    private static func isValidLanguageRange(_ languageRange: String) -> Bool {
-        languageRange == "*" || languageRange.range(
-            of: #"^[A-Za-z]{1,8}(-[0-9A-Za-z]{1,8})*\z"#,
-            options: .regularExpression
-        ) != nil
     }
 
     private static func searchTopicsURL(query: String, languageRanges: [String]) -> URL? {

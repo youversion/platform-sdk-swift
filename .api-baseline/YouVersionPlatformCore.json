@@ -784,6 +784,962 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "YouVersionImage",
+        "printedName": "YouVersionImage",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV2idSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV2idSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV2idSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV2idSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "url",
+            "printedName": "url",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV3url10Foundation3URLVvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV3url10Foundation3URLVvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URL",
+                    "printedName": "Foundation.URL",
+                    "usr": "s:10Foundation3URLV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV3url10Foundation3URLVvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV3url10Foundation3URLVvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "passageID",
+            "printedName": "passageID",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV9passageIDSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV9passageIDSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV9passageIDSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV9passageIDSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "attribution",
+            "printedName": "attribution",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV11attributionSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11attributionSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV11attributionSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11attributionSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "languageTag",
+            "printedName": "languageTag",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV11languageTagSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11languageTagSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV11languageTagSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11languageTagSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "width",
+            "printedName": "width",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV5widthSivp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV5widthSivp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV5widthSivg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV5widthSivg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "height",
+            "printedName": "height",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV6heightSivp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV6heightSivp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV6heightSivg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV6heightSivg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "aspectRatio",
+            "printedName": "aspectRatio",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV11aspectRatioSdvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11aspectRatioSdvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV11aspectRatioSdvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB5ImageV11aspectRatioSdvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(id:url:passageID:attribution:languageTag:width:height:aspectRatio:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImage",
+                "printedName": "YouVersionPlatformCore.YouVersionImage",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Double",
+                "printedName": "Swift.Double",
+                "usr": "s:Sd"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV2id3url9passageID11attribution11languageTag5width6height11aspectRatioACSS_10Foundation3URLVS3SS2iSdtcfc",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV2id3url9passageID11attribution11languageTag5width6height11aspectRatioACSS_10Foundation3URLVS3SS2iSdtcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "ID",
+            "printedName": "ID",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV2IDa",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV2IDa",
+            "moduleName": "YouVersionPlatformCore",
+            "implicit": true
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImage",
+                "printedName": "YouVersionPlatformCore.YouVersionImage",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImage",
+                "printedName": "YouVersionPlatformCore.YouVersionImage",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV6encode2toys7Encoder_p_tKF",
+            "moduleName": "YouVersionPlatformCore",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImage",
+                "printedName": "YouVersionPlatformCore.YouVersionImage",
+                "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0aB5ImageV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s22YouVersionPlatformCore0aB5ImageV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB5ImageV",
+        "mangledName": "$s22YouVersionPlatformCore0aB5ImageV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Identifiable",
+            "printedName": "Identifiable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ID",
+                "printedName": "ID",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s12IdentifiableP",
+            "mangledName": "$ss12IdentifiableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionImageCollection",
+        "printedName": "YouVersionImageCollection",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "images",
+            "printedName": "images",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.YouVersionImage]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionImage",
+                    "printedName": "YouVersionPlatformCore.YouVersionImage",
+                    "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV6imagesSayAA0abE0VGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV6imagesSayAA0abE0VGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionImage]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionImage",
+                        "printedName": "YouVersionPlatformCore.YouVersionImage",
+                        "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV6imagesSayAA0abE0VGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV6imagesSayAA0abE0VGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "totalSize",
+            "printedName": "totalSize",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV9totalSizeSiSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV9totalSizeSiSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV9totalSizeSiSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV9totalSizeSiSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "nextPageToken",
+            "printedName": "nextPageToken",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV13nextPageTokenSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV13nextPageTokenSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV13nextPageTokenSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV13nextPageTokenSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImageCollection",
+                "printedName": "YouVersionPlatformCore.YouVersionImageCollection",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImageCollection",
+                "printedName": "YouVersionPlatformCore.YouVersionImageCollection",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV6encode2toys7Encoder_p_tKF",
+            "moduleName": "YouVersionPlatformCore",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionImageCollection",
+                "printedName": "YouVersionPlatformCore.YouVersionImageCollection",
+                "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "YouVersionPlatformCore",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV",
+        "mangledName": "$s22YouVersionPlatformCore0aB15ImageCollectionV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "LanguageOverview",
         "printedName": "LanguageOverview",
         "children": [
@@ -2735,6 +3691,1815 @@
             "printedName": "Equatable",
             "usr": "s:SQ",
             "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionSearchUserIntent",
+        "printedName": "YouVersionSearchUserIntent",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "reference",
+            "printedName": "reference",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV9referenceACvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV9referenceACvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV9referenceACvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV9referenceACvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "text",
+            "printedName": "text",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV4textACvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV4textACvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV4textACvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV4textACvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "topical",
+            "printedName": "topical",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV7topicalACvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV7topicalACvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV7topicalACvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV7topicalACvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "unknown",
+            "printedName": "unknown",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV7unknownACvpZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV7unknownACvpZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV7unknownACvgZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV7unknownACvgZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV8rawValueSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV8rawValueSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV8rawValueSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV8rawValueSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "YouVersionSearchUserIntent",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformCore",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV",
+        "mangledName": "$s22YouVersionPlatformCore0aB16SearchUserIntentV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionVerseSearchResults",
+        "printedName": "YouVersionVerseSearchResults",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "references",
+            "printedName": "references",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.BibleReference]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV10referencesSayAA14BibleReferenceVGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV10referencesSayAA14BibleReferenceVGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.BibleReference]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV10referencesSayAA14BibleReferenceVGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV10referencesSayAA14BibleReferenceVGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "userIntent",
+            "printedName": "userIntent",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV10userIntentAA0abf4UserI0VSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV10userIntentAA0abf4UserI0VSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchUserIntent",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                        "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV10userIntentAA0abf4UserI0VSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV10userIntentAA0abf4UserI0VSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "didYouMean",
+            "printedName": "didYouMean",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV03didA4MeanSaySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV03didA4MeanSaySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV03didA4MeanSaySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV03didA4MeanSaySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "searchInsteadFor",
+            "printedName": "searchInsteadFor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV16searchInsteadForSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV16searchInsteadForSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV16searchInsteadForSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV16searchInsteadForSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "nextPageToken",
+            "printedName": "nextPageToken",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV13nextPageTokenSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV13nextPageTokenSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV13nextPageTokenSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV13nextPageTokenSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV",
+        "mangledName": "$s22YouVersionPlatformCore0aB18VerseSearchResultsV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionSearchTopic",
+        "printedName": "YouVersionSearchTopic",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV2idSiSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV2idSiSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV2idSiSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV2idSiSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "text",
+            "printedName": "text",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV4textSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV4textSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV4textSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV4textSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "subtopics",
+            "printedName": "subtopics",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV9subtopicsSaySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV9subtopicsSaySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV9subtopicsSaySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV9subtopicsSaySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV",
+        "mangledName": "$s22YouVersionPlatformCore0aB11SearchTopicV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionTopicSearchResults",
+        "printedName": "YouVersionTopicSearchResults",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "topics",
+            "printedName": "topics",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.YouVersionSearchTopic]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchTopic",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchTopic",
+                    "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV6topicsSayAA0abfE0VGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV6topicsSayAA0abfE0VGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionSearchTopic]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchTopic",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchTopic",
+                        "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV6topicsSayAA0abfE0VGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV6topicsSayAA0abfE0VGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "didYouMean",
+            "printedName": "didYouMean",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV03didA4MeanSaySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV03didA4MeanSaySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV03didA4MeanSaySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV03didA4MeanSaySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "searchInsteadFor",
+            "printedName": "searchInsteadFor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV16searchInsteadForSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV16searchInsteadForSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV16searchInsteadForSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV16searchInsteadForSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV",
+        "mangledName": "$s22YouVersionPlatformCore0aB18TopicSearchResultsV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionSearchImage",
+        "printedName": "YouVersionSearchImage",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchImageV2idSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchImageV2idSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchImageV2idSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchImageV2idSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "passageID",
+            "printedName": "passageID",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchImageV9passageIDSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchImageV9passageIDSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchImageV9passageIDSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchImageV9passageIDSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB11SearchImageV",
+        "mangledName": "$s22YouVersionPlatformCore0aB11SearchImageV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionSearchResults",
+        "printedName": "YouVersionSearchResults",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "references",
+            "printedName": "references",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.BibleReference]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReference",
+                    "printedName": "YouVersionPlatformCore.BibleReference",
+                    "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV10referencesSayAA14BibleReferenceVGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV10referencesSayAA14BibleReferenceVGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.BibleReference]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "BibleReference",
+                        "printedName": "YouVersionPlatformCore.BibleReference",
+                        "usr": "s:22YouVersionPlatformCore14BibleReferenceV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV10referencesSayAA14BibleReferenceVGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV10referencesSayAA14BibleReferenceVGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "topics",
+            "printedName": "topics",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.YouVersionSearchTopic]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchTopic",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchTopic",
+                    "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV6topicsSayAA0abE5TopicVGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV6topicsSayAA0abE5TopicVGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionSearchTopic]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchTopic",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchTopic",
+                        "usr": "s:22YouVersionPlatformCore0aB11SearchTopicV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV6topicsSayAA0abE5TopicVGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV6topicsSayAA0abE5TopicVGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "images",
+            "printedName": "images",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[YouVersionPlatformCore.YouVersionSearchImage]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchImage",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchImage",
+                    "usr": "s:22YouVersionPlatformCore0aB11SearchImageV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV6imagesSayAA0abE5ImageVGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV6imagesSayAA0abE5ImageVGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionSearchImage]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchImage",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchImage",
+                        "usr": "s:22YouVersionPlatformCore0aB11SearchImageV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV6imagesSayAA0abE5ImageVGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV6imagesSayAA0abE5ImageVGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "userIntent",
+            "printedName": "userIntent",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV10userIntentAA0abe4UserH0VSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV10userIntentAA0abe4UserH0VSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchUserIntent",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                        "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV10userIntentAA0abe4UserH0VSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV10userIntentAA0abe4UserH0VSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "didYouMean",
+            "printedName": "didYouMean",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV03didA4MeanSaySSGvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV03didA4MeanSaySSGvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV03didA4MeanSaySSGvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV03didA4MeanSaySSGvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "searchInsteadFor",
+            "printedName": "searchInsteadFor",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV16searchInsteadForSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV16searchInsteadForSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV16searchInsteadForSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV16searchInsteadForSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV",
+        "mangledName": "$s22YouVersionPlatformCore0aB13SearchResultsV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionSearchQuery",
+        "printedName": "YouVersionSearchQuery",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "text",
+            "printedName": "text",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV4textSSvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchQueryV4textSSvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV4textSSvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchQueryV4textSSvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "source",
+            "printedName": "source",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV6sourceSSSgvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB11SearchQueryV6sourceSSSgvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV6sourceSSSgvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB11SearchQueryV6sourceSSSgvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV",
+        "mangledName": "$s22YouVersionPlatformCore0aB11SearchQueryV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
           },
           {
             "kind": "Conformance",
@@ -7716,6 +10481,184 @@
           },
           {
             "kind": "TypeDecl",
+            "name": "Images",
+            "printedName": "Images",
+            "children": [
+              {
+                "kind": "Function",
+                "name": "images",
+                "printedName": "images(passageID:languageRanges:pageSize:pageToken:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionImageCollection",
+                    "printedName": "YouVersionPlatformCore.YouVersionImageCollection",
+                    "usr": "s:22YouVersionPlatformCore0aB15ImageCollectionV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6ImagesV6images9passageID14languageRanges8pageSize0L5Token06accessN07sessionAA0aB15ImageCollectionVSSSg_SaySSGSiSgA2OSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6ImagesV6images9passageID14languageRanges8pageSize0L5Token06accessN07sessionAA0aB15ImageCollectionVSSSg_SaySSGSiSgA2OSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "image",
+                "printedName": "image(id:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionImage",
+                    "printedName": "YouVersionPlatformCore.YouVersionImage",
+                    "usr": "s:22YouVersionPlatformCore0aB5ImageV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6ImagesV5image2id11accessToken7sessionAA0aB5ImageVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6ImagesV5image2id11accessToken7sessionAA0aB5ImageVSS_SSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO6ImagesV",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO6ImagesV",
+            "moduleName": "YouVersionPlatformCore",
+            "isFromExtension": true,
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              }
+            ]
+          },
+          {
+            "kind": "TypeDecl",
             "name": "Languages",
             "printedName": "Languages",
             "children": [
@@ -7960,6 +10903,417 @@
             "declKind": "Enum",
             "usr": "s:22YouVersionPlatformCore0aB3APIO13OrganizationsO",
             "mangledName": "$s22YouVersionPlatformCore0aB3APIO13OrganizationsO",
+            "moduleName": "YouVersionPlatformCore",
+            "isFromExtension": true,
+            "isEnumExhaustive": true,
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              }
+            ]
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "Search",
+            "printedName": "Search",
+            "children": [
+              {
+                "kind": "Function",
+                "name": "suggestedQueries",
+                "printedName": "suggestedQueries(matching:languageRanges:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionSearchQuery]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchQuery",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchQuery",
+                        "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO16suggestedQueries8matching14languageRanges11accessToken7sessionSayAA0abF5QueryVGSS_SaySSGSSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO16suggestedQueries8matching14languageRanges11accessToken7sessionSayAA0abF5QueryVGSS_SaySSGSSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "trendingQueries",
+                "printedName": "trendingQueries(languageRanges:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[YouVersionPlatformCore.YouVersionSearchQuery]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "YouVersionSearchQuery",
+                        "printedName": "YouVersionPlatformCore.YouVersionSearchQuery",
+                        "usr": "s:22YouVersionPlatformCore0aB11SearchQueryV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO15trendingQueries14languageRanges11accessToken7sessionSayAA0abF5QueryVGSaySSG_SSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO15trendingQueries14languageRanges11accessToken7sessionSayAA0abF5QueryVGSaySSG_SSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "unified",
+                "printedName": "unified(matching:bibleID:languageRanges:userIntent:fields:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchResults",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchResults",
+                    "usr": "s:22YouVersionPlatformCore0aB13SearchResultsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "hasDefaultArg": true,
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO7unified8matching7bibleID14languageRanges10userIntent6fields11accessToken7sessionAA0abF7ResultsVSS_SiSaySSGAA0abf4UserN0VAPSSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO7unified8matching7bibleID14languageRanges10userIntent6fields11accessToken7sessionAA0abF7ResultsVSS_SiSaySSGAA0abf4UserN0VAPSSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "topics",
+                "printedName": "topics(matching:languageRanges:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionTopicSearchResults",
+                    "printedName": "YouVersionPlatformCore.YouVersionTopicSearchResults",
+                    "usr": "s:22YouVersionPlatformCore0aB18TopicSearchResultsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO6topics8matching14languageRanges11accessToken7sessionAA0ab5TopicF7ResultsVSS_SaySSGSSSgSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO6topics8matching14languageRanges11accessToken7sessionAA0ab5TopicF7ResultsVSS_SaySSGSSSgSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "verses",
+                "printedName": "verses(query:bibleID:userIntent:pageSize:pageToken:accessToken:session:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionVerseSearchResults",
+                    "printedName": "YouVersionPlatformCore.YouVersionVerseSearchResults",
+                    "usr": "s:22YouVersionPlatformCore0aB18VerseSearchResultsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "YouVersionSearchUserIntent",
+                    "printedName": "YouVersionPlatformCore.YouVersionSearchUserIntent",
+                    "hasDefaultArg": true,
+                    "usr": "s:22YouVersionPlatformCore0aB16SearchUserIntentV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "hasDefaultArg": true,
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLSession",
+                    "printedName": "Foundation.URLSession",
+                    "hasDefaultArg": true,
+                    "usr": "c:objc(cs)NSURLSession"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO6verses5query7bibleID10userIntent8pageSize0M5Token06accessO07sessionAA0ab5VerseF7ResultsVSS_SiAA0abf4UserL0VSiSgSSSgASSo12NSURLSessionCtYaKFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO6verses5query7bibleID10userIntent8pageSize0M5Token06accessO07sessionAA0ab5VerseF7ResultsVSS_SiAA0abf4UserL0VSiSgSSSgASSo12NSURLSessionCtYaKFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "isFromExtension": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Enum",
+            "usr": "s:22YouVersionPlatformCore0aB3APIO6SearchO",
+            "mangledName": "$s22YouVersionPlatformCore0aB3APIO6SearchO",
             "moduleName": "YouVersionPlatformCore",
             "isFromExtension": true,
             "isEnumExhaustive": true,
@@ -8897,6 +12251,278 @@
             "printedName": "Hashable",
             "usr": "s:SH",
             "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "YouVersionAPIRequestError",
+        "printedName": "YouVersionAPIRequestError",
+        "children": [
+          {
+            "kind": "TypeDecl",
+            "name": "Code",
+            "printedName": "Code",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "invalidParameter",
+                "printedName": "invalidParameter",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Code",
+                    "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV16invalidParameterAEvpZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV16invalidParameterAEvpZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "declAttributes": [
+                  "HasInitialValue",
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Code",
+                        "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                        "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV16invalidParameterAEvgZ",
+                    "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV16invalidParameterAEvgZ",
+                    "moduleName": "YouVersionPlatformCore",
+                    "static": true,
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "rawValue",
+                "printedName": "rawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV8rawValueSSvp",
+                "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV8rawValueSSvp",
+                "moduleName": "YouVersionPlatformCore",
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV8rawValueSSvg",
+                    "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV8rawValueSSvg",
+                    "moduleName": "YouVersionPlatformCore",
+                    "implicit": true,
+                    "declAttributes": [
+                      "Transparent"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Function",
+                "name": "__derived_struct_equals",
+                "printedName": "__derived_struct_equals(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Code",
+                    "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Code",
+                    "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV23__derived_struct_equalsySbAE_AEtFZ",
+                "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV23__derived_struct_equalsySbAE_AEtFZ",
+                "moduleName": "YouVersionPlatformCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Implements"
+                ],
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV",
+            "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV",
+            "moduleName": "YouVersionPlatformCore",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP",
+                "mangledName": "$ss8SendableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "SendableMetatype",
+                "printedName": "SendableMetatype",
+                "usr": "s:s16SendableMetatypeP",
+                "mangledName": "$ss16SendableMetatypeP"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "code",
+            "printedName": "code",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Code",
+                "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4codeAC4CodeVvp",
+            "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4codeAC4CodeVvp",
+            "moduleName": "YouVersionPlatformCore",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Code",
+                    "printedName": "YouVersionPlatformCore.YouVersionAPIRequestError.Code",
+                    "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4CodeV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV4codeAC4CodeVvg",
+                "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV4codeAC4CodeVvg",
+                "moduleName": "YouVersionPlatformCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:22YouVersionPlatformCore0aB15APIRequestErrorV",
+        "mangledName": "$s22YouVersionPlatformCore0aB15APIRequestErrorV",
+        "moduleName": "YouVersionPlatformCore",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Error",
+            "printedName": "Error",
+            "usr": "s:s5ErrorP",
+            "mangledName": "$ss5ErrorP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",

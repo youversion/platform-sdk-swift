@@ -109,14 +109,15 @@ import Testing
         #expect(results.isEmpty)
     }
 
-    @Test(arguments: ["en_US", "en[US", "en\n", "en--US"], [false, true])
-    func malformedLanguageRangesAreRejectedBeforeRequest(languageRange: String, isTrending: Bool) async {
+    @Test(arguments: ["", "en_US", "en[US", "en\n", "en--US"], [false, true])
+    func languageRangesAreForwardedAndServerRejectionsPropagate(languageRange: String, isTrending: Bool) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
 
-        HTTPMocking.setHandler(token: token) { _ in
-            Issue.record("Invalid language ranges must not send a request")
-            throw URLError(.badURL)
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.queryItems?.filter { $0.name == "language_ranges[]" }.compactMap(\.value) == ["en", languageRange])
+            return (Data(), HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!)
         }
 
         await #expect {
@@ -134,7 +135,7 @@ import Testing
                 session: session
             )
         } throws: { error in
-            (error as? YouVersionAPIRequestError)?.code == .invalidParameter
+            (error as? YouVersionAPIError) == .cannotDownload
         }
     }
 
@@ -147,7 +148,7 @@ import Testing
             try await YouVersionAPI.Search.suggestedQueries(matching: "love", languageRanges: [])
         }
         await #expect(throws: YouVersionAPIRequestError.self) {
-            try await YouVersionAPI.Search.trendingQueries(languageRanges: [""])
+            try await YouVersionAPI.Search.trendingQueries(languageRanges: [])
         }
     }
 }

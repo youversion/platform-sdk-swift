@@ -61,7 +61,6 @@ extension BibleTextView {
         let footnoteIcon: Image
         let verseSelectionStyle: VerseSelectionStyle
         let dimmedTextColor: Color
-        let dimmedHighlightOpacity: CGFloat
         var dimProgress: CGFloat // 0 = full color, 1 = fully dimmed.
 
         var animatableData: CGFloat {
@@ -72,27 +71,16 @@ extension BibleTextView {
         init(
             verseSelectionStyle: VerseSelectionStyle = .solid,
             dimmedTextColor: Color = .primary,
-            dimmedHighlightOpacity: CGFloat,
             dimProgress: CGFloat = 0
         ) {
             footnoteIcon = Image("footnoteIcon", bundle: .YouVersionUIBundle)
             self.verseSelectionStyle = verseSelectionStyle
             self.dimmedTextColor = dimmedTextColor
-            self.dimmedHighlightOpacity = dimmedHighlightOpacity
             self.dimProgress = dimProgress
         }
 
         func draw(layout: Text.Layout, in context: inout GraphicsContext) {
             let footnoteImage = context.resolve(footnoteIcon)
-
-            func highlightRect(for runRect: CGRect, lineRect: CGRect) -> CGRect {
-                CGRect(
-                    x: runRect.origin.x,
-                    y: lineRect.origin.y,
-                    width: runRect.width,
-                    height: lineRect.height
-                )
-            }
 
             func footnoteIconRect(for runRect: CGRect) -> CGRect {
                 let height = runRect.height
@@ -104,18 +92,22 @@ extension BibleTextView {
                 )
             }
 
-            func drawDimmedFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect) {
-                context.clipToLayer { mask in
-                    mask.draw(footnoteImage, in: iconRect)
+            func drawFootnoteIcon(in context: inout GraphicsContext, iconRect: CGRect, color: Color) {
+                context.drawLayer { layer in
+                    layer.clipToLayer { mask in
+                        mask.draw(footnoteImage, in: iconRect)
+                    }
+                    layer.fill(Path(iconRect), with: .color(color))
                 }
-                context.fill(Path(iconRect), with: .color(dimmedTextColor))
             }
 
-            func drawDimmedRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext) {
-                context.clipToLayer { mask in
-                    mask.draw(run)
+            func drawRun(_ run: Text.Layout.Run, lineRect: CGRect, in context: inout GraphicsContext, color: Color) {
+                context.drawLayer { layer in
+                    layer.clipToLayer { mask in
+                        mask.draw(run)
+                    }
+                    layer.fill(Path(lineRect), with: .color(color))
                 }
-                context.fill(Path(lineRect), with: .color(dimmedTextColor))
             }
 
             for line in layout {
@@ -136,53 +128,51 @@ extension BibleTextView {
                             style: verseSelectionStyle.strokeStyle
                         )
                     }
-                    if let highlightColor = attrs?.highlightColor {
-                        let highlightPath = Path(highlightRect(for: runRect, lineRect: lineRect))
-                        if attrs?.isDimmed == true && dimProgress > 0 {
-                            if dimProgress < 1 {
-                                var fullColorContext = context
-                                fullColorContext.opacity = 1 - dimProgress
-                                fullColorContext.fill(highlightPath, with: .color(highlightColor))
-                            }
-                            context.drawLayer { layer in
-                                layer.opacity = dimProgress
-                                layer.fill(
-                                    highlightPath,
-                                    with: .color(highlightColor.opacity(dimmedHighlightOpacity))
-                                )
-                            }
-                        } else {
-                            context.fill(highlightPath, with: .color(highlightColor))
-                        }
-                    }
+                    let textColor = attrs?.textColor
                     if attrs?.footnoteImage == true {
                         let iconRect = footnoteIconRect(for: runRect)
                         if attrs?.isDimmed == true && dimProgress > 0 {
                             if dimProgress < 1 {
-                                var dimContext = context
-                                dimContext.opacity = 1 - dimProgress
-                                dimContext.draw(footnoteImage, in: iconRect)
+                                var fullColorContext = context
+                                fullColorContext.opacity = 1 - dimProgress
+                                if let textColor {
+                                    drawFootnoteIcon(in: &fullColorContext, iconRect: iconRect, color: textColor)
+                                } else {
+                                    fullColorContext.draw(footnoteImage, in: iconRect)
+                                }
                             }
                             context.drawLayer { layer in
                                 layer.opacity = dimProgress
-                                drawDimmedFootnoteIcon(in: &layer, iconRect: iconRect)
+                                drawFootnoteIcon(in: &layer, iconRect: iconRect, color: dimmedTextColor)
                             }
                         } else {
-                            context.draw(footnoteImage, in: iconRect)
+                            if let textColor {
+                                drawFootnoteIcon(in: &context, iconRect: iconRect, color: textColor)
+                            } else {
+                                context.draw(footnoteImage, in: iconRect)
+                            }
                         }
                     } else if attrs?.isDimmed == true && dimProgress > 0 {
                         // Paint the muted color through a mask over the original glyph.
                         if dimProgress < 1 {
-                            var dimContext = context
-                            dimContext.opacity = 1 - dimProgress
-                            dimContext.draw(run)
+                            var fullColorContext = context
+                            fullColorContext.opacity = 1 - dimProgress
+                            if let textColor {
+                                drawRun(run, lineRect: lineRect, in: &fullColorContext, color: textColor)
+                            } else {
+                                fullColorContext.draw(run)
+                            }
                         }
                         context.drawLayer { layer in
                             layer.opacity = dimProgress
-                            drawDimmedRun(run, lineRect: lineRect, in: &layer)
+                            drawRun(run, lineRect: lineRect, in: &layer, color: dimmedTextColor)
                         }
                     } else {
-                        context.draw(run)
+                        if let textColor {
+                            drawRun(run, lineRect: lineRect, in: &context, color: textColor)
+                        } else {
+                            context.draw(run)
+                        }
                     }
                 }
             }
@@ -194,22 +184,56 @@ extension BibleTextView {
         var footnoteImage = false
         var isDimmed = false
         var highlightColor: Color?
+        var isIndent = false
+        var isWhitespace = false
+        var textColor: Color?
+    }
+
+    private func whitespaceSegments(of string: AttributedString) -> [(text: AttributedString, isWhitespace: Bool)] {
+        let characters = string.characters
+        guard let first = characters.firstIndex(where: { !$0.isWhitespace }),
+              let last = characters.lastIndex(where: { !$0.isWhitespace }) else {
+            return [(string, true)]
+        }
+        let end = characters.index(after: last)
+        let segments: [(text: AttributedString, isWhitespace: Bool)] = [
+            (AttributedString(string[string.startIndex..<first]), true),
+            (AttributedString(string[first..<end]), false),
+            (AttributedString(string[end..<string.endIndex]), true)
+        ]
+        return segments.filter { !$0.text.characters.isEmpty }
+    }
+
+    /// Gives headings the version's base direction when their first character belongs
+    /// to another script, as in NIV Psalm 119's Hebrew acrostic letters.
+    /// Opposite-script-only headings also use the version's paragraph direction.
+    /// The mark is display-only so stored text and Reader copy/share data stay unchanged.
+    static func textForDisplay(_ text: AttributedString, layoutDirection: LayoutDirection) -> AttributedString {
+        guard let firstRun = text.runs.first, firstRun.bibleTextCategory == .header else {
+            return text
+        }
+        var directionMark = AttributedString(layoutDirection == .rightToLeft ? "\u{200f}" : "\u{200e}")
+        directionMark.setAttributes(firstRun.attributes)
+        return directionMark + text
     }
 
     private func textView(for double: BibleAttributedString, firstLineHeadIndent: Int, blockId: UUID, textOptions: BibleTextOptions, darkMode: Bool) -> some View {
-        let string = double.asAttributedString
+        let string = Self.textForDisplay(double.asAttributedString, layoutDirection: versionLayoutDirection)
         // Copy the category from AttributedString-world into Text-world.
         // textCombo is a Text object built up from multiple Text objects,
         // each with its own customAttribute value for how to render.
         let fonts = BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
         var textCombo = Text(indentString(firstLineHeadIndent))
             .font(fonts.font(for: .font100em))
+            .customAttribute(RenderHowAttribute(isIndent: true))
         let rendererPaintsHighlight: Bool
         if #available(iOS 18.0, *) {
             rendererPaintsHighlight = true
         } else {
             rendererPaintsHighlight = false
         }
+        let resolvedTextColor = textOptions.textColor ?? .primary
+        let darkModeHighlightOpacity = 0.2
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for run in runs {
             let category = run.0 // as? BibleTextCategory
@@ -218,12 +242,19 @@ extension BibleTextView {
             var t = AttributedString(string[range])
             var isUnderlined = false
             var highlightColor: Color?
+            var textColorOverride: Color?
             if let reference {
-                highlightColor = highlightFor(reference: reference)?
-                    .opacity(darkMode ? 0.3 : 1.0)
-                if let highlightColor {
-                    if darkMode && category == .verseLabel {
-                        t.foregroundColor = .white
+                if let highlight = highlightFor(reference: reference) {
+                    highlightColor = highlight.opacity(darkMode ? darkModeHighlightOpacity : 1.0)
+                    if !darkMode && highlight.isDarkHighlight {
+                        if category == .scripture || category == .verseLabel || category == .footnoteImage {
+                            textColorOverride = .white
+                        }
+                    } else if category == .verseLabel {
+                        textColorOverride = resolvedTextColor
+                    }
+                    if let textColorOverride, category != .footnoteImage {
+                        t.foregroundColor = textColorOverride
                     }
                     if !rendererPaintsHighlight && (category == .scripture || category == .verseLabel) {
                         t.backgroundColor = highlightColor
@@ -239,18 +270,24 @@ extension BibleTextView {
             }
             let isHighlightCategory = category == .scripture || category == .verseLabel ||
                 category == .footnoteImage
-            // swiftlint:disable:next shorthand_operator
-            textCombo = textCombo + Text(t).customAttribute(
-                RenderHowAttribute(
-                    underlined: isUnderlined,
-                    footnoteImage: category == .footnoteImage,
-                    isDimmed: isDimmed,
-                    highlightColor: isHighlightCategory ? highlightColor : nil
+            let segments = isHighlightCategory && highlightColor != nil
+                ? whitespaceSegments(of: t)
+                : [(text: t, isWhitespace: false)]
+            for segment in segments {
+                // swiftlint:disable:next shorthand_operator
+                textCombo = textCombo + Text(segment.text).customAttribute(
+                    RenderHowAttribute(
+                        underlined: isUnderlined,
+                        footnoteImage: category == .footnoteImage,
+                        isDimmed: isDimmed,
+                        highlightColor: isHighlightCategory ? highlightColor : nil,
+                        isWhitespace: segment.isWhitespace,
+                        textColor: textColorOverride
+                    )
                 )
-            )
+            }
         }
         
-        let resolvedTextColor = textOptions.textColor ?? .primary
         let retValue = textCombo
             // Verse runs carry link attributes (for OpenURLAction tap routing), so the
             // effective text color comes from .tint, not .foregroundStyle.
@@ -271,7 +308,6 @@ extension BibleTextView {
                 BibleRenderer(
                     verseSelectionStyle: textOptions.verseSelectionStyle,
                     dimmedTextColor: dimmedTextColor,
-                    dimmedHighlightOpacity: Self.dimmedTextOpacity,
                     dimProgress: focusedReference == nil ? 0 : 1
                 )
             )
@@ -325,7 +361,7 @@ extension BibleTextView {
         return !focusedReference.contains(with: reference)
     }
     
-    private func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {
+    func fontRelativeLineSpacing(textOptions: BibleTextOptions) -> CGFloat {
         textOptions.fontSize * (textOptions.lineSpacing ?? 0.4)
     }
 

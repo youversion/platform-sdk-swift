@@ -770,6 +770,417 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "BibleReaderNavigationPlacement",
+        "printedName": "BibleReaderNavigationPlacement",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "topBar",
+            "printedName": "topBar",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationPlacement",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV6topBarACvpZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV6topBarACvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigationPlacement",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                    "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV6topBarACvgZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV6topBarACvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "bottomBar",
+            "printedName": "bottomBar",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationPlacement",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV9bottomBarACvpZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV9bottomBarACvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigationPlacement",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                    "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV9bottomBarACvgZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV9bottomBarACvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationPlacement",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationPlacement",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD19NavigationPlacementV",
+        "moduleName": "YouVersionPlatformReader",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "BibleReaderNavigationStackUsage",
+        "printedName": "BibleReaderNavigationStackUsage",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "none",
+            "printedName": "none",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV4noneACvpZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV4noneACvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigationStackUsage",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                    "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV4noneACvgZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV4noneACvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "shared",
+            "printedName": "shared",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV6sharedACvpZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV6sharedACvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigationStackUsage",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                    "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV6sharedACvgZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV6sharedACvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "justForReader",
+            "printedName": "justForReader",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV07justForD0ACvpZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV07justForD0ACvpZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "BibleReaderNavigationStackUsage",
+                    "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                    "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV07justForD0ACvgZ",
+                "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV07justForD0ACvgZ",
+                "moduleName": "YouVersionPlatformReader",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "__derived_struct_equals",
+            "printedName": "__derived_struct_equals(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV23__derived_struct_equalsySbAC_ACtFZ",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV23__derived_struct_equalsySbAC_ACtFZ",
+            "moduleName": "YouVersionPlatformReader",
+            "static": true,
+            "implicit": true,
+            "declAttributes": [
+              "Implements"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV",
+        "mangledName": "$s24YouVersionPlatformReader05BibleD20NavigationStackUsageV",
+        "moduleName": "YouVersionPlatformReader",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "BibleReaderView",
         "printedName": "BibleReaderView",
         "children": [
@@ -937,6 +1348,62 @@
             "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV20restoringLastPassage19verseSelectionStyle10onVerseTap16readerNavigationAC0abC2UI0nkL0V_y0abC4Core0E9ReferenceVcSgAA0edQ0CSgtFZ",
             "moduleName": "YouVersionPlatformReader",
             "static": true,
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "navigationPlacement",
+            "printedName": "navigationPlacement(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationPlacement",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationPlacement",
+                "usr": "s:24YouVersionPlatformReader05BibleD19NavigationPlacementV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV19navigationPlacementyAcA0ed10NavigationH0VF",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV19navigationPlacementyAcA0ed10NavigationH0VF",
+            "moduleName": "YouVersionPlatformReader",
+            "declAttributes": [
+              "Preconcurrency",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "usingNavigationStack",
+            "printedName": "usingNavigationStack(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderView",
+                "printedName": "YouVersionPlatformReader.BibleReaderView",
+                "usr": "s:24YouVersionPlatformReader05BibleD4ViewV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "BibleReaderNavigationStackUsage",
+                "printedName": "YouVersionPlatformReader.BibleReaderNavigationStackUsage",
+                "usr": "s:24YouVersionPlatformReader05BibleD20NavigationStackUsageV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:24YouVersionPlatformReader05BibleD4ViewV20usingNavigationStackyAcA0edhI5UsageVF",
+            "mangledName": "$s24YouVersionPlatformReader05BibleD4ViewV20usingNavigationStackyAcA0edhI5UsageVF",
+            "moduleName": "YouVersionPlatformReader",
             "declAttributes": [
               "Preconcurrency",
               "Custom"
@@ -1783,15 +2250,21 @@
             "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV4Bodya",
             "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV4Bodya",
             "moduleName": "YouVersionPlatformReader",
-            "implicit": true
+            "deprecated": true,
+            "implicit": true,
+            "declAttributes": [
+              "Available"
+            ]
           }
         ],
         "declKind": "Struct",
         "usr": "s:24YouVersionPlatformReader05BibleD10HeaderViewV",
         "mangledName": "$s24YouVersionPlatformReader05BibleD10HeaderViewV",
         "moduleName": "YouVersionPlatformReader",
+        "deprecated": true,
         "declAttributes": [
           "Preconcurrency",
+          "Available",
           "Custom"
         ],
         "conformances": [

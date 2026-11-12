@@ -117,6 +117,11 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
+      - name: Test API additions reporting and compiler access metadata
+        run: |
+          swift --version
+          python3 scripts/test-report-api-additions.py --compiler-fixture
+
       - name: Dump public API at merge-base and head
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

@@ -347,58 +347,6 @@ let previousChapterCases: [PreviousChapterCase] = [
         assertNavigationSideEffects(on: vm)
     }
 
-#if canImport(UIKit)
-    @Test
-    func selectedVerseColorPresenceMatchesHexCaseInsensitivelyAndIgnoresHashPrefix() {
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            highlightsRepository: MockBibleHighlightsRepository()
-        )
-        let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
-        let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
-        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
-        let selectedColor = Color(hex: "#DDAAFF")
-        viewModel.selectedVerses = [firstReference, secondReference]
-        viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
-        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
-
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
-
-        viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
-
-        #expect(viewModel.isColorPresentOnAnySelectedVerses(selectedColor))
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
-    }
-
-    @Test
-    func removeVerseColorRemovesMatchingHighlightsForSelectedVersesOnly() {
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            highlightsRepository: MockBibleHighlightsRepository()
-        )
-        let matchingReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
-        let nonmatchingReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
-        let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
-        let selectedColor = Color(hex: "#DDAAFF")
-        viewModel.selectedVerses = [matchingReference, nonmatchingReference]
-        viewModel.showingVerseActionsDrawer = true
-        viewModel.highlightsViewModel.addHighlights(references: [matchingReference], color: "#ddaaff")
-        viewModel.highlightsViewModel.addHighlights(references: [nonmatchingReference], color: "00FF00")
-        viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
-
-        viewModel.removeVerseColor(selectedColor)
-
-        #expect(viewModel.selectedVerses.isEmpty)
-        #expect(viewModel.showingVerseActionsDrawer == false)
-        #expect(viewModel.highlightsViewModel.highlights(for: matchingReference).isEmpty)
-        #expect(viewModel.highlightsViewModel.highlights(for: nonmatchingReference) == [
-            BibleHighlight(nonmatchingReference, color: "00FF00"),
-        ])
-        #expect(viewModel.highlightsViewModel.highlights(for: unselectedReference) == [
-            BibleHighlight(unselectedReference, color: "DDAAFF"),
-        ])
-    }
-#endif
-
     @Test
     func shareableVerseTextRendersCachedChapterTextForReferences() async throws {
         let versionId = Self.generatedVersionId()
