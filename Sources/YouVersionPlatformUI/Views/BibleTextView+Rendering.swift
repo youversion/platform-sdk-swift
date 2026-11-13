@@ -316,6 +316,9 @@ extension BibleTextView {
                     renderedSegment = renderedSegment.customAttribute(IndicatorAttribute(
                         id: IndicatorID(blockID: blockId, runIndex: runIndex), reference: reference, style: indicator, isDimmed: isDimmed
                     ))
+                    if #unavailable(iOS 18.0), let label = indicator.accessibilityLabel {
+                        renderedSegment = renderedSegment.accessibilityLabel(Text(label))
+                    }
                 }
                 // swiftlint:disable:next shorthand_operator
                 textCombo = textCombo + renderedSegment

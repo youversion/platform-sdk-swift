@@ -185,14 +185,18 @@ struct BibleReaderNotesDrawer: View {
         if YouVersionAPI.hasPermission(BibleReaderViewModel.notesPermission), await YouVersionAPI.hasValidToken() {
             return
         }
-        guard YouVersionPlatformConfiguration.isSignInEnabled else { throw YouVersionAPIError.missingAuthentication }
+        guard YouVersionPlatformConfiguration.isSignInEnabled else {
+            throw YouVersionAPIError.missingAuthentication
+        }
         let permissions = BibleReaderViewModel.signInPermissions
 #if !os(tvOS)
         let result = try await YouVersionAPI.Users.signIn(permissions: permissions, contextProvider: contextProvider)
 #else
         let result = try await YouVersionAPI.Users.signIn(permissions: permissions)
 #endif
-        guard result.permissionValues.contains(BibleReaderViewModel.notesPermission) else { throw YouVersionAPIError.notPermitted }
+        guard result.permissionValues.contains(BibleReaderViewModel.notesPermission) else {
+            throw YouVersionAPIError.notPermitted
+        }
     }
 }
 
@@ -260,12 +264,14 @@ private struct SavedNoteCard: View {
                     visibility
                 }
             }
-            Text(note.content)
-                .font(.body)
-                .lineLimit(4)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
+            if !note.content.isEmpty {
+                Text(note.content)
+                    .font(.body)
+                    .lineLimit(4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
+            }
             HStack {
                 if let color = note.color {
                     Circle()

@@ -542,6 +542,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
+    var hasReadNotesPermission: Bool {
+        authentication.hasPermission(YouVersionAPI.Users.readNotesPermission)
+    }
+
     var hasNotesPermission: Bool {
         authentication.hasPermission(Self.notesPermission)
     }

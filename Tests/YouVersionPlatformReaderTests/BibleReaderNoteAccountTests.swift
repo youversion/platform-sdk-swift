@@ -68,6 +68,43 @@ struct BibleReaderNoteAccountTests {
     }
 
     @Test
+    func losingReadAccessClearsSavedNotesForTheSameAccount() throws {
+        let state = NoteAccountState()
+        let model = makeViewModel(state: state)
+        let note = try savedNote()
+        model.showNotes(for: reference, notes: [note])
+        let draft = try #require(model.noteDraft)
+        draft.copyText(from: note)
+
+        state.hasReadPermission = false
+        model.notesAuthenticationDidChange()
+
+        #expect(model.noteDraft == nil)
+        #expect(draft.isInvalidated)
+        #expect(draft.savedNotes.isEmpty)
+        #expect(draft.content.isEmpty)
+        #expect(!draft.canSave)
+    }
+
+    @Test
+    func losingReadAccessPreservesAComposerWithoutSavedNotes() throws {
+        let state = NoteAccountState()
+        let model = makeViewModel(state: state)
+        model.selectedVerses = [reference]
+        model.startNote()
+        let draft = try #require(model.pendingNoteDraft)
+        model.completeSignInFlow(with: ["write_notes"])
+        draft.content = "Keep this reflection"
+
+        state.hasReadPermission = false
+        model.notesAuthenticationDidChange()
+
+        #expect(model.noteDraft === draft)
+        #expect(!draft.isInvalidated)
+        #expect(draft.content == "Keep this reflection")
+    }
+
+    @Test
     func signedOutSelectionBindsToTheAccountThatAuthorizesIt() throws {
         let state = NoteAccountState()
         state.account = nil
@@ -166,7 +203,8 @@ struct BibleReaderNoteAccountTests {
 
     private func makeViewModel(state: NoteAccountState) -> BibleReaderViewModel {
         BibleReaderViewModelTestSupport.makeViewModel(
-            readIsSignedIn: { state.account != nil }, signOut: { state.account = nil }, readAccount: { state.account }
+            readIsSignedIn: { state.account != nil }, signOut: { state.account = nil },
+            hasPermission: { state.hasReadPermission && $0 == "read_notes" }, readAccount: { state.account }
         )
     }
 
@@ -178,4 +216,5 @@ struct BibleReaderNoteAccountTests {
 @MainActor
 private final class NoteAccountState {
     var account: BibleReaderAccount? = BibleReaderViewModelTestSupport.makeAccount(userID: "first-user")
+    var hasReadPermission = true
 }

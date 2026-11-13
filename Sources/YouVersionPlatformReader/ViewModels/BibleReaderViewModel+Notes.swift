@@ -72,9 +72,10 @@ extension BibleReaderViewModel {
         noteDraft = pendingNoteDraft
     }
 
-    /// Clears account-owned drafts on logout or account replacement, preserving unbound sign-in selections.
+    /// Clears drafts on account replacement or loss of access to their saved notes, preserving unbound selections.
     func notesAuthenticationDidChange() {
-        if let noteDraft, signedInAccount == nil || noteDraft.account != signedInAccount {
+        if let noteDraft, signedInAccount == nil || noteDraft.account != signedInAccount ||
+            (!noteDraft.savedNotes.isEmpty && !hasReadNotesPermission) {
             noteDraft.invalidate()
             self.noteDraft = nil
             removeVerseSelection()
