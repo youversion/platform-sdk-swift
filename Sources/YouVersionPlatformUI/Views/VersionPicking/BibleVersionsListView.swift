@@ -20,14 +20,14 @@ public struct BibleVersionsListView: View {
                 .buttonStyle(.plain)
             }
             Group {
-                if isLoading && myVersionsInLanguage.isEmpty {
+                if isLoading && matchingMyVersions.isEmpty {
                     VStack {
                         Spacer()
                         ProgressView()
                             .tint(viewModel.readerTextMutedColor)
                         Spacer()
                     }
-                } else if hasSearchText && otherVersions.isEmpty {
+                } else if hasSearchText && matchingMyVersions.isEmpty && otherVersions.isEmpty {
                     Text(String.localized("versionList.noSearchResults"))
                         .foregroundStyle(viewModel.readerTextMutedColor)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -60,7 +60,7 @@ public struct BibleVersionsListView: View {
         List {
             if showsMyVersionsSection {
                 headerRow(String.localized("myVersions.title"))
-                ForEach(myVersionsInLanguage, id: \.id) { version in
+                ForEach(matchingMyVersions, id: \.id) { version in
                     BibleVersionsMyVersionsListItem(version: version)
                         .listRowBackground(viewModel.readerCanvasPrimaryColor)
 #if !os(tvOS)
@@ -155,25 +155,21 @@ public struct BibleVersionsListView: View {
     }
 
     private var showsMyVersionsSection: Bool {
-        !hasSearchText && !myVersionsInLanguage.isEmpty
+        !matchingMyVersions.isEmpty
     }
 
-    private var myVersionsInLanguage: [BibleVersion] {
-        let language = viewModel.activeLanguage
-        return viewModel.myVersions
-            .filter { $0.languageTag == language }
-            .sorted { $0.localizedTitle ?? "" < $1.localizedTitle ?? "" }
+    /// The user's saved versions in every language, narrowed by any search text.
+    private var matchingMyVersions: [BibleVersion] {
+        let sorted = viewModel.myVersions.sorted { $0.localizedTitle ?? "" < $1.localizedTitle ?? "" }
+        return filteredBibleVersions(sorted, matching: searchText)
     }
 
+    /// Versions in the active language that aren't already listed under My Versions.
     private var otherVersions: [BibleVersion] {
         let language = viewModel.activeLanguage
         let all = viewModel.versionsByLanguageTag[language] ?? []
-        let filtered = filteredBibleVersions(all, matching: searchText)
-        guard showsMyVersionsSection else {
-            return filtered
-        }
-        let myIds = Set(myVersionsInLanguage.map(\.id))
-        return filtered.filter { !myIds.contains($0.id) }
+        let myIds = Set(matchingMyVersions.map(\.id))
+        return filteredBibleVersions(all, matching: searchText).filter { !myIds.contains($0.id) }
     }
 
     private var languageDisplay: some View {
