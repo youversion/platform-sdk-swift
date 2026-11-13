@@ -10,21 +10,25 @@ extension BibleReaderViewModel {
 
     /// Captures the selection and opens Notes only after sign-in and the `write_notes` OAuth scope are satisfied.
     func startNote() {
+        notesAuthenticationDidChange()
         let references = BibleReference.referencesByMerging(references: Array(selectedVerses).sorted())
         guard !references.isEmpty else {
             return
         }
-        guard isSignedIn || YouVersionPlatformConfiguration.isSignInEnabled else {
+        guard (isSignedIn && hasNotesPermission) || YouVersionPlatformConfiguration.isSignInEnabled else {
             return
         }
         let draft: BibleReaderNoteDraft
         if let pendingNoteDraft, pendingNoteDraft.references == references {
             draft = pendingNoteDraft
         } else {
-            draft = BibleReaderNoteDraft(references: Array(selectedVerses), referenceTitle: selectedVerseTitle)
+            draft = makeNoteDraft(references: Array(selectedVerses), referenceTitle: selectedVerseTitle)
         }
         showingVerseActionsDrawer = false
         if isSignedIn && hasNotesPermission {
+            guard let signedInAccount, draft.bind(to: signedInAccount) else {
+                return
+            }
             pendingNoteDraft = nil
             isNoteAuthorizationPending = false
             noteDraft = draft
@@ -46,7 +50,7 @@ extension BibleReaderViewModel {
         }
         let title = version?.displayTitle(for: reference, includesVersionAbbreviation: false) ?? reference.passageId
         showingVerseActionsDrawer = false
-        noteDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: title, savedNotes: notes)
+        noteDraft = makeNoteDraft(references: [reference], referenceTitle: title, savedNotes: notes)
     }
 
     /// Opens the captured draft when authentication granted the `write_notes` OAuth scope.
@@ -58,10 +62,44 @@ extension BibleReaderViewModel {
             cancelPendingNote()
             return
         }
+        guard let signedInAccount, pendingNoteDraft.bind(to: signedInAccount) else {
+            invalidateNoteDrafts()
+            return
+        }
         self.pendingNoteDraft = nil
         isNoteAuthorizationPending = false
         showingVerseActionsDrawer = false
         noteDraft = pendingNoteDraft
+    }
+
+    /// Clears account-owned drafts on logout or account replacement, preserving unbound sign-in selections.
+    func notesAuthenticationDidChange() {
+        if let noteDraft, signedInAccount == nil || noteDraft.account != signedInAccount {
+            noteDraft.invalidate()
+            self.noteDraft = nil
+            removeVerseSelection()
+        }
+        if let pendingNoteDraft, pendingNoteDraft.account != nil && pendingNoteDraft.account != signedInAccount {
+            pendingNoteDraft.invalidate()
+            self.pendingNoteDraft = nil
+            isNoteAuthorizationPending = false
+        }
+    }
+
+    /// Invalidates all note state, including operations still awaiting authorization or the server.
+    func invalidateNoteDrafts() {
+        noteDraft?.invalidate()
+        pendingNoteDraft?.invalidate()
+        noteDraft = nil
+        pendingNoteDraft = nil
+        isNoteAuthorizationPending = false
+    }
+
+    private func makeNoteDraft(references: [BibleReference], referenceTitle: String, savedNotes: [YouVersionNote] = []) -> BibleReaderNoteDraft {
+        BibleReaderNoteDraft(
+            references: references, referenceTitle: referenceTitle, savedNotes: savedNotes,
+            account: signedInAccount, currentAccount: { [weak self] in self?.signedInAccount }
+        )
     }
 
     /// Pauses authorization while retaining the captured draft and selection for an explicit retry.

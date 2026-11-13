@@ -13,7 +13,7 @@ public struct YouVersionNoteCreateRequest: Encodable, Sendable {
 
     /// Creates a request with a stable idempotency UUID.
     ///
-    /// Content must be nonempty. Color must be six lowercase hex digits. Language tags must use
+    /// Content may be empty to save a passage without text. Color must be six lowercase hex digits. Language tags must use
     /// two lowercase letters, optionally followed by a region such as `en-US`.
     /// Tags must be nonempty and contain no commas. Nil optional fields have no value on creation.
     public init(

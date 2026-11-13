@@ -18,24 +18,33 @@ struct BibleReaderAuthentication {
     private let validateToken: @MainActor () async -> Bool
     private let performSignOut: @MainActor () -> Void
     private let readPermission: @MainActor (String) -> Bool
+    private let readAccount: @MainActor () -> BibleReaderAccount?
 
     /// Creates an authentication dependency for the reader.
     init(
         isSignedIn: @escaping @MainActor () -> Bool,
         hasValidToken: @escaping @MainActor () async -> Bool,
         signOut: @escaping @MainActor () -> Void,
-        hasPermission: @escaping @MainActor (String) -> Bool
+        hasPermission: @escaping @MainActor (String) -> Bool,
+        account: @escaping @MainActor () -> BibleReaderAccount? = { BibleReaderAccount.current }
     ) {
         self.readIsSignedIn = isSignedIn
         self.validateToken = hasValidToken
         self.performSignOut = signOut
         self.readPermission = hasPermission
+        self.readAccount = account
     }
 
     /// Whether the current authentication state can perform signed-in reader actions.
     @MainActor
     var isSignedIn: Bool {
         readIsSignedIn()
+    }
+
+    /// The account whose credentials are currently used for reader requests.
+    @MainActor
+    var account: BibleReaderAccount? {
+        readAccount()
     }
 
     /// Validates the current authentication state, refreshing tokens when needed.

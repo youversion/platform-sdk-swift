@@ -42,8 +42,8 @@ final class BibleNoteIndicatorsModel {
 
     /// Invalidates pending requests, retaining a snapshot only while its account still has read access.
     func authorizationDidChange() {
-        let signedInAccount = Account.signedIn
-        if !canReadNotes || signedInAccount.userID == nil || snapshot?.account != signedInAccount {
+        let signedInAccount = BibleReaderAccount.current
+        if !canReadNotes || signedInAccount?.userID == nil || snapshot?.account != signedInAccount {
             clear()
         } else {
             requestID = UUID()
@@ -58,7 +58,7 @@ final class BibleNoteIndicatorsModel {
     /// A same-account, same-chapter refresh retains its snapshot until success, including on transient failure.
     func load(_ reference: BibleReference) async {
         let chapter = reference.chapterReference
-        let requestAccount = Account.signedIn
+        let requestAccount = BibleReaderAccount.current
         if let snapshot, snapshot.chapter != chapter || snapshot.account != requestAccount {
             self.snapshot = nil
         }
@@ -119,22 +119,8 @@ final class BibleNoteIndicatorsModel {
 
     private struct Snapshot {
         let chapter: BibleReference
-        let account: Account
+        let account: BibleReaderAccount?
         let notes: [(note: YouVersionNote, references: [BibleReference])]
-    }
-
-    private struct Account: Equatable {
-        let userID: String?
-        let appKey: String?
-        let apiHost: String
-
-        static var signedIn: Self {
-            Self(
-                userID: YouVersionAPI.Users.currentUserId,
-                appKey: YouVersionPlatformConfiguration.appKey,
-                apiHost: YouVersionPlatformConfiguration.apiHost
-            )
-        }
     }
 
 }

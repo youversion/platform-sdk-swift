@@ -167,7 +167,7 @@ struct BibleReaderPendingActionsTests {
 
     @Test(arguments: [URLError.Code.cancelled, .notConnectedToInternet, .userAuthenticationRequired])
     func noteSaveAuthorizationFailuresKeepAllEnteredData(code: URLError.Code) async {
-        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16–17") { _ in
+        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16–17", account: nil, currentAccount: { nil }) { _ in
             Issue.record("No create request should be sent after failed authorization")
         }
         draft.content = "Do not lose this text"

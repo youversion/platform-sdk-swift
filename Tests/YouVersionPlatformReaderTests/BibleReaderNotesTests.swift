@@ -34,7 +34,7 @@ struct BibleReaderNotesTests {
             let data = Data("{\"data\":".utf8) + encoded + Data("}".utf8)
             return try JSONDecoder().decode(YouVersionNoteCollection.self, from: data)
         }
-        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16–17") { request in
+        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16–17", account: nil, currentAccount: { nil }) { request in
             let data = try JSONEncoder().encode(request)
             var json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
             json["id"] = "consecutive-note"
@@ -65,7 +65,7 @@ struct BibleReaderNotesTests {
     func separatedVersesSaveWithoutIncludingTheGap() async throws {
         let third = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 18)
         var created: YouVersionNoteCreateRequest?
-        let draft = BibleReaderNoteDraft(references: [first, third], referenceTitle: "John 3:16, 18") { created = $0 }
+        let draft = BibleReaderNoteDraft(references: [first, third], referenceTitle: "John 3:16, 18", account: nil, currentAccount: { nil }) { created = $0 }
         draft.content = "Reflection"
         #expect(draft.references.count == 2)
         #expect(draft.passage?.passageID == "JHN.3.16+JHN.3.18")
@@ -76,28 +76,29 @@ struct BibleReaderNotesTests {
     }
 
     @Test(arguments: ["", " \n\t "])
-    func blankContentCannotCreateNote(content: String) async {
-        var didCreate = false
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { _ in didCreate = true }
+    func blankContentCanSaveTheSelectedVerse(content: String) async {
+        var created: YouVersionNoteCreateRequest?
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil }) { created = $0 }
         draft.content = content
-        #expect(!draft.canSave)
-        #expect(await draft.save() == false)
-        #expect(!didCreate)
+        #expect(draft.canSave)
+        #expect(await draft.save())
+        #expect(created?.content == content)
+        #expect(created?.passage?.references == [first])
     }
 
     @Test
-    func privacyAndColorEditsEnableSaveWithoutInventingText() {
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
-        #expect(!draft.canSave)
+    func privacyAndColorEditsRetainTheAbilityToSaveWithoutText() {
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
+        #expect(draft.canSave)
         draft.isPublic = true
         #expect(!draft.hasTextChanges)
         #expect(draft.canSave)
         draft.isPublic = false
-        #expect(!draft.canSave)
+        #expect(draft.canSave)
         draft.colorHex = "ffec5b"
         #expect(draft.canSave)
         draft.colorHex = nil
-        #expect(!draft.canSave)
+        #expect(draft.canSave)
         draft.content = "Reflection"
         draft.isPublic = true
         #expect(draft.canSave)
@@ -108,7 +109,7 @@ struct BibleReaderNotesTests {
     @Test
     func savesExactContentVisibilityColorAndCapturedPassage() async throws {
         var captured: YouVersionNoteCreateRequest?
-        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16-17") { captured = $0 }
+        let draft = BibleReaderNoteDraft(references: [first, second], referenceTitle: "John 3:16-17", account: nil, currentAccount: { nil }) { captured = $0 }
         draft.content = "My reflection\nAnother line"
         draft.isPublic = true
         draft.colorHex = "ffec5b"
@@ -124,7 +125,7 @@ struct BibleReaderNotesTests {
     @Test
     func failedCreateRetainsDraftAndIdempotencyUntilPayloadChanges() async throws {
         var requests: [YouVersionNoteCreateRequest] = []
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { request in
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil }) { request in
             requests.append(request)
             throw URLError(.timedOut)
         }
@@ -145,7 +146,7 @@ struct BibleReaderNotesTests {
     @Test
     func authorizationFailureDoesNotSendCreateOrLoseText() async {
         var didCreate = false
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { _ in didCreate = true }
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil }) { _ in didCreate = true }
         draft.content = "Keep me"
         let saved = await draft.save(authorize: { throw YouVersionAPIError.notPermitted })
         #expect(!saved)
@@ -161,7 +162,7 @@ struct BibleReaderNotesTests {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { _ in
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil }) { _ in
             await withCheckedContinuation { continuation = $0 }
         }
         draft.content = "Reflection"
@@ -227,7 +228,7 @@ struct BibleReaderNotesTests {
         #expect(draft.content.isEmpty)
         #expect(!draft.isPublic)
         #expect(draft.colorHex == nil)
-        #expect(!draft.canSave)
+        #expect(draft.canSave)
     }
 
     @Test
@@ -236,7 +237,7 @@ struct BibleReaderNotesTests {
         {"id":"original","content":"Original text","status":"public","color":"ffec5b"}
         """.utf8))
         var created: YouVersionNoteCreateRequest?
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note]) { created = $0 }
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil }) { created = $0 }
         draft.copyText(from: note)
         #expect(!draft.canSave)
         draft.content += " with a new reflection"
@@ -253,7 +254,7 @@ struct BibleReaderNotesTests {
         let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
         {"id":"original","content":"Saved reflection","status":"private"}
         """.utf8))
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
         draft.copyText(from: note)
         #expect(!draft.canSave)
         #expect(!draft.hasChanges)
@@ -277,7 +278,7 @@ struct BibleReaderNotesTests {
         let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
         {"id":"original","content":"Saved reflection","status":"private"}
         """.utf8))
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
         draft.isPublic = true
         draft.colorHex = "ffec5b"
         draft.copyText(from: note)
@@ -304,7 +305,7 @@ struct BibleReaderNotesTests {
         let notes = try JSONDecoder().decode([YouVersionNote].self, from: data)
         var deletedIDs: [String] = []
         let draft = BibleReaderNoteDraft(
-            references: [first], referenceTitle: "John 3:16", savedNotes: notes,
+            references: [first], referenceTitle: "John 3:16", savedNotes: notes, account: nil, currentAccount: { nil },
             deleteNote: { deletedIDs.append($0) }
         )
         draft.content = "Unsaved reflection"
@@ -326,7 +327,7 @@ struct BibleReaderNotesTests {
         """.utf8))
         var didDelete = false
         let draft = BibleReaderNoteDraft(
-            references: [first], referenceTitle: "John 3:16", savedNotes: [note],
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil },
             deleteNote: { _ in
                 didDelete = true
                 throw URLError(.notConnectedToInternet)
@@ -351,7 +352,7 @@ struct BibleReaderNotesTests {
         """.utf8))
         var continuation: CheckedContinuation<Void, Never>?
         let draft = BibleReaderNoteDraft(
-            references: [first], referenceTitle: "John 3:16", savedNotes: [note],
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil },
             deleteNote: { _ in await withCheckedContinuation { continuation = $0 } }
         )
         draft.content = "Keep me"
@@ -375,8 +376,8 @@ struct BibleReaderNotesTests {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             isSignedIn: true, hasPermission: { $0 == YouVersionAPI.Users.writeNotesPermission }
         )
-        let old = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
-        let current = BibleReaderNoteDraft(references: [second], referenceTitle: "John 3:17")
+        let old = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
+        let current = BibleReaderNoteDraft(references: [second], referenceTitle: "John 3:17", account: nil, currentAccount: { nil })
         viewModel.noteDraft = current
         viewModel.finishNote(old)
         #expect(viewModel.noteDraft === current)

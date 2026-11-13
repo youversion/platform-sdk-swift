@@ -95,7 +95,8 @@ enum BibleReaderViewModelTestSupport {
         hasValidToken: Bool? = nil,
         validateToken: (@MainActor () async -> Bool)? = nil,
         signOut: @escaping @MainActor () -> Void = {},
-        hasPermission: @escaping @MainActor (String) -> Bool = { _ in false }
+        hasPermission: @escaping @MainActor (String) -> Bool = { _ in false },
+        readAccount: (@MainActor () -> BibleReaderAccount?)? = nil
     ) -> BibleReaderViewModel {
         let highlightsViewModel = BibleHighlightsViewModel(
             cache: BibleHighlightsCache(),
@@ -111,7 +112,16 @@ enum BibleReaderViewModelTestSupport {
                 return hasValidToken ?? readIsSignedIn?() ?? isSignedIn
             },
             signOut: signOut,
-            hasPermission: hasPermission
+            hasPermission: hasPermission,
+            account: {
+                if let readAccount {
+                    return readAccount()
+                }
+                guard readIsSignedIn?() ?? isSignedIn else {
+                    return nil
+                }
+                return makeAccount(userID: "reader-test-user")
+            }
         )
         return if let reference {
             BibleReaderViewModel(
@@ -130,6 +140,10 @@ enum BibleReaderViewModelTestSupport {
                 authentication: authentication
             )
         }
+    }
+
+    static func makeAccount(userID: String, accessToken: String = "reader-tests") -> BibleReaderAccount {
+        BibleReaderAccount(userID: userID, accessToken: accessToken, appKey: "reader-tests", apiHost: "api.youversion.com")
     }
 
     static func makeBibleVersion(id: Int, bookTitle: String = "John") -> BibleVersion {

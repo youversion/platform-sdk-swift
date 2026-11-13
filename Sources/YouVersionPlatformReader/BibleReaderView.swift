@@ -445,8 +445,10 @@ private struct ReaderContent: View {
             await updateSignInState()
         }
         .onReceive(
-            NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authStateDidChangeNotification)
+            NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification)
+                .receive(on: RunLoop.main)
         ) { _ in
+            viewModel.notesAuthenticationDidChange()
             Task {
                 await updateSignInState()
             }

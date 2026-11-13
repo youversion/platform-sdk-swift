@@ -102,6 +102,37 @@ struct BibleReaderNotesAuthenticationTests {
         #expect(!viewModel.startDataExchangeFlow)
     }
 
+    @Test(arguments: [false, true])
+    func disabledSignInAllowsOnlyAlreadyAuthorizedNotes(hasWritePermission: Bool) {
+        let appKey = YouVersionPlatformConfiguration.appKey
+        let apiHost = YouVersionPlatformConfiguration.apiHost
+        let appName = YouVersionPlatformConfiguration.appName
+        let prompt = YouVersionPlatformConfiguration.signInPromptMessage
+        let wasEnabled = YouVersionPlatformConfiguration.isSignInEnabled
+        let languageTags = YouVersionPlatformConfiguration.permittedLanguageTags
+        let versionIDs = YouVersionPlatformConfiguration.permittedVersionIds
+        let excludedIDs = YouVersionPlatformConfiguration.excludedVersionIds
+        defer {
+            YouVersionPlatformConfiguration.configure(
+                appKey: appKey, apiHost: apiHost, appName: appName, isSignInEnabled: wasEnabled,
+                signInPromptMessage: prompt, permittedLanguageTags: languageTags,
+                permittedVersionIds: versionIDs, excludedVersionIds: excludedIDs
+            )
+        }
+        YouVersionPlatformConfiguration.configure(appKey: appKey, isSignInEnabled: false)
+        let model = BibleReaderViewModelTestSupport.makeViewModel(
+            isSignedIn: true, hasPermission: { hasWritePermission && $0 == "write_notes" }
+        )
+        model.selectedVerses = [reference]
+        model.startNote()
+
+        #expect((model.noteDraft != nil) == hasWritePermission)
+        #expect(model.pendingNoteDraft == nil)
+        #expect(!model.isNoteAuthorizationPending)
+        #expect(!model.startSignInFlow)
+        #expect(!model.showingSignInSheet)
+    }
+
     @Test
     func dataExchangeGrantCannotReplaceOAuthNotesConsent() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(

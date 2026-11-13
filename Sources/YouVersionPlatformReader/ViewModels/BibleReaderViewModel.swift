@@ -178,6 +178,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.isSignedIn
     }
 
+    var signedInAccount: BibleReaderAccount? {
+        authentication.account
+    }
+
     /// Creates a view model displaying `reference`.
     convenience init(
         reference: BibleReference,
@@ -461,7 +465,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     @discardableResult
     func updateSignInState() async -> Bool {
-        await authentication.hasValidToken()
+        notesAuthenticationDidChange()
+        let hasValidToken = await authentication.hasValidToken()
+        notesAuthenticationDidChange()
+        return hasValidToken
     }
 
     /// Continues a pending highlight action after the user has completed sign-in.
@@ -550,6 +557,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Resumes only reader actions whose permission was granted during sign-in.
     func completeSignInFlow(with grantedPermissions: [String]) {
+        notesAuthenticationDidChange()
         startSignInFlow = false
         if isSignedIn && grantedPermissions.contains(Self.highlightsPermission) {
             continuePendingHighlightAfterSignIn()
@@ -629,11 +637,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func confirmSignOut() {
+        invalidateNoteDrafts()
         authentication.signOut()
         highlightsViewModel.reset()
         clearPendingHighlight()
-        pendingNoteDraft = nil
-        isNoteAuthorizationPending = false
     }
 
     func confirmPendingHighlightsSignOut() {
