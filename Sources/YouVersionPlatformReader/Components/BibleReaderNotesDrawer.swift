@@ -185,14 +185,18 @@ struct BibleReaderNotesDrawer: View {
         if YouVersionAPI.hasPermission(BibleReaderViewModel.notesPermission), await YouVersionAPI.hasValidToken() {
             return
         }
-        guard YouVersionPlatformConfiguration.isSignInEnabled else { throw YouVersionAPIError.missingAuthentication }
+        guard YouVersionPlatformConfiguration.isSignInEnabled else {
+            throw YouVersionAPIError.missingAuthentication
+        }
         let permissions = BibleReaderViewModel.signInPermissions
 #if !os(tvOS)
         let result = try await YouVersionAPI.Users.signIn(permissions: permissions, contextProvider: contextProvider)
 #else
         let result = try await YouVersionAPI.Users.signIn(permissions: permissions)
 #endif
-        guard result.permissionValues.contains(BibleReaderViewModel.notesPermission) else { throw YouVersionAPIError.notPermitted }
+        guard result.permissionValues.contains(BibleReaderViewModel.notesPermission) else {
+            throw YouVersionAPIError.notPermitted
+        }
     }
 }
 

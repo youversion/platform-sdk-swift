@@ -243,6 +243,42 @@ struct BibleNoteIndicatorsTests {
         #expect(!model.hasNotes(for: verse(3)))
     }
 
+    @Test(arguments: [false, true])
+    func delayedListCannotPublishAfterAccountChangeWithoutWaitingForNotification(signOut: Bool) async throws {
+        let original = YouVersionPlatformConfiguration.authData
+        defer {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+            if let original {
+                YouVersionPlatformConfiguration.saveAuthData(
+                    accessToken: original.accessToken, refreshToken: original.refreshToken,
+                    idToken: original.idToken, expiryDate: original.expiryDate, permissions: original.permissionValues
+                )
+            }
+        }
+        YouVersionPlatformConfiguration.saveAuthData(
+            accessToken: "fixture-a", refreshToken: nil, idToken: try identityToken("account-a"),
+            expiryDate: nil, permissions: ["read_notes"]
+        )
+        var completion: CheckedContinuation<YouVersionNoteCollection, Never>?
+        let model = BibleNoteIndicatorsModel(hasAccess: { true }) { _, _ in
+            await withCheckedContinuation { completion = $0 }
+        }
+        let task = Task { await model.load(chapter) }
+        while completion == nil { await Task.yield() }
+        if signOut {
+            YouVersionPlatformConfiguration.clearAuthTokens()
+        } else {
+            YouVersionPlatformConfiguration.saveAuthData(
+                accessToken: "fixture-b", refreshToken: nil, idToken: try identityToken("account-b"),
+                expiryDate: nil, permissions: ["read_notes"]
+            )
+        }
+        completion?.resume(returning: try collection([note("private-a", passage: "GEN.1.3")]))
+        await task.value
+        #expect(!model.hasNotes(for: verse(3)))
+        #expect(!model.loadFailed)
+    }
+
     private func identityToken(_ userID: String) throws -> String {
         let payload = try JSONSerialization.data(withJSONObject: ["sub": userID])
             .base64EncodedString().replacingOccurrences(of: "=", with: "")

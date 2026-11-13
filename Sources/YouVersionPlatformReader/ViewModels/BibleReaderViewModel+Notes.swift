@@ -10,11 +10,12 @@ extension BibleReaderViewModel {
 
     /// Captures the selection and opens Notes only after sign-in and the `write_notes` OAuth scope are satisfied.
     func startNote() {
+        notesAuthorizationDidChange()
         let references = BibleReference.referencesByMerging(references: Array(selectedVerses).sorted())
         guard !references.isEmpty else {
             return
         }
-        guard isSignedIn || YouVersionPlatformConfiguration.isSignInEnabled else {
+        guard (isSignedIn && hasNotesPermission) || YouVersionPlatformConfiguration.isSignInEnabled else {
             return
         }
         let draft: BibleReaderNoteDraft
@@ -25,6 +26,7 @@ extension BibleReaderViewModel {
         }
         showingVerseActionsDrawer = false
         if isSignedIn && hasNotesPermission {
+            draft.resumeAfterSignIn()
             pendingNoteDraft = nil
             isNoteAuthorizationPending = false
             noteDraft = draft
@@ -54,10 +56,11 @@ extension BibleReaderViewModel {
         guard isNoteAuthorizationPending, let pendingNoteDraft else {
             return
         }
-        guard isSignedIn && grantedPermissions.contains(Self.notesPermission) else {
+        guard pendingNoteDraft.canResumeAfterSignIn && isSignedIn && grantedPermissions.contains(Self.notesPermission) else {
             cancelPendingNote()
             return
         }
+        pendingNoteDraft.resumeAfterSignIn()
         self.pendingNoteDraft = nil
         isNoteAuthorizationPending = false
         showingVerseActionsDrawer = false
@@ -70,6 +73,11 @@ extension BibleReaderViewModel {
             return
         }
         isNoteAuthorizationPending = false
+        guard pendingNoteDraft.canResumeAfterSignIn else {
+            pendingNoteDraft.invalidate()
+            self.pendingNoteDraft = nil
+            return
+        }
         selectedVerses = pendingNoteDraft.selection
         showingVerseActionsDrawer = !selectedVerses.isEmpty
     }

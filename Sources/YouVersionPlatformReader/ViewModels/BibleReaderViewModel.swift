@@ -104,6 +104,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     var showingIntroFootnoteSheet = false
     var showingVerseActionsDrawer = false
     var noteDraft: BibleReaderNoteDraft?
+    private(set) var signInRequestID = UUID()
     var pendingNoteDraft: BibleReaderNoteDraft?
     var isNoteAuthorizationPending = false
     var showingSearchSheet = false
@@ -535,6 +536,32 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
+    /// Removes account-owned drawer data when the host changes authentication or Notes access.
+    func notesAuthorizationDidChange() {
+        if let noteDraft, !isSignedIn || !noteDraft.belongsToSignedInAccount ||
+            (!noteDraft.savedNotes.isEmpty && !hasReadNotesPermission) {
+            noteDraft.invalidate()
+            self.noteDraft = nil
+            signInRequestID = UUID()
+            startSignInFlow = false
+            isSigningIn = false
+            showingSignInSheet = false
+        }
+        if let pendingNoteDraft, !pendingNoteDraft.canResumeAfterSignIn {
+            pendingNoteDraft.invalidate()
+            self.pendingNoteDraft = nil
+            isNoteAuthorizationPending = false
+            signInRequestID = UUID()
+            startSignInFlow = false
+            isSigningIn = false
+            showingSignInSheet = false
+        }
+    }
+
+    private var hasReadNotesPermission: Bool {
+        authentication.hasPermission(YouVersionAPI.Users.readNotesPermission)
+    }
+
     var hasNotesPermission: Bool {
         authentication.hasPermission(Self.notesPermission)
     }
@@ -559,6 +586,22 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         continuePendingNote(with: grantedPermissions)
     }
 
+    /// Ignores browser results superseded by a different account or authorization attempt.
+    func completeSignInFlow(with grantedPermissions: [String], requestID: UUID) async {
+        guard signInRequestID == requestID else {
+            return
+        }
+        notesAuthorizationDidChange()
+        guard signInRequestID == requestID else {
+            return
+        }
+        await updateSignInState()
+        guard signInRequestID == requestID else {
+            return
+        }
+        completeSignInFlow(with: grantedPermissions)
+    }
+
     /// Pauses deferred actions when the sign-in prompt is dismissed without starting login.
     func cancelSignInPrompt() {
         guard !isSigningIn else {
@@ -569,6 +612,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Pauses cancelled or failed authentication without discarding either pending action.
     func cancelSignInFlow() {
+        signInRequestID = UUID()
         startSignInFlow = false
         isSigningIn = false
         cancelDataExchangePrompt()
@@ -577,17 +621,21 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
 #if !os(tvOS)
     func startSignIn(contextProvider: ASWebAuthenticationPresentationContextProviding) {
+        signInRequestID = UUID()
+        let requestID = signInRequestID
         Task {
-            defer { isSigningIn = false }
+            defer { if signInRequestID == requestID { isSigningIn = false } }
             do {
                 startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
                     permissions: Self.signInPermissions,
                     contextProvider: contextProvider
                 )
-                await updateSignInState()
-                completeSignInFlow(with: result.permissionValues)
+                await completeSignInFlow(with: result.permissionValues, requestID: requestID)
             } catch {
+                guard signInRequestID == requestID else {
+                    return
+                }
                 cancelSignInFlow()
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
@@ -595,16 +643,20 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 #else
     func startSignIn() {
+        signInRequestID = UUID()
+        let requestID = signInRequestID
         Task {
-            defer { isSigningIn = false }
+            defer { if signInRequestID == requestID { isSigningIn = false } }
             do {
                 startSignInFlow = false
                 let result = try await YouVersionAPI.Users.signIn(
                     permissions: Self.signInPermissions
                 )
-                await updateSignInState()
-                completeSignInFlow(with: result.permissionValues)
+                await completeSignInFlow(with: result.permissionValues, requestID: requestID)
             } catch {
+                guard signInRequestID == requestID else {
+                    return
+                }
                 cancelSignInFlow()
                 YouVersionPlatformLogger.error("\(error)", category: "Reader")
             }
@@ -632,8 +684,12 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.signOut()
         highlightsViewModel.reset()
         clearPendingHighlight()
+        noteDraft?.invalidate()
+        pendingNoteDraft?.invalidate()
+        noteDraft = nil
         pendingNoteDraft = nil
         isNoteAuthorizationPending = false
+        signInRequestID = UUID()
     }
 
     func confirmPendingHighlightsSignOut() {

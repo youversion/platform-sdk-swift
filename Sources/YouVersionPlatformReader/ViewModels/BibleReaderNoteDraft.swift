@@ -29,6 +29,9 @@ final class BibleReaderNoteDraft: Identifiable {
     private var originalIsPublic = false
     private var originalColorHex: String?
     private var requestID = UUID()
+    private var account: BibleNotesAccount
+    private let readAccount: @MainActor () -> BibleNotesAccount
+    private var isInvalidated = false
     private let deleteNote: @MainActor (String) async throws -> Void
     private let createNote: @MainActor (YouVersionNoteCreateRequest) async throws -> Void
 
@@ -40,8 +43,11 @@ final class BibleReaderNoteDraft: Identifiable {
         createNote: @escaping @MainActor (YouVersionNoteCreateRequest) async throws -> Void = { request in
             _ = try await YouVersionAPI.Notes.createNote(request)
         },
-        deleteNote: @escaping @MainActor (String) async throws -> Void = BibleReaderNoteDraft.defaultDeleteNote
+        deleteNote: @escaping @MainActor (String) async throws -> Void = BibleReaderNoteDraft.defaultDeleteNote,
+        account: @escaping @MainActor () -> BibleNotesAccount = BibleReaderNoteDraft.signedInAccount
     ) {
+        self.readAccount = account
+        self.account = account()
         selection = Set(references)
         self.references = BibleReference.referencesByMerging(references: references.sorted())
         self.referenceTitle = referenceTitle
@@ -51,17 +57,48 @@ final class BibleReaderNoteDraft: Identifiable {
         self.deleteNote = deleteNote
     }
 
+    // A function supplies the initializer's account dependency.
+    // swiftlint:disable:next var_over_func
+    private static func signedInAccount() -> BibleNotesAccount { .signedIn }
+
+    var belongsToSignedInAccount: Bool { !isInvalidated && account == readAccount() }
+    var canResumeAfterSignIn: Bool {
+        let signedInAccount = readAccount()
+        return !isInvalidated && account.appKey == signedInAccount.appKey && account.apiHost == signedInAccount.apiHost &&
+            (account.userID == nil || account == signedInAccount)
+    }
+
+    /// Binds a draft captured before sign-in to the user who completed that sign-in.
+    func resumeAfterSignIn() {
+        if canResumeAfterSignIn { account = readAccount() }
+    }
+
+    /// Removes private data and prevents suspended operations from publishing further results.
+    func invalidate() {
+        isInvalidated = true
+        savedNotes = []
+        content = ""
+        originalContent = ""
+        isPublic = false
+        colorHex = nil
+        showingSaveError = false
+        showingDiscardConfirmation = false
+    }
+
     var isBusy: Bool { isSaving || isDeleting }
     var hasTextChanges: Bool { content != originalContent }
     var hasChanges: Bool { hasTextChanges || hasMetadataChanges }
     private var hasMetadataChanges: Bool { isPublic != originalIsPublic || colorHex != originalColorHex }
     var canSave: Bool {
-        let hasEdits = (hasTextChanges && !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) || hasMetadataChanges
-        return hasEdits && passage != nil && !isBusy
+        let hasValidContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return belongsToSignedInAccount && hasValidContent && hasChanges && passage != nil && !isBusy
     }
 
     /// Copies saved text as the starting point for a new note; unchanged copies cannot be saved.
     func copyText(from note: YouVersionNote) {
+        guard belongsToSignedInAccount else {
+            return
+        }
         content = note.content
         originalContent = note.content
         originalIsPublic = isPublic
@@ -74,18 +111,27 @@ final class BibleReaderNoteDraft: Identifiable {
 
     /// Removes a saved note only after the server confirms deletion, preserving the composer on failure.
     func delete(_ note: YouVersionNote, authorize: @MainActor () async throws -> Void = {}) async -> Bool {
-        guard !isBusy && savedNotes.contains(where: { $0.id == note.id }) else {
+        guard belongsToSignedInAccount && !isBusy && savedNotes.contains(where: { $0.id == note.id }) else {
             return false
         }
         isDeleting = true
         defer { isDeleting = false }
         do {
             try await authorize()
+            guard belongsToSignedInAccount else {
+                return false
+            }
             try await deleteNote(note.id)
+            guard belongsToSignedInAccount else {
+                return false
+            }
             savedNotes.removeAll { $0.id == note.id }
             NotificationCenter.default.post(name: .youVersionNotesChanged, object: nil)
             return true
         } catch {
+            guard belongsToSignedInAccount else {
+                return false
+            }
             showingSaveError = true
             return false
         }
@@ -104,10 +150,19 @@ final class BibleReaderNoteDraft: Identifiable {
         )
         do {
             try await authorize()
+            guard belongsToSignedInAccount else {
+                return false
+            }
             try await createNote(request)
+            guard belongsToSignedInAccount else {
+                return false
+            }
             NotificationCenter.default.post(name: .youVersionNotesChanged, object: nil)
             return true
         } catch {
+            guard belongsToSignedInAccount else {
+                return false
+            }
             showingSaveError = true
             return false
         }

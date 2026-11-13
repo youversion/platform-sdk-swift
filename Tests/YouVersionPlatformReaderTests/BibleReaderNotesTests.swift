@@ -86,16 +86,18 @@ struct BibleReaderNotesTests {
     }
 
     @Test
-    func privacyAndColorEditsEnableSaveWithoutInventingText() {
+    func privacyAndColorEditsNeedValidTextBeforeSaving() {
         let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16")
         #expect(!draft.canSave)
         draft.isPublic = true
         #expect(!draft.hasTextChanges)
-        #expect(draft.canSave)
+        #expect(draft.hasChanges)
+        #expect(!draft.canSave)
         draft.isPublic = false
         #expect(!draft.canSave)
         draft.colorHex = "ffec5b"
-        #expect(draft.canSave)
+        #expect(draft.hasChanges)
+        #expect(!draft.canSave)
         draft.colorHex = nil
         #expect(!draft.canSave)
         draft.content = "Reflection"
@@ -103,6 +105,65 @@ struct BibleReaderNotesTests {
         #expect(draft.canSave)
         draft.isPublic = false
         #expect(draft.canSave)
+    }
+
+    @Test(arguments: ["", " ", "\n", " \n\t "], ["color", "visibility", "both"])
+    func blankContentCannotBypassSaveValidationWithMetadata(content: String, change: String) async {
+        var creates = 0
+        var authorizations = 0
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16") { _ in creates += 1 }
+        draft.content = content
+        draft.isPublic = change != "color"
+        draft.colorHex = change == "visibility" ? nil : "ffec5b"
+        #expect(draft.hasChanges)
+        #expect(!draft.canSave)
+        #expect(await draft.save(authorize: { authorizations += 1 }) == false)
+        #expect(creates == 0)
+        #expect(authorizations == 0)
+        #expect(!draft.isBusy)
+        #expect(!draft.showingSaveError)
+        #expect(draft.content == content)
+    }
+
+    @Test(arguments: ["unchanged", "color", "visibility", "both"])
+    func copiedNonblankNoteCanCreateWithOnlyMetadataChanges(change: String) async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Copied reflection","status":"private"}
+        """.utf8))
+        var created: YouVersionNoteCreateRequest?
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note]) { created = $0 }
+        draft.copyText(from: note)
+        draft.isPublic = change == "visibility" || change == "both"
+        draft.colorHex = change == "color" || change == "both" ? "ffec5b" : nil
+        #expect(!draft.hasTextChanges)
+        #expect(draft.hasChanges == (change != "unchanged"))
+        #expect(draft.canSave == (change != "unchanged"))
+        #expect(await draft.save() == (change != "unchanged"))
+        if change == "unchanged" {
+            #expect(created == nil)
+        } else {
+            let request = try #require(created)
+            #expect(request.content == note.content)
+            #expect(request.status == (draft.isPublic ? .public : .private))
+            #expect(request.color == draft.colorHex)
+        }
+        #expect(draft.savedNotes == [note])
+    }
+
+    @Test
+    func clearingCopiedTextCannotSaveEvenWithMetadataChanges() async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Copied reflection","status":"private"}
+        """.utf8))
+        var didCreate = false
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note]) { _ in didCreate = true }
+        draft.copyText(from: note)
+        draft.content = " \n\t "
+        draft.isPublic = true
+        #expect(draft.hasChanges)
+        #expect(!draft.canSave)
+        #expect(await draft.save() == false)
+        #expect(!didCreate)
     }
 
     @Test

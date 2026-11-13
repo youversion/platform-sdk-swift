@@ -42,7 +42,7 @@ final class BibleNoteIndicatorsModel {
 
     /// Invalidates pending requests, retaining a snapshot only while its account still has read access.
     func authorizationDidChange() {
-        let signedInAccount = Account.signedIn
+        let signedInAccount = BibleNotesAccount.signedIn
         if !canReadNotes || signedInAccount.userID == nil || snapshot?.account != signedInAccount {
             clear()
         } else {
@@ -58,7 +58,7 @@ final class BibleNoteIndicatorsModel {
     /// A same-account, same-chapter refresh retains its snapshot until success, including on transient failure.
     func load(_ reference: BibleReference) async {
         let chapter = reference.chapterReference
-        let requestAccount = Account.signedIn
+        let requestAccount = BibleNotesAccount.signedIn
         if let snapshot, snapshot.chapter != chapter || snapshot.account != requestAccount {
             self.snapshot = nil
         }
@@ -71,7 +71,7 @@ final class BibleNoteIndicatorsModel {
             var visitedTokens: Set<String> = []
             repeat {
                 let result = try await notesPage(chapter, token)
-                guard !Task.isCancelled && loadingRequestID == requestID else {
+                guard !Task.isCancelled && loadingRequestID == requestID && BibleNotesAccount.signedIn == requestAccount else {
                     return
                 }
                 notes += result.notes
@@ -91,7 +91,7 @@ final class BibleNoteIndicatorsModel {
             }
             snapshot = Snapshot(chapter: chapter, account: requestAccount, notes: cachedNotes)
         } catch {
-            guard !Task.isCancelled && loadingRequestID == requestID else {
+            guard !Task.isCancelled && loadingRequestID == requestID && BibleNotesAccount.signedIn == requestAccount else {
                 return
             }
             switch error {
@@ -119,22 +119,8 @@ final class BibleNoteIndicatorsModel {
 
     private struct Snapshot {
         let chapter: BibleReference
-        let account: Account
+        let account: BibleNotesAccount
         let notes: [(note: YouVersionNote, references: [BibleReference])]
-    }
-
-    private struct Account: Equatable {
-        let userID: String?
-        let appKey: String?
-        let apiHost: String
-
-        static var signedIn: Self {
-            Self(
-                userID: YouVersionAPI.Users.currentUserId,
-                appKey: YouVersionPlatformConfiguration.appKey,
-                apiHost: YouVersionPlatformConfiguration.apiHost
-            )
-        }
     }
 
 }
