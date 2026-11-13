@@ -95,17 +95,17 @@ struct BibleReaderNoteAccountTests {
         var continuation: CheckedContinuation<Void, Never>?
         var didSendRequest = false
         var observedCancellation = false
-        @MainActor func suspendOperation() async {
+        @MainActor @Sendable func suspendOperation() async {
             await withCheckedContinuation { continuation = $0 }
             observedCancellation = Task.isCancelled
         }
-        @MainActor func mutate() async {
+        @MainActor @Sendable func mutate() async {
             didSendRequest = true
             if !isAuthorizing {
                 await suspendOperation()
             }
         }
-        @MainActor func authorize() async throws {
+        @MainActor @Sendable func authorize() async throws {
             if isAuthorizing {
                 await suspendOperation()
             }

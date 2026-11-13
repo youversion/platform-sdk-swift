@@ -152,6 +152,8 @@ final class BibleReaderNoteDraft: Identifiable {
         return true
     }
 
+    // Validation also invalidates and cancels account-owned state on failure.
+    // swiftlint:disable:next var_over_func
     private func validateAccount() -> Bool {
         guard !isInvalidated && account == currentAccount() else {
             invalidate()
