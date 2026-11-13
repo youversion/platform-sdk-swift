@@ -30,6 +30,13 @@ public struct YouVersionPlatformConfiguration {
     /// Exclusion takes precedence over ``permittedVersionIds``.
     nonisolated(unsafe) public private(set) static var excludedVersionIds: Set<Int> = []
 
+    /// The user's preferred Bible languages as BCP 47 tags, highest priority first.
+    /// The version picker's Suggested and All language lists show these languages
+    /// first, in this order. When empty (the default), the lists keep their standard
+    /// order. Update it with ``setPreferredLanguageTags(_:)`` as the user's
+    /// preferences change.
+    nonisolated(unsafe) package private(set) static var preferredLanguageTags: [String] = []
+
     private static let installIdKey = "YouVersionPlatformInstallID"
     nonisolated(unsafe) public private(set) static var installId: String?
 
@@ -88,6 +95,13 @@ public struct YouVersionPlatformConfiguration {
         }
     }
     
+    /// Updates the user's ordered preferred Bible languages. Call it at launch and
+    /// whenever the user changes their preferences. See ``preferredLanguageTags``.
+    @MainActor
+    public static func setPreferredLanguageTags(_ tags: [String]) {
+        Self.preferredLanguageTags = tags
+    }
+
     @MainActor
     public static func configureSignIn(appName: String, signInPromptMessage: String? = nil) {
         Self.appName = appName

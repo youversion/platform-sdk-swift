@@ -20,34 +20,19 @@ public struct BibleVersionsListView: View {
                 .buttonStyle(.plain)
             }
             Group {
-                if let versions = filteredVersions {
-                    if versions.isEmpty && hasSearchText {
-                        Text(String.localized("versionList.noSearchResults"))
-                            .foregroundStyle(viewModel.readerTextMutedColor)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        List(versions, id: \.id) { version in
-                            Button {
-                                viewModel.handleVersionPickerTap(version.id)
-                            } label: {
-                                BibleVersionOverviewListItem(version: version)
-                            }
-                            .buttonStyle(.plain)
-                            .listRowBackground(viewModel.readerCanvasPrimaryColor)
-#if !os(tvOS)
-                            .listRowSeparator(.hidden)
-#endif
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                        }
-                        .listStyle(.plain)
-                    }
-                } else {
+                if isLoading && matchingMyVersions.isEmpty {
                     VStack {
                         Spacer()
                         ProgressView()
                             .tint(viewModel.readerTextMutedColor)
                         Spacer()
                     }
+                } else if hasSearchText && matchingMyVersions.isEmpty && otherVersions.isEmpty {
+                    Text(String.localized("versionList.noSearchResults"))
+                        .foregroundStyle(viewModel.readerTextMutedColor)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    versionsView
                 }
             }
         }
@@ -69,6 +54,52 @@ public struct BibleVersionsListView: View {
         .onChange(of: viewModel.activeLanguage, initial: true) { _, newValue in
             viewModel.fetchVersions(forLanguageTag: newValue)
         }
+    }
+
+    private var versionsView: some View {
+        List {
+            if showsMyVersionsSection {
+                headerRow(String.localized("myVersions.title"))
+                ForEach(matchingMyVersions, id: \.id) { version in
+                    BibleVersionsMyVersionsListItem(version: version)
+                        .listRowBackground(viewModel.readerCanvasPrimaryColor)
+#if !os(tvOS)
+                        .listRowSeparator(.hidden)
+#endif
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                }
+                if !otherVersions.isEmpty {
+                    headerRow(viewModel.languageName(viewModel.activeLanguage))
+                }
+            }
+            ForEach(otherVersions, id: \.id) { version in
+                Button {
+                    viewModel.handleVersionPickerTap(version.id)
+                } label: {
+                    BibleVersionOverviewListItem(version: version)
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(viewModel.readerCanvasPrimaryColor)
+#if !os(tvOS)
+                .listRowSeparator(.hidden)
+#endif
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    private func headerRow(_ title: String) -> some View {
+        Text(title)
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundStyle(viewModel.readerTextMutedColor)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .listRowBackground(viewModel.readerCanvasPrimaryColor)
+#if !os(tvOS)
+            .listRowSeparator(.hidden)
+#endif
+            .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 4, trailing: 16))
     }
 
     private var searchInput: some View {
@@ -119,6 +150,28 @@ public struct BibleVersionsListView: View {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var isLoading: Bool {
+        viewModel.versionsByLanguageTag[viewModel.activeLanguage] == nil
+    }
+
+    private var showsMyVersionsSection: Bool {
+        !matchingMyVersions.isEmpty
+    }
+
+    /// The user's saved versions in every language, narrowed by any search text.
+    private var matchingMyVersions: [BibleVersion] {
+        let sorted = viewModel.myVersions.sorted { $0.localizedTitle ?? "" < $1.localizedTitle ?? "" }
+        return filteredBibleVersions(sorted, matching: searchText)
+    }
+
+    /// Versions in the active language that aren't already listed under My Versions.
+    private var otherVersions: [BibleVersion] {
+        let language = viewModel.activeLanguage
+        let all = viewModel.versionsByLanguageTag[language] ?? []
+        let myIds = Set(matchingMyVersions.map(\.id))
+        return filteredBibleVersions(all, matching: searchText).filter { !myIds.contains($0.id) }
+    }
+
     private var languageDisplay: some View {
         let language = viewModel.activeLanguage
         let versionsInLanguage = viewModel.cachedPermittedVersions?.filter { $0.languageTag == language } ?? []
@@ -137,14 +190,6 @@ public struct BibleVersionsListView: View {
             Spacer()
         }
         .padding()
-    }
-
-    private var filteredVersions: [BibleVersion]? {
-        let language = viewModel.activeLanguage
-        guard let versions = viewModel.versionsByLanguageTag[language] else {
-            return nil
-        }
-        return filteredBibleVersions(versions, matching: searchText)
     }
 
 }

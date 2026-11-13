@@ -94,4 +94,35 @@ import Testing
     @Test func emptyTagListReturnsEmpty() {
         #expect(filteredLanguageTags([], matching: "en", languageName: { $0 }).isEmpty)
     }
+
+    // MARK: - orderedLanguageTags(_:preferredFirst:)
+
+    @Test func noPreferredLeavesOrderUnchanged() {
+        #expect(orderedLanguageTags(["en", "es", "sw"], preferredFirst: []) == ["en", "es", "sw"])
+    }
+
+    @Test func pinsPreferredTagsInPriorityOrder() {
+        #expect(orderedLanguageTags(["en", "es", "sw"], preferredFirst: ["sw", "es"]) == ["sw", "es", "en"])
+    }
+
+    @Test func keepsTheRestInIncomingOrder() {
+        #expect(orderedLanguageTags(["sw", "fr", "en", "es"], preferredFirst: ["es"]) == ["es", "sw", "fr", "en"])
+    }
+
+    @Test func skipsPreferredTagsNotPresent() {
+        #expect(orderedLanguageTags(["en", "es"], preferredFirst: ["uz", "es"]) == ["es", "en"])
+    }
+
+    @Test func pinsARepeatedPreferredTagOnceAtHighestPriority() {
+        #expect(orderedLanguageTags(["en", "es", "fr"], preferredFirst: ["es", "fr", "es"]) == ["es", "fr", "en"])
+    }
+
+    @Test func dropsNothingAndAddsNothing() {
+        let result = orderedLanguageTags(["en", "es", "sw"], preferredFirst: ["fr", "sw"])
+        #expect(result.sorted() == ["en", "es", "sw"])
+    }
+
+    @Test func emptyTagsStaysEmpty() {
+        #expect(orderedLanguageTags([], preferredFirst: ["es"]).isEmpty)
+    }
 }
