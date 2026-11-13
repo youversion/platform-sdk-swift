@@ -48,6 +48,7 @@ import YouVersionPlatformUI
         }
     }
 
+    /// Confirms the YPE-6072 failure and retry strings resolve in English.
     @Test
     func requestFailureCopyIsAvailableInEnglish() {
         #expect(

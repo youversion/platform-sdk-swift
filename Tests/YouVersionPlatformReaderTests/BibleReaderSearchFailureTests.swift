@@ -7,6 +7,7 @@ import Testing
 extension BibleReaderViewModelSearchTests {
     private typealias FailureSupport = BibleReaderViewModelTestSupport
 
+    /// Failed first-page searches stay in `.failed` instead of looking empty.
     @Test(arguments: [403, 429, 500])
     func failedInitialRequestDoesNotBecomeAnEmptyResult(statusCode: Int) async {
         URLProtocol.registerClass(SearchFailureURLProtocol.self)
@@ -21,6 +22,7 @@ extension BibleReaderViewModelSearchTests {
         #expect(!viewModel.hasNextSearchPageLoadError)
     }
 
+    /// Pagination failures keep prior hits, reuse the same token, and recover on retry.
     @Test(arguments: [403, 429, 500])
     func failedNextPagePreservesResultsAndAllowsManualRetry(statusCode: Int) async {
         URLProtocol.registerClass(SearchFailureURLProtocol.self)
@@ -56,6 +58,7 @@ extension BibleReaderViewModelSearchTests {
         #expect(!viewModel.hasNextSearchPage)
     }
 
+    /// A successful empty payload stays `.completed` with no failure flags.
     @Test
     func successfulEmptyResponseRetainsTheDistinctEmptyState() async {
         URLProtocol.registerClass(SearchFailureURLProtocol.self)
@@ -83,14 +86,14 @@ private final class SearchFailureURLProtocol: URLProtocol, @unchecked Sendable {
     }
 
     override class func canInit(with request: URLRequest) -> Bool {
-        guard let url = request.url,
-              url.path == "/v1/search-verses",
-              let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return false
+        if let url = request.url,
+           url.path == "/v1/search-verses",
+           let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+            return components.queryItems?.contains {
+                $0.name == "query" && ($0.value?.hasPrefix("YPE-6072-") ?? false)
+            } == true
         }
-        return components.queryItems?.contains {
-            $0.name == "query" && ($0.value?.hasPrefix("YPE-6072-") ?? false)
-        } == true
+        return false
     }
 
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
@@ -98,17 +101,17 @@ private final class SearchFailureURLProtocol: URLProtocol, @unchecked Sendable {
     }
 
     override func startLoading() {
-        guard let url = request.url,
-              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let query = components.queryItems?.first(where: { $0.name == "query" })?.value,
-              let statusCode = Int(query.split(separator: "-").last ?? "") else {
+        if let url = request.url,
+           let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+           let query = components.queryItems?.first(where: { $0.name == "query" })?.value,
+           let statusCode = Int(query.split(separator: "-").last ?? "") {
+            let pageToken = components.queryItems?.first { $0.name == "page_token" }?.value
+            Task {
+                let attempt = await Self.requests.record(query: query, pageToken: pageToken)
+                respond(url: url, query: query, pageToken: pageToken, statusCode: statusCode, attempt: attempt)
+            }
+        } else {
             client?.urlProtocol(self, didFailWithError: URLError(.badURL))
-            return
-        }
-        let pageToken = components.queryItems?.first { $0.name == "page_token" }?.value
-        Task {
-            let attempt = await Self.requests.record(query: query, pageToken: pageToken)
-            respond(url: url, query: query, pageToken: pageToken, statusCode: statusCode, attempt: attempt)
         }
     }
 
