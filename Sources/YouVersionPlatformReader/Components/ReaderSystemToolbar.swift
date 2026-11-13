@@ -35,6 +35,7 @@ struct ReaderSystemToolbar: ToolbarContent {
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
+            .accessibilityLabel(String.localized("moreMenuAriaLabel"))
             .accessibilityIdentifier("readerMenuBtn")
         }
     }

@@ -51,7 +51,7 @@ struct ReaderNavigationActionButton: View {
 
     private var title: String {
         switch action {
-        case .search: String.localized("generic.search")
+        case .search: String.localized("search")
         }
     }
 }

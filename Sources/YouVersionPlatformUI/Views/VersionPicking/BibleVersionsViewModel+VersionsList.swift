@@ -87,7 +87,7 @@ extension BibleVersionsViewModel {
     public func languageTapped() {
         if cachedPermittedVersions?.isEmpty ?? true {
             showGenericAlert = true
-            textForGenericAlertTitle = .localized("generic.error")
+            textForGenericAlertTitle = .localized("error")
             textForGenericAlertBody = .localized("reader.availableLanguagesErrorBody")
         } else {
             versionsStackPush(to: .languages)
@@ -121,7 +121,7 @@ extension BibleVersionsViewModel {
     func handleVersionLoadingError(_ error: Error) {
         YouVersionPlatformLogger.error("Error loading version: \(error)", category: "Reader")
         showGenericAlert = true
-        textForGenericAlertTitle = .localized("generic.error")
+        textForGenericAlertTitle = .localized("error")
         textForGenericAlertBody = .localized("reader.versionAccessErrorBody")
     }
 }

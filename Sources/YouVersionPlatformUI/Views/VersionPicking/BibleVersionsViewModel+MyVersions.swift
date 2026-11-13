@@ -45,7 +45,7 @@ extension BibleVersionsViewModel {
             conditionalDownloadButtonTapped(version: version)
         } else {
             showGenericAlert = true
-            textForGenericAlertTitle = .localized("generic.error")
+            textForGenericAlertTitle = .localized("error")
             textForGenericAlertBody = .localized("myVersions.downloadErrorBody")
         }
     }
