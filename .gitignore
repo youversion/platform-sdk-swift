@@ -77,3 +77,6 @@ yarn-error.log*
 # The path is anchored to the repo root so a future `docs/notes.md` (or
 # anything in a subdirectory) is not silently ignored.
 /notes.md
+
+# Local typography screenshot evidence
+/docs/images/YPE-6337/
