@@ -48,6 +48,17 @@ import YouVersionPlatformUI
         }
     }
 
+    /// Confirms the YPE-6072 failure and retry strings resolve in English.
+    @Test
+    func requestFailureCopyIsAvailableInEnglish() {
+        #expect(
+            localizedString(forKey: "generic.requestErrorBody", languageCode: "en") ==
+                "This request can’t be completed right now."
+        )
+        #expect(localizedString(forKey: "retry", languageCode: "en") == "Retry")
+        #expect(localizedString(forKey: "error", languageCode: "en") == "Error")
+    }
+
     @Test
     func genericOkIsTranslatedInEnglish() {
         #expect(
