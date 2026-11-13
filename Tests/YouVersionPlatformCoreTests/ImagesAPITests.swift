@@ -183,9 +183,7 @@ struct ImagesAPITests {
                 _ = try await YouVersionAPI.Images.images(accessToken: "images-tests", session: session)
             }
         } throws: { error in
-            if case YouVersionAPIError.notPermitted = error { return status == 401 || status == 403 }
-            if case YouVersionAPIError.cannotDownload = error { return status != 401 && status != 403 }
-            return false
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: status)
         }
     }
 

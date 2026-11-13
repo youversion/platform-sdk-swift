@@ -5,29 +5,29 @@ import YouVersionPlatformUI
 @Suite struct LocalizationTests {
     @Test
     func englishDefaultCancelIsTranslated() {
-        let value = localizedString(forKey: "generic.cancel", languageCode: "en")
+        let value = localizedString(forKey: "cancel", languageCode: "en")
 
         #expect(value == "Cancel")
-        #expect(value != "generic.cancel")
+        #expect(value != "cancel")
     }
 
     @Test
     func germanStringsAreTranslated() {
         #expect(
-            localizedString(forKey: "generic.cancel", languageCode: "de") == "Abbrechen"
+            localizedString(forKey: "cancel", languageCode: "de") == "Abbrechen"
         )
         #expect(
-            localizedString(forKey: "bookChapterPicker.title", languageCode: "de") == "Bücher"
+            localizedString(forKey: "booksHeading", languageCode: "de") == "Bücher"
         )
     }
 
     @Test
     func frenchAndSpanishMexicoCancelAreTranslated() {
         #expect(
-            localizedString(forKey: "generic.cancel", languageCode: "fr") == "Annuler"
+            localizedString(forKey: "cancel", languageCode: "fr") == "Annuler"
         )
         #expect(
-            localizedString(forKey: "generic.cancel", languageCode: "es-MX") == "Cancelar"
+            localizedString(forKey: "cancel", languageCode: "es-MX") == "Cancelar"
         )
     }
 
@@ -43,7 +43,7 @@ import YouVersionPlatformUI
     func youVersionUIBundleContainsExpectedLocalizations() {
         for languageCode in ["de", "fr", "es-MX"] {
             #expect(
-                localizedString(forKey: "generic.cancel", languageCode: languageCode) != "generic.cancel"
+                localizedString(forKey: "cancel", languageCode: languageCode) != "cancel"
             )
         }
     }
@@ -55,13 +55,13 @@ import YouVersionPlatformUI
                 "This request can’t be completed right now."
         )
         #expect(localizedString(forKey: "retry", languageCode: "en") == "Retry")
-        #expect(localizedString(forKey: "generic.error", languageCode: "en") == "Error")
+        #expect(localizedString(forKey: "error", languageCode: "en") == "Error")
     }
 
     @Test
     func genericOkIsTranslatedInEnglish() {
         #expect(
-            localizedString(forKey: "generic.ok", languageCode: "en") == "OK"
+            localizedString(forKey: "ok", languageCode: "en") == "OK"
         )
     }
 }

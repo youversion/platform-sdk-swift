@@ -127,15 +127,43 @@ extension ConfigurationStateTests {
                 return (Data(), response)
             }
             
-            await #expect(throws: YouVersionAPIError.cannotDownload) {
+            await #expect {
                 _ = try await YouVersionAPI.DataExchange.updateToken(
                     permissions: ["highlights"],
                     accessToken: "access-token",
                     session: session
                 )
-            }
+            } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
         }
         
+        @MainActor
+        @Test(arguments: [200, 403, 404, 429, 503])
+        func tokenNonCreatedStatusThrowsMatchingError(statusCode: Int) async {
+            let originalAppKey = YouVersionPlatformConfiguration.appKey
+            YouVersionPlatformConfiguration.configure(appKey: "test-app-key")
+            defer {
+                YouVersionPlatformConfiguration.configure(appKey: originalAppKey)
+            }
+
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+
+            HTTPMocking.setHandler(token: token) { request in
+                let response = HTTPURLResponse(url: request.url!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+                return (Data(), response)
+            }
+
+            await #expect {
+                _ = try await YouVersionAPI.DataExchange.updateToken(
+                    permissions: ["highlights"],
+                    accessToken: "access-token",
+                    session: session
+                )
+            } throws: { error in
+                HTTPStatusErrorTests.isExpectedError(error, forStatusCode: statusCode)
+            }
+        }
+
         @MainActor
         @Test func tokenNonHTTPResponseThrowsInvalidResponse() async throws {
             let originalAppKey = YouVersionPlatformConfiguration.appKey

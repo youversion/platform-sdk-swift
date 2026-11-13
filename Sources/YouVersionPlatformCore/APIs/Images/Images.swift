@@ -22,7 +22,8 @@ public extension YouVersionAPI {
         ///   - session: The URL session used to perform the request.
         /// - Returns: Full image records, an optional total, and an optional continuation token.
         ///   Filters matching nothing produce an empty `images` array.
-        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes; `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
+        /// - Throws: `YouVersionAPIRequestError` with code `.invalidParameter` for invalid page sizes;
+        ///   `URLError` for URL or transport failures; `YouVersionAPIError` for HTTP failures;
         ///   or `DecodingError` for malformed metadata.
         public static func images(
             passageID: String? = nil,

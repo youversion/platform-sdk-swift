@@ -325,31 +325,31 @@ private struct ReaderContent: View {
         .foregroundStyle(viewModel.readerTextPrimaryColor)
         .background(viewModel.readerCanvasPrimaryColor)
         .alert(
-            String.localized("signOut.question"),
+            String.localized("signOutQuestion"),
             isPresented: $viewModel.showSignOutConfirmation
         ) {
-            Button(String.localized("button.signOut"), role: .destructive) { viewModel.confirmSignOut() }
-            Button(String.localized("generic.cancel"), role: .cancel) { }
+            Button(String.localized("signOut"), role: .destructive) { viewModel.confirmSignOut() }
+            Button(String.localized("cancel"), role: .cancel) { }
         } message: {
-            Text(String.localized("signOut.explanation"))
+            Text(String.localized("signOutExplanation"))
         }
         .alert(
-            String.localized("signOut.pendinghighlights.question"),
+            String.localized("signOutPendingHighlightsQuestion"),
             isPresented: $viewModel.showSignOutWithPendingHighlightsConfirmation
         ) {
-            Button(String.localized("signOut.pendinghighlights.confirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
-            Button(String.localized("generic.cancel"), role: .cancel) { }
+            Button(String.localized("signOutPendingHighlightsConfirm"), role: .destructive) { viewModel.confirmPendingHighlightsSignOut() }
+            Button(String.localized("cancel"), role: .cancel) { }
         } message: {
-            Text(String.localized("signOut.pendinghighlights.explanation"))
+            Text(String.localized("signOutPendingHighlightsExplanation"))
         }
         .alert(
-            String.localized("dataExchange.highlights.question"),
+            String.localized("dataExchangeHighlightsQuestion"),
             isPresented: $viewModel.showingDataExchangeConfirmation
         ) {
-            Button(String.localized("generic.cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
-            Button(String.localized("dataExchange.continue")) { viewModel.confirmDataExchangePrompt() }
+            Button(String.localized("cancel"), role: .cancel) { viewModel.cancelDataExchangePrompt() }
+            Button(String.localized("dataExchangeContinue")) { viewModel.confirmDataExchangePrompt() }
         } message: {
-            Text(String.localized("dataExchange.highlights.explanation"))
+            Text(String.localized("dataExchangeHighlightsExplanation"))
         }
         .sheet(isPresented: $viewModel.showingFontSettings, content: {
             fontSettingsSheet
@@ -519,7 +519,7 @@ private struct ReaderContent: View {
                         Image(systemName: "info.circle")
                             .font(.caption2)
                             .foregroundStyle(viewModel.readerTextPrimaryColor)
-                        Text(String.localized("reader.learnMore"))
+                        Text(String.localized("learnMore"))
                             .font(.caption2)
                             .fontWeight(.bold)
                             .foregroundStyle(viewModel.readerTextPrimaryColor)

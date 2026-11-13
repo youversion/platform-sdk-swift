@@ -39,14 +39,14 @@ struct BibleReaderSearchView: View {
                 ProgressView()
                     .controlSize(.small)
                     .tint(viewModel.readerTextMutedColor)
-                    .accessibilityLabel(String.localized("generic.search"))
+                    .accessibilityLabel(String.localized("search"))
                     .padding(.vertical, 8)
             }
 
             if viewModel.searchStatus == .failed {
                 searchStateView(
                     image: Image(systemName: "exclamationmark.circle"),
-                    title: String.localized("generic.error"),
+                    title: String.localized("error"),
                     message: String.localized("generic.requestErrorBody")
                 )
             } else if viewModel.searchStatus == .completed
@@ -177,7 +177,7 @@ struct BibleReaderSearchView: View {
                     ProgressView()
                         .controlSize(.small)
                         .tint(viewModel.readerTextMutedColor)
-                        .accessibilityLabel(String.localized("generic.search"))
+                        .accessibilityLabel(String.localized("search"))
                         .padding(.vertical, 16)
                 } else if viewModel.hasNextSearchPageLoadError {
                     VStack(spacing: 12) {
@@ -360,7 +360,7 @@ private struct BibleReaderSearchHeaderView: View {
             HStack(spacing: 8) {
                 Image.magnifyingGlass
                     .foregroundStyle(viewModel.readerTextMutedColor)
-                TextField(String.localized("generic.search"), text: $viewModel.searchQuery)
+                TextField(String.localized("search"), text: $viewModel.searchQuery)
                     .autocorrectionDisabled()
                     .focused($isSearchFieldFocused)
                     .submitLabel(.search)
@@ -383,14 +383,14 @@ private struct BibleReaderSearchHeaderView: View {
                             .foregroundStyle(viewModel.readerTextMutedColor)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(String.localized("generic.cancel"))
+                    .accessibilityLabel(String.localized("bibleSearchClearAriaLabel"))
                 }
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 40)
             .background(viewModel.readerButtonSecondaryColor, in: Capsule())
 
-            Button(String.localized("generic.done")) {
+            Button(String.localized("done")) {
                 viewModel.showingSearchSheet = false
             }
             .font(.callout.weight(.semibold))
