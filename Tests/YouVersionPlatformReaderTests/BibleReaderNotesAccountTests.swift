@@ -19,10 +19,10 @@ struct BibleReaderNotesAccountTests {
         let owner = AccountState()
         let auth = MockBibleReaderAuthenticationState(isSignedIn: true)
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            readIsSignedIn: { auth.isSignedIn }, hasPermission: { _ in true }
+            readIsSignedIn: { auth.isSignedIn }, hasPermission: { _ in true }, readAccount: { owner.value }
         )
         let draft = BibleReaderNoteDraft(
-            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: { owner.value }
+            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: owner.value, currentAccount: { owner.value }
         )
         draft.copyText(from: try savedNote())
         viewModel.noteDraft = draft
@@ -30,7 +30,7 @@ struct BibleReaderNotesAccountTests {
         viewModel.isNoteAuthorizationPending = true
         owner.value = owner.otherAccount(signOut: signOut)
         auth.isSignedIn = !signOut
-        viewModel.notesAuthorizationDidChange()
+        viewModel.notesAuthenticationDidChange()
         #expect(viewModel.noteDraft == nil)
         #expect(viewModel.pendingNoteDraft == nil)
         #expect(!viewModel.isNoteAuthorizationPending)
@@ -43,13 +43,13 @@ struct BibleReaderNotesAccountTests {
     @Test
     func sameAccountCredentialRefreshPreservesOpenDraft() throws {
         let owner = AccountState()
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true })
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true }, readAccount: { owner.value })
         let draft = BibleReaderNoteDraft(
-            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: { owner.value }
+            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: owner.value, currentAccount: { owner.value }
         )
         draft.content = "Unsaved text"
         viewModel.noteDraft = draft
-        viewModel.notesAuthorizationDidChange()
+        viewModel.notesAuthenticationDidChange()
         #expect(viewModel.noteDraft === draft)
         #expect(draft.content == "Unsaved text")
         #expect(draft.savedNotes.count == 1)
@@ -61,7 +61,7 @@ struct BibleReaderNotesAccountTests {
         let owner = AccountState()
         let auth = MockBibleReaderAuthenticationState(isSignedIn: true)
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
-            readIsSignedIn: { auth.isSignedIn }, hasPermission: { _ in true }
+            readIsSignedIn: { auth.isSignedIn }, hasPermission: { _ in true }, readAccount: { owner.value }
         )
         let note = try savedNote()
         var completion: CheckedContinuation<Void, any Error>?
@@ -70,7 +70,8 @@ struct BibleReaderNotesAccountTests {
         }
         let draft = BibleReaderNoteDraft(
             references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [note],
-            createNote: { _ in try await holdRequest() }, deleteNote: { _ in try await holdRequest() }, account: { owner.value }
+            account: owner.value, currentAccount: { owner.value },
+            createNote: { _ in try await holdRequest() }, deleteNote: { _ in try await holdRequest() }
         )
         draft.content = "New text"
         viewModel.noteDraft = draft
@@ -78,8 +79,8 @@ struct BibleReaderNotesAccountTests {
         while completion == nil { await Task.yield() }
         owner.value = owner.otherAccount(signOut: signOut)
         auth.isSignedIn = !signOut
-        viewModel.notesAuthorizationDidChange()
-        let nextDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Next account", account: { owner.value })
+        viewModel.notesAuthenticationDidChange()
+        let nextDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Next account", account: owner.value, currentAccount: { owner.value })
         viewModel.noteDraft = nextDraft
         if fails { completion?.resume(throwing: URLError(.notConnectedToInternet)) } else { completion?.resume() }
         #expect(await operation.value == false)
@@ -97,7 +98,8 @@ struct BibleReaderNotesAccountTests {
         var completion: CheckedContinuation<Void, Never>?
         let draft = BibleReaderNoteDraft(
             references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [note],
-            createNote: { _ in requests += 1 }, deleteNote: { _ in requests += 1 }, account: { owner.value }
+            account: owner.value, currentAccount: { owner.value },
+            createNote: { _ in requests += 1 }, deleteNote: { _ in requests += 1 }
         )
         draft.content = "New text"
         func authorize() async { await withCheckedContinuation { completion = $0 } }
@@ -116,9 +118,9 @@ struct BibleReaderNotesAccountTests {
         var validation: CheckedContinuation<Bool, Never>?
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
             readIsSignedIn: { auth.isSignedIn },
-            validateToken: { await withCheckedContinuation { validation = $0 } }, hasPermission: { _ in true }
+            validateToken: { await withCheckedContinuation { validation = $0 } }, hasPermission: { _ in true }, readAccount: { owner.value }
         )
-        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "First account", account: { owner.value })
+        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "First account", account: owner.value, currentAccount: { owner.value })
         viewModel.pendingNoteDraft = draft
         viewModel.isNoteAuthorizationPending = true
         let oldRequestID = viewModel.signInRequestID
@@ -129,8 +131,8 @@ struct BibleReaderNotesAccountTests {
         }
         owner.value = owner.otherAccount(signOut: signOut)
         auth.isSignedIn = !signOut
-        viewModel.notesAuthorizationDidChange()
-        let nextDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Next account", account: { owner.value })
+        viewModel.notesAuthenticationDidChange()
+        let nextDraft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Next account", account: owner.value, currentAccount: { owner.value })
         viewModel.pendingNoteDraft = nextDraft
         viewModel.isNoteAuthorizationPending = true
         if duringValidation {
@@ -146,8 +148,8 @@ struct BibleReaderNotesAccountTests {
     @Test
     func lateConsentCannotRestoreAnotherAccountsSelectionBeforeNotification() {
         let owner = AccountState()
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true })
-        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "First account", account: { owner.value })
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true }, readAccount: { owner.value })
+        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "First account", account: owner.value, currentAccount: { owner.value })
         viewModel.pendingNoteDraft = draft
         viewModel.isNoteAuthorizationPending = true
         owner.value = owner.otherAccount(signOut: false)
@@ -163,9 +165,9 @@ struct BibleReaderNotesAccountTests {
     func retryingAPreSignInDraftBindsItToTheSignedInUser() {
         let owner = AccountState()
         owner.value = owner.otherAccount(signOut: true)
-        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Before sign-in", account: { owner.value })
+        let draft = BibleReaderNoteDraft(references: [reference], referenceTitle: "Before sign-in", account: owner.value, currentAccount: { owner.value })
         draft.content = "Retained text"
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true })
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true }, readAccount: { owner.value })
         viewModel.pendingNoteDraft = draft
         viewModel.selectedVerses = [reference]
         owner.value = owner.otherAccount(signOut: false)
@@ -178,12 +180,12 @@ struct BibleReaderNotesAccountTests {
     @Test
     func losingReadScopeRemovesCopiedSavedNotes() throws {
         let owner = AccountState()
-        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in false })
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in false }, readAccount: { owner.value })
         let draft = BibleReaderNoteDraft(
-            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: { owner.value }
+            references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: owner.value, currentAccount: { owner.value }
         )
         viewModel.noteDraft = draft
-        viewModel.notesAuthorizationDidChange()
+        viewModel.notesAuthenticationDidChange()
         #expect(viewModel.noteDraft == nil)
         #expect(draft.savedNotes.isEmpty)
     }
@@ -218,9 +220,9 @@ struct BibleReaderNotesAccountTests {
 
 @MainActor
 private final class AccountState {
-    var value = BibleNotesAccount(userID: "account-a", appKey: "fixture-app", apiHost: "api.example.com")
+    var value: BibleReaderAccount? = BibleReaderAccount(userID: "account-a", accessToken: "fixture-a", appKey: "fixture-app", apiHost: "api.example.com")
 
-    func otherAccount(signOut: Bool) -> BibleNotesAccount {
-        BibleNotesAccount(userID: signOut ? nil : "account-b", appKey: value.appKey, apiHost: value.apiHost)
+    func otherAccount(signOut: Bool) -> BibleReaderAccount? {
+        signOut ? nil : BibleReaderAccount(userID: "account-b", accessToken: "fixture-b", appKey: "fixture-app", apiHost: "api.example.com")
     }
 }

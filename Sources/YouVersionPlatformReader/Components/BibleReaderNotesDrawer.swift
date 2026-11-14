@@ -264,12 +264,14 @@ private struct SavedNoteCard: View {
                     visibility
                 }
             }
-            Text(note.content)
-                .font(.body)
-                .lineLimit(4)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
+            if !note.content.isEmpty {
+                Text(note.content)
+                    .font(.body)
+                    .lineLimit(4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
+            }
             HStack {
                 if let color = note.color {
                     Circle()

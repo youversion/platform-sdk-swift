@@ -448,7 +448,7 @@ private struct ReaderContent: View {
             NotificationCenter.default.publisher(for: YouVersionPlatformConfiguration.authDataDidChangeNotification)
                 .receive(on: RunLoop.main)
         ) { _ in
-            viewModel.notesAuthorizationDidChange()
+            viewModel.notesAuthenticationDidChange()
             Task {
                 await updateSignInState()
             }

@@ -62,15 +62,13 @@ public extension YouVersionAPI {
 
         /// Creates a note and returns its server representation. Requires `write_notes`.
         /// Reuse the same request value for retries so its `requestID` remains unchanged.
-        /// Throws for empty content, missing authentication, HTTP failure, or malformed response.
+        /// Empty content saves the attached passage without adding text.
+        /// Throws for missing authentication, HTTP failure, or malformed response.
         public static func createNote(
             _ note: YouVersionNoteCreateRequest,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionNote {
-            guard !note.content.isEmpty else {
-                throw YouVersionAPIRequestError(code: .invalidParameter)
-            }
             let response = try await responseData(
                 url: URLBuilder.notesURL(bibleID: nil, passageID: nil, pageSize: nil, pageToken: nil),
                 method: "POST",

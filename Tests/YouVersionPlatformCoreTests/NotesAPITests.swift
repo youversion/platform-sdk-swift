@@ -243,6 +243,31 @@ struct NotesAPITests {
         #expect(first == retry)
     }
 
+    @Test(arguments: ["", " \n\t "])
+    func creationAllowsSavingAPassageWithoutText(content: String) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let passage = YouVersionNote.Passage(bibleID: 3034, passageID: "JHN.3.16")
+        HTTPMocking.setHandler(token: token) { request in
+            #expect(request.httpMethod == "POST")
+            let body = try #require(request.bodyStreamAsJSON() as? [String: Any])
+            #expect(body["content"] as? String == content)
+            #expect((body["passage"] as? [String: Any])?["passage_id"] as? String == passage.passageID)
+            var response = body
+            response["id"] = "saved-verse"
+            return (
+                try JSONSerialization.data(withJSONObject: response),
+                HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: nil, headerFields: nil)!
+            )
+        }
+        let note = try await YouVersionAPI.Notes.createNote(
+            YouVersionNoteCreateRequest(content: content, status: .private, passage: passage),
+            accessToken: "notes-tests", session: session
+        )
+        #expect(note.content == content)
+        #expect(note.passage == passage)
+    }
+
     @Test
     func patchDistinguishesOmittedNullAndReplacementFields() async throws {
         let (session, token) = HTTPMocking.makeSession()
@@ -333,16 +358,15 @@ struct NotesAPITests {
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }
     }
 
-    @Test(arguments: 0..<7)
+    @Test(arguments: 0..<6)
     func invalidInputsFailBeforeNetworking(operation: Int) async {
         await #expect {
             switch operation {
             case 0: _ = try await YouVersionAPI.Notes.note(id: "")
             case 1: _ = try await YouVersionAPI.Notes.deleteNote(id: "")
-            case 2: _ = try await YouVersionAPI.Notes.createNote(YouVersionNoteCreateRequest(content: "", status: .private))
-            case 3: _ = try await YouVersionAPI.Notes.updateNote(id: "", update: YouVersionNoteUpdate(content: "New"))
-            case 4: _ = try await YouVersionAPI.Notes.updateNote(id: "40638", update: YouVersionNoteUpdate())
-            case 5: _ = try await YouVersionAPI.Notes.updateNote(id: "40638", update: YouVersionNoteUpdate(content: ""))
+            case 2: _ = try await YouVersionAPI.Notes.updateNote(id: "", update: YouVersionNoteUpdate(content: "New"))
+            case 3: _ = try await YouVersionAPI.Notes.updateNote(id: "40638", update: YouVersionNoteUpdate())
+            case 4: _ = try await YouVersionAPI.Notes.updateNote(id: "40638", update: YouVersionNoteUpdate(content: ""))
             default: _ = try await YouVersionAPI.Notes.notes(pageSize: 100)
             }
         } throws: { ($0 as? YouVersionAPIRequestError)?.code == .invalidParameter }

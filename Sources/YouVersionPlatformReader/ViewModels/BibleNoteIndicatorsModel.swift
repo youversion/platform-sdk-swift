@@ -42,8 +42,8 @@ final class BibleNoteIndicatorsModel {
 
     /// Invalidates pending requests, retaining a snapshot only while its account still has read access.
     func authorizationDidChange() {
-        let signedInAccount = BibleNotesAccount.signedIn
-        if !canReadNotes || signedInAccount.userID == nil || snapshot?.account != signedInAccount {
+        let signedInAccount = BibleReaderAccount.current
+        if !canReadNotes || signedInAccount?.userID == nil || snapshot?.account != signedInAccount {
             clear()
         } else {
             requestID = UUID()
@@ -58,7 +58,7 @@ final class BibleNoteIndicatorsModel {
     /// A same-account, same-chapter refresh retains its snapshot until success, including on transient failure.
     func load(_ reference: BibleReference) async {
         let chapter = reference.chapterReference
-        let requestAccount = BibleNotesAccount.signedIn
+        let requestAccount = BibleReaderAccount.current
         if let snapshot, snapshot.chapter != chapter || snapshot.account != requestAccount {
             self.snapshot = nil
         }
@@ -71,7 +71,7 @@ final class BibleNoteIndicatorsModel {
             var visitedTokens: Set<String> = []
             repeat {
                 let result = try await notesPage(chapter, token)
-                guard !Task.isCancelled && loadingRequestID == requestID && BibleNotesAccount.signedIn == requestAccount else {
+                guard !Task.isCancelled && loadingRequestID == requestID && BibleReaderAccount.current == requestAccount else {
                     return
                 }
                 notes += result.notes
@@ -91,7 +91,7 @@ final class BibleNoteIndicatorsModel {
             }
             snapshot = Snapshot(chapter: chapter, account: requestAccount, notes: cachedNotes)
         } catch {
-            guard !Task.isCancelled && loadingRequestID == requestID && BibleNotesAccount.signedIn == requestAccount else {
+            guard !Task.isCancelled && loadingRequestID == requestID && BibleReaderAccount.current == requestAccount else {
                 return
             }
             switch error {
@@ -119,7 +119,7 @@ final class BibleNoteIndicatorsModel {
 
     private struct Snapshot {
         let chapter: BibleReference
-        let account: BibleNotesAccount
+        let account: BibleReaderAccount?
         let notes: [(note: YouVersionNote, references: [BibleReference])]
     }
 

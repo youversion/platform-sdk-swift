@@ -179,6 +179,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         authentication.isSignedIn
     }
 
+    var signedInAccount: BibleReaderAccount? {
+        authentication.account
+    }
+
     /// Creates a view model displaying `reference`.
     convenience init(
         reference: BibleReference,
@@ -462,7 +466,10 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     @discardableResult
     func updateSignInState() async -> Bool {
-        await authentication.hasValidToken()
+        notesAuthenticationDidChange()
+        let hasValidToken = await authentication.hasValidToken()
+        notesAuthenticationDidChange()
+        return hasValidToken
     }
 
     /// Continues a pending highlight action after the user has completed sign-in.
@@ -536,29 +543,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         }
     }
 
-    /// Removes account-owned drawer data when the host changes authentication or Notes access.
-    func notesAuthorizationDidChange() {
-        if let noteDraft, !isSignedIn || !noteDraft.belongsToSignedInAccount ||
-            (!noteDraft.savedNotes.isEmpty && !hasReadNotesPermission) {
-            noteDraft.invalidate()
-            self.noteDraft = nil
-            signInRequestID = UUID()
-            startSignInFlow = false
-            isSigningIn = false
-            showingSignInSheet = false
-        }
-        if let pendingNoteDraft, !pendingNoteDraft.canResumeAfterSignIn {
-            pendingNoteDraft.invalidate()
-            self.pendingNoteDraft = nil
-            isNoteAuthorizationPending = false
-            signInRequestID = UUID()
-            startSignInFlow = false
-            isSigningIn = false
-            showingSignInSheet = false
-        }
-    }
-
-    private var hasReadNotesPermission: Bool {
+    var hasReadNotesPermission: Bool {
         authentication.hasPermission(YouVersionAPI.Users.readNotesPermission)
     }
 
@@ -577,6 +562,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     /// Resumes only reader actions whose permission was granted during sign-in.
     func completeSignInFlow(with grantedPermissions: [String]) {
+        notesAuthenticationDidChange()
         startSignInFlow = false
         if isSignedIn && grantedPermissions.contains(Self.highlightsPermission) {
             continuePendingHighlightAfterSignIn()
@@ -591,7 +577,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
         guard signInRequestID == requestID else {
             return
         }
-        notesAuthorizationDidChange()
+        notesAuthenticationDidChange()
         guard signInRequestID == requestID else {
             return
         }
@@ -600,6 +586,14 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             return
         }
         completeSignInFlow(with: grantedPermissions)
+    }
+
+    /// Invalidates an authorization attempt without letting its completion resume a later draft.
+    func invalidateNotesSignIn() {
+        signInRequestID = UUID()
+        startSignInFlow = false
+        isSigningIn = false
+        showingSignInSheet = false
     }
 
     /// Pauses deferred actions when the sign-in prompt is dismissed without starting login.
@@ -681,15 +675,11 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     }
 
     func confirmSignOut() {
+        invalidateNotesSignIn()
+        invalidateNoteDrafts()
         authentication.signOut()
         highlightsViewModel.reset()
         clearPendingHighlight()
-        noteDraft?.invalidate()
-        pendingNoteDraft?.invalidate()
-        noteDraft = nil
-        pendingNoteDraft = nil
-        isNoteAuthorizationPending = false
-        signInRequestID = UUID()
     }
 
     func confirmPendingHighlightsSignOut() {
