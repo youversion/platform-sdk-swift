@@ -55,7 +55,7 @@ public struct VotdView: View {
                     .frame(width: 44, height: 44)
                 VStack(alignment: .leading, spacing: 4) {
                     let light = colorScheme == .light
-                    Text(String.localized("tab.votd"))
+                    Text(String.localized("verseOfTheDay"))
                         .font(Font.system(size: 12).bold().smallCaps())
                         .foregroundStyle(light ? Color(hex: "#636161") : Color(hex: "#bfbdbd"))
                     if let title {

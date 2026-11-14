@@ -113,7 +113,7 @@ public struct BibleCardView: View {
     private var unavailableReferenceView: some View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle")
-            Text(String.localized("bibleCard.unavailableReference"))
+            Text(String.localized("passageUnavailable"))
                 .multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)

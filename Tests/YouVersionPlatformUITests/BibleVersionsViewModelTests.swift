@@ -106,7 +106,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         await viewModel.switchToVersion(111)
 
         #expect(viewModel.showGenericAlert)
-        #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
+        #expect(viewModel.textForGenericAlertTitle == .localized("error"))
         #expect(viewModel.textForGenericAlertBody == .localized("reader.versionAccessErrorBody"))
     }
 
@@ -164,7 +164,7 @@ private actor MockBibleVersionRepository: BibleVersionRepositoryProtocol {
         await viewModel.myVersionDownloadMenuTapped(444)
 
         #expect(viewModel.showGenericAlert)
-        #expect(viewModel.textForGenericAlertTitle == .localized("generic.error"))
+        #expect(viewModel.textForGenericAlertTitle == .localized("error"))
         #expect(viewModel.textForGenericAlertBody == .localized("myVersions.downloadErrorBody"))
     }
 

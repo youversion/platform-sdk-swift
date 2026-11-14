@@ -34,7 +34,7 @@ private struct CustomBackButtonModifier: ViewModifier {
                             Image(systemName: "chevron.backward")
                                 .font(.system(size: 16, weight: .semibold))
                         }
-                        .accessibilityLabel(String.localized("generic.back"))
+                        .accessibilityLabel(String.localized("back"))
                     }
                 }
                 #endif

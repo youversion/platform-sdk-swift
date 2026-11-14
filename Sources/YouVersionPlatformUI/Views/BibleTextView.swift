@@ -412,7 +412,7 @@ public struct BibleTextView: View {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
                         .padding()
-                    Text(String.localized("bibleText.unavailableVersion"))
+                    Text(String.localized("versionUnavailableAutoSelectedMessage"))
                 }
             case .failed:
                 HStack {

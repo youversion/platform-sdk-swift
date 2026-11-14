@@ -66,7 +66,7 @@ public struct SignInWithYouVersionButton: View {
         case .iconOnly, .full:
             Text(String.localized("signIn.button.accessibility"))
         case .compact:
-            Text(String.localized("signIn.button.compact"))
+            Text(String.localized("signIn"))
         }
     }
 
@@ -88,7 +88,7 @@ public struct SignInWithYouVersionButton: View {
             HStack(spacing: 0) {
                 bibleAppLogo
                     .padding(.trailing, 8)
-                Text(String.localized("signIn.button.compact"))
+                Text(String.localized("signIn"))
             }
             .padding(.vertical, verticalPadding)
             .padding(.horizontal, horizontalPadding)

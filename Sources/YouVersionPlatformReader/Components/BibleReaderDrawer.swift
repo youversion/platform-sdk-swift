@@ -23,7 +23,7 @@ struct BibleReaderDrawer: View {
                             drawerButton(imageName: "bookmark", text: NoteStrings.save) { viewModel.startNote() }
                         case .copy:
 #if !os(tvOS)
-                            drawerButton(imageName: "square.on.square", text: .localized("verseActions.copy")) {
+                            drawerButton(imageName: "square.on.square", text: .localized("copy")) {
                                 viewModel.handleVerseActionCopy()
                             }
 #endif
@@ -31,7 +31,7 @@ struct BibleReaderDrawer: View {
 #if !os(tvOS)
                             if let (url, title) = viewModel.shareableURLAndTitleForSelection {
                                 ShareLink(item: url, message: Text(title)) {
-                                    VerseActionLabel(image: Image(systemName: "square.and.arrow.up"), title: Text(String.localized("verseActions.share")))
+                                    VerseActionLabel(image: Image(systemName: "square.and.arrow.up"), title: Text(String.localized("share")))
                                 }
                             }
 #endif

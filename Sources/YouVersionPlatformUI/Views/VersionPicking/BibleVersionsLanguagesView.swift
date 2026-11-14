@@ -26,7 +26,7 @@ struct BibleVersionsLanguagesView: View {
                         .frame(width: searchIconSize, height: searchIconSize)
                         .accessibilityHidden(true)
                         .padding(.leading)
-                    TextField(String.localized("generic.search"), text: $searchText)
+                    TextField(String.localized("search"), text: $searchText)
                         .textFieldStyle(.plain)
                         .focused($searchFieldIsFocused)
                         .autocorrectionDisabled(true)
@@ -39,7 +39,7 @@ struct BibleVersionsLanguagesView: View {
                             Capsule()
                                 .fill(viewModel.readerButtonPrimaryColor)
                         )
-                    Button(String.localized("generic.cancel")) {
+                    Button(String.localized("cancel")) {
                         selectedSegment = .suggested
                     }
                     .padding(.trailing)
@@ -50,9 +50,9 @@ struct BibleVersionsLanguagesView: View {
                     let allMsg = String(
                         format: String.localized("languageList.allWithCount"),
                         availableLanguageTags.count,
-                        String.localized("languageList.all")
+                        String.localized("all")
                     )
-                    Text(String.localized("languageList.suggested"))
+                    Text(String.localized("suggested"))
                         .tag(Segment.suggested)
                     Text(allMsg)
                         .tag(Segment.all)
@@ -64,7 +64,7 @@ struct BibleVersionsLanguagesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     if selectedSegment == .suggested {
-                        Text(String.localized("languageList.regional"))
+                        Text(String.localized("regional"))
                             .font(YouVersionFonts.headerMedium)
                             .padding(.leading)
                     }
@@ -105,7 +105,7 @@ struct BibleVersionsLanguagesView: View {
         .toolbar {
 #if os(iOS)
             ToolbarItem(placement: .title) {
-                Text(String.localized("languageList.title"))
+                Text(String.localized("selectLanguage"))
                     .fontWeight(.medium)
                     .foregroundStyle(viewModel.readerTextPrimaryColor)
             }
@@ -117,7 +117,7 @@ struct BibleVersionsLanguagesView: View {
                 } label: {
                     Image.magnifyingGlass
                 }
-                .accessibilityLabel(String.localized("generic.search"))
+                .accessibilityLabel(String.localized("search"))
             }
         }
         .background(viewModel.readerCanvasPrimaryColor)
