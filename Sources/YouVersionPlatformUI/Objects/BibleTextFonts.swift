@@ -3,6 +3,7 @@ import SwiftUI
 import UIKit
 #endif
 
+/// Legacy font options. Use `BibleTextFont` presets for new code.
 public enum BibleTextFontOption {
     case font076emItalic
     case font083emItalic
@@ -44,35 +45,11 @@ public enum BibleTextFontOption {
     case font100emSmallCaps
 }
 
-// This protocol exists only to provide compability while also
-// avoiding us getting compilation warnings for our test cases etc.
-// When we remove the enum values such as .textFont, it should be removed.
-private protocol LegacyBibleTextFontOptions {
-    static var textFont: BibleTextFontOption { get }
-    static var textFontBold: BibleTextFontOption { get }
-    static var textFontItalic: BibleTextFontOption { get }
-    static var smallCaps: BibleTextFontOption { get }
-    static var header: BibleTextFontOption { get }
-    static var headerItalic: BibleTextFontOption { get }
-    static var headerSmaller: BibleTextFontOption { get }
-    static var headerSmallerItalic: BibleTextFontOption { get }
-    static var header2: BibleTextFontOption { get }
-    static var header3: BibleTextFontOption { get }
-    static var header4: BibleTextFontOption { get }
-    static var font100emSmallCaps: BibleTextFontOption { get }
-}
-
-extension BibleTextFontOption: LegacyBibleTextFontOptions {}
-
 public struct BibleTextFonts {
-    var fonts: [BibleTextFontOption: Font]
+    private let fonts: [BibleTextFont: Font]
 
     public let baseSize: CGFloat
     public let verseNumBaselineOffset: CGFloat
-
-    public func font(for option: BibleTextFontOption) -> Font {
-        fonts[option]!
-    }
 
     public init(familyName: String, baseSize origBaseSize: CGFloat? = nil) {
 #if canImport(UIKit)
@@ -82,58 +59,18 @@ public struct BibleTextFonts {
 #endif
         self.baseSize = baseSize
         verseNumBaselineOffset = baseSize * 0.2
-
-        let italicFamilyName: String
-
-        if familyName.hasSuffix("-Regular") {
-            let base = familyName.split(separator: "-").dropLast().joined(separator: "-")
-            italicFamilyName = base + "-Italic"
-        } else {
-            italicFamilyName = familyName
-        }
-
-        let legacyOptions = BibleTextFontOption.self as LegacyBibleTextFontOptions.Type
-
-        fonts = [
-            .font076emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            .font083emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.83).italic(),
-            .font100em: Self.font(familyName: familyName, size: baseSize),
-            .font100emItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            .font100em500: Self.font(familyName: familyName, size: baseSize).weight(.medium),
-            .font100em500Italic: Self.font(familyName: italicFamilyName, size: baseSize).weight(.medium).italic(),
-            .font100em700: Self.font(familyName: familyName, size: baseSize).weight(.bold),
-            .font108emItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.08).italic(),
-            .font117em500: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.medium),
-            .font117em500Italic: Self.font(familyName: italicFamilyName, size: baseSize * 1.17).weight(.medium).italic(),
-            .font117em700: Self.font(familyName: familyName, size: baseSize * 1.17).weight(.bold),
-            .footnote: Self.font(familyName: familyName, size: baseSize * 0.8),
-            .verseNumFont: Self.font(familyName: "Helvetica Neue", size: baseSize * 0.65).smallCaps(),
-            
-            // below are deprecated, and will be removed when .textFont etc. are removed:
-            legacyOptions.textFontItalic: Self.font(familyName: italicFamilyName, size: baseSize).italic(),
-            legacyOptions.textFontBold: Self.font(familyName: familyName, size: baseSize).bold(),
-            legacyOptions.smallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps(),
-            legacyOptions.headerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 1.1).italic(),
-            legacyOptions.headerSmaller: Self.font(familyName: familyName, size: baseSize * 0.9).weight(.medium),
-            legacyOptions.header2: Self.font(familyName: familyName, size: baseSize * 1.1).weight(.bold),
-            legacyOptions.header3: Self.font(familyName: familyName, size: baseSize * 1.1),
-            legacyOptions.header4: Self.font(familyName: familyName, size: baseSize * 1.1),
-            legacyOptions.header: Self.font(familyName: familyName, size: baseSize).bold(),
-            legacyOptions.headerSmallerItalic: Self.font(familyName: italicFamilyName, size: baseSize * 0.76).italic(),
-            legacyOptions.textFont: Self.font(familyName: familyName, size: baseSize),
-            legacyOptions.font100emSmallCaps: Self.font(familyName: familyName, size: baseSize).lowercaseSmallCaps()
-        ]
+        fonts = BibleTextFont.fonts(familyName: familyName, baseSize: baseSize)
     }
 
-    private static func font(familyName: String, size: CGFloat) -> Font {
-        if familyName == "San Francisco" || familyName == "SF Pro Text" || familyName.hasPrefix("SFProText-") {
-            return Font.system(size: size)
-        }
+    /// Returns the font for an existing enum option.
+    @available(*, deprecated, message: "Use a BibleTextFont preset instead.")
+    public func font(for option: BibleTextFontOption) -> Font {
+        font(for: BibleTextFont(option))
+    }
 
-        if familyName == "New York" || familyName.hasPrefix("NewYork-") {
-            return Font.system(size: size, design: .serif)
-        }
-
-        return Font.custom(familyName, fixedSize: size)
+    /// Returns the font for a Bible text preset.
+    @_disfavoredOverload
+    public func font(for preset: BibleTextFont) -> Font {
+        fonts[preset]!
     }
 }

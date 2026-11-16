@@ -224,7 +224,7 @@ extension BibleTextView {
         // each with its own customAttribute value for how to render.
         let fonts = BibleTextFonts(familyName: textOptions.fontFamily, baseSize: textOptions.fontSize)
         var textCombo = Text(indentString(firstLineHeadIndent))
-            .font(fonts.font(for: .font100em))
+            .font(fonts.font(for: BibleTextFont.font100em))
             .customAttribute(RenderHowAttribute(isIndent: true))
         let rendererPaintsHighlight: Bool
         if #available(iOS 18.0, *) {

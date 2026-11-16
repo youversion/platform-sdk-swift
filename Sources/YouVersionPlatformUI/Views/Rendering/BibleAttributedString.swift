@@ -46,9 +46,18 @@ public final class BibleAttributedString: Equatable, Hashable {
         two.characters.isEmpty
     }
 
+    /// Applies the font represented by an existing enum option.
+    @available(*, deprecated, message: "Use a BibleTextFont preset instead.")
     @discardableResult
     public func setFont(_ option: BibleTextFontOption, from fonts: BibleTextFonts, inSmallcaps: Bool = false) -> BibleAttributedString {
-        let font = fonts.font(for: option)
+        setFont(BibleTextFont(option), from: fonts, inSmallcaps: inSmallcaps)
+    }
+
+    /// Applies a Bible text preset, optionally using lowercase small capitals.
+    @_disfavoredOverload
+    @discardableResult
+    public func setFont(_ preset: BibleTextFont, from fonts: BibleTextFonts, inSmallcaps: Bool = false) -> BibleAttributedString {
+        let font = fonts.font(for: preset)
         two.font = inSmallcaps ? font.lowercaseSmallCaps() : font
         return self
     }
