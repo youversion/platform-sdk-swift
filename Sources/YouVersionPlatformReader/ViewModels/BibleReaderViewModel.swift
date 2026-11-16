@@ -70,7 +70,7 @@ final class BibleReaderViewModel: ReaderThemeProviding {
     /// before the chapter text loads) can't spuriously satisfy the bottom-
     /// reached check.
     var previousContentHeight: CGFloat = 0
-    var hasNotifiedChapterComplete = false
+    var chapterArming = ChapterCompletionArming(opensAtChapterTop: true)
 
     // MARK: - UI state of the Reader itself
     var showChrome = true
@@ -381,6 +381,16 @@ final class BibleReaderViewModel: ReaderThemeProviding {
             return
         }
         scrollAction = .reference(ScrollTarget(reference: reference, shouldFocus: shouldFocus))
+        chapterArming.onProgrammaticScroll()
+    }
+
+    /// Whether a scroll to a verse is still pending, so the chapter is not
+    /// opening at its top.
+    var hasPendingVerseTarget: Bool {
+        if case .reference = scrollAction {
+            return true
+        }
+        return false
     }
 
     /// Marks the current ``scrollAction`` as consumed once the reader has begun acting on it,
