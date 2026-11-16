@@ -41,8 +41,8 @@ public extension YouVersionAPI.Search {
     ///     page size may change. Empty pages may still have a continuation token.
     ///   - accessToken: An optional access token; otherwise uses and refreshes the configured token.
     ///   - session: The URL session used to perform the request.
-    /// - Throws: Invalid parameters, authentication, HTTP, network, or decoding errors. A returned thumbnail requires
-    ///   a configured app key. Unauthorized requests throw `YouVersionAPIError.notPermitted`; other HTTP failures,
+    /// - Throws: Invalid parameters, authentication, HTTP, network, or decoding errors.
+    ///   Unauthorized requests throw `YouVersionAPIError.notPermitted`; other HTTP failures,
     ///   including invalid cursors and unavailable upstream catalogs, throw `YouVersionAPIError.cannotDownload`.
     static func videos(
         query: String,

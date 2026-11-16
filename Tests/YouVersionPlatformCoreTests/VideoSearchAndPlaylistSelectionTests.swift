@@ -67,7 +67,7 @@ extension ConfigurationStateTests {
                 #expect(components.queryItems?.first { $0.name == "page_token" }?.value == cursor)
                 #expect(components.path == "/v1-beta/organizations/org/id/playlists")
                 #expect(request.cachePolicy == .useProtocolCachePolicy)
-                #expect(request.value(forHTTPHeaderField: "Accept-Language") == "en")
+                #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
                 #expect(components.percentEncodedPath.contains("org%2Fid"))
                 #expect(components.percentEncodedQuery?.contains("a%2Bb") == true)
                 #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer selection-tests")

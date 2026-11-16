@@ -64,9 +64,10 @@ public enum URLBuilder {
         url(pathSegments: ["v1", "organizations", organizationID, "playlists", String(id)])
     }
 
+    // TODO: Return video metadata to /v1 after the CDN thumbnail contract is promoted to stable.
     /// Returns a video URL with the ID encoded as a single path segment.
     static func videoURL(id: String) -> URL? {
-        url(pathSegments: ["v1", "videos", id])
+        url(pathSegments: ["v1-beta", "videos", id])
     }
 
     /// Returns an image-search URL with optional page size and continuation token.

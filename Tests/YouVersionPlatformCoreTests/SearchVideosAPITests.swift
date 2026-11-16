@@ -24,7 +24,7 @@ extension ConfigurationStateTests {
             let pageToken = "a+b/c==&?% fragment"
             let json = """
             {"videos":[{"id":"new+opaque/id=","title":"Love","passage_id":"JHN.3.16+JHN.3.18","language_tag":"en",
-            "thumbnail":{"url":"https://cdn.example.com/video-images/art.jpg?signature=a%2Bb%2F%3D&app_key=old&size=thumb"},
+            "thumbnail":{"url":"https://cdn.example.com/video-images/ref.payload.signature/art.jpg?signature=a%2Bb%2F%3D&size=thumb"},
             "playback_sources":[{"url":"https://media.example.com/clip.m3u8","format":"hls"}],"playback_preview_sources":[]}],
             "user_intent":"text","did_you_mean":["love"],"search_instead_for":"love","next_page_token":"next+opaque/="}
             """
@@ -53,7 +53,8 @@ extension ConfigurationStateTests {
             #expect(video.playbackSources.first?.format == "hls")
             let thumbnailURL = try #require(video.thumbnail?.url)
             let thumbnail = try #require(URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false))
-            #expect(thumbnail.queryItems?.filter { $0.name == "app_key" }.map(\.value) == ["search+key&=/"])
+            #expect(thumbnail.path == "/video-images/ref.payload.signature/art.jpg")
+            #expect(thumbnail.queryItems?.contains { $0.name == "app_key" } == false)
             #expect(thumbnail.queryItems?.contains { $0.name == "size" } == false)
             #expect(thumbnail.percentEncodedQuery?.contains("signature=a%2Bb%2F%3D") == true)
             #expect(page.userIntent == .text)

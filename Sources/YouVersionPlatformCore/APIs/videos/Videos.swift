@@ -72,8 +72,6 @@ public extension YouVersionAPI {
 
         /// Resolves a video ID to metadata, thumbnail information, and playback URLs.
         /// The optional thumbnail size is `thumb`, `card`, or `full`; omit it for full size.
-        /// Returned thumbnail URLs have sizing resolved and any required CDN app-key parameters added.
-        /// A thumbnail requires a configured app key; otherwise `YouVersionAPIError.missingAuthentication` is thrown.
         /// An unknown ID (HTTP 404) throws `YouVersionAPIError.cannotDownload`.
         /// Uses the configured app key and optional access token.
         /// HTTP and decoding failures are thrown.
@@ -96,33 +94,20 @@ public extension YouVersionAPI {
             return try resolvedVideo(JSONDecoder().decode(YouVersionVideo.self, from: data), size: size)
         }
 
-        // TODO: Remove temporary thumbnail-template compatibility after stable CDN promotion; do not merge it to main.
-        /// Resolves thumbnail sizing and credentials for a video returned by either metadata or search.
+        /// Resolves thumbnail sizing for a video returned by either metadata or search.
         static func resolvedVideo(_ video: YouVersionVideo, size: String? = nil) throws -> YouVersionVideo {
             var result = video
             guard let thumbnailURL = result.thumbnail?.url else {
                 return result
             }
-            guard let appKey = YouVersionPlatformConfiguration.appKey, !appKey.isEmpty else {
-                throw YouVersionAPIError.missingAuthentication
-            }
-            guard let encodedAppKey = appKey.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
-                  var components = URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false) else {
+            guard var components = URLComponents(url: thumbnailURL, resolvingAgainstBaseURL: false) else {
                 throw URLError(.badURL)
             }
-            if components.path.contains("{width}") || components.path.contains("{height}") {
-                let width = size == "thumb" ? 320 : size == "card" ? 1200 : 0
-                components.path = components.path
-                    .replacingOccurrences(of: "{width}", with: String(width))
-                    .replacingOccurrences(of: "{height}", with: "0")
-            } else {
-                var queryItems = components.percentEncodedQueryItems?.filter { $0.name != "size" && $0.name != "app_key" } ?? []
-                queryItems.append(URLQueryItem(name: "app_key", value: encodedAppKey))
-                if let size {
-                    queryItems.append(URLQueryItem(name: "size", value: size))
-                }
-                components.percentEncodedQueryItems = queryItems
+            var queryItems = components.percentEncodedQueryItems?.filter { $0.name != "size" } ?? []
+            if let size {
+                queryItems.append(URLQueryItem(name: "size", value: size))
             }
+            components.percentEncodedQueryItems = queryItems.isEmpty ? nil : queryItems
             guard let url = components.url else {
                 throw URLError(.badURL)
             }

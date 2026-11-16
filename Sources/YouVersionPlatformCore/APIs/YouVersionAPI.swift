@@ -71,7 +71,7 @@ public enum YouVersionAPI {
         )
     }
 
-    // TODO: Remove the temporary playlist Accept-Language override and HTTP 204 diagnostics before merging to main.
+    // TODO: Remove temporary playlist HTTP 204 diagnostics after YPE-6461 verification.
     private static func response(
         at url: URL,
         accessToken: String?,
@@ -82,9 +82,6 @@ public enum YouVersionAPI {
         var request = urlRequest(with: url, accessToken: accessToken, session: session)
         let isPlaylistCollection = ["/v1/organizations/", "/v1-beta/organizations/"].contains(where: url.path.hasPrefix)
             && url.path.hasSuffix("/playlists")
-        if isPlaylistCollection {
-            request.setValue("en", forHTTPHeaderField: "Accept-Language")
-        }
         for (field, value) in headers {
             request.setValue(value, forHTTPHeaderField: field)
         }
