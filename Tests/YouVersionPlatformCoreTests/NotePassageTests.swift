@@ -1,8 +1,8 @@
 import Foundation
 import Testing
-import YouVersionPlatformCore
+@testable import YouVersionPlatformCore
 
-struct YouVersionNotePassageTests {
+struct NotePassageTests {
     private func verse(_ number: Int) -> BibleReference {
         BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: number)
     }
@@ -10,21 +10,21 @@ struct YouVersionNotePassageTests {
     @Test
     func nonconsecutiveSelectionRoundTripsThroughJSONWithoutAddingVerses() throws {
         let references = [verse(1), verse(3), verse(5)]
-        let passage = try #require(YouVersionNote.Passage(references: references))
+        let passage = try NotePassage(references: references)
         #expect(passage.references == references)
         let data = try JSONEncoder().encode(passage)
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         #expect(json.count == 2)
         #expect(json["bible_id"] as? Int == 3034)
         #expect(json["passage_id"] as? String == "GEN.1.1+GEN.1.3+GEN.1.5")
-        let decoded = try JSONDecoder().decode(YouVersionNote.Passage.self, from: data)
+        let decoded = try JSONDecoder().decode(NotePassage.self, from: data)
         #expect(decoded.references == references)
     }
 
     @Test
     func constructionSortsAndMergesOnlyAdjacentOrOverlappingVerses() throws {
         let references = [verse(6), verse(4), verse(1), verse(3), verse(3)]
-        let passage = try #require(YouVersionNote.Passage(references: references))
+        let passage = try NotePassage(references: references)
         let json = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(passage)) as? [String: Any])
         #expect(json["passage_id"] as? String == "GEN.1.1+GEN.1.3-4+GEN.1.6")
         #expect(passage.references == [
@@ -36,7 +36,7 @@ struct YouVersionNotePassageTests {
 
     @Test
     func compactRangesParseWithTheAttachedBibleVersion() throws {
-        let passage = try JSONDecoder().decode(YouVersionNote.Passage.self, from: Data(#"{"bible_id":111,"passage_id":"1JN.2.1-3+1JN.2.5"}"#.utf8))
+        let passage = try JSONDecoder().decode(NotePassage.self, from: Data(#"{"bible_id":111,"passage_id":"1JN.2.1-3+1JN.2.5"}"#.utf8))
         #expect(passage.references == [
             BibleReference(versionId: 111, bookId: "1JN", chapter: 2, verseStart: 1, verseEnd: 3),
             BibleReference(versionId: 111, bookId: "1JN", chapter: 2, verse: 5)
@@ -51,9 +51,9 @@ struct YouVersionNotePassageTests {
             BibleReference(versionId: 3034, bookId: "GEN", chapter: 2, verse: 3),
             BibleReference(versionId: 3034, bookId: "GEN", chapter: 1)
         ]
-        #expect(YouVersionNote.Passage(references: []) == nil)
+        #expect(throws: YouVersionAPIRequestError.self) { try NotePassage(references: []) }
         for reference in incompatible {
-            #expect(YouVersionNote.Passage(references: [verse(1), reference]) == nil)
+            #expect(throws: YouVersionAPIRequestError.self) { try NotePassage(references: [verse(1), reference]) }
         }
     }
 
@@ -64,6 +64,6 @@ struct YouVersionNotePassageTests {
     ])
     func malformedOrUnsupportedStringsNeverReturnAPartialSelection(passageID: String) throws {
         let data = try JSONSerialization.data(withJSONObject: ["bible_id": 3034, "passage_id": passageID])
-        #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionNote.Passage.self, from: data) }
+        #expect(throws: DecodingError.self) { try JSONDecoder().decode(NotePassage.self, from: data) }
     }
 }

@@ -82,7 +82,7 @@ final class BibleNoteIndicatorsModel {
             } while token != nil
             var seenIDs: Set<String> = []
             let cachedNotes = notes.filter { note in
-                guard seenIDs.insert(note.id).inserted, let references = note.passage?.references else {
+                guard seenIDs.insert(note.id).inserted, let references = note.references else {
                     return false
                 }
                 return references.contains { $0.versionId == chapter.versionId && $0.bookId == chapter.bookId && $0.chapter == chapter.chapter }
@@ -105,12 +105,12 @@ final class BibleNoteIndicatorsModel {
 
     /// Whether a verse needs an indicator, without allocating a matching-notes array during text construction.
     func hasNotes(for reference: BibleReference) -> Bool {
-        snapshot?.notes.contains { $0.passage?.references.contains { $0.overlaps(with: reference) } ?? false } ?? false
+        snapshot?.notes.contains { $0.references?.contains { $0.overlaps(with: reference) } ?? false } ?? false
     }
 
     /// All notes whose exact attachment overlaps this rendered verse or verse bridge.
     func notes(for reference: BibleReference) -> [YouVersionNote] {
-        snapshot?.notes.filter { $0.passage?.references.contains { $0.overlaps(with: reference) } ?? false } ?? []
+        snapshot?.notes.filter { $0.references?.contains { $0.overlaps(with: reference) } ?? false } ?? []
     }
 
     private struct Snapshot {

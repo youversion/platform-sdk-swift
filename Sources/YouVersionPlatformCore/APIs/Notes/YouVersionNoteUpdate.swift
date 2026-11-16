@@ -11,7 +11,7 @@ import Foundation
 /// - Pass `.clear` to remove the field's current value. The request includes the field as JSON `null`.
 /// - Pass `.value(...)` to replace the field's current value with the supplied value.
 ///
-/// For example, this update removes the title and replaces the tags. The omitted color, passage,
+/// For example, this update removes the title and replaces the tags. The omitted color, references,
 /// language, content, and status fields keep their existing values:
 ///
 /// ```swift
@@ -30,7 +30,7 @@ import Foundation
 public struct YouVersionNoteUpdate: Encodable, Sendable {
     /// A replacement value or explicit null for a nullable note field.
     public struct Field<Value: Encodable & Sendable>: Encodable, Sendable {
-        private let replacement: Value?
+        fileprivate let replacement: Value?
 
         public static var clear: Self { Self(replacement: nil) }
 
@@ -53,18 +53,22 @@ public struct YouVersionNoteUpdate: Encodable, Sendable {
     public let title: Field<String>?
     public let content: String?
     public let color: Field<String>?
-    public let passage: Field<YouVersionNote.Passage>?
+    /// Nil leaves the attachment unchanged; `.clear` removes it; `.value` replaces it.
+    /// Replacement references must form a nonempty selection in one Bible version, book, and chapter.
+    public let references: Field<[BibleReference]>?
     public let languageTag: Field<String>?
     public let tags: Field<[String]>?
     public let status: YouVersionNote.Status?
 
     /// Creates a partial update. Supply at least one field. Content and status cannot be cleared.
     /// Values use the same format restrictions as `YouVersionNoteCreateRequest`.
+    /// For references, nil leaves the attachment unchanged, `.clear` removes it, and `.value([reference])`
+    /// replaces it. An empty replacement array is invalid; use `.clear` instead.
     public init(
         title: Field<String>? = nil,
         content: String? = nil,
         color: Field<String>? = nil,
-        passage: Field<YouVersionNote.Passage>? = nil,
+        references: Field<[BibleReference]>? = nil,
         languageTag: Field<String>? = nil,
         tags: Field<[String]>? = nil,
         status: YouVersionNote.Status? = nil
@@ -72,19 +76,38 @@ public struct YouVersionNoteUpdate: Encodable, Sendable {
         self.title = title
         self.content = content
         self.color = color
-        self.passage = passage
+        self.references = references
         self.languageTag = languageTag
         self.tags = tags
         self.status = status
     }
 
     var isEmpty: Bool {
-        title == nil && content == nil && color == nil && passage == nil
+        title == nil && content == nil && color == nil && references == nil
             && languageTag == nil && tags == nil && status == nil
     }
 
+    /// Encodes omitted, cleared, and replaced fields distinctly, validating replacement references.
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(content, forKey: .content)
+        try container.encodeIfPresent(color, forKey: .color)
+        if let references {
+            if let replacement = references.replacement {
+                try container.encode(NotePassage(references: replacement), forKey: .references)
+            } else {
+                try container.encodeNil(forKey: .references)
+            }
+        }
+        try container.encodeIfPresent(languageTag, forKey: .languageTag)
+        try container.encodeIfPresent(tags, forKey: .tags)
+        try container.encodeIfPresent(status, forKey: .status)
+    }
+
     private enum CodingKeys: String, CodingKey {
-        case title, content, color, passage, tags, status
+        case title, content, color, tags, status
+        case references = "passage"
         case languageTag = "language_tag"
     }
 }

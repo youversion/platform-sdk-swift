@@ -26,101 +26,13 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
         }
     }
 
-    /// A nonempty selection of verses in one Bible version, book, and chapter.
-    /// References are normalized without filling gaps. API identifiers are converted only during coding.
-    public struct Passage: Codable, Equatable, Sendable {
-        public let references: [BibleReference]
-
-        /// Creates an attachment, merging adjacent or overlapping ranges without filling gaps.
-        /// Returns nil for empty, invalid, chapter-only, or mixed-version/book/chapter selections.
-        public init?(references: [BibleReference]) {
-            guard let references = Self.normalizedReferences(references, allowsChapter: false) else {
-                return nil
-            }
-            self.references = references
-        }
-
-        /// Decodes the API's Bible ID and compact passage string into references.
-        /// Malformed attachments throw; `YouVersionNote` tolerates those errors without losing the note.
-        public init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let bibleID = try container.decode(Int.self, forKey: .bibleID)
-            let passageID = try container.decode(String.self, forKey: .passageID)
-            let components = passageID.components(separatedBy: "+")
-            let references = components.compactMap { value -> BibleReference? in
-                guard value.wholeMatch(of: /[A-Z0-9]{3}\.[1-9][0-9]*\.[1-9][0-9]*(?:-[1-9][0-9]*)?/) != nil else {
-                    return nil
-                }
-                return BibleReference.unvalidatedReference(with: value, versionId: bibleID)
-            }
-            guard references.count == components.count, let passage = Self(references: references) else {
-                throw DecodingError.dataCorruptedError(forKey: .passageID, in: container, debugDescription: "Invalid Notes passage selection")
-            }
-            self = passage
-        }
-
-        /// Encodes references using the API's compact ranges and `+` separator.
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(references[0].versionId, forKey: .bibleID)
-            try container.encode(Self.compactPassageID(for: references), forKey: .passageID)
-        }
-
-        /// Formats a validated chapter or same-chapter verse selection for a list query.
-        static func queryPassageID(for references: [BibleReference]) -> String? {
-            guard let references = normalizedReferences(references, allowsChapter: true) else {
-                return nil
-            }
-            return compactPassageID(for: references)
-        }
-
-        private static func normalizedReferences(_ references: [BibleReference], allowsChapter: Bool) -> [BibleReference]? {
-            guard let first = references.first, first.chapter > 0 && first.bookId.wholeMatch(of: /[A-Z0-9]{3}/) != nil else {
-                return nil
-            }
-            guard references.allSatisfy({ reference in
-                guard reference.versionId == first.versionId && reference.bookId == first.bookId && reference.chapter == first.chapter else {
-                    return false
-                }
-                if reference.verseStart == nil && reference.verseEnd == nil {
-                    return allowsChapter
-                }
-                guard let start = reference.verseStart, let end = reference.verseEnd else {
-                    return false
-                }
-                return start > 0 && end >= start && end < Int.max
-            }) else {
-                return nil
-            }
-            if references.contains(where: { $0.verseStart == nil }) {
-                return [first.chapterReference]
-            }
-            return BibleReference.referencesByMerging(references: references)
-        }
-
-        private static func compactPassageID(for references: [BibleReference]) -> String {
-            references.map { reference in
-                guard let start = reference.verseStart, let end = reference.verseEnd else {
-                    return reference.chapterPassageId
-                }
-                let verseID = "\(reference.chapterPassageId).\(start)"
-                return start == end ? verseID : "\(verseID)-\(end)"
-            }.joined(separator: "+")
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case bibleID = "bible_id"
-            case passageID = "passage_id"
-        }
-    }
-
     public let id: String
     public let title: String?
     public let content: String
     /// Six lowercase hexadecimal digits, without a leading hash.
     public let color: String?
     /// Attached references, or nil when the attachment is absent, null, or malformed.
-    public let passage: Passage?
+    public let references: [BibleReference]?
     public let languageTag: String?
     public let tags: [String]?
     public let status: Status
@@ -130,7 +42,7 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
     public let updatedTime: String?
 
     /// Decodes a note, retaining its content and metadata even when its attachment is malformed.
-    /// An absent, null, or malformed attachment has `passage == nil`; other malformed note fields still throw.
+    /// An absent, null, or malformed attachment has `references == nil`; other malformed note fields still throw.
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
@@ -138,9 +50,9 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
         content = try container.decode(String.self, forKey: .content)
         color = try container.decodeIfPresent(String.self, forKey: .color)
         do {
-            passage = try container.decodeIfPresent(Passage.self, forKey: .passage)
+            references = try container.decodeIfPresent(NotePassage.self, forKey: .references)?.references
         } catch {
-            passage = nil
+            references = nil
             YouVersionPlatformLogger.debug("Ignoring a malformed Notes attachment", category: "Notes")
         }
         languageTag = try container.decodeIfPresent(String.self, forKey: .languageTag)
@@ -150,8 +62,26 @@ public struct YouVersionNote: Codable, Equatable, Identifiable, Sendable {
         updatedTime = try container.decodeIfPresent(String.self, forKey: .updatedTime)
     }
 
+    /// Encodes a note using the API's nested passage object for its references.
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encode(content, forKey: .content)
+        try container.encodeIfPresent(color, forKey: .color)
+        if let references {
+            try container.encode(NotePassage(references: references), forKey: .references)
+        }
+        try container.encodeIfPresent(languageTag, forKey: .languageTag)
+        try container.encodeIfPresent(tags, forKey: .tags)
+        try container.encode(status, forKey: .status)
+        try container.encodeIfPresent(createdTime, forKey: .createdTime)
+        try container.encodeIfPresent(updatedTime, forKey: .updatedTime)
+    }
+
     private enum CodingKeys: String, CodingKey {
-        case id, title, content, color, passage, tags, status
+        case id, title, content, color, tags, status
+        case references = "passage"
         case languageTag = "language_tag"
         case createdTime = "created_dt"
         case updatedTime = "updated_dt"

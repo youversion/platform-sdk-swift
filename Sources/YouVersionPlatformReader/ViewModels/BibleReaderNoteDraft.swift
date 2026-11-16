@@ -13,7 +13,7 @@ final class BibleReaderNoteDraft: Identifiable {
     private(set) var savedNotes: [YouVersionNote]
     private(set) var account: BibleReaderAccount?
     private(set) var isInvalidated = false
-    let passage: YouVersionNote.Passage?
+    private let hasValidReferences: Bool
     var content = "" {
         didSet { if content != oldValue { requestID = UUID() } }
     }
@@ -53,7 +53,7 @@ final class BibleReaderNoteDraft: Identifiable {
         self.savedNotes = savedNotes
         self.account = account
         self.currentAccount = currentAccount
-        self.passage = YouVersionNote.Passage(references: self.references)
+        self.hasValidReferences = normalizedNoteReferences(self.references) != nil
         self.createNote = createNote
         self.deleteNote = deleteNote
     }
@@ -63,7 +63,7 @@ final class BibleReaderNoteDraft: Identifiable {
     var hasChanges: Bool { hasTextChanges || hasMetadataChanges }
     private var hasMetadataChanges: Bool { isPublic != originalIsPublic || colorHex != originalColorHex }
     var canSave: Bool {
-        (!hasCopiedText || hasChanges) && passage != nil && !isBusy && !isInvalidated && account == currentAccount()
+        (!hasCopiedText || hasChanges) && hasValidReferences && !isBusy && !isInvalidated && account == currentAccount()
     }
 
     /// Binds a signed-out selection to the account that completed its authorization.
@@ -142,7 +142,7 @@ final class BibleReaderNoteDraft: Identifiable {
         defer { isSaving = false }
         let request = YouVersionNoteCreateRequest(
             content: content, status: isPublic ? .public : .private,
-            requestID: requestID, color: colorHex, passage: passage
+            requestID: requestID, color: colorHex, references: references
         )
         let saved = await perform(authorize: authorize) { try await self.createNote(request) }
         guard saved && validateAccount() else {

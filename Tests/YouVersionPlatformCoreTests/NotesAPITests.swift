@@ -16,10 +16,6 @@ struct NotesAPITests {
         try #require(BibleReference.unvalidatedReference(with: passageID, versionId: bibleID))
     }
 
-    private func attachment(bibleID: Int, passageID: String) throws -> YouVersionNote.Passage {
-        try #require(YouVersionNote.Passage(references: [reference(passageID, bibleID: bibleID)]))
-    }
-
     @Test
     func collectionPreservesPaginationAndDecodesMetadata() async throws {
         let (session, token) = HTTPMocking.makeSession()
@@ -47,7 +43,7 @@ struct NotesAPITests {
         #expect(note.title == "Reflection")
         #expect(note.content == "Trust the process.")
         #expect(note.color == "44aa44")
-        #expect(note.passage == (try attachment(bibleID: 3034, passageID: "JHN.3.16-18")))
+        #expect(note.references == [try reference("JHN.3.16-18", bibleID: 3034)])
         #expect(note.languageTag == "en-US")
         #expect(note.tags == ["faith"])
         #expect(note.status == .private)
@@ -80,7 +76,7 @@ struct NotesAPITests {
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let page = try await YouVersionAPI.Notes.notes(references: [try reference(passageID)], forAnyBibleVersion: true, accessToken: "notes-tests", session: session)
-        #expect(page.notes.first?.passage?.references.first?.versionId == 3034)
+        #expect(page.notes.first?.references?.first?.versionId == 3034)
     }
 
     @Test(arguments: [false, true])
@@ -137,7 +133,7 @@ struct NotesAPITests {
         } else {
             page = try await YouVersionAPI.Notes.notes(bibleID: 3034, accessToken: "notes-tests", session: session)
         }
-        #expect(page.notes.first?.passage?.references.first?.versionId == 3034)
+        #expect(page.notes.first?.references?.first?.versionId == 3034)
     }
 
     @Test
@@ -207,12 +203,12 @@ struct NotesAPITests {
         }
         let page = try await YouVersionAPI.Notes.notes(accessToken: "notes-tests", session: session)
         #expect(page.notes.count == 3)
-        #expect(page.notes[0].passage != nil)
-        #expect(page.notes[2].passage != nil)
+        #expect(page.notes[0].references != nil)
+        #expect(page.notes[2].references != nil)
         #expect(page.notes[1].id == "bad-attachment")
         #expect(page.notes[1].content == page.notes[0].content)
         #expect(page.notes[1].status == page.notes[0].status)
-        #expect(page.notes[1].passage == nil)
+        #expect(page.notes[1].references == nil)
         #expect(page.nextPageToken == "next+page")
     }
 
@@ -254,14 +250,13 @@ struct NotesAPITests {
             references: [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)],
             forAnyBibleVersion: true, accessToken: "notes-tests", session: session
         )
-        let passage = try #require(page.notes.first?.passage)
-        #expect(passage.references == [BibleReference(versionId: 111, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 18)])
+        let references = try #require(page.notes.first?.references)
+        #expect(references == [BibleReference(versionId: 111, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 18)])
     }
 
     @Test
     func nonconsecutivePassageSurvivesCreateReadUpdateAndList() async throws {
         let references = [1, 3, 5].map { BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: $0) }
-        let passage = try #require(YouVersionNote.Passage(references: references))
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         let json = Data(noteJSON.replacingOccurrences(of: "JHN.3.16-18", with: "GEN.1.1+GEN.1.3+GEN.1.5").utf8)
@@ -282,17 +277,83 @@ struct NotesAPITests {
             return (response, HTTPURLResponse(url: request.url!, statusCode: request.httpMethod == "POST" ? 201 : 200, httpVersion: nil, headerFields: nil)!)
         }
         let created = try await YouVersionAPI.Notes.createNote(
-            YouVersionNoteCreateRequest(content: "Reflection", status: .private, passage: passage),
+            YouVersionNoteCreateRequest(content: "Reflection", status: .private, references: references),
             accessToken: "notes-tests", session: session
         )
         let read = try await YouVersionAPI.Notes.note(id: "40638", accessToken: "notes-tests", session: session)
         let updated = try await YouVersionAPI.Notes.updateNote(
-            id: "40638", update: YouVersionNoteUpdate(passage: .value(passage)), accessToken: "notes-tests", session: session
+            id: "40638", update: YouVersionNoteUpdate(references: .value(references)), accessToken: "notes-tests", session: session
         )
         let page = try await YouVersionAPI.Notes.notes(references: references, forAnyBibleVersion: true, accessToken: "notes-tests", session: session)
         for note in [created, read, updated] + page.notes {
-            #expect(note.passage?.references == references)
+            #expect(note.references == references)
         }
+    }
+
+    @Test
+    func optionalReferenceArraysPreserveOmittedClearedAndReplacedAttachments() throws {
+        let references = [try reference("GEN.1.3"), try reference("GEN.1.1"), try reference("GEN.1.2")]
+        let create = YouVersionNoteCreateRequest(content: "Reflection", status: .private, references: references)
+        let createBody = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(create)) as? [String: Any])
+        let attachment = try #require(createBody["passage"] as? [String: Any])
+        #expect(attachment["bible_id"] as? Int == 3034)
+        #expect(attachment["passage_id"] as? String == "GEN.1.1-3")
+        #expect(createBody["references"] == nil)
+
+        let unattached = YouVersionNoteCreateRequest(content: "Unattached", status: .private)
+        let unattachedBody = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(unattached)) as? [String: Any])
+        #expect(unattached.references == nil)
+        #expect(unattachedBody["passage"] == nil)
+
+        let omitted = YouVersionNoteUpdate(title: .clear, references: nil)
+        let omittedBody = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(omitted)) as? [String: Any])
+        #expect(omittedBody["passage"] == nil)
+        let clearedBody = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(YouVersionNoteUpdate(references: .clear))) as? [String: Any])
+        #expect(clearedBody["passage"] is NSNull)
+        let replacedBody = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(YouVersionNoteUpdate(references: .value(references)))) as? [String: Any])
+        let replacement = try #require(replacedBody["passage"] as? [String: Any])
+        #expect(replacement["bible_id"] as? Int == 3034)
+        #expect(replacement["passage_id"] as? String == "GEN.1.1-3")
+        #expect(replacedBody["references"] == nil)
+    }
+
+    @Test(arguments: [
+        [BibleReference](),
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1)],
+        [BibleReference(versionId: 3034, bookId: "invalid", chapter: 1, verse: 1)],
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: 1), BibleReference(versionId: 111, bookId: "GEN", chapter: 1, verse: 3)],
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: 1), BibleReference(versionId: 3034, bookId: "GEN", chapter: 2, verse: 3)],
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: 1), BibleReference(versionId: 3034, bookId: "EXO", chapter: 1, verse: 3)]
+    ])
+    func invalidAttachmentArraysFailBeforeSending(references: [BibleReference]) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { _ in
+            Issue.record("Invalid attachment arrays must not send requests")
+            throw URLError(.badURL)
+        }
+        let create = YouVersionNoteCreateRequest(content: "Reflection", status: .private, references: references)
+        let update = YouVersionNoteUpdate(references: .value(references))
+        #expect(throws: YouVersionAPIRequestError.self) { try JSONEncoder().encode(create) }
+        #expect(throws: YouVersionAPIRequestError.self) { try JSONEncoder().encode(update) }
+        await #expect(throws: YouVersionAPIRequestError.self) {
+            try await YouVersionAPI.Notes.createNote(create, accessToken: "fixture-token", session: session)
+        }
+        await #expect(throws: YouVersionAPIRequestError.self) {
+            try await YouVersionAPI.Notes.updateNote(id: "fixture-note", update: update, accessToken: "fixture-token", session: session)
+        }
+    }
+
+    @Test
+    func returnedNoteReferenceArraysRoundTripUsingWireAttachments() throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data(noteJSON.utf8))
+        let data = try JSONEncoder().encode(note)
+        let body = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let attachment = try #require(body["passage"] as? [String: Any])
+        #expect(attachment["bible_id"] as? Int == 3034)
+        #expect(attachment["passage_id"] as? String == "JHN.3.16-18")
+        #expect(body["references"] == nil)
+        #expect(try JSONDecoder().decode(YouVersionNote.self, from: data) == note)
     }
 
     @Test
@@ -322,7 +383,7 @@ struct NotesAPITests {
         }
         let request = YouVersionNoteCreateRequest(
             content: "New note", status: .public, requestID: requestID, title: "Title", color: "44aa44",
-            passage: try attachment(bibleID: 3034, passageID: "JHN.3.16"), languageTag: "en-US", tags: ["faith"]
+            references: [try reference("JHN.3.16", bibleID: 3034)], languageTag: "en-US", tags: ["faith"]
         )
         let first = try await YouVersionAPI.Notes.createNote(request, accessToken: "notes-tests", session: session)
         let retry = try await YouVersionAPI.Notes.createNote(request, accessToken: "notes-tests", session: session)
@@ -333,7 +394,7 @@ struct NotesAPITests {
     func creationAllowsSavingAPassageWithoutText(content: String) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-        let passage = try attachment(bibleID: 3034, passageID: "JHN.3.16")
+        let references = [try reference("JHN.3.16", bibleID: 3034)]
         HTTPMocking.setHandler(token: token) { request in
             #expect(request.httpMethod == "POST")
             let body = try #require(request.bodyStreamAsJSON() as? [String: Any])
@@ -347,11 +408,11 @@ struct NotesAPITests {
             )
         }
         let note = try await YouVersionAPI.Notes.createNote(
-            YouVersionNoteCreateRequest(content: content, status: .private, passage: passage),
+            YouVersionNoteCreateRequest(content: content, status: .private, references: references),
             accessToken: "notes-tests", session: session
         )
         #expect(note.content == content)
-        #expect(note.passage == passage)
+        #expect(note.references == references)
     }
 
     @Test
@@ -375,14 +436,14 @@ struct NotesAPITests {
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         _ = try await YouVersionAPI.Notes.updateNote(
-            id: "40638", update: YouVersionNoteUpdate(title: .clear, content: "Changed", passage: .clear, tags: .value([])),
+            id: "40638", update: YouVersionNoteUpdate(title: .clear, content: "Changed", references: .clear, tags: .value([])),
             accessToken: "notes-tests", session: session
         )
     }
 
     @Test
     func allNullableUpdateFieldsCanBeCleared() throws {
-        let update = YouVersionNoteUpdate(title: .clear, color: .clear, passage: .clear, languageTag: .clear, tags: .clear)
+        let update = YouVersionNoteUpdate(title: .clear, color: .clear, references: .clear, languageTag: .clear, tags: .clear)
         let object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(update)) as? [String: Any])
         #expect(object.count == 5)
         for field in ["title", "color", "passage", "language_tag", "tags"] {
@@ -395,7 +456,7 @@ struct NotesAPITests {
         let update = YouVersionNoteUpdate(
             title: .value("New"), 
             color: .value("123abc"),
-            passage: .value(try attachment(bibleID: 1, passageID: "GEN.1.1")),
+            references: .value([try reference("GEN.1.1", bibleID: 1)]),
             languageTag: .value("es"), 
             tags: .value(["hope"]), 
             status: .public
@@ -500,7 +561,7 @@ struct NotesAPITests {
         let data = Data(#"{"id":"1","content":"Note","status":"future-status"}"#.utf8)
         let note = try JSONDecoder().decode(YouVersionNote.self, from: data)
         #expect(note.title == nil)
-        #expect(note.passage == nil)
+        #expect(note.references == nil)
         #expect(note.createdTime == nil)
         #expect(note.status.rawValue == "future-status")
         #expect(try JSONDecoder().decode(YouVersionNote.self, from: JSONEncoder().encode(note)) == note)

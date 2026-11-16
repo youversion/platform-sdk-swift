@@ -243,7 +243,7 @@ private struct SavedNoteCard: View {
     let note: YouVersionNote
 
     private var referenceTitle: String {
-        guard let references = note.passage?.references else {
+        guard let references = note.references else {
             return ""
         }
         return references.map {

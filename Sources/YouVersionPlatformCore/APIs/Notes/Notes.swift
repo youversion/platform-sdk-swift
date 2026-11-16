@@ -32,7 +32,7 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> YouVersionNoteCollection {
-            guard let passageID = YouVersionNote.Passage.queryPassageID(for: references) else {
+            guard let passageID = NotePassage.queryPassageID(for: references) else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)
             }
             return try await notesPage(

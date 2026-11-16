@@ -9,6 +9,21 @@ struct BibleReaderNotesTests {
     private let first = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16)
     private let second = BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 17)
 
+    @Test(arguments: [
+        [BibleReference](),
+        [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)],
+        [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16), BibleReference(versionId: 111, bookId: "JHN", chapter: 3, verse: 18)],
+        [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verse: 16), BibleReference(versionId: 3034, bookId: "JHN", chapter: 4, verse: 18)]
+    ])
+    func invalidReferenceSelectionsCannotSave(references: [BibleReference]) async {
+        var didCreate = false
+        let draft = BibleReaderNoteDraft(references: references, referenceTitle: "Invalid selection", account: nil, currentAccount: { nil }) { _ in didCreate = true }
+        draft.content = "Reflection"
+        #expect(!draft.canSave)
+        #expect(await draft.save() == false)
+        #expect(!didCreate)
+    }
+
     @Test
     func capturesAndMergesSelectionBeforeOpeningComposer() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
@@ -20,10 +35,9 @@ struct BibleReaderNotesTests {
         let draft = viewModel.noteDraft
         #expect(draft?.referenceTitle.isEmpty == false)
         #expect(!viewModel.showingVerseActionsDrawer)
-        #expect(draft?.passage == YouVersionNote.Passage(references: [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 17)]))
+        #expect(draft?.references == [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 17)])
         viewModel.selectedVerses = []
         #expect(draft?.references.count == 1)
-        #expect(draft?.passage?.references == draft?.references)
     }
 
     @Test
@@ -68,11 +82,11 @@ struct BibleReaderNotesTests {
         let draft = BibleReaderNoteDraft(references: [first, third], referenceTitle: "John 3:16, 18", account: nil, currentAccount: { nil }) { created = $0 }
         draft.content = "Reflection"
         #expect(draft.references.count == 2)
-        #expect(draft.passage?.references == [first, third])
+        #expect(draft.references == [first, third])
         #expect(draft.canSave)
         #expect(await draft.save())
-        let passage = try #require(created?.passage)
-        #expect(passage.references == [first, third])
+        let references = try #require(created?.references)
+        #expect(references == [first, third])
     }
 
     @Test(arguments: ["", " \n\t "])
@@ -83,7 +97,7 @@ struct BibleReaderNotesTests {
         #expect(draft.canSave)
         #expect(await draft.save())
         #expect(created?.content == content)
-        #expect(created?.passage?.references == [first])
+        #expect(created?.references == [first])
     }
 
     @Test
@@ -118,7 +132,7 @@ struct BibleReaderNotesTests {
         #expect(request.content == draft.content)
         #expect(request.status == .public)
         #expect(request.color == "ffec5b")
-        #expect(request.passage == YouVersionNote.Passage(references: [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 17)]))
+        #expect(request.references == [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 17)])
         #expect(!draft.isSaving)
     }
 
