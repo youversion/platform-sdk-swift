@@ -90,7 +90,9 @@ struct BibleNoteIndicatorsTests {
         let refresh = RefreshState()
         weak var observedModel: BibleNoteIndicatorsModel?
         let model = BibleNoteIndicatorsModel(hasAccess: { true }) { _, token in
-            guard refresh.isRefreshing else { return original }
+            guard refresh.isRefreshing else {
+                return original
+            }
             #expect(observedModel?.hasNotes(for: verse(3)) == !refresh.isSwitchingChapters)
             if token != nil { throw URLError(.cannotConnectToHost) }
             return partial

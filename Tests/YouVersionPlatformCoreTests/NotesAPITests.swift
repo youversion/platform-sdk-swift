@@ -564,7 +564,11 @@ struct NotesAPITests {
         #expect(note.references == nil)
         #expect(note.createdTime == nil)
         #expect(note.status.rawValue == "future-status")
-        #expect(try JSONDecoder().decode(YouVersionNote.self, from: JSONEncoder().encode(note)) == note)
+        let encoded = try JSONEncoder().encode(note)
+        let body = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        #expect(body["passage"] == nil)
+        #expect(body["references"] == nil)
+        #expect(try JSONDecoder().decode(YouVersionNote.self, from: encoded) == note)
     }
 
     private func performOperation(_ operation: Int, session: URLSession) async throws {

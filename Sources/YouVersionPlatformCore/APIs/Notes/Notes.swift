@@ -79,7 +79,8 @@ public extension YouVersionAPI {
         /// Creates a note and returns its server representation. Requires `write_notes`.
         /// Reuse the same request value for retries so its `requestID` remains unchanged.
         /// Empty content saves the attached passage without adding text.
-        /// Throws for missing authentication, HTTP failure, or malformed response.
+        /// Throws `YouVersionAPIRequestError` for empty or invalid reference selections. Other failures
+        /// include missing authentication, HTTP failure, or malformed responses.
         public static func createNote(
             _ note: YouVersionNoteCreateRequest,
             accessToken providedToken: String? = nil,
@@ -98,8 +99,9 @@ public extension YouVersionAPI {
 
         /// Partially updates a note and returns its server representation. Requires `write_notes`.
         /// Omitted fields retain their values; `.clear` sends explicit null for nullable fields.
-        /// Throws for an empty ID, empty update or content, missing authentication, HTTP failure,
-        /// or malformed response. Other value constraints are validated by the server.
+        /// Throws `YouVersionAPIRequestError` for an empty ID, update, or content, or an empty or invalid
+        /// replacement reference selection. Authentication, HTTP, and decoding failures also throw.
+        /// Other value constraints are validated by the server.
         public static func updateNote(
             id: String,
             update: YouVersionNoteUpdate,
