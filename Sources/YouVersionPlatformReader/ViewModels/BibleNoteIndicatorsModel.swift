@@ -28,7 +28,7 @@ final class BibleNoteIndicatorsModel {
 
     private static func defaultNotesPage(_ reference: BibleReference, _ pageToken: String?) async throws -> YouVersionNoteCollection {
         try await YouVersionAPI.Notes.notes(
-            bibleID: reference.versionId, passageID: reference.chapterPassageId,
+            references: [reference.chapterReference],
             pageSize: 99, pageToken: pageToken
         )
     }
@@ -81,13 +81,11 @@ final class BibleNoteIndicatorsModel {
                 }
             } while token != nil
             var seenIDs: Set<String> = []
-            let cachedNotes: [(note: YouVersionNote, references: [BibleReference])] = notes.filter { seenIDs.insert($0.id).inserted }.compactMap { note in
-                guard note.passage?.bibleID == reference.versionId,
-                      let references = note.passage?.references else {
-                    return nil
+            let cachedNotes = notes.filter { note in
+                guard seenIDs.insert(note.id).inserted, let references = note.passage?.references else {
+                    return false
                 }
-                let chapterReferences = references.filter { $0.bookId == reference.bookId && $0.chapter == reference.chapter }
-                return chapterReferences.isEmpty ? nil : (note: note, references: chapterReferences)
+                return references.contains { $0.versionId == chapter.versionId && $0.bookId == chapter.bookId && $0.chapter == chapter.chapter }
             }
             snapshot = Snapshot(chapter: chapter, account: requestAccount, notes: cachedNotes)
         } catch {
@@ -107,20 +105,18 @@ final class BibleNoteIndicatorsModel {
 
     /// Whether a verse needs an indicator, without allocating a matching-notes array during text construction.
     func hasNotes(for reference: BibleReference) -> Bool {
-        snapshot?.notes.contains { $0.references.contains { $0.overlaps(with: reference) } } ?? false
+        snapshot?.notes.contains { $0.passage?.references.contains { $0.overlaps(with: reference) } ?? false } ?? false
     }
 
     /// All notes whose exact attachment overlaps this rendered verse or verse bridge.
     func notes(for reference: BibleReference) -> [YouVersionNote] {
-        snapshot?.notes.compactMap { cached in
-            cached.references.contains { $0.overlaps(with: reference) } ? cached.note : nil
-        } ?? []
+        snapshot?.notes.filter { $0.passage?.references.contains { $0.overlaps(with: reference) } ?? false } ?? []
     }
 
     private struct Snapshot {
         let chapter: BibleReference
         let account: BibleReaderAccount?
-        let notes: [(note: YouVersionNote, references: [BibleReference])]
+        let notes: [YouVersionNote]
     }
 
 }

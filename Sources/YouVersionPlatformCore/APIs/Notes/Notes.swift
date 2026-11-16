@@ -6,28 +6,44 @@ import FoundationNetworking
 public extension YouVersionAPI {
     /// Authenticated beta Notes endpoints. Sign in with `read_notes` and/or `write_notes` permissions.
     struct Notes {
-        /// Returns one page of the signed-in user's notes, newest first. Requires `read_notes`.
-        ///
-        /// Set `passageID` to a verse (`JHN.3.16`), a verse range within one chapter (`JHN.3.16-18`),
-        /// same-chapter selections joined with `+` (`JHN.3.16+JHN.3.18`), or a chapter (`JHN.3`)
-        /// to return notes whose attached passage overlaps it, regardless of Bible version.
-        /// Nil returns notes without a passage filter. Cross-chapter or malformed selectors
-        /// are rejected by the server with HTTP 400.
-        /// Set `bibleID` to restrict results to that Bible translation. Notes without a passage
-        /// do not match. When both filters are set, a note must match both.
-        ///
-        /// Page size must be between 1 and 99; nil uses the server default of 25. Even an empty or
-        /// short page may have a next page token. Continue until the token is nil, passing it unchanged
-        /// with the same `passageID` and `bibleID`; `pageSize` may vary. A terminal HTTP 204 returns an empty page.
-        /// Throws `YouVersionAPIRequestError` for an invalid page size, `YouVersionAPIError` for
-        /// authentication or HTTP failures, and decoding or transport errors when applicable.
+        /// Returns one page of the signed-in user's notes, optionally restricted to a Bible version.
+        /// Requires `read_notes`. Nil `bibleID` returns all versions, including unattached notes.
+        /// Page size must be 1...99; nil uses 25. Follow every non-nil continuation token, even on empty pages.
+        /// Keep filters unchanged across pages; `pageSize` may vary. HTTP 204 returns an empty final page.
         public static func notes(
             bibleID: Int? = nil,
-            passageID: String? = nil,
             pageSize: Int? = nil,
             pageToken: String? = nil,
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
+        ) async throws -> YouVersionNoteCollection {
+            try await notesPage(bibleID: bibleID, passageID: nil, pageSize: pageSize, pageToken: pageToken, accessToken: providedToken, session: session)
+        }
+
+        /// Returns notes overlapping the selected verses, ranges, or chapter in one Bible version.
+        /// Set `forAnyBibleVersion` to true to match that passage across all Bible versions; the default false restricts results to the references’ version.
+        /// References must be nonempty and share a version, book, and chapter. Gaps are preserved.
+        /// Requires `read_notes`. Pagination follows the same rules as `notes(bibleID:pageSize:pageToken:accessToken:session:)`.
+        public static func notes(
+            references: [BibleReference],
+            forAnyBibleVersion: Bool = false,
+            pageSize: Int? = nil,
+            pageToken: String? = nil,
+            accessToken providedToken: String? = nil,
+            session: URLSession = .shared
+        ) async throws -> YouVersionNoteCollection {
+            guard let passageID = YouVersionNote.Passage.queryPassageID(for: references) else {
+                throw YouVersionAPIRequestError(code: .invalidParameter)
+            }
+            return try await notesPage(
+                bibleID: forAnyBibleVersion ? nil : references[0].versionId, passageID: passageID,
+                pageSize: pageSize, pageToken: pageToken, accessToken: providedToken, session: session
+            )
+        }
+
+        private static func notesPage(
+            bibleID: Int?, passageID: String?, pageSize: Int?, pageToken: String?,
+            accessToken providedToken: String?, session: URLSession
         ) async throws -> YouVersionNoteCollection {
             guard pageSize.map({ (1...99).contains($0) }) ?? true else {
                 throw YouVersionAPIRequestError(code: .invalidParameter)

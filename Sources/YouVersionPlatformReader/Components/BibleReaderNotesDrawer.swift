@@ -244,7 +244,7 @@ private struct SavedNoteCard: View {
 
     private var referenceTitle: String {
         guard let references = note.passage?.references else {
-            return note.passage?.passageID ?? ""
+            return ""
         }
         return references.map {
             viewModel.version?.displayTitle(for: $0, includesVersionAbbreviation: false) ?? $0.passageId

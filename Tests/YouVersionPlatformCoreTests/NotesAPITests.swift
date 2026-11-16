@@ -12,6 +12,14 @@ struct NotesAPITests {
     "status":"private","created_dt":"2026-10-23T17:00:00Z","updated_dt":null}
     """
 
+    private func reference(_ passageID: String, bibleID: Int = 3034) throws -> BibleReference {
+        try #require(BibleReference.unvalidatedReference(with: passageID, versionId: bibleID))
+    }
+
+    private func attachment(bibleID: Int, passageID: String) throws -> YouVersionNote.Passage {
+        try #require(YouVersionNote.Passage(references: [reference(passageID, bibleID: bibleID)]))
+    }
+
     @Test
     func collectionPreservesPaginationAndDecodesMetadata() async throws {
         let (session, token) = HTTPMocking.makeSession()
@@ -39,7 +47,7 @@ struct NotesAPITests {
         #expect(note.title == "Reflection")
         #expect(note.content == "Trust the process.")
         #expect(note.color == "44aa44")
-        #expect(note.passage == YouVersionNote.Passage(bibleID: 3034, passageID: "JHN.3.16-18"))
+        #expect(note.passage == (try attachment(bibleID: 3034, passageID: "JHN.3.16-18")))
         #expect(note.languageTag == "en-US")
         #expect(note.tags == ["faith"])
         #expect(note.status == .private)
@@ -71,8 +79,8 @@ struct NotesAPITests {
             #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: passageID)])
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
-        let page = try await YouVersionAPI.Notes.notes(passageID: passageID, accessToken: "notes-tests", session: session)
-        #expect(page.notes.first?.passage?.bibleID == 3034)
+        let page = try await YouVersionAPI.Notes.notes(references: [try reference(passageID)], forAnyBibleVersion: true, accessToken: "notes-tests", session: session)
+        #expect(page.notes.first?.passage?.references.first?.versionId == 3034)
     }
 
     @Test(arguments: [false, true])
@@ -97,13 +105,13 @@ struct NotesAPITests {
             return (pageJSON, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
         let first = try await YouVersionAPI.Notes.notes(
-            bibleID: 3034, passageID: passageID, pageSize: 25, accessToken: "notes-tests", session: session
+            references: [try reference(passageID)], pageSize: 25, accessToken: "notes-tests", session: session
         )
         #expect(first.notes.count == (hasNote ? 1 : 0))
         let continuation = try #require(first.nextPageToken)
         #expect(continuation == nextPageToken)
         let last = try await YouVersionAPI.Notes.notes(
-            bibleID: 3034, passageID: passageID, pageSize: 1, pageToken: continuation, accessToken: "notes-tests", session: session
+            references: [try reference(passageID)], pageSize: 1, pageToken: continuation, accessToken: "notes-tests", session: session
         )
         #expect(last.notes.isEmpty)
         #expect(last.nextPageToken == nil)
@@ -123,10 +131,13 @@ struct NotesAPITests {
             #expect(items.first { $0.name == "passage_id" }?.value == passageID)
             return (json, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
-        let page = try await YouVersionAPI.Notes.notes(
-            bibleID: 3034, passageID: passageID, accessToken: "notes-tests", session: session
-        )
-        #expect(page.notes.first?.passage?.bibleID == 3034)
+        let page: YouVersionNoteCollection
+        if let passageID {
+            page = try await YouVersionAPI.Notes.notes(references: [try reference(passageID)], accessToken: "notes-tests", session: session)
+        } else {
+            page = try await YouVersionAPI.Notes.notes(bibleID: 3034, accessToken: "notes-tests", session: session)
+        }
+        #expect(page.notes.first?.passage?.references.first?.versionId == 3034)
     }
 
     @Test
@@ -157,19 +168,94 @@ struct NotesAPITests {
         } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
-    @Test(arguments: ["", "JHN.3.16,GEN.1.1", "JHN.3&passage_id=GEN.1+%#"])
-    func invalidPassageSelectorsAreEncodedAndServerRejectionsPropagate(passageID: String) async {
+    @Test(arguments: [
+        [BibleReference](),
+        [BibleReference(versionId: 3034, bookId: "invalid", chapter: 1)],
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1), BibleReference(versionId: 111, bookId: "GEN", chapter: 1)],
+        [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1), BibleReference(versionId: 3034, bookId: "GEN", chapter: 2)]
+    ])
+    func invalidReferenceFiltersFailBeforeSending(references: [BibleReference]) async {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { _ in
+            Issue.record("An invalid reference selection must not send a request")
+            throw URLError(.badURL)
+        }
+        await #expect(throws: YouVersionAPIRequestError.self) {
+            try await YouVersionAPI.Notes.notes(references: references, accessToken: "notes-tests", session: session)
+        }
+    }
+
+    @Test(arguments: ["gapped-invalid", "cross-chapter", "chapter-only", "wrong-bible-type", "missing-bible", "wrong-shape"])
+    func malformedAttachmentDoesNotDiscardNotesOrContinuation(malformed: String) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let valid = try #require(JSONSerialization.jsonObject(with: Data(noteJSON.utf8)) as? [String: Any])
+        var invalid = valid
+        invalid["id"] = "bad-attachment"
+        switch malformed {
+        case "gapped-invalid": invalid["passage"] = ["bible_id": 3034, "passage_id": "GEN.1.1+bad"]
+        case "cross-chapter": invalid["passage"] = ["bible_id": 3034, "passage_id": "GEN.1.1+GEN.2.3"]
+        case "chapter-only": invalid["passage"] = ["bible_id": 3034, "passage_id": "GEN.1"]
+        case "wrong-bible-type": invalid["passage"] = ["bible_id": "invalid", "passage_id": "GEN.1.1"]
+        case "missing-bible": invalid["passage"] = ["passage_id": "GEN.1.1"]
+        default: invalid["passage"] = "invalid"
+        }
+        let response = try JSONSerialization.data(withJSONObject: ["data": [valid, invalid, valid], "next_page_token": "next+page"])
+        HTTPMocking.setHandler(token: token) { request in
+            (response, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        let page = try await YouVersionAPI.Notes.notes(accessToken: "notes-tests", session: session)
+        #expect(page.notes.count == 3)
+        #expect(page.notes[0].passage != nil)
+        #expect(page.notes[2].passage != nil)
+        #expect(page.notes[1].id == "bad-attachment")
+        #expect(page.notes[1].content == page.notes[0].content)
+        #expect(page.notes[1].status == page.notes[0].status)
+        #expect(page.notes[1].passage == nil)
+        #expect(page.nextPageToken == "next+page")
+    }
+
+    @Test
+    func malformedRequiredNoteFieldsStillThrow() throws {
+        let data = Data(#"{"id":"bad-content","content":17,"status":"private","passage":{"bible_id":3034,"passage_id":"GEN.1.1+bad"}}"#.utf8)
+        #expect(throws: DecodingError.self) { try JSONDecoder().decode(YouVersionNote.self, from: data) }
+    }
+
+    @Test(arguments: [false, true])
+    func chapterReferenceFilterUsesCompactChapterAndOptionalVersion(forAnyBibleVersion: Bool) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in
             let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-            #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: passageID)])
-            #expect(components.fragment == nil)
-            return (Data(), HTTPURLResponse(url: request.url!, statusCode: 400, httpVersion: nil, headerFields: nil)!)
+            let items = components.queryItems ?? []
+            #expect(items.count == (forAnyBibleVersion ? 1 : 2))
+            #expect(items.first { $0.name == "passage_id" }?.value == "GEN.1")
+            #expect(items.first { $0.name == "bible_id" }?.value == (forAnyBibleVersion ? nil : "3034"))
+            return (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
         }
-        await #expect {
-            try await YouVersionAPI.Notes.notes(passageID: passageID, accessToken: "notes-tests", session: session)
-        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
+        _ = try await YouVersionAPI.Notes.notes(
+            references: [BibleReference(versionId: 3034, bookId: "GEN", chapter: 1), BibleReference(versionId: 3034, bookId: "GEN", chapter: 1, verse: 3)],
+            forAnyBibleVersion: forAnyBibleVersion, accessToken: "notes-tests", session: session
+        )
+    }
+
+    @Test
+    func passageOnlySearchDecodesEachNotesOwnBibleVersion() async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        let json = noteJSON.replacingOccurrences(of: "3034", with: "111")
+        HTTPMocking.setHandler(token: token) { request in
+            let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
+            #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: "JHN.3")])
+            return (Data("{\"data\":[\(json)]}".utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+        let page = try await YouVersionAPI.Notes.notes(
+            references: [BibleReference(versionId: 3034, bookId: "JHN", chapter: 3)],
+            forAnyBibleVersion: true, accessToken: "notes-tests", session: session
+        )
+        let passage = try #require(page.notes.first?.passage)
+        #expect(passage.references == [BibleReference(versionId: 111, bookId: "JHN", chapter: 3, verseStart: 16, verseEnd: 18)])
     }
 
     @Test
@@ -178,7 +264,7 @@ struct NotesAPITests {
         let passage = try #require(YouVersionNote.Passage(references: references))
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-        let json = Data(noteJSON.replacingOccurrences(of: "JHN.3.16-18", with: passage.passageID).utf8)
+        let json = Data(noteJSON.replacingOccurrences(of: "JHN.3.16-18", with: "GEN.1.1+GEN.1.3+GEN.1.5").utf8)
         HTTPMocking.setHandler(token: token) { request in
             if request.httpMethod == "POST" || request.httpMethod == "PATCH" {
                 let body = try #require(request.bodyStreamAsJSON() as? [String: Any])
@@ -189,7 +275,7 @@ struct NotesAPITests {
             let isList = request.httpMethod == "GET" && request.url?.path == "/v1-beta/notes"
             if isList {
                 let components = try #require(URLComponents(url: request.url!, resolvingAgainstBaseURL: false))
-                #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: passage.passageID)])
+                #expect(components.queryItems == [URLQueryItem(name: "passage_id", value: "GEN.1.1+GEN.1.3+GEN.1.5")])
                 #expect(components.percentEncodedQuery == "passage_id=GEN.1.1%2BGEN.1.3%2BGEN.1.5")
             }
             let response = isList ? Data("{\"data\":[\(String(decoding: json, as: UTF8.self))]}".utf8) : json
@@ -203,7 +289,7 @@ struct NotesAPITests {
         let updated = try await YouVersionAPI.Notes.updateNote(
             id: "40638", update: YouVersionNoteUpdate(passage: .value(passage)), accessToken: "notes-tests", session: session
         )
-        let page = try await YouVersionAPI.Notes.notes(passageID: passage.passageID, accessToken: "notes-tests", session: session)
+        let page = try await YouVersionAPI.Notes.notes(references: references, forAnyBibleVersion: true, accessToken: "notes-tests", session: session)
         for note in [created, read, updated] + page.notes {
             #expect(note.passage?.references == references)
         }
@@ -236,7 +322,7 @@ struct NotesAPITests {
         }
         let request = YouVersionNoteCreateRequest(
             content: "New note", status: .public, requestID: requestID, title: "Title", color: "44aa44",
-            passage: YouVersionNote.Passage(bibleID: 3034, passageID: "JHN.3.16"), languageTag: "en-US", tags: ["faith"]
+            passage: try attachment(bibleID: 3034, passageID: "JHN.3.16"), languageTag: "en-US", tags: ["faith"]
         )
         let first = try await YouVersionAPI.Notes.createNote(request, accessToken: "notes-tests", session: session)
         let retry = try await YouVersionAPI.Notes.createNote(request, accessToken: "notes-tests", session: session)
@@ -247,12 +333,12 @@ struct NotesAPITests {
     func creationAllowsSavingAPassageWithoutText(content: String) async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
-        let passage = YouVersionNote.Passage(bibleID: 3034, passageID: "JHN.3.16")
+        let passage = try attachment(bibleID: 3034, passageID: "JHN.3.16")
         HTTPMocking.setHandler(token: token) { request in
             #expect(request.httpMethod == "POST")
             let body = try #require(request.bodyStreamAsJSON() as? [String: Any])
             #expect(body["content"] as? String == content)
-            #expect((body["passage"] as? [String: Any])?["passage_id"] as? String == passage.passageID)
+            #expect((body["passage"] as? [String: Any])?["passage_id"] as? String == "JHN.3.16")
             var response = body
             response["id"] = "saved-verse"
             return (
@@ -309,7 +395,7 @@ struct NotesAPITests {
         let update = YouVersionNoteUpdate(
             title: .value("New"), 
             color: .value("123abc"),
-            passage: .value(YouVersionNote.Passage(bibleID: 1, passageID: "GEN.1.1")),
+            passage: .value(try attachment(bibleID: 1, passageID: "GEN.1.1")),
             languageTag: .value("es"), 
             tags: .value(["hope"]), 
             status: .public
