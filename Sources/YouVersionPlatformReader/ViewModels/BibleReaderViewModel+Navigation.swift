@@ -105,6 +105,8 @@ extension BibleReaderViewModel {
             return
         }
 
+        chapterArming.onLeadingEdge(offset)
+
         // An intentional user scroll clears the focus.
         if focusedReference != nil && abs(offset - previousOffset) > userScrollThreshold {
             clearFocus()
@@ -129,7 +131,7 @@ extension BibleReaderViewModel {
 
     /// Fires `onChapterComplete` if the latest cached geometry indicates the
     /// bottom of the content is in view. Safe to call any time; gated by
-    /// `hasNotifiedChapterComplete` so it fires at most once per chapter.
+    /// `chapterArming` so it fires once per pass from the top to the bottom.
     func evaluateChapterCompleteFromCachedGeometry() {
         // The bottom of the content has come into view when the content's
         // bottom edge (offset + contentHeight) is at or above the viewport's
@@ -151,15 +153,15 @@ extension BibleReaderViewModel {
         if bottomReached
             && heightIsStable
             && version != nil
-            && !hasNotifiedChapterComplete
+            && chapterArming.isArmed
             && !isChangingChapter {
-            hasNotifiedChapterComplete = true
+            chapterArming.consume()
             onChapterComplete?(reference)
         }
     }
 
     func resetChapterCompleteTracking() {
-        hasNotifiedChapterComplete = false
+        chapterArming.reset(opensAtChapterTop: !hasPendingVerseTarget)
         contentHeight = 0
         previousContentHeight = 0
     }

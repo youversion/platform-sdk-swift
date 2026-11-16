@@ -137,6 +137,80 @@ import Testing
     }
 
     @Test
+    func handleScrollCountsAgainOnlyAfterReturningToTheTop() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(callCount == 1)
+
+        viewModel.handleScroll(offset: -600, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(callCount == 1)
+
+        viewModel.handleScroll(offset: 0, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(callCount == 2)
+    }
+
+    @Test
+    func handleScrollDoesNotRecountAOneScreenChapterAsTheLayoutSettles() {
+        var callCount = 0
+        let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+
+        for _ in 0..<5 {
+            viewModel.handleScroll(offset: 0, contentHeight: 400)
+        }
+        #expect(callCount == 1)
+    }
+
+    @Test
+    func handleScrollDoesNotCountAVerseTargetThatLandsAtTheBottom() {
+        var callCount = 0
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 51)
+        let viewModel = Support.makeViewModel(
+            reference: reference,
+            showsFullChapter: true,
+            onChapterComplete: { _ in callCount += 1 }
+        )
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+        viewModel.setScrollTarget()
+
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(callCount == 0)
+
+        viewModel.handleScroll(offset: 0, contentHeight: 2000)
+        viewModel.handleScroll(offset: -1200, contentHeight: 2000)
+        #expect(callCount == 1)
+    }
+
+    @Test
+    func resetChapterCompleteTrackingKeepsAPendingVerseTargetDisarmed() {
+        var callCount = 0
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 1, verse: 51)
+        let viewModel = Support.makeViewModel(
+            reference: reference,
+            showsFullChapter: true,
+            onChapterComplete: { _ in callCount += 1 }
+        )
+        viewModel.scrollViewHeight = 800
+        viewModel.versionsViewModel.switchToVersion(Support.makeBibleVersion(id: Support.versionId))
+        viewModel.setScrollTarget()
+        viewModel.resetChapterCompleteTracking()
+
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
+        viewModel.handleScroll(offset: 0, contentHeight: 400)
+        #expect(callCount == 0)
+    }
+
+    @Test
     func handleScrollSkipsSideEffectsButRecordsGeometryWhileChangingChapter() {
         var callCount = 0
         let viewModel = Support.makeViewModel(onChapterComplete: { _ in callCount += 1 })

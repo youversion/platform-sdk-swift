@@ -509,9 +509,6 @@ private struct ReaderContent: View {
         .onChange(of: reduceMotion, initial: true) { _, newValue in
             viewModel.isReduceMotionEnabled = newValue
         }
-        .onAppear {
-            viewModel.resetChapterCompleteTracking()
-        }
         .onChange(of: viewModel.reference) { _, newReference in
             viewModel.resetChapterCompleteTracking()
             viewModel.onReferenceChange?(newReference)
@@ -778,6 +775,7 @@ private struct ReaderContent: View {
             return
         }
         lastScrolledVerse = anchorVerse
+        viewModel.chapterArming.onProgrammaticScroll()
         let anchorId = "ch\(viewModel.reference.chapter)v\(anchorVerse)"
         Task { @MainActor in
             let animation: Animation? = reduceMotion ? nil : .easeInOut(duration: 0.3)
