@@ -62,7 +62,9 @@ struct BibleReaderNotesDrawer: View {
             .buttonStyle(.borderless)
             .labelStyle(.titleAndIcon)
             .listRowInsets(EdgeInsets())
+#if !os(tvOS)
             .listRowSeparator(.hidden)
+#endif
             .listRowBackground(viewModel.readerCanvasPrimaryColor)
             if !draft.savedNotes.isEmpty {
                 VStack(spacing: 8) {
@@ -72,7 +74,9 @@ struct BibleReaderNotesDrawer: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 8, trailing: 24))
+#if !os(tvOS)
                 .listRowSeparator(.hidden)
+#endif
                 .listRowBackground(viewModel.readerCanvasPrimaryColor)
                 ForEach(draft.savedNotes) { note in
                     SavedNoteCard(note: note)
@@ -89,13 +93,17 @@ struct BibleReaderNotesDrawer: View {
                             showingDeleteConfirmation = true
                         })
                         .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 12, trailing: 24))
+#if !os(tvOS)
                         .listRowSeparator(.hidden)
+#endif
                         .listRowBackground(viewModel.readerCanvasPrimaryColor)
                 }
             }
         }
         .listStyle(.plain)
+#if !os(tvOS)
         .scrollContentBackground(.hidden)
+#endif
         .background(viewModel.readerCanvasPrimaryColor)
         .contentMargins(.vertical, 0, for: .scrollContent)
         .scrollBounceBehavior(.basedOnSize)
