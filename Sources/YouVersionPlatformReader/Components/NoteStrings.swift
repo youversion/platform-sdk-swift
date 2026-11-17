@@ -15,4 +15,9 @@ enum NoteStrings {
     static let discardTitle = "Discard note?"
     static let discardMessage = "Your note hasn’t been saved. Discard your changes?"
     static let discard = "Discard"
+
+    /// The VoiceOver label for a verse indicator that opens saved notes.
+    static func verseIndicatorAccessibilityLabel(verse: String) -> String {
+        "Notes \(verse)"
+    }
 }

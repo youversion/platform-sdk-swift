@@ -26,13 +26,14 @@ private struct NoteIndicators: View {
             }
             let side = textView.textOptions.fontSize * 1.5
             let isHighlighted = !BibleHighlightsCache.shared.highlights(overlapping: reference).isEmpty
+            let verse = reference.verseStart.map(String.init) ?? reference.passageId
             return BibleVerseIndicatorStyle(
                 backgroundColor: isHighlighted ? Color.gray.opacity(0.25) : Color(red: 0.35, green: 0.62, blue: 0.86).opacity(0.55),
                 minimumHitTargetSize: CGSize(width: side, height: side),
                 backgroundPadding: textView.textOptions.fontSize * 0.1 + 1 / displayScale,
                 hasInlinePadding: true,
                 foregroundColor: textView.textOptions.textColor ?? .primary,
-                accessibilityLabel: "\(notesLabel) \(reference.verseStart.map(String.init) ?? reference.passageId)"
+                accessibilityLabel: NoteStrings.verseIndicatorAccessibilityLabel(verse: verse)
             )
         } onSelected: { reference in
             let notes = model.notes(for: reference)
@@ -55,9 +56,6 @@ private struct NoteIndicators: View {
             revision = UUID()
         }
     }
-
-    // TODO: Move new Notes accessibility copy to platform-localization when the Notes copy is localized.
-    private var notesLabel: String { "Notes" }
 
     private struct LoadKey: Hashable {
         let reference: BibleReference
