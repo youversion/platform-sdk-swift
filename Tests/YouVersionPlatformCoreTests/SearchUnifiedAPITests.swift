@@ -236,7 +236,7 @@ import Testing
         #expect(results.searchInsteadFor == nil)
     }
 
-    @Test(arguments: [401, 403, 500])
+    @Test(arguments: [401, 403, 404, 429, 500])
     func imageSearchPropagatesHTTPFailures(statusCode: Int) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
@@ -250,10 +250,7 @@ import Testing
                 fields: ["images"], accessToken: "swift-test-suite", session: session
             )
         } throws: { error in
-            if statusCode == 401 || statusCode == 403 {
-                return (error as? YouVersionAPIError) == .notPermitted
-            }
-            return (error as? YouVersionAPIError) == .cannotDownload
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: statusCode)
         }
     }
 

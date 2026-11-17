@@ -270,9 +270,9 @@ import Testing
         }
 
         let ref = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.Bible.chapter(reference: ref, accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor

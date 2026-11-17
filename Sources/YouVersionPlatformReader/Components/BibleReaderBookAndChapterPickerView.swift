@@ -81,11 +81,11 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         Image(systemName: "chevron.backward")
                             .font(.system(size: 24, weight: .semibold))
                     }
-                    .accessibilityLabel(String.localized("generic.back"))
+                    .accessibilityLabel(String.localized("back"))
                     .padding(.leading, 16)
                     HStack {
                         Spacer()
-                        Text(String.localized("bookChapterPicker.title"))
+                        Text(String.localized("booksHeading"))
                             .font(.headline)
                         Spacer()
                     }
@@ -149,7 +149,7 @@ public struct BibleReaderBookAndChapterPickerView: View {
                         .renderingMode(.template)
                     chapterListButton(Text(img))
                 }
-                .accessibilityLabel(String.localized("reader.learnMore"))
+                .accessibilityLabel(String.localized("learnMore"))
                 .buttonStyle(.plain)
             }
             ForEach(Array(chapters.enumerated()), id: \.offset) { idx, label in
