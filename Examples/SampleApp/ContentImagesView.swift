@@ -233,7 +233,12 @@ struct ContentImageView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("votd.verse_images")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                }
                 VotdImageStackView(
                     images: images.isEmpty ? [image] : images,
                     onSelectionChange: { displayedImage = $0 }

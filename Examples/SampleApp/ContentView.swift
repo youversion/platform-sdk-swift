@@ -64,7 +64,7 @@ struct ContentView: View {
                         showsLanguages = true
                     } label: {
                         Label(selectedLanguageName, systemImage: "globe")
-                            .labelStyle(ContentLanguageLabelStyle())
+                            .labelStyle(.iconOnly)
                     }
                     .accessibilityLabel(Text(selectedLanguageName))
                     .accessibilityHint("Choose the content language")

@@ -58,33 +58,3 @@ struct ContentLanguagePicker: View {
         locale.localizedString(forIdentifier: tag) ?? tag
     }
 }
-
-struct ContentLanguageLabelStyle: LabelStyle {
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
-
-    /// Shows the language name or symbol to suit the current toolbar layout.
-    func makeBody(configuration: Configuration) -> some View {
-        if #available(iOS 27.1, *) {
-            ContentLanguageToolbarLabel(configuration: configuration)
-        } else if verticalSizeClass == .compact {
-            configuration.icon
-        } else {
-            configuration.title
-        }
-    }
-}
-
-@available(iOS 27.1, *)
-private struct ContentLanguageToolbarLabel: View {
-    let configuration: LabelStyleConfiguration
-    @Environment(\.toolbarVerticalEdge) private var toolbarVerticalEdge
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
-
-    var body: some View {
-        if toolbarVerticalEdge != nil || verticalSizeClass == .compact {
-            configuration.icon
-        } else {
-            configuration.title
-        }
-    }
-}
