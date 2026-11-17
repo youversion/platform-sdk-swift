@@ -101,7 +101,8 @@ struct ContentVideoThumbnailView: View {
     let videoID: String?
     let language: ContentLanguage
     var showsPlayIndicator = false
-    @State private var video: YouVersionVideo?
+    var video: YouVersionVideo?
+    @State private var loadedVideo: YouVersionVideo?
     @State private var errorMessage: String?
     @State private var retryID = UUID()
 
@@ -115,7 +116,7 @@ struct ContentVideoThumbnailView: View {
                 .accessibilityLabel("Retry loading thumbnail")
                 .accessibilityHint(errorMessage)
             } else {
-                AsyncImage(url: video?.thumbnail?.url) { phase in
+                AsyncImage(url: (video ?? loadedVideo)?.thumbnail?.url) { phase in
                     if let image = phase.image {
                         image.resizable().scaledToFit()
                             .overlay(alignment: .bottomLeading) {
@@ -133,7 +134,7 @@ struct ContentVideoThumbnailView: View {
                             Image(systemName: "arrow.clockwise").frame(minWidth: 44, minHeight: 44)
                         }
                         .accessibilityLabel("Retry loading thumbnail")
-                    } else if video == nil && videoID != nil {
+                    } else if video == nil && loadedVideo == nil && videoID != nil {
                         ProgressView()
                     } else {
                         Image(systemName: "play.fill").foregroundStyle(.secondary)
@@ -146,14 +147,14 @@ struct ContentVideoThumbnailView: View {
         .background(Color(uiColor: .secondarySystemBackground))
         .clipShape(.rect(cornerRadius: 12))
         .task(id: retryID) {
-            guard let videoID, video == nil else {
+            guard let videoID, video == nil && loadedVideo == nil else {
                 return
             }
             errorMessage = nil
             do {
                 let resolved = try await YouVersionAPI.Videos.video(id: videoID, size: "card", session: language.videoSession)
                 try Task.checkCancellation()
-                video = resolved
+                loadedVideo = resolved
             } catch {
                 if !Task.isCancelled { errorMessage = error.localizedDescription }
             }

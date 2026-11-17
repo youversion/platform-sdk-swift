@@ -17,7 +17,7 @@ struct ContentCollectionView: View {
                     NavigationLink {
                         ContentVideoView(video: first, collectionTitle: collection.title)
                     } label: {
-                        ContentVideoThumbnailView(videoID: first.id, language: language, showsPlayIndicator: true)
+                        ContentVideoThumbnailView(videoID: first.id, language: language, showsPlayIndicator: true, video: first)
                             .overlay(alignment: .bottomTrailing) {
                                 if let runtime = first.runtime {
                                     ContentVideoDurationView(runtime: runtime)
@@ -60,7 +60,7 @@ struct ContentCollectionView: View {
                         ContentVideoView(video: video, collectionTitle: collection.title)
                     } label: {
                         HStack(spacing: 12) {
-                            ContentVideoThumbnailView(videoID: video.id, language: language)
+                            ContentVideoThumbnailView(videoID: video.id, language: language, video: video)
                                 .frame(width: 108, height: 64)
                                 .overlay(alignment: .bottomTrailing) {
                                     if let runtime = video.runtime {
