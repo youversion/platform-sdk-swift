@@ -314,7 +314,18 @@ private struct ContentImageViewer: View {
                     VStack(alignment: .leading, spacing: 20) {
                         VotdImageView(image: image)
                         Text("Verses in this image").font(.caption)
-                        Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                        Button(action: readInBible) {
+                            HStack(spacing: 6) {
+                                Text(title.isEmpty ? image.passageID : title)
+                                Image(systemName: "chevron.forward")
+                                    .accessibilityHidden(true)
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .frame(minHeight: 44)
+                        }
+                        .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        .disabled(reference == nil)
                         if let reference {
                             BibleCardView(reference: reference, fontSize: 18, showVersionPicker: false)
                         }
@@ -325,14 +336,7 @@ private struct ContentImageViewer: View {
                         }
                     }
                 }
-                Button {
-                    guard let reference else {
-                        return
-                    }
-                    navigation.request(reference, showsFullChapter: true)
-                    dismiss()
-                    onNavigate()
-                } label: {
+                Button(action: readInBible) {
                     Label("Read in Bible", systemImage: "book.closed")
                         .frame(maxWidth: .infinity)
                         .padding(12)
@@ -371,10 +375,19 @@ private struct ContentImageViewer: View {
                     throw YouVersionAPIError.invalidResponse
                 }
                 reference = resolved
-                title = version.displayTitle(for: resolved, includesVersionAbbreviation: true)
+                title = version.displayTitle(for: resolved, includesVersionAbbreviation: false)
             } catch {
                 if !Task.isCancelled { errorMessage = error.localizedDescription }
             }
         }
+    }
+
+    private func readInBible() {
+        guard let reference else {
+            return
+        }
+        navigation.request(reference, showsFullChapter: true)
+        dismiss()
+        onNavigate()
     }
 }
