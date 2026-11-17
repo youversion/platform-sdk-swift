@@ -20,10 +20,10 @@ struct BibleReaderDrawer: View {
                         case .highlight:
                             highlightColorButtons
                         case .save:
-                            drawerButton(imageName: "bookmark", text: NoteStrings.save) { viewModel.startNote() }
+                            drawerButton(image: Image(decorative: "bookmark", bundle: .YouVersionUIBundle), text: NoteStrings.save) { viewModel.startNote() }
                         case .copy:
 #if !os(tvOS)
-                            drawerButton(imageName: "square.on.square", text: .localized("copy")) {
+                            drawerButton(image: Image(systemName: "square.on.square"), text: .localized("copy")) {
                                 viewModel.handleVerseActionCopy()
                             }
 #endif
@@ -69,9 +69,9 @@ struct BibleReaderDrawer: View {
         )
     }
 
-    private func drawerButton(imageName: String, text: String, action: @escaping () -> Void) -> some View {
+    private func drawerButton(image: Image, text: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VerseActionLabel(image: Image(systemName: imageName), title: Text(text))
+            VerseActionLabel(image: image, title: Text(text))
         }
     }
 }
