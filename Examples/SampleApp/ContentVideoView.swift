@@ -5,9 +5,14 @@ import YouVersionPlatform
 
 struct ContentVideoView: View {
     let video: YouVersionVideo
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var player: AVPlayer?
     @State private var playbackError: String?
     @State private var retryID = UUID()
+    @State private var isPlaying = false
+    @State private var isFullScreen = false
+    @State private var hasDismissedFullScreen = false
+    @State private var shouldResumePlayback = false
 
     var body: some View {
         ScrollView {
@@ -44,6 +49,49 @@ struct ContentVideoView: View {
                 ShareLink(item: shareURL)
             }
         }
+        .fullScreenCover(isPresented: $isFullScreen) {
+            ZStack(alignment: .topTrailing) {
+                Color.black.ignoresSafeArea()
+                VideoPlayer(player: player)
+                Button(String(localized: "Close"), systemImage: "xmark") {
+                    hasDismissedFullScreen = true
+                    isFullScreen = false
+                }
+                .labelStyle(.iconOnly)
+                .frame(minWidth: 44, minHeight: 44)
+                .padding()
+                .tint(.white)
+                .accessibilityIdentifier("library.closeFullScreenVideo")
+            }
+            .statusBarHidden()
+            .accessibilityAction(.escape) {
+                hasDismissedFullScreen = true
+                isFullScreen = false
+            }
+        }
+        .onChange(of: verticalSizeClass) { _, sizeClass in
+            if sizeClass == .compact && isPlaying {
+                isFullScreen = true
+            } else if sizeClass != .compact {
+                hasDismissedFullScreen = false
+                isFullScreen = false
+            }
+        }
+        .onChange(of: isPlaying) { _, isPlaying in
+            if isPlaying && verticalSizeClass == .compact && !hasDismissedFullScreen {
+                isFullScreen = true
+            }
+        }
+        .onChange(of: playbackError) { _, error in
+            if error != nil {
+                isFullScreen = false
+            }
+        }
+        .task(id: player) {
+            if let player {
+                await observePlayback(of: player)
+            }
+        }
         .task(id: retryID) {
             guard let playbackURL else {
                 return
@@ -62,13 +110,21 @@ struct ContentVideoView: View {
             }
             if (player.currentItem?.asset as? AVURLAsset)?.url != playbackURL || player.currentItem?.status == .failed {
                 player.replaceCurrentItem(with: AVPlayerItem(url: playbackURL))
+                shouldResumePlayback = true
             }
-            player.play()
+            if shouldResumePlayback {
+                shouldResumePlayback = false
+                player.play()
+            }
             if let item = player.currentItem {
                 await observeFailure(of: item)
             }
         }
         .onDisappear {
+            guard !isFullScreen else {
+                return
+            }
+            shouldResumePlayback = player?.timeControlStatus == .playing || player?.timeControlStatus == .waitingToPlayAtSpecifiedRate
             player?.pause()
             try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         }
@@ -77,6 +133,23 @@ struct ContentVideoView: View {
     private var playbackURL: URL? {
         (video.playbackSources.first(where: { $0.format == "hls" })
             ?? video.playbackSources.first(where: { $0.format == "mp4" }))?.url
+    }
+
+    private func observePlayback(of player: AVPlayer) async {
+        let (statuses, continuation) = AsyncStream<AVPlayer.TimeControlStatus>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        let observation = player.observe(\.timeControlStatus, options: [.initial, .new]) { player, _ in
+            continuation.yield(player.timeControlStatus)
+        }
+        defer {
+            observation.invalidate()
+            continuation.finish()
+        }
+        for await status in statuses {
+            guard !Task.isCancelled else {
+                return
+            }
+            isPlaying = status == .playing
+        }
     }
 
     private func observeFailure(of item: AVPlayerItem) async {
