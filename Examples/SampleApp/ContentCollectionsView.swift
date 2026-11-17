@@ -32,16 +32,7 @@ struct ContentCollectionsView: View {
                             ContentCollectionView(collection: featured, language: language)
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
-                                ContentCollectionThumbnailView(videoID: featured.videoIDs?.first, language: language)
-                                    .aspectRatio(16.0 / 9, contentMode: .fit)
-                                    .overlay(alignment: .bottomLeading) {
-                                        Image(systemName: "play.circle.fill")
-                                            .font(.largeTitle)
-                                            .foregroundStyle(.white)
-                                            .shadow(radius: 2)
-                                            .padding(12)
-                                            .accessibilityHidden(true)
-                                    }
+                                ContentCollectionThumbnailView(videoID: featured.videoIDs?.first, language: language, showsPlayIndicator: true)
                                 Text(featured.title ?? "Collection").font(.headline)
                                 if let total = featured.total {
                                     Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
@@ -109,13 +100,13 @@ struct ContentCollectionsView: View {
 struct ContentVideoThumbnailView: View {
     let videoID: String?
     let language: ContentLanguage
+    var showsPlayIndicator = false
     @State private var video: YouVersionVideo?
     @State private var errorMessage: String?
     @State private var retryID = UUID()
 
     var body: some View {
-        ZStack {
-            Color(uiColor: .secondarySystemBackground)
+        Group {
             if let errorMessage {
                 Button { retryID = UUID() } label: {
                     Image(systemName: "arrow.clockwise")
@@ -127,6 +118,16 @@ struct ContentVideoThumbnailView: View {
                 AsyncImage(url: video?.thumbnail?.url) { phase in
                     if let image = phase.image {
                         image.resizable().scaledToFit()
+                            .overlay(alignment: .bottomLeading) {
+                                if showsPlayIndicator {
+                                    Image(systemName: "play.circle.fill")
+                                        .font(.largeTitle)
+                                        .foregroundStyle(.white)
+                                        .shadow(radius: 2)
+                                        .padding(12)
+                                        .accessibilityHidden(true)
+                                }
+                            }
                     } else if phase.error != nil {
                         Button { retryID = UUID() } label: {
                             Image(systemName: "arrow.clockwise").frame(minWidth: 44, minHeight: 44)
@@ -141,6 +142,8 @@ struct ContentVideoThumbnailView: View {
                 .id(retryID)
             }
         }
+        .frame(maxWidth: .infinity)
+        .background(Color(uiColor: .secondarySystemBackground))
         .clipShape(.rect(cornerRadius: 12))
         .task(id: retryID) {
             guard let videoID, video == nil else {
@@ -161,9 +164,10 @@ struct ContentVideoThumbnailView: View {
 private struct ContentCollectionThumbnailView: View {
     let videoID: String?
     let language: ContentLanguage
+    var showsPlayIndicator = false
 
     var body: some View {
-        ContentVideoThumbnailView(videoID: videoID, language: language)
+        ContentVideoThumbnailView(videoID: videoID, language: language, showsPlayIndicator: showsPlayIndicator)
             .background {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(uiColor: .tertiarySystemFill))

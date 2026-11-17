@@ -17,16 +17,7 @@ struct ContentCollectionView: View {
                     NavigationLink {
                         ContentVideoView(video: first, collectionTitle: collection.title)
                     } label: {
-                        ContentVideoThumbnailView(videoID: first.id, language: language)
-                            .aspectRatio(16.0 / 9, contentMode: .fit)
-                            .overlay(alignment: .bottomLeading) {
-                                Image(systemName: "play.circle.fill")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.white)
-                                    .shadow(radius: 2)
-                                    .padding(12)
-                                    .accessibilityHidden(true)
-                            }
+                        ContentVideoThumbnailView(videoID: first.id, language: language, showsPlayIndicator: true)
                             .overlay(alignment: .bottomTrailing) {
                                 if let runtime = first.runtime {
                                     ContentVideoDurationView(runtime: runtime)
@@ -37,7 +28,6 @@ struct ContentCollectionView: View {
                     .accessibilityLabel("Play \(first.title ?? "video")")
                 } else {
                     ContentVideoThumbnailView(videoID: collection.videoIDs?.first, language: language)
-                        .aspectRatio(16.0 / 9, contentMode: .fit)
                 }
                 Text(collection.title ?? "Collection").font(.title2.bold())
                 if let description = collection.description, !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
