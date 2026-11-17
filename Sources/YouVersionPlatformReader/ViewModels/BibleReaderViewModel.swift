@@ -553,7 +553,6 @@ final class BibleReaderViewModel: ReaderThemeProviding {
 
     static var signInPermissions: [String] {
         Set(YouVersionPlatformConfiguration.authData?.permissionValues ?? [])
-            .subtracting([YouVersionAPI.Users.readNotesPermission, YouVersionAPI.Users.writeNotesPermission])
             .union(dataExchangePermissions)
             .union([YouVersionAPI.Users.readNotesPermission, YouVersionAPI.Users.writeNotesPermission])
             .union(["profile"])

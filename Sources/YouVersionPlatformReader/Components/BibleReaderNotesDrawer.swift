@@ -26,7 +26,7 @@ struct BibleReaderNotesDrawer: View {
                             .font(.title3.weight(.semibold))
                             .frame(minWidth: 44, minHeight: 44)
                     }
-                    .accessibilityLabel(String.localized("generic.back"))
+                    .accessibilityLabel(String.localized("back"))
                     .accessibilityIdentifier("notes.back")
                     .disabled(draft.isBusy)
                     Spacer()
@@ -107,7 +107,7 @@ struct BibleReaderNotesDrawer: View {
                 if let noteToCopy { copyText(from: noteToCopy) }
                 noteToCopy = nil
             }
-            Button(String.localized("generic.cancel"), role: .cancel) { noteToCopy = nil }
+            Button(String.localized("cancel"), role: .cancel) { noteToCopy = nil }
         } message: {
             Text(NoteStrings.replaceMessage)
         }
@@ -116,18 +116,18 @@ struct BibleReaderNotesDrawer: View {
                 Task { _ = await draft.delete(note, authorize: authorize) }
                 noteToDelete = nil
             }
-            Button(String.localized("generic.cancel"), role: .cancel) { noteToDelete = nil }
+            Button(String.localized("cancel"), role: .cancel) { noteToDelete = nil }
         } message: { _ in
             Text(NoteStrings.deleteMessage)
         }
         .alert(NoteStrings.discardTitle, isPresented: $draft.showingDiscardConfirmation) {
             Button(NoteStrings.discard, role: .destructive) { viewModel.discardNote() }
-            Button(String.localized("generic.cancel"), role: .cancel) { }
+            Button(String.localized("cancel"), role: .cancel) { }
         } message: {
             Text(NoteStrings.discardMessage)
         }
-        .alert(String.localized("generic.error"), isPresented: $draft.showingSaveError) {
-            Button(String.localized("generic.ok"), role: .cancel) { }
+        .alert(String.localized("error"), isPresented: $draft.showingSaveError) {
+            Button(String.localized("ok"), role: .cancel) { }
         } message: {
             Text(String.localized("generic.requestErrorBody"))
         }
@@ -135,7 +135,7 @@ struct BibleReaderNotesDrawer: View {
 
     private var cancelAndSaveButtons: some View {
         HStack {
-            Button(String.localized("generic.cancel")) { viewModel.requestDismissNote() }
+            Button(String.localized("cancel")) { viewModel.requestDismissNote() }
                 .frame(minWidth: 44, minHeight: 44)
                 .disabled(draft.isBusy)
             Spacer()

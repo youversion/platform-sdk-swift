@@ -241,6 +241,7 @@ struct BibleNoteIndicatorsTests {
                 permissions: change == "no-access" ? [] : ["read_notes"]
             )
         }
+        #expect(model.notes(for: verse(3)).isEmpty)
         model.authorizationDidChange()
         #expect(!model.hasNotes(for: verse(3)))
     }

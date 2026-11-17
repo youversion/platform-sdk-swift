@@ -454,11 +454,11 @@ struct NotesAPITests {
     @Test
     func updateReplacementValuesUseWireKeys() throws {
         let update = YouVersionNoteUpdate(
-            title: .value("New"), 
+            title: .value("New"),
             color: .value("123abc"),
             references: .value([try reference("GEN.1.1", bibleID: 1)]),
-            languageTag: .value("es"), 
-            tags: .value(["hope"]), 
+            languageTag: .value("es"),
+            tags: .value(["hope"]),
             status: .public
         )
         let object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(update)) as? [String: Any])

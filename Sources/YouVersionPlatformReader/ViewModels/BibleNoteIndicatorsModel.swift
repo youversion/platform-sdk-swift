@@ -110,7 +110,10 @@ final class BibleNoteIndicatorsModel {
 
     /// All notes whose exact attachment overlaps this rendered verse or verse bridge.
     func notes(for reference: BibleReference) -> [YouVersionNote] {
-        snapshot?.notes.filter { $0.references?.contains { $0.overlaps(with: reference) } ?? false } ?? []
+        guard let snapshot, snapshot.account == BibleReaderAccount.current && canReadNotes else {
+            return []
+        }
+        return snapshot.notes.filter { $0.references?.contains { $0.overlaps(with: reference) } ?? false }
     }
 
     private struct Snapshot {
