@@ -75,6 +75,17 @@ import Testing
     }
 
     @Test
+    func alertBindingDismissalDoesNotCancelTheConfirmedHighlightIntent() {
+        let viewModel = Support.makeViewModel(isSignedIn: true)
+        let reference = BibleReference(versionId: Support.versionId, bookId: "JHN", chapter: 3, verse: 16)
+        viewModel.selectedVerses = [reference]
+        viewModel.addHighlightOrStartPermissionFlow(references: [reference], color: "DDAAFF")
+        viewModel.showingDataExchangeConfirmation = false
+        viewModel.confirmDataExchangePrompt()
+        #expect(viewModel.startDataExchangeFlow)
+    }
+
+    @Test
     func grantedDataExchangeFlowAppliesPendingHighlightAndClearsSelection() {
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository, isSignedIn: true)
