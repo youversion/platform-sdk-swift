@@ -5,6 +5,7 @@ import YouVersionPlatform
 
 struct ContentVideoView: View {
     let video: YouVersionVideo
+    let collectionTitle: String?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var player: AVPlayer?
     @State private var playbackError: String?
@@ -13,6 +14,11 @@ struct ContentVideoView: View {
     @State private var isFullScreen = false
     @State private var hasDismissedFullScreen = false
     @State private var shouldResumePlayback = false
+
+    init(video: YouVersionVideo, collectionTitle: String? = nil) {
+        self.video = video
+        self.collectionTitle = collectionTitle
+    }
 
     var body: some View {
         ScrollView {
@@ -35,6 +41,22 @@ struct ContentVideoView: View {
                 }
                 if let title = video.title {
                     Text(title).font(.title2.bold()).padding(.horizontal, 20)
+                }
+                if collectionTitle != nil || video.runtime != nil {
+                    HStack(spacing: 8) {
+                        if let collectionTitle {
+                            Text(collectionTitle)
+                        }
+                        if collectionTitle != nil && video.runtime != nil {
+                            Text(verbatim: "·").accessibilityHidden(true)
+                        }
+                        if let runtime = video.runtime {
+                            Text(Duration.seconds(runtime).formatted(.time(pattern: runtime >= 3600 ? .hourMinuteSecond : .minuteSecond)))
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 20)
                 }
                 if let description = video.description {
                     Text(description).font(.body).padding(.horizontal, 20)

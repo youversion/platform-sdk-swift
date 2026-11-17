@@ -15,7 +15,7 @@ struct ContentCollectionView: View {
             LazyVStack(alignment: .leading, spacing: 20) {
                 if let first = videos.first {
                     NavigationLink {
-                        ContentVideoView(video: first)
+                        ContentVideoView(video: first, collectionTitle: collection.title)
                     } label: {
                         ContentVideoThumbnailView(videoID: first.id, language: language)
                             .aspectRatio(16.0 / 9, contentMode: .fit)
@@ -67,7 +67,7 @@ struct ContentCollectionView: View {
                 }
                 ForEach(videos, id: \.id) { video in
                     NavigationLink {
-                        ContentVideoView(video: video)
+                        ContentVideoView(video: video, collectionTitle: collection.title)
                     } label: {
                         HStack(spacing: 12) {
                             ContentVideoThumbnailView(videoID: video.id, language: language)

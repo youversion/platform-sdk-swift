@@ -25,7 +25,7 @@ struct ContentImagesView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField("Search for images", text: $query)
+                    TextField("Search by verse reference", text: $query)
                         .textInputAutocapitalization(.sentences)
                         .autocorrectionDisabled()
                         .submitLabel(.search)
