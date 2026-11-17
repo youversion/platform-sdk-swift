@@ -12,7 +12,7 @@ struct ContentImagesView: View {
     @State private var errorMessage: String?
     @State private var validationMessage: String?
     @State private var isFirstPage = true
-    @State private var isLoading = false
+    @State private var isLoading = true
     @State private var retryID = UUID()
     @State private var completedRequestID: UUID?
     @State private var searchBibleID: Int?
@@ -252,15 +252,23 @@ struct ContentImageView: View {
         .fullScreenCover(item: $selectedImage) { selected in
             ContentImageViewer(image: selected, language: language, navigation: navigation, onNavigate: onNavigate)
         }
+        .task {
+            do {
+                let version = try await BibleVersionRepository.shared.version(withId: try await language.bibleID(for: image.passageID))
+                try Task.checkCancellation()
+                if let reference = version.reference(with: image.passageID) {
+                    title = version.displayTitle(for: reference, includesVersionAbbreviation: false)
+                }
+            } catch {
+                title = image.passageID
+            }
+        }
         .task(id: retryID) {
             do {
-                async let version = BibleVersionRepository.shared.version(withId: try await language.bibleID())
-                async let page = YouVersionAPI.Images.images(passageID: image.passageID, languageRanges: [language.tag], pageSize: 99)
-                let (bibleVersion, firstPage) = try await (version, page)
+                let firstPage = try await YouVersionAPI.Images.images(
+                    passageID: image.passageID, languageRanges: [language.tag], pageSize: 99
+                )
                 try Task.checkCancellation()
-                if let reference = bibleVersion.reference(with: image.passageID) {
-                    title = bibleVersion.displayTitle(for: reference, includesVersionAbbreviation: false)
-                }
                 images = [image] + firstPage.images.filter { $0.id != image.id }
                 var token = firstPage.nextPageToken
                 var visitedTokens: Set<String> = []
@@ -339,7 +347,7 @@ private struct ContentImageViewer: View {
         .task(id: retryID) {
             errorMessage = nil
             do {
-                let version = try await BibleVersionRepository.shared.version(withId: try await language.bibleID())
+                let version = try await BibleVersionRepository.shared.version(withId: try await language.bibleID(for: image.passageID))
                 try Task.checkCancellation()
                 guard let resolved = version.reference(with: image.passageID) else {
                     throw YouVersionAPIError.invalidResponse

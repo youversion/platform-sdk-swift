@@ -4,6 +4,7 @@ import YouVersionPlatform
 struct ContentCollectionView: View {
     let collection: YouVersionVideoPlaylist
     let language: ContentLanguage
+    @Environment(\.locale) private var locale
     @State private var videosByRequestedID: [String: YouVersionVideo] = [:]
     @State private var activeLoadID: UUID?
     @State private var errorMessage: String?
@@ -18,7 +19,14 @@ struct ContentCollectionView: View {
                     } label: {
                         ContentVideoThumbnailView(videoID: first.id, language: language)
                             .aspectRatio(16.0 / 9, contentMode: .fit)
-                            .overlay { Image(systemName: "play.circle.fill").font(.largeTitle).foregroundStyle(.white) }
+                            .overlay(alignment: .bottomLeading) {
+                                Image(systemName: "play.circle.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.white)
+                                    .shadow(radius: 2)
+                                    .padding(12)
+                                    .accessibilityHidden(true)
+                            }
                     }
                     .accessibilityLabel("Play \(first.title ?? "video")")
                 } else {
@@ -26,6 +34,11 @@ struct ContentCollectionView: View {
                         .aspectRatio(16.0 / 9, contentMode: .fit)
                 }
                 Text(collection.title ?? "Collection").font(.title2.bold())
+                if let description = collection.description, !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 HStack(alignment: .top, spacing: 12) {
                     if let total = collection.total {
                         ContentMetadataView(title: "Videos", value: String(total))
@@ -93,7 +106,7 @@ struct ContentCollectionView: View {
     }
 
     private var languages: [String] {
-        Set(videos.compactMap(\.languageTag)).sorted().map { Locale.current.localizedString(forIdentifier: $0) ?? $0 }
+        Set(videos.compactMap(\.languageTag)).sorted().map { locale.localizedString(forIdentifier: $0) ?? $0 }
     }
 
     private func loadVideos() async {

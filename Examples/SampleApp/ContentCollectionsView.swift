@@ -79,7 +79,13 @@ struct ContentCollectionsView: View {
         do {
             var loaded: [YouVersionVideoPlaylist] = []
             var pageToken: String?
+            var visitedTokens: Set<String> = []
             repeat {
+                if let pageToken {
+                    guard visitedTokens.insert(pageToken).inserted else {
+                        throw YouVersionAPIError.invalidResponse
+                    }
+                }
                 let page = try await YouVersionAPI.Videos.playlists(organizationID: organizationID, pageSize: "99", pageToken: pageToken, session: language.videoSession)
                 try Task.checkCancellation()
                 loaded += page.playlists
