@@ -3,6 +3,7 @@ import YouVersionPlatform
 
 struct ContentCollectionView: View {
     let collection: YouVersionVideoPlaylist
+    let language: ContentLanguage
     @State private var videosByRequestedID: [String: YouVersionVideo] = [:]
     @State private var activeLoadID: UUID?
     @State private var errorMessage: String?
@@ -15,13 +16,13 @@ struct ContentCollectionView: View {
                     NavigationLink {
                         ContentVideoView(video: first)
                     } label: {
-                        ContentVideoThumbnailView(videoID: first.id)
+                        ContentVideoThumbnailView(videoID: first.id, language: language)
                             .aspectRatio(16.0 / 9, contentMode: .fit)
                             .overlay { Image(systemName: "play.circle.fill").font(.largeTitle).foregroundStyle(.white) }
                     }
                     .accessibilityLabel("Play \(first.title ?? "video")")
                 } else {
-                    ContentVideoThumbnailView(videoID: collection.videoIDs?.first)
+                    ContentVideoThumbnailView(videoID: collection.videoIDs?.first, language: language)
                         .aspectRatio(16.0 / 9, contentMode: .fit)
                 }
                 Text(collection.title ?? "Collection").font(.title2.bold())
@@ -50,7 +51,7 @@ struct ContentCollectionView: View {
                         ContentVideoView(video: video)
                     } label: {
                         HStack(spacing: 12) {
-                            ContentVideoThumbnailView(videoID: video.id)
+                            ContentVideoThumbnailView(videoID: video.id, language: language)
                                 .frame(width: 108, height: 64)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(video.title ?? "Video").font(.headline)
@@ -113,7 +114,7 @@ struct ContentCollectionView: View {
             for id in pendingIDs {
                 group.addTask {
                     do {
-                        return (id, try await YouVersionAPI.Videos.video(id: id, size: "card"), nil)
+                        return (id, try await YouVersionAPI.Videos.video(id: id, size: "card", session: language.videoSession), nil)
                     } catch {
                         return (id, nil, error.localizedDescription)
                     }

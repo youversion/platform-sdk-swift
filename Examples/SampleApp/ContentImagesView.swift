@@ -2,6 +2,7 @@ import SwiftUI
 import YouVersionPlatform
 
 struct ContentImagesView: View {
+    let language: ContentLanguage
     let navigation: BibleReaderNavigation
     let onNavigate: () -> Void
     @State private var query = ""
@@ -14,6 +15,7 @@ struct ContentImagesView: View {
     @State private var isLoading = false
     @State private var retryID = UUID()
     @State private var completedRequestID: UUID?
+    @State private var searchBibleID: Int?
     @State private var pendingSearchPage: YouVersionImageSearchResults?
     @State private var searchImageIDs: [String] = []
     @State private var searchImagesByRequestedID: [String: YouVersionImage] = [:]
@@ -51,7 +53,7 @@ struct ContentImagesView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                         ForEach(images) { image in
                             NavigationLink {
-                                ContentImageView(image: image, navigation: navigation, onNavigate: onNavigate)
+                                ContentImageView(image: image, language: language, navigation: navigation, onNavigate: onNavigate)
                             } label: {
                                 VStack(alignment: .leading, spacing: 6) {
                                     VotdImageView(image: image)
@@ -86,6 +88,10 @@ struct ContentImagesView: View {
             }
             .padding(20)
         }
+        .onChange(of: language.tag) { _, _ in
+            searchBibleID = nil
+            resetImages()
+        }
         .task(id: retryID) {
             guard completedRequestID != retryID else {
                 return
@@ -100,14 +106,21 @@ struct ContentImagesView: View {
             validationMessage = String(localized: "Enter a search of 100 characters or fewer.")
             return
         }
-        validationMessage = nil
-        isFirstPage = true
         submittedQuery = searchQuery
+        resetImages()
+    }
+
+    private func resetImages() {
+        validationMessage = nil
+        errorMessage = nil
+        isFirstPage = true
+        isLoading = true
         images = []
         nextPageToken = nil
         pendingSearchPage = nil
         searchImageIDs = []
         searchImagesByRequestedID = [:]
+        completedRequestID = nil
         retryID = UUID()
     }
 
@@ -124,6 +137,7 @@ struct ContentImagesView: View {
             let pageToken: String?
             if requestQuery.isEmpty {
                 let page = try await YouVersionAPI.Images.images(
+                    languageRanges: [language.tag],
                     pageSize: 30,
                     pageToken: isFirstPage ? nil : nextPageToken
                 )
@@ -134,9 +148,20 @@ struct ContentImagesView: View {
                 if let pendingSearchPage {
                     page = pendingSearchPage
                 } else {
+                    let bibleID: Int
+                    if let searchBibleID {
+                        bibleID = searchBibleID
+                    } else {
+                        bibleID = try await language.bibleID()
+                        try Task.checkCancellation()
+                        guard requestID == retryID else {
+                            return
+                        }
+                        searchBibleID = bibleID
+                    }
                     page = try await YouVersionAPI.Search.images(
                         query: requestQuery,
-                        bibleID: 3034,
+                        bibleID: bibleID,
                         pageSize: 30,
                         pageToken: isFirstPage ? nil : nextPageToken
                     )
@@ -195,6 +220,7 @@ struct ContentImagesView: View {
 
 struct ContentImageView: View {
     let image: YouVersionImage
+    let language: ContentLanguage
     let navigation: BibleReaderNavigation
     let onNavigate: () -> Void
     @State private var images: [YouVersionImage] = []
@@ -223,15 +249,13 @@ struct ContentImageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbar { ShareLink(item: (displayedImage ?? image).url) }
-        // The suggested yvFullScreenCover modifier is not defined in this package.
-        // swiftlint:disable:next swiftui_fullscreencover
         .fullScreenCover(item: $selectedImage) { selected in
-            ContentImageViewer(image: selected, navigation: navigation, onNavigate: onNavigate)
+            ContentImageViewer(image: selected, language: language, navigation: navigation, onNavigate: onNavigate)
         }
         .task(id: retryID) {
             do {
-                async let version = BibleVersionRepository.shared.version(withId: 3034)
-                async let page = YouVersionAPI.Images.images(passageID: image.passageID, pageSize: 99)
+                async let version = BibleVersionRepository.shared.version(withId: try await language.bibleID())
+                async let page = YouVersionAPI.Images.images(passageID: image.passageID, languageRanges: [language.tag], pageSize: 99)
                 let (bibleVersion, firstPage) = try await (version, page)
                 try Task.checkCancellation()
                 if let reference = bibleVersion.reference(with: image.passageID) {
@@ -244,7 +268,7 @@ struct ContentImageView: View {
                     guard visitedTokens.insert(pageToken).inserted else {
                         throw YouVersionAPIError.invalidResponse
                     }
-                    let next = try await YouVersionAPI.Images.images(passageID: image.passageID, pageSize: 99, pageToken: pageToken)
+                    let next = try await YouVersionAPI.Images.images(passageID: image.passageID, languageRanges: [language.tag], pageSize: 99, pageToken: pageToken)
                     try Task.checkCancellation()
                     let existingIDs = Set(images.map(\.id))
                     images += next.images.filter { !existingIDs.contains($0.id) }
@@ -260,6 +284,7 @@ struct ContentImageView: View {
 
 private struct ContentImageViewer: View {
     let image: YouVersionImage
+    let language: ContentLanguage
     let navigation: BibleReaderNavigation
     let onNavigate: () -> Void
     @Environment(\.dismiss) private var dismiss
@@ -314,7 +339,7 @@ private struct ContentImageViewer: View {
         .task(id: retryID) {
             errorMessage = nil
             do {
-                let version = try await BibleVersionRepository.shared.version(withId: 3034)
+                let version = try await BibleVersionRepository.shared.version(withId: try await language.bibleID())
                 try Task.checkCancellation()
                 guard let resolved = version.reference(with: image.passageID) else {
                     throw YouVersionAPIError.invalidResponse
