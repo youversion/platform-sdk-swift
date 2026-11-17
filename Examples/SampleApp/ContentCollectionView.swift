@@ -27,6 +27,12 @@ struct ContentCollectionView: View {
                                     .padding(12)
                                     .accessibilityHidden(true)
                             }
+                            .overlay(alignment: .bottomTrailing) {
+                                if let runtime = first.runtime {
+                                    ContentVideoDurationView(runtime: runtime)
+                                        .padding(12)
+                                }
+                            }
                     }
                     .accessibilityLabel("Play \(first.title ?? "video")")
                 } else {
@@ -66,13 +72,13 @@ struct ContentCollectionView: View {
                         HStack(spacing: 12) {
                             ContentVideoThumbnailView(videoID: video.id, language: language)
                                 .frame(width: 108, height: 64)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(video.title ?? "Video").font(.headline)
-                                if let runtime = video.runtime {
-                                    Text(Duration.seconds(runtime).formatted(.time(pattern: .minuteSecond)))
-                                        .font(.caption).foregroundStyle(.secondary)
+                                .overlay(alignment: .bottomTrailing) {
+                                    if let runtime = video.runtime {
+                                        ContentVideoDurationView(runtime: runtime)
+                                            .padding(6)
+                                    }
                                 }
-                            }
+                            Text(video.title ?? "Video").font(.headline)
                             Spacer()
                         }
                     }
@@ -159,5 +165,18 @@ private struct ContentMetadataView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
         .background(.quaternary, in: .rect(cornerRadius: 10))
+    }
+}
+
+private struct ContentVideoDurationView: View {
+    let runtime: Int
+
+    var body: some View {
+        Text(Duration.seconds(runtime).formatted(.time(pattern: runtime >= 3600 ? .hourMinuteSecond : .minuteSecond)))
+            .font(.caption2.monospacedDigit())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(.black.opacity(0.8), in: .capsule)
     }
 }
