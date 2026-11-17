@@ -535,14 +535,6 @@ custom_rules:
     message: "Is this DateFormatter for the user or for the system. Use DateFormatter.userFacing or DateFormatter.systemFacing." # violation message. optional.
     severity: warning # violation severity. optional.
   
-  swiftui_fullscreencover: # rule identifier
-    included: ".*\\.swift" # regex that defines paths to include during linting. optional.
-    excluded: ".*Tests?\\.swift" # regex that defines paths to exclude during linting. optional
-    name: "SwiftUI sheet view modifier" # rule name. optional.
-    regex: "\\.fullScreenCover\\(" # matching pattern
-    message: "Please use the yvFullScreenCover view modifier" # violation message. optional.
-    severity: error # violation severity. optional.
-
   snake_case_property: # rule identifier
     included: ".*\\.swift" # regex that defines paths to include during linting. optional.
     name: "Snake Case Property" # rule name. optional.

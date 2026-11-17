@@ -32,6 +32,7 @@ struct BibleReaderDrawer: View {
                     }
 #endif
                 }
+                .buttonStyle(.plain)
                 .padding(.horizontal, 24)
             }
             .padding(.bottom, 32)
