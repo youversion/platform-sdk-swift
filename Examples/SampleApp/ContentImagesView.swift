@@ -16,6 +16,7 @@ struct ContentImagesView: View {
     @State private var retryID = UUID()
     @State private var completedRequestID: UUID?
     @State private var searchBibleID: Int?
+    @State private var referenceVersion: BibleVersion?
     @State private var pendingSearchPage: YouVersionImageSearchResults?
     @State private var searchImageIDs: [String] = []
     @State private var searchImagesByRequestedID: [String: YouVersionImage] = [:]
@@ -59,7 +60,7 @@ struct ContentImagesView: View {
                                     VotdImageView(image: image)
                                         .frame(maxWidth: .infinity)
                                         .aspectRatio(1, contentMode: .fit)
-                                    Label(image.passageID, systemImage: "book.closed")
+                                    Label(referenceTitle(for: image), systemImage: "book.closed")
                                         .font(.caption.weight(.semibold))
                                 }
                             }
@@ -90,7 +91,17 @@ struct ContentImagesView: View {
         }
         .onChange(of: language.tag) { _, _ in
             searchBibleID = nil
+            referenceVersion = nil
             resetImages()
+        }
+        .task(id: language.tag) {
+            do {
+                let version = try await BibleVersionRepository.shared.version(withId: try await language.bibleID())
+                try Task.checkCancellation()
+                referenceVersion = version
+            } catch {
+                if !Task.isCancelled { referenceVersion = nil }
+            }
         }
         .task(id: retryID) {
             guard completedRequestID != retryID else {
@@ -98,6 +109,13 @@ struct ContentImagesView: View {
             }
             await loadImages(isFirstPage: isFirstPage)
         }
+    }
+
+    private func referenceTitle(for image: YouVersionImage) -> String {
+        guard let referenceVersion, let reference = referenceVersion.reference(with: image.passageID) else {
+            return image.passageID
+        }
+        return referenceVersion.displayTitle(for: reference, includesVersionAbbreviation: false)
     }
 
     private func submitSearch() {

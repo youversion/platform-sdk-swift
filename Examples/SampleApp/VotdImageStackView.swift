@@ -31,6 +31,16 @@ struct VotdImageStackView: View {
         return Array(images.dropFirst(start).prefix(7))
     }
 
+    private var imagePositionFormat: String {
+        guard images.count > 1 else {
+            return String(localized: "votd.image_position")
+        }
+        if onImageTap == nil {
+            return String(localized: "votd.image_position_hint")
+        }
+        return String(localized: "%1$lld of %2$lld · Swipe for more", comment: "Image carousel position and swipe instruction. First argument is the current position; second is the image count.")
+    }
+
     var body: some View {
         VStack(spacing: 16) {
             GeometryReader { geometry in
@@ -83,9 +93,7 @@ struct VotdImageStackView: View {
             }
             
             Text(String(
-                format: images.count > 1 && onImageTap == nil
-                ? String(localized: "votd.image_position_hint")
-                : String(localized: "votd.image_position"),
+                format: imagePositionFormat,
                 selectedIndex + 1,
                 images.count
             ))
