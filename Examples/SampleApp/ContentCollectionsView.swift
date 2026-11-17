@@ -34,6 +34,14 @@ struct ContentCollectionsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 ContentCollectionThumbnailView(videoID: featured.videoIDs?.first, language: language)
                                     .aspectRatio(16.0 / 9, contentMode: .fit)
+                                    .overlay(alignment: .bottomLeading) {
+                                        Image(systemName: "play.circle.fill")
+                                            .font(.largeTitle)
+                                            .foregroundStyle(.white)
+                                            .shadow(radius: 2)
+                                            .padding(12)
+                                            .accessibilityHidden(true)
+                                    }
                                 Text(featured.title ?? "Collection").font(.headline)
                                 if let total = featured.total {
                                     Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
