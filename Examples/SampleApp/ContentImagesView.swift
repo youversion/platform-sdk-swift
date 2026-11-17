@@ -254,8 +254,9 @@ struct ContentImageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbar { ShareLink(item: (displayedImage ?? image).url) }
-        .fullScreenCover(item: $selectedImage) { selected in
+        .sheet(item: $selectedImage) { selected in
             ContentImageViewer(image: selected, language: language, navigation: navigation, onNavigate: onNavigate)
+                .presentationDetents([.large])
         }
         .task {
             do {
@@ -307,48 +308,60 @@ private struct ContentImageViewer: View {
     @State private var retryID = UUID()
 
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark").frame(width: 44, height: 44)
-                }
-                .accessibilityLabel("Close image")
-                Spacer()
-                ShareLink(item: image.url)
-            }
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    VotdImageView(image: image)
-                    Text("Verses in this image").font(.caption)
-                    Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
-                    if let reference {
-                        BibleCardView(reference: reference, fontSize: 18, showVersionPicker: false)
-                    }
-                    Text(image.attribution).font(.caption).foregroundStyle(.secondary)
-                    if let errorMessage {
-                        Text(errorMessage).font(.callout)
-                        Button("Retry") { retryID = UUID() }
+        NavigationStack {
+            VStack(spacing: 20) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        VotdImageView(image: image)
+                        Text("Verses in this image").font(.caption)
+                        Text(title.isEmpty ? image.passageID : title).font(.title2.bold())
+                        if let reference {
+                            BibleCardView(reference: reference, fontSize: 18, showVersionPicker: false)
+                        }
+                        Text(image.attribution).font(.caption).foregroundStyle(.secondary)
+                        if let errorMessage {
+                            Text(errorMessage).font(.callout)
+                            Button("Retry") { retryID = UUID() }
+                        }
                     }
                 }
-            }
-            Button {
-                guard let reference else {
-                    return
+                Button {
+                    guard let reference else {
+                        return
+                    }
+                    navigation.request(reference, showsFullChapter: true)
+                    dismiss()
+                    onNavigate()
+                } label: {
+                    Label("Read in Bible", systemImage: "book.closed")
+                        .frame(maxWidth: .infinity)
+                        .padding(12)
                 }
-                navigation.request(reference, showsFullChapter: true)
-                dismiss()
-                onNavigate()
-            } label: {
-                Label("Read in Bible", systemImage: "book.closed")
-                    .frame(maxWidth: .infinity)
-                    .padding(12)
+                .buttonStyle(.borderedProminent)
+                .disabled(reference == nil)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(reference == nil)
+            .padding(20)
+            .navigationTitle("Verse image")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Close image", systemImage: "xmark") { dismiss() }
+                        .labelStyle(.iconOnly)
+                }
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 2) {
+                        Text("Verse image").font(.headline)
+                        Text(title.isEmpty ? image.passageID : title)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    ShareLink(item: image.url)
+                        .labelStyle(.iconOnly)
+                }
+            }
         }
-        .padding(20)
-        .background(.black)
-        .preferredColorScheme(.dark)
         .task(id: retryID) {
             errorMessage = nil
             do {
