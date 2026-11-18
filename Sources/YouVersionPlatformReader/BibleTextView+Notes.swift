@@ -33,7 +33,7 @@ private struct NoteIndicators: View {
                 backgroundPadding: textView.textOptions.fontSize * 0.1 + 1 / displayScale,
                 hasInlinePadding: true,
                 foregroundColor: textView.textOptions.textColor ?? .primary,
-                accessibilityLabel: NoteStrings.verseIndicatorAccessibilityLabel(verse: verse)
+                accessibilityLabel: String(format: NoteStrings.verseIndicatorAccessibilityLabel, verse)
             )
         } onSelected: { reference in
             let notes = model.notes(for: reference)
