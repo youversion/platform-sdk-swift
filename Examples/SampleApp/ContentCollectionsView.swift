@@ -48,7 +48,7 @@ struct ContentCollectionsView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 ContentCollectionThumbnailView(videoID: collection.videoIDs?.first, language: language)
-                                    .frame(width: 112, height: 64)
+                                    .frame(width: 112)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(collection.title ?? "Collection").font(.headline)
                                     if let total = collection.total {
@@ -109,12 +109,14 @@ struct ContentVideoThumbnailView: View {
     var body: some View {
         Group {
             if let errorMessage {
-                Button { retryID = UUID() } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .frame(minWidth: 44, minHeight: 44)
+                placeholder.overlay {
+                    Button { retryID = UUID() } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .accessibilityLabel("Retry loading thumbnail")
+                    .accessibilityHint(errorMessage)
                 }
-                .accessibilityLabel("Retry loading thumbnail")
-                .accessibilityHint(errorMessage)
             } else {
                 AsyncImage(url: (video ?? loadedVideo)?.thumbnail?.url) { phase in
                     if let image = phase.image {
@@ -129,15 +131,19 @@ struct ContentVideoThumbnailView: View {
                                         .accessibilityHidden(true)
                                 }
                             }
-                    } else if phase.error != nil {
-                        Button { retryID = UUID() } label: {
-                            Image(systemName: "arrow.clockwise").frame(minWidth: 44, minHeight: 44)
-                        }
-                        .accessibilityLabel("Retry loading thumbnail")
-                    } else if video == nil && loadedVideo == nil && videoID != nil {
-                        ProgressView()
                     } else {
-                        Image(systemName: "play.fill").foregroundStyle(.secondary)
+                        placeholder.overlay {
+                            if phase.error != nil {
+                                Button { retryID = UUID() } label: {
+                                    Image(systemName: "arrow.clockwise").frame(minWidth: 44, minHeight: 44)
+                                }
+                                .accessibilityLabel("Retry loading thumbnail")
+                            } else if video == nil && loadedVideo == nil && videoID != nil {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "play.fill").foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
                 .id(retryID)
@@ -159,6 +165,11 @@ struct ContentVideoThumbnailView: View {
                 if !Task.isCancelled { errorMessage = error.localizedDescription }
             }
         }
+    }
+
+    private var placeholder: some View {
+        Color(uiColor: .secondarySystemBackground)
+            .aspectRatio((video ?? loadedVideo)?.displayAspectRatio ?? 16.0 / 9, contentMode: .fit)
     }
 }
 
