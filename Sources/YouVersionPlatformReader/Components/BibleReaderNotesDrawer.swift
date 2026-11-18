@@ -8,7 +8,7 @@ struct BibleReaderNotesDrawer: View {
     @FocusState private var isEditing: Bool
     @State private var noteToDelete: YouVersionNote?
     @State private var showingDeleteConfirmation = false
-    @State private var noteToCopy: YouVersionNote?
+    @State private var noteToEdit: YouVersionNote?
     @State private var showingReplaceConfirmation = false
     @State private var contentHeight: CGFloat = 240
 #if !os(tvOS)
@@ -112,10 +112,10 @@ struct BibleReaderNotesDrawer: View {
         .modifier(BibleReaderNoteDismissalModifier(draft: draft))
         .confirmationDialog(NoteStrings.replaceTitle, isPresented: $showingReplaceConfirmation, titleVisibility: .visible) {
             Button(NoteStrings.replace, role: .destructive) {
-                if let noteToCopy { copyText(from: noteToCopy) }
-                noteToCopy = nil
+                if let noteToEdit { edit(noteToEdit) }
+                noteToEdit = nil
             }
-            Button(String.localized("cancel"), role: .cancel) { noteToCopy = nil }
+            Button(String.localized("cancel"), role: .cancel) { noteToEdit = nil }
         } message: {
             Text(NoteStrings.replaceMessage)
         }
@@ -176,16 +176,18 @@ struct BibleReaderNotesDrawer: View {
         guard !draft.isBusy else {
             return
         }
-        if draft.hasTextChanges && draft.content != note.content {
-            noteToCopy = note
+        if draft.editingNote?.id == note.id {
+            isEditing = true
+        } else if draft.hasChanges {
+            noteToEdit = note
             showingReplaceConfirmation = true
         } else {
-            copyText(from: note)
+            edit(note)
         }
     }
 
-    private func copyText(from note: YouVersionNote) {
-        draft.copyText(from: note)
+    private func edit(_ note: YouVersionNote) {
+        draft.edit(noteID: note.id)
         isEditing = true
     }
 
@@ -222,7 +224,10 @@ private struct NoteHeader: View {
                 Image(decorative: "bookmark", bundle: .YouVersionUIBundle)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(NoteStrings.save).font(.subheadline.bold())
-                    Text(draft.referenceTitle).font(.caption)
+                    let referenceTitle = viewModel.noteEditorReferenceTitle(for: draft)
+                    if !referenceTitle.isEmpty {
+                        Text(referenceTitle).font(.caption)
+                    }
                 }
             }
             if !dynamicTypeSize.isAccessibilitySize {
@@ -261,12 +266,7 @@ private struct SavedNoteCard: View {
     let note: YouVersionNote
 
     private var referenceTitle: String {
-        guard let references = note.references else {
-            return ""
-        }
-        return references.map {
-            viewModel.version?.displayTitle(for: $0, includesVersionAbbreviation: false) ?? $0.passageId
-        }.joined(separator: String.localized("shareableVerse.referencesSeparator"))
+        viewModel.noteReferenceTitle(for: note.references ?? [])
     }
 
     var body: some View {

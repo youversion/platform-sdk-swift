@@ -246,33 +246,97 @@ struct BibleReaderNotesTests {
     }
 
     @Test
-    func savingCopiedTextCreatesNewNoteWithoutChangingOriginal() async throws {
+    func editorTitleUsesTheSavedRangeRatherThanTheTappedVerse() throws {
         let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
-        {"id":"original","content":"Original text","status":"public","color":"ffec5b"}
+        {"id":"original","content":"Saved note","status":"private",
+         "passage":{"bible_id":3034,"passage_id":"JHN.3.16-18"}}
         """.utf8))
-        var created: YouVersionNoteCreateRequest?
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil }) { created = $0 }
-        draft.copyText(from: note)
-        #expect(!draft.canSave)
-        draft.content += " with a new reflection"
-        #expect(await draft.save())
-        #expect(created?.content == "Original text with a new reflection")
-        #expect(created?.status == .private)
-        #expect(created?.color == nil)
-        #expect(draft.savedNotes == [note])
-        #expect(note.content == "Original text")
+        let viewModel = BibleReaderViewModelTestSupport.makeViewModel(isSignedIn: true, hasPermission: { _ in true })
+        viewModel.versionsViewModel.switchToVersion(BibleReaderViewModelTestSupport.makeBibleVersion(id: first.versionId))
+        viewModel.showNotes(for: first, notes: [note])
+        let draft = try #require(viewModel.noteDraft)
+        #expect(viewModel.noteEditorReferenceTitle(for: draft) == "John 3:16")
+
+        draft.edit(noteID: note.id)
+        #expect(viewModel.noteEditorReferenceTitle(for: draft) == "John 3:16-18")
     }
 
     @Test
-    func copiedTextRequiresAnEditAndRevertingItDisablesSave() throws {
+    func savingAnExistingNoteUpdatesItsIDAndSendsOnlyChangedContent() async throws {
+        let notes = try JSONDecoder().decode([YouVersionNote].self, from: Data("""
+        [{"id":"first","content":"First note","status":"private"},
+         {"id":"original","content":"Original text","status":"public","color":"ffec5b","title":"Original title",
+          "tags":["reflection"],"passage":{"bible_id":3034,"passage_id":"JHN.3.16-17"}}]
+        """.utf8))
+        var didCreate = false
+        var updates: [(String, Data)] = []
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: notes, account: nil, currentAccount: { nil },
+            createNote: { _ in didCreate = true },
+            updateNote: { id, update in updates.append((id, try JSONEncoder().encode(update))) }
+        )
+        draft.edit(noteID: "original")
+        #expect(draft.content == "Original text")
+        #expect(draft.isPublic)
+        #expect(draft.colorHex == "ffec5b")
+        #expect(!draft.canSave)
+        #expect(await draft.save() == false)
+        #expect(updates.isEmpty)
+
+        draft.content = "Edited text"
+        draft.edit(noteID: "original")
+        #expect(await draft.save())
+        #expect(!didCreate)
+        let (id, data) = try #require(updates.first)
+        #expect(updates.count == 1)
+        #expect(id == "original")
+        #expect(try JSONDecoder().decode([String: String].self, from: data) == ["content": "Edited text"])
+    }
+
+    @Test(arguments: [true, false])
+    func metadataPatchPreservesDraftAfterFailureAndRetriesSameChanges(clearsColor: Bool) async throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"","status":"public","color":"ffec5b"}
+        """.utf8))
+        var payloads: [Data] = []
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil },
+            updateNote: { id, update in
+                #expect(id == note.id)
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = .sortedKeys
+                payloads.append(try encoder.encode(update))
+                if payloads.count == 1 {
+                    throw URLError(.notConnectedToInternet)
+                }
+            }
+        )
+        draft.edit(noteID: note.id)
+        draft.isPublic = false
+        draft.colorHex = clearsColor ? nil : "b4ffc1"
+        #expect(await draft.save() == false)
+        #expect(draft.showingSaveError)
+        #expect(draft.editingNote?.id == note.id)
+        #expect(draft.canSave)
+        #expect(await draft.save())
+        let expectedPayload = clearsColor
+            ? #"{"color":null,"status":"private"}"#
+            : #"{"color":"b4ffc1","status":"private"}"#
+        #expect(payloads == [Data(expectedPayload.utf8), Data(expectedPayload.utf8)])
+    }
+
+    @Test
+    func existingNoteRequiresAnEditAndRevertingItDisablesSave() throws {
         let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
         {"id":"original","content":"Saved reflection","status":"private"}
         """.utf8))
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
-        draft.copyText(from: note)
+        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil })
+        draft.edit(noteID: note.id)
         #expect(!draft.canSave)
         #expect(!draft.hasChanges)
-        draft.content += " edited"
+        draft.content = ""
+        #expect(!draft.canSave)
+        draft.content = "Edited text"
         #expect(draft.canSave)
         draft.content = note.content
         #expect(!draft.canSave)
@@ -285,29 +349,6 @@ struct BibleReaderNotesTests {
         draft.colorHex = nil
         #expect(!draft.canSave)
         #expect(!draft.hasChanges)
-    }
-
-    @Test
-    func copyingStartsBaselineFromCurrentVisibilityAndColor() throws {
-        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
-        {"id":"original","content":"Saved reflection","status":"private"}
-        """.utf8))
-        let draft = BibleReaderNoteDraft(references: [first], referenceTitle: "John 3:16", account: nil, currentAccount: { nil })
-        draft.isPublic = true
-        draft.colorHex = "ffec5b"
-        draft.copyText(from: note)
-        #expect(draft.isPublic)
-        #expect(draft.colorHex == "ffec5b")
-        #expect(!draft.canSave)
-        #expect(!draft.hasChanges)
-        draft.isPublic = false
-        #expect(draft.canSave)
-        draft.isPublic = true
-        #expect(!draft.canSave)
-        draft.colorHex = nil
-        #expect(draft.canSave)
-        draft.colorHex = "ffec5b"
-        #expect(!draft.canSave)
     }
 
     @Test
