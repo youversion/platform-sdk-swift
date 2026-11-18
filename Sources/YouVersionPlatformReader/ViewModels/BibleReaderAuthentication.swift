@@ -32,7 +32,7 @@ struct BibleReaderAuthentication {
         self.validateToken = hasValidToken
         self.performSignOut = signOut
         self.readPermission = hasPermission
-        self.readAccount = account
+        readAccount = account
     }
 
     /// Whether the current authentication state can perform signed-in reader actions.

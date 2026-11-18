@@ -124,8 +124,8 @@ final class BibleReaderNoteDraft: Identifiable {
         }
         isDeleting = true
         defer { isDeleting = false }
-        let deleted = await perform(authorize: authorize) { try await self.deleteNote(note.id) }
-        guard deleted && validateAccount() else {
+        let isDeleted = await perform(authorize: authorize) { try await self.deleteNote(note.id) }
+        guard isDeleted && validateAccount() else {
             return false
         }
         savedNotes.removeAll { $0.id == note.id }
@@ -144,8 +144,8 @@ final class BibleReaderNoteDraft: Identifiable {
             content: content, status: isPublic ? .public : .private,
             requestID: requestID, color: colorHex, references: references
         )
-        let saved = await perform(authorize: authorize) { try await self.createNote(request) }
-        guard saved && validateAccount() else {
+        let isSaved = await perform(authorize: authorize) { try await self.createNote(request) }
+        guard isSaved && validateAccount() else {
             return false
         }
         NotificationCenter.default.post(name: .youVersionNotesChanged, object: nil)
