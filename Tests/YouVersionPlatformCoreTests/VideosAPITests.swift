@@ -37,7 +37,7 @@ extension ConfigurationStateTests.VideosAPITests {
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
             #expect(request.value(forHTTPHeaderField: "Accept-Language") == nil)
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer video-tests")
-            #expect(components.path == "/v1/organizations/\(organizationID)/playlists")
+            #expect(components.path == "/v1-beta/organizations/\(organizationID)/playlists")
             #expect(components.percentEncodedPath.contains("organization%2Fid%20%3F%23"))
             #expect(components.queryItems == [URLQueryItem(name: "page_size", value: "50"), URLQueryItem(name: "page_token", value: pageToken)])
             #expect(components.percentEncodedQuery?.contains("a%2Bb") == true)
@@ -79,7 +79,7 @@ extension ConfigurationStateTests.VideosAPITests {
         """.utf8)
         HTTPMocking.setHandler(token: token) { request in
             #expect(request.httpMethod == "GET")
-            #expect(request.url?.path == "/v1/organizations/\(organizationID)/playlists/3669")
+            #expect(request.url?.path == "/v1-beta/organizations/\(organizationID)/playlists/3669")
             #expect(request.url?.query == nil)
             #expect(request.cachePolicy == .useProtocolCachePolicy)
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")

@@ -9,7 +9,7 @@ extension ConfigurationStateTests {
     @Suite(.serialized)
     struct VideoSearchAndPlaylistSelectionTests {
         /// Preserves opaque unified video IDs and the requested result fields.
-        @Test(arguments: [["videos"], ["videos", "verses"]])
+        @Test(arguments: [["videos"], ["videos", "verses"], ["images", "videos", "topics"]])
         func unifiedPreservesVideoIDsAndRequestsVideoFields(fields: [String]) async throws {
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }
