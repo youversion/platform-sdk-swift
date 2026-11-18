@@ -41,6 +41,7 @@ public extension YouVersionAPI.Search {
     ///     page size may change. Empty pages may still have a continuation token.
     ///   - accessToken: An optional access token; otherwise uses and refreshes the configured token.
     ///   - session: The URL session used to perform the request.
+    /// - Returns: One page of videos and query metadata, or an empty final page for HTTP 204.
     /// - Throws: Invalid parameters, authentication, HTTP, network, or decoding errors.
     ///   Unauthorized requests throw `YouVersionAPIError.notPermitted`; other HTTP failures,
     ///   including invalid cursors and unavailable upstream catalogs, throw `YouVersionAPIError.cannotDownload`.
@@ -63,10 +64,14 @@ public extension YouVersionAPI.Search {
             throw URLError(.badURL)
         }
         let headers = ["Accept": "application/json", "Accept-Language": acceptLanguage]
-        let data = try await YouVersionAPI.data(
+        guard let data = try await YouVersionAPI.dataIfPresent(
             at: url, accessToken: await YouVersionAPI.accessToken(providedToken: providedToken, session: session),
             session: session, headers: headers
-        )
+        ) else {
+            return YouVersionVideoSearchResults(
+                videos: [], userIntent: nil, didYouMean: [], searchInsteadFor: nil, nextPageToken: nil
+            )
+        }
         let response = try JSONDecoder().decode(VideoSearchResponse.self, from: data)
         return YouVersionVideoSearchResults(
             videos: try response.videos.map { try YouVersionAPI.Videos.resolvedVideo($0) },
