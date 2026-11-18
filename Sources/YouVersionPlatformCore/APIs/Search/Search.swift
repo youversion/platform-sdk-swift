@@ -232,7 +232,6 @@ public extension YouVersionAPI.Search {
         )
     }
 
-    // TODO: Return unified search to /v1 once stable supports video results.
     /// Returns a unified set of Bible references, topics, images, and videos matching `query`.
     ///
     /// - Parameters:
@@ -241,7 +240,8 @@ public extension YouVersionAPI.Search {
     ///   - languageRanges: An ordered list of canonical BCP 47 language tags, such as `en-US`,
     ///     or `*` to match all languages.
     ///   - userIntent: The type of search the user intends to perform. Defaults to ``YouVersionSearchUserIntent/unknown``.
-    ///   - fields: Result kinds to include: `verses`, `topics`, `images`, and/or `videos`. Defaults to all kinds.
+    ///   - fields: Result kinds to include: `verses`, `topics`, `images`, and/or `videos`.
+    ///     Defaults to all stable result kinds. Including `videos` uses the beta endpoint and requires a beta-enabled app key.
     ///   - accessToken: An optional access token. Defaults to the configured access token.
     ///   - session: The URL session used to perform the request. Defaults to `URLSession.shared`.
     /// - Returns: The matching Bible references, topics, images, videos, and query metadata supplied by the API.
@@ -540,7 +540,7 @@ public extension YouVersionAPI.Search {
         var components = URLComponents()
         components.scheme = "https"
         components.host = YouVersionPlatformConfiguration.apiHost
-        components.path = "/v1-beta/search-unified"
+        components.path = fields.contains("videos") ? "/v1-beta/search-unified" : "/v1/search-unified"
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "bible_id", value: String(bibleID))

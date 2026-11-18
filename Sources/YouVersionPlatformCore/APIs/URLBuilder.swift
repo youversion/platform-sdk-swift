@@ -47,7 +47,6 @@ public enum URLBuilder {
         url(pathSegments: ["v1", "images", id])
     }
 
-    // TODO: Use /v1 for selected playlist fields once stable applies fields[] filtering.
     /// Returns a playlist field-selection URL with an optional numeric or wildcard page size.
     static func videoPlaylistsURL(organizationID: String, fields: [String]? = nil, pageSize: String?, pageToken: String?) -> URL? {
         var queryItems = (fields ?? []).map { URLQueryItem(name: "fields[]", value: $0) }
@@ -55,13 +54,12 @@ public enum URLBuilder {
             queryItems.append(URLQueryItem(name: "page_size", value: pageSize))
         }
         if let pageToken { queryItems.append(URLQueryItem(name: "page_token", value: pageToken)) }
-        let channel = (fields?.isEmpty ?? true) ? "v1" : "v1-beta"
-        return url(pathSegments: [channel, "organizations", organizationID, "playlists"], queryItems: queryItems)
+        return url(pathSegments: ["v1-beta", "organizations", organizationID, "playlists"], queryItems: queryItems)
     }
 
     /// Returns a playlist resource URL within its organization.
     static func videoPlaylistURL(organizationID: String, id: Int) -> URL? {
-        url(pathSegments: ["v1", "organizations", organizationID, "playlists", String(id)])
+        url(pathSegments: ["v1-beta", "organizations", organizationID, "playlists", String(id)])
     }
 
     // TODO: Return video metadata to /v1 after the CDN thumbnail contract is promoted to stable.

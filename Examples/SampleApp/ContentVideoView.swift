@@ -120,10 +120,10 @@ struct ContentVideoView: View {
             }
             playbackError = nil
             do {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
-                try AVAudioSession.sharedInstance().setActive(true)
+                try await ContentVideoAudioSession.shared.setActive(true)
+                try Task.checkCancellation()
             } catch {
-                playbackError = error.localizedDescription
+                if !Task.isCancelled { playbackError = error.localizedDescription }
                 return
             }
             if player == nil { player = AVPlayer() }
@@ -148,7 +148,9 @@ struct ContentVideoView: View {
             }
             shouldResumePlayback = player?.timeControlStatus == .playing || player?.timeControlStatus == .waitingToPlayAtSpecifiedRate
             player?.pause()
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            Task {
+                try? await ContentVideoAudioSession.shared.setActive(false)
+            }
         }
     }
 
@@ -199,5 +201,18 @@ extension YouVersionVideo {
     /// Uses thumbnail dimensions when available, with a presentation-only fallback for missing metadata.
     var displayAspectRatio: Double {
         thumbnail?.aspectRatio ?? (orientation == "portrait" ? 9.0 / 16 : 16.0 / 9)
+    }
+}
+
+private actor ContentVideoAudioSession {
+    static let shared = ContentVideoAudioSession()
+
+    /// Changes playback session activation off the main actor.
+    func setActive(_ isActive: Bool) throws {
+        let session = AVAudioSession.sharedInstance()
+        if isActive {
+            try session.setCategory(.playback, mode: .moviePlayback)
+        }
+        try session.setActive(isActive, options: isActive ? [] : .notifyOthersOnDeactivation)
     }
 }
