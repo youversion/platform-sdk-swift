@@ -216,8 +216,7 @@ struct BibleHighlightsRepositoryTests {
         let result = try await repository.highlights(for: references)
         
         #expect(mockAPI.getHighlightsCallCount == 1)
-        #expect(result.count == 1)
-        #expect(result["1_GEN_1"]?.isEmpty == true)
+        #expect(result.isEmpty)
     }
 
     @Test

@@ -41,9 +41,10 @@ struct BibleReaderNotesDrawer: View {
                     .accessibilityIdentifier("notes.content")
                     .disabled(draft.isBusy)
                 ScrollView(.horizontal, showsIndicators: false) {
+                    let selectedRGB = draft.colorHex.flatMap(Color.rgbValue(fromHex:))
                     BibleReaderHighlightColors(
                         selectedHexes: draft.colorHex.map { [$0] } ?? [],
-                        availableHexes: BibleReaderHighlightColors.palette.filter { $0 != draft.colorHex },
+                        availableHexes: BibleReaderHighlightColors.palette.filter { Color.rgbValue(fromHex: $0) != selectedRGB },
                         hasBackground: false,
                         onRemove: { _ in draft.colorHex = nil },
                         onAdd: { draft.colorHex = $0 }

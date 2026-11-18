@@ -54,6 +54,9 @@ private struct NoteIndicators: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .youVersionNotesChanged).receive(on: RunLoop.main)) { _ in
             revision = UUID()
+            if YouVersionAPI.isSignedIn && YouVersionAPI.hasPermission("highlights") {
+                BibleHighlightsViewModel.shared.ensureHighlightsForChapterLoaded(textView.reference, forceReload: true)
+            }
         }
     }
 

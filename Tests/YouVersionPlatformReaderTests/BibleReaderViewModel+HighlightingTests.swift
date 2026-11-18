@@ -9,6 +9,27 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
     private static let versionId = 3034
 
+    @Test(arguments: ["#dfdcff", "#bbf4ff", "#80DFDCFF"])
+    func savedPaletteColorsReuseTheirOriginalSwatch(savedHex: String) throws {
+        let palette = BibleReaderHighlightColors.palette
+        let paletteRGB = palette.compactMap(Color.rgbValue(fromHex:))
+        let selectedRGB = try #require(Color.rgbValue(fromHex: savedHex))
+        let available = palette.filter { Color.rgbValue(fromHex: $0) != selectedRGB }
+        let swatches = BibleReaderHighlightColors.swatches(selectedHexes: [savedHex], availableHexes: available)
+
+        #expect(swatches.map(\.id) == paletteRGB)
+        #expect(swatches.filter(\.isSelected).map(\.hex) == [savedHex])
+    }
+
+    @Test
+    func equivalentLegacyColorsShareOneSwatch() {
+        let palette = BibleReaderHighlightColors.palette
+        let swatches = BibleReaderHighlightColors.swatches(selectedHexes: ["#abc", "aabbcc"], availableHexes: palette)
+
+        #expect(swatches.count == palette.count + 1)
+        #expect(swatches.filter(\.isSelected).map(\.hex) == ["#abc"])
+    }
+
     @Test
     func highlightHexesOnSelectedVersesDedupesIgnoringCase() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(

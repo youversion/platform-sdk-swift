@@ -15,7 +15,6 @@ public class BibleHighlightsViewModel: ObservableObject {
     private let cache: BibleHighlightsCache
     private let repository: any BibleHighlightsRepositoryProtocol
     nonisolated(unsafe) private var authStateObserver: NSObjectProtocol?
-    private var loadTasks: [BibleReference: Task<Void, Never>] = [:]
 
     // MARK: - Initialization
 
@@ -66,20 +65,15 @@ public class BibleHighlightsViewModel: ObservableObject {
             return
         }
         guard cache.markChapterAsLoading(chapterRef) else {
-            return
-        }
-
-        if loadTasks[chapterRef] != nil {
-            return
-        }
-
-        let task: Task<Void, Never> = Task { [weak self] in
-            guard let self else {
-                return
+            if forceReload {
+                cache.queueChapterReload(chapterRef)
             }
-            await self.loadChapterFromServer(chapterRef)
+            return
         }
-        loadTasks[chapterRef] = task
+
+        Task {
+            await loadChapterFromServer(chapterRef)
+        }
     }
 
     // MARK: - CRUD Operations
@@ -126,21 +120,25 @@ public class BibleHighlightsViewModel: ObservableObject {
     // MARK: - Private Helper Methods
     
     private func loadChapterFromServer(_ chapter: BibleReference) async {
+        defer {
+            cache.unmarkChapterAsLoading(chapter)
+            if cache.takeQueuedChapterReload(chapter) {
+                ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+            }
+        }
         do {
             let serverHighlights = try await repository.highlights(for: [chapter])
             let chapterKey = "\(chapter.versionId)_\(chapter.bookId)_\(chapter.chapter)"
-            let highlights = serverHighlights[chapterKey] ?? []
-            cache.applyServerHighlights(for: chapter, highlights: highlights)
-            cache.recordChapterFetch(chapter)
+            if !cache.hasQueuedChapterReload(chapter), let highlights = serverHighlights[chapterKey] {
+                cache.applyServerHighlights(for: chapter, highlights: highlights)
+                cache.recordChapterFetch(chapter)
+            }
         } catch {
             YouVersionPlatformLogger.error(
                 "Failed to load highlights for chapter \(chapter): \(error)",
                 category: "Highlights"
             )
         }
-
-        cache.unmarkChapterAsLoading(chapter)
-        loadTasks.removeValue(forKey: chapter)
     }
 }
 

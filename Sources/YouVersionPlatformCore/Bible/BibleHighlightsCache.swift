@@ -42,6 +42,7 @@ public final class BibleHighlightsCache {
     // MARK: Throttling and Loading
     private var recentChapterFetches: [BibleReference: Date] = [:]
     private var currentlyLoadingChapters: Set<BibleReference> = []
+    private var queuedChapterReloads: Set<BibleReference> = []
     private let throttlingInterval: TimeInterval = 5 * 60
 
     // MARK: Init
@@ -77,6 +78,21 @@ public final class BibleHighlightsCache {
 
     public func unmarkChapterAsLoading(_ chapter: BibleReference) {
         currentlyLoadingChapters.remove(normalizeToChapter(chapter))
+    }
+
+    /// Coalesces force reloads requested while a chapter fetch is in flight.
+    func queueChapterReload(_ chapter: BibleReference) {
+        queuedChapterReloads.insert(normalizeToChapter(chapter))
+    }
+
+    /// Whether a newer forced refresh has superseded the in-flight snapshot.
+    func hasQueuedChapterReload(_ chapter: BibleReference) -> Bool {
+        queuedChapterReloads.contains(normalizeToChapter(chapter))
+    }
+
+    /// Consumes the request for a follow-up fetch, if one was queued during the current fetch.
+    func takeQueuedChapterReload(_ chapter: BibleReference) -> Bool {
+        queuedChapterReloads.remove(normalizeToChapter(chapter)) != nil
     }
 
     public func recordChapterFetch(_ chapter: BibleReference, at date: Date = Date()) {
@@ -130,15 +146,16 @@ public final class BibleHighlightsCache {
     public func applyServerHighlights(for chapter: BibleReference, highlights: [BibleHighlight]) {
         let chapterRef = normalizeToChapter(chapter)
 
-        // Remove existing remote-synced highlights for this chapter
-        cachedHighlights.removeAll { ch in
-            ch.state == .remoteSynced && ch.highlight.reference.bookId == chapterRef.bookId && ch.highlight.reference.chapter == chapterRef.chapter && ch.highlight.reference.versionId == chapterRef.versionId
+        func isSyncedInChapter(_ entry: CachedHighlight) -> Bool {
+            entry.state == .remoteSynced && normalizeToChapter(entry.highlight.reference) == chapterRef
         }
 
-        // Append server highlights as remoteSynced
-        for h in highlights {
-            cachedHighlights.append(CachedHighlight(highlight: h, state: .remoteSynced))
+        let previousHighlights = cachedHighlights.filter(isSyncedInChapter).map(\.highlight)
+        guard previousHighlights != highlights else {
+            return
         }
+        cachedHighlights = cachedHighlights.filter { !isSyncedInChapter($0) }
+            + highlights.map { CachedHighlight(highlight: $0, state: .remoteSynced) }
     }
 
     // MARK: Utilities
@@ -150,6 +167,7 @@ public final class BibleHighlightsCache {
     public func reset() {
         cachedHighlights.removeAll()
         recentChapterFetches.removeAll()
+        queuedChapterReloads.removeAll()
     }
 
 }
