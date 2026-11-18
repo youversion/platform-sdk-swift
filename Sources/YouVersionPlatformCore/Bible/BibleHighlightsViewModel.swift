@@ -71,8 +71,12 @@ public class BibleHighlightsViewModel: ObservableObject {
             return
         }
 
+        let generation = cache.loadGeneration
         Task {
-            await loadChapterFromServer(chapterRef)
+            guard cache.loadGeneration == generation else {
+                return
+            }
+            await loadChapterFromServer(chapterRef, generation: generation)
         }
     }
 
@@ -119,15 +123,20 @@ public class BibleHighlightsViewModel: ObservableObject {
     
     // MARK: - Private Helper Methods
     
-    private func loadChapterFromServer(_ chapter: BibleReference) async {
+    private func loadChapterFromServer(_ chapter: BibleReference, generation: Int) async {
         defer {
-            cache.unmarkChapterAsLoading(chapter)
-            if cache.takeQueuedChapterReload(chapter) {
-                ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+            if cache.loadGeneration == generation {
+                cache.unmarkChapterAsLoading(chapter)
+                if cache.takeQueuedChapterReload(chapter) {
+                    ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+                }
             }
         }
         do {
             let serverHighlights = try await repository.highlights(for: [chapter])
+            guard cache.loadGeneration == generation else {
+                return
+            }
             let chapterKey = "\(chapter.versionId)_\(chapter.bookId)_\(chapter.chapter)"
             if !cache.hasQueuedChapterReload(chapter), let highlights = serverHighlights[chapterKey] {
                 cache.applyServerHighlights(for: chapter, highlights: highlights)

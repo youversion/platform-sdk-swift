@@ -43,6 +43,7 @@ public final class BibleHighlightsCache {
     private var recentChapterFetches: [BibleReference: Date] = [:]
     private var currentlyLoadingChapters: Set<BibleReference> = []
     private var queuedChapterReloads: Set<BibleReference> = []
+    private(set) var loadGeneration = 0
     private let throttlingInterval: TimeInterval = 5 * 60
 
     // MARK: Init
@@ -168,6 +169,8 @@ public final class BibleHighlightsCache {
         cachedHighlights.removeAll()
         recentChapterFetches.removeAll()
         queuedChapterReloads.removeAll()
+        currentlyLoadingChapters.removeAll()
+        loadGeneration += 1
     }
 
 }

@@ -326,6 +326,22 @@ struct BibleReaderNotesTests {
     }
 
     @Test
+    func reselectingTheSavedColorRestoresItsEncodingWithoutEnablingSave() throws {
+        let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
+        {"id":"original","content":"Saved reflection","status":"private","color":"#80DFDCFF"}
+        """.utf8))
+        let draft = BibleReaderNoteDraft(
+            references: [first], referenceTitle: "John 3:16", savedNotes: [note], account: nil, currentAccount: { nil }
+        )
+        draft.edit(noteID: note.id)
+        draft.colorHex = nil
+        #expect(draft.canSave)
+        draft.selectColor(hex: "dfdcff")
+        #expect(draft.colorHex == note.color)
+        #expect(!draft.canSave)
+    }
+
+    @Test
     func existingNoteRequiresAnEditAndRevertingItDisablesSave() throws {
         let note = try JSONDecoder().decode(YouVersionNote.self, from: Data("""
         {"id":"original","content":"Saved reflection","status":"private"}

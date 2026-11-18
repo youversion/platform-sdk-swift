@@ -1,6 +1,8 @@
 import Foundation
 import Observation
+import SwiftUI
 import YouVersionPlatformCore
+import YouVersionPlatformUI
 
 /// A new or existing note being edited in the reader.
 @MainActor
@@ -106,6 +108,15 @@ final class BibleReaderNoteDraft: Identifiable {
         content = note.content
         isPublic = note.status == .public
         colorHex = note.color
+    }
+
+    /// Reselecting the saved swatch restores its original encoding and opacity.
+    func selectColor(hex: String) {
+        if let savedHex = editingNote?.color, let rgb = Color.rgbValue(fromHex: hex), rgb == Color.rgbValue(fromHex: savedHex) {
+            colorHex = savedHex
+        } else {
+            colorHex = hex
+        }
     }
 
     private static func defaultCreateNote(_ request: YouVersionNoteCreateRequest) async throws {

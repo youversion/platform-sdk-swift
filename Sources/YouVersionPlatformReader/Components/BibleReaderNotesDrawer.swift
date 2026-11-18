@@ -47,7 +47,7 @@ struct BibleReaderNotesDrawer: View {
                         availableHexes: BibleReaderHighlightColors.palette.filter { Color.rgbValue(fromHex: $0) != selectedRGB },
                         hasBackground: false,
                         onRemove: { _ in draft.colorHex = nil },
-                        onAdd: { draft.colorHex = $0 }
+                        onAdd: { draft.selectColor(hex: $0) }
                     )
                 }
                 .frame(height: 55)

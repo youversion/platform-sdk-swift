@@ -119,16 +119,16 @@ import Testing
         let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
         let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
-        let selectedColor = Color(hex: "#DDAAFF")
+        let selectedHex = "#DDAAFF"
         viewModel.selectedVerses = [firstReference, secondReference]
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: selectedHex) == false)
 
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: selectedHex))
     }
 
     @Test
@@ -184,7 +184,7 @@ import Testing
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
 
         viewModel.selectedVerses = [firstReference, secondReference]
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(color))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: "#DDAAFF"))
 
         viewModel.removeVerseColor(color)
 
@@ -222,7 +222,7 @@ import Testing
 
 #if !canImport(UIKit)
     @Test
-    func highlightColorActionsNoOpWhenColorCannotBeConverted() {
+    func hexSelectionWorksEvenWhenColorActionsCannotConvertSwiftUIColor() {
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
@@ -231,7 +231,7 @@ import Testing
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(color) == false)
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: "#DDAAFF"))
 
         viewModel.addVerseColor(color)
         viewModel.removeVerseColor(color)

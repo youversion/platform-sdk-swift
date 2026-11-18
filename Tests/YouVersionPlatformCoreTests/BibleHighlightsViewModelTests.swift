@@ -348,6 +348,38 @@ struct BibleHighlightsViewModelTests {
     }
 
     @Test
+    func resetDiscardsInFlightHighlightsAndLetsTheNextAccountLoadTheSameChapter() async {
+        let cache = BibleHighlightsCache()
+        let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        let verse = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
+        let previousAccountHighlight = BibleHighlight(verse, color: "ff0000")
+        let nextAccountHighlight = BibleHighlight(verse, color: "00ff00")
+        let repository = MockBibleHighlightsRepository()
+        repository.mockServerData = ["1_GEN_1": [previousAccountHighlight]]
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: repository)
+        repository.onFetch = { [weak viewModel, weak repository] in
+            guard let repository else {
+                return
+            }
+            if repository.highlightsCallCount == 1 {
+                viewModel?.reset()
+                viewModel?.ensureHighlightsForChapterLoaded(chapter)
+            } else {
+                #expect(cache.highlights(overlapping: chapter).isEmpty)
+                repository.mockServerData = ["1_GEN_1": [nextAccountHighlight]]
+            }
+        }
+
+        viewModel.ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+        while cache.isChapterLoading(chapter) {
+            await Task.yield()
+        }
+
+        #expect(repository.highlightsCallCount == 2)
+        #expect(cache.highlights(overlapping: chapter) == [nextAccountHighlight])
+    }
+
+    @Test
     func forcedReloadKeepsCachedHighlightsWhenChapterFetchFails() async {
         let cache = BibleHighlightsCache()
         let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
