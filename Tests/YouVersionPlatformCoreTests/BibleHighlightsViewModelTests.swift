@@ -55,6 +55,7 @@ class MockBibleHighlightsRepository: BibleHighlightsRepository {
     var highlightsCallCount = 0
     var shouldThrowError = false
     var mockServerData: [String: [BibleHighlight]] = [:]
+    var onFetch: (() -> Void)?
     private let mockAPI = MockBibleHighlightsAPIVM()
 
     init() {
@@ -63,6 +64,7 @@ class MockBibleHighlightsRepository: BibleHighlightsRepository {
 
     override func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
         highlightsCallCount += 1
+        onFetch?()
         if shouldThrowError {
             throw NSError(domain: "TestError", code: 1, userInfo: nil)
         }
@@ -316,6 +318,89 @@ struct BibleHighlightsViewModelTests {
         #expect(mockRepository.highlightsCallCount > 0)
     }
     
+    @Test
+    func forcedReloadSkipsTheSupersededSnapshotAndKeepsHighlightsUntilTheNextResponse() async {
+        let cache = BibleHighlightsCache()
+        let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        let verse = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
+        let original = BibleHighlight(verse, color: "ff0000")
+        let updated = BibleHighlight(verse, color: "00ff00")
+        cache.applyServerHighlights(for: chapter, highlights: [original])
+        let repository = MockBibleHighlightsRepository()
+        repository.mockServerData = ["1_GEN_1": []]
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: repository)
+        repository.onFetch = { [weak repository] in
+            guard let repository, repository.highlightsCallCount == 2 else {
+                return
+            }
+            #expect(cache.highlights(overlapping: chapter) == [original])
+            repository.mockServerData = ["1_GEN_1": [updated]]
+        }
+
+        viewModel.ensureHighlightsForChapterLoaded(chapter)
+        viewModel.ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+        while cache.isChapterLoading(chapter) {
+            await Task.yield()
+        }
+
+        #expect(repository.highlightsCallCount == 2)
+        #expect(cache.highlights(overlapping: chapter) == [updated])
+    }
+
+    @Test
+    func resetDiscardsInFlightHighlightsAndLetsTheNextAccountLoadTheSameChapter() async {
+        let cache = BibleHighlightsCache()
+        let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        let verse = BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1)
+        let previousAccountHighlight = BibleHighlight(verse, color: "ff0000")
+        let nextAccountHighlight = BibleHighlight(verse, color: "00ff00")
+        let repository = MockBibleHighlightsRepository()
+        repository.mockServerData = ["1_GEN_1": [previousAccountHighlight]]
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: repository)
+        repository.onFetch = { [weak viewModel, weak repository] in
+            guard let repository else {
+                return
+            }
+            if repository.highlightsCallCount == 1 {
+                viewModel?.reset()
+                viewModel?.ensureHighlightsForChapterLoaded(chapter)
+            } else {
+                #expect(cache.highlights(overlapping: chapter).isEmpty)
+                repository.mockServerData = ["1_GEN_1": [nextAccountHighlight]]
+            }
+        }
+
+        viewModel.ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+        while cache.isChapterLoading(chapter) {
+            await Task.yield()
+        }
+
+        #expect(repository.highlightsCallCount == 2)
+        #expect(cache.highlights(overlapping: chapter) == [nextAccountHighlight])
+    }
+
+    @Test
+    func forcedReloadKeepsCachedHighlightsWhenChapterFetchFails() async {
+        let cache = BibleHighlightsCache()
+        let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        let original = BibleHighlight(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1), color: "ff0000")
+        cache.applyServerHighlights(for: chapter, highlights: [original])
+        cache.recordChapterFetch(chapter)
+        let api = MockBibleHighlightsAPIVM()
+        api.shouldThrowError = true
+        let repository = BibleHighlightsRepository(api: api)
+        let viewModel = BibleHighlightsViewModel(cache: cache, repository: repository)
+
+        viewModel.ensureHighlightsForChapterLoaded(chapter, forceReload: true)
+        #expect(cache.highlights(overlapping: chapter) == [original])
+        while cache.isChapterLoading(chapter) {
+            await Task.yield()
+        }
+
+        #expect(api.getHighlightsCallCount == 1)
+        #expect(cache.highlights(overlapping: chapter) == [original])
+    }
+
     @Test
     func testLoadChapterFromServerHandlesError() async {
         let cache = BibleHighlightsCache()

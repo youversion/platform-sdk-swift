@@ -24,7 +24,7 @@ struct BibleReaderNotesAccountTests {
         let draft = BibleReaderNoteDraft(
             references: [reference], referenceTitle: "Genesis 1:3", savedNotes: [try savedNote()], account: owner.value, currentAccount: { owner.value }
         )
-        draft.copyText(from: try savedNote())
+        draft.edit(noteID: try savedNote().id)
         viewModel.noteDraft = draft
         viewModel.pendingNoteDraft = draft
         viewModel.isNoteAuthorizationPending = true

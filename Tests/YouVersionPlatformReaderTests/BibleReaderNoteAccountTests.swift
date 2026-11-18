@@ -14,7 +14,7 @@ struct BibleReaderNoteAccountTests {
         let note = try savedNote()
         model.showNotes(for: reference, notes: [note])
         let draft = try #require(model.noteDraft)
-        draft.copyText(from: note)
+        draft.edit(noteID: note.id)
         draft.isPublic = true
         draft.colorHex = "ffec5b"
 
@@ -74,7 +74,7 @@ struct BibleReaderNoteAccountTests {
         let note = try savedNote()
         model.showNotes(for: reference, notes: [note])
         let draft = try #require(model.noteDraft)
-        draft.copyText(from: note)
+        draft.edit(noteID: note.id)
 
         state.hasReadPermission = false
         model.notesAuthenticationDidChange()

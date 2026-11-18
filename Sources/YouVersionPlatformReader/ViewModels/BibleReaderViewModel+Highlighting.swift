@@ -8,19 +8,13 @@ extension BibleReaderViewModel {
             .sorted()
     }
 
-    private func selectedVersesWithColor(_ color: Color) -> Set<BibleReference> {
-        guard let hex = color.hexString else {
-            return []
-        }
-        return Set(selectedVerses.filter { reference in
+    /// Checks whether every selected verse has the requested RGB color.
+    func isColorPresentOnAllSelectedVerses(hex: String) -> Bool {
+        !selectedVerses.isEmpty && selectedVerses.allSatisfy { reference in
             highlightsViewModel.highlights(for: reference).contains { highlight in
                 isSameHexColor(highlight.color, hex)
             }
-        })
-    }
-
-    func isColorPresentOnAllSelectedVerses(_ color: Color) -> Bool {
-        !selectedVerses.isEmpty && selectedVersesWithColor(color).count == selectedVerses.count
+        }
     }
 
     func isSameHexColor(_ a: String, _ b: String) -> Bool {

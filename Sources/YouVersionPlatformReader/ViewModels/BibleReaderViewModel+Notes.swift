@@ -4,8 +4,21 @@ import YouVersionPlatformUI
 extension BibleReaderViewModel {
     var selectedVerseTitle: String {
         let references = BibleReference.referencesByMerging(references: Array(selectedVerses).sorted())
+        return noteReferenceTitle(for: references)
+    }
+
+    /// Formats each attached range independently to preserve gaps in the saved passage.
+    func noteReferenceTitle(for references: [BibleReference]) -> String {
         let titles = references.map { version?.displayTitle(for: $0, includesVersionAbbreviation: false) ?? $0.passageId }
         return titles.joined(separator: .localized("shareableVerse.referencesSeparator"))
+    }
+
+    /// Shows the saved attachment while editing, or the captured selection when creating.
+    func noteEditorReferenceTitle(for draft: BibleReaderNoteDraft) -> String {
+        guard let editingNote = draft.editingNote else {
+            return draft.referenceTitle
+        }
+        return noteReferenceTitle(for: editingNote.references ?? [])
     }
 
     /// Captures the selection and opens Notes only after sign-in and the `write_notes` OAuth scope are satisfied.

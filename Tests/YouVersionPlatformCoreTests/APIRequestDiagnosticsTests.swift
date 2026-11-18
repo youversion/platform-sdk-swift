@@ -105,6 +105,19 @@ struct APIRequestDiagnosticsTests {
     }
 
     @Test
+    func requestDiagnosticsDistinguishCancellationFromTimeout() {
+        let request = URLRequest(url: URL(string: "https://example.com/v1-beta/notes")!)
+        let cancelled = APIRequestDiagnostics.requestFailureSummary(request, error: URLError(.cancelled))
+        #expect(cancelled == "Cancelled GET https://example.com/v1-beta/notes: URLSession cancelled the request (URLError -999)")
+
+        let taskCancelled = APIRequestDiagnostics.requestFailureSummary(request, error: CancellationError())
+        #expect(taskCancelled == "Cancelled GET https://example.com/v1-beta/notes: Swift task cancellation")
+
+        let timedOut = APIRequestDiagnostics.requestFailureSummary(request, error: URLError(.timedOut))
+        #expect(timedOut == "Failed GET https://example.com/v1-beta/notes: URLSession request timed out (URLError -1001)")
+    }
+
+    @Test
     func sharedTransportPreservesHTTPFailuresAndThrownNetworkErrors() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }

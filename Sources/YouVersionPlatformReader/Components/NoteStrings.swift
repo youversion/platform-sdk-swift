@@ -2,8 +2,8 @@
 enum NoteStrings {
     static let previouslySaved = "Previously Saved"
     static let addedNote = "You added a note on"
-    static let replaceTitle = "Replace note text?"
-    static let replaceMessage = "Your unsaved text will be replaced with the saved note’s text."
+    static let replaceTitle = "Replace unsaved changes?"
+    static let replaceMessage = "Your unsaved changes will be discarded when you open this saved note."
     static let replace = "Replace"
     static let delete = "Delete"
     static let deleteTitle = "Delete saved note?"

@@ -100,6 +100,24 @@ struct BibleHighlightsCacheTests {
     // MARK: - Test Server Merge
 
     @Test
+    func reapplyingIdenticalHighlightsKeepsCacheEntriesAndAnEmptySnapshotRemovesOnlySyncedHighlights() {
+        let cache = BibleHighlightsCache()
+        let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)
+        let synced = BibleHighlight(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 1), color: "ff0000")
+        let pending = BibleHighlight(BibleReference(versionId: 1, bookId: "GEN", chapter: 1, verse: 2), color: "00ff00")
+        cache.applyServerHighlights(for: chapter, highlights: [synced])
+        cache.addHighlights([pending])
+        let originalEntries = cache.cachedHighlights
+
+        cache.applyServerHighlights(for: chapter, highlights: [synced])
+        #expect(cache.cachedHighlights == originalEntries)
+
+        cache.applyServerHighlights(for: chapter, highlights: [])
+        #expect(cache.highlights(overlapping: chapter) == [pending])
+        #expect(cache.cachedHighlights.first?.state == .localPendingCreate)
+    }
+
+    @Test
     func testApplyServerHighlights() {
         let cache = BibleHighlightsCache()
         let chapter = BibleReference(versionId: 1, bookId: "GEN", chapter: 1)

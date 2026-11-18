@@ -12,7 +12,7 @@ extension YouVersionAPI {
             YouVersionPlatformLogger.debug(APIRequestDiagnostics.responseSummary(request, data: data, response: response), category: "API")
             return (data, response)
         } catch {
-            YouVersionPlatformLogger.debug("Failed \(APIRequestDiagnostics.requestSummary(request)): \(APIRequestDiagnostics.errorSummary(error))", category: "API")
+            YouVersionPlatformLogger.debug(APIRequestDiagnostics.requestFailureSummary(request, error: error), category: "API")
             throw error
         }
     }
@@ -80,6 +80,18 @@ struct APIRequestDiagnostics {
         return message
     }
 
+    /// Distinguishes cancellation from failures before an HTTP response was returned.
+    static func requestFailureSummary(_ request: URLRequest, error: any Error) -> String {
+        let summary = requestSummary(request)
+        if let urlError = error as? URLError, urlError.code == .cancelled {
+            return "Cancelled \(summary): URLSession cancelled the request (URLError \(urlError.code.rawValue))"
+        }
+        if error is CancellationError {
+            return "Cancelled \(summary): Swift task cancellation"
+        }
+        return "Failed \(summary): \(errorSummary(error))"
+    }
+
     /// Describes failure kinds and decoding paths without dumping NSError userInfo or note values.
     static func errorSummary(_ error: any Error) -> String {
         switch error {
@@ -96,6 +108,9 @@ struct APIRequestDiagnostics {
         case DecodingError.dataCorrupted(let context):
             return "DecodingError: invalid data at \(path(context))"
         case let error as URLError:
+            if error.code == .timedOut {
+                return "URLSession request timed out (URLError \(error.code.rawValue))"
+            }
             return "URLError \(error.code.rawValue): \(URLError(error.code).localizedDescription)"
         default:
             let error = error as NSError

@@ -8,7 +8,7 @@ struct BibleReaderNotesDrawer: View {
     @FocusState private var isEditing: Bool
     @State private var noteToDelete: YouVersionNote?
     @State private var showingDeleteConfirmation = false
-    @State private var noteToCopy: YouVersionNote?
+    @State private var noteToEdit: YouVersionNote?
     @State private var showingReplaceConfirmation = false
     @State private var contentHeight: CGFloat = 240
 #if !os(tvOS)
@@ -41,12 +41,13 @@ struct BibleReaderNotesDrawer: View {
                     .accessibilityIdentifier("notes.content")
                     .disabled(draft.isBusy)
                 ScrollView(.horizontal, showsIndicators: false) {
+                    let selectedRGB = draft.colorHex.flatMap(Color.rgbValue(fromHex:))
                     BibleReaderHighlightColors(
                         selectedHexes: draft.colorHex.map { [$0] } ?? [],
-                        availableHexes: BibleReaderHighlightColors.palette.filter { $0 != draft.colorHex },
+                        availableHexes: BibleReaderHighlightColors.palette.filter { Color.rgbValue(fromHex: $0) != selectedRGB },
                         hasBackground: false,
                         onRemove: { _ in draft.colorHex = nil },
-                        onAdd: { draft.colorHex = $0 }
+                        onAdd: { draft.selectColor(hex: $0) }
                     )
                 }
                 .frame(height: 55)
@@ -112,10 +113,10 @@ struct BibleReaderNotesDrawer: View {
         .modifier(BibleReaderNoteDismissalModifier(draft: draft))
         .confirmationDialog(NoteStrings.replaceTitle, isPresented: $showingReplaceConfirmation, titleVisibility: .visible) {
             Button(NoteStrings.replace, role: .destructive) {
-                if let noteToCopy { copyText(from: noteToCopy) }
-                noteToCopy = nil
+                if let noteToEdit { edit(noteToEdit) }
+                noteToEdit = nil
             }
-            Button(String.localized("cancel"), role: .cancel) { noteToCopy = nil }
+            Button(String.localized("cancel"), role: .cancel) { noteToEdit = nil }
         } message: {
             Text(NoteStrings.replaceMessage)
         }
@@ -176,16 +177,18 @@ struct BibleReaderNotesDrawer: View {
         guard !draft.isBusy else {
             return
         }
-        if draft.hasTextChanges && draft.content != note.content {
-            noteToCopy = note
+        if draft.editingNote?.id == note.id {
+            isEditing = true
+        } else if draft.hasChanges {
+            noteToEdit = note
             showingReplaceConfirmation = true
         } else {
-            copyText(from: note)
+            edit(note)
         }
     }
 
-    private func copyText(from note: YouVersionNote) {
-        draft.copyText(from: note)
+    private func edit(_ note: YouVersionNote) {
+        draft.edit(noteID: note.id)
         isEditing = true
     }
 
@@ -219,10 +222,13 @@ private struct NoteHeader: View {
             : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         layout {
             HStack(alignment: .top) {
-                Image(systemName: "bookmark")
+                Image(decorative: "bookmark", bundle: .YouVersionUIBundle)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(NoteStrings.save).font(.subheadline.bold())
-                    Text(draft.referenceTitle).font(.caption)
+                    let referenceTitle = viewModel.noteEditorReferenceTitle(for: draft)
+                    if !referenceTitle.isEmpty {
+                        Text(referenceTitle).font(.caption)
+                    }
                 }
             }
             if !dynamicTypeSize.isAccessibilitySize {
@@ -231,12 +237,21 @@ private struct NoteHeader: View {
             Button {
                 draft.isPublic.toggle()
             } label: {
-                Label(draft.isPublic ? NoteStrings.publicVisibility : NoteStrings.privateVisibility, systemImage: draft.isPublic ? "eye" : "eye.slash")
-                    .font(.caption)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .padding(.horizontal, 10)
-                    .frame(minHeight: 44)
-                    .background(viewModel.readerSurfaceTertiaryColor, in: Capsule())
+                HStack(spacing: 4) {
+                    Image(systemName: draft.isPublic ? "eye" : "eye.slash")
+                        .accessibilityHidden(true)
+                    Text(draft.isPublic ? NoteStrings.publicVisibility : NoteStrings.privateVisibility)
+                }
+                .font(.caption)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(viewModel.readerCanvasPrimaryColor, in: Capsule())
+                .overlay {
+                    Capsule().strokeBorder(viewModel.readerBorderPrimaryColor, lineWidth: 1)
+                }
+                .frame(minHeight: 44, alignment: .top)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .disabled(draft.isBusy)
@@ -248,15 +263,11 @@ private struct NoteHeader: View {
 
 private struct SavedNoteCard: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(\.colorScheme) private var colorScheme
     let note: YouVersionNote
 
     private var referenceTitle: String {
-        guard let references = note.references else {
-            return ""
-        }
-        return references.map {
-            viewModel.version?.displayTitle(for: $0, includesVersionAbbreviation: false) ?? $0.passageId
-        }.joined(separator: String.localized("shareableVerse.referencesSeparator"))
+        viewModel.noteReferenceTitle(for: note.references ?? [])
     }
 
     var body: some View {
@@ -280,14 +291,14 @@ private struct SavedNoteCard: View {
                     .padding(12)
                     .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
             }
-            HStack {
+            HStack(spacing: 4) {
+                Spacer(minLength: 8)
                 if let color = note.color {
                     Circle()
-                        .fill(Color(hex: color))
+                        .fill(Color(hex: color).highlightFill(isDarkTheme: colorScheme == .dark))
                         .frame(width: 12, height: 12)
                         .accessibilityHidden(true)
                 }
-                Spacer(minLength: 8)
                 if let createdTime = note.createdTime {
                     BibleReaderNoteAge(createdTime: createdTime)
                 }

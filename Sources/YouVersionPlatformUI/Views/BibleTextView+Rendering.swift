@@ -242,7 +242,6 @@ extension BibleTextView {
             rendererPaintsHighlight = false
         }
         let resolvedTextColor = textOptions.textColor ?? .primary
-        let darkModeHighlightOpacity = 0.2
         let runs = string.runs[\.bibleTextCategory, \.bibleReference]
         for (runIndex, run) in runs.enumerated() {
             let category = run.0 // as? BibleTextCategory
@@ -255,7 +254,7 @@ extension BibleTextView {
             var usesWhiteHighlightText = false
             if let reference {
                 if let highlight = highlightFor(reference: reference) {
-                    highlightColor = highlight.opacity(darkMode ? darkModeHighlightOpacity : 1.0)
+                    highlightColor = highlight.highlightFill(isDarkTheme: darkMode)
                     usesWhiteHighlightText = !darkMode && highlight.isDarkHighlight
                     if usesWhiteHighlightText {
                         if category == .scripture || category == .verseLabel || category == .footnoteImage {
