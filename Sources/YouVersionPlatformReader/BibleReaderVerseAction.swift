@@ -47,7 +47,7 @@ public struct BibleReaderVerseAction: Identifiable, Sendable {
         action: @escaping @MainActor @Sendable ([BibleReference]) -> Void
     ) {
         self.id = id
-        self.kind = .custom
+        kind = .custom
         self.title = title
         self.image = image
         self.action = action
@@ -56,8 +56,8 @@ public struct BibleReaderVerseAction: Identifiable, Sendable {
     private init(id: String, kind: Kind) {
         self.id = id
         self.kind = kind
-        self.title = nil
-        self.image = nil
-        self.action = nil
+        title = nil
+        image = nil
+        action = nil
     }
 }

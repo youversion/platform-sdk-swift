@@ -12,6 +12,7 @@ final class BibleNoteIndicatorsModel {
     private let notesPage: @MainActor (BibleReference, String?) async throws -> YouVersionNoteCollection
     private(set) var loadFailed = false
 
+    /// Creates a chapter Notes loader with an access check and a paginated Notes API client.
     init(
         hasAccess: @escaping @MainActor () -> Bool = BibleNoteIndicatorsModel.hasReadAccess,
         notesPage: @escaping @MainActor (BibleReference, String?) async throws -> YouVersionNoteCollection = BibleNoteIndicatorsModel.defaultNotesPage
