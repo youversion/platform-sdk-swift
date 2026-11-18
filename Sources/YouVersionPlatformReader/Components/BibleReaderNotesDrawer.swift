@@ -219,7 +219,7 @@ private struct NoteHeader: View {
             : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         layout {
             HStack(alignment: .top) {
-                Image(systemName: "bookmark")
+                Image(decorative: "bookmark", bundle: .YouVersionUIBundle)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(NoteStrings.save).font(.subheadline.bold())
                     Text(draft.referenceTitle).font(.caption)
@@ -231,12 +231,21 @@ private struct NoteHeader: View {
             Button {
                 draft.isPublic.toggle()
             } label: {
-                Label(draft.isPublic ? NoteStrings.publicVisibility : NoteStrings.privateVisibility, systemImage: draft.isPublic ? "eye" : "eye.slash")
-                    .font(.caption)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .padding(.horizontal, 10)
-                    .frame(minHeight: 44)
-                    .background(viewModel.readerSurfaceTertiaryColor, in: Capsule())
+                HStack(spacing: 4) {
+                    Image(systemName: draft.isPublic ? "eye" : "eye.slash")
+                        .accessibilityHidden(true)
+                    Text(draft.isPublic ? NoteStrings.publicVisibility : NoteStrings.privateVisibility)
+                }
+                .font(.caption)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(viewModel.readerCanvasPrimaryColor, in: Capsule())
+                .overlay {
+                    Capsule().strokeBorder(viewModel.readerBorderPrimaryColor, lineWidth: 1)
+                }
+                .frame(minHeight: 44, alignment: .top)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .disabled(draft.isBusy)
