@@ -51,9 +51,9 @@ import Testing
             return (Data(), response)
         }
 
-        await #expect(throws: YouVersionAPIError.cannotDownload) {
+        await #expect {
             _ = try await YouVersionAPI.VOTD.verseOfTheDay(dayOfYear: 1, accessToken: "swift-test-suite", session: session)
-        }
+        } throws: { ($0 as? YouVersionAPIError) == .cannotDownload }
     }
 
     @MainActor
@@ -229,23 +229,18 @@ import Testing
         #expect(verses.isEmpty)
     }
 
-    @Test(arguments: [
-        (status: 401, expected: YouVersionAPIError.notPermitted),
-        (status: 403, expected: YouVersionAPIError.notPermitted),
-        (status: 400, expected: YouVersionAPIError.cannotDownload),
-        (status: 404, expected: YouVersionAPIError.cannotDownload),
-        (status: 429, expected: YouVersionAPIError.cannotDownload),
-        (status: 500, expected: YouVersionAPIError.cannotDownload)
-    ])
-    func yearRouteHTTPFailuresUseSharedErrorMapping(status: Int, expected: YouVersionAPIError) async {
+    @Test(arguments: [401, 403, 400, 404, 429, 500])
+    func yearRouteHTTPFailuresUseSharedErrorMapping(status: Int) async {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
         HTTPMocking.setHandler(token: token) { request in
             (Data(), HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
         }
 
-        await #expect(throws: expected) {
+        await #expect {
             try await YouVersionAPI.VOTD.versesOfTheDay(accessToken: "swift-test-suite", session: session)
+        } throws: { error in
+            HTTPStatusErrorTests.isExpectedError(error, forStatusCode: status)
         }
     }
 
