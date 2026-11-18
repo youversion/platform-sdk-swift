@@ -840,31 +840,31 @@
       "localizations" : {
         "ar" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "آية اليوم"
           }
         },
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Vers des Tages"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VOTD"
+            "value" : "Verse of the Day"
           }
         },
         "es-MX" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Versículo del día"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Verset du jour"
           }
         }

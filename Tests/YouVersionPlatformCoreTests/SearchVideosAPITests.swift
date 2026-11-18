@@ -95,6 +95,21 @@ extension ConfigurationStateTests {
             #expect(second.nextPageToken == nil)
         }
 
+        /// Treats HTTP 204 without a body as an empty final page.
+        @Test func noContentReturnsAnEmptyPage() async throws {
+            let (session, token) = HTTPMocking.makeSession()
+            defer { HTTPMocking.clear(token: token) }
+            HTTPMocking.setHandler(token: token) { @Sendable request in
+                (Data(), HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!)
+            }
+            let page = try await YouVersionAPI.Search.videos(query: "love", accessToken: "search-tests", session: session)
+            #expect(page.videos.isEmpty)
+            #expect(page.userIntent == nil)
+            #expect(page.didYouMean.isEmpty)
+            #expect(page.searchInsteadFor == nil)
+            #expect(page.nextPageToken == nil)
+        }
+
         /// Rejects invalid query, publisher and page-size parameters before networking.
         @Test(arguments: [
             (query: "", organizationIDs: [String](), pageSize: Int?.none),
@@ -129,11 +144,12 @@ extension ConfigurationStateTests {
         }
 
         /// Propagates malformed video-search responses instead of returning an empty page.
-        @Test func malformedResponseIsNotSilentlyAnEmptyPage() async {
+        @Test(arguments: ["", "{}"])
+        func malformedResponseIsNotSilentlyAnEmptyPage(body: String) async {
             let (session, token) = HTTPMocking.makeSession()
             defer { HTTPMocking.clear(token: token) }
             HTTPMocking.setHandler(token: token) { @Sendable request in
-                (Data("{}".utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+                (Data(body.utf8), HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
             }
             await #expect(throws: DecodingError.self) {
                 try await YouVersionAPI.Search.videos(query: "love", accessToken: "search-tests", session: session)
