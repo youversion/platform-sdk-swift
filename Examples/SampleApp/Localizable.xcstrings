@@ -42,31 +42,31 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "سجّل الدخول لعرض تظليلات YouVersion الخاصة بك في هذا التطبيق النموذجي."
+            "value" : "سجّل الدخول لمنح هذا التطبيق النموذجي صلاحية الوصول إلى تظليلات YouVersion وملاحظاتك."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Melde dich an, um deine YouVersion-Markierungen in dieser Beispiel-App zu sehen."
+            "value" : "Melde dich an, um dieser Beispiel-App Zugriff auf deine YouVersion-Markierungen und Notizen zu geben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sign in to see your YouVersion highlights in this Sample App."
+            "value" : "Sign in to give this Sample App access to your YouVersion highlights and notes."
           }
         },
         "es-MX" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inicia sesión para ver tus subrayados de YouVersion en esta app de ejemplo."
+            "value" : "Inicia sesión para dar a esta app de ejemplo acceso a tus subrayados y notas de YouVersion."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connectez-vous pour voir vos surlignages YouVersion dans cette application exemple."
+            "value" : "Connectez-vous pour donner à cette application exemple l'accès à vos surlignages et notes YouVersion."
           }
         }
       }
