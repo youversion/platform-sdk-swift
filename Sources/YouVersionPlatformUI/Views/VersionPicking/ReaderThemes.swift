@@ -123,8 +123,8 @@ extension ReaderThemeProviding {
 
     public var readerWordsOfChristColor: Color {
         colorForScheme(
-            light: Color(hex: "#ff3d4d"),
-            dark: Color(hex: "#F04C59")
+            light: Color(hex: "#94000C"),
+            dark: Color(hex: "#E4BFC2")
         )
     }
 }
