@@ -257,6 +257,7 @@ private struct NoteHeader: View {
 
 private struct SavedNoteCard: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(\.colorScheme) private var colorScheme
     let note: YouVersionNote
 
     private var referenceTitle: String {
@@ -289,14 +290,14 @@ private struct SavedNoteCard: View {
                     .padding(12)
                     .background(viewModel.readerSurfaceTertiaryColor, in: RoundedRectangle(cornerRadius: 8))
             }
-            HStack {
+            HStack(spacing: 4) {
+                Spacer(minLength: 8)
                 if let color = note.color {
                     Circle()
-                        .fill(Color(hex: color))
+                        .fill(Color(hex: color).highlightFill(isDarkTheme: colorScheme == .dark))
                         .frame(width: 12, height: 12)
                         .accessibilityHidden(true)
                 }
-                Spacer(minLength: 8)
                 if let createdTime = note.createdTime {
                     BibleReaderNoteAge(createdTime: createdTime)
                 }

@@ -18,12 +18,17 @@ struct BibleReaderHighlightColors: View {
     let onAdd: (String) -> Void
 
     var body: some View {
+        let extraHexes = selectedHexes.filter { !Self.palette.contains($0) }
         HStack(spacing: 0) {
-            ForEach(selectedHexes, id: \.self) { hex in
-                HighlightChip(hex: hex, isSelected: true) { onRemove(hex) }
-            }
-            ForEach(availableHexes, id: \.self) { hex in
-                HighlightChip(hex: hex, isSelected: false) { onAdd(hex) }
+            ForEach(Self.palette + extraHexes, id: \.self) { hex in
+                let isSelected = !availableHexes.contains(hex)
+                HighlightChip(hex: hex, isSelected: isSelected) {
+                    if isSelected {
+                        onRemove(hex)
+                    } else {
+                        onAdd(hex)
+                    }
+                }
             }
         }
         .padding(.horizontal, hasBackground ? 12 : 0)
@@ -34,12 +39,13 @@ struct BibleReaderHighlightColors: View {
 
 private struct HighlightChip: View {
     @Environment(BibleReaderViewModel.self) private var viewModel
+    @Environment(\.colorScheme) private var colorScheme
     let hex: String
     let isSelected: Bool
     let action: () -> Void
 
     private var color: Color { Color(hex: hex) }
-    private var isDarkTheme: Bool { viewModel.colorTheme?.colorScheme == .dark }
+    private var isDarkTheme: Bool { colorScheme == .dark }
     private var colorName: String {
 #if canImport(UIKit)
         UIColor(color).accessibilityName
@@ -53,7 +59,10 @@ private struct HighlightChip: View {
     var body: some View {
         Button(action: action) {
             Circle()
-                .fill(color.opacity(isDarkTheme ? 0.2 : 1))
+                .fill(viewModel.readerCanvasPrimaryColor)
+                .overlay {
+                    Circle().fill(color.highlightFill(isDarkTheme: isDarkTheme))
+                }
                 .overlay(Circle().strokeBorder(isDarkTheme ? .white.opacity(0.2) : .black.opacity(0.2), lineWidth: 1))
                 .frame(width: 36, height: 36)
                 .overlay {

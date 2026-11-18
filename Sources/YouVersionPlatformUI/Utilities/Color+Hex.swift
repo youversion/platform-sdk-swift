@@ -97,6 +97,11 @@ extension Color {
         }
     }
 
+    /// Returns the highlight fill to composite over the reading surface for the active theme.
+    package func highlightFill(isDarkTheme: Bool) -> Color {
+        opacity(isDarkTheme ? 0.2 : 1)
+    }
+
     /// Whether the color is dark enough that text over it should be white.
     ///
     /// Translucent colors are blended over a white page before their luma is measured.
