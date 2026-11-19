@@ -143,6 +143,7 @@ public struct BibleTextView: View {
             fontSize: textOptions.fontSize,
             fontFamily: textOptions.fontFamily,
             textColor: textOptions.textColor,
+            wordsOfChristColor: textOptions.wordsOfChristColor,
             sourceHTML: sourceHTML
         )) {
             await loadBlocks()
@@ -333,6 +334,7 @@ public struct BibleTextView: View {
         let fontSize: CGFloat
         let fontFamily: String
         let textColor: Color?
+        let wordsOfChristColor: Color
         let sourceHTML: String?
     }
 

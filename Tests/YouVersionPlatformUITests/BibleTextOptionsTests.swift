@@ -1,8 +1,5 @@
 import SwiftUI
 import Testing
-#if canImport(UIKit)
-import UIKit
-#endif
 @testable import YouVersionPlatformUI
 
 @MainActor
@@ -13,21 +10,16 @@ import UIKit
 
     @Test(arguments: ReaderTheme.allThemes)
     func readerWordsOfChristColorFollowsReaderTheme(theme: ReaderTheme) {
-        let expectedHex = theme.colorScheme == .dark ? "E4BFC2" : "94000C"
-        #expect(ThemeProvider(colorTheme: theme).readerWordsOfChristColor.hexString == expectedHex)
+        let expected = theme.colorScheme == .dark ? Color(hex: "#E4BFC2") : Color(hex: "#94000C")
+        #expect(ThemeProvider(colorTheme: theme).readerWordsOfChristColor == expected)
     }
 
     @Test func readerWordsOfChristColorWithoutThemeIsLight() {
-        #expect(ThemeProvider(colorTheme: nil).readerWordsOfChristColor.hexString == "94000C")
+        #expect(ThemeProvider(colorTheme: nil).readerWordsOfChristColor == Color(hex: "#94000C"))
     }
 
-#if canImport(UIKit)
-    // The SDK picks colors from the reader theme, not from the system appearance.
-    @Test(arguments: [UIUserInterfaceStyle.light, .dark])
-    func defaultWordsOfChristColorIgnoresSystemAppearance(style: UIUserInterfaceStyle) {
-        let color = UIColor(BibleTextOptions().wordsOfChristColor)
-            .resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
-        #expect(Color(uiColor: color).hexString == "94000C")
+    // A fixed color: the SDK picks colors from the reader theme, not from the system appearance.
+    @Test func defaultWordsOfChristColorIsLightThemeRed() {
+        #expect(BibleTextOptions().wordsOfChristColor == Color(hex: "#94000C"))
     }
-#endif
 }
