@@ -358,7 +358,7 @@ public struct BibleTextOptions {
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
                 verseNumberColor: Color? = nil,
-                wordsOfChristColor: Color = defaultWordsOfChristColor,
+                wordsOfChristColor: Color = ReaderTheme.theme().wordsOfChristColor,
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
@@ -378,11 +378,6 @@ public struct BibleTextOptions {
         self.verseSelectionStyle = verseSelectionStyle
     }
 
-    /// YouVersion red: #94000C in light mode and #E4BFC2 in dark mode.
-    @usableFromInline static var defaultWordsOfChristColor: Color {
-        Color("wordsOfChrist", bundle: .module)
-    }
-
     @available(*, deprecated, renamed: "verseNumberColor")
     public var verseNumColor: Color? { verseNumberColor }
 
@@ -397,7 +392,7 @@ public struct BibleTextOptions {
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
                 verseNumColor: Color? = nil,
-                wocColor: Color = defaultWordsOfChristColor,
+                wocColor: Color = ReaderTheme.theme().wordsOfChristColor,
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,

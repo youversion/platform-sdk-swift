@@ -71,6 +71,7 @@ public struct VotdView: View {
             if let reference {
                 let textOptions = BibleTextOptions(
                     fontSize: 24,
+                    wordsOfChristColor: colorScheme.readerTheme.wordsOfChristColor,
                     renderHeadlines: false,
                     renderVerseNumbers: false
                 )

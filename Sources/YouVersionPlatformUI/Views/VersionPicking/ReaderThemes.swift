@@ -24,6 +24,11 @@ public struct ReaderTheme: Identifiable, Equatable, Sendable {
     public static func theme(withId: Int? = nil) -> ReaderTheme {
         allThemes.first(where: { $0.id == withId }) ?? allThemes.first!
     }
+
+    /// Words of Jesus red, matching the other YouVersion SDKs.
+    @usableFromInline var wordsOfChristColor: Color {
+        colorScheme == .dark ? Color(hex: "#E4BFC2") : Color(hex: "#94000C")
+    }
 }
 
 @MainActor
@@ -122,10 +127,7 @@ extension ReaderThemeProviding {
     }
 
     public var readerWordsOfChristColor: Color {
-        colorForScheme(
-            light: Color(hex: "#94000C"),
-            dark: Color(hex: "#E4BFC2")
-        )
+        (colorTheme ?? ReaderTheme.theme()).wordsOfChristColor
     }
 }
 
