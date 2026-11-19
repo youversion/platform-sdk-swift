@@ -3,6 +3,7 @@ import YouVersionPlatform
 
 struct ContentCollectionsView: View {
     let language: ContentLanguage
+    @Environment(\.locale) private var locale
     @State private var collections: [YouVersionVideoPlaylist] = []
     @State private var errorMessage: String?
     @State private var isLoading = true
@@ -33,7 +34,7 @@ struct ContentCollectionsView: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
                                 ContentCollectionThumbnailView(videoID: featured.videoIDs?.first, language: language, showsPlayIndicator: true)
-                                Text(featured.title ?? "Collection").font(.headline)
+                                Text(featured.title ?? String(localized: "Collection", locale: locale)).font(.headline)
                                 if let total = featured.total {
                                     Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
                                 }
@@ -50,7 +51,7 @@ struct ContentCollectionsView: View {
                                 ContentCollectionThumbnailView(videoID: collection.videoIDs?.first, language: language)
                                     .frame(width: 112)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(collection.title ?? "Collection").font(.headline)
+                                    Text(collection.title ?? String(localized: "Collection", locale: locale)).font(.headline)
                                     if let total = collection.total {
                                         Text("\(total) videos").font(.caption).foregroundStyle(.secondary)
                                     }

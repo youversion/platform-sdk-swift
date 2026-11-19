@@ -25,11 +25,11 @@ struct ContentCollectionView: View {
                                 }
                             }
                     }
-                    .accessibilityLabel("Play \(first.title ?? "video")")
+                    .accessibilityLabel("Play \(first.title ?? String(localized: "video", locale: locale))")
                 } else {
                     ContentVideoThumbnailView(videoID: collection.videoIDs?.first, language: language)
                 }
-                Text(collection.title ?? "Collection").font(.title2.bold())
+                Text(collection.title ?? String(localized: "Collection", locale: locale)).font(.title2.bold())
                 if let description = collection.description, !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text(description)
                         .font(.subheadline)
@@ -37,13 +37,13 @@ struct ContentCollectionView: View {
                 }
                 HStack(alignment: .top, spacing: 12) {
                     if let total = collection.total {
-                        ContentMetadataView(title: "Videos", value: String(total))
+                        ContentMetadataView(title: "Videos", value: total.formatted(.number.locale(locale)))
                     }
                     if let duration {
                         ContentMetadataView(title: "Duration", value: duration)
                     }
                     if !languages.isEmpty {
-                        ContentMetadataView(title: "Language", value: languages.joined(separator: ", "))
+                        ContentMetadataView(title: "Language", value: languages.formatted(.list(type: .and).locale(locale)))
                     }
                 }
                 Divider()
@@ -68,7 +68,7 @@ struct ContentCollectionView: View {
                                             .padding(6)
                                     }
                                 }
-                            Text(video.title ?? "Video").font(.headline)
+                            Text(video.title ?? String(localized: "Video", locale: locale)).font(.headline)
                             Spacer()
                         }
                     }
@@ -144,7 +144,7 @@ struct ContentCollectionView: View {
 }
 
 private struct ContentMetadataView: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
 
     var body: some View {
