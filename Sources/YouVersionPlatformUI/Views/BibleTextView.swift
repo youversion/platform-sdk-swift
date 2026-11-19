@@ -143,6 +143,7 @@ public struct BibleTextView: View {
             fontSize: textOptions.fontSize,
             fontFamily: textOptions.fontFamily,
             textColor: textOptions.textColor,
+            wordsOfChristColor: textOptions.wordsOfChristColor,
             sourceHTML: sourceHTML
         )) {
             await loadBlocks()
@@ -333,6 +334,7 @@ public struct BibleTextView: View {
         let fontSize: CGFloat
         let fontFamily: String
         let textColor: Color?
+        let wordsOfChristColor: Color
         let sourceHTML: String?
     }
 
@@ -358,7 +360,7 @@ public struct BibleTextOptions {
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
                 verseNumberColor: Color? = nil,
-                wordsOfChristColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),   // YouVersion red. F04C59 in dark mode.
+                wordsOfChristColor: Color = ReaderTheme.theme().wordsOfChristColor,
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,
@@ -392,7 +394,7 @@ public struct BibleTextOptions {
                 paragraphSpacing: CGFloat? = nil,
                 textColor: Color? = nil,
                 verseNumColor: Color? = nil,
-                wocColor: Color = Color(red: 1, green: 0x3d / 255.0, blue: 0x4d / 255.0),
+                wocColor: Color = ReaderTheme.theme().wordsOfChristColor,
                 renderHeadlines: Bool = true,
                 renderVerseNumbers: Bool = true,
                 footnoteMode: BibleTextFootnoteMode = .none,

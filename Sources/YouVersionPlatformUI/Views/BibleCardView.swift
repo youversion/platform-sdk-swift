@@ -7,7 +7,8 @@ public struct BibleCardView: View {
     @State private var reference: BibleReference
     @State private var version: BibleVersion?
     @State private var isReferenceUnavailable = false
-    private let textOptions: BibleTextOptions
+    private let fontFamily: String
+    private let fontSize: CGFloat
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingCopyrightSheet = false
     private let showVersionPicker: Bool
@@ -22,12 +23,8 @@ public struct BibleCardView: View {
     ) {
         self.reference = reference
         self.version = nil
-        self.textOptions = BibleTextOptions(
-            fontFamily: fontFamily,
-            fontSize: fontSize,
-            textColor: Color.primary,
-            verseNumberColor: Color.secondary
-        )
+        self.fontFamily = fontFamily
+        self.fontSize = fontSize
         self.showVersionPicker = showVersionPicker
         self.onVersionChange = onVersionChange
     }
@@ -40,6 +37,16 @@ public struct BibleCardView: View {
         onVersionChange?(version)
     }
     
+    private var textOptions: BibleTextOptions {
+        BibleTextOptions(
+            fontFamily: fontFamily,
+            fontSize: fontSize,
+            textColor: Color.primary,
+            verseNumberColor: Color.secondary,
+            wordsOfChristColor: colorScheme.readerTheme.wordsOfChristColor
+        )
+    }
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
