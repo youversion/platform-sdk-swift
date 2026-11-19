@@ -314,7 +314,7 @@ private struct SavedNoteCard: View {
     }
 
     private var title: some View {
-        Text(NoteStrings.addedNote + " " + referenceTitle)
+        Text(String(format: NoteStrings.addedNote, referenceTitle))
             .font(.subheadline)
             .multilineTextAlignment(.leading)
     }
