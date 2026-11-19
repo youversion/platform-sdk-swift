@@ -32,29 +32,42 @@ public enum YouVersionAPI {
         return await accessTokenProvider.accessToken(session: session)
     }
 
-    static func data(at url: URL, accessToken: String?, session: URLSession) async throws -> Data {
-        try await responseData(at: url, accessToken: accessToken, session: session).value
+    static func data(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession,
+        headers: [String: String] = [:]
+    ) async throws -> Data {
+        try await responseData(at: url, accessToken: accessToken, session: session, headers: headers).value
     }
 
-    static func dataIfPresent(at url: URL, accessToken: String?, session: URLSession) async throws -> Data? {
+    static func dataIfPresent(
+        at url: URL,
+        accessToken: String?,
+        session: URLSession,
+        headers: [String: String] = [:]
+    ) async throws -> Data? {
         try await response(
             at: url,
             accessToken: accessToken,
             session: session,
-            allowsNoContent: true
+            allowsNoContent: true,
+            headers: headers
         ).data
     }
 
     static func responseData(
         at url: URL,
         accessToken: String?,
-        session: URLSession
+        session: URLSession,
+        headers: [String: String] = [:]
     ) async throws -> BibleContentResponse<Data> {
         let response = try await response(
             at: url,
             accessToken: accessToken,
             session: session,
-            allowsNoContent: false
+            allowsNoContent: false,
+            headers: headers
         )
         guard let data = response.data else {
             throw YouVersionAPIError.cannotDownload
@@ -66,13 +79,20 @@ public enum YouVersionAPI {
         )
     }
 
+    // TODO: Remove temporary playlist HTTP 204 diagnostics after YPE-6461 verification.
     private static func response(
         at url: URL,
         accessToken: String?,
         session: URLSession,
-        allowsNoContent: Bool
+        allowsNoContent: Bool,
+        headers: [String: String]
     ) async throws -> (data: Data?, httpResponse: HTTPURLResponse) {
-        let request = urlRequest(with: url, accessToken: accessToken, session: session)
+        var request = urlRequest(with: url, accessToken: accessToken, session: session)
+        let isPlaylistCollection = ["/v1/organizations/", "/v1-beta/organizations/"].contains(where: url.path.hasPrefix)
+            && url.path.hasSuffix("/playlists")
+        for (field, value) in headers {
+            request.setValue(value, forHTTPHeaderField: field)
+        }
         let (data, response) = try await YouVersionAPI.response(for: request, session: session)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -81,6 +101,14 @@ public enum YouVersionAPI {
         }
 
         if httpResponse.statusCode == 204 && allowsNoContent {
+            if isPlaylistCollection {
+                YouVersionPlatformLogger.error(
+                    "Playlist HTTP 204: request URL=\(url.absoluteString); response URL=\(httpResponse.url?.absoluteString ?? "nil"); "
+                        + "response headers=\(httpResponse.allHeaderFields); response bytes=\(data.count); "
+                        + "response body=\(String(data: data, encoding: .utf8) ?? "base64: " + data.base64EncodedString())",
+                    category: "API"
+                )
+            }
             return (nil, httpResponse)
         }
 

@@ -48,24 +48,22 @@ struct NavigateView: View {
     ]
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach(examples, id: \.title) { example in
-                        Button(example.title) {
-                            if example.shouldFocus, #available(iOS 18.0, *) {
-                                navigation.focusReference(example.reference)
-                            } else {
-                                navigation.request(example.reference, showsFullChapter: example.showsFullChapter)
-                            }
-                            onNavigate()
+        List {
+            Section {
+                ForEach(examples, id: \.title) { example in
+                    Button(example.title) {
+                        if example.shouldFocus, #available(iOS 18.0, *) {
+                            navigation.focusReference(example.reference)
+                        } else {
+                            navigation.request(example.reference, showsFullChapter: example.showsFullChapter)
                         }
+                        onNavigate()
                     }
-                } footer: {
-                    Text("navigate.footer")
                 }
+            } footer: {
+                Text("navigate.footer")
             }
-            .navigationTitle("navigate.title")
         }
+        .navigationTitle("navigate.title")
     }
 }

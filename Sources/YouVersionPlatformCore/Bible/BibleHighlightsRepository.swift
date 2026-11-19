@@ -17,7 +17,10 @@ public struct BibleHighlightsAPI: BibleHighlightsAPIProtocol {
     public init() {}
     
     public func highlights(bibleId: Int, passageId: String) async throws -> [HighlightResponse] {
-        try await YouVersionAPI.Highlights.highlights(bibleId: bibleId, passageId: passageId)
+        guard let highlights = try await YouVersionAPI.Highlights.chapterHighlights(bibleId: bibleId, passageId: passageId) else {
+            throw URLError(.badServerResponse)
+        }
+        return highlights
     }
     
     public func createHighlight(bibleId: Int, passageId: String, color: String) async throws -> Bool {
@@ -97,6 +100,7 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
     
     // MARK: - Public Methods
     
+    /// Returns successful chapter snapshots. A failed chapter is omitted, and an empty successful chapter has an empty array.
     public func highlights(for references: [BibleReference]) async throws -> [String: [BibleHighlight]] {
         var result: [String: [BibleHighlight]] = [:]
 
@@ -115,7 +119,6 @@ public class BibleHighlightsRepository: BibleHighlightsPendingOperationsReportin
                     "Failed to fetch highlights for chapter \(chapterKey): \(error)",
                     category: "Highlights"
                 )
-                result[chapterKey] = []
             }
         }
 

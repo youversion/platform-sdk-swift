@@ -59,6 +59,16 @@ public extension YouVersionAPI {
             accessToken providedToken: String? = nil,
             session: URLSession = .shared
         ) async throws -> [HighlightResponse] {
+            try await chapterHighlights(bibleId: bibleId, passageId: passageId, accessToken: providedToken, session: session) ?? []
+        }
+
+        /// Fetches a chapter snapshot. Returns nil for HTTP failures and an empty array for an empty chapter.
+        static func chapterHighlights(
+            bibleId: Int,
+            passageId: String,
+            accessToken providedToken: String? = nil,
+            session: URLSession = .shared
+        ) async throws -> [HighlightResponse]? {
             guard let accessToken = await YouVersionAPI.accessToken(providedToken: providedToken, session: session) else {
                 throw YouVersionAPIError.missingAuthentication
             }
@@ -79,18 +89,13 @@ public extension YouVersionAPI {
                 throw URLError(.badServerResponse)
             }
 
-            if httpResponse.statusCode == 401 {
-                YouVersionPlatformLogger.error("highlights: error 401: unauthorized. Check your access token", category: "Highlights")
-                return []
-            }
-
             if httpResponse.statusCode == 204 {
                 return []
             }
 
             guard httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 else {
                 YouVersionPlatformLogger.error("highlights: unexpected status code \(httpResponse.statusCode)", category: "Highlights")
-                return []
+                return nil
             }
 
             guard let decodedResponse = try? JSONDecoder().decode(HighlightPaginatedResponse.self, from: data) else {

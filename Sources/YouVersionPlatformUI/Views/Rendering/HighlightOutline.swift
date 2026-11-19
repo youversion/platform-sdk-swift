@@ -88,15 +88,17 @@ enum HighlightOutline {
     ///   - padding: The distance an outline extends past the leading and trailing edges of its runs,
     ///     except where it meets a highlight of another style.
     ///   - cornerRadius: The radius of the outline's rounded corners.
+    ///   - lineBands: Previously calculated bands shared with other backgrounds; nil calculates them here.
     /// - Returns: For each style, the outline to fill and the part of it that covers dimmed runs.
     static func paths<Style: Equatable>(
         for blocks: [[HighlightLine<Style>]],
         outerPadding: CGFloat,
         padding: CGFloat,
-        cornerRadius: CGFloat
+        cornerRadius: CGFloat,
+        lineBands: [[ClosedRange<CGFloat>]]? = nil
     ) -> [(style: Style, path: Path, dimmedArea: Path)] {
         let lines = Array(blocks.joined())
-        let bands = Array(bands(for: blocks, outerPadding: outerPadding).joined())
+        let bands = Array((lineBands ?? bands(for: blocks, outerPadding: outerPadding)).joined())
         return spansByStyle(lines: lines.map(\.runs), bands: bands).map { highlight in
             let chains = chains(highlight.lines, padding: padding).map(flushAligned)
             let outlines = chains.map { self.path(of: corners(of: $0, padding: padding), cornerRadius: cornerRadius) }
