@@ -9,6 +9,27 @@ import Testing
     private typealias Support = BibleReaderViewModelTestSupport
     private static let versionId = 3034
 
+    @Test(arguments: ["#dfdcff", "#bbf4ff", "#80DFDCFF"])
+    func savedPaletteColorsReuseTheirOriginalSwatch(savedHex: String) throws {
+        let palette = BibleReaderHighlightColors.palette
+        let paletteRGB = palette.compactMap(Color.rgbValue(fromHex:))
+        let selectedRGB = try #require(Color.rgbValue(fromHex: savedHex))
+        let available = palette.filter { Color.rgbValue(fromHex: $0) != selectedRGB }
+        let swatches = BibleReaderHighlightColors.swatches(selectedHexes: [savedHex], availableHexes: available)
+
+        #expect(swatches.map(\.id) == paletteRGB)
+        #expect(swatches.filter(\.isSelected).map(\.hex) == [savedHex])
+    }
+
+    @Test
+    func equivalentLegacyColorsShareOneSwatch() {
+        let palette = BibleReaderHighlightColors.palette
+        let swatches = BibleReaderHighlightColors.swatches(selectedHexes: ["#abc", "aabbcc"], availableHexes: palette)
+
+        #expect(swatches.count == palette.count + 1)
+        #expect(swatches.filter(\.isSelected).map(\.hex) == ["#abc"])
+    }
+
     @Test
     func highlightHexesOnSelectedVersesDedupesIgnoringCase() {
         let viewModel = BibleReaderViewModelTestSupport.makeViewModel(
@@ -98,16 +119,16 @@ import Testing
         let firstReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 16)
         let secondReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 17)
         let unselectedReference = BibleReference(versionId: Self.versionId, bookId: "JHN", chapter: 3, verse: 18)
-        let selectedColor = Color(hex: "#DDAAFF")
+        let selectedHex = "#DDAAFF"
         viewModel.selectedVerses = [firstReference, secondReference]
         viewModel.highlightsViewModel.addHighlights(references: [firstReference], color: "#ddaaff")
         viewModel.highlightsViewModel.addHighlights(references: [unselectedReference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor) == false)
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: selectedHex) == false)
 
         viewModel.highlightsViewModel.addHighlights(references: [secondReference], color: "ddaaff")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(selectedColor))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: selectedHex))
     }
 
     @Test
@@ -163,7 +184,7 @@ import Testing
         #expect(highlightsRepository.queuedOperations.first?.operationType == .add)
 
         viewModel.selectedVerses = [firstReference, secondReference]
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(color))
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: "#DDAAFF"))
 
         viewModel.removeVerseColor(color)
 
@@ -201,7 +222,7 @@ import Testing
 
 #if !canImport(UIKit)
     @Test
-    func highlightColorActionsNoOpWhenColorCannotBeConverted() {
+    func hexSelectionWorksEvenWhenColorActionsCannotConvertSwiftUIColor() {
         Support.clearReaderDefaults()
         let highlightsRepository = MockBibleHighlightsRepository()
         let viewModel = Support.makeViewModel(highlightsRepository: highlightsRepository)
@@ -210,7 +231,7 @@ import Testing
         viewModel.selectedVerses = [reference]
         viewModel.highlightsViewModel.addHighlights(references: [reference], color: "DDAAFF")
 
-        #expect(viewModel.isColorPresentOnAllSelectedVerses(color) == false)
+        #expect(viewModel.isColorPresentOnAllSelectedVerses(hex: "#DDAAFF"))
 
         viewModel.addVerseColor(color)
         viewModel.removeVerseColor(color)

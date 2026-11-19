@@ -139,7 +139,8 @@ extension BibleVersionsViewModelTests {
         let stub = PermittedVersionsStub(result: .failure(URLError(.notConnectedToInternet)))
         let viewModel = makeViewModel(fetchingWith: stub)
 
-        let versions = await viewModel.permittedVersions()
+        let startTime = Date()
+        let versions = await viewModel.permittedVersions(currentDate: startTime)
 
         #expect(versions == nil)
         #expect(viewModel.cachedPermittedVersions == nil)
@@ -151,7 +152,7 @@ extension BibleVersionsViewModelTests {
         _ = await viewModel.permittedVersions()
         viewModel.openVersionsStack(currentBibleLanguage: "en")
         viewModel.versionsStackPush(to: .moreVersions)
-        _ = await viewModel.permittedVersions(currentDate: Date().addingTimeInterval(59))
+        _ = await viewModel.permittedVersions(currentDate: startTime.addingTimeInterval(59))
         await settle()
 
         #expect(stub.callCount == 1)

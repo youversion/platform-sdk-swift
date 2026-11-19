@@ -152,6 +152,26 @@ extension URLRequest {
     }
     
     @MainActor
+    @Test(arguments: [204, 401, 503])
+    func chapterSnapshotDistinguishesEmptySuccessFromHTTPFailure(statusCode: Int) async throws {
+        let (session, token) = HTTPMocking.makeSession()
+        defer { HTTPMocking.clear(token: token) }
+        HTTPMocking.setHandler(token: token) { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+            return (Data(), response)
+        }
+
+        let snapshot = try await YouVersionAPI.Highlights.chapterHighlights(
+            bibleId: 1, passageId: "GEN.1", accessToken: "swift-test-suite", session: session
+        )
+        if statusCode == 204 {
+            #expect(snapshot?.isEmpty == true)
+        } else {
+            #expect(snapshot == nil)
+        }
+    }
+
+    @MainActor
     @Test func testDeleteHighlightSuccess() async throws {
         let (session, token) = HTTPMocking.makeSession()
         defer { HTTPMocking.clear(token: token) }
