@@ -74,7 +74,7 @@ struct BibleVersionDownloadView: View {
                 viewModel.showVersionInfoSharingAlert = false
                 openURL(URL(string: "https://bible.com/privacy")!)
             }
-            Button(String.localized("versionInfo.sharingOKButton")) {
+            Button(String.localized("ok")) {
                 viewModel.showVersionInfoSharingAlert = false
             }
         } message: {
