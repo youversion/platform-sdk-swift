@@ -26,7 +26,7 @@ struct BibleReaderFontListView: View {
 
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text(String.localized("fontList.suggested"))
+                    Text(String.localized("suggested"))
                         .font(YouVersionFonts.headerMedium)
                     fontList(for: ReaderFonts.suggestedFamilies)
                     Divider()

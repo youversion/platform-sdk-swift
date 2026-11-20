@@ -65,6 +65,14 @@ import YouVersionPlatformUI
             localizedString(forKey: "ok", languageCode: "en") == "OK"
         )
     }
+
+    /// Confirms the shared suggested key resolves in English.
+    @Test
+    func genericSuggestedIsTranslatedInEnglish() {
+        #expect(
+            localizedString(forKey: "suggested", languageCode: "en") == "Suggested"
+        )
+    }
 }
 
 private func localizedString(
