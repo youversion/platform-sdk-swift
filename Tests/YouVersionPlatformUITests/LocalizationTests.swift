@@ -66,6 +66,7 @@ import YouVersionPlatformUI
         )
     }
 
+    /// Confirms the shared suggested key resolves in English.
     @Test
     func genericSuggestedIsTranslatedInEnglish() {
         #expect(
